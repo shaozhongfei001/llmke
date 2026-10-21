@@ -139,3 +139,18 @@ def test_support_gate_rejects_malformed_claims():
                 [{"claim_id": "c1", "evidence_ids": [123]}]):
         with pytest.raises(EvidenceError):
             SupportGate("block").partition(bad)
+
+
+def test_contract_validator_rejects_invalid_object():
+    """证明校验器不是空转：手工构造一个违反契约的对象必须被拒。"""
+    ev = build_document_evidence(DOC, src(), "ev-1")
+    ev["source_ref"]["offset"]["unit"] = "utf16"      # 违反 const
+    with pytest.raises(EvidenceError) as e:
+        validate_evidence(ev, ROOT)
+    assert e.value.code == "CONTRACT_VIOLATION"
+
+    ev2 = build_document_evidence(DOC, src(), "ev-1")
+    ev2["extra"] = 1                                   # 违反 additionalProperties=false
+    with pytest.raises(EvidenceError) as e2:
+        validate_evidence(ev2, ROOT)
+    assert e2.value.code == "CONTRACT_VIOLATION"

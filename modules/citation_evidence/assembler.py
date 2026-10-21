@@ -107,12 +107,38 @@ def _load_core(repo_root: Path) -> dict:
 
 
 def validate_evidence(evidence: dict, repo_root: Path | str) -> None:
-    """用冻结契约本体校验；失败抛 EvidenceError，便于 fail-closed 集成。"""
-    from jsonschema import Draft202012Validator, RefResolver
+    """用冻结契约本体校验；失败抛 EvidenceError，便于 fail-closed 集成。
+
+    实现说明（2026-10-21）：原先用已废弃的 `jsonschema.RefResolver`，
+    在 jsonschema ≥4.18 会产生 DeprecationWarning 且未来会移除。
+    改为 `referencing` 显式注册契约文档，并在 `$ref` 上带基 URI 解析——
+    语义等价，且不再依赖已弃用 API。
+    """
+    from jsonschema import Draft202012Validator
+    from referencing import Registry
+    from referencing.jsonschema import DRAFT202012
 
     core = _load_core(Path(repo_root))
-    resolver = RefResolver.from_schema(core)
-    v = Draft202012Validator({"$ref": "#/$defs/DocumentEvidence"}, resolver=resolver)
+
+    # 契约内部用的是「文件名相对引用」（如 llmke-core.json#/$defs/SourceRef）。
+    # 这些引用全部指向同一份文档，因此归一化为文档内锚点，再用单一基 URI 解析。
+    def _inline(node):
+        if isinstance(node, dict):
+            ref = node.get("$ref")
+            if isinstance(ref, str) and ref.startswith("llmke-core.json#"):
+                node["$ref"] = ref[len("llmke-core.json"):]
+            for v in node.values():
+                _inline(v)
+        elif isinstance(node, list):
+            for v in node:
+                _inline(v)
+    _inline(core)
+
+    base_uri = "urn:llmke:core"
+    registry = Registry().with_resources(
+        [(base_uri, DRAFT202012.create_resource(core))]
+    )
+    v = Draft202012Validator({"$ref": f"{base_uri}#/$defs/DocumentEvidence"}, registry=registry)
     errs = sorted(v.iter_errors(evidence), key=lambda e: list(e.path))
     if errs:
         first = errs[0]
