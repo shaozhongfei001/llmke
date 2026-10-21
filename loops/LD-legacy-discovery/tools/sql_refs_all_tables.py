@@ -21,6 +21,16 @@ from db_mapper_columns import find, columns_from_mapper, entity_info  # noqa: E4
 import yaml  # noqa: E402
 
 
+COMMENT_PATTERNS = [re.compile(r"<!--.*?-->", re.S), re.compile(r"/\*.*?\*/", re.S),
+                    re.compile(r"//[^\n]*")]
+
+
+def strip_comments(text: str) -> str:
+    for pat in COMMENT_PATTERNS:
+        text = pat.sub("", text)
+    return text
+
+
 def norm(name: str) -> str:
     return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
 
@@ -114,6 +124,7 @@ def main() -> int:
 
     # 2) 单次遍历：收集每个表在 SQL 中被引用的列
     referenced = {t: set() for t in tables}
+    comment_only = {t: set() for t in tables}
     files = [p for p in src.rglob("*") if p.is_file()
              and p.suffix in (".xml", ".java", ".sql") and "/.git/" not in p.as_posix()]
     scanned = 0
@@ -128,10 +139,14 @@ def main() -> int:
         for st in stmts:
             body = st["text"]
             hit_tables = {x.lower() for x in TABLE_RE.findall(body)} & set(tables)
+            clean = strip_comments(body)
             for t in hit_tables:
                 for c in tables[t]:
-                    if re.search(rf"(?<![\w]){re.escape(c)}(?![\w])", body, re.I):
+                    pat = rf"(?<![\w]){re.escape(c)}(?![\w])"
+                    if re.search(pat, clean, re.I):
                         referenced[t].add(c)
+                    elif re.search(pat, body, re.I):
+                        comment_only[t].add(c)
 
     out_tables = []
     for t, cols in tables.items():
@@ -163,6 +178,7 @@ def main() -> int:
                                      if m.get("mapping_mode") == "MP_BASEMAPPER"
                                      else "CAMEL_INFERENCE")),
             "referenced_columns": sorted(ref),
+            "columns_comment_only": sorted(comment_only[t]),
         })
 
     payload = {
@@ -176,6 +192,7 @@ def main() -> int:
             "mapper_fact": sum(x["columns_mapper_fact"] for x in out_tables),
             "camel_inference": sum(x["columns_camel_inference"] for x in out_tables),
             "referenced": sum(x["columns_referenced"] for x in out_tables),
+            "comment_only": sum(len(x["columns_comment_only"]) for x in out_tables),
         },
         "tables": sorted(out_tables, key=lambda x: x["table_id"]),
     }

@@ -29,8 +29,23 @@ TABLES = {
 
 
 def find(root: Path, pattern: str) -> Path | None:
+    """兼容旧调用：返回首个命中。
+
+    WARNING：多个同名文件时**静默取第一个**——这是已知隐患（可能读错文件）。
+    需要可追溯的地方请用 find_report()。
+    """
     hits = [p for p in root.rglob(pattern) if p.is_file()]
     return hits[0] if hits else None
+
+
+def find_report(root: Path, pattern: str) -> tuple[Path | None, list[str]]:
+    """返回 (首个命中, 全部命中相对路径)。命中 >1 时调用方必须显式记录歧义。"""
+    hits = sorted(p for p in root.rglob(pattern) if p.is_file())
+    try:
+        rels = [p.relative_to(root).as_posix() for p in hits]
+    except ValueError:
+        rels = [p.as_posix() for p in hits]
+    return (hits[0] if hits else None), rels
 
 
 TAG_RE = re.compile(r"<(/?)([A-Za-z_][\w.-]*)([^>]*?)(/?)>", re.S)

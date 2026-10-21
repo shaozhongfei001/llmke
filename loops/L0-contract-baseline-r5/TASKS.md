@@ -143,3 +143,7 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 | R7-A1c | 零引用表核查（映射方式取证） | **DONE** | `sql-refs-all-tables.json` 增 `mapping_mode`；27 XML_SQL / **10 MP_BASEMAPPER**；5 张零引用表全部为 BaseMapper 实体，零引用已解释 | 事实 |
 | R7-M3 | 6 条例外独立裁决单 | **DONE** | `EXCEPTIONS-DECISION-SHEET.md`、`evidence/exceptions-decision-sheet.csv` | 待裁决 |
 | R7-A1d | 驼峰约定取证（决定推断列的证据等级） | **DONE** | 无显式运行配置；代码生成器 2 处 `NamingStrategy.underline_to_camel`；10 张 MP 表的推断基座升级为 `MP_CODEGEN_CONVENTION`，其余 27 表仍 `CAMEL_INFERENCE` | 事实+推断 |
+| R7-A2b | 重复实体/同名文件显式报告 | **DONE** | `find_report()`；实测命中 **DB-34**（两个 UserOperateDO，字段完全相同），结论不受影响但已记录歧义 | 工具 |
+| R7-A1e | 注释剥离分类 | **DONE** | 全表索引增 `columns_comment_only`：8 张表共 36 处仅注释出现 | 证据分级 |
+| R7-P04 | P0-04 真实执行清单与余量采集标准 | **DONE（草案）** | `P0-04-EXECUTION-CHECKLIST.md`：五场景判据、五项余量指标、四个验收阈值 | 草案 |
+| R7-A3 | 确定性检查 | **DONE** | 同输入两次输出逐字节一致（矩阵/全表索引/审阅包） | 工具 |

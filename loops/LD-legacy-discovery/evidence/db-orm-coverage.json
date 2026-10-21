@@ -8,6 +8,9 @@
   "NONE": 3,
   "NO_MAPPER": 3
  },
+ "ambiguous_entity_or_mapper": [
+  "DB-34"
+ ],
  "skipped_no_do": [],
  "coverage_legend": {
   "FULL": "resultMap 覆盖全部实体字段",
@@ -982,6 +985,15 @@
    "unmapped": [],
    "sql_columns": 0,
    "extends": null,
+   "ambiguous_files": {
+    "entity_hits": [
+     "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserOperateDO.java",
+     "gien-rag/gien-rag/rag-parent/rag-common/src/main/java/com/gientech/ragcommon/operation/model/UserOperateDO.java"
+    ],
+    "mapper_hits": [
+     "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml"
+    ]
+   },
    "mapped_fields": [
     "id",
     "gmtCreated",
