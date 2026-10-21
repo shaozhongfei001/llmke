@@ -117,3 +117,44 @@ def validate_evidence(evidence: dict, repo_root: Path | str) -> None:
     if errs:
         first = errs[0]
         raise EvidenceError("CONTRACT_VIOLATION", f"{list(first.path)}: {first.message}")
+
+
+class SupportGate:
+    """按契约 `unsupported_policy: [block, annotate]` 过滤声明。
+
+    规则（来自 contracts/evidence/llmke-citation-evidence.yaml）：
+    - 有证据的声明：放行，附带证据 id 列表；
+    - 无证据的声明：**默认 block**（blocked claims never emitted），不得静默丢弃；
+    - 调用方显式要求 annotate 时，才允许作为"未支持标注"返回，并保留原因。
+    """
+
+    def __init__(self, mode: str = "block"):
+        if mode not in ("block", "annotate"):
+            raise EvidenceError("ILLEGAL_MODE", "mode 只能是 block 或 annotate")
+        self.mode = mode
+
+    def partition(self, claims: list[dict]) -> dict:
+        supported, blocked = [], []
+        for c in claims:
+            cid = c.get("claim_id")
+            if not isinstance(cid, str) or not cid:
+                raise EvidenceError("CLAIM_ID", "每个 claim 必须有非空 claim_id")
+            ev = c.get("evidence_ids") or []
+            if not isinstance(ev, list) or not all(isinstance(x, str) and x for x in ev):
+                raise EvidenceError("EVIDENCE_IDS", f"{cid}: evidence_ids 必须是非空字符串数组")
+            if ev:
+                supported.append({"claim_id": cid, "evidence_ids": ev, "text": c.get("text", "")})
+            else:
+                blocked.append({"claim_id": cid, "reason": "NO_APPROVED_EVIDENCE",
+                                "text": c.get("text", "")})
+
+        out = {"mode": self.mode, "supported": supported, "blocked": blocked,
+               "emit": supported, "annotations": []}
+        if self.mode == "annotate":
+            # annotate 只允许"标注为未支持"，不得把无证据声明当成已支持发出
+            out["annotations"] = [{"claim_id": b["claim_id"], "label": "unsupported",
+                                   "reason": b["reason"]} for b in blocked]
+        if self.mode == "block":
+            # 硬约束：blocked 的声明绝不能出现在 emit 里
+            assert not any(b["claim_id"] in {s["claim_id"] for s in out["emit"]} for b in blocked)
+        return out

@@ -108,3 +108,34 @@ def test_cli_exit_codes_and_output(tmp_path):
                        cwd=str(ROOT), capture_output=True, text=True)
     assert r.returncode == 2
     assert json.loads(r.stdout)["code"] == "HASH_FORMAT"
+
+
+def test_support_gate_blocks_unsupported_claims():
+    from modules.citation_evidence.assembler import SupportGate
+    g = SupportGate("block")
+    r = g.partition([
+        {"claim_id": "c1", "evidence_ids": ["ev-1"], "text": "有依据"},
+        {"claim_id": "c2", "evidence_ids": [], "text": "无依据"},
+    ])
+    assert [s["claim_id"] for s in r["supported"]] == ["c1"]
+    assert [b["claim_id"] for b in r["blocked"]] == ["c2"]
+    assert r["blocked"][0]["reason"] == "NO_APPROVED_EVIDENCE"
+    # blocked 绝不出现在 emit
+    assert {c["claim_id"] for c in r["emit"]} == {"c1"}
+
+
+def test_support_gate_annotate_mode_is_labelled_not_supported():
+    from modules.citation_evidence.assembler import SupportGate
+    r = SupportGate("annotate").partition([{"claim_id": "c3", "evidence_ids": []}])
+    assert r["annotations"] == [{"claim_id": "c3", "label": "unsupported",
+                                "reason": "NO_APPROVED_EVIDENCE"}]
+    assert r["emit"] == []
+
+
+def test_support_gate_rejects_malformed_claims():
+    from modules.citation_evidence.assembler import SupportGate
+    for bad in ([{"claim_id": "", "evidence_ids": []}],
+                [{"claim_id": "c1", "evidence_ids": "ev-1"}],
+                [{"claim_id": "c1", "evidence_ids": [123]}]):
+        with pytest.raises(EvidenceError):
+            SupportGate("block").partition(bad)

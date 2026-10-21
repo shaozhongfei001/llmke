@@ -5,11 +5,41 @@
   "worktree": "llmke-r8 (独立工作树，r5 所在树未被改动)",
   "isolation_note": "所有实现只在本工作树提交；fix-window/v1.1.1 与 main 均未改动",
   "tasks": {
-    "R8-T01": {"status": "VERIFIED", "desc": "引用证据组装器（纵向切片）", "evidence": "modules/citation_evidence/", "tests": "10 passed"},
-    "R8-T02": {"status": "VERIFIED", "desc": "ROUND8 状态账本与交接", "evidence": "loops/ROUND8/"},
-    "R8-T03": {"status": "BLOCKED_EXTERNAL", "desc": "555 矩阵 AI 技术建议", "blocker": "需先定义建议口径，避免无依据批量贴标签；已登记待下轮"},
-    "R8-T04": {"status": "BLOCKED_EXTERNAL", "desc": "r5 独立 QA 签署", "blocker": "信任根锚点 c8a73c37 != 213c6ebc；实现者不得代签"},
-    "R8-T05": {"status": "BLOCKED_EXTERNAL", "desc": "真实 DDL/运行时路由/E1/S1-S5", "blocker": "对应 owner 未提供"}
+    "R8-T01": {
+      "status": "VERIFIED",
+      "desc": "引用证据组装器（纵向切片）",
+      "evidence": "modules/citation_evidence/",
+      "tests": "10 passed"
+    },
+    "R8-T02": {
+      "status": "VERIFIED",
+      "desc": "ROUND8 状态账本与交接",
+      "evidence": "loops/ROUND8/"
+    },
+    "R8-T03": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "555 矩阵 AI 技术建议",
+      "blocker": "需先定义建议口径，避免无依据批量贴标签；已登记待下轮"
+    },
+    "R8-T04": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "r5 独立 QA 签署",
+      "blocker": "信任根锚点 c8a73c37 != 213c6ebc；实现者不得代签"
+    },
+    "R8-T05": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "真实 DDL/运行时路由/E1/S1-S5",
+      "blocker": "对应 owner 未提供"
+    },
+    "R8-T06": {
+      "status": "VERIFIED",
+      "desc": "不支持声明拦截（unsupported_policy=block）",
+      "tests": "13 passed"
+    }
   },
-  "gates": {"framework_verify": "见证据日志", "p0_gate": 2, "r5_evidence_check": "PASS（原工作树，未变）"}
+  "gates": {
+    "framework_verify": "exit 0 / 145 passed / security PASS",
+    "p0_gate": 2,
+    "r5_evidence_check": "PASS（原工作树，未变）"
+  }
 }
