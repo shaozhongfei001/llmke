@@ -42,6 +42,10 @@ SCENARIOS = {
         r".*",
         "任何接口的错误响应都可能泄漏内部标识或计数",
         "扩展（错误元数据）"),
+    "N8_neighbor_block_and_image_expansion": (
+        r"(chunk|neighbor|adjacent|context|image|highlight)",
+        "邻近块/图片回查会二次取数，需重新校验权限",
+        "E7"),
 }
 
 
@@ -93,15 +97,21 @@ def main() -> int:
              "| 场景 | 草案对应 | 命中接口数 |", "|---|---|---|"]
     for sid, (_p, _r, draft) in SCENARIOS.items():
         lines.append(f"| {sid} | {draft} | {per_scenario[sid]} |")
+    # 六类覆盖：从 SCENARIOS 的 draft_class 反推，避免硬编码与实际脱节
+    draft_map = {"E2": [], "E3": [], "E4": [], "E5": [], "E6": [], "E7": []}
+    for sid, (_p, _r, draft) in SCENARIOS.items():
+        for key in draft_map:
+            if key in draft:
+                draft_map[key].append(sid)
     lines += ["", "## 草案六类覆盖检查", "",
-              "| 草案类 | 对应场景 | 状态 |", "|---|---|---|",
-              "| E2 越权读（跨 KB/文件） | N1 | 有场景 |",
-              "| E3 目录聚合 + deny 优先 | N1 | 有场景 |",
-              "| E4 撤权即时性 | N5 | 有场景 |",
-              "| E5 FAQ 继承来源复核 | N6 | 有场景 |",
-              "| E6 图路降级 | N2 | 有场景 |",
-              "| **E7 邻近块/图片回查二次取数** | — | **缺场景（GAP）** |",
-              "", "> N3/N4/N7 属**扩展场景**（侧信道/缓存/错误元数据），不强行计入六类。",
+              "| 草案类 | 对应场景 | 状态 |", "|---|---|---|"]
+    for key, label in [("E2", "E2 越权读（跨 KB/文件）"), ("E3", "E3 目录聚合 + deny 优先"),
+                       ("E4", "E4 撤权即时性"), ("E5", "E5 FAQ 继承来源复核"),
+                       ("E6", "E6 图路降级"), ("E7", "E7 邻近块/图片回查二次取数")]:
+        sids = draft_map[key]
+        lines.append(f"| {label} | {', '.join(sids) if sids else '—'} | "
+                     f"{'有场景' if sids else '**缺场景（GAP）**'} |")
+    lines += ["", "> N3/N4/N7 属**扩展场景**（侧信道/缓存/错误元数据），不强行计入六类。",
               "", "## 口径", "",
               "- `route_evidence=CODE_ONLY`：仅表示清单记有该路由且源码核验过，**未验证运行时可达**；",
               "- 未做任何漏洞推理；命中数只反映关键词覆盖面。"]

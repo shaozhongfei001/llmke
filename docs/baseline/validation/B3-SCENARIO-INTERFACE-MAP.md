@@ -14,17 +14,18 @@
 | N5_revocation_residue | E4 | 140 |
 | N6_faq_inherit_source_permission | E5 | 106 |
 | N7_error_metadata_leak | 扩展（错误元数据） | 506 |
+| N8_neighbor_block_and_image_expansion | E7 | 10 |
 
 ## 草案六类覆盖检查
 
 | 草案类 | 对应场景 | 状态 |
 |---|---|---|
-| E2 越权读（跨 KB/文件） | N1 | 有场景 |
-| E3 目录聚合 + deny 优先 | N1 | 有场景 |
-| E4 撤权即时性 | N5 | 有场景 |
-| E5 FAQ 继承来源复核 | N6 | 有场景 |
-| E6 图路降级 | N2 | 有场景 |
-| **E7 邻近块/图片回查二次取数** | — | **缺场景（GAP）** |
+| E2 越权读（跨 KB/文件） | N1_cross_domain_and_deny_override | 有场景 |
+| E3 目录聚合 + deny 优先 | N1_cross_domain_and_deny_override | 有场景 |
+| E4 撤权即时性 | N5_revocation_residue | 有场景 |
+| E5 FAQ 继承来源复核 | N6_faq_inherit_source_permission | 有场景 |
+| E6 图路降级 | N2_graph_unauthorized_interference | 有场景 |
+| E7 邻近块/图片回查二次取数 | N8_neighbor_block_and_image_expansion | 有场景 |
 
 > N3/N4/N7 属**扩展场景**（侧信道/缓存/错误元数据），不强行计入六类。
 

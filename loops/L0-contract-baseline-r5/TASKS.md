@@ -123,3 +123,5 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 「已检查源码范围内未发现」，数据库是否存在仍待 DDL；`user_operate.user_id` 有引用。
 **B3 缺口**：草案 E7（邻近块/图片回查二次取数）**无对应场景**，已标 GAP，未强行计入。
 **B4 风险**：association/collection 内嵌列被计入父表、同名 property 覆盖导致丢列（已实测）。
+| R6-D1 | 补 E7 场景（邻近块/图片回查二次取数） | **DONE** | `p0_03_scenarios.py` N8、`p0-03-scenarios.json`；**8/8 场景 + 8/8 变异体被拒** | **SIMULATED** |
+| R6-D2 | B3 六类覆盖改为按场景反推（去硬编码） | **DONE** | `B3-SCENARIO-INTERFACE-MAP.md`：**E2–E7 全部有场景，无 GAP** | 关联 |

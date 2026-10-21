@@ -121,6 +121,23 @@
     "message": "resource unavailable"
    },
    "pass": true
+  },
+  {
+   "scenario": "N8_neighbor_block_and_image_expansion",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "首轮命中授权块；相邻块必须被拒且不泄露内容",
+   "actual": {
+    "first": {
+     "doc_id": "d1",
+     "content": "content-of-d1"
+    },
+    "second": {
+     "error": "not_found"
+    }
+   },
+   "pass": true
   }
  ],
  "mutation_check": [
@@ -237,9 +254,24 @@
     "kb": "kb1",
     "policy_version": 1
    }
+  },
+  {
+   "scenario": "N8_neighbor_block_and_image_expansion",
+   "mutant": "{'filter_expansion': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "first": {
+     "doc_id": "d1",
+     "content": "content-of-d1"
+    },
+    "second": {
+     "doc_id": "d2",
+     "content": "content-of-d2"
+    }
+   }
   }
  ],
- "mutants_total": 7,
- "mutants_rejected": 7,
+ "mutants_total": 8,
+ "mutants_rejected": 8,
  "failures": []
 }

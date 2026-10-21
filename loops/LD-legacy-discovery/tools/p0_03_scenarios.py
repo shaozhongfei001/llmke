@@ -240,6 +240,36 @@ def scn7_error_leak(allowlist=True):
             "pass": not leaked}
 
 
+def scn8_neighbor_expansion(filter_expansion=True):
+    """E7：邻近块/图片回查的二次取数，必须重新校验权限。
+
+    风险路径：首轮检索只返回授权块 → 为了上下文去取相邻块/图片 → 若不再校验，
+    等于用「邻接关系」绕过了授权（这是旧系统已知缺陷之一）。
+    """
+    s = Store()
+    s.add_doc(Doc("d1", "kb1", allow={"u1"}))
+    s.add_doc(Doc("d2", "kb1", allow={"u2"}))       # d1 的相邻块，u1 无权
+    e = Engine(s)
+    # 首轮：只命中授权块
+    first = e.read("u1", "d1")
+    # 二次取数：扩到相邻块
+    if filter_expansion:
+        try:
+            e.allowed("u1", "d2")
+            second = e.read("u1", "d2")
+            blocked = False
+        except (Denied, NotFound):
+            second = {"error": "not_found"}
+            blocked = True
+    else:
+        second = {"doc_id": "d2", "content": "content-of-d2"}   # 变异：不校验
+        blocked = False
+    leaked = bool(second.get("content"))
+    return {"expected": "首轮命中授权块；相邻块必须被拒且不泄露内容",
+            "actual": {"first": first, "second": second},
+            "pass": first.get("error") is None and blocked and not leaked}
+
+
 SCENARIOS = [
     ("N1_cross_domain_and_deny_override", scn1_cross_domain, {"strict": False}),
     ("N2_graph_unauthorized_interference", scn2_graph_interference, {"filter_graph": False}),
@@ -248,6 +278,7 @@ SCENARIOS = [
     ("N5_revocation_residue", scn5_revocation_residue, {"revoke": False}),
     ("N6_faq_inherit_source_permission", scn6_faq_inherit, {"inherit": False}),
     ("N7_error_metadata_leak", scn7_error_leak, {"allowlist": False}),
+    ("N8_neighbor_block_and_image_expansion", scn8_neighbor_expansion, {"filter_expansion": False}),
 ]
 
 
