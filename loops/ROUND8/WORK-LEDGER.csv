@@ -12,3 +12,5 @@ R8-T10,source-reuse-agent,R8-T02,evidence/reuse-candidate-matrix-v2.csv,见 AI-A
 R8-T11,python-parser-agent,R8-T09,modules/citation_evidence/cli.py（audit 子命令）,python -m modules.citation_evidence.cli audit --claims <f>,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,向后兼容 assemble；25 passed
 R8-T12,python-parser-agent,R8-T01,"modules/citation_evidence/{assembler,cli}.py + tests（集合级校验）","pytest modules/citation_evidence/tests -q",VERIFIED,loops/ROUND8/evidence/pytest-r8-set.log,,35 passed；模块测试不属 framework-verify（Makefile 为冻结控制面，见 D8）
 R8-T13,python-parser-agent,R8-T12,assembler.py::check_evidence_set（parser_version 一致性）,"pytest modules/citation_evidence/tests -q",VERIFIED,loops/ROUND8/evidence/pytest-r8-parser-version.log,,39 passed；混版本先于重叠判定报错
+R8-T14,tech-lead,R8-T01,"Makefile + baseline_support.py + loop_guard.py（W-01）","make framework-verify",VERIFIED,docs/baseline/validation/W-01-RESULT.md,,193 passed；code_digest 绑定 independent_qa_gate
+R8-T15,tech-lead,R8-T14,"loop_guard.evidence_errors（W-01b：不再跳过 QA_PENDING）","evidence-check 候选过期必须非 0",VERIFIED,docs/baseline/validation/W-01-RESULT.md,,"改一行注释 -> FAIL: implementation code changed；r6 因此作废重建 r7"

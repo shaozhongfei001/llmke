@@ -62,3 +62,24 @@
   这在引用回填场景比直接失败危险得多。正确修法在上游：解析器变了就升 `document_version`。
 - 顺序：先查版本混用，再查区间重叠 —— 坐标系不可比时重叠判定本身失真，报重叠会误导。
 - 边界：不同 `file_id` 允许各自带不同 `parser_version`（多文档检索正常场景），不误伤。
+
+## D11 W-01 实施：窄绑定，不并控制面
+- 业主选乙：放弃 r5，W-01 与建批在同一次冻结内完成；批准 `Makefile`/`baseline_support.py`/`loop_guard.py`。
+- 结果：门禁内测试 145 → **193**；`DIGEST_SCHEME=3`；`code_digest` 仅被 `independent_qa_gate` 比较。
+- 关键验证：`modules/**.py` 追加一行注释 → `evidence-check` **FAIL**（`implementation code changed`）；
+  同一实验在 W-01 前是 PASS —— 差异即"绑定生效"的证据。
+- 刻意不做：不把业务代码并入 `control_digest`；不改 `VERSION`（W-01 不改契约与 pass 条件）。
+
+## D12 W-01b：evidence-check 曾跳过 QA_PENDING（假绿通道）
+- 现象：r6 已产出 QA 候选后改代码，`evidence-check` 仍打印 PASS。
+- 根因：`evidence_errors` 有 `if status!='pass': continue`，QA 候选记录整条被跳过；
+  真正拦截只发生在 `accept_qa`。
+- 修复：`QA_PENDING` 也参与 `stale_reasons`；仅 `pass` 记录才要求签名。
+- 代价：修复改动了 `loop_guard.py`，r6 记录绑定的是 revision 7 → r6 置 `SUPERSEDED`，重建 r7。
+- 教训：**验收实验必须前移到冻结之前**（与 r3 卡死同一类错误）。
+
+## D13 R-02 又一次：run_batch 直接调 make 也会取到 conda 解释器
+- 现象：`python3 scripts/run_batch.py` 在 conda shell 下跑 r6 门禁，`contract_generate_gate` 报
+  `ModuleNotFoundError: openapi_spec_validator`。
+- 原因：`run_batch` 内部 spawn `make`，子进程 PATH 不是 `.venv`。
+- 处置：调用前 `export PATH=~/data/dev/llmke/.venv/bin:$PATH`；长期根治仍待 R-02 提案（Makefile 内固定解释器）。

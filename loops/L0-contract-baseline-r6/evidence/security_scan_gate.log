@@ -1,0 +1,2 @@
+{"argv": ["make", "security-check"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-21T15:27:57.761200+00:00"}
+security-check: PASS (571 file(s) scanned; evidence_logs_personal_path_skipped=0)

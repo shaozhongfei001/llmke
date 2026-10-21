@@ -12,7 +12,7 @@ contract-all:
 	@$(MAKE) --no-print-directory generate
 	@$(MAKE) --no-print-directory check
 framework-test:
-	@python3 -m pytest tests/ -q
+	@python3 -m pytest tests/ modules/ -q
 framework-verify:
 	@$(MAKE) --no-print-directory contract-all
 	@$(MAKE) --no-print-directory rules-check

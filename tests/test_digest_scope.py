@@ -45,10 +45,15 @@ def test_doc_dependent_gate_rejects_doc_change(tmp_path):
 
 
 def test_new_records_declare_digest_scheme(tmp_path):
+    from baseline_support import DIGEST_SCHEME
     root, d = make_loop(tmp_path)
     rec = devpass(root)
-    assert rec["digest_scheme"] == 2
+    # 断言「与实现常量一致」，不写字面量：否则每次升 scheme 都要改测试，
+    # 而改测试来迁就实现正是假绿来源之一。
+    assert rec["digest_scheme"] == DIGEST_SCHEME
     assert len(rec["control_sha256"]) == 64 and len(rec["doc_sha256"]) == 64
+    if DIGEST_SCHEME >= 3:
+        assert len(rec["code_sha256"]) == 64
 
 
 def test_legacy_record_keeps_whole_tree_semantics(tmp_path):
