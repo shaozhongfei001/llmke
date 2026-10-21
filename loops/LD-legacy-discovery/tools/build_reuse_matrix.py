@@ -90,7 +90,8 @@ def main() -> int:
             "owner_role": it.get("proposed_owner_role", ""),
             "batch_group": "GRP-DB-" + (it.get("proposed_group", "MISC") or "MISC"),
             "decision_status": "DECISION_PENDING", "approved_by": "", "approved_at": "",
-            "approval_evidence": "", "notes": "",
+            "approval_evidence": "",
+            "notes": "" if (chk and chk.get("count_match")) else "count_mismatch",
         })
 
     # ---------- 506 接口 ----------

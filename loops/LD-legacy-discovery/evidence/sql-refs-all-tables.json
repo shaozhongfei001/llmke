@@ -1,0 +1,1418 @@
+{
+ "scope": "全 37 表列引用索引（只读）",
+ "warning": "列名多为驼峰推断；SQL 出现不等于数据库存在；本索引不能替代 DDL",
+ "files_with_statements": 37,
+ "totals": {
+  "tables": 37,
+  "columns": 484,
+  "mapper_fact": 365,
+  "camel_inference": 119,
+  "referenced": 270
+ },
+ "tables": [
+  {
+   "table_id": "DB-01",
+   "table": "answer",
+   "entity": "AnswerDO",
+   "declared_count": 15,
+   "entity_fields": 15,
+   "columns_total": 15,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 6,
+   "columns_referenced": 5,
+   "columns_unreferenced": [
+    "database_reference",
+    "gmt_modified",
+    "llm_type",
+    "log_result",
+    "recommend_question",
+    "reference",
+    "resp_time",
+    "result_type",
+    "retrieve_recall_param",
+    "type"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "gmt_modified",
+    "log_result",
+    "reference",
+    "type"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "content",
+    "dialogue_id",
+    "gmt_create",
+    "id",
+    "question_id"
+   ]
+  },
+  {
+   "table_id": "DB-02",
+   "table": "api_key_info",
+   "entity": "ApiKeyInfoDO",
+   "declared_count": 11,
+   "entity_fields": 11,
+   "columns_total": 11,
+   "columns_mapper_fact": 11,
+   "columns_camel_inference": 0,
+   "columns_referenced": 0,
+   "columns_unreferenced": [
+    "api_key",
+    "biz_type",
+    "create_by",
+    "expire_time",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "modify_by",
+    "status",
+    "target_id"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "api_key",
+    "biz_type",
+    "create_by",
+    "expire_time",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "modify_by",
+    "status",
+    "target_id"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": []
+  },
+  {
+   "table_id": "DB-03",
+   "table": "biz_label",
+   "entity": "BizLabelDO",
+   "declared_count": 10,
+   "entity_fields": 10,
+   "columns_total": 10,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 1,
+   "columns_referenced": 6,
+   "columns_unreferenced": [
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "biz_name",
+    "biz_type",
+    "id",
+    "is_del",
+    "label",
+    "target_id"
+   ]
+  },
+  {
+   "table_id": "DB-04",
+   "table": "department_info",
+   "entity": "DepartmentInfoDO",
+   "declared_count": 11,
+   "entity_fields": 11,
+   "columns_total": 11,
+   "columns_mapper_fact": 11,
+   "columns_camel_inference": 0,
+   "columns_referenced": 5,
+   "columns_unreferenced": [
+    "admin",
+    "code",
+    "create_by",
+    "gmt_modified",
+    "modify_by",
+    "seq"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "admin",
+    "code",
+    "create_by",
+    "gmt_modified",
+    "modify_by",
+    "seq"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "gmt_create",
+    "id",
+    "name",
+    "parent_id",
+    "status"
+   ]
+  },
+  {
+   "table_id": "DB-05",
+   "table": "dept_privilege",
+   "entity": "DeptPrivilegeDO",
+   "declared_count": 10,
+   "entity_fields": 10,
+   "columns_total": 10,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 1,
+   "columns_referenced": 10,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "biz_type",
+    "create_by",
+    "dept_id",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "permission",
+    "target_id",
+    "update_by"
+   ]
+  },
+  {
+   "table_id": "DB-06",
+   "table": "dialogue",
+   "entity": "DialogueDO",
+   "declared_count": 13,
+   "entity_fields": 13,
+   "columns_total": 13,
+   "columns_mapper_fact": 12,
+   "columns_camel_inference": 1,
+   "columns_referenced": 4,
+   "columns_unreferenced": [
+    "config_history",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "kb_id",
+    "label",
+    "status",
+    "sys_type",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "config_history",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "label",
+    "status",
+    "sys_type",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "config",
+    "config_id",
+    "id",
+    "session_id"
+   ]
+  },
+  {
+   "table_id": "DB-07",
+   "table": "feedback",
+   "entity": "FeedbackDO",
+   "declared_count": 19,
+   "entity_fields": 19,
+   "columns_total": 19,
+   "columns_mapper_fact": 18,
+   "columns_camel_inference": 1,
+   "columns_referenced": 16,
+   "columns_unreferenced": [
+    "create_by",
+    "gmt_create",
+    "is_del"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "gmt_create"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "ans_poor",
+    "answer_id",
+    "dept_name",
+    "format_error",
+    "gmt_modified",
+    "harmful_info",
+    "id",
+    "ideal_answer",
+    "othres",
+    "que_error",
+    "restult",
+    "supplement_explain",
+    "update_by",
+    "user_name",
+    "user_phone",
+    "user_realname"
+   ]
+  },
+  {
+   "table_id": "DB-08",
+   "table": "file_parse_task",
+   "entity": "FileParseTaskDO",
+   "declared_count": 16,
+   "entity_fields": 16,
+   "columns_total": 16,
+   "columns_mapper_fact": 16,
+   "columns_camel_inference": 0,
+   "columns_referenced": 16,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "end_time",
+    "error_msg",
+    "file_id",
+    "file_name",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "kb_id",
+    "kb_name",
+    "modify_by",
+    "retry_limit",
+    "retry_times",
+    "start_time",
+    "status",
+    "task_info"
+   ]
+  },
+  {
+   "table_id": "DB-09",
+   "table": "folder_info",
+   "entity": "FolderInfoDO",
+   "declared_count": 12,
+   "entity_fields": 12,
+   "columns_total": 12,
+   "columns_mapper_fact": 12,
+   "columns_camel_inference": 0,
+   "columns_referenced": 8,
+   "columns_unreferenced": [
+    "folder_label",
+    "full_path",
+    "gmt_modified",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "folder_label",
+    "full_path",
+    "gmt_modified",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "gmt_create",
+    "id",
+    "kb_id",
+    "name",
+    "parent_id",
+    "status",
+    "type"
+   ]
+  },
+  {
+   "table_id": "DB-10",
+   "table": "group_info",
+   "entity": "GroupInfoDO",
+   "declared_count": 9,
+   "entity_fields": 9,
+   "columns_total": 9,
+   "columns_mapper_fact": 8,
+   "columns_camel_inference": 1,
+   "columns_referenced": 2,
+   "columns_unreferenced": [
+    "create_by",
+    "description",
+    "gmt_create",
+    "gmt_modified",
+    "name",
+    "pid",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "description",
+    "gmt_create",
+    "gmt_modified",
+    "name",
+    "pid",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "id",
+    "is_del"
+   ]
+  },
+  {
+   "table_id": "DB-11",
+   "table": "group_privilege",
+   "entity": "GroupPrivilegeDO",
+   "declared_count": 10,
+   "entity_fields": 10,
+   "columns_total": 10,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 1,
+   "columns_referenced": 10,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "biz_type",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "group_id",
+    "id",
+    "is_del",
+    "permission",
+    "target_id",
+    "update_by"
+   ]
+  },
+  {
+   "table_id": "DB-12",
+   "table": "interface_info",
+   "entity": "InterfaceInfoDO",
+   "declared_count": 13,
+   "entity_fields": 13,
+   "columns_total": 13,
+   "columns_mapper_fact": 10,
+   "columns_camel_inference": 3,
+   "columns_referenced": 13,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "app_name",
+    "app_name_abbreviate",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "method",
+    "name",
+    "resource_id",
+    "resource_name",
+    "resource_type",
+    "update_by",
+    "url"
+   ]
+  },
+  {
+   "table_id": "DB-13",
+   "table": "kb_label_his",
+   "entity": "KbLabelHisDO",
+   "declared_count": 8,
+   "entity_fields": 8,
+   "columns_total": 8,
+   "columns_mapper_fact": 8,
+   "columns_camel_inference": 0,
+   "columns_referenced": 0,
+   "columns_unreferenced": [
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "kb_id",
+    "labe",
+    "modify_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "kb_id",
+    "labe",
+    "modify_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": []
+  },
+  {
+   "table_id": "DB-14",
+   "table": "knowledge_base",
+   "entity": "KnowledgeBaseDO",
+   "declared_count": 15,
+   "entity_fields": 15,
+   "columns_total": 15,
+   "columns_mapper_fact": 14,
+   "columns_camel_inference": 1,
+   "columns_referenced": 9,
+   "columns_unreferenced": [
+    "gmt_modified",
+    "kb_des",
+    "kb_label",
+    "kb_type",
+    "private_kb",
+    "source_url"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "gmt_modified",
+    "kb_des",
+    "kb_label",
+    "kb_type",
+    "source_url"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "config",
+    "create_by",
+    "gmt_create",
+    "id",
+    "kb_name",
+    "modify_by",
+    "platform",
+    "primitive_name",
+    "status"
+   ]
+  },
+  {
+   "table_id": "DB-15",
+   "table": "knowledge_base_list",
+   "entity": "KnowledgeBaseListDO",
+   "declared_count": 34,
+   "entity_fields": 34,
+   "columns_total": 34,
+   "columns_mapper_fact": 27,
+   "columns_camel_inference": 7,
+   "columns_referenced": 28,
+   "columns_unreferenced": [
+    "aq_count",
+    "image_paths",
+    "is_enable",
+    "pid",
+    "source_id",
+    "table_file_paths"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "aq_count",
+    "is_enable"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "chunk_type",
+    "chunking",
+    "converted_file_path",
+    "create_by",
+    "faq_extract_status",
+    "file_id",
+    "file_name",
+    "file_path",
+    "file_size",
+    "folder_id",
+    "full_text_path",
+    "gmt_create",
+    "gmt_modified",
+    "graph_parse_status",
+    "group_id",
+    "id",
+    "is_folder",
+    "kb_id",
+    "modify_by",
+    "parent_file_name",
+    "parse_type",
+    "parsed_file_path",
+    "permission",
+    "revise_date",
+    "source_url",
+    "status",
+    "uid",
+    "version"
+   ]
+  },
+  {
+   "table_id": "DB-16",
+   "table": "model_info",
+   "entity": "ModelInfoDO",
+   "declared_count": 16,
+   "entity_fields": 16,
+   "columns_total": 16,
+   "columns_mapper_fact": 16,
+   "columns_camel_inference": 0,
+   "columns_referenced": 8,
+   "columns_unreferenced": [
+    "api_key",
+    "dec",
+    "error_msg",
+    "gmt_modified",
+    "model_ide",
+    "model_protocol",
+    "thinking",
+    "url"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "api_key",
+    "dec",
+    "error_msg",
+    "gmt_modified",
+    "model_ide",
+    "model_protocol",
+    "thinking",
+    "url"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "gmt_create",
+    "id",
+    "is_dtl",
+    "model_name",
+    "status",
+    "type",
+    "update_by"
+   ]
+  },
+  {
+   "table_id": "DB-17",
+   "table": "question",
+   "entity": "QuestionDO",
+   "declared_count": 12,
+   "entity_fields": 12,
+   "columns_total": 12,
+   "columns_mapper_fact": 11,
+   "columns_camel_inference": 1,
+   "columns_referenced": 5,
+   "columns_unreferenced": [
+    "alg_model",
+    "alg_params",
+    "audio_url",
+    "gmt_modified",
+    "knowledge_base_name",
+    "knowledge_params",
+    "type"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "alg_model",
+    "alg_params",
+    "gmt_modified",
+    "knowledge_base_name",
+    "knowledge_params",
+    "type"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "content",
+    "dialogue_id",
+    "front_uuid",
+    "gmt_create",
+    "id"
+   ]
+  },
+  {
+   "table_id": "DB-18",
+   "table": "re_embedding_file",
+   "entity": "ReEmbeddingFileDO",
+   "declared_count": 13,
+   "entity_fields": 14,
+   "columns_total": 14,
+   "columns_mapper_fact": 0,
+   "columns_camel_inference": 14,
+   "columns_referenced": 4,
+   "columns_unreferenced": [
+    "error_chunk_num",
+    "file_id",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_migrate",
+    "kb_name",
+    "last_error",
+    "processed_chunk_num",
+    "total_chunk_num"
+   ],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "is_del",
+    "kb_id",
+    "status",
+    "task_id"
+   ]
+  },
+  {
+   "table_id": "DB-19",
+   "table": "re_embedding_retry_task",
+   "entity": "ReEmbeddingRetryTaskDO",
+   "declared_count": 12,
+   "entity_fields": 13,
+   "columns_total": 13,
+   "columns_mapper_fact": 0,
+   "columns_camel_inference": 13,
+   "columns_referenced": 6,
+   "columns_unreferenced": [
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "last_error",
+    "payload",
+    "retry_times",
+    "uid"
+   ],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "file_id",
+    "is_del",
+    "kb_id",
+    "status",
+    "task_id",
+    "type"
+   ]
+  },
+  {
+   "table_id": "DB-20",
+   "table": "re_embedding_task",
+   "entity": "ReEmbeddingTaskDO",
+   "declared_count": 13,
+   "entity_fields": 14,
+   "columns_total": 14,
+   "columns_mapper_fact": 10,
+   "columns_camel_inference": 4,
+   "columns_referenced": 0,
+   "columns_unreferenced": [
+    "create_by",
+    "embedding_model_name",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "kb_id",
+    "kb_name",
+    "log_summary",
+    "modified_by",
+    "msg_key",
+    "status",
+    "total_file_num",
+    "uid"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "embedding_model_name",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "kb_id",
+    "kb_name",
+    "log_summary",
+    "msg_key",
+    "status"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": []
+  },
+  {
+   "table_id": "DB-21",
+   "table": "resource_info",
+   "entity": "ResourceInfoDO",
+   "declared_count": 15,
+   "entity_fields": 15,
+   "columns_total": 15,
+   "columns_mapper_fact": 15,
+   "columns_camel_inference": 0,
+   "columns_referenced": 8,
+   "columns_unreferenced": [
+    "code",
+    "create_by",
+    "description",
+    "gmt_modified",
+    "icon",
+    "pid",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "code",
+    "create_by",
+    "description",
+    "gmt_modified",
+    "icon",
+    "pid",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "gmt_create",
+    "id",
+    "is_dtl",
+    "name",
+    "resource_type",
+    "seq",
+    "status",
+    "url"
+   ]
+  },
+  {
+   "table_id": "DB-22",
+   "table": "resource_interface",
+   "entity": "ResourceInterfaceDO",
+   "declared_count": 8,
+   "entity_fields": 8,
+   "columns_total": 8,
+   "columns_mapper_fact": 7,
+   "columns_camel_inference": 1,
+   "columns_referenced": 4,
+   "columns_unreferenced": [
+    "create_by",
+    "gmt_modified",
+    "is_del",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "gmt_modified",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "gmt_create",
+    "id",
+    "interface_id",
+    "resource_id"
+   ]
+  },
+  {
+   "table_id": "DB-23",
+   "table": "role_info",
+   "entity": "RoleInfoDO",
+   "declared_count": 10,
+   "entity_fields": 10,
+   "columns_total": 10,
+   "columns_mapper_fact": 10,
+   "columns_camel_inference": 0,
+   "columns_referenced": 5,
+   "columns_unreferenced": [
+    "create_by",
+    "description",
+    "gmt_modified",
+    "seq",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "description",
+    "gmt_modified",
+    "seq",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "gmt_create",
+    "id",
+    "is_dtl",
+    "name",
+    "status"
+   ]
+  },
+  {
+   "table_id": "DB-24",
+   "table": "role_resource",
+   "entity": "RoleResourceDO",
+   "declared_count": 9,
+   "entity_fields": 9,
+   "columns_total": 9,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 0,
+   "columns_referenced": 9,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_dtl",
+    "resource_id",
+    "role_id",
+    "status",
+    "update_by"
+   ]
+  },
+  {
+   "table_id": "DB-25",
+   "table": "search_config",
+   "entity": "SearchConfigDO",
+   "declared_count": 15,
+   "entity_fields": 15,
+   "columns_total": 15,
+   "columns_mapper_fact": 14,
+   "columns_camel_inference": 1,
+   "columns_referenced": 8,
+   "columns_unreferenced": [
+    "default_answer",
+    "depend_on_kb",
+    "des",
+    "enabled_faq",
+    "gmt_create",
+    "gmt_modified",
+    "is_default"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "default_answer",
+    "depend_on_kb",
+    "des",
+    "enabled_faq",
+    "gmt_create",
+    "gmt_modified",
+    "is_default"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "config_json",
+    "create_by",
+    "id",
+    "is_del",
+    "modify_by",
+    "name",
+    "sensitive_word_ids",
+    "status"
+   ]
+  },
+  {
+   "table_id": "DB-26",
+   "table": "sensitive_words",
+   "entity": "SensitiveWordsDO",
+   "declared_count": 7,
+   "entity_fields": 7,
+   "columns_total": 7,
+   "columns_mapper_fact": 7,
+   "columns_camel_inference": 0,
+   "columns_referenced": 7,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "descript",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "name",
+    "status",
+    "words"
+   ]
+  },
+  {
+   "table_id": "DB-27",
+   "table": "syn_log",
+   "entity": "SynLogDO",
+   "declared_count": 11,
+   "entity_fields": 11,
+   "columns_total": 11,
+   "columns_mapper_fact": 11,
+   "columns_camel_inference": 0,
+   "columns_referenced": 1,
+   "columns_unreferenced": [
+    "create_by",
+    "error_code",
+    "error_detail",
+    "error_message",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "kb_id",
+    "log_type",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "create_by",
+    "error_code",
+    "error_detail",
+    "error_message",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "kb_id",
+    "log_type",
+    "update_by"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "target_id"
+   ]
+  },
+  {
+   "table_id": "DB-28",
+   "table": "tools_database",
+   "entity": "TLDatabaseDO",
+   "declared_count": 16,
+   "entity_fields": 16,
+   "columns_total": 16,
+   "columns_mapper_fact": 0,
+   "columns_camel_inference": 16,
+   "columns_referenced": 2,
+   "columns_unreferenced": [
+    "datasource_type",
+    "db_database",
+    "db_host",
+    "db_password",
+    "db_port",
+    "db_type",
+    "db_user",
+    "description",
+    "gmt_create",
+    "gmt_modified",
+    "jdbc_driver_class",
+    "jdbc_url",
+    "name",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "id"
+   ]
+  },
+  {
+   "table_id": "DB-29",
+   "table": "tools_table",
+   "entity": "TLTableDO",
+   "declared_count": 14,
+   "entity_fields": 14,
+   "columns_total": 14,
+   "columns_mapper_fact": 0,
+   "columns_camel_inference": 14,
+   "columns_referenced": 2,
+   "columns_unreferenced": [
+    "business_name",
+    "column_count",
+    "create_by",
+    "database_id",
+    "description",
+    "gen_desc_err_msg",
+    "gen_desc_status",
+    "gmt_modified",
+    "is_gen_desc",
+    "physical_name",
+    "row_count",
+    "update_by"
+   ],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "gmt_create",
+    "id"
+   ]
+  },
+  {
+   "table_id": "DB-30",
+   "table": "tools_table_column",
+   "entity": "TLTableColumnDO",
+   "declared_count": 11,
+   "entity_fields": 11,
+   "columns_total": 11,
+   "columns_mapper_fact": 0,
+   "columns_camel_inference": 11,
+   "columns_referenced": 10,
+   "columns_unreferenced": [
+    "id"
+   ],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "business_name",
+    "create_by",
+    "data_type",
+    "database_id",
+    "description",
+    "gmt_create",
+    "gmt_modified",
+    "physical_name",
+    "table_id",
+    "update_by"
+   ]
+  },
+  {
+   "table_id": "DB-31",
+   "table": "tools_table_file",
+   "entity": "TLTableFileDO",
+   "declared_count": 18,
+   "entity_fields": 18,
+   "columns_total": 18,
+   "columns_mapper_fact": 0,
+   "columns_camel_inference": 18,
+   "columns_referenced": 4,
+   "columns_unreferenced": [
+    "column_count",
+    "create_by",
+    "database_id",
+    "error_msg",
+    "file_name",
+    "file_path",
+    "file_size",
+    "folder_path",
+    "gmt_modified",
+    "object_name",
+    "original_filename",
+    "row_count",
+    "update_by",
+    "use_time"
+   ],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "gmt_create",
+    "id",
+    "status",
+    "table_id"
+   ]
+  },
+  {
+   "table_id": "DB-32",
+   "table": "user_group",
+   "entity": "UserGroupDO",
+   "declared_count": 9,
+   "entity_fields": 9,
+   "columns_total": 9,
+   "columns_mapper_fact": 8,
+   "columns_camel_inference": 1,
+   "columns_referenced": 9,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "dept_id",
+    "gmt_create",
+    "gmt_modified",
+    "group_id",
+    "id",
+    "is_del",
+    "update_by",
+    "user_id"
+   ]
+  },
+  {
+   "table_id": "DB-33",
+   "table": "user_info",
+   "entity": "UserInfoDO",
+   "declared_count": 27,
+   "entity_fields": 27,
+   "columns_total": 27,
+   "columns_mapper_fact": 26,
+   "columns_camel_inference": 1,
+   "columns_referenced": 27,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "admin_reset_password",
+    "app_key",
+    "create_by",
+    "dept_id",
+    "dept_name",
+    "emp_no",
+    "expire_time",
+    "feature",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "ip",
+    "is_dtl",
+    "miss_num",
+    "online_time",
+    "organization_id",
+    "password_updated",
+    "resign_date",
+    "status",
+    "system_source",
+    "update_by",
+    "url",
+    "user_email",
+    "user_name",
+    "user_password",
+    "user_phone",
+    "user_realname"
+   ]
+  },
+  {
+   "table_id": "DB-34",
+   "table": "user_operate",
+   "entity": "UserOperateDO",
+   "declared_count": 13,
+   "entity_fields": 12,
+   "columns_total": 12,
+   "columns_mapper_fact": 12,
+   "columns_camel_inference": 0,
+   "columns_referenced": 0,
+   "columns_unreferenced": [
+    "end_time",
+    "gmt_created",
+    "gmt_modified",
+    "id",
+    "ip",
+    "name",
+    "params",
+    "start_time",
+    "success",
+    "url",
+    "user_id",
+    "user_name"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "end_time",
+    "gmt_created",
+    "gmt_modified",
+    "id",
+    "ip",
+    "name",
+    "params",
+    "start_time",
+    "success",
+    "url",
+    "user_id",
+    "user_name"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": []
+  },
+  {
+   "table_id": "DB-35",
+   "table": "user_privilege",
+   "entity": "UserPrivilegeDO",
+   "declared_count": 10,
+   "entity_fields": 10,
+   "columns_total": 10,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 1,
+   "columns_referenced": 10,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "biz_type",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_del",
+    "permission",
+    "target_id",
+    "update_by",
+    "user_id"
+   ]
+  },
+  {
+   "table_id": "DB-36",
+   "table": "user_role",
+   "entity": "UserRoleDO",
+   "declared_count": 9,
+   "entity_fields": 9,
+   "columns_total": 9,
+   "columns_mapper_fact": 9,
+   "columns_camel_inference": 0,
+   "columns_referenced": 9,
+   "columns_unreferenced": [],
+   "unreferenced_from_mapper_fact": [],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": [
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "is_dtl",
+    "role_id",
+    "status",
+    "update_by",
+    "user_id"
+   ]
+  },
+  {
+   "table_id": "DB-37",
+   "table": "user_security_question",
+   "entity": "UserSecurityQuestionDO",
+   "declared_count": 8,
+   "entity_fields": 8,
+   "columns_total": 8,
+   "columns_mapper_fact": 8,
+   "columns_camel_inference": 0,
+   "columns_referenced": 0,
+   "columns_unreferenced": [
+    "answer",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "question",
+    "update_by",
+    "user_id"
+   ],
+   "unreferenced_from_mapper_fact": [
+    "answer",
+    "create_by",
+    "gmt_create",
+    "gmt_modified",
+    "id",
+    "question",
+    "update_by",
+    "user_id"
+   ],
+   "evidence_levels": {
+    "MAPPER_FACT": "resultMap 显式声明",
+    "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+    "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
+   },
+   "referenced_columns": []
+  }
+ ]
+}
