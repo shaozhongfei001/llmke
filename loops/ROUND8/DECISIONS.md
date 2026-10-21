@@ -191,3 +191,18 @@
   替代口径 (create_by, gmt_create) 语义不同，须 data-owner 定。
 - 推迟：D-01/D-02 需写入 P0-CLOSURE.yaml，但该文件在 doc_digest 内，改动会作废 r9，
   故只登记于验证文档，留待下个冻结窗口。**共库是技术选择，不等于 P0-02 关闭**。
+
+## D26 索引反推：判据错了一次，结论换了口径
+- 工具从 XML(64 条单表语句) + Java LambdaQueryWrapper(37 DO) 提取，得 116 组候选。
+- 我最初把"能否重新发现文档三条索引"当通过标准，两条 MISSING 便以为工具坏；
+  读原文后才知文档写的是"仅补充三类索引**以支撑新查询**"——现有查询不用是预期。
+- 结论：5.1 三条索引 0 条被现有查询使用；`dialogue(user_id,*)` 仍建不出来。
+- 真实高频候选：re_embedding_retry_task(status,type,gmt_create) 等；
+  且**队列实际在 retry_task，文档却写 file_parse_task** —— 表对不上，需 index-owner 确认。
+- 提醒：status 这类低基数列单列索引常无效，必须 EXPLAIN + 真实数据，本工具只给查询模式。
+
+## D27 P0-04 现状：四类机制全缺，且有僵尸任务风险
+- 无 generation/activation/fencing/outbox 关键字（0 处）；仅 is_migrate 1 处、version(doc) 1 处。
+- 任务领取是 **id 级 CAS**（WHERE id=? AND status=2 + 检查影响行数），同任务不会被双领——这点要说公道话。
+- 但**无租约/超时回收**：status=1 之后没有退回 2 的逻辑 → worker 崩溃即永久卡住。
+- 因此 S1–S5 五场景全部无法在现有代码上验证；P0-04 属"未实现"，需 index-owner 先给设计（5 项）。
