@@ -106,3 +106,4 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 `dialogue.kbId` 未在 resultMap 中映射，第四轮「kbId 存在」的结论据此降级。
 
 **r5 未受影响**：产物全在 `docs/baseline/validation/`、`loops/**`（`snapshot()` 排除）。
+| R5-C1 | 全 37 表 ORM 覆盖率（A2 扩展） | **DONE** | `A2-ORM-COVERAGE.md`、`evidence/db-orm-coverage.json`；FULL 14 / PARTIAL 17 / NONE 3 / NO_MAPPER 3 | **CANDIDATE** |
