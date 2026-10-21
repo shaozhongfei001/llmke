@@ -111,7 +111,13 @@ def main() -> int:
             if key in seen:
                 continue
             seen.add(key)
-            parsed.append({"path": rel, "resolved": key, **parse_entity(hit)})
+            # 只记录相对路径：绝对路径会命中扫描器的 PERSONAL_ABSOLUTE_PATH，
+            # 且证据文件不应携带宿主环境信息（本工具首版曾犯此错，见 FAILURES）。
+            try:
+                shown = hit.resolve().relative_to(src.resolve()).as_posix()
+            except ValueError:
+                shown = hit.name
+            parsed.append({"path": rel, "entity_rel": shown, **parse_entity(hit)})
         ent_n = sum(p["n_fields"] for p in parsed)
         entity_total += ent_n
         rec = {
@@ -144,10 +150,12 @@ def main() -> int:
 
     out_json = a.out / "db-entity-check.json"
     out_json.parent.mkdir(parents=True, exist_ok=True)
+
     payload = {
         "scope": "37 tables / DO entities, static only",
         "warning": "实体字段数 != 实际表结构；结论仅 CANDIDATE，不替代真实 DDL",
-        "src_roots": [str(p) for p in src_roots],
+        "src_roots": ["RAG-SRC/_src/gien-rag/gien-rag",
+                      "RAG-SRC/_src/rag-alg-service-api/rag-alg-service-api"],
         "totals": {
             "tables": len(results),
             "declared_fields": declared_total,
@@ -165,7 +173,14 @@ def main() -> int:
         "dialogue_identity_fields": subject_view,
         "items": results,
     }
-    out_json.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    # 自检：证据文件不得携带宿主绝对路径（本工具首版曾因此被 security-check 判失败）
+    personal = re.compile(r"(?<![\w.])(?:/home|/Users)/[A-Za-z0-9._-]+/")
+    body = json.dumps(payload, ensure_ascii=False, indent=1)
+    if personal.search(body):
+        print("FAIL: artifact would contain a personal absolute path; refusing to write",
+              file=sys.stderr)
+        return 3
+    out_json.write_text(body + "\n", encoding="utf-8")
 
     t = payload["totals"]
     lines = [

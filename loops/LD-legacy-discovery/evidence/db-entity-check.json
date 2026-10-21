@@ -2,8 +2,8 @@
  "scope": "37 tables / DO entities, static only",
  "warning": "实体字段数 != 实际表结构；结论仅 CANDIDATE，不替代真实 DDL",
  "src_roots": [
-  "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag",
-  "/home/szf/data/repo/RAG-SRC/_src/rag-alg-service-api/rag-alg-service-api"
+  "RAG-SRC/_src/gien-rag/gien-rag",
+  "RAG-SRC/_src/rag-alg-service-api/rag-alg-service-api"
  ],
  "totals": {
   "tables": 37,
@@ -121,7 +121,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/AnswerDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/AnswerDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/AnswerDO.java",
      "table": "answer",
      "fields": [
       {
@@ -260,7 +260,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/ApiKeyInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/ApiKeyInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/ApiKeyInfoDO.java",
      "table": "api_key_info",
      "fields": [
       {
@@ -367,7 +367,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/BizLabelDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/BizLabelDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/BizLabelDO.java",
      "table": "biz_label",
      "fields": [
       {
@@ -466,7 +466,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DepartmentInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DepartmentInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DepartmentInfoDO.java",
      "table": "department_info",
      "fields": [
       {
@@ -573,7 +573,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DeptPrivilegeDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DeptPrivilegeDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DeptPrivilegeDO.java",
      "table": "dept_privilege",
      "fields": [
       {
@@ -672,7 +672,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/DialogueDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/DialogueDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/DialogueDO.java",
      "table": "dialogue",
      "fields": [
       {
@@ -795,7 +795,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/FeedbackDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/FeedbackDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/FeedbackDO.java",
      "table": "feedback",
      "fields": [
       {
@@ -966,7 +966,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FileParseTaskDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FileParseTaskDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FileParseTaskDO.java",
      "table": "file_parse_task",
      "fields": [
       {
@@ -1113,7 +1113,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FolderInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FolderInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FolderInfoDO.java",
      "table": "folder_info",
      "fields": [
       {
@@ -1228,7 +1228,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupInfoDO.java",
      "table": "group_info",
      "fields": [
       {
@@ -1319,7 +1319,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupPrivilegeDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupPrivilegeDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupPrivilegeDO.java",
      "table": "group_privilege",
      "fields": [
       {
@@ -1418,7 +1418,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/InterfaceInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/InterfaceInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/InterfaceInfoDO.java",
      "table": "interface_info",
      "fields": [
       {
@@ -1541,7 +1541,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KbLabelHisDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KbLabelHisDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KbLabelHisDO.java",
      "table": "kb_label_his",
      "fields": [
       {
@@ -1624,7 +1624,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseDO.java",
      "table": "knowledge_base",
      "fields": [
       {
@@ -1763,7 +1763,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseListDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseListDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseListDO.java",
      "table": "knowledge_base_list",
      "fields": [
       {
@@ -2054,7 +2054,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ModelInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ModelInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ModelInfoDO.java",
      "table": "model_info",
      "fields": [
       {
@@ -2201,7 +2201,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/QuestionDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/QuestionDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/QuestionDO.java",
      "table": "question",
      "fields": [
       {
@@ -2316,7 +2316,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingFileDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingFileDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingFileDO.java",
      "table": "re_embedding_file",
      "fields": [
       {
@@ -2447,7 +2447,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingRetryTaskDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingRetryTaskDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingRetryTaskDO.java",
      "table": "re_embedding_retry_task",
      "fields": [
       {
@@ -2570,7 +2570,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingTaskDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingTaskDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingTaskDO.java",
      "table": "re_embedding_task",
      "fields": [
       {
@@ -2701,7 +2701,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInfoDO.java",
      "table": "resource_info",
      "fields": [
       {
@@ -2840,7 +2840,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInterfaceDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInterfaceDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInterfaceDO.java",
      "table": "resource_interface",
      "fields": [
       {
@@ -2923,7 +2923,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleInfoDO.java",
      "table": "role_info",
      "fields": [
       {
@@ -3022,7 +3022,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleResourceDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleResourceDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleResourceDO.java",
      "table": "role_resource",
      "fields": [
       {
@@ -3113,7 +3113,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/SearchConfigDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/SearchConfigDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/SearchConfigDO.java",
      "table": "search_config",
      "fields": [
       {
@@ -3252,7 +3252,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/sensitive-words-service/src/main/java/com/gientech/sensitivewordsservice/domain/model/SensitiveWordsDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/sensitive-words-service/src/main/java/com/gientech/sensitivewordsservice/domain/model/SensitiveWordsDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/sensitive-words-service/src/main/java/com/gientech/sensitivewordsservice/domain/model/SensitiveWordsDO.java",
      "table": "sensitive_words",
      "fields": [
       {
@@ -3327,7 +3327,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/SynLogDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/SynLogDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/SynLogDO.java",
      "table": "syn_log",
      "fields": [
       {
@@ -3434,7 +3434,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLDatabaseDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLDatabaseDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLDatabaseDO.java",
      "table": "tools_database",
      "fields": [
       {
@@ -3581,7 +3581,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableDO.java",
      "table": "tools_table",
      "fields": [
       {
@@ -3712,7 +3712,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableColumnDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableColumnDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableColumnDO.java",
      "table": "tools_table_column",
      "fields": [
       {
@@ -3819,7 +3819,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableFileDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableFileDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableFileDO.java",
      "table": "tools_table_file",
      "fields": [
       {
@@ -3982,7 +3982,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserGroupDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserGroupDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserGroupDO.java",
      "table": "user_group",
      "fields": [
       {
@@ -4073,7 +4073,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserInfoDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserInfoDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserInfoDO.java",
      "table": "user_info",
      "fields": [
       {
@@ -4308,7 +4308,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserOperateDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserOperateDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserOperateDO.java",
      "table": "user_operate",
      "fields": [
       {
@@ -4423,7 +4423,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserPrivilegeDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserPrivilegeDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserPrivilegeDO.java",
      "table": "user_privilege",
      "fields": [
       {
@@ -4522,7 +4522,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserRoleDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserRoleDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserRoleDO.java",
      "table": "user_role",
      "fields": [
       {
@@ -4613,7 +4613,7 @@
    "entities": [
     {
      "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserSecurityQuestionDO.java",
-     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserSecurityQuestionDO.java",
+     "entity_rel": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserSecurityQuestionDO.java",
      "table": "user_security_question",
      "fields": [
       {

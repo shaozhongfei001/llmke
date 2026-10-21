@@ -68,3 +68,21 @@ python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r5     
 - `dialogue` 实体 13 字段：**`create_by` 存在、`user_id` 不存在**、`kb_id` 存在
   → 与设计文档「建 `user_id` 索引」的要求冲突，需 `data-owner` 用 DDL 裁定。
 - 边界：实体字段数 ≠ 表结构；未识别继承字段、逻辑删除、JSON 列；不替代 M-04。
+
+---
+
+## 7. 第四轮（QA 等待期间）
+
+| ID | 事项 | 状态 | 产物 |
+|---|---|---|---|
+| R4-1 | QA 信任链调查与签署决策包 | **DONE** | `docs/baseline/validation/QA-TRUST-CHAIN.md` |
+| R4-2 | P0-01 506 条可填决策表 | **DONE** | `evidence/interface-decision-table.csv`（504 OK / 1 行号漂移 / 1 仅注释） |
+| R4-3 | P0-02 字段级对照 | **DONE（CANDIDATE）** | `ROUND4-PARALLEL-WORK.md` §2；台账无字段名清单，已登记为 data-owner 输入 |
+| R4-4 | P0-03 E1–E8 + 六类负例草案 | **DONE（草案）** | 同文件 §3 |
+| R4-5 | PDF 集成验证 | **BLOCKED** | 两臂均不可运行；就绪度证据 + 协议 + 输入清单 |
+| R4-6 | 扫描范围 502/503 调查 | **DONE** | `evidence/security-scan-scope.json`；根因=扫描整树、每跑门禁 +1 日志 |
+| R4-7 | 控制面缺陷提案 P-08/P-09/P-10 | **DONE（提案）** | `ROUND4-PROPOSALS.md` |
+| R4-8 | 修复自引入的绝对路径回归 | **DONE** | `FAIL-4TH-01`；security-check 恢复 PASS |
+
+**r5 候选未受影响**：所有产物位于 `docs/baseline/validation/` 与 `loops/**`（`snapshot()` 排除），
+`record.source_sha256 == snapshot(ROOT)` 复核仍为 `True`。
