@@ -66,12 +66,18 @@
       "desc": "集合级完整性：重复 evidence_id / 同 chunk 重叠 / 跨 chunk 重叠 / 空集合（fail-closed）",
       "evidence": "loops/ROUND8/evidence/pytest-r8-set.log",
       "tests": "35 passed"
+    },
+    "R8-T13": {
+      "status": "VERIFIED",
+      "desc": "parser_version 混用检测（同一文档版本出现两套 offset 坐标系）",
+      "evidence": "loops/ROUND8/evidence/pytest-r8-parser-version.log",
+      "tests": "39 passed"
     }
   },
   "gates": {
     "framework_verify": "exit 0 / 145 passed（r8 工作树，mk.sh 自动识别 root）",
     "p0_gate": 2,
     "r5_evidence_check": "PASS（原工作树，未变）",
-    "module_tests": "35 passed（不属 framework-verify，见 D8）"
+    "module_tests": "39 passed（不属 framework-verify，见 D8）"
   }
 }

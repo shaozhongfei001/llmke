@@ -110,10 +110,15 @@ def _document_key(ev: dict) -> tuple:
 def check_evidence_set(evidence: list[dict]) -> None:
     """集合级完整性校验（单条装配看不到的问题）。
 
-    两类真实缺陷：
+    三类真实缺陷：
     1. **重复 evidence_id**：同一 id 指向两段不同文本时，上层按 id 去重会静默丢证据，
        按 id 索引又会取到错误片段。→ DUPLICATE_EVIDENCE_ID
-    2. **区间重叠**：
+    2. **parser_version 混用**：offset 是"码点下标"，其含义由解析器版本决定。
+       同一 document_version 下出现两个解析器版本，等价于"同一版本文档有两套坐标系"，
+       区间之间不再可比：重叠判定会失真，页码/高亮回填会错位。
+       版本语义被破坏，必须由上游升 document_version，而不是在这里折中。
+       → PARSER_VERSION_MIXED
+    3. **区间重叠**：
        - 同一 chunk 内两段重叠 → 证据重复计数（支撑率虚高）→ SAME_CHUNK_OVERLAP
        - 不同 chunk 但区间重叠 → 切分器产出重叠块，同一段原文被两个 chunk 同时认领，
          去重后仍会互相"佐证"，是更隐蔽的虚高来源 → CROSS_CHUNK_OVERLAP
@@ -127,6 +132,20 @@ def check_evidence_set(evidence: list[dict]) -> None:
                 "DUPLICATE_EVIDENCE_ID",
                 f"{eid} 出现在第 {seen[eid]} 与第 {i} 条")
         seen[eid] = i
+
+    # parser_version 一致性：同一文档版本只能有一套 offset 坐标系
+    versions: dict[tuple, tuple] = {}
+    for ev in evidence:
+        key = _document_key(ev)
+        pv = ev["source_ref"]["offset"]["parser_version"]
+        prev = versions.get(key)
+        if prev is None:
+            versions[key] = (pv, ev["evidence_id"])
+        elif prev[0] != pv:
+            raise EvidenceError(
+                "PARSER_VERSION_MIXED",
+                f"{key[1]}@{key[2]}: {prev[1]} 来自 {prev[0]}，"
+                f"{ev['evidence_id']} 来自 {pv}；offset 不可比，须由上游升 document_version")
 
     groups: dict[tuple, list[tuple]] = {}
     for ev in evidence:

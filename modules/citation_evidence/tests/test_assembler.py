@@ -256,9 +256,9 @@ def test_cli_assemble_still_accepts_legacy_invocation(tmp_path):
 
 
 # ---- 集合级完整性：重复 id / 跨 chunk 重叠（单条装配看不见的缺陷） ----
-def item(start, end, chunk="c-7", evidence_id="ev-1"):
+def item(start, end, chunk="c-7", evidence_id="ev-1", pv="p-1.0"):
     off = {"start": start, "end": end, "unit": "unicode_codepoint",
-           "text_hash": text_hash(DOC[start:end]), "parser_version": "p-1.0"}
+           "text_hash": text_hash(DOC[start:end]), "parser_version": pv}
     return {"evidence_id": evidence_id, "document_text": DOC,
             "source": src(chunk_id=chunk, offset=off)}
 
@@ -346,3 +346,38 @@ def test_cli_assemble_set_positive(tmp_path):
                        cwd=str(ROOT), capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
     assert json.loads(r.stdout)["count"] == 2
+
+
+# ---- parser_version 混用：同一文档版本出现两套 offset 坐标系 ----
+def test_set_mixed_parser_versions_rejected():
+    """offset 是码点下标，其含义由解析器版本决定；混用即不可比，必须由上游升 document_version。"""
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([item(0, 6, "c-1", "ev-1", "p-1.0"),
+                       item(6, 12, "c-2", "ev-2", "p-2.0")])
+    assert e.value.code == "PARSER_VERSION_MIXED"
+    assert "p-1.0" in e.value.detail and "p-2.0" in e.value.detail
+
+
+def test_set_same_parser_version_across_chunks_ok():
+    from modules.citation_evidence.assembler import assemble_many
+    assert len(assemble_many([item(0, 6, "c-1", "ev-1", "p-1.0"),
+                              item(6, 12, "c-2", "ev-2", "p-1.0")])) == 2
+
+
+def test_set_parser_version_may_differ_across_documents():
+    """不同文件各自有自己的解析器版本，不算混用（否则会误伤多文档检索）。"""
+    from modules.citation_evidence.assembler import assemble_many
+    a = item(0, 6, "c-1", "ev-1", "p-1.0")
+    b = item(0, 6, "c-1", "ev-2", "p-2.0")
+    b["source"] = {**b["source"], "file_id": "f-2"}
+    assert len(assemble_many([a, b])) == 2
+
+
+def test_set_parser_version_checked_before_overlap():
+    """同时存在混版本与重叠时，先报版本混用（坐标系不可比，重叠判定本身失真）。"""
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([item(0, 6, "c-1", "ev-1", "p-1.0"),
+                       item(4, 10, "c-2", "ev-2", "p-2.0")])
+    assert e.value.code == "PARSER_VERSION_MIXED"
