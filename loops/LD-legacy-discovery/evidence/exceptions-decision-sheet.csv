@@ -1,0 +1,7 @@
+row_id,kind,name,notes,evidence,decision_needed,owner_role,blocked_scope,decision_status,approved_by,approved_at,approval_evidence
+DB-18,TABLE,re_embedding_file,count_mismatch,实体 14 vs 台账 13（不一致，方向待 DDL）；ORM 覆盖 NONE；SQL 引用列 3 个,需要真实 DDL 与字段名清单：确定是多一列还是少一列，并指出具体列名,data-owner,P0-02、该表复用决议,DECISION_PENDING,,,
+DB-19,TABLE,re_embedding_retry_task,count_mismatch,实体 13 vs 台账 12（不一致，方向待 DDL）；ORM 覆盖 NONE；SQL 引用列 3 个,需要真实 DDL 与字段名清单：确定是多一列还是少一列，并指出具体列名,data-owner,P0-02、该表复用决议,DECISION_PENDING,,,
+DB-20,TABLE,re_embedding_task,count_mismatch,实体 14 vs 台账 13（不一致，方向待 DDL）；ORM 覆盖 PARTIAL；SQL 引用列 4 个,需要真实 DDL 与字段名清单：确定是多一列还是少一列，并指出具体列名,data-owner,P0-02、该表复用决议,DECISION_PENDING,,,
+DB-34,TABLE,user_operate,count_mismatch,实体 12 vs 台账 13（不一致，方向待 DDL）；ORM 覆盖 FULL；SQL 引用列 3 个,需要真实 DDL 与字段名清单：确定是多一列还是少一列，并指出具体列名,data-owner,P0-02、该表复用决议,DECISION_PENDING,,,
+API-0345,INTERFACE,GET /ai/getRerankModelInfos,static_status=PATH_ONLY_COMMENTED,路径仅存在于注释，方法已注释,给出书面决议：该接口是否曾上线、是否迁移（不得默认废弃）,interface-owner,P0-01、该接口决议,DECISION_PENDING,,,
+API-0425,INTERFACE,GET /database/dataTable/queryTableFileData/{databaseId}/{tableId},static_status=LINE_DRIFT,源码存在，清单行号漂移,确认 handler 归属与当前行号，避免把漂移当成缺失,interface-owner,P0-01 清单准确性,DECISION_PENDING,,,

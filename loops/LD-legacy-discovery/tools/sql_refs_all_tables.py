@@ -63,6 +63,20 @@ def main() -> int:
             rm = columns_from_mapper(xml)["result_map"]
             mapped = {c.lower() for c in rm.values()}
         meta[t]["mapper_cols"] = mapped
+        # 判定映射方式：MyBatis-Plus 的 BaseMapper 实体没有 XML SQL，
+        # 运行时由框架按驼峰→下划线约定生成 SQL。此时"零 SQL 引用"不代表不被访问。
+        mapper_java = find(src, stem + "Mapper.java")
+        mp = False
+        if mapper_java:
+            mj = mapper_java.read_text(encoding="utf-8", errors="replace")
+            mp = "BaseMapper" in mj
+        n_stmt = 0
+        if xml:
+            x = xml.read_text(encoding="utf-8", errors="replace")
+            n_stmt = len(re.findall(r"<(select|insert|update|delete)\b", x))
+        meta[t]["mapping_mode"] = ("MP_BASEMAPPER" if (mp and n_stmt == 0)
+                                   else ("XML_SQL" if n_stmt else "RESULTMAP_ONLY"))
+        meta[t]["table_annotation"] = bool(re.search(r'@TableName\s*\(', java.read_text(encoding="utf-8", errors="replace")))
         for f in fields:
             c = norm(f)
             tables[t].add(c)
@@ -101,13 +115,21 @@ def main() -> int:
             "columns_mapper_fact": len(cols - m["inferred"]),
             "columns_camel_inference": len(m["inferred"]),
             "columns_referenced": len(ref),
+            "mapping_mode": m.get("mapping_mode", "UNKNOWN"),
+            "table_annotation": m.get("table_annotation", False),
+            "zero_reference_explained": ("MP_BASEMAPPER：运行时由框架生成 SQL，XML 中本就无 SQL"
+                                         if m.get("mapping_mode") == "MP_BASEMAPPER" and not ref
+                                         else ""),
             "columns_unreferenced": sorted(cols - ref),
             "unreferenced_from_mapper_fact": sorted((cols - m["inferred"]) - ref),
             "evidence_levels": {
                 "MAPPER_FACT": "resultMap 显式声明",
-                "CAMEL_INFERENCE": "DO 属性驼峰推断（推断，非事实）",
+                "MP_BASEMAPPER_CONVENTION": "MyBatis-Plus 按驼峰→下划线映射（框架约定，非 DDL）",
+                "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
                 "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）",
             },
+            "inferred_basis": ("MP_BASEMAPPER_CONVENTION"
+                               if m.get("mapping_mode") == "MP_BASEMAPPER" else "CAMEL_INFERENCE"),
             "referenced_columns": sorted(ref),
         })
 

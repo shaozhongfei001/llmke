@@ -140,3 +140,5 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 **修复未改变 38%**：真实 34 个 mapper 中嵌套映射 0、同名 property 冲突 0 —— 修复价值在消除潜在风险。
 | R7-A1b | 全 37 表列引用索引（带证据等级） | **DONE** | `evidence/sql-refs-all-tables.json`、`tools/sql_refs_all_tables.py`；484 列（MAPPER_FACT 365 / CAMEL_INFERENCE 119），被引用 270 | 只读索引 |
 | R7-M2 | 22 组批量审阅包 | **DONE** | `REUSE-REVIEW-PACK.md`、`evidence/reuse-review-pack-summary.json`；555 行、**例外仅 6 行** | 候选 |
+| R7-A1c | 零引用表核查（映射方式取证） | **DONE** | `sql-refs-all-tables.json` 增 `mapping_mode`；27 XML_SQL / **10 MP_BASEMAPPER**；5 张零引用表全部为 BaseMapper 实体，零引用已解释 | 事实 |
+| R7-M3 | 6 条例外独立裁决单 | **DONE** | `EXCEPTIONS-DECISION-SHEET.md`、`evidence/exceptions-decision-sheet.csv` | 待裁决 |
