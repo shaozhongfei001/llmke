@@ -136,3 +136,18 @@
   回填台账后无法复现。已用"缩进+CRLF"夹具验证哈希一致。
 - 验证：完整匹配 0；缺表/多表/列数漂移均 exit 2 并点名；`--ignore-count-drift` 降级为提示。
 - 诚实边界：不判类型/长度/索引/语义——台账没有这些基线，硬判会产生假结论。
+
+## D20 找到真实源码与上游清单，两项仪器从"猜"变成"跑"
+- 源码：`~/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent`（1003 个 java）。
+- 上游：`docs/upstream/` 有接口总表 CSV（506 = Java 440 + Python 66）与字段明细 CSV（482 行）。
+- P0-01 实测：排除 27 个 Feign 客户端后，源码活路由 440，清单 Java 440；
+  清单有源码无=1（`/ai/getRerankModelInfos`，注解已在 `AiController.java:135` 注释掉，
+  清单还把它记成 `audioUploadAndIdentify`）；源码有清单无=1（`/version/getCurrentVersion`）。
+  两个 440 相等是巧合、差异方向相反互相抵消 —— 总数核对会得出"清单准确"的错误结论。
+- P0-02 升级为字段级：接入字段明细 CSV，能判列名/类型长度/可空，4 类差异均验证。
+
+## D21 仪器自身的三次假差异（都已修）
+- 处理函数取到 `@OperationLog` → 198 条假 HANDLER_DIFF；
+- 无 class 声明时起始下标误设为 len(matches) → 注释路由永远为 0；
+- `@GetMapping` 可无括号 → 漏 3 条 `/roleResource`，把清单误判成多记。
+结论：工具也会造假差异，每条差异都要回到源码行确认。

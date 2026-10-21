@@ -39,6 +39,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 LEDGER = REPO / "docs/reuse/DATABASE-ASSETS.yaml"
+# 字段级基线：来自上游「数据库表结构-字段明细.csv」（由 DO 实体导出），
+# 有它才能把比对从"列数"提升到"列名 + 类型 + 可空"。
+FIELD_CSV = REPO / "docs/upstream/数据库表结构-字段明细.csv"
 
 CREATE_RE = re.compile(
     r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`\"']?([A-Za-z0-9_]+)[`\"']?\s*\(",
@@ -94,7 +97,11 @@ def parse_columns(body: str):
             continue
         m = re.match(r"^[`\"']?([A-Za-z0-9_]+)[`\"']?\s+([A-Za-z]+(?:\([^)]*\))?)", line)
         if m:
-            cols.append((m.group(1), m.group(2)))
+            cols.append({
+                "name": m.group(1).lower(),
+                "type": m.group(2).upper(),
+                "nullable": "NOT NULL" not in line.upper(),
+            })
     return cols
 
 
@@ -117,6 +124,32 @@ def normalize(body: str) -> str:
     return "\n".join(ln for ln in lines if ln)
 
 
+def load_fields(path: Path):
+    import csv
+    out: dict[str, dict] = {}
+    for r in csv.DictReader(path.read_text(encoding="utf-8-sig").splitlines()):
+        table = (r.get("表名") or "").strip()
+        col = (r.get("字段名") or "").strip().lower()
+        if not table or not col:
+            continue
+        out.setdefault(table, {})[col] = {
+            "type": (r.get("SQL类型") or "").upper(),
+            "len": (r.get("长度") or "").strip(),
+            "nullable": (r.get("可空") or "").strip() == "是",
+            "pk": (r.get("主键") or "").strip(),
+            "auto": (r.get("自增") or "").strip(),
+        }
+    return out
+
+
+def type_of(col: dict) -> str:
+    """带长度才算完整类型：VARCHAR(64) 与 VARCHAR(128) 不应视为相同。"""
+    ty = col["type"]
+    if "(" in ty:
+        return ty
+    return f"{ty}({col['len']})" if col.get("len") else ty
+
+
 def load_ledger():
     import yaml
     doc = yaml.safe_load(LEDGER.read_text(encoding="utf-8"))
@@ -127,6 +160,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ddl", type=Path, required=True, help="含 CREATE TABLE 的 SQL 文件")
     ap.add_argument("--ledger", type=Path, default=LEDGER)
+    ap.add_argument("--fields-csv", type=Path, default=FIELD_CSV,
+                    help="字段级基线（上游字段明细 CSV）；缺省自动读取")
     ap.add_argument("--ignore-count-drift", action="store_true",
                     help="只把表集合差异判为失败（列数不等仅提示）")
     ap.add_argument("--emit-patch", action="store_true", help="输出台账 actual_ddl_sha256 回填片段")
@@ -172,10 +207,39 @@ def main() -> int:
         print(f"  COUNT_DRIFT:    {n} 台账={want} DDL={got} → 需人工确认"
               f"（DO 可能含非持久化字段）")
 
+    field_base = {}
+    if a.fields_csv and Path(a.fields_csv).is_file():
+        field_base = load_fields(Path(a.fields_csv))
+
+    col_findings = []
+    if field_base:
+        for name in sorted(set(field_base) & set(actual)):
+            want, got = field_base[name], {c["name"]: c for c in actual[name]["cols"]}
+            for col in sorted(set(want) - set(got)):
+                col_findings.append(f"MISSING_COLUMN: {name}.{col}（基线 {type_of(want[col])}）")
+            for col in sorted(set(got) - set(want)):
+                col_findings.append(f"EXTRA_COLUMN:   {name}.{col}（DDL {got[col]['type']}）")
+            for col in sorted(set(want) & set(got)):
+                w, g = want[col], got[col]
+                if type_of(w).replace(" ", "") != g["type"].replace(" ", ""):
+                    col_findings.append(
+                        f"TYPE_MISMATCH:  {name}.{col} 基线 {type_of(w)} DDL {g['type']}")
+                if w["nullable"] != g["nullable"]:
+                    wnull = "NULL" if w["nullable"] else "NOT NULL"
+                    gnull = "NULL" if g["nullable"] else "NOT NULL"
+                    col_findings.append(
+                        f"NULL_MISMATCH:  {name}.{col} 基线 {wnull} DDL {gnull}")
+
+    print(f"\n字段级比对：基线表={len(field_base)}  发现差异={len(col_findings)}")
+    for f_ in col_findings[:20]:
+        print("  " + f_)
+    if len(col_findings) > 20:
+        print(f"  ...（共 {len(col_findings)} 条，仅显示前 20）")
+
     if a.dump_columns:
         print("\n逐表列（供人工核对类型/语义）:")
         for n in sorted(actual):
-            cols = ", ".join(f"{c}:{t}" for c, t in actual[n]["cols"])
+            cols = ", ".join(f"{c['name']}:{c['type']}" for c in actual[n]["cols"])
             engine, charset = actual[n]["opts"]
             print(f"  {n} [{engine or '?'}/{charset or '?'}] {cols}")
 
@@ -184,9 +248,12 @@ def main() -> int:
         for n in sorted(actual):
             print(f"# {n}\n#   actual_ddl_sha256: {actual[n]['sha']}")
 
-    failed = bool(missing or extra) or (bool(drift) and not a.ignore_count_drift)
+    failed = (bool(missing) or bool(extra) or bool(col_findings)
+              or (bool(drift) and not a.ignore_count_drift and not field_base))
     if failed:
-        verdict = "FAIL（存在差异，需按上面的清单补齐或裁定）"
+        verdict = ("FAIL（存在差异，需按上面的清单补齐或裁定）"
+                   if not col_findings else
+                   f"FAIL（{len(col_findings)} 处字段级差异，见上）")
     elif drift:
         verdict = f"PASS（表集合一致；{len(drift)} 处列数漂移按 --ignore-count-drift 忽略，仍需人工确认）"
     else:

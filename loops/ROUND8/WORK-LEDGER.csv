@@ -18,3 +18,5 @@ R8-T16,tech-lead,R8-T15,"patches/window-bundle-v1.diff（W-05/W-05b/W-02/W-04）
 R8-T17,tech-lead,R8-T16,"窗口执行：弃 r7 -> 应用补丁 -> r9 候选","run_batch 9 条 + framework-verify","VERIFIED",docs/baseline/validation/W-02-W05-RESULT.md,,"8/8 开发 pass + QA_PENDING；坏 PATH 下复现；r8 因授权留痕不完整作废"
 R8-T18,qa-external,R8-T01,"docs/baseline/validation/p0-gate-redteam-audit.py（P0 闸门红队）","python3 docs/baseline/validation/p0-gate-redteam-audit.py",VERIFIED,docs/baseline/validation/P0-GATE-REDTEAM-AUDIT.md,,14/14 用例被拦；未改控制面
 R8-T19,data-owner,R8-T02,"docs/baseline/validation/p0-02-ddl-diff.py（DDL↔台账差异仪器）","python3 docs/baseline/validation/p0-02-ddl-diff.py --ddl <sql>",VERIFIED,docs/baseline/validation/P0-02-DDL-INSTRUMENT.md,,6 组合成夹具；指纹对缩进/CRLF 稳定
+R8-T20,interface-owner,R8-T02,"docs/baseline/validation/p0-01-route-extract.py（源码路由提取）","python3 ... --src <rag-parent> --csv <csv>",VERIFIED,docs/baseline/validation/P0-01-ROUTE-EXTRACT.md,,"Java 440 vs 源码 440；1 条注释接口 + 1 条未登记"
+R8-T21,data-owner,R8-T19,"docs/baseline/validation/p0-02-ddl-diff.py（v2 字段级）","python3 ... --ddl <sql>",VERIFIED,docs/baseline/validation/P0-02-DDL-INSTRUMENT.md,,"接入字段明细 CSV；4 类差异已验证"
