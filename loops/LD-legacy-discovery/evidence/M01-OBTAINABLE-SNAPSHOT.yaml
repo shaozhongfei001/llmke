@@ -1,0 +1,115 @@
+# M-01/M-02/M-03 事实登记：可获得源码快照（非生产发布基线）
+#
+# 本文件是 LD 批次的证据登记，不参与冻结源码快照（loops/** 只计 LOOP.yaml），
+# 因此登记本文件不会使 L0/LD 已通过的门禁证据失效。
+# 明确不声称：这不是发布基线，未获 owner 批准，不能作为「直接复用」的依据。
+
+register_version: 1
+record_id: LD-M01-OBTAINABLE-SNAPSHOT-20261021
+recorded_at: "2026-10-21"
+recorded_by_role: tech-lead
+basis: USER_STATEMENT
+
+fact:
+  statement: 现有版本即可获得的全部代码；原有生产版本不可获得。
+  confirmed_by: user
+  confirmed_at: "2026-10-21"
+  superseded_by: docs/approvals/OWNER-RESOLUTION-2026-10-21-PRODUCTION-BASELINE.md
+  resolution: 业主同日认定「可获得快照即生产版本」（OWNER-RES-2026-10-21-PROD-BASELINE）。
+  consequence:
+    - M-01/M-02 由「永久不可获得」改为「可取本快照的 commit/SHA256 登记」，须标注身份来自业主认定。
+    - M-03（dev↔prod 差异）改为「按定义同源、差异为空」，须标注「由认定得出，非实测」。
+    - P0 关闭标准**不变**：运行时路由、调用方确认、真实 DDL、恢复副本仍须另出证据。
+    - 真实生产库 DDL 快照（M-04）与恢复副本是否可获得，仍需 data-owner 书面确认。
+
+obtainable_snapshot:
+  location_hint: 工作区外归档目录 RAG-SRC（由 RAGCODE-readme.csv 与版本表 RAG代码及版本_刘太云.xlsx 界定）
+  status: PRODUCTION_BASELINE_BY_OWNER_RESOLUTION
+  owner_resolution: docs/approvals/OWNER-RESOLUTION-2026-10-21-PRODUCTION-BASELINE.md
+  status_note: 业主 2026-10-21 认定该快照即生产版本；不改变任何 P0 关闭条件、不关闭任何 P0
+  artifacts:
+    - module: Java 后端（对应 CODE-05…CODE-12 八个模块）
+      archive: gien-rag.zip
+      archive_sha256: 506344a434298ddaa8044cfba83170772aa65a59658f3ff4ca3649b794f824e5
+      archive_bytes: 28302170
+      branch: prod
+      commit: 2b363e6a322e9d15834d5ffb76c9868b18c53525
+      commit_date: "2026-01-20T22:10:25+08:00"
+      describe: v2.3_1212-235-g2b363e6a3
+      root_subdir: rag-parent
+      modules:
+        - rag-auth-service
+        - rag-index-service
+        - rag-qa-service
+        - rag-graph-service
+        - sensitive-words-service
+        - tools/tools-database
+        - rag-common
+        - rag-gateway
+      extra_modules_present_not_in_assets:
+        - code-generate
+        - elastic-search-service
+    - module: Python 后端（对应 CODE-01…CODE-04 四个模块）
+      archive: rag-alg-service-api.zip
+      archive_sha256: af0082717fbe6c10ac59c9bceee8110353af539c394bb89f4c6c558274beba1e
+      archive_bytes: 9501089
+      branch: dev
+      commit: 7299b288354401eb0321a74e9aaed8172c7f2a2e
+      commit_date: "2025-12-26T14:01:08+08:00"
+      describe: v2.1.0-20-g7299b288
+      modules:
+        - alg_doc_parse_service
+        - alg_llm_inference_service
+        - alg_retrieval_service
+        - index_data_service
+    - module: 前端（不在 12 项源码资产范围内，本批次不判断）
+      archive: mxmodules.zip
+      branch: main
+      archive_sha256: NOT_COMPUTED
+    - module: 前端（同上）
+      archive: ai-plateform.zip
+      branch: prod
+      archive_sha256: NOT_COMPUTED
+
+cross_checks:
+  file_count_match:
+    method: 按主语言（py/java）统计源文件数，与 SOURCE-ASSETS.yaml 的 reported_file_count 逐项比对
+    result: 12/12 全等
+    detail:
+      alg_doc_parse_service: {measured_py: 84, reported: 84}
+      alg_llm_inference_service: {measured_py: 45, reported: 45}
+      alg_retrieval_service: {measured_py: 59, reported: 59}
+      index_data_service: {measured_py: 135, reported: 135}
+      rag-auth-service: {measured_java: 187, reported: 187}
+      rag-index-service: {measured_java: 196, reported: 196}
+      rag-qa-service: {measured_java: 107, reported: 107}
+      rag-graph-service: {measured_java: 18, reported: 18}
+      sensitive-words-service: {measured_java: 24, reported: 24}
+      tools-database: {measured_java: 71, reported: 71}
+      rag-common: {measured_java: 379, reported: 379}
+      rag-gateway: {measured_java: 8, reported: 8}
+  interface_source_path_hit:
+    method: 从 INTERFACE-ASSETS.yaml 抽样 source_file 回查源码树
+    sampled: 3
+    hit: 3
+    samples:
+      - rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/interfaces/AgentController.java
+      - rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/interfaces/AuthenticateController.java
+      - rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/AnswerDO.java
+  worktree_vs_head:
+    method: git diff -w（忽略空白）与 numstat 对比
+    gien-rag: {changed_files: 1103, additions: 481799, deletions: 481799, diff_ignore_whitespace_lines: 0}
+    rag-alg-service-api: {changed_files: 359, diff_ignore_whitespace_lines: 0}
+    conclusion: 解压导致 CRLF/LF 转换，内容与 HEAD 一致；不得据此判断「源码被改动」
+
+not_claimed:
+  - 不声称上述 commit 是**实测**的生产在跑版本；该身份来自业主认定，不是实测。
+  - 不声称可作为「直接复用（KEEP）」的依据；12 项资产仍为 CANDIDATE_UNVERIFIED、decision=null。
+  - 不声称 506 条清单等于运行时可路由能力（仍为 INVENTORY_UNVERIFIED，runtime_evidence=0）。
+  - 不声称源码可替代实际 DDL。
+
+affects:
+  P0-01: 参照物已确定（本快照即生产），但关闭仍需：运行时路由口径裁定、约 380 条在用判断的调用日志**或调用方确认**、/retrieval_qa 书面决议。静态抽取只能作为其中一份输入。
+  P0-02: 参照物已确定，但关闭仍需真实 DDL 与生产同版本恢复副本上的迁移记录；数据库侧是否可导出待 data-owner 确认。
+  P0-03: 授权政策（M-07）属业务政策输入，与源码无关，仍可正常索取。
+  P0-04: 需 M0 题库/签署，与源码无关。

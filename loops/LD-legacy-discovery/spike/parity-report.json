@@ -1,0 +1,5774 @@
+{
+ "src": "…/alg_doc_parse_service",
+ "rewritten_files": 14,
+ "rewritten_list": [
+  "deepdoc/database_desc/build_database_desc.py",
+  "deepdoc/image_link.py",
+  "deepdoc/multi_version/version_rec.py",
+  "deepdoc/parser/ali_parser.py",
+  "deepdoc/parser/excel_parser.py",
+  "deepdoc/parser/fudan_parser.py",
+  "deepdoc/parser/image_parser.py",
+  "deepdoc/parser/mineru_parser.py",
+  "deepdoc/parser/pdf_parser.py",
+  "deepdoc/parser/text_in_parser.py",
+  "deepdoc/splitter/base.py",
+  "deepdoc/splitter/table.py",
+  "deepdoc/splitter/table_utils/table_index.py",
+  "deepdoc/utils.py"
+ ],
+ "shims": "lazy parser/__init__ replaced; shims: config.py, errors.py, model.py, progress.py, runtime.py",
+ "samples": 5,
+ "identical": 5,
+ "diff": 0,
+ "incomplete": 0,
+ "rows": [
+  {
+   "sample": "sample-docx-textonly.docx",
+   "bytes": 37081,
+   "A": {
+    "arm": "A",
+    "sample": "sample-docx-textonly.docx",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/docx_parser.py",
+    "count": 6,
+    "blocks": [
+     {
+      "page_content": "客户访前准备要点",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第一段：供应链图谱与八维研判需要结合产业调研。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第二段：日均存款 2,983,333.33 元，需与结算量交叉验证。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "对账规则",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "营收与税务开票背离时只标 TO_VERIFY，不下结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 指标 | 口径 |\n| :----: | :----: |\n| 日均存款 | 按业务日跨账户汇总后除以天数 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 指标 | 口径 |\n| :----: | :----: |\n| 日均存款 | 按业务日跨账户汇总后除以天数 |"
+     }
+    ],
+    "elapsed_ms": 319,
+    "stubbed_modules": [
+     "cv2",
+     "datrie",
+     "fastapi",
+     "hanziconv",
+     "huggingface_hub",
+     "magic_pdf",
+     "magic_pdf.config",
+     "magic_pdf.config.enums",
+     "magic_pdf.data",
+     "magic_pdf.data.data_reader_writer",
+     "magic_pdf.data.dataset",
+     "magic_pdf.model",
+     "magic_pdf.model.doc_analyze_by_custom_model",
+     "magic_pdf.utils",
+     "magic_pdf.utils.office_to_pdf",
+     "nltk",
+     "nltk.stem",
+     "onnxruntime",
+     "pyclipper",
+     "shapely",
+     "shapely.geometry"
+    ]
+   },
+   "B": {
+    "arm": "B",
+    "sample": "sample-docx-textonly.docx",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/docx_parser.py",
+    "count": 6,
+    "blocks": [
+     {
+      "page_content": "客户访前准备要点",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第一段：供应链图谱与八维研判需要结合产业调研。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第二段：日均存款 2,983,333.33 元，需与结算量交叉验证。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "对账规则",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "营收与税务开票背离时只标 TO_VERIFY，不下结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 指标 | 口径 |\n| :----: | :----: |\n| 日均存款 | 按业务日跨账户汇总后除以天数 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 指标 | 口径 |\n| :----: | :----: |\n| 日均存款 | 按业务日跨账户汇总后除以天数 |"
+     }
+    ],
+    "elapsed_ms": 378,
+    "stubbed_modules": [
+     "cv2",
+     "datrie",
+     "fastapi",
+     "hanziconv",
+     "huggingface_hub",
+     "magic_pdf",
+     "magic_pdf.config",
+     "magic_pdf.config.enums",
+     "magic_pdf.data",
+     "magic_pdf.data.data_reader_writer",
+     "magic_pdf.data.dataset",
+     "magic_pdf.model",
+     "magic_pdf.model.doc_analyze_by_custom_model",
+     "magic_pdf.utils",
+     "magic_pdf.utils.office_to_pdf",
+     "nltk",
+     "nltk.stem",
+     "onnxruntime",
+     "pyclipper",
+     "shapely",
+     "shapely.geometry"
+    ]
+   },
+   "count_a": 6,
+   "count_b": 6,
+   "verdict": "IDENTICAL"
+  },
+  {
+   "sample": "sample-m0.docx",
+   "bytes": 41794,
+   "A": {
+    "arm": "A",
+    "sample": "sample-m0.docx",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/docx_parser.py",
+    "count": 95,
+    "blocks": [
+     {
+      "page_content": "M0 评测集与基线测量方案",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "全局总结类与多跳评测集设计 · 标注规范 · Go / No-Go 门控",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 文档编号 | RAG-ALG-GRAG-M0-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待业务方评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》第 7 章、D-01~D-04 裁定 |\n| 交付物 | 本文档 + 《M0-评测题库.xlsx》（100 题） |\n| 语料范围 | 监管(银行) / 监管(信贷) / 监管(金融机构) / 法律法规场景 |\n| 数据源 | 贺亮-大模型RAG产品（本地规范位置，145 份素材） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 文档编号 | RAG-ALG-GRAG-M0-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待业务方评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》第 7 章、D-01~D-04"
+     },
+     {
+      "page_content": "目 录",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1 方案定位",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.1 为什么必须先做",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "《GraphRAG 引入技术方案》6.2 节的结论是：成本不是否决 GraphRAG 的理由，无法验证收益才是。社区摘要的增量 token 成本约为实体抽取的 8~12%，低于 LightRAG 关键词生成的 60~80%（因为摘要按社区计价，社区数只有实体数的约 3%）。因此本方案是整条 GraphRAG 路线的决定性前置：没有本方案的基线数据，M3 社区摘要 POC 无法产出可解释的结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "同理，本方案也是「图谱增强检索（P1）」的验收依据——《详细设计》附录 B 已裁定「多跳题提升 < 10 个百分点则不接通路」，这个 10 个百分点只有本方案能测出来。一套题同时服务两个项目的决策，标注成本因此被摊薄。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.2 关键决策：扩展现有评测体系，不另起一套",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "平台已有一套可用的评测体系，散落在 `问答对.xlsx`、`富文本30问.xlsx` 与「法律法规场景」人工测评中。本方案不新建口径，而是在既有结构上扩两个字段。理由：新起一套必然导致两套指标长期并存、结论无法互相引用——这正是《详细设计》14.4 节记录的「实现-状态-规划脱节」的同型问题。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 既有评测资产 | 现有形态（源材料证据） | 本方案如何处理 |\n| :----: | :----: | :----: |\n| 题目与标准答案 | `问答对.xlsx` Sheet1：id / question / type / answer | 沿用，新增 2 列（见 2.3 节） |\n| 题型分类 | `type` 取值如「简单概念类」「FAQ」「超大不规则表格」 | 沿用并扩展，新增 query_type ∈ {global, multi_hop, fact} |\n| 出处标注 | `label_source`（文档名）+ `label_chunk`（标准答案片段） | 沿用 |\n| 片段级标注 | 法律法规场景：`chunks[{source, chunk, offset:[start,end]}]` | 沿用，并明确 offset 语义（见 4.3 节） |\n| 自动打分 | LLM（百川4）打分 0~10，判别阈值 7 分 / 8 分 | 沿用，但不作为全局题的主指标（见 5 节） |\n| 人工复核 | 165 个 badcase 分派 3 人复核，标记正确/错误/看不懂 | 沿用流程，新增「要点覆盖度」判定项 |\n| 召回指标 | `指标_results.csv` 按题统计 recall | 沿用 |\n| 语料知识库 | 法律法规场景 / 监管(银行) / 监管(信贷) / 监管(金融机构) | 沿用同一批语料，不新建知识库 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 既有评测资产 | 现有形态（源材料证据） | 本方案如何处理 |\n| :----: | :----: | :----: |\n| 题目与标准答案 | `问答对.xlsx` Sheet1：id / question / type / ans"
+     },
+     {
+      "page_content": "这条决策最重要的收益是可比性：新题的基线数据与既有 500 题级评测集在同一套指标下可直接合并统计，避免出现「新的评测说提升了、旧的评测说没变」这种无法裁决的局面。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.3 必须规避的既有缺陷",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "既有评测在人工复核中暴露出一批问题，其中三项直接威胁本方案的可信度。本方案把它们当作硬约束写进设计，而不是当作偶发事故：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 既有缺陷 | 源材料证据 | 本方案的规避约束 |\n| :----: | :----: | :----: |\n| 标准答案本身有问题（占复核问题的 52%） | 复核记录：「大部分是评测语料的标准问题」；「标准答案有问题」7 例 | 4.2 节：gold 要点必须逐条给出来源标注；4.1 节：双人独立标注 + 分歧仲裁；标准答案先评审再用 |\n| 坐标没对上 | 复核记录：「评估问题 14（坐标没对上 6）」 | 4.3 节：明确 offset 的字符集与起止语义，并要求提供自动化对齐校验脚本 |\n| 评估指标计算问题 | 复核记录：「评估指标计算问题 8」 | 5.2 节：指标计算需单元自检（用已知答案构造样例验证分母口径），禁止直接复用未验证的计算代码 |\n| 主观评价争议（啰嗦与否） | 复核记录：「主观评价问题，啰嗦与否取决人评价偏好（28%）」 | 5.1 节：把「啰嗦」从全局题指标中剥离，单独列为体验项而非准确率项 |\n| 模型打分不准 | 复核记录：「模型打分不准」1 例 | 5.1 节：LLM-as-judge 仅作初筛，全局题的主指标由要点覆盖度决定 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 既有缺陷 | 源材料证据 | 本方案的规避约束 |\n| :----: | :----: | :----: |\n| 标准答案本身有问题（占复核问题的 52%） | 复核记录：「大部分是评测语料的标准问题」；「标准答案有问题」7 例 | 4"
+     },
+     {
+      "page_content": "2 题库设计",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.1 题型与配额",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "共 100 题，五类题型。配额设计说明：多跳类配额最高（35 题），因为它同时服务「图谱增强检索 P1」的验收，一套题支撑两个决策。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 题型 | 定义 | 建议配额 | 主要考察 | query_type |\n| :----: | :----: | :----: | :----: | :----: |\n| 全局主题归纳 | 跨多文档归纳同一主题的完整要求 | 20 | 社区摘要的覆盖度 | global |\n| 跨文档对比 | 对多份文档的同类条款做差异对比 | 15 | 跨社区信息整合 | global |\n| 分布与趋势 | 统计型、演进型问题 | 10 | 全局视图能力 | global |\n| 多跳串联 | 需串联两个以上实体或条款 | 35 | Local Search / HippoRAG | multi_hop |\n| 否定与排除 | 边界型问题，考察拒答与精确性 | 20 | 精确性与拒答质量 | fact |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 题型 | 定义 | 建议配额 | 主要考察 | query_type |\n| :----: | :----: | :----: | :----: | :----: |\n| 全局主题归纳 | 跨多文档归纳同一主题的完整要求 | 20 | "
+     },
+     {
+      "page_content": "2.2 知识库分布",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "题目分布在平台现有四个监管类知识库上，不新建知识库（保证与既有评测可比）：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 知识库 | 语料规模（源材料） | 题目数 | 占比 |\n| :----: | :----: | :----: | :----: |\n| 监管(银行) | 262 文件 / 121.6 万字符 | 49 | 49% |\n| 监管(信贷) | 45.4 万字符 | 23 | 23% |\n| 法律法规场景 | 46.2 万字符 | 14 | 14% |\n| 监管(金融机构) | 21.4 万字符 | 14 | 14% |\n| 合计 | 约 234 万字符 | 100 | 100% |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 知识库 | 语料规模（源材料） | 题目数 | 占比 |\n| :----: | :----: | :----: | :----: |\n| 监管(银行) | 262 文件 / 121.6 万字符 | 49 | 49% |\n| 监管(信贷)"
+     },
+     {
+      "page_content": "语料规模取自源材料统计：监管(银行) 压缩包 262 个文件、抽取 121.6 万字符，其余三个知识库按抽取字符量计。题目分布与语料规模的匹配度需业务方确认：当前分布向「监管(银行)」倾斜（因其语料量最大），若业务上更关注其他知识库，可在保持 100 题总量的前提下等量置换。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.3 字段规范",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "题库以 `M0-评测题库.xlsx` 交付，字段在既有 `问答对.xlsx` 结构上只新增两列（标 ★）：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 类型 | 必填 | 说明 | 与既有字段的关系 |\n| :----: | :----: | :----: | :----: | :----: |\n| id | 文本 | 是 | 题号，如 G-01 / M-01 / N-01 | 沿用 |\n| 题型 | 枚举 | 是 | 五类题型之一 | 扩展（原为「简单概念类」等） |\n| ★ query_type | 枚举 | 是 | global / multi_hop / fact，用于分通路归因 | 新增 |\n| 知识库 | 枚举 | 是 | 四个监管知识库之一 | 新增（原 `label_source` 为文档级） |\n| question | 文本 | 是 | 题目原文 | 沿用 |\n| 难度 | 枚举 | 是 | 易 / 中 / 难 | 新增 |\n| ★ gold_points | 多行文本 | 是 | gold 要点集合，覆盖度指标的分母 | 新增（原 `answer` 为整段答案，无法计算覆盖度） |\n| label_source | 文本 | 是 | 出处文档名（可多个） | 沿用 |\n| label_chunk | 文本 | 是 | 出处片段原文 | 沿用 |\n| offset | 区间 | 否 | 片段在文档中的字符区间 [start, end] | 沿用（语义见 4.3 节） |\n| acceptable_sources | 多行文本 | 是 | 可接受出处范围（允许多个文档） | 新增（避免唯一答案导致误判） |\n| fail_if | 文本 | 是 | 一票否决条件：出现即判 0 分 | 新增 |\n| 标注人 / 标注日期 / 标注状态 | 文本 | 是 | 标注留痕，状态 ∈ {待标注, 已标注, 已复核, 有争议} | 扩展 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 类型 | 必填 | 说明 | 与既有字段的关系 |\n| :----: | :----: | :----: | :----: | :----: |\n| id | 文本 | 是 | 题号，如 G-01 / M-01 / N-01 "
+     },
+     {
+      "page_content": "`fail_if` 是本方案新增的关键字段。全局题与否定题的失效模式不是「答得少」，而是「答错方向」——例如 N-16 若把法定统筹使用情形误列为「不属于」范围，属于方向性错误，覆盖度算得再高也必须判 0。仅靠要点覆盖度无法捕捉这类失效，因此每题必须显式声明一票否决条件。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3 题目全量清单（100 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "下列为题目全量清单。标注状态均为待标注；`gold_points` 与出处标注由业务方按第 4 章规范补齐，示范见 4.4 节。完整可标注版本见同目录 `M0-评测题库.xlsx`。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.1 全局主题归纳（20 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| G-01 | 现行监管制度对商业银行资本充足率提出了哪些方面的要求？请按监管指标、风险覆盖、信息披露三个层面归纳。 | 监管(银行) | 中 | 5 | 待标注 |\n| G-02 | 外资银行在我国设立与经营需要满足哪些方面的准入要求？请完整归纳准入环节。 | 监管(银行) | 中 | 6 | 待标注 |\n| G-03 | 关于农村中小银行机构的行政许可，监管规定了哪几类事项？请系统归纳。 | 监管(银行) | 中 | 4 | 待标注 |\n| G-04 | 银行卡清算机构的监管框架包含哪些核心制度安排？ | 监管(银行) | 中 | 4 | 待标注 |\n| G-05 | 我国对银行业金融机构的国别风险管理提出了哪些管理要求？ | 监管(银行) | 难 | 5 | 待标注 |\n| G-06 | 支付结算系统危机处置预案对参与机构规定了哪些职责？ | 监管(银行) | 中 | 4 | 待标注 |\n| G-07 | 现行制度对涉及恐怖活动资产的冻结管理有哪些要求？ | 监管(银行) | 中 | 5 | 待标注 |\n| G-15 | 我国银行业监管制度的法律层级体系是怎样的（法律—行政法规—部门规章—规范性文件）？请按层级归纳并举例。 | 监管(银行) | 难 | 4 | 待标注 |\n| G-16 | 商业银行公司治理监管包含哪些核心要求？ | 监管(银行) | 中 | 5 | 待标注 |\n| G-17 | 现行制度对商业银行的信息披露提出了哪些要求？ | 监管(银行) | 中 | 5 | 待标注 |\n| G-08 | 保险保障基金的筹集、管理和使用制度包含哪些要点？ | 法律法规场景 | 中 | 5 | 待标注 |\n| G-09 | 保险法对保险公司的资金运用规定了哪些约束？ | 法律法规场景 | 中 | 4 | 待标注 |\n| G-18 | 保险资金运用监管框架包含哪些核心约束？请按投资品种与比例限制两个维度归纳。 | 法律法规场景 | 难 | 5 | 待标注 |\n| G-10 | 信贷业务监管制度对贷款风险分类提出了哪些要求？ | 监管(信贷) | 中 | 5 | 待标注 |\n| G-11 | 监管对商业银行授信集中度管理有哪些规定？请完整归纳。 | 监管(信贷) | 中 | 4 | 待标注 |\n| G-12 | 关于贷款用途管理，监管制度提出了哪些要求？ | 监管(信贷) | 中 | 5 | 待标注 |\n| G-19 | 监管对个人贷款与流动资金贷款的管理要求有哪些差异与共性？请完整归纳。 | 监管(信贷) | 难 | 6 | 待标注 |\n| G-13 | 金融资产管理公司的业务范围与监管要求包含哪些方面？ | 监管(金融机构) | 中 | 5 | 待标注 |\n| G-14 | 非银行金融机构的行政许可事项包括哪些类别？ | 监管(金融机构) | 中 | 5 | 待标注 |\n| G-20 | 我国对金融机构市场准入的监管架构包含哪些层次？ | 监管(金融机构) | 难 | 4 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| G-01 | 现行监管制度对商业银行资本充足率"
+     },
+     {
+      "page_content": "3.2 跨文档对比（15 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| C-01 | 《商业银行法》与《银行业监督管理法》在监管职责划分上有何差异？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-02 | 《外资银行管理条例》与其《实施细则》在准入条件上的规定有何分工？ | 监管(银行) | 难 | 4 | 待标注 |\n| C-03 | 《中国人民银行法》与《商业银行法》在监管对象与手段上有何区别？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-04 | 内资商业银行与外资银行在设立条件上的监管要求有何差异？ | 监管(银行) | 中 | 5 | 待标注 |\n| C-05 | 《农村中小银行机构行政许可事项实施办法》与《非银行金融机构行政许可事项实施办法》在许可事项上的异同？ | 监管(银行) | 难 | 5 | 待标注 |\n| C-06 | 政策性银行监管（以中国农业发展银行为例）与商业银行监管在制度设计上有何差异？ | 监管(银行) | 难 | 4 | 待标注 |\n| C-12 | 银行卡清算机构与商业银行在监管要求上的差异体现在哪些方面？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-14 | 我国对中资银行与外资银行在报告义务上的要求有何差异？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-07 | 流动资金贷款与固定资产贷款在受托支付要求上有何差异？ | 监管(信贷) | 中 | 4 | 待标注 |\n| C-08 | 个人贷款与流动资金贷款在贷后管理要求上有何差异？ | 监管(信贷) | 中 | 5 | 待标注 |\n| C-13 | 信贷业务与同业业务在风险分类要求上的差异？ | 监管(信贷) | 难 | 4 | 待标注 |\n| C-09 | 《保险法》与《保险保障基金管理办法》在基金相关规定上的分工如何？ | 法律法规场景 | 中 | 3 | 待标注 |\n| C-10 | 保险公司与商业银行在资本监管要求上有何差异？ | 法律法规场景 | 难 | 5 | 待标注 |\n| C-11 | 金融资产管理公司与银行机构在业务准入上的差异？ | 监管(金融机构) | 中 | 4 | 待标注 |\n| C-15 | 涉及恐怖活动资产冻结与一般账户冻结在程序要求上有何差异？ | 法律法规场景 | 难 | 4 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| C-01 | 《商业银行法》与《银行业监督管理"
+     },
+     {
+      "page_content": "3.3 分布与趋势（10 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| T-01 | 知识库中涉及「行政许可」的监管文件主要分布在哪些制度层级？请归纳其分布特征。 | 监管(银行) | 难 | 4 | 待标注 |\n| T-02 | 知识库中对「信息披露」的强调程度如何？覆盖了哪些类型的机构？ | 监管(银行) | 中 | 4 | 待标注 |\n| T-03 | 从制度演进看，外资银行监管条例的修订主要体现在哪些方面？ | 监管(银行) | 难 | 4 | 待标注 |\n| T-06 | 知识库中罚款、警告等处罚类条款主要分布在哪些文件中？ | 监管(银行) | 中 | 4 | 待标注 |\n| T-07 | 现行监管制度中，报告义务的频次要求有哪些不同档次？ | 监管(银行) | 难 | 4 | 待标注 |\n| T-04 | 知识库中信贷类监管文件对「受托支付」的提及集中在哪些业务类型？ | 监管(信贷) | 中 | 3 | 待标注 |\n| T-10 | 知识库中「贷后管理」相关要求主要出现在哪几类制度文件中？ | 监管(信贷) | 中 | 4 | 待标注 |\n| T-05 | 保险监管相关文件中，关于资金运用与关于偿付能力的要求分布如何？ | 法律法规场景 | 难 | 4 | 待标注 |\n| T-09 | 保险保障基金相关条款在知识库中的分布情况如何（哪些文件涉及）？ | 法律法规场景 | 中 | 3 | 待标注 |\n| T-08 | 知识库中非银行金融机构相关文件涵盖哪些机构类型？请按类型归纳。 | 监管(金融机构) | 中 | 5 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| T-01 | 知识库中涉及「行政许可」的监管文"
+     },
+     {
+      "page_content": "3.4 多跳串联（35 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| M-01 | 《保险法》要求保险公司缴纳保险保障基金，配套的《保险保障基金管理办法》对基金的统筹使用情形是如何规定的？ | 法律法规场景 | 中 | 3 | 待标注 |\n| M-02 | 《保险法》规定保险保障基金的筹集、管理和使用办法由谁制定？ | 法律法规场景 | 易 | 2 | 待标注 |\n| M-03 | 《保险法》中「未按照规定缴纳保险保障基金」属于哪一类违法行为，对应哪些处置措施？ | 法律法规场景 | 中 | 3 | 待标注 |\n| M-33 | 保险公司资金运用比例限制，与保险保障基金的运用规定有何区别与联系？ | 法律法规场景 | 难 | 4 | 待标注 |\n| M-04 | 《商业银行法》规定的违法行为，其在《银行业监督管理法》中的处罚衔接是如何规定的？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-05 | 设立外资银行的注册资本要求，在《外资银行管理条例实施细则》中是如何进一步细化的？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-06 | 《中国人民银行法》赋予人民银行的检查监督权，在《银行业监督管理法》中是否有对应表述？两者差异是什么？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-07 | 农村中小银行机构设立需取得行政许可，其上位法依据是哪部法律？ | 监管(银行) | 易 | 2 | 待标注 |\n| M-08 | 涉及恐怖活动资产冻结的监管要求，其法律依据可追溯至哪些文件？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-09 | 《银行卡清算机构管理办法》的制定依据是哪部上位法？ | 监管(银行) | 易 | 2 | 待标注 |\n| M-10 | 《中国农业发展银行监督管理办法》中关于资本充足的要求，与商业银行资本监管要求在口径上有何联系？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-11 | 外资银行变更注册资本需要经过哪些程序？涉及哪些文件与条款？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-12 | 商业银行在证券交易所参与债券交易需满足哪些条件？依据哪个文件？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-13 | 《支付结算系统危机处置预案》中，参与机构在发生系统危机时的报告路径是什么？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-14 | 《银行业监督管理法》授权的监管措施，在具体业务规章中如何落地（以银行卡清算机构为例）？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-15 | 外资银行经营人民币业务的准入条件，涉及《外资银行管理条例》与实施细则的哪些条款？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-16 | 农村中小银行机构的市场退出，涉及哪些许可事项与上位法条款？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-31 | 商业银行资本管理办法对资本充足率的要求，与《银行业监督管理法》的监管措施如何联动？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-32 | 国别风险管理的监管要求，与商业银行资本监管中的国别风险权重有何关联？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-34 | 银行业金融机构的报告义务，在《银行业监督管理法》与具体业务规章中的要求如何分层？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-17 | 贷款风险分类的监管要求，在贷后管理相关规定中如何落实？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-18 | 受托支付的适用条件，在流动资金贷款与固定资产贷款规定中分别如何表述？ | 监管(信贷) | 中 | 4 | 待标注 |\n| M-19 | 授信集中度超限的处置，在监管制度中对应哪些整改要求？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-20 | 贷款用途违规使用，对应的罚则条款出现在哪些文件中？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-21 | 个人贷款的资金用途限制，与《商业银行法》关于信贷业务的规定如何衔接？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-22 | 信贷资产转让的监管要求，其上位法依据是什么？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-23 | 贷款展期的条件与审批要求，涉及哪些条款？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-24 | 不良贷款处置的监管要求，与资本充足率监管有何关联？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-25 | 信贷业务中的关联交易管理，涉及哪些监管文件与条款？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-26 | 《保险保障基金管理办法》中基金的筹集比例，与《保险法》相关规定如何衔接？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| M-27 | 金融资产管理公司的设立许可，依据哪部规章？ | 监管(金融机构) | 易 | 2 | 待标注 |\n| M-28 | 非银行金融机构的行政许可事项，其上位法依据是什么？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| M-29 | 外资银行并表监管要求，涉及哪些文件与条款？ | 监管(金融机构) | 难 | 4 | 待标注 |\n| M-30 | 涉及恐怖活动资产冻结的机构义务，与非银行金融机构的合规要求如何衔接？ | 监管(金融机构) | 难 | 4 | 待标注 |\n| M-35 | 非银行金融机构终止业务需履行的程序，涉及哪些许可事项与上位法条款？ | 监管(金融机构) | 难 | 4 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| M-01 | 《保险法》要求保险公司缴纳保险保"
+     },
+     {
+      "page_content": "3.5 否定与排除（20 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| N-01 | 哪些情形不属于《商业银行法》规定的商业银行经营范围？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-02 | 外资银行不得经营的业务有哪些？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-03 | 哪些机构不属于《银行业监督管理法》的监管对象？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-04 | 哪些事项不属于农村中小银行机构需申请行政许可的范围？ | 监管(银行) | 难 | 4 | 待标注 |\n| N-05 | 哪些情形不适用《支付结算系统危机处置预案》？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-06 | 哪些资产不属于涉及恐怖活动资产冻结的范围？ | 监管(银行) | 难 | 4 | 待标注 |\n| N-07 | 哪些主体不适用《外国中央银行财产司法强制措施豁免法》的豁免规定？ | 监管(银行) | 难 | 3 | 待标注 |\n| N-08 | 哪些业务不属于银行卡清算机构的业务范围？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-09 | 哪些情形不属于《外资银行管理条例》所称的外资银行？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-10 | 哪些行为不属于《中国人民银行法》规定的违法行为？ | 监管(银行) | 难 | 3 | 待标注 |\n| N-11 | 哪些贷款不属于受托支付方式的适用范围？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-12 | 哪些情形不属于贷款风险分类中的「不良」？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-13 | 哪些用途不属于流动资金贷款的合法用途？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-14 | 哪些主体不属于个人贷款业务的适格借款人？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-15 | 哪些情形不属于信贷资产转让的允许范围？ | 监管(信贷) | 难 | 4 | 待标注 |\n| N-16 | 哪些情形不属于保险保障基金的统筹使用范围？ | 法律法规场景 | 中 | 3 | 待标注 |\n| N-17 | 哪些资金运用方式不属于《保险法》允许的范围？ | 法律法规场景 | 中 | 3 | 待标注 |\n| N-18 | 哪些机构不属于非银行金融机构？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| N-19 | 哪些事项不属于金融资产管理公司的业务范围？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| N-20 | 哪些情形不属于国别风险管理的适用范围？ | 监管(金融机构) | 难 | 3 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| N-01 | 哪些情形不属于《商业银行法》规定"
+     },
+     {
+      "page_content": "4 标注规范",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.1 标注流程",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "题目评审（先于标注）：100 题先经业务方评审「是否符合真实业务问法」，剔除或替换不合规题目。此步不可跳过——源材料复核记录显示「标准答案有问题」占 52%，说明既有题库的题目与答案质量本身就是主要误差源。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "双人独立标注：业务方 + 算法方各一人独立完成 `gold_points` 与出处标注，互不参照。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "分歧仲裁：两人标注结果差异超过 1 条要点的题目，进入三方（含提问者本人）讨论定稿。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "标注复核：定稿后由第三人做随机 20% 抽检，通过率低于 90% 则整批返回。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "版本固化：定稿后写入版本号（如 `global_eval_v1.0`）并冻结；后续任何修改需新版本号，禁止原地改题，否则历史结论不可比。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.2 gold 要点规范",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 规则 | 要求 | 违反后果 |\n| :----: | :----: | :----: |\n| 要点数量 | 全局类 3~7 条，多跳类 2~4 条，否定类 2~3 条 | 要点过细会导致覆盖度普遍偏低，失去区分度 |\n| 要点独立性 | 每条要点对应一个可独立判断的信息单元，不得互相包含 | 重复计分，覆盖度虚高 |\n| 要点可判定性 | 两个标注人独立判断某条要点「是否被回答覆盖」的结论应一致 | 覆盖度指标不可复现 |\n| 要点必须带来源 | 每条要点标注其来源文档（对应 `label_source`） | 无法判断是答错还是召回到错文档 |\n| 允许合理多正例 | 同一要点可由多个文档的片段支撑，全部列入 `acceptable_sources` | 误判为未召回（源材料已记录此类误判：召回 0 的 79 题中存在「知识库中不止一处，只标注了 a」） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 规则 | 要求 | 违反后果 |\n| :----: | :----: | :----: |\n| 要点数量 | 全局类 3~7 条，多跳类 2~4 条，否定类 2~3 条 | 要点过细会导致覆盖度普遍偏低，失去区分度 |\n| 要点独立性 "
+     },
+     {
+      "page_content": "4.3 出处标注与 offset 语义",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "源材料复核记录中「坐标没对上」6 例、「知识库中不止一处，只标注了 a」的误判已实际发生。为消除歧义，规定如下：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "offset 以 Unicode 码点（字符）为单位，不是字节。中文占 1 个字符——这是与既有实现最易产生分歧的一点，必须先与既有 `指标_results.csv` 的计算口径对齐后再全量标注。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "区间为左闭右开 [start, end)，`start` 指向片段首字符，`end` 指向片段末字符的下一位。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "offset 相对解析后文本，而非原始 PDF 或 docx 字节流。因解析器版本变化会导致偏移漂移，标注时必须记录解析器版本。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "必须提供自动化对齐校验：交付一个校验脚本，输入 (文档, offset)，回读该区间并与 `label_chunk` 做包含性断言。全部题目必须通过该校验后才可进入评测——这是针对既有「坐标没对上」缺陷的强制执行手段。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "多正例必须全部标注：若同一问题在知识库中有多处可支撑片段，全部列入；只标一处会导致 recall 被系统性低估。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.4 标注示例（3 例完整标注）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "下列 3 例覆盖三种 query_type，作为标注规范的具体示范。其余 97 题由业务方按同一规范补齐。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "示例：M-01",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 《保险法》要求保险公司缴纳保险保障基金，配套的《保险保障基金管理办法》对基金的统筹使用情形是如何规定的？ |\n| query_type | multi_hop |\n| 难度 | 中 |\n| gold_points | 1. 《保险法》规定保险公司应当缴纳保险保障基金（来源：保险法）<br>2. 保险保障基金应集中管理（来源：保险法）<br>3. 统筹使用情形之一：保险公司被撤销或者被宣告破产（来源：保险保障基金管理办法）<br>4. 统筹使用情形之二：在保险公司被撤销或者被宣告破产后，为向保单持有人、保单受让公司提供救济（来源：保险保障基金管理办法）<br>5. 统筹使用情形之三：国务院批准的其他情形（来源：保险保障基金管理办法） |\n| acceptable_sources | 保险法（相关条款） / 保险保障基金管理办法 |\n| fail_if | 仅答出《保险法》的缴纳义务而未给出管理办法中的统筹使用情形（＝只完成一跳） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 《保险法》要求保险公司缴纳保险保障基金，配套的《保险保障基金管理办法》对基金的统筹使用情形是如何规定的？ |\n| query_type | multi"
+     },
+     {
+      "page_content": "示例：G-01",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 现行监管制度对商业银行资本充足率提出了哪些方面的要求？请按监管指标、风险覆盖、信息披露三个层面归纳。 |\n| query_type | global |\n| 难度 | 中 |\n| gold_points | 1. 监管指标层面：最低资本要求、储备资本要求、逆周期资本要求等分档要求<br>2. 风险覆盖层面：信用风险、市场风险、操作风险等的资本计量要求<br>3. 风险覆盖层面：国别风险等特定风险是否纳入资本计量<br>4. 信息披露层面：资本充足率相关信息的披露义务与频次要求<br>5. 监管联动：资本充足率不达标时对应的监管措施 |\n| acceptable_sources | 商业银行资本管理办法 / 银行业监督管理法 / 银行业金融机构国别风险管理办法 |\n| fail_if | 只覆盖单一层面，或未给出各层面之间的层次关系（覆盖度按 5 条要点计分） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 现行监管制度对商业银行资本充足率提出了哪些方面的要求？请按监管指标、风险覆盖、信息披露三个层面归纳。 |\n| query_type | global "
+     },
+     {
+      "page_content": "示例：N-16",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 哪些情形不属于保险保障基金的统筹使用范围？ |\n| query_type | fact |\n| 难度 | 中 |\n| gold_points | 1. 统筹使用范围限于法定情形（被撤销/被宣告破产、救济保单持有人与受让公司、国务院批准的其他情形）<br>2. 不属统筹范围的情形需明确排除（如保险公司正常经营期间的常规赔付不得动用基金） |\n| acceptable_sources | 保险保障基金管理办法 / 保险法 |\n| fail_if | 把法定统筹使用情形误列为「不属于」范围（方向性错误，判 0 分） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 哪些情形不属于保险保障基金的统筹使用范围？ |\n| query_type | fact |\n| 难度 | 中 |\n| gold_points | 1."
+     },
+     {
+      "page_content": "5 评测指标与计算口径",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.1 指标体系",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 层级 | 指标 | 口径 | 适用题型 | 采集方式 |\n| :----: | :----: | :----: | :----: | :----: |\n| 事实层 | 答案准确率 | 结论与 gold 要点一致的比例 | 全部 | LLM-as-judge 初筛（百川4，沿用）→ 人工复核 |\n| 事实层 | 召回命中率 | gold 出处是否出现在返回引用中；多正例按「命中任一即算命中」 | 全部 | 自动比对 `acceptable_sources` |\n| 全局层 | 要点覆盖度 | 被覆盖的 gold 要点数 / gold 要点总数（全局题主指标） | global / multi_hop | LLM-as-judge 初筛 → 人工复核 |\n| 全局层 | 一票否决率 | 触发 `fail_if` 的题目占比（与覆盖度并列，不可互相抵消） | 全部 | 人工判定 |\n| 全局层 | 归因完整率 | 答案中带可点开原文出处的结论占比 | global | 自动校验引用链完整性 |\n| 全局层 | 矛盾暴露率 | 存在冲突材料时是否显式暴露（而非静默取一） | global | 人工评审 |\n| 拒答层 | 正确拒答率 | 不可答题与越界题上正确拒答的比例 | 否定与排除 | 人工判定 |\n| 成本层 | 单题 LLM 调用次数 | 路由 + map + reduce 的调用总数 | 全部 | 链路埋点 |\n| 成本层 | P95 端到端 / 首字延迟 | 含路由与多通路耗时 | 全部 | 链路埋点 |\n| 体验层 | 啰嗦度 | 单列，不计入准确率 | — | 人工主观评分（仅作体验参考） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 层级 | 指标 | 口径 | 适用题型 | 采集方式 |\n| :----: | :----: | :----: | :----: | :----: |\n| 事实层 | 答案准确率 | 结论与 gold 要点一致的比例 | 全部 | LL"
+     },
+     {
+      "page_content": "两处刻意的口径设计：①「要点覆盖度」与「一票否决率」并列而非加权——不存在「答错方向但覆盖了 4 个要点所以得 40 分」这种算法，触发 fail_if 的题目在覆盖度统计中直接判 0；②「啰嗦度」从准确率中剥离——源材料显示复核者对此分歧最大（28% 的主观评价问题），把它混入准确率会污染决策依据。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.2 指标计算的自检要求",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "源材料复核记录中「评估指标计算问题」8 例，说明指标实现本身不可信。本方案要求：任何评测指标在投入使用前，必须用已知答案构造的样例集通过自检。自检用例至少覆盖：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "全覆盖正例：答案完整覆盖全部 gold 要点 → 覆盖度必须为 100%。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "零覆盖负例：答案与题目无关 → 覆盖度必须为 0%。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "多正例召回：同一要点由两个文档支撑，只召回其中一个 → 必须计为命中（针对既有误判）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "定向错误负例：触发 `fail_if` → 覆盖度必须为 0%，且一票否决率必须计入。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "边界示例：答案覆盖部分要点（如 3/5）→ 覆盖度必须为 60%，不得因四舍五入或分数口径偏差漂移。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "该自检用例集本身也是交付物，需随题库一并版本化。未通过自检的指标不得用于门控判定——否则 M0 的结论与 M4 的裁定都建立在错误的分母上，这比没有评测更危险。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6 基线测量方案",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6.1 测量对象",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "对 100 题各跑一遍当前线上召回配置，不做任何改造（不接通图谱、不改切分、不改 rerank）。测量对象为现有「关键词 + 向量」融合通路，作为门控判定的基线。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 配置项 | 基线取值 | 说明 |\n| :----: | :----: | :----: |\n| 召回通路 | 关键词 + 向量融合（现有线上配置） | 不启用图谱通路，即 enabled_graph = false |\n| 推理模型 | 线上主用模型 | 记录模型版本，后续所有对比必须同模型 |\n| 解析器版本 | 当前线上版本 | 必须记录，因 offset 语义与解析器版本绑定（见 4.3 节） |\n| 切分策略 | 当前线上策略 | 记录 chunk 大小与重叠参数 |\n| 并发与超时 | 线上同配置 | 用于成本层指标采集 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 配置项 | 基线取值 | 说明 |\n| :----: | :----: | :----: |\n| 召回通路 | 关键词 + 向量融合（现有线上配置） | 不启用图谱通路，即 enabled_graph = false |\n| 推理模型 "
+     },
+     {
+      "page_content": "6.2 执行方式",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "离线批量执行：复用现有离线算法服务批次跑完 100 题，不占用在线问答资源。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "完整埋点：每题记录返回的 `search_type` 分布、引用列表、单题 LLM 调用次数、首字与端到端延迟。这是「分通路归因」的数据来源，缺失则该题不计入统计。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "自动初筛 + 人工复核：LLM-as-judge 输出初筛结果与覆盖度，人工复核全量 100 题（题量不大，全量复核比抽检更可靠，且这 100 题将成为后续所有迭代的固定回归集）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "双跑稳定性：基线测量至少执行 2 次，两次结果差异超过 5 个百分点的题目标记为「不稳定」，需排查是随机性还是链路问题。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6.3 交付产出",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 产出物 | 格式 | 内容 |\n| :----: | :----: | :----: |\n| 基线测量报告 | docx | 各题型覆盖度、一票否决率、召回命中率、成本指标；分知识库切片 |\n| 逐题结果明细 | xlsx | 每题的回答、引用、覆盖度、fail_if 触发情况、人工判定 |\n| 指标计算自检记录 | md / xlsx | 5.2 节样例集的通过记录 |\n| Go / No-Go 门控表（已签字） | docx | 见第 7 章，先签字后开封 |\n| 固定回归集 | xlsx | 100 题 + 标注 + 基线结果，作为后续迭代的回归基线 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 产出物 | 格式 | 内容 |\n| :----: | :----: | :----: |\n| 基线测量报告 | docx | 各题型覆盖度、一票否决率、召回命中率、成本指标；分知识库切片 |\n| 逐题结果明细 | xlsx | 每题的回"
+     },
+     {
+      "page_content": "7 Go / No-Go 门控表（签字页）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "使用方式：本表在任何测量开始前填写并签字封存，M4 阶段开封对照。次序不可颠倒——源材料已记录平台多次「优化了但无法证明收益」的先例，先测数字再定门槛必然得出「值得做」的结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 门控项 | 阈值 | 观察题型 | 达标动作 | 未达标动作 | 裁决人 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| 门控 1 | 基线要点覆盖度 < 50% | 全局主题归纳 + 跨文档对比 + 分布与趋势 | 进 M3 社区摘要 POC | 见门控 1b | 产品 + 算法 |\n| 门控 1b | 基线覆盖度 50%~70% | 同上 | 先做轻量改造（查询改写 / 多查询扩展 / 结果聚合），复测再定 | ≥ 70% 则不引入 GraphRAG | 产品 + 算法 |\n| 门控 2 | HippoRAG 相对基线多跳题提升 ≥ 10 个百分点 | 多跳串联 | 接通路（P1 按计划推进） | 不接通路，避免为不显著收益增加系统复杂度 | 算法 |\n| 门控 3 | 一票否决率 ≤ 5% | 全部 | 通路可灰度上线 | 不得上线，先修拒答与方向性错误 | 产品 |\n| 门控 4 | 分通路埋点完整率 = 100% | 全部 | 统计结论有效 | 统计结论无效，先补埋点再评测 | 算法 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 门控项 | 阈值 | 观察题型 | 达标动作 | 未达标动作 | 裁决人 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| 门控 1 | 基线要点覆盖度 < 50% "
+     },
+     {
+      "page_content": "| 确认项 | 内容 |\n| :----: | :----: |\n| 基线测量执行人 / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（产品） / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（算法） / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 封存方式 | 签字后并入 M0 交付包，M4 阶段开封对照 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 确认项 | 内容 |\n| :----: | :----: |\n| 基线测量执行人 / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（产品） / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（算法） / 日期 | ＿＿＿＿＿＿"
+     },
+     {
+      "page_content": "8 里程碑与分工",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 序号 | 任务 | 周期 | 责任方 | 交付物 |\n| :----: | :----: | :----: | :----: | :----: |\n| M0-1 | 题目评审（剔除/替换不合真实问法的题目） | 3 天 | 业务方主导 | 评审通过版 100 题 |\n| M0-2 | 双人独立标注 + 分歧仲裁 | 5 天 | 业务方 + 算法方 | gold_points 与出处标注 |\n| M0-3 | offset 对齐校验脚本 + 全量校验 | 2 天 | 算法方 | 校验脚本 + 通过记录 |\n| M0-4 | 指标计算实现 + 自检用例集 | 3 天 | 算法方 | 指标实现 + 5.2 节自检记录 |\n| M0-5 | 门控表签字封存 | — | 产品 + 算法 | 签字页（第 7 章） |\n| M0-6 | 基线测量（2 次）+ 人工全量复核 | 3 天 | 算法方 | 基线报告 + 逐题明细 |\n| M0-7 | 基线结论评审 + 门控裁决 | 2 天 | 产品 + 算法 | 裁决纪要（回写《详细设计》14.5 / 15.2） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 序号 | 任务 | 周期 | 责任方 | 交付物 |\n| :----: | :----: | :----: | :----: | :----: |\n| M0-1 | 题目评审（剔除/替换不合真实问法的题目） | 3 天 | 业务方主导 "
+     },
+     {
+      "page_content": "M0-5 必须在 M0-6 之前完成，这是本方案唯一的强次序约束。总周期约 2 周（可并行部分已并行）。M0-3 与 M0-4 可与 M0-1 / M0-2 并行，不占关键路径。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "9 风险登记",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M0R-01 | 标准答案本身有问题（既有复核记录中占 52%） | 覆盖度指标失真，门控裁决建立在错误分母上 | 题目评审前置（M0-1）+ 双人标注 + 20% 抽检 + fail_if 显式声明 |\n| M0R-02 | offset 坐标对不上（既有 6 例） | 召回命中率被系统性低估 | 4.3 节统一语义 + 自动化对齐校验脚本作为准入条件 |\n| M0R-03 | 指标计算实现有误（既有 8 例） | 结论不可信，比没有评测更危险 | 5.2 节强制自检用例集，未通过不得用于门控 |\n| M0R-04 | 标注人力不足导致周期延长 | M0 阻塞 M2 / M3 的决策 | 题目评审阶段先做等量置换，控制总量在 100 题；M0-3/M0-4 并行吸收等待时间 |\n| M0R-05 | 题目分布与业务关注度不匹配 | 测了不关心的题，关心的题没测 | 2.2 节分布表需业务方确认；可在总量不变前提下等量置换 |\n| M0R-06 | 评测集随迭代漂移，历史结论不可比 | 无法纵向对比 | 4.1 节版本固化，禁止原地改题 |\n| M0R-07 | 先测数字后定门槛（次序颠倒） | 门控失效，重演「优化了但证明不了」 | 第 7 章签字封存机制；M0-5 强制早于 M0-6 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M0R-01 | 标准答案本身有问题（既有复核记录中占 52%） | 覆盖度指标失真，门控裁决建立在错误分母上 | "
+     }
+    ],
+    "elapsed_ms": 317,
+    "stubbed_modules": [
+     "cv2",
+     "datrie",
+     "fastapi",
+     "hanziconv",
+     "huggingface_hub",
+     "magic_pdf",
+     "magic_pdf.config",
+     "magic_pdf.config.enums",
+     "magic_pdf.data",
+     "magic_pdf.data.data_reader_writer",
+     "magic_pdf.data.dataset",
+     "magic_pdf.model",
+     "magic_pdf.model.doc_analyze_by_custom_model",
+     "magic_pdf.utils",
+     "magic_pdf.utils.office_to_pdf",
+     "nltk",
+     "nltk.stem",
+     "onnxruntime",
+     "pyclipper",
+     "shapely",
+     "shapely.geometry"
+    ]
+   },
+   "B": {
+    "arm": "B",
+    "sample": "sample-m0.docx",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/docx_parser.py",
+    "count": 95,
+    "blocks": [
+     {
+      "page_content": "M0 评测集与基线测量方案",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "全局总结类与多跳评测集设计 · 标注规范 · Go / No-Go 门控",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 文档编号 | RAG-ALG-GRAG-M0-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待业务方评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》第 7 章、D-01~D-04 裁定 |\n| 交付物 | 本文档 + 《M0-评测题库.xlsx》（100 题） |\n| 语料范围 | 监管(银行) / 监管(信贷) / 监管(金融机构) / 法律法规场景 |\n| 数据源 | 贺亮-大模型RAG产品（本地规范位置，145 份素材） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 文档编号 | RAG-ALG-GRAG-M0-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待业务方评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》第 7 章、D-01~D-04"
+     },
+     {
+      "page_content": "目 录",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1 方案定位",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.1 为什么必须先做",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "《GraphRAG 引入技术方案》6.2 节的结论是：成本不是否决 GraphRAG 的理由，无法验证收益才是。社区摘要的增量 token 成本约为实体抽取的 8~12%，低于 LightRAG 关键词生成的 60~80%（因为摘要按社区计价，社区数只有实体数的约 3%）。因此本方案是整条 GraphRAG 路线的决定性前置：没有本方案的基线数据，M3 社区摘要 POC 无法产出可解释的结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "同理，本方案也是「图谱增强检索（P1）」的验收依据——《详细设计》附录 B 已裁定「多跳题提升 < 10 个百分点则不接通路」，这个 10 个百分点只有本方案能测出来。一套题同时服务两个项目的决策，标注成本因此被摊薄。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.2 关键决策：扩展现有评测体系，不另起一套",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "平台已有一套可用的评测体系，散落在 `问答对.xlsx`、`富文本30问.xlsx` 与「法律法规场景」人工测评中。本方案不新建口径，而是在既有结构上扩两个字段。理由：新起一套必然导致两套指标长期并存、结论无法互相引用——这正是《详细设计》14.4 节记录的「实现-状态-规划脱节」的同型问题。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 既有评测资产 | 现有形态（源材料证据） | 本方案如何处理 |\n| :----: | :----: | :----: |\n| 题目与标准答案 | `问答对.xlsx` Sheet1：id / question / type / answer | 沿用，新增 2 列（见 2.3 节） |\n| 题型分类 | `type` 取值如「简单概念类」「FAQ」「超大不规则表格」 | 沿用并扩展，新增 query_type ∈ {global, multi_hop, fact} |\n| 出处标注 | `label_source`（文档名）+ `label_chunk`（标准答案片段） | 沿用 |\n| 片段级标注 | 法律法规场景：`chunks[{source, chunk, offset:[start,end]}]` | 沿用，并明确 offset 语义（见 4.3 节） |\n| 自动打分 | LLM（百川4）打分 0~10，判别阈值 7 分 / 8 分 | 沿用，但不作为全局题的主指标（见 5 节） |\n| 人工复核 | 165 个 badcase 分派 3 人复核，标记正确/错误/看不懂 | 沿用流程，新增「要点覆盖度」判定项 |\n| 召回指标 | `指标_results.csv` 按题统计 recall | 沿用 |\n| 语料知识库 | 法律法规场景 / 监管(银行) / 监管(信贷) / 监管(金融机构) | 沿用同一批语料，不新建知识库 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 既有评测资产 | 现有形态（源材料证据） | 本方案如何处理 |\n| :----: | :----: | :----: |\n| 题目与标准答案 | `问答对.xlsx` Sheet1：id / question / type / ans"
+     },
+     {
+      "page_content": "这条决策最重要的收益是可比性：新题的基线数据与既有 500 题级评测集在同一套指标下可直接合并统计，避免出现「新的评测说提升了、旧的评测说没变」这种无法裁决的局面。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.3 必须规避的既有缺陷",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "既有评测在人工复核中暴露出一批问题，其中三项直接威胁本方案的可信度。本方案把它们当作硬约束写进设计，而不是当作偶发事故：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 既有缺陷 | 源材料证据 | 本方案的规避约束 |\n| :----: | :----: | :----: |\n| 标准答案本身有问题（占复核问题的 52%） | 复核记录：「大部分是评测语料的标准问题」；「标准答案有问题」7 例 | 4.2 节：gold 要点必须逐条给出来源标注；4.1 节：双人独立标注 + 分歧仲裁；标准答案先评审再用 |\n| 坐标没对上 | 复核记录：「评估问题 14（坐标没对上 6）」 | 4.3 节：明确 offset 的字符集与起止语义，并要求提供自动化对齐校验脚本 |\n| 评估指标计算问题 | 复核记录：「评估指标计算问题 8」 | 5.2 节：指标计算需单元自检（用已知答案构造样例验证分母口径），禁止直接复用未验证的计算代码 |\n| 主观评价争议（啰嗦与否） | 复核记录：「主观评价问题，啰嗦与否取决人评价偏好（28%）」 | 5.1 节：把「啰嗦」从全局题指标中剥离，单独列为体验项而非准确率项 |\n| 模型打分不准 | 复核记录：「模型打分不准」1 例 | 5.1 节：LLM-as-judge 仅作初筛，全局题的主指标由要点覆盖度决定 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 既有缺陷 | 源材料证据 | 本方案的规避约束 |\n| :----: | :----: | :----: |\n| 标准答案本身有问题（占复核问题的 52%） | 复核记录：「大部分是评测语料的标准问题」；「标准答案有问题」7 例 | 4"
+     },
+     {
+      "page_content": "2 题库设计",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.1 题型与配额",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "共 100 题，五类题型。配额设计说明：多跳类配额最高（35 题），因为它同时服务「图谱增强检索 P1」的验收，一套题支撑两个决策。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 题型 | 定义 | 建议配额 | 主要考察 | query_type |\n| :----: | :----: | :----: | :----: | :----: |\n| 全局主题归纳 | 跨多文档归纳同一主题的完整要求 | 20 | 社区摘要的覆盖度 | global |\n| 跨文档对比 | 对多份文档的同类条款做差异对比 | 15 | 跨社区信息整合 | global |\n| 分布与趋势 | 统计型、演进型问题 | 10 | 全局视图能力 | global |\n| 多跳串联 | 需串联两个以上实体或条款 | 35 | Local Search / HippoRAG | multi_hop |\n| 否定与排除 | 边界型问题，考察拒答与精确性 | 20 | 精确性与拒答质量 | fact |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 题型 | 定义 | 建议配额 | 主要考察 | query_type |\n| :----: | :----: | :----: | :----: | :----: |\n| 全局主题归纳 | 跨多文档归纳同一主题的完整要求 | 20 | "
+     },
+     {
+      "page_content": "2.2 知识库分布",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "题目分布在平台现有四个监管类知识库上，不新建知识库（保证与既有评测可比）：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 知识库 | 语料规模（源材料） | 题目数 | 占比 |\n| :----: | :----: | :----: | :----: |\n| 监管(银行) | 262 文件 / 121.6 万字符 | 49 | 49% |\n| 监管(信贷) | 45.4 万字符 | 23 | 23% |\n| 法律法规场景 | 46.2 万字符 | 14 | 14% |\n| 监管(金融机构) | 21.4 万字符 | 14 | 14% |\n| 合计 | 约 234 万字符 | 100 | 100% |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 知识库 | 语料规模（源材料） | 题目数 | 占比 |\n| :----: | :----: | :----: | :----: |\n| 监管(银行) | 262 文件 / 121.6 万字符 | 49 | 49% |\n| 监管(信贷)"
+     },
+     {
+      "page_content": "语料规模取自源材料统计：监管(银行) 压缩包 262 个文件、抽取 121.6 万字符，其余三个知识库按抽取字符量计。题目分布与语料规模的匹配度需业务方确认：当前分布向「监管(银行)」倾斜（因其语料量最大），若业务上更关注其他知识库，可在保持 100 题总量的前提下等量置换。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.3 字段规范",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "题库以 `M0-评测题库.xlsx` 交付，字段在既有 `问答对.xlsx` 结构上只新增两列（标 ★）：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 类型 | 必填 | 说明 | 与既有字段的关系 |\n| :----: | :----: | :----: | :----: | :----: |\n| id | 文本 | 是 | 题号，如 G-01 / M-01 / N-01 | 沿用 |\n| 题型 | 枚举 | 是 | 五类题型之一 | 扩展（原为「简单概念类」等） |\n| ★ query_type | 枚举 | 是 | global / multi_hop / fact，用于分通路归因 | 新增 |\n| 知识库 | 枚举 | 是 | 四个监管知识库之一 | 新增（原 `label_source` 为文档级） |\n| question | 文本 | 是 | 题目原文 | 沿用 |\n| 难度 | 枚举 | 是 | 易 / 中 / 难 | 新增 |\n| ★ gold_points | 多行文本 | 是 | gold 要点集合，覆盖度指标的分母 | 新增（原 `answer` 为整段答案，无法计算覆盖度） |\n| label_source | 文本 | 是 | 出处文档名（可多个） | 沿用 |\n| label_chunk | 文本 | 是 | 出处片段原文 | 沿用 |\n| offset | 区间 | 否 | 片段在文档中的字符区间 [start, end] | 沿用（语义见 4.3 节） |\n| acceptable_sources | 多行文本 | 是 | 可接受出处范围（允许多个文档） | 新增（避免唯一答案导致误判） |\n| fail_if | 文本 | 是 | 一票否决条件：出现即判 0 分 | 新增 |\n| 标注人 / 标注日期 / 标注状态 | 文本 | 是 | 标注留痕，状态 ∈ {待标注, 已标注, 已复核, 有争议} | 扩展 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 类型 | 必填 | 说明 | 与既有字段的关系 |\n| :----: | :----: | :----: | :----: | :----: |\n| id | 文本 | 是 | 题号，如 G-01 / M-01 / N-01 "
+     },
+     {
+      "page_content": "`fail_if` 是本方案新增的关键字段。全局题与否定题的失效模式不是「答得少」，而是「答错方向」——例如 N-16 若把法定统筹使用情形误列为「不属于」范围，属于方向性错误，覆盖度算得再高也必须判 0。仅靠要点覆盖度无法捕捉这类失效，因此每题必须显式声明一票否决条件。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3 题目全量清单（100 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "下列为题目全量清单。标注状态均为待标注；`gold_points` 与出处标注由业务方按第 4 章规范补齐，示范见 4.4 节。完整可标注版本见同目录 `M0-评测题库.xlsx`。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.1 全局主题归纳（20 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| G-01 | 现行监管制度对商业银行资本充足率提出了哪些方面的要求？请按监管指标、风险覆盖、信息披露三个层面归纳。 | 监管(银行) | 中 | 5 | 待标注 |\n| G-02 | 外资银行在我国设立与经营需要满足哪些方面的准入要求？请完整归纳准入环节。 | 监管(银行) | 中 | 6 | 待标注 |\n| G-03 | 关于农村中小银行机构的行政许可，监管规定了哪几类事项？请系统归纳。 | 监管(银行) | 中 | 4 | 待标注 |\n| G-04 | 银行卡清算机构的监管框架包含哪些核心制度安排？ | 监管(银行) | 中 | 4 | 待标注 |\n| G-05 | 我国对银行业金融机构的国别风险管理提出了哪些管理要求？ | 监管(银行) | 难 | 5 | 待标注 |\n| G-06 | 支付结算系统危机处置预案对参与机构规定了哪些职责？ | 监管(银行) | 中 | 4 | 待标注 |\n| G-07 | 现行制度对涉及恐怖活动资产的冻结管理有哪些要求？ | 监管(银行) | 中 | 5 | 待标注 |\n| G-15 | 我国银行业监管制度的法律层级体系是怎样的（法律—行政法规—部门规章—规范性文件）？请按层级归纳并举例。 | 监管(银行) | 难 | 4 | 待标注 |\n| G-16 | 商业银行公司治理监管包含哪些核心要求？ | 监管(银行) | 中 | 5 | 待标注 |\n| G-17 | 现行制度对商业银行的信息披露提出了哪些要求？ | 监管(银行) | 中 | 5 | 待标注 |\n| G-08 | 保险保障基金的筹集、管理和使用制度包含哪些要点？ | 法律法规场景 | 中 | 5 | 待标注 |\n| G-09 | 保险法对保险公司的资金运用规定了哪些约束？ | 法律法规场景 | 中 | 4 | 待标注 |\n| G-18 | 保险资金运用监管框架包含哪些核心约束？请按投资品种与比例限制两个维度归纳。 | 法律法规场景 | 难 | 5 | 待标注 |\n| G-10 | 信贷业务监管制度对贷款风险分类提出了哪些要求？ | 监管(信贷) | 中 | 5 | 待标注 |\n| G-11 | 监管对商业银行授信集中度管理有哪些规定？请完整归纳。 | 监管(信贷) | 中 | 4 | 待标注 |\n| G-12 | 关于贷款用途管理，监管制度提出了哪些要求？ | 监管(信贷) | 中 | 5 | 待标注 |\n| G-19 | 监管对个人贷款与流动资金贷款的管理要求有哪些差异与共性？请完整归纳。 | 监管(信贷) | 难 | 6 | 待标注 |\n| G-13 | 金融资产管理公司的业务范围与监管要求包含哪些方面？ | 监管(金融机构) | 中 | 5 | 待标注 |\n| G-14 | 非银行金融机构的行政许可事项包括哪些类别？ | 监管(金融机构) | 中 | 5 | 待标注 |\n| G-20 | 我国对金融机构市场准入的监管架构包含哪些层次？ | 监管(金融机构) | 难 | 4 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| G-01 | 现行监管制度对商业银行资本充足率"
+     },
+     {
+      "page_content": "3.2 跨文档对比（15 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| C-01 | 《商业银行法》与《银行业监督管理法》在监管职责划分上有何差异？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-02 | 《外资银行管理条例》与其《实施细则》在准入条件上的规定有何分工？ | 监管(银行) | 难 | 4 | 待标注 |\n| C-03 | 《中国人民银行法》与《商业银行法》在监管对象与手段上有何区别？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-04 | 内资商业银行与外资银行在设立条件上的监管要求有何差异？ | 监管(银行) | 中 | 5 | 待标注 |\n| C-05 | 《农村中小银行机构行政许可事项实施办法》与《非银行金融机构行政许可事项实施办法》在许可事项上的异同？ | 监管(银行) | 难 | 5 | 待标注 |\n| C-06 | 政策性银行监管（以中国农业发展银行为例）与商业银行监管在制度设计上有何差异？ | 监管(银行) | 难 | 4 | 待标注 |\n| C-12 | 银行卡清算机构与商业银行在监管要求上的差异体现在哪些方面？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-14 | 我国对中资银行与外资银行在报告义务上的要求有何差异？ | 监管(银行) | 中 | 4 | 待标注 |\n| C-07 | 流动资金贷款与固定资产贷款在受托支付要求上有何差异？ | 监管(信贷) | 中 | 4 | 待标注 |\n| C-08 | 个人贷款与流动资金贷款在贷后管理要求上有何差异？ | 监管(信贷) | 中 | 5 | 待标注 |\n| C-13 | 信贷业务与同业业务在风险分类要求上的差异？ | 监管(信贷) | 难 | 4 | 待标注 |\n| C-09 | 《保险法》与《保险保障基金管理办法》在基金相关规定上的分工如何？ | 法律法规场景 | 中 | 3 | 待标注 |\n| C-10 | 保险公司与商业银行在资本监管要求上有何差异？ | 法律法规场景 | 难 | 5 | 待标注 |\n| C-11 | 金融资产管理公司与银行机构在业务准入上的差异？ | 监管(金融机构) | 中 | 4 | 待标注 |\n| C-15 | 涉及恐怖活动资产冻结与一般账户冻结在程序要求上有何差异？ | 法律法规场景 | 难 | 4 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| C-01 | 《商业银行法》与《银行业监督管理"
+     },
+     {
+      "page_content": "3.3 分布与趋势（10 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| T-01 | 知识库中涉及「行政许可」的监管文件主要分布在哪些制度层级？请归纳其分布特征。 | 监管(银行) | 难 | 4 | 待标注 |\n| T-02 | 知识库中对「信息披露」的强调程度如何？覆盖了哪些类型的机构？ | 监管(银行) | 中 | 4 | 待标注 |\n| T-03 | 从制度演进看，外资银行监管条例的修订主要体现在哪些方面？ | 监管(银行) | 难 | 4 | 待标注 |\n| T-06 | 知识库中罚款、警告等处罚类条款主要分布在哪些文件中？ | 监管(银行) | 中 | 4 | 待标注 |\n| T-07 | 现行监管制度中，报告义务的频次要求有哪些不同档次？ | 监管(银行) | 难 | 4 | 待标注 |\n| T-04 | 知识库中信贷类监管文件对「受托支付」的提及集中在哪些业务类型？ | 监管(信贷) | 中 | 3 | 待标注 |\n| T-10 | 知识库中「贷后管理」相关要求主要出现在哪几类制度文件中？ | 监管(信贷) | 中 | 4 | 待标注 |\n| T-05 | 保险监管相关文件中，关于资金运用与关于偿付能力的要求分布如何？ | 法律法规场景 | 难 | 4 | 待标注 |\n| T-09 | 保险保障基金相关条款在知识库中的分布情况如何（哪些文件涉及）？ | 法律法规场景 | 中 | 3 | 待标注 |\n| T-08 | 知识库中非银行金融机构相关文件涵盖哪些机构类型？请按类型归纳。 | 监管(金融机构) | 中 | 5 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| T-01 | 知识库中涉及「行政许可」的监管文"
+     },
+     {
+      "page_content": "3.4 多跳串联（35 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| M-01 | 《保险法》要求保险公司缴纳保险保障基金，配套的《保险保障基金管理办法》对基金的统筹使用情形是如何规定的？ | 法律法规场景 | 中 | 3 | 待标注 |\n| M-02 | 《保险法》规定保险保障基金的筹集、管理和使用办法由谁制定？ | 法律法规场景 | 易 | 2 | 待标注 |\n| M-03 | 《保险法》中「未按照规定缴纳保险保障基金」属于哪一类违法行为，对应哪些处置措施？ | 法律法规场景 | 中 | 3 | 待标注 |\n| M-33 | 保险公司资金运用比例限制，与保险保障基金的运用规定有何区别与联系？ | 法律法规场景 | 难 | 4 | 待标注 |\n| M-04 | 《商业银行法》规定的违法行为，其在《银行业监督管理法》中的处罚衔接是如何规定的？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-05 | 设立外资银行的注册资本要求，在《外资银行管理条例实施细则》中是如何进一步细化的？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-06 | 《中国人民银行法》赋予人民银行的检查监督权，在《银行业监督管理法》中是否有对应表述？两者差异是什么？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-07 | 农村中小银行机构设立需取得行政许可，其上位法依据是哪部法律？ | 监管(银行) | 易 | 2 | 待标注 |\n| M-08 | 涉及恐怖活动资产冻结的监管要求，其法律依据可追溯至哪些文件？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-09 | 《银行卡清算机构管理办法》的制定依据是哪部上位法？ | 监管(银行) | 易 | 2 | 待标注 |\n| M-10 | 《中国农业发展银行监督管理办法》中关于资本充足的要求，与商业银行资本监管要求在口径上有何联系？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-11 | 外资银行变更注册资本需要经过哪些程序？涉及哪些文件与条款？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-12 | 商业银行在证券交易所参与债券交易需满足哪些条件？依据哪个文件？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-13 | 《支付结算系统危机处置预案》中，参与机构在发生系统危机时的报告路径是什么？ | 监管(银行) | 中 | 3 | 待标注 |\n| M-14 | 《银行业监督管理法》授权的监管措施，在具体业务规章中如何落地（以银行卡清算机构为例）？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-15 | 外资银行经营人民币业务的准入条件，涉及《外资银行管理条例》与实施细则的哪些条款？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-16 | 农村中小银行机构的市场退出，涉及哪些许可事项与上位法条款？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-31 | 商业银行资本管理办法对资本充足率的要求，与《银行业监督管理法》的监管措施如何联动？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-32 | 国别风险管理的监管要求，与商业银行资本监管中的国别风险权重有何关联？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-34 | 银行业金融机构的报告义务，在《银行业监督管理法》与具体业务规章中的要求如何分层？ | 监管(银行) | 难 | 4 | 待标注 |\n| M-17 | 贷款风险分类的监管要求，在贷后管理相关规定中如何落实？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-18 | 受托支付的适用条件，在流动资金贷款与固定资产贷款规定中分别如何表述？ | 监管(信贷) | 中 | 4 | 待标注 |\n| M-19 | 授信集中度超限的处置，在监管制度中对应哪些整改要求？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-20 | 贷款用途违规使用，对应的罚则条款出现在哪些文件中？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-21 | 个人贷款的资金用途限制，与《商业银行法》关于信贷业务的规定如何衔接？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-22 | 信贷资产转让的监管要求，其上位法依据是什么？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-23 | 贷款展期的条件与审批要求，涉及哪些条款？ | 监管(信贷) | 中 | 3 | 待标注 |\n| M-24 | 不良贷款处置的监管要求，与资本充足率监管有何关联？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-25 | 信贷业务中的关联交易管理，涉及哪些监管文件与条款？ | 监管(信贷) | 难 | 4 | 待标注 |\n| M-26 | 《保险保障基金管理办法》中基金的筹集比例，与《保险法》相关规定如何衔接？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| M-27 | 金融资产管理公司的设立许可，依据哪部规章？ | 监管(金融机构) | 易 | 2 | 待标注 |\n| M-28 | 非银行金融机构的行政许可事项，其上位法依据是什么？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| M-29 | 外资银行并表监管要求，涉及哪些文件与条款？ | 监管(金融机构) | 难 | 4 | 待标注 |\n| M-30 | 涉及恐怖活动资产冻结的机构义务，与非银行金融机构的合规要求如何衔接？ | 监管(金融机构) | 难 | 4 | 待标注 |\n| M-35 | 非银行金融机构终止业务需履行的程序，涉及哪些许可事项与上位法条款？ | 监管(金融机构) | 难 | 4 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| M-01 | 《保险法》要求保险公司缴纳保险保"
+     },
+     {
+      "page_content": "3.5 否定与排除（20 题）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| N-01 | 哪些情形不属于《商业银行法》规定的商业银行经营范围？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-02 | 外资银行不得经营的业务有哪些？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-03 | 哪些机构不属于《银行业监督管理法》的监管对象？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-04 | 哪些事项不属于农村中小银行机构需申请行政许可的范围？ | 监管(银行) | 难 | 4 | 待标注 |\n| N-05 | 哪些情形不适用《支付结算系统危机处置预案》？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-06 | 哪些资产不属于涉及恐怖活动资产冻结的范围？ | 监管(银行) | 难 | 4 | 待标注 |\n| N-07 | 哪些主体不适用《外国中央银行财产司法强制措施豁免法》的豁免规定？ | 监管(银行) | 难 | 3 | 待标注 |\n| N-08 | 哪些业务不属于银行卡清算机构的业务范围？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-09 | 哪些情形不属于《外资银行管理条例》所称的外资银行？ | 监管(银行) | 中 | 3 | 待标注 |\n| N-10 | 哪些行为不属于《中国人民银行法》规定的违法行为？ | 监管(银行) | 难 | 3 | 待标注 |\n| N-11 | 哪些贷款不属于受托支付方式的适用范围？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-12 | 哪些情形不属于贷款风险分类中的「不良」？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-13 | 哪些用途不属于流动资金贷款的合法用途？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-14 | 哪些主体不属于个人贷款业务的适格借款人？ | 监管(信贷) | 中 | 3 | 待标注 |\n| N-15 | 哪些情形不属于信贷资产转让的允许范围？ | 监管(信贷) | 难 | 4 | 待标注 |\n| N-16 | 哪些情形不属于保险保障基金的统筹使用范围？ | 法律法规场景 | 中 | 3 | 待标注 |\n| N-17 | 哪些资金运用方式不属于《保险法》允许的范围？ | 法律法规场景 | 中 | 3 | 待标注 |\n| N-18 | 哪些机构不属于非银行金融机构？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| N-19 | 哪些事项不属于金融资产管理公司的业务范围？ | 监管(金融机构) | 中 | 3 | 待标注 |\n| N-20 | 哪些情形不属于国别风险管理的适用范围？ | 监管(金融机构) | 难 | 3 | 待标注 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 题目 | 知识库 | 难度 | gold 要点数 | 状态 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| N-01 | 哪些情形不属于《商业银行法》规定"
+     },
+     {
+      "page_content": "4 标注规范",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.1 标注流程",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "题目评审（先于标注）：100 题先经业务方评审「是否符合真实业务问法」，剔除或替换不合规题目。此步不可跳过——源材料复核记录显示「标准答案有问题」占 52%，说明既有题库的题目与答案质量本身就是主要误差源。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "双人独立标注：业务方 + 算法方各一人独立完成 `gold_points` 与出处标注，互不参照。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "分歧仲裁：两人标注结果差异超过 1 条要点的题目，进入三方（含提问者本人）讨论定稿。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "标注复核：定稿后由第三人做随机 20% 抽检，通过率低于 90% 则整批返回。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "版本固化：定稿后写入版本号（如 `global_eval_v1.0`）并冻结；后续任何修改需新版本号，禁止原地改题，否则历史结论不可比。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.2 gold 要点规范",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 规则 | 要求 | 违反后果 |\n| :----: | :----: | :----: |\n| 要点数量 | 全局类 3~7 条，多跳类 2~4 条，否定类 2~3 条 | 要点过细会导致覆盖度普遍偏低，失去区分度 |\n| 要点独立性 | 每条要点对应一个可独立判断的信息单元，不得互相包含 | 重复计分，覆盖度虚高 |\n| 要点可判定性 | 两个标注人独立判断某条要点「是否被回答覆盖」的结论应一致 | 覆盖度指标不可复现 |\n| 要点必须带来源 | 每条要点标注其来源文档（对应 `label_source`） | 无法判断是答错还是召回到错文档 |\n| 允许合理多正例 | 同一要点可由多个文档的片段支撑，全部列入 `acceptable_sources` | 误判为未召回（源材料已记录此类误判：召回 0 的 79 题中存在「知识库中不止一处，只标注了 a」） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 规则 | 要求 | 违反后果 |\n| :----: | :----: | :----: |\n| 要点数量 | 全局类 3~7 条，多跳类 2~4 条，否定类 2~3 条 | 要点过细会导致覆盖度普遍偏低，失去区分度 |\n| 要点独立性 "
+     },
+     {
+      "page_content": "4.3 出处标注与 offset 语义",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "源材料复核记录中「坐标没对上」6 例、「知识库中不止一处，只标注了 a」的误判已实际发生。为消除歧义，规定如下：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "offset 以 Unicode 码点（字符）为单位，不是字节。中文占 1 个字符——这是与既有实现最易产生分歧的一点，必须先与既有 `指标_results.csv` 的计算口径对齐后再全量标注。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "区间为左闭右开 [start, end)，`start` 指向片段首字符，`end` 指向片段末字符的下一位。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "offset 相对解析后文本，而非原始 PDF 或 docx 字节流。因解析器版本变化会导致偏移漂移，标注时必须记录解析器版本。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "必须提供自动化对齐校验：交付一个校验脚本，输入 (文档, offset)，回读该区间并与 `label_chunk` 做包含性断言。全部题目必须通过该校验后才可进入评测——这是针对既有「坐标没对上」缺陷的强制执行手段。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "多正例必须全部标注：若同一问题在知识库中有多处可支撑片段，全部列入；只标一处会导致 recall 被系统性低估。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.4 标注示例（3 例完整标注）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "下列 3 例覆盖三种 query_type，作为标注规范的具体示范。其余 97 题由业务方按同一规范补齐。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "示例：M-01",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 《保险法》要求保险公司缴纳保险保障基金，配套的《保险保障基金管理办法》对基金的统筹使用情形是如何规定的？ |\n| query_type | multi_hop |\n| 难度 | 中 |\n| gold_points | 1. 《保险法》规定保险公司应当缴纳保险保障基金（来源：保险法）<br>2. 保险保障基金应集中管理（来源：保险法）<br>3. 统筹使用情形之一：保险公司被撤销或者被宣告破产（来源：保险保障基金管理办法）<br>4. 统筹使用情形之二：在保险公司被撤销或者被宣告破产后，为向保单持有人、保单受让公司提供救济（来源：保险保障基金管理办法）<br>5. 统筹使用情形之三：国务院批准的其他情形（来源：保险保障基金管理办法） |\n| acceptable_sources | 保险法（相关条款） / 保险保障基金管理办法 |\n| fail_if | 仅答出《保险法》的缴纳义务而未给出管理办法中的统筹使用情形（＝只完成一跳） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 《保险法》要求保险公司缴纳保险保障基金，配套的《保险保障基金管理办法》对基金的统筹使用情形是如何规定的？ |\n| query_type | multi"
+     },
+     {
+      "page_content": "示例：G-01",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 现行监管制度对商业银行资本充足率提出了哪些方面的要求？请按监管指标、风险覆盖、信息披露三个层面归纳。 |\n| query_type | global |\n| 难度 | 中 |\n| gold_points | 1. 监管指标层面：最低资本要求、储备资本要求、逆周期资本要求等分档要求<br>2. 风险覆盖层面：信用风险、市场风险、操作风险等的资本计量要求<br>3. 风险覆盖层面：国别风险等特定风险是否纳入资本计量<br>4. 信息披露层面：资本充足率相关信息的披露义务与频次要求<br>5. 监管联动：资本充足率不达标时对应的监管措施 |\n| acceptable_sources | 商业银行资本管理办法 / 银行业监督管理法 / 银行业金融机构国别风险管理办法 |\n| fail_if | 只覆盖单一层面，或未给出各层面之间的层次关系（覆盖度按 5 条要点计分） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 现行监管制度对商业银行资本充足率提出了哪些方面的要求？请按监管指标、风险覆盖、信息披露三个层面归纳。 |\n| query_type | global "
+     },
+     {
+      "page_content": "示例：N-16",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 哪些情形不属于保险保障基金的统筹使用范围？ |\n| query_type | fact |\n| 难度 | 中 |\n| gold_points | 1. 统筹使用范围限于法定情形（被撤销/被宣告破产、救济保单持有人与受让公司、国务院批准的其他情形）<br>2. 不属统筹范围的情形需明确排除（如保险公司正常经营期间的常规赔付不得动用基金） |\n| acceptable_sources | 保险保障基金管理办法 / 保险法 |\n| fail_if | 把法定统筹使用情形误列为「不属于」范围（方向性错误，判 0 分） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 内容 |\n| :----: | :----: |\n| question | 哪些情形不属于保险保障基金的统筹使用范围？ |\n| query_type | fact |\n| 难度 | 中 |\n| gold_points | 1."
+     },
+     {
+      "page_content": "5 评测指标与计算口径",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.1 指标体系",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 层级 | 指标 | 口径 | 适用题型 | 采集方式 |\n| :----: | :----: | :----: | :----: | :----: |\n| 事实层 | 答案准确率 | 结论与 gold 要点一致的比例 | 全部 | LLM-as-judge 初筛（百川4，沿用）→ 人工复核 |\n| 事实层 | 召回命中率 | gold 出处是否出现在返回引用中；多正例按「命中任一即算命中」 | 全部 | 自动比对 `acceptable_sources` |\n| 全局层 | 要点覆盖度 | 被覆盖的 gold 要点数 / gold 要点总数（全局题主指标） | global / multi_hop | LLM-as-judge 初筛 → 人工复核 |\n| 全局层 | 一票否决率 | 触发 `fail_if` 的题目占比（与覆盖度并列，不可互相抵消） | 全部 | 人工判定 |\n| 全局层 | 归因完整率 | 答案中带可点开原文出处的结论占比 | global | 自动校验引用链完整性 |\n| 全局层 | 矛盾暴露率 | 存在冲突材料时是否显式暴露（而非静默取一） | global | 人工评审 |\n| 拒答层 | 正确拒答率 | 不可答题与越界题上正确拒答的比例 | 否定与排除 | 人工判定 |\n| 成本层 | 单题 LLM 调用次数 | 路由 + map + reduce 的调用总数 | 全部 | 链路埋点 |\n| 成本层 | P95 端到端 / 首字延迟 | 含路由与多通路耗时 | 全部 | 链路埋点 |\n| 体验层 | 啰嗦度 | 单列，不计入准确率 | — | 人工主观评分（仅作体验参考） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 层级 | 指标 | 口径 | 适用题型 | 采集方式 |\n| :----: | :----: | :----: | :----: | :----: |\n| 事实层 | 答案准确率 | 结论与 gold 要点一致的比例 | 全部 | LL"
+     },
+     {
+      "page_content": "两处刻意的口径设计：①「要点覆盖度」与「一票否决率」并列而非加权——不存在「答错方向但覆盖了 4 个要点所以得 40 分」这种算法，触发 fail_if 的题目在覆盖度统计中直接判 0；②「啰嗦度」从准确率中剥离——源材料显示复核者对此分歧最大（28% 的主观评价问题），把它混入准确率会污染决策依据。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.2 指标计算的自检要求",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "源材料复核记录中「评估指标计算问题」8 例，说明指标实现本身不可信。本方案要求：任何评测指标在投入使用前，必须用已知答案构造的样例集通过自检。自检用例至少覆盖：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "全覆盖正例：答案完整覆盖全部 gold 要点 → 覆盖度必须为 100%。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "零覆盖负例：答案与题目无关 → 覆盖度必须为 0%。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "多正例召回：同一要点由两个文档支撑，只召回其中一个 → 必须计为命中（针对既有误判）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "定向错误负例：触发 `fail_if` → 覆盖度必须为 0%，且一票否决率必须计入。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "边界示例：答案覆盖部分要点（如 3/5）→ 覆盖度必须为 60%，不得因四舍五入或分数口径偏差漂移。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "该自检用例集本身也是交付物，需随题库一并版本化。未通过自检的指标不得用于门控判定——否则 M0 的结论与 M4 的裁定都建立在错误的分母上，这比没有评测更危险。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6 基线测量方案",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6.1 测量对象",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "对 100 题各跑一遍当前线上召回配置，不做任何改造（不接通图谱、不改切分、不改 rerank）。测量对象为现有「关键词 + 向量」融合通路，作为门控判定的基线。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 配置项 | 基线取值 | 说明 |\n| :----: | :----: | :----: |\n| 召回通路 | 关键词 + 向量融合（现有线上配置） | 不启用图谱通路，即 enabled_graph = false |\n| 推理模型 | 线上主用模型 | 记录模型版本，后续所有对比必须同模型 |\n| 解析器版本 | 当前线上版本 | 必须记录，因 offset 语义与解析器版本绑定（见 4.3 节） |\n| 切分策略 | 当前线上策略 | 记录 chunk 大小与重叠参数 |\n| 并发与超时 | 线上同配置 | 用于成本层指标采集 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 配置项 | 基线取值 | 说明 |\n| :----: | :----: | :----: |\n| 召回通路 | 关键词 + 向量融合（现有线上配置） | 不启用图谱通路，即 enabled_graph = false |\n| 推理模型 "
+     },
+     {
+      "page_content": "6.2 执行方式",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "离线批量执行：复用现有离线算法服务批次跑完 100 题，不占用在线问答资源。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "完整埋点：每题记录返回的 `search_type` 分布、引用列表、单题 LLM 调用次数、首字与端到端延迟。这是「分通路归因」的数据来源，缺失则该题不计入统计。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "自动初筛 + 人工复核：LLM-as-judge 输出初筛结果与覆盖度，人工复核全量 100 题（题量不大，全量复核比抽检更可靠，且这 100 题将成为后续所有迭代的固定回归集）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "双跑稳定性：基线测量至少执行 2 次，两次结果差异超过 5 个百分点的题目标记为「不稳定」，需排查是随机性还是链路问题。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6.3 交付产出",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 产出物 | 格式 | 内容 |\n| :----: | :----: | :----: |\n| 基线测量报告 | docx | 各题型覆盖度、一票否决率、召回命中率、成本指标；分知识库切片 |\n| 逐题结果明细 | xlsx | 每题的回答、引用、覆盖度、fail_if 触发情况、人工判定 |\n| 指标计算自检记录 | md / xlsx | 5.2 节样例集的通过记录 |\n| Go / No-Go 门控表（已签字） | docx | 见第 7 章，先签字后开封 |\n| 固定回归集 | xlsx | 100 题 + 标注 + 基线结果，作为后续迭代的回归基线 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 产出物 | 格式 | 内容 |\n| :----: | :----: | :----: |\n| 基线测量报告 | docx | 各题型覆盖度、一票否决率、召回命中率、成本指标；分知识库切片 |\n| 逐题结果明细 | xlsx | 每题的回"
+     },
+     {
+      "page_content": "7 Go / No-Go 门控表（签字页）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "使用方式：本表在任何测量开始前填写并签字封存，M4 阶段开封对照。次序不可颠倒——源材料已记录平台多次「优化了但无法证明收益」的先例，先测数字再定门槛必然得出「值得做」的结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 门控项 | 阈值 | 观察题型 | 达标动作 | 未达标动作 | 裁决人 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| 门控 1 | 基线要点覆盖度 < 50% | 全局主题归纳 + 跨文档对比 + 分布与趋势 | 进 M3 社区摘要 POC | 见门控 1b | 产品 + 算法 |\n| 门控 1b | 基线覆盖度 50%~70% | 同上 | 先做轻量改造（查询改写 / 多查询扩展 / 结果聚合），复测再定 | ≥ 70% 则不引入 GraphRAG | 产品 + 算法 |\n| 门控 2 | HippoRAG 相对基线多跳题提升 ≥ 10 个百分点 | 多跳串联 | 接通路（P1 按计划推进） | 不接通路，避免为不显著收益增加系统复杂度 | 算法 |\n| 门控 3 | 一票否决率 ≤ 5% | 全部 | 通路可灰度上线 | 不得上线，先修拒答与方向性错误 | 产品 |\n| 门控 4 | 分通路埋点完整率 = 100% | 全部 | 统计结论有效 | 统计结论无效，先补埋点再评测 | 算法 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 门控项 | 阈值 | 观察题型 | 达标动作 | 未达标动作 | 裁决人 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| 门控 1 | 基线要点覆盖度 < 50% "
+     },
+     {
+      "page_content": "| 确认项 | 内容 |\n| :----: | :----: |\n| 基线测量执行人 / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（产品） / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（算法） / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 封存方式 | 签字后并入 M0 交付包，M4 阶段开封对照 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 确认项 | 内容 |\n| :----: | :----: |\n| 基线测量执行人 / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（产品） / 日期 | ＿＿＿＿＿＿＿＿＿＿ |\n| 门控表签字（算法） / 日期 | ＿＿＿＿＿＿"
+     },
+     {
+      "page_content": "8 里程碑与分工",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 序号 | 任务 | 周期 | 责任方 | 交付物 |\n| :----: | :----: | :----: | :----: | :----: |\n| M0-1 | 题目评审（剔除/替换不合真实问法的题目） | 3 天 | 业务方主导 | 评审通过版 100 题 |\n| M0-2 | 双人独立标注 + 分歧仲裁 | 5 天 | 业务方 + 算法方 | gold_points 与出处标注 |\n| M0-3 | offset 对齐校验脚本 + 全量校验 | 2 天 | 算法方 | 校验脚本 + 通过记录 |\n| M0-4 | 指标计算实现 + 自检用例集 | 3 天 | 算法方 | 指标实现 + 5.2 节自检记录 |\n| M0-5 | 门控表签字封存 | — | 产品 + 算法 | 签字页（第 7 章） |\n| M0-6 | 基线测量（2 次）+ 人工全量复核 | 3 天 | 算法方 | 基线报告 + 逐题明细 |\n| M0-7 | 基线结论评审 + 门控裁决 | 2 天 | 产品 + 算法 | 裁决纪要（回写《详细设计》14.5 / 15.2） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 序号 | 任务 | 周期 | 责任方 | 交付物 |\n| :----: | :----: | :----: | :----: | :----: |\n| M0-1 | 题目评审（剔除/替换不合真实问法的题目） | 3 天 | 业务方主导 "
+     },
+     {
+      "page_content": "M0-5 必须在 M0-6 之前完成，这是本方案唯一的强次序约束。总周期约 2 周（可并行部分已并行）。M0-3 与 M0-4 可与 M0-1 / M0-2 并行，不占关键路径。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "9 风险登记",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M0R-01 | 标准答案本身有问题（既有复核记录中占 52%） | 覆盖度指标失真，门控裁决建立在错误分母上 | 题目评审前置（M0-1）+ 双人标注 + 20% 抽检 + fail_if 显式声明 |\n| M0R-02 | offset 坐标对不上（既有 6 例） | 召回命中率被系统性低估 | 4.3 节统一语义 + 自动化对齐校验脚本作为准入条件 |\n| M0R-03 | 指标计算实现有误（既有 8 例） | 结论不可信，比没有评测更危险 | 5.2 节强制自检用例集，未通过不得用于门控 |\n| M0R-04 | 标注人力不足导致周期延长 | M0 阻塞 M2 / M3 的决策 | 题目评审阶段先做等量置换，控制总量在 100 题；M0-3/M0-4 并行吸收等待时间 |\n| M0R-05 | 题目分布与业务关注度不匹配 | 测了不关心的题，关心的题没测 | 2.2 节分布表需业务方确认；可在总量不变前提下等量置换 |\n| M0R-06 | 评测集随迭代漂移，历史结论不可比 | 无法纵向对比 | 4.1 节版本固化，禁止原地改题 |\n| M0R-07 | 先测数字后定门槛（次序颠倒） | 门控失效，重演「优化了但证明不了」 | 第 7 章签字封存机制；M0-5 强制早于 M0-6 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M0R-01 | 标准答案本身有问题（既有复核记录中占 52%） | 覆盖度指标失真，门控裁决建立在错误分母上 | "
+     }
+    ],
+    "elapsed_ms": 381,
+    "stubbed_modules": [
+     "cv2",
+     "datrie",
+     "fastapi",
+     "hanziconv",
+     "huggingface_hub",
+     "magic_pdf",
+     "magic_pdf.config",
+     "magic_pdf.config.enums",
+     "magic_pdf.data",
+     "magic_pdf.data.data_reader_writer",
+     "magic_pdf.data.dataset",
+     "magic_pdf.model",
+     "magic_pdf.model.doc_analyze_by_custom_model",
+     "magic_pdf.utils",
+     "magic_pdf.utils.office_to_pdf",
+     "nltk",
+     "nltk.stem",
+     "onnxruntime",
+     "pyclipper",
+     "shapely",
+     "shapely.geometry"
+    ]
+   },
+   "count_a": 95,
+   "count_b": 95,
+   "verdict": "IDENTICAL"
+  },
+  {
+   "sample": "sample-m1.docx",
+   "bytes": 31365,
+   "A": {
+    "arm": "A",
+    "sample": "sample-m1.docx",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/docx_parser.py",
+    "count": 71,
+    "blocks": [
+     {
+      "page_content": "M1 实体类型体系与归一化方案",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "类型体系 v1.0 · 自动类型推断 · 别名合并与审计",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 文档编号 | RAG-ALG-GRAG-M1-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》3.2 节、M1 里程碑；D-01 裁定后无条件执行 |\n| 交付物 | 类型体系定义、实体别名表、合并审计日志、分裂率验收报告 |\n| 覆盖范围 | 图服务实体抽取链路（prompts / graph_extract / graph_fun_tool） |\n| 数据源 | 贺亮-大模型RAG产品（本地规范位置，145 份素材） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 文档编号 | RAG-ALG-GRAG-M1-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》3.2 节、M1 里程碑；D-01 "
+     },
+     {
+      "page_content": "目 录",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1 方案定位",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.1 为什么这是最优先事项",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "《详细设计》4.5.3 节与《GraphRAG 引入技术方案》3.2 节均把实体类型体系判定为图谱能力的最大瓶颈。源材料中图服务文档的原话是：「现在实体抽取需提供实体类型，这个是在抽取前配置的，手动整理，如果不添加将启用默认」。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "这句话包含两个独立缺陷，需要分别处置：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 缺陷 | 现状 | 直接后果 | 本文档处置 |\n| :----: | :----: | :----: | :----: |\n| 类型体系不可扩展 | 实体类型在抽取前手工整理，新增知识库无人整理 | 新知识库只能落到「默认类型」，类型约束失效 | 第 2 章：版本化的类型体系 v1.0 + 第 3 章自动推断 |\n| 「默认类型」是一口黑洞 | 不添加类型即启用默认，所有实体落入同一类型 | 实体分裂无法被类型约束拦截；别名合并的「同类型」前置条件失效 | 2.5 节：默认类型收窄为「未分类」，并强制进入待人工队列 |\n| 同一实体被赋予不同类型 | 不同标注人对同一实体给出不同类型 | 实体分裂，社区被人为割裂 | 第 4 章：归一化与别名合并 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 缺陷 | 现状 | 直接后果 | 本文档处置 |\n| :----: | :----: | :----: | :----: |\n| 类型体系不可扩展 | 实体类型在抽取前手工整理，新增知识库无人整理 | 新知识库只能落到「默认类型」，类型"
+     },
+     {
+      "page_content": "为什么它必须先于 GraphRAG：社区检测对图的连通性极其敏感。若「国家金融监督管理总局」与「金融监管总局」是两个节点，社区会被人为割裂，摘要质量随之下降。更严重的是效果归因会被污染——POC 测出来的差异分不清是社区摘要的贡献还是实体分裂的噪声。因此 M1 是 M3 的强制前置（《GraphRAG 引入技术方案》GR-02）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.2 与既有实现的关系",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 既有资产 | 现状 | 本方案 |\n| :----: | :----: | :----: |\n| 实体抽取链路 | 图服务 prompts（实体抽取 + query 解析）、graph_extract.py、graph_fun_tool.py | 复用，在抽取 prompt 中注入类型体系与推断结果 |\n| 实体 / 关系存储 | Milvus graph_base 库：每知识库实体表 + 三元组表（name / title / file_id / chunk_pk_list / description / data_type） | 复用，`type` 字段取值改为类型码（2.3 节），并新增别名指向字段 |\n| 图存储 | Nebula 图空间（前缀 g_），entity 节点含 name / title / file_id / type | 复用，type 同步改为类型码 |\n| 默认类型 | 不添加则启用默认（单一类型） | 改造：收窄为「未分类」并强制人工兜底（2.5 节） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 既有资产 | 现状 | 本方案 |\n| :----: | :----: | :----: |\n| 实体抽取链路 | 图服务 prompts（实体抽取 + query 解析）、graph_extract.py、graph_fun_tool"
+     },
+     {
+      "page_content": "2 实体类型体系 v1.0",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.1 设计原则",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "领域化分层：类型按「领域 → 大类 → 细类」组织。首版只覆盖金融监管域（与四个监管知识库对齐），其他领域（化工、医疗等）预留扩展位，不预先铺开。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "可判定：任一类型必须能被两条判据之一判定——要么有明确的命名模式，要么能由实体 description 语义判定。无法判定的类型不进入体系。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "可版本化：类型体系整体带版本号，任何变更需重新索引（Milvus schema 不可变更，「先删后增」是既有约定）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "可扩展不破坏：新增细类不得改变已有类型码的语义；类型码一经发布不可复用。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "参与性标注：每个类型必须显式声明是否参与社区检测（2.3 节末列），这是社区质量的关键开关。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.2 体系结构",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6 大类、27 个细类。类型码形如 `PTY-REG`，前缀为大类缩写：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 大类 | 缩写 | 含义 | 细类数 | 是否参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: |\n| 主体类 | PTY | 监管与被监管的机构、人员、客户 | 5 | 是（情境除外） |\n| 规范类 | NOR | 法律法规、规章、条款、罚则 | 7 | 是 |\n| 业务类 | BIZ | 业务品种、贷款类型、业务行为与环节 | 4 | 是 |\n| 度量类 | MEA | 监管指标、限额、金额、期限、频次 | 5 | 是（权重下调） |\n| 风险类 | RSK | 风险类别、风险事件、处置措施 | 3 | 是 |\n| 情境类 | CTX | 时间、地域、表格附件 | 3 | 否（见 2.3 节说明） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 大类 | 缩写 | 含义 | 细类数 | 是否参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: |\n| 主体类 | PTY | 监管与被监管的机构、人员、客户 | 5 | 是（情"
+     },
+     {
+      "page_content": "「情境类不参与社区检测」是本节最重要的设计决定。 时间（2024 年、施行之日）与地域（境外、中国香港）如果参与社区划分，会把图按时间和地域切碎，产生「2024 年的社区」「境外相关社区」这类无业务意义的划分，直接损害摘要可用性。G「分布与趋势」类题目需要时间信息时，应当通过查询期过滤而非索引期切分来满足。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.3 类型定义表（v1.0）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 类型码 | 名称 | 定义 | 正例 | 反例 | 参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| PTY-REG | 监管机构 | 依法对金融机构实施监督管理的机关 | 国家金融监督管理总局、中国人民银行、中国证监会 | 中国工商银行（是被监管者） | 是 |\n| PTY-TGT | 被监管机构 | 受监管的银行及非银行金融机构 | 商业银行、农村中小银行机构、外资银行、金融资产管理公司、银行卡清算机构 | 国家金融监督管理总局 | 是 |\n| PTY-PER | 从业人员与责任人员 | 机构从业人员及承担责任的个人 | 董事、监事、高级管理人员、直接责任人员 | 机构名称 | 是 |\n| PTY-CUS | 客户与投资者 | 金融业务的交易对手方 | 存款人、借款人、保单持有人、投资者 | 银行本身 | 是 |\n| PTY-OTH | 其他主体 | 为金融机构提供服务或承担专业职能的第三方 | 会计师事务所、第三方支付机构 | 监管机构 | 是 |\n| NOR-LAW | 法律 | 全国人大及其常委会制定的规范性文件 | 中国人民银行法、商业银行法、银行业监督管理法、保险法 | 外资银行管理条例（行政法规） | 是 |\n| NOR-REG | 行政法规 | 国务院制定的规范性文件 | 外资银行管理条例 | 商业银行资本管理办法（部门规章） | 是 |\n| NOR-RULE | 部门规章 | 金融监管部门制定的规章 | 商业银行资本管理办法、保险保障基金管理办法、农村中小银行机构行政许可事项实施办法 | 各类通知、公告 | 是 |\n| NOR-NORM | 规范性文件 | 通知、公告、指引、办法等非规章类规范性文件 | 关于…的通知、支付结算系统危机处置预案 | 商业银行法 | 是 |\n| NOR-CLAUSE | 条款 | 文件中的条款级引用 | 第一百条、第三条第二款 | 文件名 | 是 |\n| NOR-PEN | 罚则 | 违法行为对应的处罚措施 | 罚款、警告、责令改正、吊销许可证、市场禁入 | 合规要求（非处罚） | 是 |\n| NOR-DEF | 定义性条款 | 文件中对术语作出界定的条款 | 本办法所称非银行金融机构包括… | 具体行为要求 | 是 |\n| BIZ-PRD | 业务品种 | 金融机构经营的业务种类 | 存款、贷款、理财、银行卡清算、债券交易 | 业务流程环节 | 是 |\n| BIZ-LOAN | 贷款类型 | 信贷业务的细分品种 | 流动资金贷款、固定资产贷款、个人贷款、不良贷款 | 存款业务 | 是 |\n| BIZ-ACT | 业务行为 | 需要申请、审批、备案或报告的行为 | 设立、变更、终止、转让、展期、受托支付、报告、审批 | 静态业务品种 | 是 |\n| BIZ-CHN | 业务环节 | 业务流程中的阶段 | 贷前调查、贷时审查、贷后管理 | 监管指标 | 是 |\n| MEA-IDX | 监管指标 | 用于衡量机构审慎经营水平的指标 | 资本充足率、不良贷款率、授信集中度、杠杆率、流动性覆盖率 | 注册资本（属限额） | 是（权重下调） |\n| MEA-LIM | 限额与比例 | 制度规定的数量边界 | 单一客户贷款余额比例、注册资本最低限额 | 监管指标名称 | 是（权重下调） |\n| MEA-AMT | 金额 | 具体金额数值 | 注册资本 10 亿元、罚款 50 万元 | 比例 | 是（权重下调） |\n| MEA-TRM | 期限 | 制度规定的时限 | 贷款期限、整改期限、报告时限 | 频次 | 是（权重下调） |\n| MEA-FRQ | 频次 | 制度规定的报告或检查频次 | 按月、按季、按年 | 具体日期 | 是（权重下调） |\n| RSK-TYP | 风险类别 | 风险分类维度 | 信用风险、市场风险、操作风险、国别风险、流动性风险 | 风险事件 | 是 |\n| RSK-EVT | 风险事件 | 触发处置的特定情形 | 支付结算系统危机、被撤销、被宣告破产 | 风险类别 | 是 |\n| RSK-MSR | 处置措施 | 对风险事件采取的措施 | 接管、托管、撤销、破产清算、资产冻结 | 处罚措施（属 NOR-PEN） | 是 |\n| CTX-TIM | 时间 | 时间点或时间段 | 2024 年、施行之日 | 期限（MEA-TRM） | 否 |\n| CTX-GEO | 地域与国家 | 地理与国别信息 | 境外、中国香港、境内 | 机构名称 | 否 |\n| CTX-TAB | 表格与附件 | 文件内的表格、附表、附件 | 附表一、附件 2 | 正文条款 | 否 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 类型码 | 名称 | 定义 | 正例 | 反例 | 参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| PTY-REG | 监管机构 | 依法对金融机构实"
+     },
+     {
+      "page_content": "2.4 类型体系的版本化",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 项 | 规定 |\n| :----: | :----: |\n| 版本标识 | `type_system_version`，首版为 `fin_reg_v1.0` |\n| 存储位置 | 配置文件（纳入版本管理），随知识库配置一起落库，便于回溯当时使用版本 |\n| 变更规则 | 新增细类：版本号 +0.1；修改已有类型语义或删除类型：版本号 +1.0，必须全量重新索引 |\n| 索引绑定 | 每个知识库记录其索引时使用的 `type_system_version`；跨版本比较图谱效果时必须显式声明 |\n| 约束 | 禁止原地修改类型定义——同一版本号下的类型语义必须保持不变，否则历史评测结论不可比 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 项 | 规定 |\n| :----: | :----: |\n| 版本标识 | `type_system_version`，首版为 `fin_reg_v1.0` |\n| 存储位置 | 配置文件（纳入版本管理），随知识库配置一起落库，便于回溯"
+     },
+     {
+      "page_content": "2.5 「默认类型」的改造",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "既有行为「不添加将启用默认」是当前最主要的问题来源：它让所有未配置类型的实体落入同一个桶，从而使「同类型」这一别名合并的前置条件永远为真，等于关闭了类型约束这道防线。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 改造项 | 既有行为 | 新行为 |\n| :----: | :----: | :----: |\n| 默认类型语义 | 单一默认类型，可被大量实体共用 | 收窄为 `UNCLASSIFIED`（未分类），仅作占位，不作为可比较的类型 |\n| 类型约束 | 未分类实体之间允许任意合并 | `UNCLASSIFIED` 参与归一化时不得仅凭同类型判定，必须走 LLM 判定通道（4.3 节） |\n| 人工兜底 | 无 | `UNCLASSIFIED` 实体进入待人工队列，按频次降序排列；高频未分类实体优先处置 |\n| 监控 | 无 | `UNCLASSIFIED` 占比作为图谱健康度指标之一，纳入日常监控（目标 < 10%） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 改造项 | 既有行为 | 新行为 |\n| :----: | :----: | :----: |\n| 默认类型语义 | 单一默认类型，可被大量实体共用 | 收窄为 `UNCLASSIFIED`（未分类），仅作占位，不作为可比较的类型 |\n"
+     },
+     {
+      "page_content": "3 实体类型自动推断",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.1 三级推断链路",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "抽取前为每个待抽实体确定类型，采用三级链路，前一级未命中才进入下一级，兼顾成本与准确率：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 级别 | 方法 | 成本 | 覆盖预期 | 置信度 |\n| :----: | :----: | :----: | :----: | :----: |\n| L1 领域标签 | 按知识库的领域标签（金融监管 / 银行 / 信贷）加载候选类型子集，缩小取值范围 | 0 | 全部 | —（仅缩小候选集） |\n| L2 规则模式 | 按实体名的命名模式匹配（3.2 节模式表） | 0 | 约 60~70% | 命中即高置信 |\n| L3 LLM 分类 | 给定实体名 + description + 候选类型集，输出类型与置信度 | 有成本 | 剩余 30~40% | ≥ 0.7 采纳；< 0.7 → UNCLASSIFIED |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 级别 | 方法 | 成本 | 覆盖预期 | 置信度 |\n| :----: | :----: | :----: | :----: | :----: |\n| L1 领域标签 | 按知识库的领域标签（金融监管 / 银行 / 信贷）加载候选类型"
+     },
+     {
+      "page_content": "L2 规则模式的优先级高于 L3 LLM，这是刻意的成本设计：监管语料的实体命名高度规范（大量以「银行」「公司」「总局」「办法」「条例」结尾），规则命中率高且完全免费。L3 只用于兜底，成本因此被压到可接受范围——按 15 万实体的规模估算，L3 实际调用量约 4.5~6 万次，而非 15 万次。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.2 规则模式表（L2）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 匹配模式 | 判定类型 | 示例 |\n| :----: | :----: | :----: |\n| 以「总局」「委员会」「人民银行」「监管局」结尾或包含 | PTY-REG | 国家金融监督管理总局、中国证券监督管理委员会、中国人民银行 |\n| 以「银行」「公司」「机构」「中心」「清算机构」结尾 | PTY-TGT | 商业银行、金融资产管理公司、银行卡清算机构 |\n| 包含「董事」「监事」「高级管理人员」「责任人」 | PTY-PER | 董事、高级管理人员 |\n| 包含「存款人」「借款人」「保单持有人」「投资者」 | PTY-CUS | 存款人、保单持有人 |\n| 以「法」结尾且不含「办法」「细则」 | NOR-LAW | 中国人民银行法、保险法 |\n| 以「条例」结尾 | NOR-REG | 外资银行管理条例 |\n| 以「办法」结尾（含「管理办法」「实施办法」） | NOR-RULE | 商业银行资本管理办法、保险保障基金管理办法 |\n| 以「通知」「公告」「指引」「预案」「细则」结尾 | NOR-NORM | 关于…的通知、支付结算系统危机处置预案 |\n| 以「第…条」「第…款」「第…项」开头 | NOR-CLAUSE | 第一百条、第三条第二款 |\n| 包含「罚款」「警告」「责令改正」「吊销」「禁入」 | NOR-PEN | 罚款、吊销许可证 |\n| 以「率」「比例」「指标」结尾 | MEA-IDX | 资本充足率、不良贷款率 |\n| 以「贷款」结尾 | BIZ-LOAN | 流动资金贷款、固定资产贷款 |\n| 包含「管理」「调查」「审查」「审批」「报告」等动词性结尾 | BIZ-ACT | 贷后管理、受托支付 |\n| 包含「风险」结尾（非具体事件） | RSK-TYP | 信用风险、国别风险 |\n| 为年份或含「年」「月」「日」 | CTX-TIM | 2024 年、施行之日 |\n| 包含「境内」「境外」「中国香港」等地域词 | CTX-GEO | 境外、境内 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 匹配模式 | 判定类型 | 示例 |\n| :----: | :----: | :----: |\n| 以「总局」「委员会」「人民银行」「监管局」结尾或包含 | PTY-REG | 国家金融监督管理总局、中国证券监督管理委员会、中国人民银行"
+     },
+     {
+      "page_content": "模式表需按实际抽取结果迭代校准：上线后统计各模式的命中率与误判率，误判率高的模式下沉到 L3 LLM 判定。模式表本身也纳入版本管理。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.3 LLM 分类的约束",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "候选集限定：prompt 中只给出 L1 筛选后的候选类型（通常 5~10 个），不给全量 27 个细类，降低误判。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "必须给出依据：要求模型输出「判定依据」（命中的关键词或语义特征），便于人工抽检与模式表反哺。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "置信度门槛：置信度 ≥ 0.7 采纳；0.5~0.7 采纳但标记为「低置信」；< 0.5 判为 `UNCLASSIFIED`。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "禁止多类型输出：要求单类型输出。若模型确实无法判定，输出 `UNCLASSIFIED` 而非并存多类型。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "批量与限流：batch_size = 20 个实体 / 请求；与社区摘要任务共享离线 GPU 队列，且优先级低于在线问答。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4 实体归一化与别名合并",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.1 五步流程",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 步骤 | 方法 | 判定阈值 | 失败处理 |\n| :----: | :----: | :----: | :----: |\n| ① 文本规范化 | 去空格 / 全角半角统一 / 去括号补充说明 / 简称展开（国家金融监督管理总局 ← 金融监管总局） | 确定性规则 | 规则未命中进入下一步 |\n| ② 别名发现（候选生成） | Milvus 实体向量表内 top-K 近邻检索（K=10）+ 同类型约束 | 余弦相似度 ≥ 0.92 进入候选 | 候选为空则保留为独立实体 |\n| ③ 别名判定（确认） | LLM 二分类：给定两个实体名 + 各自 description + 所属文件名，判定是否同一实体 | 置信度 ≥ 0.8 合并 | 0.6~0.8 记入待人工确认队列；< 0.6 判为不同实体 |\n| ④ 类型一致性检查 | 对判定为同一实体的两方做类型一致性检查 | 类型不一致即触发类型再判定（3.3 节） | 仍不一致则保留多类型并标记冲突 |\n| ⑤ 合并执行 | 保留 canonical 名（出现频次最高或首次出现），其余记入别名表；三元组重指向 canonical | — | 合并前留存映射表以支持回滚 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 步骤 | 方法 | 判定阈值 | 失败处理 |\n| :----: | :----: | :----: | :----: |\n| ① 文本规范化 | 去空格 / 全角半角统一 / 去括号补充说明 / 简称展开（国家金融监督管理总局 ← 金"
+     },
+     {
+      "page_content": "步骤②的「同类型约束」是成本控制的关键：先用免费的向量近邻把候选对从 O(n²) 压到 O(n·K)，再用类型约束进一步过滤，最后才对少量候选调用 LLM。按 15 万实体估算，LLM 判定调用量约 3000~8000 次，而非百万级。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.2 参数表",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 参数 | 取值 | 依据 / 调优方式 |\n| :----: | :----: | :----: |\n| 近邻检索 K | 10 | K 过大引入噪声与成本，过小漏召回；按别名召回复核率调优 |\n| 候选相似度阈值 | 0.92 | 起始值；以「人工构造 100 对真实别名」的召回率为准调优（目标 ≥ 90%） |\n| LLM 合并阈值 | 0.8 | 0.6~0.8 区间进人工队列，用人工判定结果反推阈值是否合理 |\n| 同类型约束 | 开启 | 例外：`UNCLASSIFIED` 之间不适用（2.5 节） |\n| 别名展开口径 | 仅对「总局 → 国家金融监督管理总局」这类行政简称做规则展开 | 避免过度展开导致误合并 |\n| 误合并容忍 | ≤ 2% | 误合并比漏合并危害更大（错误会扩散到所有关联三元组） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 参数 | 取值 | 依据 / 调优方式 |\n| :----: | :----: | :----: |\n| 近邻检索 K | 10 | K 过大引入噪声与成本，过小漏召回；按别名召回复核率调优 |\n| 候选相似度阈值 | 0.92 | 起"
+     },
+     {
+      "page_content": "4.3 合并的不可逆性与回滚",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "合并会改写三元组指向（把别名实体替换为 canonical 实体），这是一次不可逆的图变更。因此：合并前必须完整留存映射表（canonical ← alias 的每一条），支持按批次回滚；回滚需重新索引受影响的图空间。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "先小范围试跑再全量：建议先在单一知识库（建议「监管(银行)」）上跑一轮归一化，人工抽检 200 个合并对的正确率后再全量执行。误合并的修复成本远高于漏合并——漏合并只是少省了一点冗余，误合并会让两个不同实体的所有关系混在一起，且这类错误在问答中极难被发现。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5 交付资产",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.1 实体别名表",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 类型 | 说明 |\n| :----: | :----: | :----: |\n| canonical_name | varchar | 规范名（合并后保留的名称） |\n| alias_name | varchar | 别名 |\n| entity_type | varchar | 类型码（如 PTY-REG） |\n| merge_method | enum | rule / vector+llm / manual，记录合并方式以支持质量分析 |\n| confidence | float | 合并置信度（规则合并为 1.0） |\n| knowledge_base | varchar | 所属知识库；别名表按知识库独立维护，不跨库合并 |\n| type_system_version | varchar | 生成时使用的类型体系版本 |\n| created_at / batch_id | timestamp / varchar | 支持按批次回滚 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 类型 | 说明 |\n| :----: | :----: | :----: |\n| canonical_name | varchar | 规范名（合并后保留的名称） |\n| alias_name | varchar | 别名 |"
+     },
+     {
+      "page_content": "别名表按知识库独立维护：这是刻意的保守设计。跨知识库合并会引入难以排查的串扰（例如「商业银行」在信贷知识库与银行知识库中可能指代不同的具体条款集合），且违反权限隔离要求。跨库的实体对齐留待后续按需评估。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.2 合并审计日志",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 说明 |\n| :----: | :----: |\n| batch_id | 合并批次标识 |\n| alias_entity_pk / canonical_entity_pk | 被合并与保留的实体主键 |\n| affected_triples | 受影响的三元组数量与主键列表 |\n| affected_chunks | 受影响的 chunk 数量（经 chunk_pk_list 统计） |\n| operator / method | 执行人（自动为 system）与合并方式 |\n| rolled_back | 是否已回滚 |\n| timestamp | 执行时间 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 说明 |\n| :----: | :----: |\n| batch_id | 合并批次标识 |\n| alias_entity_pk / canonical_entity_pk | 被合并与保留的实体主键 |\n| affected"
+     },
+     {
+      "page_content": "5.3 存储与接口",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 项 | 设计 |\n| :----: | :----: |\n| 存储位置 | 关系库（OpenGauss）：别名表 + 审计日志两张表；按知识库分租户隔离 |\n| 接口 | `GET /graph/entity/alias?kb={kb}` 查询别名表；`POST /graph/entity/merge` 手工合并/拆分（供人工队列使用）；`POST /graph/entity/rollback?batch_id=` 按批次回滚 |\n| 与 Nebula 的关系 | 别名表为关系库资产；Nebula 中只保留 canonical 节点，不保留别名节点 |\n| 与 Milvus 的关系 | 别名实体向量记录归档而非删除，便于回滚 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 项 | 设计 |\n| :----: | :----: |\n| 存储位置 | 关系库（OpenGauss）：别名表 + 审计日志两张表；按知识库分租户隔离 |\n| 接口 | `GET /graph/entity/alias?kb={kb}"
+     },
+     {
+      "page_content": "6 验收标准",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6.1 核心指标：实体分裂率",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 项 | 内容 |\n| :----: | :----: |\n| 定义 | 抽样 N 个「真实实体」，统计其中在图中被表示为多个节点的比例。分裂率 = 被拆分的真实实体数 / 抽样真实实体数 |\n| 抽样方法 | 分层抽样 200 个：按类型（6 大类）× 频次档（高/中/低）分层，保证高频实体被充分覆盖 |\n| 先测基线 | 必须先在归一化之前测一次现状分裂率并记录——否则无法证明归一化有效，也无法判断当前图谱质量的真实起点 |\n| 出口条件 | 归一化后分裂率 ≤ 5%（M1 出口条件，未达标不得进入 M3） |\n| 辅助指标 1 | 别名表召回率 ≥ 90%（用人工构造的 100 对真实别名检验） |\n| 辅助指标 2 | 误合并率 ≤ 2%（抽样合并对人工判定） |\n| 辅助指标 3 | `UNCLASSIFIED` 占比 < 10% |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 项 | 内容 |\n| :----: | :----: |\n| 定义 | 抽样 N 个「真实实体」，统计其中在图中被表示为多个节点的比例。分裂率 = 被拆分的真实实体数 / 抽样真实实体数 |\n| 抽样方法 | 分层抽样 200 个：按类"
+     },
+     {
+      "page_content": "「先测基线」这一条是刻意强调的：平台已有的教训是大量能力被标记为「未开始」而实际已实现（《详细设计》14.4 节），根因之一就是缺少改造前的度量。归一化如果不测基线，最终只能得出「感觉好了一些」这类无法写进验收报告的结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "7 里程碑",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 序号 | 任务 | 周期 | 交付物 | 出口条件 |\n| :----: | :----: | :----: | :----: | :----: |\n| M1-1 | 类型体系 v1.0 定稿（本文档第 2 章评审） | 3 天 | 类型体系定义（fin_reg_v1.0） | 业务方确认类型覆盖无遗漏 |\n| M1-2 | 测量现状分裂率（基线） | 2 天 | 基线报告 | 200 个实体完成人工判定 |\n| M1-3 | L2 规则模式表实现 + 命中率统计 | 3 天 | 模式表 + 统计报告 | L2 命中率 ≥ 60% |\n| M1-4 | L3 LLM 分类接入 + prompt 调优 | 3 天 | 分类服务 | 抽检准确率 ≥ 85% |\n| M1-5 | 别名发现与合并（先在「监管(银行)」试跑） | 4 天 | 别名表 + 审计日志 | 试跑批次误合并率 ≤ 2% |\n| M1-6 | 全量归一化执行 + 复测分裂率 | 3 天 | 验收报告 | 分裂率 ≤ 5% |\n| M1-7 | UNCLASSIFIED 待人工队列清理 | 3 天 | 清理记录 | UNCLASSIFIED 占比 < 10% |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 序号 | 任务 | 周期 | 交付物 | 出口条件 |\n| :----: | :----: | :----: | :----: | :----: |\n| M1-1 | 类型体系 v1.0 定稿（本文档第 2 章评审） | 3 天 | 类"
+     },
+     {
+      "page_content": "M1-2 与 M1-1 可并行；M1-7 可与 M1-6 部分并行。总周期约 2~3 周，与 M0 可并行执行（两者无依赖）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "8 风险登记",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M1R-01 | 误合并（把两个不同实体合并为一个） | 比漏合并危害更大：错误扩散到所有关联三元组，且问答中极难被发现 | 4.3 节：单库试跑 + 200 对人工抽检 + 完整映射表支持回滚；误合并率 ≤ 2% 作为出口条件 |\n| M1R-02 | 类型体系与实际语料不匹配（类型缺失或冗余） | 大量实体落入 UNCLASSIFIED，类型约束失效 | M1-1 由业务方确认；M1-4 后按 UNCLASSIFIED 分布反哺类型体系（升版本号 +0.1） |\n| M1R-03 | L2 规则模式误判率高 | 类型错误传导到社区质量与别名合并约束 | 上线后按模式统计误判率；高误判模式下沉至 L3 |\n| M1R-04 | 简化展开过度（如把无关简称视为同一实体） | 误合并 | 4.2 节：别名展开口径限定为行政简称规则展开，不做泛化缩写推理 |\n| M1R-05 | 跨知识库同名实体被误对齐 | 知识库间串扰，违反权限隔离 | 5.1 节：别名表按知识库独立维护，不跨库合并 |\n| M1R-06 | 未测基线即开始改造 | 无法证明归一化有效，验收无依据 | 6.1 节强制先测基线；M1-2 排在改造之前 |\n| M1R-07 | 归一化后需要全量重建索引，与在线服务争抢资源 | 在线问答延迟劣化 | 离线执行并限流；重建限流与错峰（与既有 CON-10 风险同型） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M1R-01 | 误合并（把两个不同实体合并为一个） | 比漏合并危害更大：错误扩散到所有关联三元组，且问答中极难被"
+     },
+     {
+      "page_content": "本文档与 M0、GraphRAG 方案的关系：M0（评测集与基线）与 M1（类型体系与归一化）是无条件执行的两项前置，均不依赖 GraphRAG 决策。M1 完成后，其实体分裂率数据将成为 M3 社区摘要 POC 的入口条件（GR-02）。M1 的产出的别名表同时被《GraphRAG 引入技术方案》3.2 节与 4.3 节的 Local Search 实体链接复用。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     }
+    ],
+    "elapsed_ms": 274,
+    "stubbed_modules": [
+     "cv2",
+     "datrie",
+     "fastapi",
+     "hanziconv",
+     "huggingface_hub",
+     "magic_pdf",
+     "magic_pdf.config",
+     "magic_pdf.config.enums",
+     "magic_pdf.data",
+     "magic_pdf.data.data_reader_writer",
+     "magic_pdf.data.dataset",
+     "magic_pdf.model",
+     "magic_pdf.model.doc_analyze_by_custom_model",
+     "magic_pdf.utils",
+     "magic_pdf.utils.office_to_pdf",
+     "nltk",
+     "nltk.stem",
+     "onnxruntime",
+     "pyclipper",
+     "shapely",
+     "shapely.geometry"
+    ]
+   },
+   "B": {
+    "arm": "B",
+    "sample": "sample-m1.docx",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/docx_parser.py",
+    "count": 71,
+    "blocks": [
+     {
+      "page_content": "M1 实体类型体系与归一化方案",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "类型体系 v1.0 · 自动类型推断 · 别名合并与审计",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 文档编号 | RAG-ALG-GRAG-M1-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》3.2 节、M1 里程碑；D-01 裁定后无条件执行 |\n| 交付物 | 类型体系定义、实体别名表、合并审计日志、分裂率验收报告 |\n| 覆盖范围 | 图服务实体抽取链路（prompts / graph_extract / graph_fun_tool） |\n| 数据源 | 贺亮-大模型RAG产品（本地规范位置，145 份素材） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 文档编号 | RAG-ALG-GRAG-M1-001 |\n| :----: | :----: |\n| 版本 / 状态 | V1.0 / 待评审 |\n| 上游依据 | 《GraphRAG 引入技术方案》3.2 节、M1 里程碑；D-01 "
+     },
+     {
+      "page_content": "目 录",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1 方案定位",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.1 为什么这是最优先事项",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "《详细设计》4.5.3 节与《GraphRAG 引入技术方案》3.2 节均把实体类型体系判定为图谱能力的最大瓶颈。源材料中图服务文档的原话是：「现在实体抽取需提供实体类型，这个是在抽取前配置的，手动整理，如果不添加将启用默认」。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "这句话包含两个独立缺陷，需要分别处置：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 缺陷 | 现状 | 直接后果 | 本文档处置 |\n| :----: | :----: | :----: | :----: |\n| 类型体系不可扩展 | 实体类型在抽取前手工整理，新增知识库无人整理 | 新知识库只能落到「默认类型」，类型约束失效 | 第 2 章：版本化的类型体系 v1.0 + 第 3 章自动推断 |\n| 「默认类型」是一口黑洞 | 不添加类型即启用默认，所有实体落入同一类型 | 实体分裂无法被类型约束拦截；别名合并的「同类型」前置条件失效 | 2.5 节：默认类型收窄为「未分类」，并强制进入待人工队列 |\n| 同一实体被赋予不同类型 | 不同标注人对同一实体给出不同类型 | 实体分裂，社区被人为割裂 | 第 4 章：归一化与别名合并 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 缺陷 | 现状 | 直接后果 | 本文档处置 |\n| :----: | :----: | :----: | :----: |\n| 类型体系不可扩展 | 实体类型在抽取前手工整理，新增知识库无人整理 | 新知识库只能落到「默认类型」，类型"
+     },
+     {
+      "page_content": "为什么它必须先于 GraphRAG：社区检测对图的连通性极其敏感。若「国家金融监督管理总局」与「金融监管总局」是两个节点，社区会被人为割裂，摘要质量随之下降。更严重的是效果归因会被污染——POC 测出来的差异分不清是社区摘要的贡献还是实体分裂的噪声。因此 M1 是 M3 的强制前置（《GraphRAG 引入技术方案》GR-02）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "1.2 与既有实现的关系",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 既有资产 | 现状 | 本方案 |\n| :----: | :----: | :----: |\n| 实体抽取链路 | 图服务 prompts（实体抽取 + query 解析）、graph_extract.py、graph_fun_tool.py | 复用，在抽取 prompt 中注入类型体系与推断结果 |\n| 实体 / 关系存储 | Milvus graph_base 库：每知识库实体表 + 三元组表（name / title / file_id / chunk_pk_list / description / data_type） | 复用，`type` 字段取值改为类型码（2.3 节），并新增别名指向字段 |\n| 图存储 | Nebula 图空间（前缀 g_），entity 节点含 name / title / file_id / type | 复用，type 同步改为类型码 |\n| 默认类型 | 不添加则启用默认（单一类型） | 改造：收窄为「未分类」并强制人工兜底（2.5 节） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 既有资产 | 现状 | 本方案 |\n| :----: | :----: | :----: |\n| 实体抽取链路 | 图服务 prompts（实体抽取 + query 解析）、graph_extract.py、graph_fun_tool"
+     },
+     {
+      "page_content": "2 实体类型体系 v1.0",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.1 设计原则",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "领域化分层：类型按「领域 → 大类 → 细类」组织。首版只覆盖金融监管域（与四个监管知识库对齐），其他领域（化工、医疗等）预留扩展位，不预先铺开。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "可判定：任一类型必须能被两条判据之一判定——要么有明确的命名模式，要么能由实体 description 语义判定。无法判定的类型不进入体系。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "可版本化：类型体系整体带版本号，任何变更需重新索引（Milvus schema 不可变更，「先删后增」是既有约定）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "可扩展不破坏：新增细类不得改变已有类型码的语义；类型码一经发布不可复用。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "参与性标注：每个类型必须显式声明是否参与社区检测（2.3 节末列），这是社区质量的关键开关。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.2 体系结构",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6 大类、27 个细类。类型码形如 `PTY-REG`，前缀为大类缩写：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 大类 | 缩写 | 含义 | 细类数 | 是否参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: |\n| 主体类 | PTY | 监管与被监管的机构、人员、客户 | 5 | 是（情境除外） |\n| 规范类 | NOR | 法律法规、规章、条款、罚则 | 7 | 是 |\n| 业务类 | BIZ | 业务品种、贷款类型、业务行为与环节 | 4 | 是 |\n| 度量类 | MEA | 监管指标、限额、金额、期限、频次 | 5 | 是（权重下调） |\n| 风险类 | RSK | 风险类别、风险事件、处置措施 | 3 | 是 |\n| 情境类 | CTX | 时间、地域、表格附件 | 3 | 否（见 2.3 节说明） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 大类 | 缩写 | 含义 | 细类数 | 是否参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: |\n| 主体类 | PTY | 监管与被监管的机构、人员、客户 | 5 | 是（情"
+     },
+     {
+      "page_content": "「情境类不参与社区检测」是本节最重要的设计决定。 时间（2024 年、施行之日）与地域（境外、中国香港）如果参与社区划分，会把图按时间和地域切碎，产生「2024 年的社区」「境外相关社区」这类无业务意义的划分，直接损害摘要可用性。G「分布与趋势」类题目需要时间信息时，应当通过查询期过滤而非索引期切分来满足。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "2.3 类型定义表（v1.0）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 类型码 | 名称 | 定义 | 正例 | 反例 | 参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| PTY-REG | 监管机构 | 依法对金融机构实施监督管理的机关 | 国家金融监督管理总局、中国人民银行、中国证监会 | 中国工商银行（是被监管者） | 是 |\n| PTY-TGT | 被监管机构 | 受监管的银行及非银行金融机构 | 商业银行、农村中小银行机构、外资银行、金融资产管理公司、银行卡清算机构 | 国家金融监督管理总局 | 是 |\n| PTY-PER | 从业人员与责任人员 | 机构从业人员及承担责任的个人 | 董事、监事、高级管理人员、直接责任人员 | 机构名称 | 是 |\n| PTY-CUS | 客户与投资者 | 金融业务的交易对手方 | 存款人、借款人、保单持有人、投资者 | 银行本身 | 是 |\n| PTY-OTH | 其他主体 | 为金融机构提供服务或承担专业职能的第三方 | 会计师事务所、第三方支付机构 | 监管机构 | 是 |\n| NOR-LAW | 法律 | 全国人大及其常委会制定的规范性文件 | 中国人民银行法、商业银行法、银行业监督管理法、保险法 | 外资银行管理条例（行政法规） | 是 |\n| NOR-REG | 行政法规 | 国务院制定的规范性文件 | 外资银行管理条例 | 商业银行资本管理办法（部门规章） | 是 |\n| NOR-RULE | 部门规章 | 金融监管部门制定的规章 | 商业银行资本管理办法、保险保障基金管理办法、农村中小银行机构行政许可事项实施办法 | 各类通知、公告 | 是 |\n| NOR-NORM | 规范性文件 | 通知、公告、指引、办法等非规章类规范性文件 | 关于…的通知、支付结算系统危机处置预案 | 商业银行法 | 是 |\n| NOR-CLAUSE | 条款 | 文件中的条款级引用 | 第一百条、第三条第二款 | 文件名 | 是 |\n| NOR-PEN | 罚则 | 违法行为对应的处罚措施 | 罚款、警告、责令改正、吊销许可证、市场禁入 | 合规要求（非处罚） | 是 |\n| NOR-DEF | 定义性条款 | 文件中对术语作出界定的条款 | 本办法所称非银行金融机构包括… | 具体行为要求 | 是 |\n| BIZ-PRD | 业务品种 | 金融机构经营的业务种类 | 存款、贷款、理财、银行卡清算、债券交易 | 业务流程环节 | 是 |\n| BIZ-LOAN | 贷款类型 | 信贷业务的细分品种 | 流动资金贷款、固定资产贷款、个人贷款、不良贷款 | 存款业务 | 是 |\n| BIZ-ACT | 业务行为 | 需要申请、审批、备案或报告的行为 | 设立、变更、终止、转让、展期、受托支付、报告、审批 | 静态业务品种 | 是 |\n| BIZ-CHN | 业务环节 | 业务流程中的阶段 | 贷前调查、贷时审查、贷后管理 | 监管指标 | 是 |\n| MEA-IDX | 监管指标 | 用于衡量机构审慎经营水平的指标 | 资本充足率、不良贷款率、授信集中度、杠杆率、流动性覆盖率 | 注册资本（属限额） | 是（权重下调） |\n| MEA-LIM | 限额与比例 | 制度规定的数量边界 | 单一客户贷款余额比例、注册资本最低限额 | 监管指标名称 | 是（权重下调） |\n| MEA-AMT | 金额 | 具体金额数值 | 注册资本 10 亿元、罚款 50 万元 | 比例 | 是（权重下调） |\n| MEA-TRM | 期限 | 制度规定的时限 | 贷款期限、整改期限、报告时限 | 频次 | 是（权重下调） |\n| MEA-FRQ | 频次 | 制度规定的报告或检查频次 | 按月、按季、按年 | 具体日期 | 是（权重下调） |\n| RSK-TYP | 风险类别 | 风险分类维度 | 信用风险、市场风险、操作风险、国别风险、流动性风险 | 风险事件 | 是 |\n| RSK-EVT | 风险事件 | 触发处置的特定情形 | 支付结算系统危机、被撤销、被宣告破产 | 风险类别 | 是 |\n| RSK-MSR | 处置措施 | 对风险事件采取的措施 | 接管、托管、撤销、破产清算、资产冻结 | 处罚措施（属 NOR-PEN） | 是 |\n| CTX-TIM | 时间 | 时间点或时间段 | 2024 年、施行之日 | 期限（MEA-TRM） | 否 |\n| CTX-GEO | 地域与国家 | 地理与国别信息 | 境外、中国香港、境内 | 机构名称 | 否 |\n| CTX-TAB | 表格与附件 | 文件内的表格、附表、附件 | 附表一、附件 2 | 正文条款 | 否 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 类型码 | 名称 | 定义 | 正例 | 反例 | 参与社区检测 |\n| :----: | :----: | :----: | :----: | :----: | :----: |\n| PTY-REG | 监管机构 | 依法对金融机构实"
+     },
+     {
+      "page_content": "2.4 类型体系的版本化",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 项 | 规定 |\n| :----: | :----: |\n| 版本标识 | `type_system_version`，首版为 `fin_reg_v1.0` |\n| 存储位置 | 配置文件（纳入版本管理），随知识库配置一起落库，便于回溯当时使用版本 |\n| 变更规则 | 新增细类：版本号 +0.1；修改已有类型语义或删除类型：版本号 +1.0，必须全量重新索引 |\n| 索引绑定 | 每个知识库记录其索引时使用的 `type_system_version`；跨版本比较图谱效果时必须显式声明 |\n| 约束 | 禁止原地修改类型定义——同一版本号下的类型语义必须保持不变，否则历史评测结论不可比 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 项 | 规定 |\n| :----: | :----: |\n| 版本标识 | `type_system_version`，首版为 `fin_reg_v1.0` |\n| 存储位置 | 配置文件（纳入版本管理），随知识库配置一起落库，便于回溯"
+     },
+     {
+      "page_content": "2.5 「默认类型」的改造",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "既有行为「不添加将启用默认」是当前最主要的问题来源：它让所有未配置类型的实体落入同一个桶，从而使「同类型」这一别名合并的前置条件永远为真，等于关闭了类型约束这道防线。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 改造项 | 既有行为 | 新行为 |\n| :----: | :----: | :----: |\n| 默认类型语义 | 单一默认类型，可被大量实体共用 | 收窄为 `UNCLASSIFIED`（未分类），仅作占位，不作为可比较的类型 |\n| 类型约束 | 未分类实体之间允许任意合并 | `UNCLASSIFIED` 参与归一化时不得仅凭同类型判定，必须走 LLM 判定通道（4.3 节） |\n| 人工兜底 | 无 | `UNCLASSIFIED` 实体进入待人工队列，按频次降序排列；高频未分类实体优先处置 |\n| 监控 | 无 | `UNCLASSIFIED` 占比作为图谱健康度指标之一，纳入日常监控（目标 < 10%） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 改造项 | 既有行为 | 新行为 |\n| :----: | :----: | :----: |\n| 默认类型语义 | 单一默认类型，可被大量实体共用 | 收窄为 `UNCLASSIFIED`（未分类），仅作占位，不作为可比较的类型 |\n"
+     },
+     {
+      "page_content": "3 实体类型自动推断",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.1 三级推断链路",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "抽取前为每个待抽实体确定类型，采用三级链路，前一级未命中才进入下一级，兼顾成本与准确率：",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 级别 | 方法 | 成本 | 覆盖预期 | 置信度 |\n| :----: | :----: | :----: | :----: | :----: |\n| L1 领域标签 | 按知识库的领域标签（金融监管 / 银行 / 信贷）加载候选类型子集，缩小取值范围 | 0 | 全部 | —（仅缩小候选集） |\n| L2 规则模式 | 按实体名的命名模式匹配（3.2 节模式表） | 0 | 约 60~70% | 命中即高置信 |\n| L3 LLM 分类 | 给定实体名 + description + 候选类型集，输出类型与置信度 | 有成本 | 剩余 30~40% | ≥ 0.7 采纳；< 0.7 → UNCLASSIFIED |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 级别 | 方法 | 成本 | 覆盖预期 | 置信度 |\n| :----: | :----: | :----: | :----: | :----: |\n| L1 领域标签 | 按知识库的领域标签（金融监管 / 银行 / 信贷）加载候选类型"
+     },
+     {
+      "page_content": "L2 规则模式的优先级高于 L3 LLM，这是刻意的成本设计：监管语料的实体命名高度规范（大量以「银行」「公司」「总局」「办法」「条例」结尾），规则命中率高且完全免费。L3 只用于兜底，成本因此被压到可接受范围——按 15 万实体的规模估算，L3 实际调用量约 4.5~6 万次，而非 15 万次。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.2 规则模式表（L2）",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 匹配模式 | 判定类型 | 示例 |\n| :----: | :----: | :----: |\n| 以「总局」「委员会」「人民银行」「监管局」结尾或包含 | PTY-REG | 国家金融监督管理总局、中国证券监督管理委员会、中国人民银行 |\n| 以「银行」「公司」「机构」「中心」「清算机构」结尾 | PTY-TGT | 商业银行、金融资产管理公司、银行卡清算机构 |\n| 包含「董事」「监事」「高级管理人员」「责任人」 | PTY-PER | 董事、高级管理人员 |\n| 包含「存款人」「借款人」「保单持有人」「投资者」 | PTY-CUS | 存款人、保单持有人 |\n| 以「法」结尾且不含「办法」「细则」 | NOR-LAW | 中国人民银行法、保险法 |\n| 以「条例」结尾 | NOR-REG | 外资银行管理条例 |\n| 以「办法」结尾（含「管理办法」「实施办法」） | NOR-RULE | 商业银行资本管理办法、保险保障基金管理办法 |\n| 以「通知」「公告」「指引」「预案」「细则」结尾 | NOR-NORM | 关于…的通知、支付结算系统危机处置预案 |\n| 以「第…条」「第…款」「第…项」开头 | NOR-CLAUSE | 第一百条、第三条第二款 |\n| 包含「罚款」「警告」「责令改正」「吊销」「禁入」 | NOR-PEN | 罚款、吊销许可证 |\n| 以「率」「比例」「指标」结尾 | MEA-IDX | 资本充足率、不良贷款率 |\n| 以「贷款」结尾 | BIZ-LOAN | 流动资金贷款、固定资产贷款 |\n| 包含「管理」「调查」「审查」「审批」「报告」等动词性结尾 | BIZ-ACT | 贷后管理、受托支付 |\n| 包含「风险」结尾（非具体事件） | RSK-TYP | 信用风险、国别风险 |\n| 为年份或含「年」「月」「日」 | CTX-TIM | 2024 年、施行之日 |\n| 包含「境内」「境外」「中国香港」等地域词 | CTX-GEO | 境外、境内 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 匹配模式 | 判定类型 | 示例 |\n| :----: | :----: | :----: |\n| 以「总局」「委员会」「人民银行」「监管局」结尾或包含 | PTY-REG | 国家金融监督管理总局、中国证券监督管理委员会、中国人民银行"
+     },
+     {
+      "page_content": "模式表需按实际抽取结果迭代校准：上线后统计各模式的命中率与误判率，误判率高的模式下沉到 L3 LLM 判定。模式表本身也纳入版本管理。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "3.3 LLM 分类的约束",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "候选集限定：prompt 中只给出 L1 筛选后的候选类型（通常 5~10 个），不给全量 27 个细类，降低误判。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "必须给出依据：要求模型输出「判定依据」（命中的关键词或语义特征），便于人工抽检与模式表反哺。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "置信度门槛：置信度 ≥ 0.7 采纳；0.5~0.7 采纳但标记为「低置信」；< 0.5 判为 `UNCLASSIFIED`。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "禁止多类型输出：要求单类型输出。若模型确实无法判定，输出 `UNCLASSIFIED` 而非并存多类型。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "批量与限流：batch_size = 20 个实体 / 请求；与社区摘要任务共享离线 GPU 队列，且优先级低于在线问答。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4 实体归一化与别名合并",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.1 五步流程",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 步骤 | 方法 | 判定阈值 | 失败处理 |\n| :----: | :----: | :----: | :----: |\n| ① 文本规范化 | 去空格 / 全角半角统一 / 去括号补充说明 / 简称展开（国家金融监督管理总局 ← 金融监管总局） | 确定性规则 | 规则未命中进入下一步 |\n| ② 别名发现（候选生成） | Milvus 实体向量表内 top-K 近邻检索（K=10）+ 同类型约束 | 余弦相似度 ≥ 0.92 进入候选 | 候选为空则保留为独立实体 |\n| ③ 别名判定（确认） | LLM 二分类：给定两个实体名 + 各自 description + 所属文件名，判定是否同一实体 | 置信度 ≥ 0.8 合并 | 0.6~0.8 记入待人工确认队列；< 0.6 判为不同实体 |\n| ④ 类型一致性检查 | 对判定为同一实体的两方做类型一致性检查 | 类型不一致即触发类型再判定（3.3 节） | 仍不一致则保留多类型并标记冲突 |\n| ⑤ 合并执行 | 保留 canonical 名（出现频次最高或首次出现），其余记入别名表；三元组重指向 canonical | — | 合并前留存映射表以支持回滚 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 步骤 | 方法 | 判定阈值 | 失败处理 |\n| :----: | :----: | :----: | :----: |\n| ① 文本规范化 | 去空格 / 全角半角统一 / 去括号补充说明 / 简称展开（国家金融监督管理总局 ← 金"
+     },
+     {
+      "page_content": "步骤②的「同类型约束」是成本控制的关键：先用免费的向量近邻把候选对从 O(n²) 压到 O(n·K)，再用类型约束进一步过滤，最后才对少量候选调用 LLM。按 15 万实体估算，LLM 判定调用量约 3000~8000 次，而非百万级。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "4.2 参数表",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 参数 | 取值 | 依据 / 调优方式 |\n| :----: | :----: | :----: |\n| 近邻检索 K | 10 | K 过大引入噪声与成本，过小漏召回；按别名召回复核率调优 |\n| 候选相似度阈值 | 0.92 | 起始值；以「人工构造 100 对真实别名」的召回率为准调优（目标 ≥ 90%） |\n| LLM 合并阈值 | 0.8 | 0.6~0.8 区间进人工队列，用人工判定结果反推阈值是否合理 |\n| 同类型约束 | 开启 | 例外：`UNCLASSIFIED` 之间不适用（2.5 节） |\n| 别名展开口径 | 仅对「总局 → 国家金融监督管理总局」这类行政简称做规则展开 | 避免过度展开导致误合并 |\n| 误合并容忍 | ≤ 2% | 误合并比漏合并危害更大（错误会扩散到所有关联三元组） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 参数 | 取值 | 依据 / 调优方式 |\n| :----: | :----: | :----: |\n| 近邻检索 K | 10 | K 过大引入噪声与成本，过小漏召回；按别名召回复核率调优 |\n| 候选相似度阈值 | 0.92 | 起"
+     },
+     {
+      "page_content": "4.3 合并的不可逆性与回滚",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "合并会改写三元组指向（把别名实体替换为 canonical 实体），这是一次不可逆的图变更。因此：合并前必须完整留存映射表（canonical ← alias 的每一条），支持按批次回滚；回滚需重新索引受影响的图空间。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "先小范围试跑再全量：建议先在单一知识库（建议「监管(银行)」）上跑一轮归一化，人工抽检 200 个合并对的正确率后再全量执行。误合并的修复成本远高于漏合并——漏合并只是少省了一点冗余，误合并会让两个不同实体的所有关系混在一起，且这类错误在问答中极难被发现。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5 交付资产",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.1 实体别名表",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 类型 | 说明 |\n| :----: | :----: | :----: |\n| canonical_name | varchar | 规范名（合并后保留的名称） |\n| alias_name | varchar | 别名 |\n| entity_type | varchar | 类型码（如 PTY-REG） |\n| merge_method | enum | rule / vector+llm / manual，记录合并方式以支持质量分析 |\n| confidence | float | 合并置信度（规则合并为 1.0） |\n| knowledge_base | varchar | 所属知识库；别名表按知识库独立维护，不跨库合并 |\n| type_system_version | varchar | 生成时使用的类型体系版本 |\n| created_at / batch_id | timestamp / varchar | 支持按批次回滚 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 类型 | 说明 |\n| :----: | :----: | :----: |\n| canonical_name | varchar | 规范名（合并后保留的名称） |\n| alias_name | varchar | 别名 |"
+     },
+     {
+      "page_content": "别名表按知识库独立维护：这是刻意的保守设计。跨知识库合并会引入难以排查的串扰（例如「商业银行」在信贷知识库与银行知识库中可能指代不同的具体条款集合），且违反权限隔离要求。跨库的实体对齐留待后续按需评估。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "5.2 合并审计日志",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 字段 | 说明 |\n| :----: | :----: |\n| batch_id | 合并批次标识 |\n| alias_entity_pk / canonical_entity_pk | 被合并与保留的实体主键 |\n| affected_triples | 受影响的三元组数量与主键列表 |\n| affected_chunks | 受影响的 chunk 数量（经 chunk_pk_list 统计） |\n| operator / method | 执行人（自动为 system）与合并方式 |\n| rolled_back | 是否已回滚 |\n| timestamp | 执行时间 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 字段 | 说明 |\n| :----: | :----: |\n| batch_id | 合并批次标识 |\n| alias_entity_pk / canonical_entity_pk | 被合并与保留的实体主键 |\n| affected"
+     },
+     {
+      "page_content": "5.3 存储与接口",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 项 | 设计 |\n| :----: | :----: |\n| 存储位置 | 关系库（OpenGauss）：别名表 + 审计日志两张表；按知识库分租户隔离 |\n| 接口 | `GET /graph/entity/alias?kb={kb}` 查询别名表；`POST /graph/entity/merge` 手工合并/拆分（供人工队列使用）；`POST /graph/entity/rollback?batch_id=` 按批次回滚 |\n| 与 Nebula 的关系 | 别名表为关系库资产；Nebula 中只保留 canonical 节点，不保留别名节点 |\n| 与 Milvus 的关系 | 别名实体向量记录归档而非删除，便于回滚 |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 项 | 设计 |\n| :----: | :----: |\n| 存储位置 | 关系库（OpenGauss）：别名表 + 审计日志两张表；按知识库分租户隔离 |\n| 接口 | `GET /graph/entity/alias?kb={kb}"
+     },
+     {
+      "page_content": "6 验收标准",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "6.1 核心指标：实体分裂率",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 项 | 内容 |\n| :----: | :----: |\n| 定义 | 抽样 N 个「真实实体」，统计其中在图中被表示为多个节点的比例。分裂率 = 被拆分的真实实体数 / 抽样真实实体数 |\n| 抽样方法 | 分层抽样 200 个：按类型（6 大类）× 频次档（高/中/低）分层，保证高频实体被充分覆盖 |\n| 先测基线 | 必须先在归一化之前测一次现状分裂率并记录——否则无法证明归一化有效，也无法判断当前图谱质量的真实起点 |\n| 出口条件 | 归一化后分裂率 ≤ 5%（M1 出口条件，未达标不得进入 M3） |\n| 辅助指标 1 | 别名表召回率 ≥ 90%（用人工构造的 100 对真实别名检验） |\n| 辅助指标 2 | 误合并率 ≤ 2%（抽样合并对人工判定） |\n| 辅助指标 3 | `UNCLASSIFIED` 占比 < 10% |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 项 | 内容 |\n| :----: | :----: |\n| 定义 | 抽样 N 个「真实实体」，统计其中在图中被表示为多个节点的比例。分裂率 = 被拆分的真实实体数 / 抽样真实实体数 |\n| 抽样方法 | 分层抽样 200 个：按类"
+     },
+     {
+      "page_content": "「先测基线」这一条是刻意强调的：平台已有的教训是大量能力被标记为「未开始」而实际已实现（《详细设计》14.4 节），根因之一就是缺少改造前的度量。归一化如果不测基线，最终只能得出「感觉好了一些」这类无法写进验收报告的结论。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "7 里程碑",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 序号 | 任务 | 周期 | 交付物 | 出口条件 |\n| :----: | :----: | :----: | :----: | :----: |\n| M1-1 | 类型体系 v1.0 定稿（本文档第 2 章评审） | 3 天 | 类型体系定义（fin_reg_v1.0） | 业务方确认类型覆盖无遗漏 |\n| M1-2 | 测量现状分裂率（基线） | 2 天 | 基线报告 | 200 个实体完成人工判定 |\n| M1-3 | L2 规则模式表实现 + 命中率统计 | 3 天 | 模式表 + 统计报告 | L2 命中率 ≥ 60% |\n| M1-4 | L3 LLM 分类接入 + prompt 调优 | 3 天 | 分类服务 | 抽检准确率 ≥ 85% |\n| M1-5 | 别名发现与合并（先在「监管(银行)」试跑） | 4 天 | 别名表 + 审计日志 | 试跑批次误合并率 ≤ 2% |\n| M1-6 | 全量归一化执行 + 复测分裂率 | 3 天 | 验收报告 | 分裂率 ≤ 5% |\n| M1-7 | UNCLASSIFIED 待人工队列清理 | 3 天 | 清理记录 | UNCLASSIFIED 占比 < 10% |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 序号 | 任务 | 周期 | 交付物 | 出口条件 |\n| :----: | :----: | :----: | :----: | :----: |\n| M1-1 | 类型体系 v1.0 定稿（本文档第 2 章评审） | 3 天 | 类"
+     },
+     {
+      "page_content": "M1-2 与 M1-1 可并行；M1-7 可与 M1-6 部分并行。总周期约 2~3 周，与 M0 可并行执行（两者无依赖）。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "8 风险登记",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M1R-01 | 误合并（把两个不同实体合并为一个） | 比漏合并危害更大：错误扩散到所有关联三元组，且问答中极难被发现 | 4.3 节：单库试跑 + 200 对人工抽检 + 完整映射表支持回滚；误合并率 ≤ 2% 作为出口条件 |\n| M1R-02 | 类型体系与实际语料不匹配（类型缺失或冗余） | 大量实体落入 UNCLASSIFIED，类型约束失效 | M1-1 由业务方确认；M1-4 后按 UNCLASSIFIED 分布反哺类型体系（升版本号 +0.1） |\n| M1R-03 | L2 规则模式误判率高 | 类型错误传导到社区质量与别名合并约束 | 上线后按模式统计误判率；高误判模式下沉至 L3 |\n| M1R-04 | 简化展开过度（如把无关简称视为同一实体） | 误合并 | 4.2 节：别名展开口径限定为行政简称规则展开，不做泛化缩写推理 |\n| M1R-05 | 跨知识库同名实体被误对齐 | 知识库间串扰，违反权限隔离 | 5.1 节：别名表按知识库独立维护，不跨库合并 |\n| M1R-06 | 未测基线即开始改造 | 无法证明归一化有效，验收无依据 | 6.1 节强制先测基线；M1-2 排在改造之前 |\n| M1R-07 | 归一化后需要全量重建索引，与在线服务争抢资源 | 在线问答延迟劣化 | 离线执行并限流；重建限流与错峰（与既有 CON-10 风险同型） |",
+      "type": "table",
+      "meta": {
+       "type": "table",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "table_name": "",
+       "base64": ""
+      },
+      "page_content_head": "| 编号 | 风险 | 影响 | 应对 |\n| :----: | :----: | :----: | :----: |\n| M1R-01 | 误合并（把两个不同实体合并为一个） | 比漏合并危害更大：错误扩散到所有关联三元组，且问答中极难被"
+     },
+     {
+      "page_content": "本文档与 M0、GraphRAG 方案的关系：M0（评测集与基线）与 M1（类型体系与归一化）是无条件执行的两项前置，均不依赖 GraphRAG 决策。M1 完成后，其实体分裂率数据将成为 M3 社区摘要 POC 的入口条件（GR-02）。M1 的产出的别名表同时被《GraphRAG 引入技术方案》3.2 节与 4.3 节的 Local Search 实体链接复用。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     }
+    ],
+    "elapsed_ms": 336,
+    "stubbed_modules": [
+     "cv2",
+     "datrie",
+     "fastapi",
+     "hanziconv",
+     "huggingface_hub",
+     "magic_pdf",
+     "magic_pdf.config",
+     "magic_pdf.config.enums",
+     "magic_pdf.data",
+     "magic_pdf.data.data_reader_writer",
+     "magic_pdf.data.dataset",
+     "magic_pdf.model",
+     "magic_pdf.model.doc_analyze_by_custom_model",
+     "magic_pdf.utils",
+     "magic_pdf.utils.office_to_pdf",
+     "nltk",
+     "nltk.stem",
+     "onnxruntime",
+     "pyclipper",
+     "shapely",
+     "shapely.geometry"
+    ]
+   },
+   "count_a": 71,
+   "count_b": 71,
+   "verdict": "IDENTICAL"
+  },
+  {
+   "sample": "sample.html",
+   "bytes": 110,
+   "A": {
+    "arm": "A",
+    "sample": "sample.html",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/html_parser.py",
+    "count": 1,
+    "blocks": [
+     {
+      "page_content": "标题第一段正文。ab",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     }
+    ],
+    "elapsed_ms": 151,
+    "stubbed_modules": []
+   },
+   "B": {
+    "arm": "B",
+    "sample": "sample.html",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/html_parser.py",
+    "count": 1,
+    "blocks": [
+     {
+      "page_content": "标题第一段正文。ab",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     }
+    ],
+    "elapsed_ms": 205,
+    "stubbed_modules": []
+   },
+   "count_a": 1,
+   "count_b": 1,
+   "verdict": "IDENTICAL"
+  },
+  {
+   "sample": "sample.txt",
+   "bytes": 143,
+   "A": {
+    "arm": "A",
+    "sample": "sample.txt",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/txt_parser.py",
+    "count": 4,
+    "blocks": [
+     {
+      "page_content": "第一段：对公客户综合服务建议书。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第二段：日均存款 2,983,333.33 元。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第三段：客户准入条件见 KI-RULE-002。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     }
+    ],
+    "elapsed_ms": 166,
+    "stubbed_modules": []
+   },
+   "B": {
+    "arm": "B",
+    "sample": "sample.txt",
+    "ok": true,
+    "deepdoc_file": "…/deepdoc/parser/txt_parser.py",
+    "count": 4,
+    "blocks": [
+     {
+      "page_content": "第一段：对公客户综合服务建议书。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第二段：日均存款 2,983,333.33 元。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "第三段：客户准入条件见 KI-RULE-002。",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     },
+     {
+      "page_content": "",
+      "type": "text",
+      "meta": {
+       "type": "text",
+       "position": [],
+       "page_number": [],
+       "page_size": [],
+       "offset": [],
+       "need_filtered": false,
+       "title_path": "",
+       "chunk_index": -1,
+       "base64": ""
+      }
+     }
+    ],
+    "elapsed_ms": 211,
+    "stubbed_modules": []
+   },
+   "count_a": 4,
+   "count_b": 4,
+   "verdict": "IDENTICAL"
+  }
+ ]
+}
