@@ -27,3 +27,29 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 ## 说明
 
 本文件遵循项目规则：文档中不写宿主绝对路径（写 `~/`），否则会被 `security-check` 判失败。
+
+## 2026-10-22 收口状态（无人值守轮）
+
+- 候选：`L0-contract-baseline-r9`（`QA_PENDING`，9 门禁，冻结 `revision=10`）
+- 门禁：`framework-verify` exit 0 / **199 passed**；`evidence-check r9` PASS；`p0-gate` exit 2
+- 落地：`docs/baseline/validation/artifacts/schema-v1.1.sql`（38 表）+ `schema-verify.sh`（一键真机验证）
+- 切片 A：证据接真库端到端（5 条集成测试，模块 44 passed）
+
+### 下一条准确命令（验证现状）
+
+```bash
+cd ~/data/dev/llmke-r8
+export PATH=~/data/dev/llmke/.venv/bin:$PATH
+docs/baseline/validation/schema-verify.sh          # 起实例+建表+跑集成测试，期望 PASS
+make framework-verify                              # 期望 exit 0 / 199 passed
+PYTHONPATH=$PWD python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r9
+```
+
+### 续跑顺序（下次接手直接照做）
+
+1. **等 qa-owner 签 r9**（信任根锚点指向 `cf8a72c8…`）——这是合并与 L1 的前置；
+2. 拿到 `index-owner` 对 `P0-04-DESIGN-PROPOSAL.md` 5 条裁定 → 升 schema V1.2 并实现 5 条测试；
+3. 拿到 `security-owner` 对 `P0-03-DESIGN-PROPOSAL.md` 5 条裁定 → 实现 E1–E6；
+4. 若业主决定迁移旧数据（当前决策为**空库起步**）→ 按 `target-schema-v1-mapping.csv`
+   与 11 表逻辑删除值映射（-1→1, 1→0）生成迁移脚本；
+5. 后续纵向切片：每片 = 表 + 契约 + 模块 + 集成测试，一片跑通再开下一片。
