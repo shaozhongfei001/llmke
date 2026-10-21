@@ -1,0 +1,13 @@
+.............                                                            [100%]
+=============================== warnings summary ===============================
+modules/citation_evidence/tests/test_assembler.py::test_positive_builds_and_matches_contract
+modules/citation_evidence/tests/test_assembler.py::test_positive_builds_and_matches_contract
+modules/citation_evidence/tests/test_assembler.py::test_extra_internal_fields_are_not_leaked
+modules/citation_evidence/tests/test_assembler.py::test_extra_internal_fields_are_not_leaked
+modules/citation_evidence/tests/test_assembler.py::test_codepoint_semantics_with_astral_chars
+modules/citation_evidence/tests/test_assembler.py::test_codepoint_semantics_with_astral_chars
+  /home/szf/data/dev/llmke-r8/modules/citation_evidence/assembler.py:111: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import Draft202012Validator, RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+13 passed, 6 warnings in 0.15s
