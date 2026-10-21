@@ -41,3 +41,16 @@ command exited 2; evidence loops/L0-contract-baseline-r2/evidence/independent_qa
 ### 状态
 `independent_qa_gate` **BLOCKED（预算耗尽）**。L0-r2 的 7 条开发门禁仍为 pass；
 按 `on_exhausted` 规定不得手工重置 attempts，需另开批次或由 owner 裁定。
+
+## FAIL-2026-10-21-08 R-02 复发：直接 make 时取到 conda 解释器
+
+- 现象：在 `(base)` shell 中直接 `make framework-verify` →
+  `ModuleNotFoundError: No module named 'openapi_spec_validator'`（`scripts/contract_toolchain.py:10`）。
+- 根因：Makefile 内 `python3` 全部取自 PATH；conda base 的 python3 虽版本满足，但没有框架依赖。
+  与 FAIL-2026-10-21-06 第 1 次失败同源，属**同一缺陷的再次暴露**，不是新问题。
+- 处置：新增 `coordination/mk.sh`（固定 `.venv` PATH + `MAKEFLAGS=--no-print-directory`，
+  并把实际解释器路径回显到 stderr），与 `qa-run.sh` / `run-dev.sh` 构成统一入口三件套。
+- 复验：`mk.sh framework-verify` → exit 0 / 127 passed；`mk.sh p0-gate` → exit 2（正确阻断）。
+- 长期修复：见 `docs/baseline/validation/FRAMEWORK-DEFECT-PROPOSALS-V1.0.md`（R-02 属环境类，
+  根治需在 Makefile 内固定解释器，属冻结面变更，待批准）。
+- 状态：**已缓解（入口统一）；根治待批准**
