@@ -1,0 +1,607 @@
+{
+ "scope": "B1 源码 SQL 对目标列的引用索引（只读）",
+ "warning": "SOURCE_SQL_REFERENCE 不是数据库存在性证明；未搜到也不等于不存在",
+ "files_scanned": 39,
+ "tables": {
+  "re_embedding_file": [
+   "is_del",
+   "gmt_create",
+   "gmt_modified",
+   "create_by",
+   "update_by",
+   "kb_id",
+   "task_id"
+  ],
+  "re_embedding_retry_task": [
+   "is_del",
+   "gmt_create",
+   "gmt_modified",
+   "create_by",
+   "update_by",
+   "kb_id",
+   "file_id"
+  ],
+  "re_embedding_task": [
+   "is_del",
+   "gmt_create",
+   "gmt_modified",
+   "create_by",
+   "update_by",
+   "kb_id",
+   "total_file_num",
+   "uid"
+  ],
+  "user_operate": [
+   "is_del",
+   "gmt_created",
+   "gmt_modified",
+   "create_by",
+   "update_by",
+   "user_id"
+  ],
+  "dialogue": [
+   "is_del",
+   "gmt_create",
+   "gmt_modified",
+   "create_by",
+   "update_by",
+   "user_id",
+   "kb_id",
+   "session_id"
+  ]
+ },
+ "summary": {
+  "re_embedding_file": {
+   "is_del": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml"
+    ]
+   },
+   "gmt_create": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "gmt_modified": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "create_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "update_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "kb_id": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml"
+    ]
+   },
+   "task_id": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml"
+    ]
+   }
+  },
+  "re_embedding_retry_task": {
+   "is_del": {
+    "referenced": true,
+    "hits": 2,
+    "sql_types": [
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml",
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingRetryTaskMapper.xml"
+    ]
+   },
+   "gmt_create": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "gmt_modified": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "create_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "update_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "kb_id": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml"
+    ]
+   },
+   "file_id": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingRetryTaskMapper.xml"
+    ]
+   }
+  },
+  "re_embedding_task": {
+   "is_del": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml"
+    ]
+   },
+   "gmt_create": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml"
+    ]
+   },
+   "gmt_modified": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml"
+    ]
+   },
+   "create_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "update_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "kb_id": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml"
+    ]
+   },
+   "total_file_num": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "uid": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   }
+  },
+  "user_operate": {
+   "is_del": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "gmt_created": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml"
+    ]
+   },
+   "gmt_modified": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml"
+    ]
+   },
+   "create_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "update_by": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "user_id": {
+    "referenced": true,
+    "hits": 1,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml"
+    ]
+   }
+  },
+  "dialogue": {
+   "is_del": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "gmt_create": {
+    "referenced": true,
+    "hits": 2,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml"
+    ]
+   },
+   "gmt_modified": {
+    "referenced": true,
+    "hits": 2,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml"
+    ]
+   },
+   "create_by": {
+    "referenced": true,
+    "hits": 2,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml"
+    ]
+   },
+   "update_by": {
+    "referenced": true,
+    "hits": 2,
+    "sql_types": [
+     "RESULT_MAP_MAPPING"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml"
+    ]
+   },
+   "user_id": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "kb_id": {
+    "referenced": false,
+    "hits": 0,
+    "sql_types": [],
+    "files": []
+   },
+   "session_id": {
+    "referenced": true,
+    "hits": 2,
+    "sql_types": [
+     "RESULT_MAP_MAPPING",
+     "SELECT"
+    ],
+    "files": [
+     "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml"
+    ]
+   }
+  }
+ },
+ "references": [
+  {
+   "table": "dialogue",
+   "column": "gmt_create",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml",
+   "line": 21,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "gmt_modified",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml",
+   "line": 22,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "create_by",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml",
+   "line": 23,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "update_by",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/FeedbackMapper.xml",
+   "line": 24,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "session_id",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+   "line": 9,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "gmt_create",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+   "line": 11,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "gmt_modified",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+   "line": 12,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "create_by",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+   "line": 13,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "update_by",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+   "line": 14,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "dialogue",
+   "column": "session_id",
+   "sql_type": "SELECT",
+   "mapper_id": "getIdsBySessionIdAndQueryId",
+   "file": "gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/resources/mapper/DialogueMapper.xml",
+   "line": 26,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "user_operate",
+   "column": "gmt_created",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml",
+   "line": 8,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "user_operate",
+   "column": "gmt_modified",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml",
+   "line": 9,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "user_operate",
+   "column": "user_id",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/resources/mapper/UserOperateMapper.xml",
+   "line": 14,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_retry_task",
+   "column": "is_del",
+   "sql_type": "SELECT",
+   "mapper_id": "findExistTaskByFileId",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingRetryTaskMapper.xml",
+   "line": 7,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_retry_task",
+   "column": "file_id",
+   "sql_type": "SELECT",
+   "mapper_id": "findExistTaskByFileId",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingRetryTaskMapper.xml",
+   "line": 7,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_task",
+   "column": "kb_id",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml",
+   "line": 9,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_task",
+   "column": "is_del",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml",
+   "line": 13,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_task",
+   "column": "gmt_create",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml",
+   "line": 15,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_task",
+   "column": "gmt_modified",
+   "sql_type": "RESULT_MAP_MAPPING",
+   "mapper_id": "(resultMap)",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingTaskMapper.xml",
+   "line": 16,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明 ORM 映射声明了该列；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_file",
+   "column": "is_del",
+   "sql_type": "SELECT",
+   "mapper_id": "getNonProcessedFileCount",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml",
+   "line": 8,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_file",
+   "column": "kb_id",
+   "sql_type": "SELECT",
+   "mapper_id": "getNonProcessedFileCount",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml",
+   "line": 8,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_file",
+   "column": "task_id",
+   "sql_type": "SELECT",
+   "mapper_id": "getNonProcessedFileCount",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml",
+   "line": 8,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_retry_task",
+   "column": "is_del",
+   "sql_type": "SELECT",
+   "mapper_id": "getNonProcessedFileCount",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml",
+   "line": 8,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  },
+  {
+   "table": "re_embedding_retry_task",
+   "column": "kb_id",
+   "sql_type": "SELECT",
+   "mapper_id": "getNonProcessedFileCount",
+   "file": "gien-rag/gien-rag/rag-parent/rag-index-service/src/main/resources/mapper/ReEmbeddingFileMapper.xml",
+   "line": 8,
+   "evidence_class": "SOURCE_SQL_REFERENCE",
+   "proof_scope": "仅证明源码 SQL 引用了该列名；不证明数据库存在该列"
+  }
+ ],
+ "select_star": [],
+ "limits": [
+  "SELECT * 的语句无法据文本判断列",
+  "动态 SQL（<if>/<where>）按语句整体判定，未区分分支",
+  "继承字段、间接映射、MyBatis-Plus 注解实体不在本索引范围"
+ ]
+}

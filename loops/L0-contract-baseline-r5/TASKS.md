@@ -107,3 +107,19 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 
 **r5 未受影响**：产物全在 `docs/baseline/validation/`、`loops/**`（`snapshot()` 排除）。
 | R5-C1 | 全 37 表 ORM 覆盖率（A2 扩展） | **DONE** | `A2-ORM-COVERAGE.md`、`evidence/db-orm-coverage.json`；FULL 14 / PARTIAL 17 / NONE 3 / NO_MAPPER 3 | **CANDIDATE** |
+
+---
+
+## 9. 第六轮（把静态线索推进到可裁决证据）
+
+| ID | 事项 | 状态 | 产物 | 分类 |
+|---|---|---|---|---|
+| R6-B1 | SQL 列引用索引 | **DONE** | `B1-SQL-REFERENCE-INDEX.md`、`evidence/sql-column-refs.json`（24 条引用） | **SOURCE_SQL_REFERENCE** |
+| R6-B2 | 七方一页提交包 | **DONE** | `input-packs/01…07-*.md` | 模板 |
+| R6-B3 | 场景↔接口关联 | **DONE** | `B3-SCENARIO-INTERFACE-MAP.md`、`evidence/scenario-interface-map.csv`（1233 条关联） | 关联（非漏洞） |
+| R6-B4 | ORM 解析边界与样例 | **DONE** | `B4-ORM-PARSER-BOUNDARY.md`、`tools/orm_parser_selftest.py`（6/6） | 口径 |
+
+**B1 关键结论**：`dialogue.user_id` 在实体/映射/SQL **三层均无引用** → 表述限定为
+「已检查源码范围内未发现」，数据库是否存在仍待 DDL；`user_operate.user_id` 有引用。
+**B3 缺口**：草案 E7（邻近块/图片回查二次取数）**无对应场景**，已标 GAP，未强行计入。
+**B4 风险**：association/collection 内嵌列被计入父表、同名 property 覆盖导致丢列（已实测）。
