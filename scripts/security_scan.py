@@ -49,6 +49,11 @@ SENSITIVE_TRACKED_RE = re.compile(
 )
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".pytest_cache", ".venv", "venv"}
 ALLOWLIST_FILE = ".security-allowlist"
+# 门禁证据日志（loops/<id>/evidence/*.log）是机器生成物，由 loop_guard 写入运行输出。
+# 其中的 traceback/argv 天然含宿主绝对路径，属于「运行事实」而非「源码泄漏」。
+# 因此只对 PERSONAL_ABSOLUTE_PATH 放宽；凭据、连接串、私钥、生产主机判定一律不放宽。
+# 放宽必须可计数：main() 输出 evidence_logs_personal_path_skipped=N，杜绝静默忽略。
+EVIDENCE_LOG_RE = re.compile(r"^loops/[^/]+/evidence/[^/]*\.log$")
 
 
 def tracked_files(root: Path) -> list[Path]:
@@ -117,11 +122,13 @@ def is_allowlisted(rel: str, line: str, allowlist: list[str]) -> bool:
     return False
 
 
-def scan_file(path: Path, root: Path, allowlist: list[str]) -> list[str]:
+def scan_file(path: Path, root: Path, allowlist: list[str],
+              stats: dict | None = None) -> list[str]:
     findings = []
     rel = path.relative_to(root).as_posix()
     if path.name == ALLOWLIST_FILE:
         return findings
+    is_evidence_log = bool(EVIDENCE_LOG_RE.match(rel))
     try:
         text = path.read_text(encoding="utf-8", errors="strict")
     except (UnicodeDecodeError, OSError):
@@ -145,7 +152,13 @@ def scan_file(path: Path, root: Path, allowlist: list[str]) -> list[str]:
             findings.append(f"{rel}:{i}: PRIVATE_KEY material")
         m = PERSONAL_PATH_RE.search(line)
         if m:
-            findings.append(f"{rel}:{i}: PERSONAL_ABSOLUTE_PATH: {m.group(0)}")
+            if is_evidence_log:
+                if stats is not None:
+                    stats["evidence_log_personal_path_skipped"] = (
+                        stats.get("evidence_log_personal_path_skipped", 0) + 1
+                    )
+            else:
+                findings.append(f"{rel}:{i}: PERSONAL_ABSOLUTE_PATH: {m.group(0)}")
         m = PROD_HOST_RE.search(line)
         if m:
             findings.append(f"{rel}:{i}: SUSPECTED_PROD_HOST: {m.group(0)}")
@@ -165,6 +178,7 @@ def main() -> int:
     allowlist = load_allowlist(root)
 
     findings: list[str] = []
+    stats: dict = {}
     files = tree_files(root) if args.all_files else tracked_files(root)
     if not files:
         print("FAIL: scope is empty — 0 file(s) to scan; use --all-files "
@@ -173,7 +187,7 @@ def main() -> int:
     for f in files:
         if not f.is_file():
             continue
-        findings.extend(scan_file(f, root, allowlist))
+        findings.extend(scan_file(f, root, allowlist, stats))
 
     if args.tracked_sensitive:
         for f in files:
@@ -183,10 +197,13 @@ def main() -> int:
 
     for f_ in findings:
         print(f"FAIL: {f_}")
+    skipped = stats.get("evidence_log_personal_path_skipped", 0)
     if findings:
-        print(f"security-check: FAIL ({len(findings)} finding(s))")
+        print(f"security-check: FAIL ({len(findings)} finding(s); "
+              f"evidence_logs_personal_path_skipped={skipped})")
         return 1
-    print(f"security-check: PASS ({len(files)} file(s) scanned)")
+    print(f"security-check: PASS ({len(files)} file(s) scanned; "
+          f"evidence_logs_personal_path_skipped={skipped})")
     return 0
 
 

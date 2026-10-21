@@ -1,0 +1,2 @@
+{"argv": ["python3", "scripts/trace_check.py"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-21T11:36:22.765284+00:00"}
+trace-check: PASS

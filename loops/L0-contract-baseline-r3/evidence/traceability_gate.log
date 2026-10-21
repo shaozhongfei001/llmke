@@ -1,0 +1,3 @@
+{"argv": ["python3", "scripts/trace_check.py"], "exit_code": 1, "executor": "integration-agent", "at": "2026-10-21T11:35:55.425877+00:00"}
+FAIL: planned/actual loop set mismatch
+trace-check: FAIL

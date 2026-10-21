@@ -1,5 +1,16 @@
-LLMKE technical baseline 1.1.0
-Date: 2026-10-20 Asia/Shanghai
+LLMKE technical baseline 1.1.1
+Date: 2026-10-21 Asia/Shanghai
 Business P0: OPEN
 Independent QA: PENDING
 Actual validation: docs/baseline/validation
+
+Local increments（相对 1.1.0 冻结包）
+- 批次：新增 L0-contract-baseline-r2、LD-legacy-discovery-r2（替代预算耗尽的旧批次）
+- 目录：新增 docs/integration/、coordination/（仓外共享区）
+- 框架修复（受控窗口，见 docs/baseline/BASELINE-AUTHORITY.yaml）
+  P-01 证据日志个人路径豁免（可计数，凭据不豁免）
+  P-03 摘要拆分 control_digest / doc_digest
+  P-04 冻结元数据外置（BASELINE-AUTHORITY.yaml）
+  P-05 版本号 1.1.0 -> 1.1.1
+  P-06 批次终态 SUPERSEDED / RETIRED
+- 未实施：P-02（待 qa-owner）、requirements.lock 去重（待 baseline-owner）

@@ -55,6 +55,20 @@ loops:
     - P0-04
     goal: ContextBuilder、引用、SSE 及历史记录
     state: BLOCKED
+  L0-contract-baseline-r3:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: 在 V1.1.1 受控窗口基线上重跑 L0 开发门禁（替代预算耗尽的 r2）
+    replaces: L0-contract-baseline-r2
+  L0-contract-baseline-r4:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: V1.1.1 冻结面上的 L0 开发门禁候选
+    replaces: L0-contract-baseline-r3
 retired_loop_aliases:
   L1-implementation: L1
 unplanned:

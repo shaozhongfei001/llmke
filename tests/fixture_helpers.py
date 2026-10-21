@@ -26,6 +26,8 @@ def make_loop(tmp,kind='contract',status='IN_DEV',limit=3):
  atomic_json(d/'STATE.json',state)
  for rel in ['EVIDENCE.md','FAILURES.md','HANDOFF.md','SHARED_MEMORY.md']:(d/rel).write_text('# Isolated fixture\n')
  dump(d/'evidence/manifest.json',{'manifest_version':2,'gates':{}});update_views(d,state)
+ (root/'VERSION').write_text('1.1.1\n')
+ dump(root/'docs/baseline/BASELINE-AUTHORITY.yaml',{'authority':'isolated engine fixture','authorized_by':'fixture','authorized_at':'2026-10-21','scope':['test'],'change_list':[{'id':'FIXTURE','summary':'isolated'}]})
  from freeze_baseline import run as freeze
  freeze(root,write=True)
  return root,d

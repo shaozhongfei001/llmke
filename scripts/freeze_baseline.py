@@ -3,8 +3,10 @@
 from pathlib import Path
 import argparse,json
 from contract_runtime import filehash,load,ContractViolation
-from baseline_support import ROOT,atomic_json
+from baseline_support import ROOT,atomic_json,now
 MANIFEST='docs/baseline/FROZEN-MANIFEST.json'
+AUTHORITY='docs/baseline/BASELINE-AUTHORITY.yaml'
+AUTHORITY_FIELDS=['authority','authorized_by','authorized_at','scope','change_list']
 
 def controls(root):
  out=[]
@@ -22,12 +24,38 @@ def controls(root):
   if(root/rel).is_file():out.append(rel)
  return sorted(set(out))
 
+def baseline_version(root):
+ """版本号唯一来源是 VERSION 文件；脚本内不得另存一份（旧实现硬编码 '1.1.0'）。"""
+ p=Path(root)/'VERSION'
+ if not p.is_file():raise ContractViolation('VERSION missing')
+ v=p.read_text(encoding='utf-8').strip()
+ if not v:raise ContractViolation('VERSION empty')
+ return v
+
+def baseline_authority(root):
+ """冻结元数据唯一来源是 BASELINE-AUTHORITY.yaml；缺失即拒绝，不得静默沿用旧文案。"""
+ p=Path(root)/AUTHORITY
+ if not p.is_file():
+  raise ContractViolation(AUTHORITY+' missing; refuse to freeze with legacy/hardcoded authority text')
+ value=load(p)
+ missing=[k for k in AUTHORITY_FIELDS if not value.get(k)]
+ if missing:raise ContractViolation(AUTHORITY+' missing fields: '+', '.join(missing))
+ return value
+
 def run(root,write=False):
  root=Path(root);files=controls(root);current={x:filehash(root/x) for x in files}
  if write:
-  atomic_json(root/MANIFEST,{'baseline_version':'1.1.0','authority':'user requested overlay baseline patch on 2026-10-20','technical_status':'FROZEN_ARTIFACT','business_status':'BLOCKED_BY_REAL_P0','independent_qa':'PENDING','files':current});return []
+  auth=baseline_authority(root)
+  old=load(root/MANIFEST) if (root/MANIFEST).is_file() else {}
+  revision=int(old.get('manifest_revision',0))+1
+  atomic_json(root/MANIFEST,{'baseline_version':baseline_version(root),
+   'authority':auth['authority'],'authorized_by':auth['authorized_by'],
+   'authorized_at':auth['authorized_at'],'frozen_at':now(),
+   'manifest_revision':revision,'change_list':auth['change_list'],
+   'technical_status':'FROZEN_ARTIFACT','business_status':'BLOCKED_BY_REAL_P0',
+   'independent_qa':'PENDING','files':current});return []
  old=load(root/MANIFEST)
- if old.get('baseline_version')!='1.1.0':return ['wrong baseline version']
+ if old.get('baseline_version')!=baseline_version(root):return ['wrong baseline version']
  recorded=old.get('files',{});errors=[]
  if set(recorded)!=set(current):errors.append('frozen control file set changed')
  errors.extend('frozen control changed: '+k for k in current.keys()&recorded.keys() if current[k]!=recorded[k])

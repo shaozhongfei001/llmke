@@ -45,6 +45,36 @@ def source_files(root):
  return sorted(set(out))
 
 def snapshot(root):return digest({rel:filehash(Path(root)/rel) for rel in source_files(root)})
+
+# --- P-03：证据绑定范围必须等于「真实输入范围」 ---------------------------------
+# 旧行为：整个源码树合成一个哈希。于是改一行说明文档，7 条开发门禁与已签 QA 全部 STALE，
+# 每次推进文档都要重跑全部门禁（预算只有 3 次），这是反复返工的根因。
+# 新行为：拆成两个摘要，判定 STALE 用 control_digest；
+# 只有显式声明「依赖文档」的门禁（读 docs/baseline/TRACE.yaml 的 traceability_gate）
+# 才额外比较 doc_digest。旧记录没有 digest_scheme，按 legacy 语义继续比较整树哈希。
+DIGEST_SCHEME=2
+DOC_EXCLUDED=('contracts/build/','docs/reviews/','docs/registers/closures/',
+              'docs/approvals/','docs/baseline/validation/')
+DOC_DEPENDENT_GATES=frozenset({'traceability_gate'})
+
+def control_files(root):
+ """控制面文件集：复用 freeze_baseline 的权威定义，确保「冻结什么」与「证据绑什么」一致。"""
+ from freeze_baseline import controls
+ return sorted(controls(Path(root)))
+
+def doc_files(root):
+ """说明性文档集：docs/** 中不属于控制面、且不在排除前缀内的部分。"""
+ root=Path(root);ctl=set(control_files(root));out=[]
+ for p in (root/'docs').rglob('*'):
+  if not p.is_file():continue
+  rel=p.relative_to(root).as_posix()
+  if rel.startswith(DOC_EXCLUDED) or rel in ctl:continue
+  out.append(rel)
+ return sorted(set(out))
+
+def control_digest(root):return digest({r:filehash(Path(root)/r) for r in control_files(root)})
+def doc_digest(root):return digest({r:filehash(Path(root)/r) for r in doc_files(root)})
+
 def baseline_hash(root):
  p=Path(root)/'docs/baseline/FROZEN-MANIFEST.json'
  if not p.is_file():raise ContractViolation('baseline manifest missing')

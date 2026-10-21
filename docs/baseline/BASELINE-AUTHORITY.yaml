@@ -1,0 +1,22 @@
+authority: 业主批准 V1.1.0 → V1.1.1 受控变更窗口（框架缺陷提案 P-01/P-03/P-04/P-05/P-06）
+authorized_by: project-owner (in-session authorization, 2026-10-21)
+authorized_at: "2026-10-21"
+scope:
+  - framework-evidence-binding
+  - freeze-metadata
+  - version-and-build-info
+change_list:
+  - id: P-01
+    summary: security_scan 对 loops/*/evidence/*.log 豁免「个人绝对路径」判定，凭据/连接串/私钥/生产主机不豁免，且输出跳过计数
+  - id: P-03
+    summary: 证据摘要拆分为 control_digest / doc_digest，STALE 判定用 control_digest，仅 traceability_gate 额外比较 doc_digest，旧记录按 legacy 语义兼容
+  - id: P-04
+    summary: 冻结元数据（authority/authorized_by/frozen_at/manifest_revision）改由本文件提供，缺失则拒绝写入
+  - id: P-05
+    summary: VERSION 升 1.1.1，BUILD-INFO 增「本地增量」段
+  - id: P-06
+    summary: loop_guard 新增 SUPERSEDED/RETIRED 终态，拒绝执行门禁与 finish，终态不参与 STALE 判定
+not_included:
+  - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
+  - requirements.lock 去重——待 baseline-owner 批准
+rollback: git revert 本窗口提交；FROZEN-MANIFEST 由 `python3 scripts/freeze_baseline.py --write` 重新生成

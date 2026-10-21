@@ -4,9 +4,30 @@ from __future__ import annotations
 import argparse,json,os,re,subprocess,sys
 from pathlib import Path
 from contract_runtime import load,inside,digest,filehash,ContractViolation
-from baseline_support import ROOT,now,atomic_json,exclusive,snapshot,baseline_hash,verify_envelope
+from baseline_support import (ROOT,now,atomic_json,exclusive,snapshot,baseline_hash,
+ verify_envelope,control_digest,doc_digest,DIGEST_SCHEME,DOC_DEPENDENT_GATES)
 from p0_closure_check import check as p0_errors
-VALID_STATES={'DRAFT','READY','IN_DEV','BLOCKED','QA_PENDING','DONE'}
+VALID_STATES={'DRAFT','READY','IN_DEV','BLOCKED','QA_PENDING','DONE','SUPERSEDED','RETIRED'}
+# 终态：历史结论保留，但不得再执行门禁、不得 finish、不参与 STALE 判定。
+TERMINAL_STATES={'SUPERSEDED','RETIRED'}
+
+
+def stale_reasons(root,rec,g):
+ """判定一条门禁记录是否与当前候选绑定一致（P-03：按真实输入范围）。"""
+ errors=[]
+ if rec.get('baseline_sha256')!=baseline_hash(root):
+  errors.append(g['id']+': baseline changed; evidence STALE')
+ scheme=rec.get('digest_scheme',1)
+ if scheme>=2:
+  if rec.get('control_sha256')!=control_digest(root):
+   errors.append(g['id']+': control surface changed; evidence STALE')
+  if g['id'] in DOC_DEPENDENT_GATES and rec.get('doc_sha256')!=doc_digest(root):
+   errors.append(g['id']+': dependent documents changed; evidence STALE')
+ else:
+  # 旧记录没有 digest_scheme：保持原整树语义，不回溯改写历史证据
+  if rec.get('source_sha256')!=snapshot(root):
+   errors.append(g['id']+': source/baseline changed; evidence STALE')
+ return errors
 
 
 def ldir(root,loop_id):
@@ -85,12 +106,14 @@ def evidence_errors(root,loop_id,require_done=False):
  errors+=frozen_errors(Path(root))
  if state.get('loop_id')!=loop_id:errors.append('state loop ID mismatch')
  current=snapshot(root);bh=baseline_hash(root)
+ terminal=state['status'] in TERMINAL_STATES
  for gid,rec in m['gates'].items():
   if gid not in byid:errors.append(gid+': undeclared gate evidence');continue
   if rec.get('status')!='pass':continue
   g=byid[gid]
   if rec.get('type')!=g['type'] or rec.get('gate_spec_sha256')!=gate_digest(root,g):errors.append(gid+': gate definition changed')
-  if rec.get('source_sha256')!=current or rec.get('baseline_sha256')!=bh:errors.append(gid+': source/baseline changed; evidence STALE')
+  # 终态批次：历史结论保留，不再要求「与当前候选绑定」，否则历史证据会被永久判 STALE。
+  if not terminal:errors.extend(stale_reasons(root,rec,g))
   try:
    p=inside(root,rec.get('evidence',''))
    if not p.is_file():raise ContractViolation('MISSING evidence')
@@ -149,6 +172,7 @@ def run_gate(root,loop_id,gate_id,executor,role,qa_candidate=False):
    stale=evidence_errors(root,loop_id)
    if stale:raise ContractViolation('prior evidence invalid: '+'; '.join(stale))
    before=snapshot(root);bh=baseline_hash(root)
+   before_control=control_digest(root);before_doc=doc_digest(root)
    state.setdefault('attempts',{})[gate_id]=state.get('attempts',{}).get(gate_id,0)+1
    save_state(d,state) # durable reservation; process death consumes an attempt
    argv=list(g['argv'])
@@ -161,7 +185,7 @@ def run_gate(root,loop_id,gate_id,executor,role,qa_candidate=False):
    if after!=before:code=125;output+='\nsource changed during gate; result invalid\n'
    rel=f'loops/{loop_id}/evidence/{gate_id}.log';log=inside(root,rel)
    log.write_text(json.dumps({'argv':g['argv'],'exit_code':code,'executor':executor,'at':now()},ensure_ascii=False)+'\n'+output)
-   record={'status':'fail' if code else('QA_PENDING' if qa_candidate else 'pass'),'type':g['type'],'executor':executor,'role':'LOCAL_QA_CANDIDATE' if qa_candidate else 'DEV_SELF_CHECK','evidence':rel,'sha256':filehash(log),'source_sha256':before,'baseline_sha256':bh,'gate_spec_sha256':gate_digest(root,g),'ran_at':now(),'exit_code':code,'executed_checks':g['required_checks']}
+   record={'status':'fail' if code else('QA_PENDING' if qa_candidate else 'pass'),'type':g['type'],'executor':executor,'role':'LOCAL_QA_CANDIDATE' if qa_candidate else 'DEV_SELF_CHECK','evidence':rel,'sha256':filehash(log),'digest_scheme':DIGEST_SCHEME,'control_sha256':before_control,'doc_sha256':before_doc,'source_sha256':before,'baseline_sha256':bh,'gate_spec_sha256':gate_digest(root,g),'ran_at':now(),'exit_code':code,'executed_checks':g['required_checks']}
    if code:failure(d,gate_id,f'command exited {code}; evidence {rel}')
    m['gates'][gate_id]=record;atomic_json(d/'evidence/manifest.json',m)
    if not code and qa_candidate:state['status']='QA_PENDING';save_state(d,state)
@@ -191,7 +215,9 @@ def accept_qa(root,loop_id,gate_id,envelope_path):
  with exclusive(d/'evidence/.runner.lock'):
   g=next(x for x in gates if x['id']==gate_id);state=read_state(d);m=manifest(d);rec=m['gates'].get(gate_id,{})
   if g['type']!='qa_gate' or rec.get('status')!='QA_PENDING' or rec.get('exit_code')!=0:raise ContractViolation('no successful current QA candidate run')
-  if rec.get('source_sha256')!=snapshot(root) or rec.get('gate_spec_sha256')!=gate_digest(root,g) or rec.get('baseline_sha256')!=baseline_hash(root):raise ContractViolation('QA candidate evidence STALE')
+  if rec.get('gate_spec_sha256')!=gate_digest(root,g):raise ContractViolation('QA candidate gate definition changed')
+  stale=stale_reasons(root,rec,g)
+  if stale:raise ContractViolation('QA candidate evidence STALE: '+'; '.join(stale))
   log=inside(root,rec['evidence'])
   if not log.is_file() or filehash(log)!=rec['sha256']:raise ContractViolation('QA log hash mismatch')
   envelope=load(envelope_path);principal=verify_qa(root,loop,g,rec,envelope)
