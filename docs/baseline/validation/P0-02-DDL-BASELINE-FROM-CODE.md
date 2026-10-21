@@ -117,3 +117,56 @@ D-01（共库）与 D-02 的结论**应当写进 `docs/registers/P0-CLOSURE.yaml
 | D-02 实际 DDL 与实体差异清单 | ⏳ 缺生产 `SHOW CREATE TABLE` |
 | D-03 `create_by` 语义 | ✅ 已定案（见 `P0-02-CREATEBY-SEMANTICS.md`） |
 | 迁移脚本执行记录 / 双版本兼容 | ⏳ 未开始 |
+
+---
+
+## 7. 附：从源代码到底能推导出多少 DDL（能力边界）
+
+有人会问"DDL 不能直接从代码读出来吗"。答案是**能读出一部分，且已经读出来了**，
+但边界必须说清，否则会误以为生成的 DDL 等价于生产结构。
+
+### 7.1 能推导（已实现，479 列全部覆盖）
+
+| DDL 要素 | 来源 | 覆盖率 |
+|---|---|---|
+| 表名 | `@TableName` | 37/37 |
+| 列名 | `@Column(name)` / `@TableId(value)` | 479 列 |
+| SQL 类型 + 长度 | `@Column(type=MySqlTypeConstant.X, length=N)`；无 type 时按 Java 类型推断 | 479 列 |
+| `NOT NULL` | `@Column(isNull=false)` | 22 列显式声明 |
+| `AUTO_INCREMENT` | `@Column(isAutoIncrement)` / `@TableId(type=AUTO)` | 37 张主键 |
+| `DEFAULT` | `@Column(defaultValue)` | 有则输出 |
+| 列注释 | `@Column(comment)` | 有则输出 |
+| 表注释 | `@TableComment` | 24 张表 |
+| 主键 | `@Column(isKey)` / `@TableId` | 37/37 |
+
+### 7.2 **推不出**（代码里根本没有这些声明）
+
+| DDL 要素 | 证据 |
+|---|---|
+| 索引 | `@Index` / `@Unique` 出现 **0 次**（actable 支持这些注解，但项目没用） |
+| 唯一约束、外键、检查约束、触发器 | 源码中无对应注解；`*.sql` 迁移文件 0 个 |
+| 引擎、字符集、排序规则 | `@TableEngine` / `@TableCharset` 出现 **0 次**；只能写默认值 |
+| `ON UPDATE CURRENT_TIMESTAMP`、分区、行格式 | 注解无表达能力 |
+| 真实物理列顺序 | 注解顺序 ≠ 生产列序 |
+| 生产实际结构是否漂移 | 静态分析无法判断 |
+
+补充事实：actable 的自动建表配置（`mapper-locations: .../actable/mapping/...`）在
+`application-local.yml:29` 是**被注释掉的**，说明运行时并未启用"注解自动建表"。
+即：注解是"期望结构"，不是"已执行过的 DDL"。
+
+### 7.3 因此生成物的定位
+
+生成的 667 行 SQL 是 **"代码要求的结构"**，可以作为与生产比对的一方；
+**不能**当作"生产已有结构"，也不能用来替代 `SHOW CREATE TABLE`。
+5.1 那三类索引、以及字符集/引擎，必须来自生产库。
+
+### 7.4 顺带发现：逻辑删除列也有两种命名
+
+| 列名 | 表数 |
+|---|---|
+| `is_del` | **14** |
+| `is_dtl` | **6** |
+
+连同之前发现的 `update_by`(23) / `modify_by`(7)、`create_by` 四种长度（30/50/128/255），
+这是**第三处同义不同名**。三者都属 D-01 差异清单的输入：统一即 schema 变更，
+必须评估历史数据与双写兼容，不能当成"改名"顺手做。
