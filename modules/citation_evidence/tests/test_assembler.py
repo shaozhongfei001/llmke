@@ -222,3 +222,34 @@ def test_audit_thresholds_come_from_contract_not_hardcoded():
     from modules.citation_evidence.assembler import audit_support
     r = audit_support(_claims(30, 28), ROOT)
     assert r["supported_ratio_min"] == 0.95
+
+
+# ---- CLI: audit 子命令 + 向后兼容 ----
+def test_cli_audit_pass_and_fail(tmp_path):
+    good = tmp_path / "claims.json"
+    good.write_text(json.dumps(_claims(30, 29)), encoding="utf-8")
+    r = subprocess.run([sys.executable, "-m", "modules.citation_evidence.cli", "audit",
+                        "--claims", str(good), "--repo-root", str(ROOT)],
+                       cwd=str(ROOT), capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert json.loads(r.stdout)["ok"] is True
+
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"claims": _claims(30, 28)}), encoding="utf-8")  # 支持信封形式
+    r = subprocess.run([sys.executable, "-m", "modules.citation_evidence.cli", "audit",
+                        "--claims", str(bad), "--repo-root", str(ROOT)],
+                       cwd=str(ROOT), capture_output=True, text=True)
+    assert r.returncode == 2
+    assert json.loads(r.stdout)["reason"] == "RATIO_BELOW_MINIMUM"
+
+
+def test_cli_assemble_still_accepts_legacy_invocation(tmp_path):
+    """无子命令时默认 assemble，保证旧命令不坏。"""
+    src_json = tmp_path / "in.json"
+    src_json.write_text(json.dumps({"evidence_id": "ev-1", "document_text": DOC,
+                                    "source": src()}, ensure_ascii=False), encoding="utf-8")
+    r = subprocess.run([sys.executable, "-m", "modules.citation_evidence.cli",
+                        "--input", str(src_json), "--repo-root", str(ROOT)],
+                       cwd=str(ROOT), capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert json.loads(r.stdout)["evidence_id"] == "ev-1"

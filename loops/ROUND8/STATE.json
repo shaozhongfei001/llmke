@@ -55,10 +55,15 @@
       "status": "VERIFIED",
       "desc": "555 行 AI 建议（口径 V1 已授权，owner 批准 0）",
       "evidence": "evidence/reuse-candidate-matrix-v2.csv"
+    },
+    "R8-T11": {
+      "status": "VERIFIED",
+      "desc": "CLI 增加 audit 子命令（向后兼容 assemble）",
+      "tests": "25 passed"
     }
   },
   "gates": {
-    "framework_verify": "exit 0 / 145 passed / security PASS",
+    "framework_verify": "exit 0 / 145 passed",
     "p0_gate": 2,
     "r5_evidence_check": "PASS（原工作树，未变）"
   }
