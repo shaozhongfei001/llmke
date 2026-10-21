@@ -111,9 +111,20 @@
 
 ## D17 自纠：审计脚本写死宿主路径，被 security-check 当场拦下
 - 现象：把红队脚本入库后，`make framework-verify` 变成 exit 2：
-  `PERSONAL_ABSOLUTE_PATH: /home/szf/`（`docs/baseline/validation/p0-gate-redteam-audit.py:11`）。
+  `PERSONAL_ABSOLUTE_PATH: /home/<user>/`（`docs/baseline/validation/p0-gate-redteam-audit.py:11`）。
 - 原因：脚本里写死 `Path("/home/…")` 指向仓库根；`docs/**` 虽不参与 control/doc 摘要，
   但 `security_scan --all-files` 会扫它。
 - 处置：改为 `Path(__file__).resolve().parents[3]`；复跑 14/14 仍通过；framework-verify 回 exit 0。
+- 补充（同日第二次）：连"引用错误信息"也会带宿主路径——我在本节原样粘贴了报错文本，
+  于是 `DECISIONS.md` 也被 security-check 判红。已在文档里改用 `/home/<user>/` 占位。
+  结论：**引用报错时一律脱敏**，否则修一个、红一个。
 - 意义：这是**门禁自己抓到维护者的违规**，说明 P-01 的豁免只放宽了证据日志，
   没有把文档/脚本里的宿主路径一起放宽——正是当初坚持"只放宽一类"的价值。
+
+## D18 预防：仓外预提交检查（不再靠"记得脱敏"）
+- 一天内两次同类违规（脚本写死路径、文档粘贴报错文本），都是事后由 security-check 发现。
+- 新增 `~/data/dev/coordination/pre-commit-security.sh`：只扫**已暂存**的文本文件，
+  命中宿主路径即拒绝提交并给出脱敏建议；随后再跑整树 `make security-check` 做权威判定。
+- 已实测：暂存正常文档 → OK；暂存含 `/home/<user>/` 的文件 → 拒绝并打印行号。
+- 支持 worktree（`.git` 为文件的情况）。**未自动安装为 hook**——是否挂到 `.git/hooks/pre-commit`
+  由维护者自行决定，脚本内注释给了安装命令。
