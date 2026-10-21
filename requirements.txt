@@ -1,0 +1,2 @@
+# Exact framework dependencies; runtime/Java dependencies belong to actual migrated code.
+-r requirements.lock

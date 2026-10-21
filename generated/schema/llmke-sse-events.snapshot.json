@@ -1,0 +1,226 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "3357162a1358fa702f7f99b0325dc99b780867cd3f9d5737eab27ea8378940f9",
+  "contract_id": "llmke-sse-events",
+  "enums": {},
+  "properties": {},
+  "property_count": 0,
+  "refs": [
+    "#/$defs/answer",
+    "#/$defs/citation",
+    "#/$defs/done",
+    "#/$defs/error",
+    "#/$defs/verification"
+  ],
+  "schema_document": {
+    "$defs": {
+      "answer": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "const": "answer"
+          }
+        },
+        "required": [
+          "type",
+          "seq",
+          "request_id",
+          "claim_id",
+          "text"
+        ],
+        "type": "object"
+      },
+      "citation": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "llmke-core.json#/$defs/Evidence"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "type": {
+            "const": "citation"
+          }
+        },
+        "required": [
+          "type",
+          "seq",
+          "request_id",
+          "claim_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "done": {
+        "additionalProperties": false,
+        "properties": {
+          "generation": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "complete",
+              "partial",
+              "unsupported",
+              "cancelled",
+              "error"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "const": "done"
+          }
+        },
+        "required": [
+          "type",
+          "seq",
+          "request_id",
+          "status",
+          "generation"
+        ],
+        "type": "object"
+      },
+      "error": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "llmke-core.json#/$defs/ErrorEnvelope"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "type": {
+            "const": "error"
+          }
+        },
+        "required": [
+          "type",
+          "seq",
+          "request_id",
+          "error"
+        ],
+        "type": "object"
+      },
+      "verification": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "delivery": {
+            "enum": [
+              "emit",
+              "annotate",
+              "block"
+            ],
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "type": {
+            "const": "verification"
+          },
+          "verification": {
+            "enum": [
+              "supported",
+              "unsupported"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "seq",
+          "request_id",
+          "claim_id",
+          "verification",
+          "delivery"
+        ],
+        "type": "object"
+      }
+    },
+    "$id": "https://llmke.local/contracts/schema/llmke-sse-events.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "$ref": "#/$defs/verification"
+      },
+      {
+        "$ref": "#/$defs/citation"
+      },
+      {
+        "$ref": "#/$defs/answer"
+      },
+      {
+        "$ref": "#/$defs/error"
+      },
+      {
+        "$ref": "#/$defs/done"
+      }
+    ],
+    "title": "SSE event payload",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-sse-events.json",
+  "title": "SSE event payload"
+}

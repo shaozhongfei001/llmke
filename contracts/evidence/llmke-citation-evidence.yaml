@@ -1,0 +1,28 @@
+evidence:
+  name: llmke-citation-evidence
+  version: 1.1.0
+  schema_ref: schema/llmke-core.json#/$defs/Evidence
+  offset_unit: unicode_codepoint
+  policies:
+    source_authority: business-approved authority_ref; source media alone is not a
+      correctness proof
+    derived_context: allowed only with full lineage, current authorization and publication
+      state
+    final_support: claim must resolve to sufficient approved evidence, no fabricated
+      original offset
+    unsupported_policy:
+    - block
+    - annotate
+    web_numeric: allowed only when approved authoritative snapshot and scope apply
+    sql_obligation: allowed only if the snapshot contains the authoritative versioned
+      clause
+  delivery:
+    schema_ref: schema/llmke-sse-events.json
+    ordering: verification -> citation -> answer for supported claims; unsupported
+      only as approved annotation; blocked claims never emitted
+    terminal: exactly one done; no payload after done
+    buffer_limit_policy_ref: server approved ContextBuilder budget policy
+  support_audit:
+    minimum_claims: 30
+    supported_ratio_min: 0.95
+    judger: independent QA/product, actual approval required

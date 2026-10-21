@@ -1,0 +1,410 @@
+register_version: 1
+purpose: REVIEWER_PROPOSED_CANDIDATES_NOT_APPROVED_PLAN
+source_inventory: 前一包 01-主设计/平台重构开发设计.md §4.1 与 02-支撑评估/源码解读与契约核对报告.md
+baseline:
+  legacy_repo: null
+  released_commit: null
+  released_artifact_sha256: null
+  dev_prod_diff_evidence: null
+  status: NOT_PROVIDED
+  released_artifact_ref: null
+policy:
+- 所有状态为候选待核验；未取得完整源码和发布基线，不得声称已证明可直接复用。
+- 目标路径 <...> 为建议域边界占位，不是已批准模块名。
+- 文件数来自前包盘点，不是节省工期或复用率的计量。
+- 最终决策枚举：KEEP/ADAPT/REWRITE/RETIRE；重写及退役须说明理由和数据/调用方影响。
+items:
+- id: CODE-01
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: rag-alg-service-api/alg_doc_parse_service
+  reported_file_count: 84
+  language: py
+  proposed_target_boundary: services/parse
+  proposed_owner_role: index-owner
+  reviewer_proposal: ADAPT_BOUNDARY_KEEP_INTERNAL
+  boundary_checks: 文本快照、坐标版本与解析资源约束
+  required_characterization: 固定 PDF/OCR/表格样本的解析与引用回放
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - services/parse
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-02
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: rag-alg-service-api/alg_llm_inference_service
+  reported_file_count: 45
+  language: py
+  proposed_target_boundary: services/llm
+  proposed_owner_role: algorithm-owner
+  reviewer_proposal: ADAPT_BOUNDARY_KEEP_INTERNAL
+  boundary_checks: 调用错误、追踪、超时/取消与预算
+  required_characterization: 同请求模型调用与故障/取消回放
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - services/llm
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-03
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: rag-alg-service-api/alg_retrieval_service
+  reported_file_count: 59
+  language: py
+  proposed_target_boundary: services/retrieval + lib/fusion
+  proposed_owner_role: algorithm-owner
+  reviewer_proposal: ADAPT_BOUNDARY_KEEP_INTERNAL
+  boundary_checks: 统一 hits、逐路授权、融合/降级及分通路归因
+  required_characterization: 固定候选排序、授权与通路故障回放
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - services/retrieval
+  - lib/fusion
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-04
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: rag-alg-service-api/index_data_service
+  reported_file_count: 135
+  language: py
+  proposed_target_boundary: services/index + lib/storage
+  proposed_owner_role: index-owner
+  reviewer_proposal: ADAPT_PROTOCOL_KEEP_DRIVERS
+  boundary_checks: 代次、激活、围栏、持久任务所有权
+  required_characterization: 部分失败、迟到回执、切换、内容覆盖及旧版本回退
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - services/index
+  - lib/storage
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-05
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/rag-auth-service
+  reported_file_count: 187
+  language: java
+  proposed_target_boundary: modules/auth + apps/auth-service
+  proposed_owner_role: security-owner
+  reviewer_proposal: PORT_APPROVED_BUSINESS_RULES
+  boundary_checks: 身份与权限合并规则、签名授权上下文
+  required_characterization: 原权限样本对照与六类越权负例
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/auth
+  - apps/auth-service
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-06
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/rag-index-service
+  reported_file_count: 196
+  language: java
+  proposed_target_boundary: modules/kb + apps/kb-service
+  proposed_owner_role: data-owner
+  reviewer_proposal: PORT_APPROVED_BUSINESS_RULES
+  boundary_checks: KB 写侧事务、持久任务、墓碑与写入所有权
+  required_characterization: 旧 KB/文件行为回放及新旧数据库兼容
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/kb
+  - apps/kb-service
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-07
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/rag-qa-service
+  reported_file_count: 107
+  language: java
+  proposed_target_boundary: modules/qa + apps/qa-service
+  proposed_owner_role: qa-domain-owner
+  reviewer_proposal: PORT_AND_ADAPT_DELIVERY
+  boundary_checks: SSE、引用、历史问答持久化和 unsupported 政策
+  required_characterization: 非流/流式问答、故障及历史引用回放
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/qa
+  - apps/qa-service
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-08
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/rag-graph-service
+  reported_file_count: 18
+  language: java
+  proposed_target_boundary: modules/kb/graph + apps/kb-service
+  proposed_owner_role: algorithm-owner
+  reviewer_proposal: MERGE_WITH_COMPATIBILITY_ADAPTER
+  boundary_checks: 旧调用方和服务发现、图授权、空间映射
+  required_characterization: 图入口/旧消费者回放与 B-10 实测
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/kb/graph
+  - apps/kb-service
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-09
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/sensitive-words-service
+  reported_file_count: 24
+  language: java
+  proposed_target_boundary: modules/wordfilter + apps/wordfilter-service
+  proposed_owner_role: security-owner
+  reviewer_proposal: KEEP_INTERNAL_PENDING_VERIFICATION
+  boundary_checks: 匹配版本、检查位置及日志脱敏
+  required_characterization: 固定版本词库与边界样本回放
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/wordfilter
+  - apps/wordfilter-service
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-10
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/tools/tools-database
+  reported_file_count: 71
+  language: java
+  proposed_target_boundary: modules/dataquery + apps/dataquery-service
+  proposed_owner_role: data-owner
+  reviewer_proposal: ADAPT_SECURITY_BOUNDARY
+  boundary_checks: 只读账号、SQL 执行边界、数据权限与快照
+  required_characterization: 真实驱动回放及写操作/越权拒绝
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/dataquery
+  - apps/dataquery-service
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-11
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/rag-common
+  reported_file_count: 379
+  language: java
+  proposed_target_boundary: modules/common
+  proposed_owner_role: integration-agent
+  reviewer_proposal: SPLIT_REVIEW_CLASS_BY_CLASS
+  boundary_checks: 保留纯工具；DTO/错误码服从合同；避免整包复制
+  required_characterization: 依赖图、逐类决议、编译和契约样本一致性
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - modules/common
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+- id: CODE-12
+  status: CANDIDATE_UNVERIFIED
+  legacy_path: gien-rag/rag-parent/rag-gateway
+  reported_file_count: 8
+  language: java
+  proposed_target_boundary: apps/gateway
+  proposed_owner_role: security-owner
+  reviewer_proposal: PORT_WITH_ROUTE_AND_IDENTITY_MAPPING
+  boundary_checks: 旧新路由、外部/内部身份边界、网关职责
+  required_characterization: 运行时路由三方差异及直调绕过负例
+  decision: null
+  decision_reason: null
+  approved_decision_ref: null
+  legacy_build_evidence: null
+  dependencies_and_licenses: null
+  known_defects_and_dispositions: null
+  consumer_compatibility_map: null
+  contract_ids_and_hashes: []
+  characterization_case_ids: []
+  migration_case_ids: []
+  gate_ids: []
+  measured_person_days:
+    understanding: null
+    contract_adaptation: null
+    implementation: null
+    regression: null
+    migration: null
+  closure_evidence: []
+  decision_owner_role: null
+  target_paths:
+  - apps/gateway
+  target_boundary_status: TECHNICAL_PATH_FROZEN_REUSE_DECISION_PENDING
+baseline_version: 1.1.0
+authoritative_status: CANDIDATE_ONLY_REQUIRES_SOURCE_OR_DDL

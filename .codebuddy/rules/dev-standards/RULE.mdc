@@ -1,0 +1,11 @@
+---
+description: 提交与变更纪律
+alwaysApply: true
+globs: "**"
+---
+
+# 提交与变更纪律
+
+审查staged diff；新增边界需CR与兼容去向。源代码、数据和合同变动使旧证据失效；禁止删失败凑PASS。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

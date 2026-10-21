@@ -1,0 +1,102 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "cd21871a62888e11dca5442c30ea7d0efbf68fd3e3fdca37a3e8c022c5119de7",
+  "contract_id": "llmke-error-codes",
+  "enums": {},
+  "properties": {},
+  "property_count": 0,
+  "refs": [
+    "#/$defs/Register"
+  ],
+  "schema_document": {
+    "$defs": {
+      "ErrorCode": {
+        "enum": [
+          "REQUEST-001",
+          "AUTH-001",
+          "AUTH-002",
+          "GENERATION-001",
+          "KB-001",
+          "RETRIEVAL-001",
+          "BUDGET-001",
+          "EVIDENCE-001",
+          "TASK-001"
+        ],
+        "type": "string"
+      },
+      "Register": {
+        "additionalProperties": false,
+        "properties": {
+          "codes": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "caller_action": {
+                  "enum": [
+                    "retry",
+                    "fix_request",
+                    "reauth",
+                    "backoff",
+                    "escalate",
+                    "abort"
+                  ],
+                  "type": "string"
+                },
+                "code": {
+                  "$ref": "#/$defs/ErrorCode"
+                },
+                "http_status": {
+                  "maximum": 599,
+                  "minimum": 400,
+                  "type": "integer"
+                },
+                "legacy_int_code": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "legacy_mapping_status": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "meaning": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "retryable": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "code",
+                "http_status",
+                "meaning",
+                "caller_action",
+                "legacy_int_code",
+                "retryable",
+                "legacy_mapping_status"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "codes"
+        ],
+        "type": "object"
+      }
+    },
+    "$id": "https://llmke.local/contracts/schema/llmke-error-codes.json",
+    "$ref": "#/$defs/Register",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Error register schema and validated code vocabulary",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-error-codes.json",
+  "title": "Error register schema and validated code vocabulary"
+}

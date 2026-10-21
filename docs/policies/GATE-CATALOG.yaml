@@ -1,0 +1,453 @@
+version: 1.1.0
+policy: Only exact argv. No shell composition. Changes require baseline revision.
+gates:
+  contracts.generate:
+    argv:
+    - make
+    - generate
+    required_checks:
+    - clean_generation
+    - declared_output_set
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  contracts.check:
+    argv:
+    - make
+    - check
+    required_checks:
+    - openapi_jsonschema_semantics
+    - exact_output_hashes
+    - cross_contract_invariants
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  framework.regressions:
+    argv:
+    - python3
+    - -m
+    - pytest
+    - tests/test_review_regressions.py
+    - -q
+    required_checks:
+    - P01
+    - P02
+    - P03
+    - P04
+    - P05
+    - P06
+    - P07
+    - P08
+    - P09
+    - P10
+    - P11
+    - P12
+    - P13
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  framework.trace:
+    argv:
+    - python3
+    - scripts/trace_check.py
+    required_checks:
+    - upstream_hashes
+    - all_contracts_and_loops
+    - rule_mirrors
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  p0.integrity:
+    argv:
+    - make
+    - p0-check
+    required_checks:
+    - required_blocker_set
+    - honest_status
+    - evidence_structure
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  p0.strict:
+    argv:
+    - make
+    - p0-gate
+    required_checks: &id001
+    - all_required_P0_closed_with_approvals
+    type: dev_self_check
+    allowed_kinds: &id002
+    - implementation
+  security.scan:
+    argv:
+    - make
+    - security-check
+    required_checks:
+    - credential_patterns
+    - safe_redacted_logs
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  baseline.check:
+    argv:
+    - make
+    - baseline-check
+    required_checks:
+    - frozen_control_hashes
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  qa.framework:
+    argv:
+    - make
+    - framework-verify
+    required_checks:
+    - all_framework_tests
+    - semantic_check
+    - rule_mirror
+    - trace
+    - p0_integrity
+    - baseline_hashes
+    type: qa_gate
+    allowed_kinds:
+    - contract
+  reuse.inventory:
+    argv:
+    - python3
+    - scripts/readiness_check.py
+    - --mode
+    - inventory
+    required_checks:
+    - 12_source_candidates
+    - 37_table_482_fields
+    - 506_inventory_not_runtime
+    type: dev_self_check
+    allowed_kinds:
+    - diagnostic
+  qa.discovery:
+    argv:
+    - make
+    - discovery-verify
+    required_checks:
+    - candidate_register_integrity
+    - source_and_DDL_missing_stay_pending
+    type: qa_gate
+    allowed_kinds:
+    - diagnostic
+  reuse.L1:
+    argv:
+    - python3
+    - scripts/readiness_check.py
+    - --mode
+    - strict
+    - --loop
+    - L1
+    required_checks:
+    - approved_source_and_DDL
+    - asset_decisions
+    - characterization
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  build.L1:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L1
+    - --stage
+    - build
+    required_checks:
+    - java_offline_build
+    - python_source_compile
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  tests.L1:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L1
+    - --stage
+    - test
+    required_checks:
+    - java_domain_coverage_85
+    - python_tests
+    - all_required_business_negative_cases
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  qa.L1:
+    argv:
+    - make
+    - business-verify
+    - PROFILE=L1
+    required_checks:
+    - p0_strict
+    - approved_reuse
+    - cross_stack_build
+    - domain_coverage
+    - business_cases_no_skips
+    - consumer_contracts
+    type: qa_gate
+    allowed_kinds:
+    - implementation
+  reuse.L2:
+    argv:
+    - python3
+    - scripts/readiness_check.py
+    - --mode
+    - strict
+    - --loop
+    - L2
+    required_checks:
+    - approved_source_and_DDL
+    - asset_decisions
+    - characterization
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  build.L2:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L2
+    - --stage
+    - build
+    required_checks:
+    - java_offline_build
+    - python_source_compile
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  tests.L2:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L2
+    - --stage
+    - test
+    required_checks:
+    - java_domain_coverage_85
+    - python_tests
+    - all_required_business_negative_cases
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  qa.L2:
+    argv:
+    - make
+    - business-verify
+    - PROFILE=L2
+    required_checks:
+    - p0_strict
+    - approved_reuse
+    - cross_stack_build
+    - domain_coverage
+    - business_cases_no_skips
+    - consumer_contracts
+    type: qa_gate
+    allowed_kinds:
+    - implementation
+  reuse.L3:
+    argv:
+    - python3
+    - scripts/readiness_check.py
+    - --mode
+    - strict
+    - --loop
+    - L3
+    required_checks:
+    - approved_source_and_DDL
+    - asset_decisions
+    - characterization
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  build.L3:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L3
+    - --stage
+    - build
+    required_checks:
+    - java_offline_build
+    - python_source_compile
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  tests.L3:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L3
+    - --stage
+    - test
+    required_checks:
+    - java_domain_coverage_85
+    - python_tests
+    - all_required_business_negative_cases
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  qa.L3:
+    argv:
+    - make
+    - business-verify
+    - PROFILE=L3
+    required_checks:
+    - p0_strict
+    - approved_reuse
+    - cross_stack_build
+    - domain_coverage
+    - business_cases_no_skips
+    - consumer_contracts
+    type: qa_gate
+    allowed_kinds:
+    - implementation
+  reuse.L4:
+    argv:
+    - python3
+    - scripts/readiness_check.py
+    - --mode
+    - strict
+    - --loop
+    - L4
+    required_checks:
+    - approved_source_and_DDL
+    - asset_decisions
+    - characterization
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  build.L4:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L4
+    - --stage
+    - build
+    required_checks:
+    - java_offline_build
+    - python_source_compile
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  tests.L4:
+    argv:
+    - python3
+    - scripts/business_gate.py
+    - --profile
+    - L4
+    - --stage
+    - test
+    required_checks:
+    - java_domain_coverage_85
+    - python_tests
+    - all_required_business_negative_cases
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
+  qa.L4:
+    argv:
+    - make
+    - business-verify
+    - PROFILE=L4
+    required_checks:
+    - p0_strict
+    - approved_reuse
+    - cross_stack_build
+    - domain_coverage
+    - business_cases_no_skips
+    - consumer_contracts
+    type: qa_gate
+    allowed_kinds:
+    - implementation
+  p0.L1:
+    argv:
+    - python3
+    - scripts/p0_closure_check.py
+    - --mode
+    - strict
+    - --loop
+    - L1
+    required_checks: *id001
+    type: dev_self_check
+    allowed_kinds: *id002
+  p0.L2:
+    argv:
+    - python3
+    - scripts/p0_closure_check.py
+    - --mode
+    - strict
+    - --loop
+    - L2
+    required_checks: *id001
+    type: dev_self_check
+    allowed_kinds: *id002
+  p0.L3:
+    argv:
+    - python3
+    - scripts/p0_closure_check.py
+    - --mode
+    - strict
+    - --loop
+    - L3
+    required_checks: *id001
+    type: dev_self_check
+    allowed_kinds: *id002
+  p0.L4:
+    argv:
+    - python3
+    - scripts/p0_closure_check.py
+    - --mode
+    - strict
+    - --loop
+    - L4
+    required_checks: *id001
+    type: dev_self_check
+    allowed_kinds: *id002

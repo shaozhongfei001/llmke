@@ -1,0 +1,22 @@
+---
+alwaysApply: true
+globs: "**,contracts/**,scripts/**,tests/**,loops/**,docs/**,tests/**,loops/**"
+---
+
+## 角色与事实纪律
+
+按ROLE-MATRIX分工；区分事实/推断/判断。资料不足登记阻塞；不能自签QA或用角色名当真实身份。
+
+## 切片与接力
+
+按PROJECT-PLAN实际依赖派工；arm/transfer使用revision CAS。P0-02影响L1；诊断不等于业务交付；修复预算耗尽STOP。
+
+## 跨栈集成
+
+按legacy→decision→contract→target→case→gate链集成。保留旧入口经批准适配，不能把types索引当编译SDK。
+
+## 真实验收
+
+运行CASE-REGISTRY的真实测试，业务资料/实现缺失时拒绝，不skip/恒真。独立QA在受保护环境签署准确源码/基线/门禁/日志。
+
+来源：docs/policies/AGENT-RULES.yaml

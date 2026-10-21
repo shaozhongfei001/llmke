@@ -1,0 +1,13 @@
+# 上下文与流式交付
+
+服务端批准预算policy决定模型窗口、tokenizer、输入/系统/输出保留、分路与单文档上限；调用方只能收紧。ContextBuilder按授权→版本/业务有效性→去重→预算裁剪装配，记录被丢弃原因及完整selected证据/来源集合和context_hash；不能先喂模型再过滤。
+
+total_input_tokens含system_reserved，但不含output_reserved；actual_input_tokens指业务上下文token。要求 actual+system<=total_input，total_input+output_reserved<=model_window。token计数按固定tokenizer对真实装配文本测量，元数据中的数字自身不是测量证明。单文档/分路上限由切片实现并通过QA-06回放，不能以总量满足代替。
+
+引用为document_text/table_region/sql_snapshot/web_fetch/graph_path联合类型；文件证据带KB/file/version/原始内容hash与解析text_hash/parser/码点区间。保留真实快照；CRLF→LF等规范化在解析前定义版本并持久化，不在解析历史引用时猜。非BMP以Unicode码点计数；Java必须转换码点索引，前端不得直接把码点当JS UTF-16下标。
+
+派生报告可作为已发布且授权完整的上下文；结论证据须支持内容及版本。SQL/网页是否权威取决于批准来源与快照，不按介质一概判断。业务时效和技术构建时间分开。
+
+SSE路径真实定义在retrieval合同；data按sse-events schema，event等于type，seq从1连续、request_id固定。支持结论先verification，再citation，再answer；不支持结论只按服务端政策block或annotate。block不发送其文本；annotate在发送前已明确标记。错误后仅done；done唯一，其后无载荷；取消以done.cancelled结束。首字、缓冲最大token/时间和端到端预算必须在实际模型profile批准，不填未经测量的数值。
+
+QAResponse的claim_id/span与答案文本一致，引用evidence_id可唯一解析；支持关系本身由独立抽检，不因可定位即判支持。全部结果的generation和ContextManifest一致。全局题、多文档比较、趋势统计必须选择对应计划，不靠一条原文短片段假称完整覆盖。

@@ -1,0 +1,11 @@
+---
+description: 合同优先
+alwaysApply: false
+globs: "contracts/**,modules/**,apps/**,services/**,lib/**"
+---
+
+# 合同优先
+
+先改合同源和兼容决议，再make contract-all与消费者回放。领域/application仅业务DTO；渲染模型限BFF。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

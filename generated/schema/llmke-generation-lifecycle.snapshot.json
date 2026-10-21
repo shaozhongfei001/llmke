@@ -1,0 +1,156 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "cccd9b92fa18c45049c7ee765d138f46c87a45b610a0291e87e754b8469704e7",
+  "contract_id": "llmke-generation-lifecycle",
+  "enums": {
+    "$.status": [
+      "building",
+      "failed",
+      "ready",
+      "superseded"
+    ]
+  },
+  "properties": {
+    "$.artifact_results": {
+      "required": true,
+      "type": "array"
+    },
+    "$.artifact_results.items.backend": {
+      "required": true,
+      "type": "string"
+    },
+    "$.artifact_results.items.checksum": {
+      "required": true,
+      "type": "string"
+    },
+    "$.artifact_results.items.location_ref": {
+      "required": true,
+      "type": "string"
+    },
+    "$.artifact_results.items.ready": {
+      "required": true,
+      "type": "boolean"
+    },
+    "$.created_at": {
+      "required": true,
+      "type": "string"
+    },
+    "$.fencing_token": {
+      "required": true,
+      "type": "integer"
+    },
+    "$.generation": {
+      "required": true,
+      "type": "string"
+    },
+    "$.kb_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.manifest_hash": {
+      "required": true,
+      "type": "string"
+    },
+    "$.resource_version": {
+      "required": true,
+      "type": "integer"
+    },
+    "$.status": {
+      "required": true,
+      "type": "string"
+    }
+  },
+  "property_count": 12,
+  "refs": [],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-generation-lifecycle.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "BuildRun 可变运行状态，不回写不可变清单；active 仅由 ActivationPointer 表达。",
+    "properties": {
+      "artifact_results": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "backend": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "checksum": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "location_ref": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "ready": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "backend",
+            "location_ref",
+            "checksum",
+            "ready"
+          ],
+          "type": "object"
+        },
+        "minItems": 0,
+        "type": "array"
+      },
+      "created_at": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "fencing_token": {
+        "minimum": 1,
+        "type": "integer"
+      },
+      "generation": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "kb_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "manifest_hash": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "resource_version": {
+        "minimum": 1,
+        "type": "integer"
+      },
+      "status": {
+        "enum": [
+          "building",
+          "ready",
+          "failed",
+          "superseded"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [
+      "kb_id",
+      "generation",
+      "manifest_hash",
+      "status",
+      "created_at",
+      "artifact_results",
+      "resource_version",
+      "fencing_token"
+    ],
+    "title": "BuildRun",
+    "type": "object",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-generation-lifecycle.json",
+  "title": "BuildRun"
+}

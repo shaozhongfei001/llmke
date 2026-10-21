@@ -1,0 +1,5 @@
+LLMKE technical baseline 1.1.0
+Date: 2026-10-20 Asia/Shanghai
+Business P0: OPEN
+Independent QA: PENDING
+Actual validation: docs/baseline/validation

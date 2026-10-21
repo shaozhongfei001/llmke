@@ -1,0 +1,148 @@
+schema_version: 2
+baseline_version: 1.1.0
+loop_id: L4
+kind: implementation
+objective:
+- ContextBuilder、引用、SSE 及历史记录
+scope:
+  write_paths:
+  - modules
+  - apps
+  - services
+  - lib
+  - tests/business
+  forbidden:
+  - 手改 generated
+  - 直接修改验收状态
+  - 无批准的生产数据变更
+required_blockers:
+- P0-01
+- P0-02
+- P0-03
+- P0-04
+reuse_assets:
+- CODE-02
+- CODE-07
+- CODE-09
+- CODE-11
+- DB-06
+- DB-17
+- DB-01
+- DB-07
+- DB-25
+implementation_principals:
+- backend-engineer
+- python-engineer
+- algorithm-owner
+tech_lead_principal: tech-lead
+allowed_holders:
+- integration-agent
+- legacy-owner
+- backend-engineer
+- python-engineer
+- algorithm-owner
+- tech-lead
+- qa-external
+gates:
+- id: p0_strict_gate
+  catalog_id: p0.L4
+  type: dev_self_check
+  argv:
+  - python3
+  - scripts/p0_closure_check.py
+  - --mode
+  - strict
+  - --loop
+  - L4
+  required_checks:
+  - all_required_P0_closed_with_approvals
+  depends_on: []
+  timeout_seconds: 600
+- id: reuse_gate
+  catalog_id: reuse.L4
+  type: dev_self_check
+  argv:
+  - python3
+  - scripts/readiness_check.py
+  - --mode
+  - strict
+  - --loop
+  - L4
+  required_checks:
+  - approved_source_and_DDL
+  - asset_decisions
+  - characterization
+  depends_on:
+  - p0_strict_gate
+  timeout_seconds: 600
+- id: contract_gate
+  catalog_id: contracts.check
+  type: dev_self_check
+  argv:
+  - make
+  - check
+  required_checks:
+  - openapi_jsonschema_semantics
+  - exact_output_hashes
+  - cross_contract_invariants
+  depends_on:
+  - reuse_gate
+  timeout_seconds: 600
+- id: build_gate
+  catalog_id: build.L4
+  type: dev_self_check
+  argv:
+  - python3
+  - scripts/business_gate.py
+  - --profile
+  - L4
+  - --stage
+  - build
+  required_checks:
+  - java_offline_build
+  - python_source_compile
+  depends_on:
+  - contract_gate
+  timeout_seconds: 600
+- id: unit_and_negative_gate
+  catalog_id: tests.L4
+  type: dev_self_check
+  argv:
+  - python3
+  - scripts/business_gate.py
+  - --profile
+  - L4
+  - --stage
+  - test
+  required_checks:
+  - java_domain_coverage_85
+  - python_tests
+  - all_required_business_negative_cases
+  depends_on:
+  - build_gate
+  timeout_seconds: 600
+- id: independent_qa_gate
+  catalog_id: qa.L4
+  type: qa_gate
+  argv:
+  - make
+  - business-verify
+  - PROFILE=L4
+  required_checks:
+  - p0_strict
+  - approved_reuse
+  - cross_stack_build
+  - domain_coverage
+  - business_cases_no_skips
+  - consumer_contracts
+  depends_on:
+  - unit_and_negative_gate
+  timeout_seconds: 1200
+repair_policy:
+  max_iterations_per_gate: 3
+  on_exhausted: STOP; retain failures, TL approves revised wave/new loop; never manually
+    reset attempts
+exit_criteria:
+- all declared gates pass for same snapshot
+- independent QA externally signed
+- business implementation also needs all declared P0 and reuse decisions

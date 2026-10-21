@@ -1,0 +1,2 @@
+{"argv": ["python3", "scripts/readiness_check.py", "--mode", "inventory"], "exit_code": 0, "executor": "legacy-owner", "at": "2026-10-20T17:14:07.577016+00:00"}
+reuse-check: PASS inventory (inventory is not approval; plan approval is not completed migration)

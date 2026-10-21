@@ -1,0 +1,11 @@
+---
+description: 角色与事实纪律
+alwaysApply: true
+globs: "**"
+---
+
+# 角色与事实纪律
+
+按ROLE-MATRIX分工；区分事实/推断/判断。资料不足登记阻塞；不能自签QA或用角色名当真实身份。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

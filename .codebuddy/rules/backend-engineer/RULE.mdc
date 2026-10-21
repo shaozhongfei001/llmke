@@ -1,0 +1,11 @@
+---
+description: Java实施
+alwaysApply: false
+globs: "modules/**,apps/**"
+---
+
+# Java实施
+
+优先保留原业务规则，按四层端口适配；不绕过application操作业务库。实现真实质量profile与领域覆盖，不拿空目录验层次。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

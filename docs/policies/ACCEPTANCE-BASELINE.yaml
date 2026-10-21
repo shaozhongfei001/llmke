@@ -1,0 +1,45 @@
+version: 1.1.0
+profiles:
+  L1:
+    required_cases:
+      AUTH-01: 同KB的A允许/B拒绝；只用A上下文
+      AUTH-02: 来源任一不允许时不得使用对应FAQ
+      AUTH-03: 扩块重新授权，不得扩出未授权文件
+      AUTH-04: 回填叶子集合均被授权
+      AUTH-05: auth_version推进后旧缓存不可用
+      AUTH-06: 缺签名/错误audience/过期令牌拒绝
+      KB-01: 同逻辑身份重试无重复任务；不同逻辑文件同hash不混权限
+      KB-02: 202返回前提交围栏，旧回执被拒绝
+      DB-01: 同版本恢复副本执行正向/回填/回退；旧新程序分别核心读写且不破坏历史引用
+    java_coverage_min: 0.85
+    consumer_contracts_required: true
+  L2:
+    required_cases:
+      IDX-01: 不得激活
+      IDX-02: 只读旧代或完整新代
+      IDX-03: 新内容版本产生新代次
+      IDX-04: 旧fencing/resource_version拒绝
+      IDX-05: 历史引用仍可解析且不混代
+      IDX-06: 不原位覆盖，重建与双代容量核对
+    java_coverage_min: 0.85
+    consumer_contracts_required: true
+  L3:
+    required_cases:
+      RET-01: coverage/degraded准确且不静默降级
+      RET-02: 闭集外拒绝
+      RET-03: 拒绝混代
+      RET-04: 仅变更未授权子图不改变授权上下文/计数/缓存键可见信息
+      RET-05: 旧路径/旧请求经批准适配后行为符合决议
+    java_coverage_min: 0.85
+    consumer_contracts_required: true
+  L4:
+    required_cases:
+      QA-01: 码点区间与完整hash可解析
+      QA-02: 更新/回退后定位指定快照
+      QA-03: 未核验/无引用片段不提前发送
+      QA-04: 终态唯一、可判定partial/error
+      QA-05: doc/table/sql/web/graph解析及支持关系抽检
+      QA-06: 分路/单文档/总token上限及裁剪归因
+      QA-07: 对话/问题/答案新旧兼容
+    java_coverage_min: 0.85
+    consumer_contracts_required: true

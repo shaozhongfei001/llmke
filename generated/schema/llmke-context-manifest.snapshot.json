@@ -1,0 +1,20 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "1c11f0ffb8ead3411adc53f8ef5b2f2704b2f5bfd8211cea66542729b107f4eb",
+  "contract_id": "llmke-context-manifest",
+  "enums": {},
+  "properties": {},
+  "property_count": 0,
+  "refs": [
+    "llmke-core.json#/$defs/ContextManifest"
+  ],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-context-manifest.json",
+    "$ref": "llmke-core.json#/$defs/ContextManifest",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ContextBuilder budget and lineage",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-context-manifest.json",
+  "title": "ContextBuilder budget and lineage"
+}

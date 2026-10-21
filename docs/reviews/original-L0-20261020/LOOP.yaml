@@ -1,0 +1,112 @@
+loop_id: L0-contract-baseline
+title: L0 契约基线：合同 SSOT + 门禁 + P0 登记
+status: QA_PENDING
+branch: feature/L0-contract-baseline
+
+objective:
+  - 建立 9 份合同（api×3 / schema×3 / semantic / evidence / evaluation）并全部登记。
+  - 让 make generate / make check 真实生效，并用变异探针证明「变异必红、恢复必绿」。
+  - 把上游严格评审的 4 个 P0 登记为机器可读门禁（登记完整 ≠ 已关闭）。
+  - 交付可复跑的 Loop 证据链（evidence + manifest + FAILURES）。
+
+scope:
+  include:
+    - contracts/
+    - generated/
+    - scripts/
+    - docs/DESIGN-TRACE.md
+    - docs/PROJECT-BRIEF.md
+    - docs/registers/
+    - loops/L0-contract-baseline/
+  exclude:
+    - modules/
+    - apps/
+    - services/
+    - lib/
+    - frontend/
+    - 任何业务实现代码
+
+roles:
+  tech_lead:
+    responsibility:
+      - 维护批次边界与门禁真实性。
+      - 裁定合同与设计的冲突。
+  integration_agent:
+    responsibility:
+      - 合同充分性与注册表完整性。
+      - 运行 generate / check / 变异探针并归档证据。
+  qa_owner:
+    responsibility:
+      - 独立复跑门禁，抽查断言是否空转。
+      - 不参与合同编写。
+
+gates:
+  - id: contract_generate_gate
+    type: dev_self_check
+    owner: Integration Agent
+    command: make generate
+    pass_condition: 9 份合同全部生成成功，无 MISSING_OR_DUMMY_GENERATOR / EMPTY_OUTPUT。
+    evidence: loops/L0-contract-baseline/evidence/contract_generate_gate.log
+    on_failure: 记入 FAILURES.md；生成器或合同问题不得用改生成物绕过。
+
+  - id: contract_check_gate
+    type: dev_self_check
+    owner: Integration Agent
+    command: make check
+    pass_condition: 注册表/结构/分层/哈希联动四项全通过，无 DRIFT 与 UNREGISTERED。
+    evidence: loops/L0-contract-baseline/evidence/contract_check_gate.log
+    on_failure: 记入 FAILURES.md；DRIFT 一律重新 generate，不手改产物。
+
+  - id: mutation_probe_gate
+    type: dev_self_check
+    owner: Integration Agent
+    command: python3 scripts/mutation_probe.py
+    pass_condition: 4/4 探针满足「变异必红、恢复必绿」。
+    evidence: loops/L0-contract-baseline/evidence/mutation_probe_gate.log
+    on_failure: 门禁空转属阻断级缺陷，先修门禁再谈交付。
+
+  - id: traceability_gate
+    type: dev_self_check
+    owner: Integration Agent
+    command: python3 scripts/trace_check.py
+    pass_condition: 合同↔追溯矩阵↔批次声明三方一致。
+    evidence: loops/L0-contract-baseline/evidence/traceability_gate.log
+    on_failure: 补 DESIGN-TRACE.md 或 PROJECT-BRIEF.md，不得删合同凑数。
+
+  - id: p0_register_gate
+    type: dev_self_check
+    owner: Tech Lead
+    command: make p0-check
+    pass_condition: 4 个 P0 登记完整（owner/决策项/证据要求齐全）。P0 全部 OPEN 属允许状态。
+    evidence: loops/L0-contract-baseline/evidence/p0_register_gate.log
+    on_failure: 登记表结构问题由对应 owner 补齐，不得改 status 绕过。
+
+  - id: security_scan_gate
+    type: dev_self_check
+    owner: Tech Lead
+    command: make security-check
+    pass_condition: 无秘密与被跟踪敏感产物。
+    evidence: loops/L0-contract-baseline/evidence/security_scan_gate.log
+    on_failure: 移除凭据并轮换，不得加白名单掩盖。
+
+  - id: independent_qa_gate
+    type: qa_gate
+    owner: QA Owner
+    command: make check && python3 scripts/mutation_probe.py && make p0-check
+    pass_condition: 独立身份复跑全绿，且抽查至少一个探针的日志确认真实执行。
+    evidence: loops/L0-contract-baseline/evidence/independent_qa_gate.log
+    on_failure: 记 QA_PENDING；开发身份自签无效。
+
+repair_policy:
+  max_iterations_per_gate: 3
+  failure_record: loops/L0-contract-baseline/FAILURES.md
+  require_root_cause: true
+  require_rerun_gate: true
+
+exit_criteria:
+  - 9 份合同登记且 generate/check 全绿。
+  - 变异探针 4/4 通过（证明门禁非空转）。
+  - 追溯矩阵与批次声明一致。
+  - P0 登记完整且诚实（4 项 OPEN 如实登记）。
+  - 证据归档，FAILURES.md 已关闭或显式 accepted_with_notes。
+  - HANDOFF.md 更新，明确 L1 的阻塞条件。

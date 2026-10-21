@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "loop_id": "L3",
+  "revision": 1,
+  "status": "BLOCKED",
+  "blocked": true,
+  "baton_holder": "tech-lead",
+  "attempts": {},
+  "updated_at": "2026-10-20T15:21:33+00:00",
+  "assurance": "LOCAL_SELF_CHECK_ONLY"
+}

@@ -1,0 +1,166 @@
+version: 1.1.0
+profiles:
+  L1:
+    implementation_status: NOT_IMPLEMENTED
+    cases:
+    - id: AUTH-01
+      name: 同KB不同文件授权
+      expected: 同KB的A允许/B拒绝；只用A上下文
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: AUTH-02
+      name: FAQ继承来源授权
+      expected: 来源任一不允许时不得使用对应FAQ
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: AUTH-03
+      name: 扩块跨文件
+      expected: 扩块重新授权，不得扩出未授权文件
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: AUTH-04
+      name: 图回填授权
+      expected: 回填叶子集合均被授权
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: AUTH-05
+      name: 撤权后缓存
+      expected: auth_version推进后旧缓存不可用
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: AUTH-06
+      name: 绕过网关直调
+      expected: 缺签名/错误audience/过期令牌拒绝
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: KB-01
+      name: 幂等写入
+      expected: 同逻辑身份重试无重复任务；不同逻辑文件同hash不混权限
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: KB-02
+      name: 删除立即围栏
+      expected: 202返回前提交围栏，旧回执被拒绝
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: DB-01
+      name: 迁移与新旧读写兼容
+      expected: 同版本恢复副本执行正向/回填/回退；旧新程序分别核心读写且不破坏历史引用
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    consumer_contract_cases: []
+    java_coverage_xml: target/site/jacoco/jacoco.xml
+    java_domain_packages: []
+    python_test_nodes: []
+  L2:
+    implementation_status: NOT_IMPLEMENTED
+    cases:
+    - id: IDX-01
+      name: 部分后端失败
+      expected: 不得激活
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: IDX-02
+      name: 切换中断
+      expected: 只读旧代或完整新代
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: IDX-03
+      name: 内容覆盖
+      expected: 新内容版本产生新代次
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: IDX-04
+      name: 迟到重试
+      expected: 旧fencing/resource_version拒绝
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: IDX-05
+      name: 旧服务回退
+      expected: 历史引用仍可解析且不混代
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: IDX-06
+      name: 分块变更
+      expected: 不原位覆盖，重建与双代容量核对
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    consumer_contract_cases: []
+    java_coverage_xml: target/site/jacoco/jacoco.xml
+    java_domain_packages: []
+    python_test_nodes: []
+  L3:
+    implementation_status: NOT_IMPLEMENTED
+    cases:
+    - id: RET-01
+      name: 逐路失败
+      expected: coverage/degraded准确且不静默降级
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: RET-02
+      name: 未知通路
+      expected: 闭集外拒绝
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: RET-03
+      name: 混代候选
+      expected: 拒绝混代
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: RET-04
+      name: 图权限非干扰
+      expected: 仅变更未授权子图不改变授权上下文/计数/缓存键可见信息
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: RET-05
+      name: 旧消费者回放
+      expected: 旧路径/旧请求经批准适配后行为符合决议
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    consumer_contract_cases: []
+    java_coverage_xml: target/site/jacoco/jacoco.xml
+    java_domain_packages: []
+    python_test_nodes: []
+  L4:
+    implementation_status: NOT_IMPLEMENTED
+    cases:
+    - id: QA-01
+      name: 非BMP引用
+      expected: 码点区间与完整hash可解析
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: QA-02
+      name: 历史引用
+      expected: 更新/回退后定位指定快照
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: QA-03
+      name: 流顺序
+      expected: 未核验/无引用片段不提前发送
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: QA-04
+      name: 取消及中途失败
+      expected: 终态唯一、可判定partial/error
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: QA-05
+      name: 五类证据
+      expected: doc/table/sql/web/graph解析及支持关系抽检
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: QA-06
+      name: 预算裁剪
+      expected: 分路/单文档/总token上限及裁剪归因
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    - id: QA-07
+      name: 答案持久化
+      expected: 对话/问题/答案新旧兼容
+      pytest_node: null
+      status: NOT_IMPLEMENTED
+    consumer_contract_cases: []
+    java_coverage_xml: target/site/jacoco/jacoco.xml
+    java_domain_packages: []
+    python_test_nodes: []
+policy: 真实测试路径、数据与批准映射齐全后改 READY；不得写恒真、只打印、全部skip或事后换期待。

@@ -1,0 +1,47 @@
+baseline: 1.1.0
+authority: 2026-10-20 用户授权在原基础覆盖形成技术施工基线；不替代业务事实核验
+decisions:
+- id: BL-01
+  topic: authority
+  decision: 本次修订决议 > 仍有效原上游决议 > contracts registry > loop/catalog > implementation；有冲突先提
+    CR。
+- id: BL-02
+  topic: offset
+  decision: 恢复 Unicode 码点、完整 text_hash、parser_version；内部早期 UTF-16 草案不作为历史事实。旧引用仅在取得原快照和坐标版本后转换。
+- id: BL-03
+  topic: search_type
+  decision: 恢复八个闭集值；summary 是派生表示，不作为独立通路。社区通路未启用时明确 degraded/不可请求，不伪装已有实现。
+- id: BL-04
+  topic: entity_types
+  decision: 逐字继承原 M1 6 大类27码；撤销7类替代。跨版本条款 identity 必须区分。
+- id: BL-05
+  topic: routes
+  decision: /v1 为新内部边界；旧对外入口保持兼容，未完成运行时三方核对前不得替换/删除旧路由。
+  known_legacy_paths:
+  - /retrieval_documents
+  - /retrieval_qa
+  - /ai/question
+  - /ai/question_re
+  legacy_payload_mapping: PENDING_P0-01
+- id: BL-06
+  topic: authorization
+  decision: 去掉用户可自行填 tenant/subjects 的授权断言；签名 AuthContext 为裁决，单机构可用 policy namespace，不引入
+    SaaS 租户承诺。
+- id: BL-07
+  topic: derived_context
+  decision: 允许已发布且按完整叶子复核授权的派生上下文；最终支持绑定类型化证据，禁止伪装原文 offset。
+- id: BL-08
+  topic: generation
+  decision: 不可变构建清单/BuildRun/发布状态/单激活指针分开；激活由服务端必需集校验。
+- id: BL-09
+  topic: QA
+  decision: 本地角色只声明职责；独立完成要受保护环境 Ed25519 签名，外部公钥和信任配置未就位则 QA_PENDING。
+- id: BL-10
+  topic: reuse
+  decision: 12源码资产、37表、506清单保留追溯；未经源码/DDL和特征回放核验不标直接复用。
+- id: BL-11
+  topic: evaluation
+  decision: 启用决策与交付质量分开；图无收益时允许明确不启用；题库与阈值真实批准仍待补。
+- id: BL-12
+  topic: legacy_error
+  decision: HTTP和业务码分开；旧整数按服务+条件映射；没有实测不能称B-10一开即HTTP500。

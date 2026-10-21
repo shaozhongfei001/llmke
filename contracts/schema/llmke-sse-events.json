@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-sse-events.json",
+  "title": "SSE event payload",
+  "version": "1.1.0",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/verification"
+    },
+    {
+      "$ref": "#/$defs/citation"
+    },
+    {
+      "$ref": "#/$defs/answer"
+    },
+    {
+      "$ref": "#/$defs/error"
+    },
+    {
+      "$ref": "#/$defs/done"
+    }
+  ],
+  "$defs": {
+    "verification": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "verification"
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "verification": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "unsupported"
+          ]
+        },
+        "delivery": {
+          "type": "string",
+          "enum": [
+            "emit",
+            "annotate",
+            "block"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "seq",
+        "request_id",
+        "claim_id",
+        "verification",
+        "delivery"
+      ],
+      "additionalProperties": false
+    },
+    "citation": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "citation"
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "llmke-core.json#/$defs/Evidence"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "type",
+        "seq",
+        "request_id",
+        "claim_id",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "answer": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "answer"
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "seq",
+        "request_id",
+        "claim_id",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "error": {
+          "$ref": "llmke-core.json#/$defs/ErrorEnvelope"
+        }
+      },
+      "required": [
+        "type",
+        "seq",
+        "request_id",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "done": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "done"
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "partial",
+            "unsupported",
+            "cancelled",
+            "error"
+          ]
+        },
+        "generation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "type",
+        "seq",
+        "request_id",
+        "status",
+        "generation"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-db-migration.json",
+  "version": "1.1.0",
+  "type": "object",
+  "properties": {
+    "migration_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "db_engine_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source_ddl_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "target_model_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "touched_tables": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "strategy": {
+      "type": "string",
+      "enum": [
+        "shared_db_expand_contract",
+        "new_db_migrate_cutover"
+      ]
+    },
+    "write_ownership_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "forward_script": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "backfill_script": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rollback_script": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "new_old_compatibility_cases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    },
+    "restore_copy_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    },
+    "lock_and_capacity_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    },
+    "approved_by": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "migration_id",
+    "db_engine_version",
+    "source_ddl_sha256",
+    "target_model_ref",
+    "touched_tables",
+    "strategy",
+    "write_ownership_ref",
+    "forward_script",
+    "backfill_script",
+    "rollback_script",
+    "new_old_compatibility_cases",
+    "restore_copy_evidence",
+    "lock_and_capacity_evidence",
+    "approved_by"
+  ],
+  "additionalProperties": false
+}

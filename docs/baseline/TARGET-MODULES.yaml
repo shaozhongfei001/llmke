@@ -1,0 +1,35 @@
+version: 1.1.0
+paths:
+  CODE-01:
+  - services/parse
+  CODE-02:
+  - services/llm
+  CODE-03:
+  - services/retrieval
+  - lib/fusion
+  CODE-04:
+  - services/index
+  - lib/storage
+  CODE-05:
+  - modules/auth
+  - apps/auth-service
+  CODE-06:
+  - modules/kb
+  - apps/kb-service
+  CODE-07:
+  - modules/qa
+  - apps/qa-service
+  CODE-08:
+  - modules/kb/graph
+  - apps/kb-service
+  CODE-09:
+  - modules/wordfilter
+  - apps/wordfilter-service
+  CODE-10:
+  - modules/dataquery
+  - apps/dataquery-service
+  CODE-11:
+  - modules/common
+  CODE-12:
+  - apps/gateway
+policy: 可在相应目标下的legacy适配模块保留原包名和内部实现；不为更名重写业务。新增领域逻辑服从四层与共享合同。

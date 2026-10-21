@@ -1,0 +1,70 @@
+{
+  "gates": {
+    "contract_generate_gate": {
+      "status": "pass",
+      "type": "dev_self_check",
+      "command": "make generate",
+      "exit_code": 0,
+      "ran_at": "2026-10-20T14:38:43+00:00",
+      "executor": "integration-agent",
+      "role": "dev",
+      "evidence": "loops/L0-contract-baseline/evidence/contract_generate_gate.log",
+      "sha256": "1bcecc0856fd530f377fc7aa8f1289616e5c6b8213d3353702a1ab19e1e325dc"
+    },
+    "contract_check_gate": {
+      "status": "pass",
+      "type": "dev_self_check",
+      "command": "make check",
+      "exit_code": 0,
+      "ran_at": "2026-10-20T14:38:44+00:00",
+      "executor": "integration-agent",
+      "role": "dev",
+      "evidence": "loops/L0-contract-baseline/evidence/contract_check_gate.log",
+      "sha256": "455913642a928b0364c1b158175643f5903ac987c1731aa707814eb342b08fc9"
+    },
+    "mutation_probe_gate": {
+      "status": "pass",
+      "type": "dev_self_check",
+      "command": "python3 scripts/mutation_probe.py",
+      "exit_code": 0,
+      "ran_at": "2026-10-20T14:38:46+00:00",
+      "executor": "integration-agent",
+      "role": "dev",
+      "evidence": "loops/L0-contract-baseline/evidence/mutation_probe_gate.log",
+      "sha256": "37155f60156edad0a5c0c09e9947fd4ca2ef1d6a41f5f8d37bf94bbf80a9ed7f"
+    },
+    "traceability_gate": {
+      "status": "pass",
+      "type": "dev_self_check",
+      "command": "python3 scripts/trace_check.py",
+      "exit_code": 0,
+      "ran_at": "2026-10-20T14:38:46+00:00",
+      "executor": "integration-agent",
+      "role": "dev",
+      "evidence": "loops/L0-contract-baseline/evidence/traceability_gate.log",
+      "sha256": "d97fc6b100964bb491fb0e4180681d94b506fe4c62beb30ca3b5de8134c68c7d"
+    },
+    "p0_register_gate": {
+      "status": "pass",
+      "type": "dev_self_check",
+      "command": "make p0-check",
+      "exit_code": 0,
+      "ran_at": "2026-10-20T14:38:46+00:00",
+      "executor": "integration-agent",
+      "role": "dev",
+      "evidence": "loops/L0-contract-baseline/evidence/p0_register_gate.log",
+      "sha256": "a93a5d55cd76b840df5289f96e2ee98bddf3c8534cf4d5b5f18bc6c4c89afe15"
+    },
+    "security_scan_gate": {
+      "status": "pass",
+      "type": "dev_self_check",
+      "command": "make security-check",
+      "exit_code": 0,
+      "ran_at": "2026-10-20T14:38:46+00:00",
+      "executor": "integration-agent",
+      "role": "dev",
+      "evidence": "loops/L0-contract-baseline/evidence/security_scan_gate.log",
+      "sha256": "15837dc957c0bd2fdf046edfb1f66c466e319be92b476d07bec7b84a124a26a7"
+    }
+  }
+}

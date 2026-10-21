@@ -1,0 +1,11 @@
+---
+description: 跨栈集成
+alwaysApply: false
+globs: "contracts/**,scripts/**,tests/**"
+---
+
+# 跨栈集成
+
+按legacy→decision→contract→target→case→gate链集成。保留旧入口经批准适配，不能把types索引当编译SDK。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

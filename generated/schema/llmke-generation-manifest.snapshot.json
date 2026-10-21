@@ -1,0 +1,330 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "40d0c8f6b9467313e6ab7968d1f848678234b10b14e8b1d9c9a81c99d0dbefb7",
+  "contract_id": "llmke-generation-manifest",
+  "enums": {
+    "$.artifacts.items.backend": [
+      "es",
+      "faq",
+      "milvus",
+      "nebula",
+      "table"
+    ],
+    "$.derived_refs.items.artifact_type": [
+      "answer_cache",
+      "community_report",
+      "entity_description",
+      "faq",
+      "relation_aggregate",
+      "theme_page"
+    ]
+  },
+  "properties": {
+    "$.artifacts": {
+      "required": true,
+      "type": "array"
+    },
+    "$.artifacts.items.backend": {
+      "required": true,
+      "type": "string"
+    },
+    "$.artifacts.items.checksum": {
+      "required": true,
+      "type": "string"
+    },
+    "$.artifacts.items.location_ref": {
+      "required": true,
+      "type": "string"
+    },
+    "$.artifacts.items.required": {
+      "required": true,
+      "type": "boolean"
+    },
+    "$.build_config": {
+      "required": true,
+      "type": "object"
+    },
+    "$.build_config.chunking_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.build_config.embedding_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.build_config.graph_extraction_version": {
+      "required": false,
+      "type": "string"
+    },
+    "$.build_config.parser_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.build_config.prompt_version": {
+      "required": false,
+      "type": "string"
+    },
+    "$.build_config.type_system_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.derived_refs": {
+      "required": true,
+      "type": "array"
+    },
+    "$.derived_refs.items.artifact_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.derived_refs.items.artifact_type": {
+      "required": true,
+      "type": "string"
+    },
+    "$.derived_refs.items.auth_version_at_build": {
+      "required": true,
+      "type": "string"
+    },
+    "$.derived_refs.items.revision": {
+      "required": true,
+      "type": "string"
+    },
+    "$.derived_refs.items.source_refs": {
+      "required": true,
+      "type": "array"
+    },
+    "$.documents": {
+      "required": true,
+      "type": "array"
+    },
+    "$.documents.items.content_hash": {
+      "required": true,
+      "type": "string"
+    },
+    "$.documents.items.document_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.documents.items.file_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.documents.items.parsed_text_hash": {
+      "required": true,
+      "type": "string"
+    },
+    "$.generation": {
+      "required": true,
+      "type": "string"
+    },
+    "$.kb_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.schema_version": {
+      "required": true,
+      "type": null
+    }
+  },
+  "property_count": 26,
+  "refs": [
+    "llmke-core.json#/$defs/SourceRef"
+  ],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-generation-manifest.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "内容不可变；generation=g+sha256(规范 JSON，不含 generation)。构建时间、激活、发布/失效状态均不属于此清单。",
+    "properties": {
+      "artifacts": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "backend": {
+              "enum": [
+                "es",
+                "milvus",
+                "nebula",
+                "table",
+                "faq"
+              ],
+              "type": "string"
+            },
+            "checksum": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "location_ref": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "backend",
+            "location_ref",
+            "checksum",
+            "required"
+          ],
+          "type": "object"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "build_config": {
+        "additionalProperties": false,
+        "properties": {
+          "chunking_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "embedding_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "graph_extraction_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parser_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "prompt_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type_system_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "parser_version",
+          "chunking_version",
+          "embedding_version",
+          "type_system_version"
+        ],
+        "type": "object"
+      },
+      "derived_refs": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "artifact_id": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "artifact_type": {
+              "enum": [
+                "faq",
+                "entity_description",
+                "relation_aggregate",
+                "community_report",
+                "theme_page",
+                "answer_cache"
+              ],
+              "type": "string"
+            },
+            "auth_version_at_build": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "revision": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "source_refs": {
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SourceRef"
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "required": [
+            "artifact_id",
+            "artifact_type",
+            "revision",
+            "source_refs",
+            "auth_version_at_build"
+          ],
+          "type": "object"
+        },
+        "minItems": 0,
+        "type": "array"
+      },
+      "documents": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "content_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "document_version": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "file_id": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "parsed_text_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "file_id",
+            "document_version",
+            "content_hash",
+            "parsed_text_hash"
+          ],
+          "type": "object"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "generation": {
+        "pattern": "^g[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "kb_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "schema_version": {
+        "const": "1.1.0"
+      }
+    },
+    "required": [
+      "schema_version",
+      "kb_id",
+      "generation",
+      "documents",
+      "build_config",
+      "artifacts",
+      "derived_refs"
+    ],
+    "title": "Immutable BuildManifest",
+    "type": "object",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-generation-manifest.json",
+  "title": "Immutable BuildManifest"
+}

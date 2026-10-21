@@ -1,0 +1,195 @@
+registry_version: 1
+baseline_version: 1.1.0
+contracts:
+- id: llmke-auth-context
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-auth-context.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-auth-context.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-context-manifest
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-context-manifest.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-context-manifest.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-core
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-core.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-core.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-db-migration
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-db-migration.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-db-migration.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-error-codes
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-error-codes.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-error-codes.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-generation-lifecycle
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-generation-lifecycle.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-generation-lifecycle.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-generation-manifest
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-generation-manifest.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-generation-manifest.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-kb-operations
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-kb-operations.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-kb-operations.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-retrieval-model
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-retrieval-model.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-retrieval-model.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-reuse-decision
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-reuse-decision.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-reuse-decision.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-sse-events
+  type: schema
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: schema/llmke-sse-events.json
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-sse-events.snapshot.json
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-entity-types
+  type: semantic
+  layer: domain
+  version: 1.1.0
+  owner: algorithm-owner
+  path: semantic/llmke-entity-types.yaml
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-citation-evidence
+  type: evidence
+  layer: domain
+  version: 1.1.0
+  owner: qa-owner
+  path: evidence/llmke-citation-evidence.yaml
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-m0-gates
+  type: evaluation
+  layer: domain
+  version: 1.1.0
+  owner: product-owner
+  path: evaluation/llmke-m0-gates.yaml
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-error-register
+  type: rules
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: rules/llmke-error-register.yaml
+  depends_on: []
+  compatibility: breaking_guarded
+- id: llmke-retrieval-api
+  type: api
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: api/llmke-retrieval.openapi.yaml
+  generator: scripts/generators/openapi_types.py
+  outputs:
+  - generated/sdk/llmke-retrieval-api.types.json
+  depends_on:
+  - llmke-core
+  - llmke-auth-context
+  compatibility: breaking_guarded
+- id: llmke-graph-api
+  type: api
+  layer: domain
+  version: 1.1.0
+  owner: integration-agent
+  path: api/llmke-graph.openapi.yaml
+  generator: scripts/generators/openapi_types.py
+  outputs:
+  - generated/sdk/llmke-graph-api.types.json
+  depends_on:
+  - llmke-core
+  - llmke-auth-context
+  compatibility: breaking_guarded
+- id: llmke-kb-api
+  type: api
+  layer: application
+  version: 1.1.0
+  owner: integration-agent
+  path: api/llmke-knowledge-base.openapi.yaml
+  generator: scripts/generators/openapi_types.py
+  outputs:
+  - generated/sdk/llmke-kb-api.types.json
+  depends_on:
+  - llmke-core
+  - llmke-auth-context
+  compatibility: breaking_guarded

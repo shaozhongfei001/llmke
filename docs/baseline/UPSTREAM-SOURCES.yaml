@@ -1,0 +1,22 @@
+version: 1.1.0
+sources:
+- path: docs/upstream/平台重构开发设计_V1.0.md
+  sha256: 767623a4f1d92dbc98ffecef18d79f1087ccc5badc53516909ab39c5cc0e3175
+  status: REVIEW_INPUT_NOT_BUSINESS_APPROVAL
+- path: docs/upstream/M0-评测集与基线测量方案.docx
+  sha256: 3500df0bdfc601f99ce0bfed38f34206f979bf7701a37a37b60441e7940b482d
+  status: REVIEW_INPUT_NOT_BUSINESS_APPROVAL
+- path: docs/upstream/M1-实体类型体系与归一化方案.docx
+  sha256: 881f68c9996ecde7723d4d2c8fa9645da002b87cc340084419f1ed37340f7b95
+  status: REVIEW_INPUT_NOT_BUSINESS_APPROVAL
+- path: docs/upstream/数据库表结构-表清单.csv
+  sha256: 4ece4cb264a8d9a5a3f81b418b343973bc163f7a9b79e15f68fcb9ae0e1ed6d9
+  status: REVIEW_INPUT_NOT_BUSINESS_APPROVAL
+- path: docs/upstream/数据库表结构-字段明细.csv
+  sha256: f63b89bdad38ee8b4734b16c6f0d01074b5f5ae4e3a88568710291ef3bcb7a95
+  status: REVIEW_INPUT_NOT_BUSINESS_APPROVAL
+- path: docs/upstream/源码接口契约-接口总表.csv
+  sha256: 770eff0506e84ebf2cdfabbb9c3603c0951de26421b32a99bd47bde9310b9206
+  status: REVIEW_INPUT_NOT_BUSINESS_APPROVAL
+unseen_external_revisions: No N-01/revised9.3 approval asserted; this patch states
+  its own technical deltas.

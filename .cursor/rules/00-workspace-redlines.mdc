@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+globs: "**"
+---
+
+## 宪法与唯一事实源
+
+服从AI_GUIDE与已批准BL/CR。contracts/registry.yaml为唯一合同入口；技术冻结、业务关闭和独立QA分开。
+
+来源：docs/policies/AGENT-RULES.yaml

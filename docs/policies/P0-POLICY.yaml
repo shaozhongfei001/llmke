@@ -1,0 +1,32 @@
+policy_version: 1.1.0
+required_items:
+  P0-01:
+    owner: interface-owner
+    blocks:
+    - L1
+    - L3
+    approval_role: integration-agent
+  P0-02:
+    owner: data-owner
+    blocks:
+    - L1
+    - L2
+    - L3
+    approval_role: data-owner
+  P0-03:
+    owner: security-owner
+    blocks:
+    - L1
+    - L3
+    - L4
+    approval_role: security-owner
+  P0-04:
+    owner: index-owner
+    blocks:
+    - L1
+    - L2
+    - L3
+    - L4
+    approval_role: algorithm-owner
+waiver_policy: No waiver closes P0. Retirement is a separately approved scope change;
+  preserve original impact history.

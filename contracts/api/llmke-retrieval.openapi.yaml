@@ -1,0 +1,307 @@
+openapi: 3.1.1
+info:
+  title: LLMKE Retrieval & QA
+  version: 1.1.0
+x-llmke-contract-id: llmke-retrieval-api
+x-baseline-decision: BL-1.1.0
+servers:
+- url: https://internal.invalid
+  description: 部署时绑定实际内部地址；不代表公开服务
+security:
+- InternalBearer: []
+  AuthContext: []
+paths:
+  /v1/retrieval/documents:
+    post:
+      operationId: retrieveDocuments
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/RetrievalResponse
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-core.json#/$defs/RetrievalRequest
+  /v1/retrieval/qa:
+    post:
+      operationId: askQuestion
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/QAResponse
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-core.json#/$defs/QARequest
+  /internal/v1/context/build:
+    post:
+      operationId: buildContext
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ContextBuildResponse
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-core.json#/$defs/ContextBuildRequest
+  /v1/retrieval/qa:stream:
+    post:
+      operationId: streamQuestion
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      responses:
+        '200':
+          description: SSE；每个 data 为 llmke-sse-events，event 与 type 一致；verification/citation/answer
+            次序由流状态机校验。
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                contentMediaType: text/event-stream
+          x-event-payload-schema:
+            $ref: ../schema/llmke-sse-events.json
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-core.json#/$defs/QARequest
+components:
+  securitySchemes:
+    InternalBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: service JWT
+    AuthContext:
+      type: apiKey
+      in: header
+      name: X-Auth-Context
+      description: 签名 AuthContext JWS；校验规则见 llmke-auth-context.json 与 AUTHORIZATION.md。
+  schemas:
+    SearchType:
+      $ref: ../schema/llmke-core.json#/$defs/SearchType
+    Offset:
+      $ref: ../schema/llmke-core.json#/$defs/Offset
+    RetrievalRequest:
+      $ref: ../schema/llmke-core.json#/$defs/RetrievalRequest
+    RetrievalHit:
+      $ref: ../schema/llmke-core.json#/$defs/RetrievalHit
+    RetrievalResponse:
+      $ref: ../schema/llmke-core.json#/$defs/RetrievalResponse
+    QARequest:
+      $ref: ../schema/llmke-core.json#/$defs/QARequest
+    QAResponse:
+      $ref: ../schema/llmke-core.json#/$defs/QAResponse
+    Citation:
+      $ref: ../schema/llmke-core.json#/$defs/Citation
+    ErrorEnvelope:
+      $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope

@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "loop_id": "TEMPLATE-loop-id",
+  "revision": 1,
+  "status": "DRAFT",
+  "blocked": true,
+  "baton_holder": "tech-lead",
+  "attempts": {}
+}

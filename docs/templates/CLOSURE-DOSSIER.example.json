@@ -1,0 +1,13 @@
+{
+  "blocker_id": "P0-01",
+  "status": "DRAFT",
+  "source_snapshot_sha256": null,
+  "answers": {
+    "D01": {
+      "conclusion": null,
+      "evidence": []
+    }
+  },
+  "verified_tests": [],
+  "approvals": []
+}

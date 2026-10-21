@@ -1,0 +1,11 @@
+---
+description: 真实验收
+alwaysApply: false
+globs: "tests/**,loops/**"
+---
+
+# 真实验收
+
+运行CASE-REGISTRY的真实测试，业务资料/实现缺失时拒绝，不skip/恒真。独立QA在受保护环境签署准确源码/基线/门禁/日志。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

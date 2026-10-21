@@ -1,0 +1,207 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "b55da1816668a59b40407611138b7ce1035d60b39e5640aab25dfa7e3a52df7e",
+  "contract_id": "llmke-auth-context",
+  "enums": {
+    "$.scope.mode": [
+      "files",
+      "whole_kb"
+    ]
+  },
+  "properties": {
+    "$.audience": {
+      "required": true,
+      "type": "array"
+    },
+    "$.auth_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.expires_at": {
+      "required": true,
+      "type": "string"
+    },
+    "$.issued_at": {
+      "required": true,
+      "type": "string"
+    },
+    "$.issuer": {
+      "required": true,
+      "type": "string"
+    },
+    "$.kb_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.key_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.policy_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.request_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.resource_version": {
+      "required": true,
+      "type": "integer"
+    },
+    "$.scope": {
+      "required": true,
+      "type": "object"
+    },
+    "$.scope.allowed_file_ids": {
+      "required": true,
+      "type": "array"
+    },
+    "$.scope.denied_file_ids": {
+      "required": true,
+      "type": "array"
+    },
+    "$.scope.mode": {
+      "required": true,
+      "type": "string"
+    },
+    "$.service_identity": {
+      "required": true,
+      "type": "string"
+    },
+    "$.subject": {
+      "required": true,
+      "type": "string"
+    }
+  },
+  "property_count": 16,
+  "refs": [],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-auth-context.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "JWT/JWS 验签后的 payload；kid 在受控公钥表，禁止 alg=none；同请求绑定 audience/KB/文件范围/版本/有效期/request_id。签名失败一律拒绝。",
+    "properties": {
+      "audience": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "auth_version": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "issued_at": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "issuer": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "kb_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "key_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "policy_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "request_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "resource_version": {
+        "minimum": 1,
+        "type": "integer"
+      },
+      "scope": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_file_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "denied_file_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "mode": {
+            "enum": [
+              "whole_kb",
+              "files"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode",
+          "allowed_file_ids",
+          "denied_file_ids"
+        ],
+        "type": "object"
+      },
+      "service_identity": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "subject": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "issuer",
+      "audience",
+      "subject",
+      "service_identity",
+      "kb_id",
+      "scope",
+      "auth_version",
+      "resource_version",
+      "request_id",
+      "issued_at",
+      "expires_at",
+      "key_id",
+      "policy_id"
+    ],
+    "title": "AuthContext verified claims",
+    "type": "object",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-auth-context.json",
+  "title": "AuthContext verified claims"
+}

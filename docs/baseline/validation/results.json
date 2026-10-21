@@ -1,0 +1,117 @@
+{
+  "baseline": "1.1.0",
+  "framework_verify": {
+    "exit_code": 0,
+    "tests_passed": 126,
+    "tests_skipped": 1,
+    "skip_reason": "upstream installer chmod failure simulation requires non-root; new patch exception rollback tested"
+  },
+  "review_negative_roots": 13,
+  "commands": [
+    {
+      "id": "L0-dev-gates",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/run_batch.py",
+        "--loop",
+        "L0-contract-baseline",
+        "--executor",
+        "integration-agent"
+      ],
+      "exit_code": 0,
+      "expected": "pass",
+      "matched_expectation": true
+    },
+    {
+      "id": "L0-evidence-integrity",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/loop_guard.py",
+        "evidence-check",
+        "--loop",
+        "L0-contract-baseline"
+      ],
+      "exit_code": 0,
+      "expected": "pass",
+      "matched_expectation": true
+    },
+    {
+      "id": "original-business-P0-strict",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/p0_closure_check.py",
+        "--mode",
+        "strict"
+      ],
+      "exit_code": 1,
+      "expected": "reject",
+      "matched_expectation": true
+    },
+    {
+      "id": "L1-arm-must-remain-blocked",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/loop_guard.py",
+        "arm",
+        "--loop",
+        "L1",
+        "--to",
+        "backend-engineer",
+        "--executor",
+        "tech-lead",
+        "--expected-revision",
+        "1"
+      ],
+      "exit_code": 1,
+      "expected": "reject",
+      "matched_expectation": true
+    },
+    {
+      "id": "L0-no-independent-QA-cannot-finish",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/loop_guard.py",
+        "finish",
+        "--loop",
+        "L0-contract-baseline"
+      ],
+      "exit_code": 1,
+      "expected": "reject",
+      "matched_expectation": true
+    },
+    {
+      "id": "discovery-inventory-check",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/readiness_check.py",
+        "--mode",
+        "inventory"
+      ],
+      "exit_code": 0,
+      "expected": "pass",
+      "matched_expectation": true
+    },
+    {
+      "id": "business-cases-not-implemented-block",
+      "argv": [
+        "/workspace/scratch/488d8988311a/llmke_review/venv/bin/python",
+        "scripts/business_gate.py",
+        "--profile",
+        "L1",
+        "--stage",
+        "test"
+      ],
+      "exit_code": 1,
+      "expected": "reject",
+      "matched_expectation": true
+    }
+  ],
+  "independent_qa": "PENDING_NOT_CONFIGURED",
+  "business_p0": {
+    "P0-01": "OPEN",
+    "P0-02": "OPEN",
+    "P0-03": "OPEN",
+    "P0-04": "OPEN"
+  },
+  "live_business_or_db_called": false
+}

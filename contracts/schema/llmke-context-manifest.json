@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-context-manifest.json",
+  "title": "ContextBuilder budget and lineage",
+  "version": "1.1.0",
+  "$ref": "llmke-core.json#/$defs/ContextManifest"
+}

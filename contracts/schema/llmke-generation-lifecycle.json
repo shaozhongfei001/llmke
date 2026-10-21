@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-generation-lifecycle.json",
+  "title": "BuildRun",
+  "version": "1.1.0",
+  "type": "object",
+  "properties": {
+    "kb_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "generation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "manifest_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "building",
+        "ready",
+        "failed",
+        "superseded"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "artifact_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "backend": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "location_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "checksum": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "ready": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "backend",
+          "location_ref",
+          "checksum",
+          "ready"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "resource_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "fencing_token": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "kb_id",
+    "generation",
+    "manifest_hash",
+    "status",
+    "created_at",
+    "artifact_results",
+    "resource_version",
+    "fencing_token"
+  ],
+  "additionalProperties": false,
+  "description": "BuildRun 可变运行状态，不回写不可变清单；active 仅由 ActivationPointer 表达。"
+}

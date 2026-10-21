@@ -1,0 +1,11 @@
+---
+description: Python实施
+alwaysApply: false
+globs: "services/**,lib/**"
+---
+
+# Python实施
+
+独立venv；优先保留解析/检索内部实现；只通过已授权参数执行，无业务库状态回写；迟到任务拒绝。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

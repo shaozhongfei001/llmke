@@ -1,0 +1,95 @@
+version: 1.1.0
+rules:
+  workspace:
+    description: 宪法与唯一事实源
+    always: true
+    globs: '**'
+    body: 服从AI_GUIDE与已批准BL/CR。contracts/registry.yaml为唯一合同入口；技术冻结、业务关闭和独立QA分开。
+  senior-workflow:
+    description: 角色与事实纪律
+    always: true
+    globs: '**'
+    body: 按ROLE-MATRIX分工；区分事实/推断/判断。资料不足登记阻塞；不能自签QA或用角色名当真实身份。
+  dev-standards:
+    description: 提交与变更纪律
+    always: true
+    globs: '**'
+    body: 审查staged diff；新增边界需CR与兼容去向。源代码、数据和合同变动使旧证据失效；禁止删失败凑PASS。
+  api-first:
+    description: 合同优先
+    always: false
+    globs: contracts/**,modules/**,apps/**,services/**,lib/**
+    body: 先改合同源和兼容决议，再make contract-all与消费者回放。领域/application仅业务DTO；渲染模型限BFF。
+  contract-check:
+    description: 语义与联动
+    always: false
+    globs: contracts/**,generated/**
+    body: 复用core schema；执行JSON Schema/OpenAPI语义校验及运行时不变量；空目录生成、精确输出集合、哈希联动。generated不是手写目录。
+  backend-engineer:
+    description: Java实施
+    always: false
+    globs: modules/**,apps/**
+    body: 优先保留原业务规则，按四层端口适配；不绕过application操作业务库。实现真实质量profile与领域覆盖，不拿空目录验层次。
+  python-engineer:
+    description: Python实施
+    always: false
+    globs: services/**,lib/**
+    body: 独立venv；优先保留解析/检索内部实现；只通过已授权参数执行，无业务库状态回写；迟到任务拒绝。
+  frontend-engineer:
+    description: 前端消费
+    always: false
+    globs: frontend/**
+    body: 消费共享合同，显式展示partial/unsupported；码点坐标须转换为JS下标后按指定快照定位；verification之前不展示答案。
+  frontend-local:
+    description: 前端验证
+    always: false
+    globs: frontend/**
+    body: 对共享样本测试非BMP、空结果、错误、取消、历史引用；不能新增第二OpenAPI文件来适配页面。
+  tech-lead:
+    description: 切片与接力
+    always: false
+    globs: loops/**,docs/**
+    body: 按PROJECT-PLAN实际依赖派工；arm/transfer使用revision CAS。P0-02影响L1；诊断不等于业务交付；修复预算耗尽STOP。
+  integration-agent:
+    description: 跨栈集成
+    always: false
+    globs: contracts/**,scripts/**,tests/**
+    body: 按legacy→decision→contract→target→case→gate链集成。保留旧入口经批准适配，不能把types索引当编译SDK。
+  security-owner:
+    description: 授权与证据边界
+    always: false
+    globs: contracts/**,services/**,modules/**
+    body: 签名AuthContext逐路执行，deny优先；图域由完整可见集定义；缓存/扩块/派生全部复核，不事后过滤。秘密扫描输出不得回显凭据。
+  e2e-verify:
+    description: 真实验收
+    always: false
+    globs: tests/**,loops/**
+    body: 运行CASE-REGISTRY的真实测试，业务资料/实现缺失时拒绝，不skip/恒真。独立QA在受保护环境签署准确源码/基线/门禁/日志。
+cursor_groups:
+  00-workspace-redlines.mdc:
+  - workspace
+  10-senior-workflow.mdc:
+  - senior-workflow
+  - tech-lead
+  - integration-agent
+  - e2e-verify
+  20-backend.mdc:
+  - api-first
+  - contract-check
+  - backend-engineer
+  - python-engineer
+  - security-owner
+  21-frontend.mdc:
+  - frontend-engineer
+  - frontend-local
+  30-dev-standards.mdc:
+  - dev-standards
+  40-contract-check.mdc:
+  - contract-check
+workflows:
+  api-first: 读取当前切片和registry；登记边界/兼容决议；共享core schema；空目录generate、语义check；再写实现与消费者样本。不可另建旧OpenAPI路径。
+  contract-check: 运行make contract-all，复核跨合同同源、负例、历史数据兼容及lossless生成包；Java/Python实际DTO与校验器需共享样本。
+  feature-pilot: 按派工单只推进一个已批准切片：资产基线→合同→原实现适配→真实E2E→独立QA。BFF可输出视图，领域层不受UI技术绑定。
+  e2e-verify: 按CASE-REGISTRY运行真实数据正负例，不用页面可见代替权限/状态机验收；检查LLM上下文、业务结果与引用。产物缺失保持BLOCKED。
+  tech-lead: 读取P0/复用状态和PROJECT-PLAN；先LD后按真实依赖武装；使用arm/transfer CAS；不覆盖高权威合同，不代签QA。
+  longhaul: 每波读STATE/FAILURES/HANDOFF；仅holder执行已批准argv。达到修复预算停止；状态只由loop_guard更新，Markdown为视图。

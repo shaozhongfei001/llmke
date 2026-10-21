@@ -1,0 +1,4 @@
+{"argv": ["make", "discovery-verify"], "exit_code": 0, "executor": "legacy-owner", "at": "2026-10-21T08:12:59.462354+00:00"}
+reuse-check: PASS inventory (inventory is not approval; plan approval is not completed migration)
+p0-check: PASS (integrity)
+trace-check: PASS

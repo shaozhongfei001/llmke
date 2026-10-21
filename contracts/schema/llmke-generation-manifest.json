@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-generation-manifest.json",
+  "title": "Immutable BuildManifest",
+  "version": "1.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "kb_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "generation": {
+      "type": "string",
+      "pattern": "^g[0-9a-f]{64}$"
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "document_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "parsed_text_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "file_id",
+          "document_version",
+          "content_hash",
+          "parsed_text_hash"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "build_config": {
+      "type": "object",
+      "properties": {
+        "parser_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "chunking_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "embedding_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "type_system_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "graph_extraction_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "parser_version",
+        "chunking_version",
+        "embedding_version",
+        "type_system_version"
+      ],
+      "additionalProperties": false
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "backend": {
+            "type": "string",
+            "enum": [
+              "es",
+              "milvus",
+              "nebula",
+              "table",
+              "faq"
+            ]
+          },
+          "location_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "checksum": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "backend",
+          "location_ref",
+          "checksum",
+          "required"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "derived_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "artifact_type": {
+            "type": "string",
+            "enum": [
+              "faq",
+              "entity_description",
+              "relation_aggregate",
+              "community_report",
+              "theme_page",
+              "answer_cache"
+            ]
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "llmke-core.json#/$defs/SourceRef"
+            },
+            "minItems": 1
+          },
+          "auth_version_at_build": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "artifact_id",
+          "artifact_type",
+          "revision",
+          "source_refs",
+          "auth_version_at_build"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "kb_id",
+    "generation",
+    "documents",
+    "build_config",
+    "artifacts",
+    "derived_refs"
+  ],
+  "additionalProperties": false,
+  "description": "内容不可变；generation=g+sha256(规范 JSON，不含 generation)。构建时间、激活、发布/失效状态均不属于此清单。"
+}

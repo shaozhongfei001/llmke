@@ -1,0 +1,63 @@
+version: 1.1.0
+loops:
+  L0-contract-baseline:
+    kind: contract
+    required_blockers: []
+    goal: 技术契约及门禁基线；不声称业务可交付
+    state: QA_PENDING
+  L0-contract-baseline-r2:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+  LD-legacy-discovery:
+    kind: diagnostic
+    required_blockers: []
+    goal: 索取发布源码与实际 DDL、清点并形成复用决议
+    state: READY
+  LD-legacy-discovery-r2:
+    kind: diagnostic
+    required_blockers: []
+    goal: 台账盘点门禁在当前快照重跑（不改变台账内容与 P0 状态）
+    state: READY
+  L1:
+    kind: implementation
+    required_blockers:
+    - P0-01
+    - P0-02
+    - P0-03
+    - P0-04
+    goal: 授权上下文与 KB 写侧首切片
+    state: BLOCKED
+  L2:
+    kind: implementation
+    required_blockers:
+    - P0-02
+    - P0-03
+    - P0-04
+    goal: 解析、分块、四后端代次及回退
+    state: BLOCKED
+  L3:
+    kind: implementation
+    required_blockers:
+    - P0-01
+    - P0-02
+    - P0-03
+    - P0-04
+    goal: 多路召回、授权、融合精排与归因
+    state: BLOCKED
+  L4:
+    kind: implementation
+    required_blockers:
+    - P0-01
+    - P0-02
+    - P0-03
+    - P0-04
+    goal: ContextBuilder、引用、SSE 及历史记录
+    state: BLOCKED
+retired_loop_aliases:
+  L1-implementation: L1
+unplanned:
+  L5: 评测平台化/受限工具，另开已批准切片
+  P6: 条件启用社区摘要，不作必交付前置
+estimation: 三个切片测量后重估，不承诺90%或21周

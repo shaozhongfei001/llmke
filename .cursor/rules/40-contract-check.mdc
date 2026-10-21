@@ -1,0 +1,10 @@
+---
+alwaysApply: false
+globs: "contracts/**,generated/**"
+---
+
+## 语义与联动
+
+复用core schema；执行JSON Schema/OpenAPI语义校验及运行时不变量；空目录生成、精确输出集合、哈希联动。generated不是手写目录。
+
+来源：docs/policies/AGENT-RULES.yaml

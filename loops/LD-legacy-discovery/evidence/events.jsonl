@@ -1,0 +1,2 @@
+{"at": "2026-10-20T17:05:04.601766+00:00", "gate": "inventory_gate", "event": "failure", "reason": "executor does not hold baton"}
+{"at": "2026-10-20T17:13:51.779997+00:00", "gate": "inventory_gate", "event": "failure", "reason": "prior evidence invalid: inventory_gate: source/baseline changed; evidence STALE"}

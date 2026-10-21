@@ -1,0 +1,11 @@
+---
+description: 切片与接力
+alwaysApply: false
+globs: "loops/**,docs/**"
+---
+
+# 切片与接力
+
+按PROJECT-PLAN实际依赖派工；arm/transfer使用revision CAS。P0-02影响L1；诊断不等于业务交付；修复预算耗尽STOP。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

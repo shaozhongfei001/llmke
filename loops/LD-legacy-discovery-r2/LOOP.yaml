@@ -1,0 +1,67 @@
+schema_version: 2
+baseline_version: 1.1.0
+loop_id: LD-legacy-discovery-r2
+kind: diagnostic
+objective:
+- 恢复 LD 台账盘点门禁的证据有效性：原批次 LD-legacy-discovery 的 inventory_gate 因源码快照变化判为 STALE，
+  且 attempts 已达 3/3，无法在原批次内重跑。
+- 本批次只重跑盘点门禁，不改变台账内容、不改变 P0 状态、不声称任何复用已批准。
+scope:
+  write_paths:
+  - contracts
+  - scripts
+  - docs
+  - tests
+  - loops
+  forbidden:
+  - 手改 generated
+  - 直接修改验收状态
+  - 无批准的生产数据变更
+required_blockers: []
+reuse_assets: []
+implementation_principals:
+- legacy-owner
+tech_lead_principal: tech-lead
+allowed_holders:
+- integration-agent
+- legacy-owner
+- backend-engineer
+- python-engineer
+- algorithm-owner
+- tech-lead
+- qa-external
+gates:
+- id: inventory_gate
+  catalog_id: reuse.inventory
+  type: dev_self_check
+  argv:
+  - python3
+  - scripts/readiness_check.py
+  - --mode
+  - inventory
+  required_checks:
+  - 12_source_candidates
+  - 37_table_482_fields
+  - 506_inventory_not_runtime
+  depends_on: []
+  timeout_seconds: 600
+- id: independent_qa_gate
+  catalog_id: qa.discovery
+  type: qa_gate
+  argv:
+  - make
+  - discovery-verify
+  required_checks:
+  - candidate_register_integrity
+  - source_and_DDL_missing_stay_pending
+  depends_on:
+  - inventory_gate
+  timeout_seconds: 1200
+repair_policy:
+  max_iterations_per_gate: 3
+  on_exhausted: STOP; retain failures, TL approves revised wave/new loop; never manually
+    reset attempts
+exit_criteria:
+- all declared gates pass for same snapshot
+- independent QA externally signed
+- business implementation also needs all declared P0 and reuse decisions

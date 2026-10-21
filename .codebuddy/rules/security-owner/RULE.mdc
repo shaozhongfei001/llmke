@@ -1,0 +1,11 @@
+---
+description: 授权与证据边界
+alwaysApply: false
+globs: "contracts/**,services/**,modules/**"
+---
+
+# 授权与证据边界
+
+签名AuthContext逐路执行，deny优先；图域由完整可见集定义；缓存/扩块/派生全部复核，不事后过滤。秘密扫描输出不得回显凭据。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

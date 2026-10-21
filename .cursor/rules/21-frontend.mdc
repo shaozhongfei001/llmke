@@ -1,0 +1,14 @@
+---
+alwaysApply: false
+globs: "frontend/**"
+---
+
+## 前端消费
+
+消费共享合同，显式展示partial/unsupported；码点坐标须转换为JS下标后按指定快照定位；verification之前不展示答案。
+
+## 前端验证
+
+对共享样本测试非BMP、空结果、错误、取消、历史引用；不能新增第二OpenAPI文件来适配页面。
+
+来源：docs/policies/AGENT-RULES.yaml

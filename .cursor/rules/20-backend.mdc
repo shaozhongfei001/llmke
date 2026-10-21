@@ -1,0 +1,26 @@
+---
+alwaysApply: false
+globs: "contracts/**,generated/**,contracts/**,modules/**,apps/**,services/**,lib/**,contracts/**,services/**,modules/**,modules/**,apps/**,services/**,lib/**"
+---
+
+## 合同优先
+
+先改合同源和兼容决议，再make contract-all与消费者回放。领域/application仅业务DTO；渲染模型限BFF。
+
+## 语义与联动
+
+复用core schema；执行JSON Schema/OpenAPI语义校验及运行时不变量；空目录生成、精确输出集合、哈希联动。generated不是手写目录。
+
+## Java实施
+
+优先保留原业务规则，按四层端口适配；不绕过application操作业务库。实现真实质量profile与领域覆盖，不拿空目录验层次。
+
+## Python实施
+
+独立venv；优先保留解析/检索内部实现；只通过已授权参数执行，无业务库状态回写；迟到任务拒绝。
+
+## 授权与证据边界
+
+签名AuthContext逐路执行，deny优先；图域由完整可见集定义；缓存/扩块/派生全部复核，不事后过滤。秘密扫描输出不得回显凭据。
+
+来源：docs/policies/AGENT-RULES.yaml

@@ -1,0 +1,14 @@
+schema_version: 1
+loop_id: L0-contract-baseline
+mode: longhaul
+updated_at: '2026-10-20T14:35:49+00:00'
+updated_by: tech-lead
+board_status: IN_DEV
+baton:
+  holder: integration-agent
+  packet: L0
+  wave: W1
+  blocked_note: ''
+  parallel_allowed: []
+waves: {}
+packets: {}

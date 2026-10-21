@@ -1,0 +1,11 @@
+---
+description: 前端消费
+alwaysApply: false
+globs: "frontend/**"
+---
+
+# 前端消费
+
+消费共享合同，显式展示partial/unsupported；码点坐标须转换为JS下标后按指定快照定位；verification之前不展示答案。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

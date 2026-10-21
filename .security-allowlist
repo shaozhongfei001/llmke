@@ -1,0 +1,35 @@
+# Security scan allowlist — reviewed exceptions ONLY.
+# Format: one substring per line; a finding is suppressed when the line
+# contains the substring. Every entry must be justified here.
+#
+# The entries below are NEGATIVE-TEST FIXTURES in tests/test_security_scan.py:
+# fake secrets that exist only to prove the scanner blocks them in sandbox
+# projects. They are not real credentials, hosts, keys, or paths.
+tests/test_security_scan.py:Sup3rSecretRealPwd!
+tests/test_security_scan.py:scott:tiger99@dbprod.internal
+tests/test_security_scan.py:10.20.30.40
+tests/test_security_scan.py:BEGIN RSA PRIVATE KEY
+tests/test_security_scan.py:/home/jdoe/
+tests/test_security_scan.py:10.64.12.19
+tests/test_security_scan.py:ORACLE_PASSWORD=x
+tests/test_security_scan.py:TOKEN=<your-token>
+
+# --- Reviewed exceptions added by llmke (2026-10-20) -------------------------
+# All four are FALSE POSITIVES, each verified by reading the source line.
+# They only became visible after two fixes: (a) `is_allowlisted` now honours the
+# documented `file:substring` format, (b) `make security-check` scans the tree
+# instead of `git ls-files` (in a fresh repo the latter is empty -> vacuous PASS).
+#
+# 1) Framework self-test fixture: asserts that `${VAR}` placeholders pass.
+#    The scanner's PLACEHOLDER_RE misses it because the literal carries a
+#    trailing `\n`, so the captured value is `${ORACLE_PASSWORD}\n`.
+tests/test_security_scan.py:ORACLE_PASSWORD=${ORACLE_PASSWORD}
+# 2) Scanner's own docstring listing what it detects.
+scripts/security_scan.py:connection strings with embedded credentials
+# 3) The detection pattern itself (a regex that matches private-key headers).
+scripts/security_scan.py:PRIVATE_KEY_RE = re.compile
+# 4) Variable reference, not a literal: `password=params["password"]`.
+scripts/oracle_metadata/readonly_guard.py:password=params["password"]
+
+# Reviewed Python documentation variable forwarding, not a literal credential.
+.cursor/skills/oracle-metadata-reconciliation/SKILL.md:password=password

@@ -1,0 +1,113 @@
+version: 1.1.0
+policy: 角色是职责；principal 是受信执行身份。CLI 名称不证明身份。
+roles:
+  baseline-owner:
+    responsibility: 冻结决议、范围和基线批准
+    allowed_paths:
+    - docs/baseline
+    - docs/policies
+    forbidden:
+    - 不代签独立 QA
+    - 不把 OPEN 改成已解决
+  tech-lead:
+    responsibility: 切片规划、依赖与派工、异常修复预算
+    allowed_paths:
+    - docs/dispatch
+    - docs/PROJECT-PLAN.yaml
+    - loops
+    forbidden:
+    - 不改证据使其通过
+    - 不绕开业务 P0
+  integration-agent:
+    responsibility: 契约、共享模型、生成和兼容对照
+    allowed_paths:
+    - contracts
+    - generated
+    - scripts
+    forbidden:
+    - 不手改生成物
+    - 不把类型索引称为可编译 SDK
+  legacy-owner:
+    responsibility: 发布源码基线与旧行为回放
+    allowed_paths:
+    - docs/reuse
+    - tests/characterization
+    forbidden:
+    - 不以 dev 分支替代发布版本
+    - 不以端点数推算复用率
+  data-owner:
+    responsibility: 实际 DDL、字段语义、迁移与新旧兼容
+    allowed_paths:
+    - docs/reuse
+    - docs/migrations
+    - modules
+    forbidden:
+    - 不从实体 CSV 推造 DDL
+    - 不机械替换 create_by
+  security-owner:
+    responsibility: 授权签发/校验、逐路范围和撤权
+    allowed_paths:
+    - contracts/schema/llmke-auth-context.json
+    - docs/policies
+    - tests/business
+    forbidden:
+    - 不接受事后过滤代替隔离
+    - 不将调用方 subjects 当授权事实
+  algorithm-owner:
+    responsibility: 解析检索、图与 ContextBuilder 实现
+    allowed_paths:
+    - services
+    - lib
+    - tests/business
+    forbidden:
+    - 不静默混代
+    - 不把派生来源子集当完整血缘
+  backend-engineer:
+    responsibility: Java 业务规则与端口适配
+    allowed_paths:
+    - modules
+    - apps
+    - tests/business
+    forbidden:
+    - 不把 Controller 当领域层
+    - 不绕过 application 写业务库
+  python-engineer:
+    responsibility: Python 适配与纯算法测试
+    allowed_paths:
+    - services
+    - lib
+    - tests/business
+    forbidden:
+    - 不回写业务状态
+    - 不自行激活后端索引
+  frontend-engineer:
+    responsibility: 合同消费、引用解析与流式状态
+    allowed_paths:
+    - frontend
+    forbidden:
+    - 不另建 SSOT
+    - 不在核验前展示内容
+  product-owner:
+    responsibility: 业务政策、gold 标注、质量阈值与启用裁决
+    allowed_paths:
+    - docs/evaluation
+    - contracts/evaluation
+    forbidden:
+    - 不看结果后改阈值
+    - 不将低错误率等同完整可用
+  qa-owner:
+    responsibility: 受保护环境独立复跑与签名验收
+    allowed_paths:
+    - docs/approvals
+    - loops/*/evidence
+    forbidden:
+    - 不参与同切片实现
+    - 不凭 role 参数自签
+independence:
+  qa_principal_must_not_be_implementation_principal: true
+  authority_source: protected runner trust root outside implementation workspace
+  key_provisioning: real principal/public key configuration remains PENDING; no generated
+    sample key is a production authority
+legacy_role_aliases:
+  interface-owner: integration-agent
+  index-owner: algorithm-owner

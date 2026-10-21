@@ -1,0 +1,329 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "7d884c172d764c10a1713dba42756f13991c3784690afd75e7980692ebb0351e",
+  "contract_id": "llmke-kb-operations",
+  "enums": {},
+  "properties": {},
+  "property_count": 0,
+  "refs": [],
+  "schema_document": {
+    "$defs": {
+      "ActivationReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "activated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "generation": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pointer_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "previous_generation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rollback_deadline": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kb_id",
+          "generation",
+          "previous_generation",
+          "pointer_version",
+          "activated_at",
+          "rollback_deadline"
+        ],
+        "type": "object"
+      },
+      "ActivationRequest": {
+        "additionalProperties": false,
+        "description": "必需产物集合只从服务端已批准 manifest 读取，不接受请求声明缩小集合。null+version0 表示首次激活。",
+        "properties": {
+          "expected_pointer": {
+            "minLength": 1,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expected_pointer_version": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "fencing_token": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "manifest_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kb_id",
+          "manifest_hash",
+          "expected_pointer",
+          "expected_pointer_version",
+          "fencing_token"
+        ],
+        "type": "object"
+      },
+      "DeletionReceipt": {
+        "additionalProperties": false,
+        "description": "202 前已提交查询围栏；物理清理可异步，查询/扩召回/回填立即校验墓碑及版本。",
+        "properties": {
+          "cleanup_task_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "query_fence_committed": {
+            "const": true
+          },
+          "resource_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "tombstoned": {
+            "const": true
+          }
+        },
+        "required": [
+          "file_id",
+          "resource_version",
+          "tombstoned",
+          "query_fence_committed",
+          "cleanup_task_id"
+        ],
+        "type": "object"
+      },
+      "DeletionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_resource_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "kb_id",
+          "expected_resource_version"
+        ],
+        "type": "object"
+      },
+      "FileReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "document_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resource_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "task_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "file_id",
+          "kb_id",
+          "document_version",
+          "resource_version",
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "FileRegistration": {
+        "additionalProperties": false,
+        "description": "blob 内容去重与逻辑文件身份分开。更新必须带 logical_file_id 和 expected_resource_version；同 hash 不自动复用其他文件身份/权限。",
+        "properties": {
+          "content_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "expected_resource_version": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "logical_file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "permission_policy_ref": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_blob_ref": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "kb_id",
+          "content_hash",
+          "source_blob_ref",
+          "permission_policy_ref"
+        ],
+        "type": "object"
+      },
+      "TaskReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_result_refs": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "document_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "error_code": {
+            "$ref": "llmke-error-codes.json#/$defs/ErrorCode"
+          },
+          "fencing_token": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "generation": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resource_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "succeeded",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "task_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "kb_id",
+          "file_id",
+          "document_version",
+          "resource_version",
+          "generation",
+          "fencing_token",
+          "status",
+          "artifact_result_refs"
+        ],
+        "type": "object"
+      },
+      "TaskStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "resource_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ],
+            "type": "string"
+          },
+          "task_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "status",
+          "resource_version"
+        ],
+        "type": "object"
+      }
+    },
+    "$id": "https://llmke.local/contracts/schema/llmke-kb-operations.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "KB 事务边界 DTO",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-kb-operations.json",
+  "title": "KB 事务边界 DTO"
+}

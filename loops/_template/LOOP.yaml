@@ -1,0 +1,50 @@
+schema_version: 2
+baseline_version: 1.1.0
+loop_id: TEMPLATE-loop-id
+kind: contract
+objective:
+- 未选择切片；DRAFT 不可执行
+scope:
+  write_paths:
+  - contracts
+  - scripts
+  - docs
+  - tests
+  - loops
+  forbidden:
+  - 手改 generated
+  - 直接修改验收状态
+  - 无批准的生产数据变更
+required_blockers: []
+reuse_assets: []
+implementation_principals:
+- integration-agent
+tech_lead_principal: tech-lead
+allowed_holders:
+- integration-agent
+- legacy-owner
+- backend-engineer
+- python-engineer
+- algorithm-owner
+- tech-lead
+- qa-external
+gates:
+- id: contract_generate_gate
+  catalog_id: contracts.generate
+  type: dev_self_check
+  argv:
+  - make
+  - generate
+  required_checks:
+  - clean_generation
+  - declared_output_set
+  depends_on: []
+  timeout_seconds: 600
+repair_policy:
+  max_iterations_per_gate: 3
+  on_exhausted: STOP; retain failures, TL approves revised wave/new loop; never manually
+    reset attempts
+exit_criteria:
+- all declared gates pass for same snapshot
+- independent QA externally signed
+- business implementation also needs all declared P0 and reuse decisions

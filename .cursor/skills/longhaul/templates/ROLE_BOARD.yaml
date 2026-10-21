@@ -1,0 +1,15 @@
+schema_version: 1
+# Template — copy to loops/<loop_id>/memory/ROLE_BOARD.yaml
+loop_id: "{{LOOP_ID}}"
+mode: longhaul
+updated_at: "{{ISO_TIME}}"
+updated_by: "{{ROLE}}"
+board_status: IN_DEV
+baton:
+  holder: "{{HOLDER}}"
+  packet: "{{PACKET}}"
+  wave: "{{WAVE}}"
+  blocked_note: ""
+  parallel_allowed: []
+waves: {}
+packets: {}

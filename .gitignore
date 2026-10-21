@@ -1,0 +1,66 @@
+# --- Secrets & local config -------------------------------------------------
+# Real config is NEVER committed. Templates (.env.example, config.template.*)
+# are the only committable config artifacts.
+.env
+.env.*
+!.env.example
+*.local.env
+config.local.*
+!config.template.*
+
+# --- Databases & runtime artifacts ------------------------------------------
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+data/metadata/
+data/runtime/
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# --- Reports / outputs / logs / downloads ------------------------------------
+reports/
+output/
+logs/
+*.log
+tmp/
+downloads/
+contracts/build/
+
+# --- Private source extracts & sensitive snapshots ----------------------------
+# Oracle PL/SQL full source, raw metadata snapshots, sensitive reports.
+source_private/
+**/source_private/
+oracle-dumps/
+metadata-snapshots/
+sensitive-reports/
+
+# --- Installer runtime ---------------------------------------------------------
+.framework-backup/
+.framework-manifest.json
+loops/*/memory/.baton.lock
+loops/*/memory/.baton-backup-*/
+
+# --- OS / editor ----------------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- Loop evidence must be committable -----------------------------------------
+# *.log above is right for runtime logs, but gate evidence IS the delivery record.
+# Without this negation the evidence chain dies at the first commit.
+!loops/*/evidence/*.log
+!loops/*/evidence/manifest.json
+
+# 评审打包产物
+LLMKE-项目框架评审包-*.zip

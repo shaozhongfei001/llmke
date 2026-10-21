@@ -1,0 +1,70 @@
+evaluation:
+  name: llmke-m0-gates
+  version: 1.1.0
+  dataset:
+    status: PENDING_ASSET_FREEZE
+    version: null
+    sha256: null
+    total_questions: 100
+    quota:
+      global_topic: 20
+      cross_document_compare: 15
+      distribution_trend: 10
+      multi_hop: 35
+      negation_exclusion: 20
+  enablement:
+    global_coverage:
+      lt_0_50: EVALUATE_COMMUNITY
+      gte_0_50_lt_0_70: LIGHTWEIGHT_THEN_REMEASURE
+      gte_0_70: DO_NOT_ADD_COMMUNITY
+    graph_gain:
+      metric: multi_hop_coverage_absolute_delta
+      min: 0.1
+      pass: ENABLE_GRAPH_AFTER_QUALITY
+      fail: DISABLED_BY_DECISION_NOT_PLATFORM_FAILURE
+  quality:
+    veto_rate_max: 0.05
+    route_instrumentation_completeness_min: 1.0
+    support_ratio_min: 0.95
+    coverage_vs_baseline: NO_REGRESSION_WITH_MATCHED_BUDGET
+    answer_accuracy_min: null
+    citation_completeness_min: null
+    approval_status: PENDING_PRODUCT_AND_ALGORITHM_SIGNATURE
+  release:
+    requires:
+    - frozen_dataset
+    - signed_thresholds_before_measurement
+    - metric_selftests
+    - matched_budget_baseline
+    - quality_report
+    - independent_qa
+    missing_material_action: BLOCKED_NOT_PASS
+  stage_inheritance:
+    P3:
+      all:
+      - instrumentation
+      - retrieval_quality
+      optional:
+      - graph_enablement_decision
+    P4:
+      all:
+      - coverage
+      - answer_accuracy
+      - citation_completeness
+      - correct_refusal
+      - veto_rate
+      - support_audit
+    P6:
+      sequence:
+      - global_enablement_decision
+      - conditional_experiment
+      - quality
+      - release
+  failure_attribution:
+  - source_missing
+  - parse_and_chunk
+  - permission_or_version
+  - recall
+  - context_trim
+  - generation
+  - insufficient_evidence

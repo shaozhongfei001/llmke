@@ -1,0 +1,11 @@
+---
+description: 前端验证
+alwaysApply: false
+globs: "frontend/**"
+---
+
+# 前端验证
+
+对共享样本测试非BMP、空结果、错误、取消、历史引用；不能新增第二OpenAPI文件来适配页面。
+
+规则来源：`docs/policies/AGENT-RULES.yaml`；不可直接改镜像。

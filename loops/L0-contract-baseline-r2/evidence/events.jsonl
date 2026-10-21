@@ -1,0 +1,3 @@
+{"at": "2026-10-21T05:09:13.415457+00:00", "gate": "contract_generate_gate", "event": "failure", "reason": "frozen control file set changed; frozen control changed: docs/PROJECT-PLAN.yaml"}
+{"at": "2026-10-21T08:09:28.613154+00:00", "gate": "independent_qa_gate", "event": "failure", "reason": "command exited 2; evidence loops/L0-contract-baseline-r2/evidence/independent_qa_gate.log"}
+{"at": "2026-10-21T08:10:10.138183+00:00", "gate": "independent_qa_gate", "event": "failure", "reason": "command exited 2; evidence loops/L0-contract-baseline-r2/evidence/independent_qa_gate.log"}

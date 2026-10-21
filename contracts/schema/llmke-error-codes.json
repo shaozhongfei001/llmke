@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-error-codes.json",
+  "version": "1.1.0",
+  "title": "Error register schema and validated code vocabulary",
+  "$defs": {
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "REQUEST-001",
+        "AUTH-001",
+        "AUTH-002",
+        "GENERATION-001",
+        "KB-001",
+        "RETRIEVAL-001",
+        "BUDGET-001",
+        "EVIDENCE-001",
+        "TASK-001"
+      ]
+    },
+    "Register": {
+      "type": "object",
+      "properties": {
+        "codes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/ErrorCode"
+              },
+              "http_status": {
+                "type": "integer",
+                "minimum": 400,
+                "maximum": 599
+              },
+              "meaning": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "caller_action": {
+                "type": "string",
+                "enum": [
+                  "retry",
+                  "fix_request",
+                  "reauth",
+                  "backoff",
+                  "escalate",
+                  "abort"
+                ]
+              },
+              "legacy_int_code": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "legacy_mapping_status": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "code",
+              "http_status",
+              "meaning",
+              "caller_action",
+              "legacy_int_code",
+              "retryable",
+              "legacy_mapping_status"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "codes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/$defs/Register"
+}

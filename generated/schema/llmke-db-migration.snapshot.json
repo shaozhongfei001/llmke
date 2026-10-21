@@ -1,0 +1,194 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "72fae4037b080230eb241ba87c7bc73f8fe1d55ab17b59ab7c95c4374ec0d267",
+  "contract_id": "llmke-db-migration",
+  "enums": {
+    "$.strategy": [
+      "new_db_migrate_cutover",
+      "shared_db_expand_contract"
+    ]
+  },
+  "properties": {
+    "$.approved_by": {
+      "required": true,
+      "type": "array"
+    },
+    "$.backfill_script": {
+      "required": true,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "$.db_engine_version": {
+      "required": true,
+      "type": "string"
+    },
+    "$.forward_script": {
+      "required": true,
+      "type": "string"
+    },
+    "$.lock_and_capacity_evidence": {
+      "required": true,
+      "type": "array"
+    },
+    "$.migration_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.new_old_compatibility_cases": {
+      "required": true,
+      "type": "array"
+    },
+    "$.restore_copy_evidence": {
+      "required": true,
+      "type": "array"
+    },
+    "$.rollback_script": {
+      "required": true,
+      "type": "string"
+    },
+    "$.source_ddl_sha256": {
+      "required": true,
+      "type": "string"
+    },
+    "$.strategy": {
+      "required": true,
+      "type": "string"
+    },
+    "$.target_model_ref": {
+      "required": true,
+      "type": "string"
+    },
+    "$.touched_tables": {
+      "required": true,
+      "type": "array"
+    },
+    "$.write_ownership_ref": {
+      "required": true,
+      "type": "string"
+    }
+  },
+  "property_count": 14,
+  "refs": [],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-db-migration.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "properties": {
+      "approved_by": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "backfill_script": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "db_engine_version": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "forward_script": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "lock_and_capacity_evidence": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "migration_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "new_old_compatibility_cases": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "restore_copy_evidence": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "rollback_script": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "source_ddl_sha256": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "strategy": {
+        "enum": [
+          "shared_db_expand_contract",
+          "new_db_migrate_cutover"
+        ],
+        "type": "string"
+      },
+      "target_model_ref": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "touched_tables": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "write_ownership_ref": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "migration_id",
+      "db_engine_version",
+      "source_ddl_sha256",
+      "target_model_ref",
+      "touched_tables",
+      "strategy",
+      "write_ownership_ref",
+      "forward_script",
+      "backfill_script",
+      "rollback_script",
+      "new_old_compatibility_cases",
+      "restore_copy_evidence",
+      "lock_and_capacity_evidence",
+      "approved_by"
+    ],
+    "type": "object",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-db-migration.json",
+  "title": null
+}

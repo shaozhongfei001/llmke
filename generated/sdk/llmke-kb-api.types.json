@@ -1,0 +1,3382 @@
+{
+  "contract_id": "llmke-kb-api",
+  "openapi": "3.1.1",
+  "schema_count": 8,
+  "types": {
+    "ActivationReceipt": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "ActivationRequest": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "DeletionReceipt": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "DeletionRequest": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "FileReceipt": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "FileRegistration": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "TaskReceipt": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    },
+    "TaskStatus": {
+      "type": "object",
+      "required": [],
+      "fields": {}
+    }
+  },
+  "schema_document": {
+    "openapi": "3.1.1",
+    "info": {
+      "title": "LLMKE KB Write & Task Protocol",
+      "version": "1.1.0"
+    },
+    "x-llmke-contract-id": "llmke-kb-api",
+    "x-baseline-decision": "BL-1.1.0",
+    "servers": [
+      {
+        "url": "https://internal.invalid",
+        "description": "部署时绑定实际内部地址；不代表公开服务"
+      }
+    ],
+    "security": [
+      {
+        "InternalBearer": [],
+        "AuthContext": []
+      }
+    ],
+    "paths": {
+      "/v1/kb/files": {
+        "post": {
+          "operationId": "registerFile",
+          "parameters": [
+            {
+              "name": "X-Request-Id",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "成功",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-kb-operations.json#/$defs/FileReceipt"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-kb-operations.json#/$defs/FileRegistration"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/v1/kb/files/{file_id}": {
+        "delete": {
+          "operationId": "deleteFile",
+          "parameters": [
+            {
+              "name": "X-Request-Id",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            {
+              "name": "file_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          ],
+          "responses": {
+            "400": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "202": {
+              "description": "查询围栏已提交，异步清理已入持久任务。",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-kb-operations.json#/$defs/DeletionReceipt"
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-kb-operations.json#/$defs/DeletionRequest"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/v1/kb/generations/{generation}/activate": {
+        "post": {
+          "operationId": "activateGeneration",
+          "parameters": [
+            {
+              "name": "X-Request-Id",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            {
+              "name": "generation",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "成功",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-kb-operations.json#/$defs/ActivationReceipt"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-kb-operations.json#/$defs/ActivationRequest"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/internal/v1/kb/tasks/{task_id}/receipts": {
+        "post": {
+          "operationId": "acceptTaskReceipt",
+          "parameters": [
+            {
+              "name": "X-Request-Id",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            {
+              "name": "Idempotency-Key",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "成功",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-kb-operations.json#/$defs/TaskStatus"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-kb-operations.json#/$defs/TaskReceipt"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/v1/kb/tasks/{task_id}": {
+        "get": {
+          "operationId": "getTaskStatus",
+          "parameters": [
+            {
+              "name": "X-Request-Id",
+              "in": "header",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "成功",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-kb-operations.json#/$defs/TaskStatus"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "429": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "失败",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "../schema/llmke-core.json#/$defs/ErrorEnvelope"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "InternalBearer": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "service JWT"
+        },
+        "AuthContext": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "X-Auth-Context",
+          "description": "签名 AuthContext JWS；校验规则见 llmke-auth-context.json 与 AUTHORIZATION.md。"
+        }
+      },
+      "schemas": {
+        "FileRegistration": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/FileRegistration"
+        },
+        "FileReceipt": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/FileReceipt"
+        },
+        "DeletionRequest": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/DeletionRequest"
+        },
+        "DeletionReceipt": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/DeletionReceipt"
+        },
+        "ActivationRequest": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/ActivationRequest"
+        },
+        "ActivationReceipt": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/ActivationReceipt"
+        },
+        "TaskReceipt": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/TaskReceipt"
+        },
+        "TaskStatus": {
+          "$ref": "../schema/llmke-kb-operations.json#/$defs/TaskStatus"
+        }
+      }
+    }
+  },
+  "schema_resources": {
+    "https://llmke.local/contracts/schema/llmke-auth-context.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-auth-context.json",
+      "title": "AuthContext verified claims",
+      "version": "1.1.0",
+      "type": "object",
+      "properties": {
+        "issuer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "audience": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "service_identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "kb_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "whole_kb",
+                "files"
+              ]
+            },
+            "allowed_file_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "denied_file_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "mode",
+            "allowed_file_ids",
+            "denied_file_ids"
+          ],
+          "additionalProperties": false
+        },
+        "auth_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resource_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "key_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "policy_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "issuer",
+        "audience",
+        "subject",
+        "service_identity",
+        "kb_id",
+        "scope",
+        "auth_version",
+        "resource_version",
+        "request_id",
+        "issued_at",
+        "expires_at",
+        "key_id",
+        "policy_id"
+      ],
+      "additionalProperties": false,
+      "description": "JWT/JWS 验签后的 payload；kid 在受控公钥表，禁止 alg=none；同请求绑定 audience/KB/文件范围/版本/有效期/request_id。签名失败一律拒绝。"
+    },
+    "https://llmke.local/contracts/schema/llmke-context-manifest.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-context-manifest.json",
+      "title": "ContextBuilder budget and lineage",
+      "version": "1.1.0",
+      "$ref": "llmke-core.json#/$defs/ContextManifest"
+    },
+    "https://llmke.local/contracts/schema/llmke-core.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-core.json",
+      "title": "共享 wire/domain 模型",
+      "version": "1.1.0",
+      "$defs": {
+        "SearchType": {
+          "type": "string",
+          "enum": [
+            "es",
+            "milvus",
+            "graph",
+            "table",
+            "faq",
+            "web",
+            "database",
+            "community"
+          ]
+        },
+        "Offset": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "unit": {
+              "const": "unicode_codepoint"
+            },
+            "text_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "parser_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "start",
+            "end",
+            "unit",
+            "text_hash",
+            "parser_version"
+          ],
+          "additionalProperties": false,
+          "description": "解析后规范化文本的 Unicode 码点左闭右开区间；运行时要求 0 <= start < end <= len(text)，hash 为完整 SHA256。"
+        },
+        "SourceRef": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "file_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "document_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "chunk_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "content_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "offset": {
+              "$ref": "llmke-core.json#/$defs/Offset"
+            }
+          },
+          "required": [
+            "kb_id",
+            "file_id",
+            "document_version",
+            "chunk_id",
+            "content_hash",
+            "offset"
+          ],
+          "additionalProperties": false
+        },
+        "DocumentEvidence": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "type": {
+              "const": "document_text"
+            },
+            "source_ref": {
+              "$ref": "llmke-core.json#/$defs/SourceRef"
+            }
+          },
+          "required": [
+            "evidence_id",
+            "type",
+            "source_ref"
+          ],
+          "additionalProperties": false
+        },
+        "TableEvidence": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "type": {
+              "const": "table_region"
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "file_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "document_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "table_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "table_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "row_start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "row_end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "col_start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "col_end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SourceRef"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "evidence_id",
+            "type",
+            "kb_id",
+            "file_id",
+            "document_version",
+            "table_id",
+            "table_hash",
+            "row_start",
+            "row_end",
+            "col_start",
+            "col_end",
+            "source_refs"
+          ],
+          "additionalProperties": false
+        },
+        "SqlEvidence": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "type": {
+              "const": "sql_snapshot"
+            },
+            "datasource_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "query_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "snapshot_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "row_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "result_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "snapshot_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "auth_scope_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "authority_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "evidence_id",
+            "type",
+            "datasource_id",
+            "query_id",
+            "snapshot_at",
+            "row_count",
+            "result_hash",
+            "snapshot_ref",
+            "auth_scope_id",
+            "authority_ref"
+          ],
+          "additionalProperties": false
+        },
+        "WebEvidence": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "type": {
+              "const": "web_fetch"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "fetched_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "content_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "snapshot_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "authority_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "auth_scope_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "evidence_id",
+            "type",
+            "url",
+            "fetched_at",
+            "content_hash",
+            "snapshot_ref",
+            "authority_ref",
+            "auth_scope_id"
+          ],
+          "additionalProperties": false
+        },
+        "GraphEvidence": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "type": {
+              "const": "graph_path"
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "node_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 1
+            },
+            "edge_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 1
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SourceRef"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "evidence_id",
+            "type",
+            "kb_id",
+            "generation",
+            "node_ids",
+            "edge_ids",
+            "source_refs"
+          ],
+          "additionalProperties": false,
+          "description": "节点与边保持遍历顺序；完整叶子集合用于授权，不以展示子集代替。"
+        },
+        "Evidence": {
+          "oneOf": [
+            {
+              "$ref": "llmke-core.json#/$defs/DocumentEvidence"
+            },
+            {
+              "$ref": "llmke-core.json#/$defs/TableEvidence"
+            },
+            {
+              "$ref": "llmke-core.json#/$defs/SqlEvidence"
+            },
+            {
+              "$ref": "llmke-core.json#/$defs/WebEvidence"
+            },
+            {
+              "$ref": "llmke-core.json#/$defs/GraphEvidence"
+            }
+          ],
+          "discriminator": {
+            "propertyName": "type"
+          }
+        },
+        "SourceHit": {
+          "type": "object",
+          "properties": {
+            "chunk_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "document_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "search_type": {
+              "$ref": "llmke-core.json#/$defs/SearchType"
+            },
+            "rank": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "raw_score": {
+              "type": "number"
+            },
+            "fusion_score": {
+              "type": "number"
+            },
+            "auth_scope_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "artifact_type": {
+              "const": "source_chunk"
+            },
+            "source_ref": {
+              "$ref": "llmke-core.json#/$defs/SourceRef"
+            }
+          },
+          "required": [
+            "chunk_id",
+            "source",
+            "kb_id",
+            "generation",
+            "document_version",
+            "search_type",
+            "rank",
+            "auth_scope_id",
+            "artifact_type",
+            "source_ref"
+          ],
+          "additionalProperties": false
+        },
+        "DerivedHit": {
+          "type": "object",
+          "properties": {
+            "chunk_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "search_type": {
+              "$ref": "llmke-core.json#/$defs/SearchType"
+            },
+            "rank": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "raw_score": {
+              "type": "number"
+            },
+            "fusion_score": {
+              "type": "number"
+            },
+            "auth_scope_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "artifact_type": {
+              "type": "string",
+              "enum": [
+                "faq",
+                "entity_description",
+                "relation_aggregate",
+                "community_report",
+                "theme_page",
+                "answer_cache"
+              ]
+            },
+            "artifact_revision": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SourceRef"
+              },
+              "minItems": 1
+            },
+            "auth_version_at_build": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "publish_state": {
+              "const": "published"
+            },
+            "lineage_complete": {
+              "const": true
+            },
+            "artifact_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "chunk_id",
+            "source",
+            "kb_id",
+            "generation",
+            "search_type",
+            "rank",
+            "auth_scope_id",
+            "artifact_type",
+            "artifact_revision",
+            "source_refs",
+            "auth_version_at_build",
+            "publish_state",
+            "lineage_complete",
+            "artifact_id"
+          ],
+          "additionalProperties": false,
+          "description": "完整依赖集合必须在生产者验证；消费者复核当前授权和业务有效期。const true 不是完整性证明。"
+        },
+        "RetrievalHit": {
+          "oneOf": [
+            {
+              "$ref": "llmke-core.json#/$defs/SourceHit"
+            },
+            {
+              "$ref": "llmke-core.json#/$defs/DerivedHit"
+            }
+          ]
+        },
+        "RetrievalRequest": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "search_type": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SearchType"
+              },
+              "minItems": 1,
+              "maxItems": 8,
+              "uniqueItems": true
+            },
+            "top_k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "query_type": {
+              "type": "string",
+              "enum": [
+                "fact",
+                "multi_hop",
+                "global"
+              ]
+            },
+            "budget_policy_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "query",
+            "kb_id",
+            "search_type"
+          ],
+          "additionalProperties": false
+        },
+        "DegradedInfo": {
+          "type": "object",
+          "properties": {
+            "search_type": {
+              "$ref": "llmke-core.json#/$defs/SearchType"
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "timeout",
+                "unavailable",
+                "circuit_open",
+                "budget_exhausted",
+                "permission_scope_unsupported"
+              ]
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "search_type",
+            "reason",
+            "retryable"
+          ],
+          "additionalProperties": false
+        },
+        "RetrievalResponse": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "auth_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "resource_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "hits": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/RetrievalHit"
+              },
+              "minItems": 0
+            },
+            "coverage": {
+              "type": "object",
+              "properties": {
+                "requested": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "llmke-core.json#/$defs/SearchType"
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                "served": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "llmke-core.json#/$defs/SearchType"
+                  },
+                  "minItems": 0,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "requested",
+                "served"
+              ],
+              "additionalProperties": false
+            },
+            "degraded": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/DegradedInfo"
+              },
+              "minItems": 0
+            }
+          },
+          "required": [
+            "request_id",
+            "kb_id",
+            "generation",
+            "auth_version",
+            "resource_version",
+            "hits",
+            "coverage",
+            "degraded"
+          ],
+          "additionalProperties": false,
+          "description": "同一请求固定授权版本、资源围栏与激活指针快照；served 是实际完成集合，不得把失败路算作完成。"
+        },
+        "TokenBudget": {
+          "type": "object",
+          "properties": {
+            "policy_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "tokenizer_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "total_input_tokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "system_reserved_tokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "output_reserved_tokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "per_document_tokens": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "per_route_tokens": {
+              "type": "object",
+              "properties": {
+                "es": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "milvus": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "graph": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "table": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "faq": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "web": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "database": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "community": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "model_window_tokens": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "policy_id",
+            "tokenizer_version",
+            "total_input_tokens",
+            "system_reserved_tokens",
+            "output_reserved_tokens",
+            "per_document_tokens",
+            "per_route_tokens",
+            "model_window_tokens"
+          ],
+          "additionalProperties": false,
+          "description": "这是服务端批准的预算上限；调用者仅能请求更小值。运行时校验所有分项与实际 token 数。"
+        },
+        "ContextManifest": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "auth_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "resource_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "policy_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "tokenizer_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "budget": {
+              "$ref": "llmke-core.json#/$defs/TokenBudget"
+            },
+            "actual_input_tokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "selected_evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "selected_source_refs": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SourceRef"
+              },
+              "minItems": 0
+            },
+            "dropped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "candidate_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "duplicate",
+                      "version_conflict",
+                      "expired",
+                      "unauthorized",
+                      "token_budget",
+                      "per_document_budget",
+                      "per_route_budget"
+                    ]
+                  }
+                },
+                "required": [
+                  "candidate_id",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 0
+            },
+            "context_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "overhead_tokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "contributions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "candidate_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "file_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "search_type": {
+                    "$ref": "llmke-core.json#/$defs/SearchType"
+                  },
+                  "token_count": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "candidate_id",
+                  "file_id",
+                  "search_type",
+                  "token_count",
+                  "evidence_ids"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "request_id",
+            "kb_id",
+            "generation",
+            "auth_version",
+            "resource_version",
+            "policy_id",
+            "tokenizer_version",
+            "budget",
+            "actual_input_tokens",
+            "selected_evidence_ids",
+            "selected_source_refs",
+            "dropped",
+            "context_hash",
+            "overhead_tokens",
+            "contributions"
+          ],
+          "additionalProperties": false
+        },
+        "ContextBuildRequest": {
+          "type": "object",
+          "properties": {
+            "retrieval": {
+              "$ref": "llmke-core.json#/$defs/RetrievalResponse"
+            },
+            "budget_policy_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "retrieval",
+            "budget_policy_id"
+          ],
+          "additionalProperties": false
+        },
+        "ContextBuildResponse": {
+          "type": "object",
+          "properties": {
+            "context_manifest": {
+              "$ref": "llmke-core.json#/$defs/ContextManifest"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/Evidence"
+              },
+              "minItems": 0
+            },
+            "context_snapshot_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "context_manifest",
+            "evidence",
+            "context_snapshot_ref"
+          ],
+          "additionalProperties": false,
+          "description": "snapshot_ref 必须仅在同授权域可取；不得输出跨权限完整性统计。"
+        },
+        "QARequest": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "query_type": {
+              "type": "string",
+              "enum": [
+                "fact",
+                "multi_hop",
+                "global"
+              ]
+            },
+            "unsupported_policy": {
+              "type": "string",
+              "enum": [
+                "block",
+                "annotate"
+              ]
+            }
+          },
+          "required": [
+            "question",
+            "kb_id"
+          ],
+          "additionalProperties": false,
+          "description": "服务端批准政策优先；请求只能收紧，不能请求 allow。"
+        },
+        "Claim": {
+          "type": "object",
+          "properties": {
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "answer_span": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "end": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "unit": {
+                  "const": "unicode_codepoint"
+                }
+              },
+              "required": [
+                "start",
+                "end",
+                "unit"
+              ],
+              "additionalProperties": false
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "verification": {
+              "type": "string",
+              "enum": [
+                "supported",
+                "unsupported"
+              ]
+            },
+            "delivery": {
+              "type": "string",
+              "enum": [
+                "emit",
+                "annotate"
+              ]
+            }
+          },
+          "required": [
+            "claim_id",
+            "text",
+            "answer_span",
+            "evidence_ids",
+            "verification",
+            "delivery"
+          ],
+          "additionalProperties": false
+        },
+        "Citation": {
+          "type": "object",
+          "properties": {
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "claim_id",
+            "evidence_ids"
+          ],
+          "additionalProperties": false
+        },
+        "QAResponse": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "answer": {
+              "type": "string"
+            },
+            "claims": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/Claim"
+              },
+              "minItems": 0
+            },
+            "citations": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/Citation"
+              },
+              "minItems": 0
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/Evidence"
+              },
+              "minItems": 0
+            },
+            "context_manifest": {
+              "$ref": "llmke-core.json#/$defs/ContextManifest"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "partial",
+                "unsupported"
+              ]
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "request_id",
+            "answer",
+            "claims",
+            "citations",
+            "evidence",
+            "context_manifest",
+            "status",
+            "generation"
+          ],
+          "additionalProperties": false
+        },
+        "GraphQueryRequest": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "algo": {
+              "type": "string",
+              "enum": [
+                "ppr",
+                "hop"
+              ]
+            },
+            "depth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "top_k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "kb_id",
+            "query",
+            "algo"
+          ],
+          "additionalProperties": false,
+          "description": "算法模式显式提供；不把未实测的历史默认值当事实。物理空间名由服务端映射。"
+        },
+        "GraphQueryResponse": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "auth_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "chunks": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/SourceHit"
+              },
+              "minItems": 0
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/GraphEvidence"
+              },
+              "minItems": 0
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "partial",
+                "unavailable"
+              ]
+            }
+          },
+          "required": [
+            "request_id",
+            "kb_id",
+            "generation",
+            "auth_version",
+            "chunks",
+            "paths",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "GraphHealth": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "ready": {
+              "type": "boolean"
+            },
+            "checked_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "kb_id",
+            "generation",
+            "ready",
+            "checked_at"
+          ],
+          "additionalProperties": false,
+          "description": "仅授权运维角色可调用；不公开跨域节点数或空间列表。"
+        },
+        "ErrorEnvelope": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "$ref": "llmke-error-codes.json#/$defs/ErrorCode"
+            },
+            "http_status": {
+              "type": "integer",
+              "minimum": 400,
+              "maximum": 599
+            },
+            "message": {
+              "type": "string"
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "http_status",
+            "message",
+            "request_id",
+            "retryable"
+          ],
+          "additionalProperties": false,
+          "description": "错误码来自真实注册表；message 不含凭据、物理位置或未授权资产存在性。"
+        }
+      }
+    },
+    "https://llmke.local/contracts/schema/llmke-db-migration.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-db-migration.json",
+      "version": "1.1.0",
+      "type": "object",
+      "properties": {
+        "migration_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "db_engine_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "source_ddl_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "target_model_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "touched_tables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "shared_db_expand_contract",
+            "new_db_migrate_cutover"
+          ]
+        },
+        "write_ownership_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "forward_script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "backfill_script": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rollback_script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "new_old_compatibility_cases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        },
+        "restore_copy_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        },
+        "lock_and_capacity_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        },
+        "approved_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "migration_id",
+        "db_engine_version",
+        "source_ddl_sha256",
+        "target_model_ref",
+        "touched_tables",
+        "strategy",
+        "write_ownership_ref",
+        "forward_script",
+        "backfill_script",
+        "rollback_script",
+        "new_old_compatibility_cases",
+        "restore_copy_evidence",
+        "lock_and_capacity_evidence",
+        "approved_by"
+      ],
+      "additionalProperties": false
+    },
+    "https://llmke.local/contracts/schema/llmke-error-codes.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-error-codes.json",
+      "version": "1.1.0",
+      "title": "Error register schema and validated code vocabulary",
+      "$defs": {
+        "ErrorCode": {
+          "type": "string",
+          "enum": [
+            "REQUEST-001",
+            "AUTH-001",
+            "AUTH-002",
+            "GENERATION-001",
+            "KB-001",
+            "RETRIEVAL-001",
+            "BUDGET-001",
+            "EVIDENCE-001",
+            "TASK-001"
+          ]
+        },
+        "Register": {
+          "type": "object",
+          "properties": {
+            "codes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "$ref": "#/$defs/ErrorCode"
+                  },
+                  "http_status": {
+                    "type": "integer",
+                    "minimum": 400,
+                    "maximum": 599
+                  },
+                  "meaning": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "caller_action": {
+                    "type": "string",
+                    "enum": [
+                      "retry",
+                      "fix_request",
+                      "reauth",
+                      "backoff",
+                      "escalate",
+                      "abort"
+                    ]
+                  },
+                  "legacy_int_code": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "legacy_mapping_status": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                },
+                "required": [
+                  "code",
+                  "http_status",
+                  "meaning",
+                  "caller_action",
+                  "legacy_int_code",
+                  "retryable",
+                  "legacy_mapping_status"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "codes"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "$ref": "#/$defs/Register"
+    },
+    "https://llmke.local/contracts/schema/llmke-generation-lifecycle.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-generation-lifecycle.json",
+      "title": "BuildRun",
+      "version": "1.1.0",
+      "type": "object",
+      "properties": {
+        "kb_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "generation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "manifest_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "building",
+            "ready",
+            "failed",
+            "superseded"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "artifact_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "backend": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "location_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "checksum": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "ready": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "backend",
+              "location_ref",
+              "checksum",
+              "ready"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "resource_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fencing_token": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "kb_id",
+        "generation",
+        "manifest_hash",
+        "status",
+        "created_at",
+        "artifact_results",
+        "resource_version",
+        "fencing_token"
+      ],
+      "additionalProperties": false,
+      "description": "BuildRun 可变运行状态，不回写不可变清单；active 仅由 ActivationPointer 表达。"
+    },
+    "https://llmke.local/contracts/schema/llmke-generation-manifest.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-generation-manifest.json",
+      "title": "Immutable BuildManifest",
+      "version": "1.1.0",
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.1.0"
+        },
+        "kb_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^g[0-9a-f]{64}$"
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "document_version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "content_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "parsed_text_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "file_id",
+              "document_version",
+              "content_hash",
+              "parsed_text_hash"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "build_config": {
+          "type": "object",
+          "properties": {
+            "parser_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "chunking_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "embedding_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "type_system_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "graph_extraction_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "prompt_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "parser_version",
+            "chunking_version",
+            "embedding_version",
+            "type_system_version"
+          ],
+          "additionalProperties": false
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "backend": {
+                "type": "string",
+                "enum": [
+                  "es",
+                  "milvus",
+                  "nebula",
+                  "table",
+                  "faq"
+                ]
+              },
+              "location_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "checksum": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "backend",
+              "location_ref",
+              "checksum",
+              "required"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "derived_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "artifact_type": {
+                "type": "string",
+                "enum": [
+                  "faq",
+                  "entity_description",
+                  "relation_aggregate",
+                  "community_report",
+                  "theme_page",
+                  "answer_cache"
+                ]
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "source_refs": {
+                "type": "array",
+                "items": {
+                  "$ref": "llmke-core.json#/$defs/SourceRef"
+                },
+                "minItems": 1
+              },
+              "auth_version_at_build": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "artifact_id",
+              "artifact_type",
+              "revision",
+              "source_refs",
+              "auth_version_at_build"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "schema_version",
+        "kb_id",
+        "generation",
+        "documents",
+        "build_config",
+        "artifacts",
+        "derived_refs"
+      ],
+      "additionalProperties": false,
+      "description": "内容不可变；generation=g+sha256(规范 JSON，不含 generation)。构建时间、激活、发布/失效状态均不属于此清单。"
+    },
+    "https://llmke.local/contracts/schema/llmke-kb-operations.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-kb-operations.json",
+      "title": "KB 事务边界 DTO",
+      "version": "1.1.0",
+      "$defs": {
+        "FileRegistration": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "logical_file_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "expected_resource_version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "content_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "source_blob_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "permission_policy_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "kb_id",
+            "content_hash",
+            "source_blob_ref",
+            "permission_policy_ref"
+          ],
+          "additionalProperties": false,
+          "description": "blob 内容去重与逻辑文件身份分开。更新必须带 logical_file_id 和 expected_resource_version；同 hash 不自动复用其他文件身份/权限。"
+        },
+        "FileReceipt": {
+          "type": "object",
+          "properties": {
+            "file_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "document_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "resource_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "task_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "file_id",
+            "kb_id",
+            "document_version",
+            "resource_version",
+            "task_id"
+          ],
+          "additionalProperties": false
+        },
+        "DeletionRequest": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "expected_resource_version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "kb_id",
+            "expected_resource_version"
+          ],
+          "additionalProperties": false
+        },
+        "DeletionReceipt": {
+          "type": "object",
+          "properties": {
+            "file_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "resource_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "tombstoned": {
+              "const": true
+            },
+            "query_fence_committed": {
+              "const": true
+            },
+            "cleanup_task_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "file_id",
+            "resource_version",
+            "tombstoned",
+            "query_fence_committed",
+            "cleanup_task_id"
+          ],
+          "additionalProperties": false,
+          "description": "202 前已提交查询围栏；物理清理可异步，查询/扩召回/回填立即校验墓碑及版本。"
+        },
+        "ActivationRequest": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "manifest_hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "expected_pointer": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "expected_pointer_version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "fencing_token": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "kb_id",
+            "manifest_hash",
+            "expected_pointer",
+            "expected_pointer_version",
+            "fencing_token"
+          ],
+          "additionalProperties": false,
+          "description": "必需产物集合只从服务端已批准 manifest 读取，不接受请求声明缩小集合。null+version0 表示首次激活。"
+        },
+        "ActivationReceipt": {
+          "type": "object",
+          "properties": {
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "previous_generation": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pointer_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "activated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "rollback_deadline": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "kb_id",
+            "generation",
+            "previous_generation",
+            "pointer_version",
+            "activated_at",
+            "rollback_deadline"
+          ],
+          "additionalProperties": false
+        },
+        "TaskReceipt": {
+          "type": "object",
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "file_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "document_version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "resource_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "fencing_token": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "succeeded",
+                "failed"
+              ]
+            },
+            "artifact_result_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 0
+            },
+            "error_code": {
+              "$ref": "llmke-error-codes.json#/$defs/ErrorCode"
+            }
+          },
+          "required": [
+            "task_id",
+            "kb_id",
+            "file_id",
+            "document_version",
+            "resource_version",
+            "generation",
+            "fencing_token",
+            "status",
+            "artifact_result_refs"
+          ],
+          "additionalProperties": false
+        },
+        "TaskStatus": {
+          "type": "object",
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "running",
+                "succeeded",
+                "failed",
+                "cancelled"
+              ]
+            },
+            "resource_version": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "task_id",
+            "status",
+            "resource_version"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "https://llmke.local/contracts/schema/llmke-retrieval-model.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-retrieval-model.json",
+      "title": "统一命中（API 与领域共享）",
+      "version": "1.1.0",
+      "$ref": "llmke-core.json#/$defs/RetrievalHit"
+    },
+    "https://llmke.local/contracts/schema/llmke-reuse-decision.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-reuse-decision.json",
+      "version": "1.1.0",
+      "type": "object",
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "code",
+            "table"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "CANDIDATE_UNVERIFIED",
+            "APPROVED",
+            "VERIFIED"
+          ]
+        },
+        "baseline_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "KEEP",
+            "ADAPT",
+            "REWRITE",
+            "RETIRE"
+          ]
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "contract_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        },
+        "characterization_cases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        },
+        "compatibility_cases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        },
+        "migration_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rollback_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "approval_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "asset_id",
+        "kind",
+        "status",
+        "baseline_ref",
+        "decision",
+        "owner",
+        "rationale",
+        "contract_ids",
+        "characterization_cases",
+        "compatibility_cases",
+        "migration_ref",
+        "rollback_ref",
+        "approval_ref",
+        "evidence_refs"
+      ],
+      "additionalProperties": false
+    },
+    "https://llmke.local/contracts/schema/llmke-sse-events.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://llmke.local/contracts/schema/llmke-sse-events.json",
+      "title": "SSE event payload",
+      "version": "1.1.0",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/verification"
+        },
+        {
+          "$ref": "#/$defs/citation"
+        },
+        {
+          "$ref": "#/$defs/answer"
+        },
+        {
+          "$ref": "#/$defs/error"
+        },
+        {
+          "$ref": "#/$defs/done"
+        }
+      ],
+      "$defs": {
+        "verification": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "verification"
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "verification": {
+              "type": "string",
+              "enum": [
+                "supported",
+                "unsupported"
+              ]
+            },
+            "delivery": {
+              "type": "string",
+              "enum": [
+                "emit",
+                "annotate",
+                "block"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "seq",
+            "request_id",
+            "claim_id",
+            "verification",
+            "delivery"
+          ],
+          "additionalProperties": false
+        },
+        "citation": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "citation"
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "llmke-core.json#/$defs/Evidence"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "type",
+            "seq",
+            "request_id",
+            "claim_id",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "answer": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "answer"
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "claim_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "seq",
+            "request_id",
+            "claim_id",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "error"
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "error": {
+              "$ref": "llmke-core.json#/$defs/ErrorEnvelope"
+            }
+          },
+          "required": [
+            "type",
+            "seq",
+            "request_id",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        "done": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "done"
+            },
+            "seq": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "request_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "partial",
+                "unsupported",
+                "cancelled",
+                "error"
+              ]
+            },
+            "generation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "type",
+            "seq",
+            "request_id",
+            "status",
+            "generation"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "artifact_kind": "LOSSLESS_VALIDATION_BUNDLE_NOT_DTO_SDK"
+}

@@ -1,0 +1,68 @@
+rules:
+  name: llmke-error-register
+  version: 1.1.0
+  codes:
+  - code: REQUEST-001
+    http_status: 400
+    caller_action: fix_request
+    legacy_int_code: 400
+    meaning: 请求或未知枚举不合法
+    retryable: false
+    legacy_mapping_status: SCENARIO_MAPPING_REQUIRED
+  - code: AUTH-001
+    http_status: 401
+    caller_action: reauth
+    legacy_int_code: null
+    meaning: 认证或授权上下文验签失败
+    retryable: false
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  - code: AUTH-002
+    http_status: 403
+    caller_action: abort
+    legacy_int_code: null
+    meaning: 授权范围不足
+    retryable: false
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  - code: GENERATION-001
+    http_status: 409
+    caller_action: retry
+    legacy_int_code: null
+    meaning: 期望代次或资源版本失效
+    retryable: true
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  - code: KB-001
+    http_status: 409
+    caller_action: abort
+    legacy_int_code: null
+    meaning: 迟到回执或 fencing token 失效
+    retryable: false
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  - code: RETRIEVAL-001
+    http_status: 503
+    caller_action: retry
+    legacy_int_code: 500
+    meaning: 所有必需通路不可用
+    retryable: true
+    legacy_mapping_status: SCENARIO_MAPPING_REQUIRED
+  - code: BUDGET-001
+    http_status: 429
+    caller_action: backoff
+    legacy_int_code: null
+    meaning: 请求预算或并发配额耗尽
+    retryable: true
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  - code: EVIDENCE-001
+    http_status: 422
+    caller_action: fix_request
+    legacy_int_code: null
+    meaning: 证据或引用不可解析
+    retryable: false
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  - code: TASK-001
+    http_status: 409
+    caller_action: abort
+    legacy_int_code: null
+    meaning: 任务状态转换不允许
+    retryable: false
+    legacy_mapping_status: NO_LEGACY_EQUIVALENT
+  legacy_mapping_policy: 按服务+旧码+触发条件映射，禁止把一个旧整数无条件映射为某一个新业务码。

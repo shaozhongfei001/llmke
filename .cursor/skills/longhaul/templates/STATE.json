@@ -1,0 +1,11 @@
+{
+  "loop_id": "{{LOOP_ID}}",
+  "status": "in_dev",
+  "mode": "longhaul",
+  "holder": "{{HOLDER}}",
+  "wave": "{{WAVE}}",
+  "completed": [],
+  "next_action": "",
+  "updated_at": "{{ISO_TIME}}",
+  "updated_by": "{{ROLE}}"
+}

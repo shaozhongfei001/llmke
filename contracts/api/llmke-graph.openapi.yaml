@@ -1,0 +1,165 @@
+openapi: 3.1.1
+info:
+  title: LLMKE Graph
+  version: 1.1.0
+x-llmke-contract-id: llmke-graph-api
+x-baseline-decision: BL-1.1.0
+servers:
+- url: https://internal.invalid
+  description: 部署时绑定实际内部地址；不代表公开服务
+security:
+- InternalBearer: []
+  AuthContext: []
+paths:
+  /v1/graph/query:
+    post:
+      operationId: queryGraph
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/GraphQueryResponse
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-core.json#/$defs/GraphQueryRequest
+  /v1/graph/kb/{kb_id}/health:
+    get:
+      operationId: graphHealth
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      - name: kb_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 256
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/GraphHealth
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      description: 仅授权运维角色；B-10 是条件推断，HTTP/业务状态分别实测。
+components:
+  securitySchemes:
+    InternalBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: service JWT
+    AuthContext:
+      type: apiKey
+      in: header
+      name: X-Auth-Context
+      description: 签名 AuthContext JWS；校验规则见 llmke-auth-context.json 与 AUTHORIZATION.md。
+  schemas:
+    GraphQueryRequest:
+      $ref: ../schema/llmke-core.json#/$defs/GraphQueryRequest
+    GraphQueryResponse:
+      $ref: ../schema/llmke-core.json#/$defs/GraphQueryResponse
+    GraphHealth:
+      $ref: ../schema/llmke-core.json#/$defs/GraphHealth
+    ErrorEnvelope:
+      $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope

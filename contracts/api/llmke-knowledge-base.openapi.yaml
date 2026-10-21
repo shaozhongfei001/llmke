@@ -1,0 +1,395 @@
+openapi: 3.1.1
+info:
+  title: LLMKE KB Write & Task Protocol
+  version: 1.1.0
+x-llmke-contract-id: llmke-kb-api
+x-baseline-decision: BL-1.1.0
+servers:
+- url: https://internal.invalid
+  description: 部署时绑定实际内部地址；不代表公开服务
+security:
+- InternalBearer: []
+  AuthContext: []
+paths:
+  /v1/kb/files:
+    post:
+      operationId: registerFile
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: &id001
+          type: string
+          minLength: 1
+          maxLength: 256
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-kb-operations.json#/$defs/FileReceipt
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-kb-operations.json#/$defs/FileRegistration
+  /v1/kb/files/{file_id}:
+    delete:
+      operationId: deleteFile
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      - name: file_id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '202':
+          description: 查询围栏已提交，异步清理已入持久任务。
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-kb-operations.json#/$defs/DeletionReceipt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-kb-operations.json#/$defs/DeletionRequest
+  /v1/kb/generations/{generation}/activate:
+    post:
+      operationId: activateGeneration
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      - name: generation
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-kb-operations.json#/$defs/ActivationReceipt
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-kb-operations.json#/$defs/ActivationRequest
+  /internal/v1/kb/tasks/{task_id}/receipts:
+    post:
+      operationId: acceptTaskReceipt
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      - name: task_id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-kb-operations.json#/$defs/TaskStatus
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schema/llmke-kb-operations.json#/$defs/TaskReceipt
+  /v1/kb/tasks/{task_id}:
+    get:
+      operationId: getTaskStatus
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+      - name: task_id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-kb-operations.json#/$defs/TaskStatus
+        '400':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '401':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '403':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '409':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '422':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '429':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+        '503':
+          description: 失败
+          content:
+            application/json:
+              schema:
+                $ref: ../schema/llmke-core.json#/$defs/ErrorEnvelope
+components:
+  securitySchemes:
+    InternalBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: service JWT
+    AuthContext:
+      type: apiKey
+      in: header
+      name: X-Auth-Context
+      description: 签名 AuthContext JWS；校验规则见 llmke-auth-context.json 与 AUTHORIZATION.md。
+  schemas:
+    FileRegistration:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/FileRegistration
+    FileReceipt:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/FileReceipt
+    DeletionRequest:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/DeletionRequest
+    DeletionReceipt:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/DeletionReceipt
+    ActivationRequest:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/ActivationRequest
+    ActivationReceipt:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/ActivationReceipt
+    TaskReceipt:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/TaskReceipt
+    TaskStatus:
+      $ref: ../schema/llmke-kb-operations.json#/$defs/TaskStatus

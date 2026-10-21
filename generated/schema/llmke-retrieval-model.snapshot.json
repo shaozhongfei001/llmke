@@ -1,0 +1,20 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "fa2ea5bc5d597e14100ee4ef3d6c9f7e3b23ca1c153858ac3ed4dde7223d1c66",
+  "contract_id": "llmke-retrieval-model",
+  "enums": {},
+  "properties": {},
+  "property_count": 0,
+  "refs": [
+    "llmke-core.json#/$defs/RetrievalHit"
+  ],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-retrieval-model.json",
+    "$ref": "llmke-core.json#/$defs/RetrievalHit",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "统一命中（API 与领域共享）",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-retrieval-model.json",
+  "title": "统一命中（API 与领域共享）"
+}

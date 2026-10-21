@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-reuse-decision.json",
+  "version": "1.1.0",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "code",
+        "table"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CANDIDATE_UNVERIFIED",
+        "APPROVED",
+        "VERIFIED"
+      ]
+    },
+    "baseline_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "KEEP",
+        "ADAPT",
+        "REWRITE",
+        "RETIRE"
+      ]
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "contract_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    },
+    "characterization_cases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    },
+    "compatibility_cases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    },
+    "migration_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rollback_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "approval_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "asset_id",
+    "kind",
+    "status",
+    "baseline_ref",
+    "decision",
+    "owner",
+    "rationale",
+    "contract_ids",
+    "characterization_cases",
+    "compatibility_cases",
+    "migration_ref",
+    "rollback_ref",
+    "approval_ref",
+    "evidence_refs"
+  ],
+  "additionalProperties": false
+}

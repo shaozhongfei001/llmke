@@ -1,0 +1,20 @@
+{
+  "loop_id": "L0-contract-baseline",
+  "status": "QA_PENDING",
+  "current_phase": "qa",
+  "branch": "feature/L0-contract-baseline",
+  "last_commit": "",
+  "completed": [
+    "contracts: 9 份合同落盘并登记（api×3 / schema×3 / semantic / evidence / evaluation）",
+    "generated: SDK 类型与 schema 快照由 make generate 产出，无手工编辑",
+    "docs/registers/P0-CLOSURE.yaml: 4 个 P0 如实登记为 OPEN",
+    "scripts/p0_closure_check.py: integrity / strict 双模式门禁",
+    "scripts/mutation_probe.py: 4 个变异探针",
+    "scripts/trace_check.py: 合同↔追溯矩阵↔批次声明一致性"
+  ],
+  "next_action": "依次 run-gate 7 道门，绿后写 HANDOFF.md 并交独立 QA",
+  "blocked": false,
+  "blocking_reason": null,
+  "updated_at": "2026-10-20T14:35:49+00:00",
+  "baton_holder": "integration-agent"
+}

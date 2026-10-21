@@ -1,0 +1,96 @@
+register_version: 1
+source_document: RAG重构开发设计_V1.0_严格评审报告_20261020.md
+source_section: 二、阻断性问题（P0，不改不能开工）
+generated_at: '2026-10-20'
+policy: 登记完整不等于关闭；CLOSED 需要当前版本的逐项回答、哈希证据和外部 owner/baseline-owner 批准。ACCEPTED_RISK
+  保留 blocks，不能通过 strict；waiver 不等于关闭。
+items:
+- id: P0-01
+  title: 接口基线尚不能作为机器执行的唯一事实源
+  status: OPEN
+  owner: interface-owner
+  decision_required:
+  - 重跑 AST / 框架运行时路由提取，排除注释代码并校验处理函数绑定
+  - 建立逐端点决议表，键为「服务身份 + 方法 + 原始大小写路径」
+  - 裁定 /retrieval_qa 保留还是废弃（4.3 与 7.3 结论相反）
+  - 说明 4.3 的 380 / 435 两个数字如何核算（380 + 新增 20 ≠ 435）
+  known_facts:
+  - GET /ai/getRerankModelInfos 的处理函数被记为 audioUploadAndIdentify，且该 @GetMapping 连同方法已被
+    // 注释
+  - 源码接口契约总表为 506 条，属清单记录数，不等于运行时可路由数
+  - 两套入口并存：Java POST /ai/question、/ai/question_re 为 SSE 入口
+  evidence_expectation:
+  - 运行时路由—清单—目标契约三方差异归零报告
+  - /retrieval_qa 保留或废弃的书面决议
+  - 约 380 条「在用」判断的调用日志或调用方确认
+  evidence: []
+  blocks:
+  - L1
+  - L3
+- id: P0-02
+  title: 数据库方案存在按文施工就会失败的确定性错误
+  status: OPEN
+  owner: data-owner
+  decision_required:
+  - 选定共享原库或独立新库（5.3 步骤① 与 ④ 互相矛盾）
+  - 导出脱敏的实际 DDL、索引、约束、字符集与数据库版本
+  - 确认 create_by 语义（用户 ID / 账号 / 姓名），不得机械替换 user_id
+  known_facts:
+  - 5.1 要求建立索引 dialogue(user_id, gmt_create)，但 dialogue 共 13 字段且只有 create_by，无 user_id
+  - DialogueDO 映射印证无 user_id，按文施工会直接失败
+  - 设计声明「DDL 原样复用」，但材料中没有 SHOW CREATE TABLE 快照
+  evidence_expectation:
+  - 实际 DDL 与实体模型的差异清单
+  - 生产同版本恢复副本上的迁移脚本执行成功记录
+  - 新旧版本分别执行核心读写的兼容结果
+  evidence: []
+  blocks:
+  - L1
+  - L2
+  - L3
+- id: P0-03
+  title: 业务侧裁决权限不等于算法侧可以不执行授权范围
+  status: OPEN
+  owner: security-owner
+  decision_required:
+  - 裁定目标权限粒度（文件级 / 目录级 / KB 级）
+  - 裁定用户、部门、机构组授权的合并与拒绝优先级
+  - 裁定 FAQ 是否继承来源约束（原方案明确 FAQ 召回不受数据授权影响）
+  - 明确图索引无法文件级隔离时的替代路径（仅对整 KB 已授权的请求开放图路）
+  known_facts:
+  - retrieval_graph() 入参仅 space_name / query / model_info / depth / top_k，不携带文件范围
+  - perm_scope 目前只用于越权兜底校验，不是逐路执行约束
+  - 邻近块、图片回查、多版本扩召回会再次取数，可能绕过首次过滤
+  evidence_expectation:
+  - 签名授权上下文规范（绑定服务、KB/文件范围、授权版本、有效期、请求标识）
+  - 六类负例结果：同 KB 不同文件授权、FAQ 继承、扩块跨文件、图回填、撤权后缓存、绕过网关直调
+  - 检查对象为进入 LLM 的上下文，而非最终引用
+  evidence: []
+  blocks:
+  - L1
+  - L3
+  - L4
+- id: P0-04
+  title: 新建索引+灰度+切回尚不是一致性和回滚协议
+  status: OPEN
+  owner: index-owner
+  decision_required:
+  - 补不可变 generation manifest（内容哈希、文档版本、解析/分块/embedding 版本、各存储物理位置）
+  - 以单个原子激活指针替代四后端各自切换
+  - 明确持久任务与 outbox/补偿归属，禁止算法侧回写业务状态
+  - 限定每 KB 的写入版本与 fencing token，拒绝迟到任务污染新代
+  known_facts:
+  - 幂等键仅为 (kb_id, file_id, config_version)，同内容被覆盖而配置不变时无法区分
+  - chunk_strategy_profile 未给出跨存储代次或激活指针
+  - 5.3 声称共库使回滚「秒级完成」，但共库不消除两个版本并发写入
+  evidence_expectation:
+  - 五场景不混代证明：部分后端失败、切换中断、内容覆盖、迟到重试、旧服务回退
+  - 双代存储与内存余量确认（须在 P2 前，不得推到 P3）
+  - 历史引用解析所需快照的保留验证
+  evidence: []
+  blocks:
+  - L1
+  - L2
+  - L3
+  - L4
+baseline_version: 1.1.0

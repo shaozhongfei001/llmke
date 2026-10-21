@@ -1,0 +1,92 @@
+version: 1.1.0
+contracts:
+- id: llmke-auth-context
+  path: contracts/schema/llmke-auth-context.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-context-manifest
+  path: contracts/schema/llmke-context-manifest.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-core
+  path: contracts/schema/llmke-core.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-db-migration
+  path: contracts/schema/llmke-db-migration.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-error-codes
+  path: contracts/schema/llmke-error-codes.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-generation-lifecycle
+  path: contracts/schema/llmke-generation-lifecycle.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-generation-manifest
+  path: contracts/schema/llmke-generation-manifest.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-kb-operations
+  path: contracts/schema/llmke-kb-operations.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-retrieval-model
+  path: contracts/schema/llmke-retrieval-model.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-reuse-decision
+  path: contracts/schema/llmke-reuse-decision.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-sse-events
+  path: contracts/schema/llmke-sse-events.json
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-entity-types
+  path: contracts/semantic/llmke-entity-types.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-citation-evidence
+  path: contracts/evidence/llmke-citation-evidence.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-m0-gates
+  path: contracts/evaluation/llmke-m0-gates.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-error-register
+  path: contracts/rules/llmke-error-register.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-retrieval-api
+  path: contracts/api/llmke-retrieval.openapi.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-graph-api
+  path: contracts/api/llmke-graph.openapi.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile
+- id: llmke-kb-api
+  path: contracts/api/llmke-knowledge-base.openapi.yaml
+  decision_id: BL-1.1.0
+  status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
+  consumer: producer/consumer adapters plus acceptance profile

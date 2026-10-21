@@ -1,0 +1,212 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "e6eee8c9b91fbeee6870d407c3799ed6cda7e41121285f259186b7c0a757edcf",
+  "contract_id": "llmke-reuse-decision",
+  "enums": {
+    "$.decision": [
+      "ADAPT",
+      "KEEP",
+      "RETIRE",
+      "REWRITE"
+    ],
+    "$.kind": [
+      "code",
+      "table"
+    ],
+    "$.status": [
+      "APPROVED",
+      "CANDIDATE_UNVERIFIED",
+      "VERIFIED"
+    ]
+  },
+  "properties": {
+    "$.approval_ref": {
+      "required": true,
+      "type": "string"
+    },
+    "$.asset_id": {
+      "required": true,
+      "type": "string"
+    },
+    "$.baseline_ref": {
+      "required": true,
+      "type": "string"
+    },
+    "$.characterization_cases": {
+      "required": true,
+      "type": "array"
+    },
+    "$.compatibility_cases": {
+      "required": true,
+      "type": "array"
+    },
+    "$.contract_ids": {
+      "required": true,
+      "type": "array"
+    },
+    "$.decision": {
+      "required": true,
+      "type": "string"
+    },
+    "$.evidence_refs": {
+      "required": true,
+      "type": "array"
+    },
+    "$.kind": {
+      "required": true,
+      "type": "string"
+    },
+    "$.migration_ref": {
+      "required": true,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "$.owner": {
+      "required": true,
+      "type": "string"
+    },
+    "$.rationale": {
+      "required": true,
+      "type": "string"
+    },
+    "$.rollback_ref": {
+      "required": true,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "$.status": {
+      "required": true,
+      "type": "string"
+    }
+  },
+  "property_count": 14,
+  "refs": [],
+  "schema_document": {
+    "$id": "https://llmke.local/contracts/schema/llmke-reuse-decision.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "properties": {
+      "approval_ref": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "asset_id": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "baseline_ref": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "characterization_cases": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "compatibility_cases": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "contract_ids": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "decision": {
+        "enum": [
+          "KEEP",
+          "ADAPT",
+          "REWRITE",
+          "RETIRE"
+        ],
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "kind": {
+        "enum": [
+          "code",
+          "table"
+        ],
+        "type": "string"
+      },
+      "migration_ref": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "owner": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "rationale": {
+        "maxLength": 256,
+        "minLength": 1,
+        "type": "string"
+      },
+      "rollback_ref": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "status": {
+        "enum": [
+          "CANDIDATE_UNVERIFIED",
+          "APPROVED",
+          "VERIFIED"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [
+      "asset_id",
+      "kind",
+      "status",
+      "baseline_ref",
+      "decision",
+      "owner",
+      "rationale",
+      "contract_ids",
+      "characterization_cases",
+      "compatibility_cases",
+      "migration_ref",
+      "rollback_ref",
+      "approval_ref",
+      "evidence_refs"
+    ],
+    "type": "object",
+    "version": "1.1.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-reuse-decision.json",
+  "title": null
+}

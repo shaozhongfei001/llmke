@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://llmke.local/contracts/schema/llmke-auth-context.json",
+  "title": "AuthContext verified claims",
+  "version": "1.1.0",
+  "type": "object",
+  "properties": {
+    "issuer": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "audience": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "service_identity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "kb_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "whole_kb",
+            "files"
+          ]
+        },
+        "allowed_file_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "denied_file_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "mode",
+        "allowed_file_ids",
+        "denied_file_ids"
+      ],
+      "additionalProperties": false
+    },
+    "auth_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "resource_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "key_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "policy_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    }
+  },
+  "required": [
+    "issuer",
+    "audience",
+    "subject",
+    "service_identity",
+    "kb_id",
+    "scope",
+    "auth_version",
+    "resource_version",
+    "request_id",
+    "issued_at",
+    "expires_at",
+    "key_id",
+    "policy_id"
+  ],
+  "additionalProperties": false,
+  "description": "JWT/JWS 验签后的 payload；kid 在受控公钥表，禁止 alg=none；同请求绑定 audience/KB/文件范围/版本/有效期/request_id。签名失败一律拒绝。"
+}
