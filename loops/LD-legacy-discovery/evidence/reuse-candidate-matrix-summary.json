@@ -1,0 +1,44 @@
+{
+ "total": 555,
+ "by_kind": {
+  "SOURCE_ASSET": 12,
+  "TABLE": 37,
+  "INTERFACE": 506
+ },
+ "by_evidence_type": {
+  "SOURCE_OBSERVATION": 554,
+  "FACT": 1
+ },
+ "by_suggestion": {
+  "UNDECIDED": 555
+ },
+ "by_decision_status": {
+  "DECISION_PENDING": 555
+ },
+ "by_group": {
+  "GRP-SRC-PY": 4,
+  "GRP-SRC-JAVA": 8,
+  "GRP-DB-问答/配置": 6,
+  "GRP-DB-身份/组织/功能或数据授权": 16,
+  "GRP-DB-任务/同步": 5,
+  "GRP-DB-知识库/目录/文件": 4,
+  "GRP-DB-公共业务配置": 2,
+  "GRP-DB-结构化查询元数据": 4,
+  "GRP-ITF-rag-auth-service": 138,
+  "GRP-ITF-rag-graph-service": 17,
+  "GRP-ITF-rag-index-service": 182,
+  "GRP-ITF-rag-qa-service": 68,
+  "GRP-ITF-sensitive-words-service": 12,
+  "GRP-ITF-tools/tools-database": 23,
+  "GRP-ITF-alg_doc_parse_service": 11,
+  "GRP-ITF-alg_llm_inference_service": 14,
+  "GRP-ITF-alg_retrieval_service": 4,
+  "GRP-ITF-index_fulltext_service": 10,
+  "GRP-ITF-index_graph_service": 7,
+  "GRP-ITF-index_structure_service": 5,
+  "GRP-ITF-index_vector_service": 14,
+  "GRP-ITF-version_service": 1
+ },
+ "vocabulary_status": "PROPOSED（KEEP/ADAPT/REWRITE/RETIRE/UNDECIDED 沿用项目既有词，未批准为新标准）",
+ "warning": "矩阵完成 != 555 项已批准；批准字段全空"
+}

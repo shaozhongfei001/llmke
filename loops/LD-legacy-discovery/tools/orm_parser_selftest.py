@@ -38,8 +38,9 @@ FIXTURES = {
     <result column="kb_name" property="name"/>
   </association>
 </resultMap></mapper>""",
-        "expect_columns": {"id", "kb_name"},
-        "note": "**RISK**：association 内嵌列被计入**父表**（kb_name 会被误判为父表列）",
+        "expect_columns": {"id"},
+        "expect_nested": {"kb_name"},
+        "note": "已修复：内层列进 nested_map，不再污染父表",
     },
     "F4_collection": {
         "xml": """<mapper namespace="x"><resultMap id="Base" type="A">
@@ -48,8 +49,9 @@ FIXTURES = {
     <result column="file_id" property="id"/>
   </collection>
 </resultMap></mapper>""",
-        "expect_columns": {"file_id"},
-        "note": "**RISK**：collection 内层 property=`id` 覆盖外层 `<id property=\"id\">`，外层主键列丢失（实测）",
+        "expect_columns": {"id"},
+        "expect_nested": {"file_id"},
+        "note": "已修复：内层列进 nested_map，外层主键保留",
     },
     "F5_alias_in_sql": {
         "xml": """<mapper namespace="x">
@@ -63,8 +65,9 @@ FIXTURES = {
   <result column="create_by" property="createBy"/>
   <result column="creator" property="createBy"/>
 </resultMap></mapper>""",
-        "expect_columns": {"creator"},
-        "note": "**RISK**：同名 property 后者覆盖前者，先出现的列丢失（真实代码里 create_by 常被这样覆盖）",
+        "expect_columns": {"create_by"},
+        "expect_conflict": True,
+        "note": "已修复：保留首个 column，冲突记入 conflicts（不静默丢列）",
     },
 }
 
@@ -78,11 +81,16 @@ def main() -> int:
             p = Path(td) / f"{name}.xml"
             p.write_text(f["xml"], encoding="utf-8")
             # 注意：result_map 是 {property: column}，判定覆盖率要用 column（值），不是 key
-            got_columns = set(columns_from_mapper(p)["result_map"].values())
-            passed = got_columns == f["expect_columns"]
+            r = columns_from_mapper(p)
+            got_columns = set(r["result_map"].values())
+            got_nested = set(r["nested_map"].values())
+            passed = (got_columns == f["expect_columns"]
+                      and got_nested == f.get("expect_nested", set())
+                      and (bool(r["conflicts"]) == f.get("expect_conflict", False)))
             ok += passed
             print(f"  {'PASS' if passed else 'FAIL'} {name}: "
-                  f"expect_cols={sorted(f['expect_columns'])} got={sorted(got_columns)} | {f['note']}")
+                  f"expect={sorted(f['expect_columns'])} got={sorted(got_columns)} "
+                  f"nested={sorted(got_nested)} conflicts={len(r['conflicts'])} | {f['note']}")
     print(f"passed={ok}/{len(FIXTURES)}")
     return 0 if ok == len(FIXTURES) else 1
 

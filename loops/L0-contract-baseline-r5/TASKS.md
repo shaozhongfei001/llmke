@@ -125,3 +125,16 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 **B4 风险**：association/collection 内嵌列被计入父表、同名 property 覆盖导致丢列（已实测）。
 | R6-D1 | 补 E7 场景（邻近块/图片回查二次取数） | **DONE** | `p0_03_scenarios.py` N8、`p0-03-scenarios.json`；**8/8 场景 + 8/8 变异体被拒** | **SIMULATED** |
 | R6-D2 | B3 六类覆盖改为按场景反推（去硬编码） | **DONE** | `B3-SCENARIO-INTERFACE-MAP.md`：**E2–E7 全部有场景，无 GAP** | 关联 |
+
+---
+
+## 10. 第七轮（证据工业化）
+
+| ID | 事项 | 状态 | 产物 | 分类 |
+|---|---|---|---|---|
+| R7-M1 | 555 项复用候选矩阵 | **DONE** | `evidence/reuse-candidate-matrix.csv`（555 行 / 22 组）、`tools/build_reuse_matrix.py` | 候选，**已批准 0** |
+| R7-A2 | ORM 解析器修复（嵌套归属 + 同名 property） | **DONE** | `db_mapper_columns.py`、`orm_parser_selftest.py`（6/6） | 工具 |
+| R7-A1 | SQL 引用扩至全 37 表 | **未做** | 前置：台账无字段名清单，列来源只能从 DO 推 | 阻塞自设 |
+| R7-B3 | E1–E8 ↔ N1–N8 追溯 | **DONE** | `ROUND7-PROGRESS.md` §4；E2–E7 全覆盖无 GAP | 关联 |
+
+**修复未改变 38%**：真实 34 个 mapper 中嵌套映射 0、同名 property 冲突 0 —— 修复价值在消除潜在风险。

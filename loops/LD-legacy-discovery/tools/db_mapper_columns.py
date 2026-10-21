@@ -33,13 +33,54 @@ def find(root: Path, pattern: str) -> Path | None:
     return hits[0] if hits else None
 
 
+TAG_RE = re.compile(r"<(/?)([A-Za-z_][\w.-]*)([^>]*?)(/?)>", re.S)
+ATTR_RE = re.compile(r'([\w:-]+)\s*=\s*"([^"]*)"')
+
+
+def _attrs(raw: str) -> dict:
+    return {k: v for k, v in ATTR_RE.findall(raw)}
+
+
+def parse_resultmap_block(block: str) -> dict:
+    """按标签顺序遍历，跟踪 association/collection 嵌套深度。
+
+    修复两个已实测缺陷：
+      R1：内层列此前被计入父表 —— 现在进 nested_columns，不污染父表；
+      R3：同名 property 此前静默覆盖 —— 现在保留首个并在 conflicts 中报告。
+    """
+    parent, nested, conflicts = {}, {}, []
+    depth = 0
+    for m in TAG_RE.finditer(block):
+        closing, tag, raw, selfclose = m.group(1), m.group(2).lower(), m.group(3), m.group(4)
+        if tag in ("association", "collection"):
+            if closing:
+                depth = max(0, depth - 1)
+            elif not selfclose:
+                depth += 1
+            continue
+        if tag in ("id", "result") and not closing:
+            at = _attrs(raw)
+            prop, col = at.get("property", "").strip(), at.get("column", "").strip()
+            if not prop or not col:
+                continue
+            if depth == 0:
+                if prop in parent and parent[prop] != col:
+                    conflicts.append({"property": prop, "kept": parent[prop], "dropped": col})
+                else:
+                    parent.setdefault(prop, col)
+            else:
+                nested.setdefault(prop, col)
+    return {"parent": parent, "nested": nested, "conflicts": conflicts}
+
+
 def columns_from_mapper(xml: Path) -> dict:
     text = xml.read_text(encoding="utf-8", errors="replace")
-    cols = {}
-    for m in RESULT_RE.finditer(text):
-        cols[m.group(2).strip()] = m.group(1).strip()
-    for m in RESULT_RE2.finditer(text):
-        cols.setdefault(m.group(1).strip(), m.group(2).strip())
+    cols, nested, conflicts = {}, {}, []
+    for rm in re.finditer(r"<resultMap\b.*?</resultMap>", text, re.S):
+        parsed = parse_resultmap_block(rm.group(0))
+        cols.update({k: v for k, v in parsed["parent"].items() if k not in cols})
+        nested.update({k: v for k, v in parsed["nested"].items() if k not in nested})
+        conflicts.extend(parsed["conflicts"])
     base = []
     m = COL_LIST_RE.search(text)
     if m:
@@ -47,7 +88,8 @@ def columns_from_mapper(xml: Path) -> dict:
             v = tok.group(1)
             if v.lower() not in ("select", "from", "where", "as"):
                 base.append(v)
-    return {"result_map": cols, "base_column_list": base,
+    return {"result_map": cols, "nested_map": nested, "conflicts": conflicts,
+            "base_column_list": base,
             "has_logic_delete": bool(LOGIC_RE.search(text)),
             "has_json_handler": bool(JSON_RE.search(text))}
 
