@@ -161,3 +161,21 @@
 - 类型差异两个方向都有（既有 CSV 偏小会截断，也有偏大浪费），不能假设"按 CSV 建表就安全"。
 - 降噪修掉 5 个自身缺陷（显示宽度、单侧长度、可空三态 ×2 个工具、带初始值字段漏解析），
   其中"可空三态"在两个工具里都要一致，否则各自通过、合起来错。
+
+## D23 create_by 语义定案（代码级证据）
+- 结论：`create_by` 存的是**登录账号 user_name 字符串**，不是用户 ID、不是姓名。
+- 五源一致：@Column(comment="创建人") + CustomMetaObjectHandler(getUserName()) +
+  各 Repository setCreateBy(userName)（15 处，无一处用 ID）+ XML `create_by=#{userName}` +
+  查询侧 `.eq(...getCreateBy, userName)`；`user_info` 无 user_id 列。
+- 迁移风险：create_by 长度 30×6/50×19/128×4/**255×1**(DepartmentInfo)；
+  更新人列名分裂 update_by×23 / modify_by×7；30/37 表有 create_by，7 张没有。
+- 例外：3 处更新时复制 `old.getCreateBy()`（不覆盖创建人），迁移回填若写"当前操作人"会破坏语义。
+- 代码答不了、需 owner 裁定：账号可否改名及历史值处理、跨系统账号唯一性、缺失 7 表是否补列、列名是否统一。
+
+## D24 表耦合实测：9/37 跨服务 + 1 张双实体
+- 跨服务读写的表 9 张，且**双向**：权限表被索引服务读（5），业务表被权限服务读（4）。
+- `user_operate` 有两个 DO（auth 显式 @Column / common 隐式驼峰），任一侧改动另一侧不报错。
+- 对 D-01 的含义：选独立新库时，成本集中在"拆这 9 张表的写路径"，而不是"建 37 张表"；
+  且必须先定 `user_operate` 以哪份实体为准。
+- 注意：`user_operate` 有 user_id 列，但不影响 "dialogue 无 user_id" 那条（不同表），不可外推。
+- 下一步（已写入文档）：按语句类型拆分读/写，成本量级差别更大。
