@@ -206,3 +206,15 @@
 - 任务领取是 **id 级 CAS**（WHERE id=? AND status=2 + 检查影响行数），同任务不会被双领——这点要说公道话。
 - 但**无租约/超时回收**：status=1 之后没有退回 2 的逻辑 → worker 崩溃即永久卡住。
 - 因此 S1–S5 五场景全部无法在现有代码上验证；P0-04 属"未实现"，需 index-owner 先给设计（5 项）。
+
+## D28 基线策略切换：LLMKE 自设计，旧模型仅参考
+- 业主裁决：无法追溯的按 LLMKE 全新设计生成，旧 DDL 只作参考。
+- 产出 SCHEMA-STANDARD-V1.md（命名/审计列/逻辑删除/索引规范 + 5 条待确认项）
+  与 schema-generate.py；生成 37 表 / 478 列目标 DDL + 479 行旧→新映射，回环 PASS。
+- 统一了旧库三处"同义不同名"：create_by(4 种宽度)→created_by(64)、
+  update_by/modify_by→updated_by、is_del/is_dtl→is_deleted；时间统一 DATETIME(3)。
+- 偏差：主键用 BIGINT 而非 UNSIGNED（旧库引用列皆有符号，单改主键会隐式转换）；
+  审计列 NOT NULL 无默认值（迁移须回填）；二级索引暂不建（无已有索引基线，不臆造）。
+- **发现源码真实缺陷**：KnowledgeBaseListDO 两个字段同时映射 table_file_paths，
+  且类型冲突 LONGTEXT/TEXT；字段名 sourceId 被写成该列 → source_id 实际未落库，属静默丢数据路径。
+  说明"注解可直接当 DDL"不成立，注解本身会写错。

@@ -24,3 +24,4 @@ R8-T22,data-owner,R8-T21,"docs/baseline/validation/p0-02-entity-extract.py（ORM
 R8-T23,data-owner,R8-T22,"docs/baseline/validation/p0-02-table-ownership.py（表归属/跨服务）","python3 ... --only-cross",VERIFIED,docs/baseline/validation/P0-02-TABLE-COUPLING.md,,"9/37 表跨服务；user_operate 双实体"
 R8-T24,data-owner,R8-T22,"p0-02-ddl-generate.py（ORM→候选 DDL）","python3 ... --out /tmp/entity-schema.sql",VERIFIED,docs/baseline/validation/P0-02-DDL-BASELINE-FROM-CODE.md,,"37 表/479 列；回环 PASS；证实 dialogue 无 user_id 索引不可建"
 R8-T25,index-owner,R8-T02,"p0-02-index-infer.py（查询反推索引）+ P0-04 现状核查","python3 ... --min-count 2",VERIFIED,"docs/baseline/validation/P0-02-INDEX-INFERENCE.md; docs/baseline/validation/P0-04-READINESS.md",,"116 组候选；5.1 三条索引现有查询均未用；P0-04 四机制全缺"
+R8-T26,baseline-owner,R8-T24,"SCHEMA-STANDARD-V1 + schema-generate.py + artifacts","p0-02-ddl-diff 回环 PASS",VERIFIED,docs/baseline/validation/SCHEMA-V1-RESULT.md,,"37 表/478 列；154 处审计列改写；发现 DO 重复列映射缺陷"
