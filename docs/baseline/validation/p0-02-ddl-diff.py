@@ -132,10 +132,12 @@ def load_fields(path: Path):
         col = (r.get("字段名") or "").strip().lower()
         if not table or not col:
             continue
+        raw_null = (r.get("可空") or "").strip()
         out.setdefault(table, {})[col] = {
             "type": (r.get("SQL类型") or "").upper(),
             "len": (r.get("长度") or "").strip(),
-            "nullable": (r.get("可空") or "").strip() == "是",
+            # 三态：是/否/未声明。空白不等于 NOT NULL——否则整表误报（实测踩过）。
+            "nullable": True if raw_null == "是" else (False if raw_null == "否" else None),
             "pk": (r.get("主键") or "").strip(),
             "auto": (r.get("自增") or "").strip(),
         }
@@ -187,11 +189,15 @@ def main() -> int:
                         "opts": options_of(body),
                         "sha": hashlib.sha256(normalize(body).encode()).hexdigest()}
 
+    field_base = {}
+    if a.fields_csv and Path(a.fields_csv).is_file():
+        field_base = load_fields(Path(a.fields_csv))
+
     missing = sorted(set(ledger) - set(actual))
     extra = sorted(set(actual) - set(ledger))
 
     drift = []
-    for name in sorted(set(ledger) & set(actual)):
+    for name in sorted(set(ledger) & set(actual)) if not field_base else []:
         want = ledger[name].get("model_field_count")
         got = len(actual[name]["cols"])
         if want is not None and want != got:
@@ -207,9 +213,6 @@ def main() -> int:
         print(f"  COUNT_DRIFT:    {n} 台账={want} DDL={got} → 需人工确认"
               f"（DO 可能含非持久化字段）")
 
-    field_base = {}
-    if a.fields_csv and Path(a.fields_csv).is_file():
-        field_base = load_fields(Path(a.fields_csv))
 
     col_findings = []
     if field_base:
@@ -224,7 +227,7 @@ def main() -> int:
                 if type_of(w).replace(" ", "") != g["type"].replace(" ", ""):
                     col_findings.append(
                         f"TYPE_MISMATCH:  {name}.{col} 基线 {type_of(w)} DDL {g['type']}")
-                if w["nullable"] != g["nullable"]:
+                if w["nullable"] is not None and w["nullable"] != g["nullable"]:
                     wnull = "NULL" if w["nullable"] else "NOT NULL"
                     gnull = "NULL" if g["nullable"] else "NOT NULL"
                     col_findings.append(
