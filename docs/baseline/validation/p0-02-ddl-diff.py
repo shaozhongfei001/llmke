@@ -144,6 +144,31 @@ def load_fields(path: Path):
     return out
 
 
+NUMERIC_TYPES = {"INT", "BIGINT", "SMALLINT", "TINYINT", "MEDIUMINT", "BIT"}
+
+
+def split_type(s: str):
+    base, _, rest = s.partition("(")
+    return base.strip().upper(), rest.rstrip(")").strip()
+
+
+def same_type(csv_type: str, ddl_type: str) -> bool:
+    """与实体提取器保持同一口径：数值型忽略显示宽度；只有双方都给出长度时才比长度。
+
+    这里曾用字符串直接比较，导致 INT(10) 与 INT 被判成类型差异 —— 与另一支工具的
+    '可空三态' 问题同类：两个工具必须共享口径，否则各自通过、合起来错。
+    """
+    b1, l1 = split_type(csv_type)
+    b2, l2 = split_type(ddl_type)
+    if b1 != b2:
+        return False
+    if b1 in NUMERIC_TYPES:
+        return True
+    if not (l1 and l2):
+        return True
+    return l1 == l2
+
+
 def type_of(col: dict) -> str:
     """带长度才算完整类型：VARCHAR(64) 与 VARCHAR(128) 不应视为相同。"""
     ty = col["type"]
@@ -224,7 +249,7 @@ def main() -> int:
                 col_findings.append(f"EXTRA_COLUMN:   {name}.{col}（DDL {got[col]['type']}）")
             for col in sorted(set(want) & set(got)):
                 w, g = want[col], got[col]
-                if type_of(w).replace(" ", "") != g["type"].replace(" ", ""):
+                if not same_type(type_of(w), g["type"]):
                     col_findings.append(
                         f"TYPE_MISMATCH:  {name}.{col} 基线 {type_of(w)} DDL {g['type']}")
                 if w["nullable"] is not None and w["nullable"] != g["nullable"]:

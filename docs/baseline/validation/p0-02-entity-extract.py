@@ -43,6 +43,7 @@ IS_NULL_RE = re.compile(r"isNull\s*=\s*(true|false)")
 IS_KEY_RE = re.compile(r"isKey\s*=\s*(true|false)")
 IS_AUTO_RE = re.compile(r"isAutoIncrement\s*=\s*(true|false)")
 COMMENT_RE = re.compile(r'comment\s*=\s*"([^"]*)"')
+DEFAULT_RE = re.compile(r'defaultValue\s*=\s*"([^"]*)"')
 EXIST_FALSE_RE = re.compile(r"@TableField\s*\([^)]*exist\s*=\s*false", re.S)
 
 JAVA_TO_SQL = {
@@ -178,6 +179,7 @@ def parse_entity(path: Path, code: str):
             "nullable": "" if nullable is None else ("是" if nullable else "否"),
             "pk": "是" if pk else "", "auto": "是" if auto else "",
             "comment": cmt.group(1) if cmt else "", "len_known": len_known,
+            "default": (DEFAULT_RE.search(block).group(1) if DEFAULT_RE.search(block) else ""),
             "java_field": jname, "java_type": jtype,
             "src_file": str(path), "line": code.count("\n", 0, m.start()) + 1,
         })
@@ -204,7 +206,19 @@ def main() -> int:
         table, tcomment, rows = parse_entity(f, code)
         if not rows:
             continue
-        model.setdefault(table, {"comment": tcomment, "rows": []})["rows"].extend(rows)
+        # 同表多实体（实测 user_operate 在 auth 与 common 各有一份）：
+        # 必须择优，不能合并——合并会产生重复列并让下游比对出现幽灵差异。
+        # 择优规则：显式 @Column 更多的定义更可信（隐式驼峰映射依赖全局配置）。
+        cand = {"comment": tcomment, "rows": rows, "file": f.name,
+                "explicit": code.count("@Column")}
+        cur = model.get(table)
+        if cur is None:
+            model[table] = cand
+        elif cand["explicit"] > cur["explicit"]:
+            print(f"WARN: 表 {table} 有多个实体，改用 {f.name}（@Column {cand['explicit']} > {cur['explicit']}）")
+            model[table] = cand
+        else:
+            print(f"WARN: 表 {table} 有多个实体，保留 {cur['file']}（@Column {cur['explicit']} >= {cand['explicit']}），忽略 {f.name}")
 
     total_cols = sum(len(v["rows"]) for v in model.values())
     print(f"实体文件={len(files)}  实体表={len(model)}  实体列={total_cols}")
@@ -220,7 +234,7 @@ def main() -> int:
                     t_, _, rest = r["sql_type"].partition("(")
                     w.writerow({"表名": t, "字段名": r["column"], "SQL类型": t_,
                                 "长度": rest.rstrip(")"), "主键": r["pk"], "自增": r["auto"],
-                                "可空": r["nullable"], "默认值": "", "注释": r["comment"],
+                                "可空": r["nullable"], "默认值": r.get("default", ""), "注释": r["comment"],
                                 "Java字段": r["java_field"], "Java类型": r["java_type"],
                                 "源文件": r["src_file"], "行号": r["line"]})
 

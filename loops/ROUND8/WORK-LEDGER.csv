@@ -22,3 +22,4 @@ R8-T20,interface-owner,R8-T02,"docs/baseline/validation/p0-01-route-extract.py�
 R8-T21,data-owner,R8-T19,"docs/baseline/validation/p0-02-ddl-diff.py（v2 字段级）","python3 ... --ddl <sql>",VERIFIED,docs/baseline/validation/P0-02-DDL-INSTRUMENT.md,,"接入字段明细 CSV；4 类差异已验证"
 R8-T22,data-owner,R8-T21,"docs/baseline/validation/p0-02-entity-extract.py（ORM 实体基线）","python3 ... --src <rag-parent> --out <csv>",VERIFIED,docs/baseline/validation/P0-02-ENTITY-BASELINE.md,,"实体 37 表/491 列；CSV 81 处不符（29 字段名/7 非持久化/13 类型）"
 R8-T23,data-owner,R8-T22,"docs/baseline/validation/p0-02-table-ownership.py（表归属/跨服务）","python3 ... --only-cross",VERIFIED,docs/baseline/validation/P0-02-TABLE-COUPLING.md,,"9/37 表跨服务；user_operate 双实体"
+R8-T24,data-owner,R8-T22,"p0-02-ddl-generate.py（ORM→候选 DDL）","python3 ... --out /tmp/entity-schema.sql",VERIFIED,docs/baseline/validation/P0-02-DDL-BASELINE-FROM-CODE.md,,"37 表/479 列；回环 PASS；证实 dialogue 无 user_id 索引不可建"

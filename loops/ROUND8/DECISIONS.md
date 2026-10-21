@@ -179,3 +179,15 @@
   且必须先定 `user_operate` 以哪份实体为准。
 - 注意：`user_operate` 有 user_id 列，但不影响 "dialogue 无 user_id" 那条（不同表），不可外推。
 - 下一步（已写入文档）：按语句类型拆分读/写，成本量级差别更大。
+
+## D25 业主定 D-01=共库；D-02 基线改为"从 ORM 生成"
+- D-01 共库：9 张跨服务表不拆，迁移只需结构同步+增量建表+加列；
+  仍须收口 `user_operate` 双实体；设计文档 5.3 步骤①（初始化新库）应改为"校验现有结构"。
+- D-02：真实 DDL 在材料中**不存在**——源码 0 个 .sql；20+ 份 docx 里 `CREATE TABLE` 0 次；
+  xlsx 只有表清单/字段明细（与仓内 CSV 同源，483 行含表头）。文档"DDL 原样复用"的对象不存在。
+- 因此生成候选 DDL：37 表 / 479 列 / 667 行，回环验证 PASS，四类负例仍全红。
+- 事实证实：5.1 的 `dialogue(user_id, gmt_create)` 索引**建不出来**（dialogue 13 列无 user_id），
+  另两条索引（file_parse_task.status+gmt_create、answer.dialogue_id+type）可建；
+  替代口径 (create_by, gmt_create) 语义不同，须 data-owner 定。
+- 推迟：D-01/D-02 需写入 P0-CLOSURE.yaml，但该文件在 doc_digest 内，改动会作废 r9，
+  故只登记于验证文档，留待下个冻结窗口。**共库是技术选择，不等于 P0-02 关闭**。
