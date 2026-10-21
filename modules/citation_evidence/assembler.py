@@ -186,3 +186,45 @@ class SupportGate:
             # 硬约束：blocked 的声明绝不能出现在 emit 里
             assert not any(b["claim_id"] in {s["claim_id"] for s in out["emit"]} for b in blocked)
         return out
+
+
+def _support_policy(repo_root: Path | str) -> dict:
+    """从契约读审计阈值，避免把 0.95 / 30 之类数字硬编码进代码。"""
+    import yaml  # 框架已依赖
+    p = Path(repo_root) / "contracts/evidence/llmke-citation-evidence.yaml"
+    if not p.is_file():
+        raise EvidenceError("CONTRACT_MISSING", str(p))
+    doc = yaml.safe_load(p.read_text(encoding="utf-8"))
+    # 契约顶层是 evidence:，support_audit 在其下；同时兼容未来提到顶层
+    policy = ((doc.get("evidence") or {}).get("support_audit")
+              or doc.get("support_audit") or {})
+    try:
+        return {"minimum_claims": int(policy["minimum_claims"]),
+                "supported_ratio_min": float(policy["supported_ratio_min"])}
+    except (KeyError, TypeError, ValueError) as e:
+        raise EvidenceError("CONTRACT_MISSING", "support_audit 字段不全") from e
+
+
+def audit_support(claims: list[dict], repo_root: Path | str) -> dict:
+    """支持率审计：契约要求 minimum_claims 与 supported_ratio_min。
+
+    返回可判定的结论；**不生成**任何批准记录，仅给出是否达到契约阈值。
+    """
+    policy = _support_policy(repo_root)
+    total = len(claims)
+    supported = sum(1 for c in claims if (c.get("evidence_ids") or []))
+    ratio = (supported / total) if total else 0.0
+    enough_samples = total >= policy["minimum_claims"]
+    ratio_ok = ratio >= policy["supported_ratio_min"]
+    return {
+        "total_claims": total,
+        "supported": supported,
+        "ratio": round(ratio, 4),
+        "minimum_claims": policy["minimum_claims"],
+        "supported_ratio_min": policy["supported_ratio_min"],
+        "samples_sufficient": enough_samples,
+        "ratio_ok": ratio_ok,
+        "verdict": "PASS" if (enough_samples and ratio_ok) else "FAIL",
+        "reason": ("" if enough_samples and ratio_ok else
+                   ("CLAIMS_BELOW_MINIMUM" if not enough_samples else "RATIO_BELOW_MINIMUM")),
+    }

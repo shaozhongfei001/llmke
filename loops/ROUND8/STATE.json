@@ -17,9 +17,9 @@
       "evidence": "loops/ROUND8/"
     },
     "R8-T03": {
-      "status": "BLOCKED_EXTERNAL",
-      "desc": "555 矩阵 AI 技术建议",
-      "blocker": "需先定义建议口径，避免无依据批量贴标签；已登记待下轮"
+      "status": "VERIFIED",
+      "desc": "555 矩阵 AI 建议（原 BLOCKED，口径已授权）",
+      "evidence": "docs/baseline/validation/AI-ADVISORY-POLICY-V1.md"
     },
     "R8-T04": {
       "status": "BLOCKED_EXTERNAL",
@@ -45,6 +45,16 @@
       "status": "VERIFIED",
       "desc": "负例矩阵补全（空文本/end=0/长度上限/source 类型/右开边界）",
       "tests": "19 passed"
+    },
+    "R8-T09": {
+      "status": "VERIFIED",
+      "desc": "支持率审计（契约阈值 0.95/30 从契约读取）",
+      "tests": "23 passed"
+    },
+    "R8-T10": {
+      "status": "VERIFIED",
+      "desc": "555 行 AI 建议（口径 V1 已授权，owner 批准 0）",
+      "evidence": "evidence/reuse-candidate-matrix-v2.csv"
     }
   },
   "gates": {
