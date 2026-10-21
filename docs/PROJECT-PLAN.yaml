@@ -69,6 +69,13 @@ loops:
     state: READY
     objective: V1.1.1 冻结面上的 L0 开发门禁候选
     replaces: L0-contract-baseline-r3
+  L0-contract-baseline-r5:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: V1.1.1 收口基线：T-12 修复后的 L0 开发门禁候选
+    replaces: L0-contract-baseline-r4
 retired_loop_aliases:
   L1-implementation: L1
 unplanned:
