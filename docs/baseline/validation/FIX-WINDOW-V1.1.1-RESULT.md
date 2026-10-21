@@ -3,7 +3,9 @@
 - 分支：`fix-window/v1.1.1`（自 `main@4b1fca8` 开出，**未合并**）
 - 授权：`docs/baseline/BASELINE-AUTHORITY.yaml`（业主批准 P-01/P-03/P-04/P-05/P-06 进入窗口；P-02、锁文件不在本次范围）
 - 本文件位于 `docs/baseline/validation/`（不参与源码快照，也与冻结控制面无关）
-- 基线标识：`baseline_version=1.1.1`、`manifest_revision=2`、`frozen_at` 见 `FROZEN-MANIFEST.json`
+- 基线标识：`baseline_version=1.1.1`、`manifest_revision=5`、控制面 204 文件、`frozen_at` 见 `FROZEN-MANIFEST.json`
+- **本窗口共重冻结 5 次**：其中 4 次是因为控制面改动没有一次做完（建 r3 → 补 plan → 重建 r3 → 建 r4），
+  直接后果就是 `r3` 卡死。这不是流程冗余，而是「必须一次性收口」这条纪律的实证代价。
 
 ## 1. 改了什么（逐项可核对）
 
