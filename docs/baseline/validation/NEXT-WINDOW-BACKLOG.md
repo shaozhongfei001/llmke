@@ -18,7 +18,11 @@
 
 ---
 
-## W-05（建议最高优先）R-02 根治：Makefile 不得从 PATH 取解释器
+## W-05（建议最高优先，**补丁已验证**）R-02 根治：Makefile 不得从 PATH 取解释器
+
+> 2026-10-22 更新：已在隔离工作树试打并验证（193 passed / framework-verify exit 0 / 负向失败响亮）。
+> 补丁与验证矩阵见 `W-05-VERIFIED-PATCH.md` 与 `patches/w05-makefile-python.diff`（`git apply --check` 通过）。
+> 仍未应用到 r8 —— 应用会让 r7 候选失效。
 
 ### 为什么排第一
 
