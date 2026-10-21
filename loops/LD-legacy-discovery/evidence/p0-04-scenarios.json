@@ -1,0 +1,63 @@
+{
+ "scope": "P0-04 协议模拟（SIMULATED）",
+ "warning": "不得计入 P0-04 关闭证据；真实关闭需可运行检索链与四套存储",
+ "scenarios": [
+  {
+   "scenario": "S1_partial_backend_failure",
+   "activated": false,
+   "readable_generations": [
+    1
+   ],
+   "pass": true
+  },
+  {
+   "scenario": "S2_activation_interrupted",
+   "activated": false,
+   "readable_generations": [
+    1
+   ],
+   "pass": true
+  },
+  {
+   "scenario": "S3_content_overwrite",
+   "key_a": "('kb1', 'f1', 'c1', 'f69f2c2353f91e70f6076e282185cdea553ec50",
+   "distinguishable": true,
+   "pass": true
+  },
+  {
+   "scenario": "S4_late_retry",
+   "rejected": true,
+   "new_generation_polluted": false,
+   "pass": true
+  },
+  {
+   "scenario": "S5_old_service_rollback",
+   "rejected": true,
+   "pass": true
+  }
+ ],
+ "mutation_check": [
+  {
+   "scenario": "S1_partial_backend_failure",
+   "mutant_pass": false
+  },
+  {
+   "scenario": "S2_activation_interrupted",
+   "mutant_pass": false
+  },
+  {
+   "scenario": "S3_content_overwrite",
+   "mutant_pass": false
+  },
+  {
+   "scenario": "S4_late_retry",
+   "mutant_pass": false
+  },
+  {
+   "scenario": "S5_old_service_rollback",
+   "mutant_pass": false
+  }
+ ],
+ "all_mutants_failed": true,
+ "failures": []
+}

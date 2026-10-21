@@ -83,6 +83,7 @@ python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r5     
 | R4-6 | 扫描范围 502/503 调查 | **DONE** | `evidence/security-scan-scope.json`；根因=扫描整树、每跑门禁 +1 日志 |
 | R4-7 | 控制面缺陷提案 P-08/P-09/P-10 | **DONE（提案）** | `ROUND4-PROPOSALS.md` |
 | R4-8 | 修复自引入的绝对路径回归 | **DONE** | `FAIL-4TH-01`；security-check 恢复 PASS |
+| R4-9 | P0-04 五场景协议模拟 + 变异对照 | **DONE（SIMULATED）** | `docs/baseline/validation/P0-04-SIMULATION.md`；5/5 场景 PASS，5/5 变异体被拒 |
 
 **r5 候选未受影响**：所有产物位于 `docs/baseline/validation/` 与 `loops/**`（`snapshot()` 排除），
 `record.source_sha256 == snapshot(ROOT)` 复核仍为 `True`。
