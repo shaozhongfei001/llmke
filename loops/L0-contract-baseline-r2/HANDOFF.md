@@ -72,6 +72,7 @@
 | W1 | staged 审查 + 凭据扫描 + 建立可恢复提交点 | 拆 2 个提交：`7a03b5c`（基线可运行）、`306f2b3`（治理文档）；无凭据、无缓存、无跨仓内容 | `git log`；`security-check` PASS(430) |
 | W2 | R-02 运行确定性 | 洁净环境（清 `MAKEFLAGS`/`PYTHONPATH`）复跑 `framework-verify` = **exit 0 / 127 passed**，与带环境变量时一致；确认默认 shell 的 `python3` 是 3.10.12 且 IDE 注入了 `PYTHONPATH` | `/tmp/fw-clean.log`（临时） |
 | W3 | R-03 前置检测（不改冻结脚本） | 新增 `coordination/preflight.py`：解释器校验 + 证据日志宿主路径预检 + doc2md 冻结指纹校验；错解释器时 FAIL 并给出正确入口 | 运行输出（PASS/FAIL 双例已验证） |
+| W5 | llmke-ir 映射契约测试（SYNTHETIC） | `spike/ir_mapping_check.py`：7 用例（2 正例 + 5 反例）**7/7 passed**；变异测试（取消 `merge_detected` 硬编码 false）→ N-5 正确 FAIL（6/7），证明断言非空转 | 脚本自输出 + `/tmp/ir_mut.py` 变异记录 |
 | W4 | 六项框架缺陷提案 | `docs/baseline/validation/FRAMEWORK-DEFECT-PROPOSALS-V1.0.md`（P-01…P-06，含影响面、旧 QA 失效面、验证正反例、实施顺序） | 该文件 |
 
 ### 未改的东西（红线）
