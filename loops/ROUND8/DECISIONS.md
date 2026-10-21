@@ -218,3 +218,15 @@
 - **发现源码真实缺陷**：KnowledgeBaseListDO 两个字段同时映射 table_file_paths，
   且类型冲突 LONGTEXT/TEXT；字段名 sourceId 被写成该列 → source_id 实际未落库，属静默丢数据路径。
   说明"注解可直接当 DDL"不成立，注解本身会写错。
+
+## D29 目标 schema 在**本机 MySQL 独立实例**上真机执行通过（不用 docker）
+- 实例：`coordination/mysql-probe.sh`（本机 /usr/sbin/mysqld 8.0.41，--no-defaults，仅 socket，--skip-networking；
+  数据目录 /tmp/mysql-probe/data，可 reset 销毁重建）。
+- 结果：apply exit 0，37/37 表建成；SHOW CREATE TABLE 快照 721 行；
+  快照 ↔ 目标模型回环 **PASS 0 差异**；dialogue 写入成功，created_at 呈现毫秒精度。
+- 真机抓出两个 DDL 错误（文档比对永远发现不了）：
+  1) ERROR 1075 department_info 同时给 id 和 seq 标 AUTO_INCREMENT → 只保留主键自增；
+  2) ERROR 1171 主键列被当作可空 → 主键强制 NOT NULL。
+  这两条正是"按旧模型施工会失败"的实证，也说明 P0-02 要的是"执行成功记录"而非差异清单。
+- 新增待裁定：11 张表旧语义为 is_del(-1 删除/1 正常/默认1)，与规范 0/1 默认 0 冲突。
+  空库起步无碍；若要迁移旧数据必须做值映射（-1→1, 1→0），否则"正常"数据会变成"已删除"。

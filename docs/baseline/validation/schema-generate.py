@@ -86,10 +86,18 @@ def main() -> int:
             seen_new.add(new)
             if c["主键"] == "是":
                 pks.append(new)
+                nullable = "否"      # PK 必须 NOT NULL，否则 MySQL 报 1171（已在 8.0.41 复现）
             null_sql = "" if nullable == "否" else "NULL"
             if nullable == "否":
                 null_sql = "NOT NULL"
-            auto = " AUTO_INCREMENT" if c["自增"] == "是" else ""
+            # MySQL 只允许一个 AUTO_INCREMENT 列，且必须是键。
+            # 旧模型里 department_info 同时给 id 和 seq 标了自增 —— 按文建表会直接
+            # "Incorrect table definition; there can be only one auto column"（已在 MySQL 8.0.41 复现）。
+            auto = " AUTO_INCREMENT" if (c["自增"] == "是" and c["主键"] == "是") else ""
+            if c["自增"] == "是" and c["主键"] != "是":
+                mapping.append({"table": table, "old_column": old,
+                                "new_column": new + "（去掉 AUTO_INCREMENT）",
+                                "old_type": typ, "new_type": typ})
             dflt = ""
             if default:
                 numeric_type = typ.split("(")[0] in ("BIGINT", "INT", "TINYINT", "SMALLINT", "DECIMAL", "DOUBLE")

@@ -44,6 +44,7 @@ department_info,gmt_create,created_at,DATETIME,DATETIME(3)
 department_info,gmt_modified,updated_at,DATETIME,DATETIME(3)
 department_info,create_by,created_by,VARCHAR(255),VARCHAR(64)
 department_info,modify_by,updated_by,VARCHAR(255),VARCHAR(64)
+department_info,seq,seq（去掉 AUTO_INCREMENT）,INT,INT
 department_info,seq,seq,INT,INT
 dept_privilege,id,id,BIGINT,BIGINT
 dept_privilege,target_id,target_id,BIGINT,BIGINT

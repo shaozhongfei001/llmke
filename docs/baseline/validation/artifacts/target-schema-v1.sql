@@ -59,7 +59,7 @@ CREATE TABLE `department_info` (
   `updated_at` DATETIME(3) NOT NULL COMMENT '修改时间（原 gmt_modified）',
   `created_by` VARCHAR(64) NOT NULL COMMENT '创建人（原 create_by）',
   `updated_by` VARCHAR(64) NOT NULL COMMENT '修改人（原 modify_by）',
-  `seq` INT NULL AUTO_INCREMENT COMMENT '顺序',
+  `seq` INT NULL COMMENT '顺序',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -298,7 +298,7 @@ CREATE TABLE `question` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `re_embedding_file` (
-  `id` BIGINT NULL,
+  `id` BIGINT NOT NULL,
   `task_id` BIGINT NULL,
   `kb_id` BIGINT NULL,
   `kb_name` VARCHAR(255) NULL,
@@ -316,7 +316,7 @@ CREATE TABLE `re_embedding_file` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `re_embedding_retry_task` (
-  `id` BIGINT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
   `uid` VARCHAR(255) NULL,
   `task_id` BIGINT NULL,
   `type` INT NULL,
@@ -333,7 +333,7 @@ CREATE TABLE `re_embedding_retry_task` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `re_embedding_task` (
-  `id` BIGINT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
   `kb_id` BIGINT NULL,
   `kb_name` VARCHAR(255) NULL,
   `embedding_model_name` VARCHAR(255) NULL,
