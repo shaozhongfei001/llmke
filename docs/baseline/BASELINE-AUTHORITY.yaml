@@ -30,6 +30,17 @@ change_list:
       实测缺口：modules/citation_evidence/assembler.py 追加一行注释后，整树 snapshot
       f4f6ee2d → 3dbb9755，而 control_digest 不变、r5 的 evidence-check 仍 PASS，
       即 digest_scheme=2 下没有任何门禁证据绑定业务代码。
+  - id: W-02-W05
+    summary: >-
+      W-05 Makefile 固定解释器（LLMKE_PYTHON/PY，@python3 -> @$(PY) 25 处，新增 module-test 与 python-info）；
+      W-05b 新增 scripts/_pin.py 入口自钉（run_batch/loop_guard 首个导入，无 venv 时回退 PATH）；
+      W-02 GATE-CATALOG 增 framework.modules，批次增第 9 条门禁 module_test_gate；
+      W-04 tests 增「签名有效但候选过期必须被拒」。
+    approved_by: project-owner (2026-10-22, in-session：裁决"弃 r7、直接上补丁包")
+    rationale: >-
+      R-02 同一缺陷已致 3 次事故（直接 make 两次、run_batch 内部 spawn make 一次）；
+      仅改 Makefile 不足，门禁 argv 的 python3 取 sys.executable，入口用错解释器时
+      mutation_probe_gate 会单独失败。另：模块测试此前不在门禁内（39 条）。
 not_included:
   - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
   - requirements.lock 去重——待 baseline-owner 批准

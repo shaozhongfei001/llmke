@@ -18,8 +18,9 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 2. 已无"纯模块内"可做的 READY 项；下一步要么等外部输入，要么开下一个受控窗口做 `W-01`
    （把 modules 测试纳入 framework-verify）—— 后者需 owner 授权，因 Makefile 属冻结面；
 3. `R8-T04` 等 qa-owner（信任根锚点）；`R8-T05` 等四方输入；
-4. **W-01/W-01b 已实施**：当前候选是 `L0-contract-baseline-r7`（`QA_PENDING`），
-   冻结 `revision=8`、208 文件；r5/r6 均已 `SUPERSEDED`。签署见 `R7-QA-HANDOFF.md`；
+4. **W-01/W-01b/W-02/W-04/W-05/W-05b 已实施**：当前候选 `L0-contract-baseline-r9`
+   （`QA_PENDING`，9 条门禁），冻结 `revision=10`、211 文件；r5–r8 均 `SUPERSEDED`。
+   签署见 `R9-QA-HANDOFF.md`；
 5. 注意：任何控制面改动都会让 r7 候选 STALE；要改必须"作废当前候选 + 一次收口冻结 + 新建批次"。
 6. 跑门禁前先 `export PATH=~/data/dev/llmke/.venv/bin:$PATH`（run_batch 会 spawn make，见 D13）。
 

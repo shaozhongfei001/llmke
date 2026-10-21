@@ -1,0 +1,2 @@
+{"argv": ["make", "baseline-check"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-21T16:32:37.286627+00:00"}
+baseline: PASS (technical artifact only; independent QA/business readiness separate)

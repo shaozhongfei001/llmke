@@ -1,0 +1,12 @@
+{"argv": ["make", "framework-verify"], "exit_code": 0, "executor": "qa-external", "at": "2026-10-21T16:35:28.045550+00:00"}
+generate: PASS (18 contracts, clean staged outputs)
+check: PASS (18 contracts, semantic + exact linkage)
+rule-mirror: PASS
+trace-check: PASS
+p0-check: PASS (integrity)
+security-check: PASS (646 file(s) scanned; evidence_logs_personal_path_skipped=0)
+........................................................................ [ 37%]
+........................................................................ [ 74%]
+..................................................                       [100%]
+194 passed in 34.74s
+baseline: PASS (technical artifact only; independent QA/business readiness separate)

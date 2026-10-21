@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Loop v2: state/argv/DAG/baton/budget enforcement; external QA attestation."""
 from __future__ import annotations
+import _pin  # noqa: F401  W-05b 必须在重型导入之前
 import argparse,json,os,re,subprocess,sys
 from pathlib import Path
 from contract_runtime import load,inside,digest,filehash,ContractViolation

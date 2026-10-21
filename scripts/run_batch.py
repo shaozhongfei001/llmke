@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run only declared development gates; never claim independent QA."""
 import argparse
+import _pin  # noqa: F401  W-05b 必须在重型导入之前
 from baseline_support import ROOT
 from loop_guard import spec,run_gate
 if __name__=='__main__':

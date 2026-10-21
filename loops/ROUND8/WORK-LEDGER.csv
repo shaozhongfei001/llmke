@@ -14,3 +14,5 @@ R8-T12,python-parser-agent,R8-T01,"modules/citation_evidence/{assembler,cli}.py 
 R8-T13,python-parser-agent,R8-T12,assembler.py::check_evidence_set（parser_version 一致性）,"pytest modules/citation_evidence/tests -q",VERIFIED,loops/ROUND8/evidence/pytest-r8-parser-version.log,,39 passed；混版本先于重叠判定报错
 R8-T14,tech-lead,R8-T01,"Makefile + baseline_support.py + loop_guard.py（W-01）","make framework-verify",VERIFIED,docs/baseline/validation/W-01-RESULT.md,,193 passed；code_digest 绑定 independent_qa_gate
 R8-T15,tech-lead,R8-T14,"loop_guard.evidence_errors（W-01b：不再跳过 QA_PENDING）","evidence-check 候选过期必须非 0",VERIFIED,docs/baseline/validation/W-01-RESULT.md,,"改一行注释 -> FAIL: implementation code changed；r6 因此作废重建 r7"
+R8-T16,tech-lead,R8-T15,"patches/window-bundle-v1.diff（W-05/W-05b/W-02/W-04）","隔离树端到端：9 门禁 + 194 passed + 坏 PATH 复现","VERIFIED",docs/baseline/validation/WINDOW-BUNDLE-VERIFIED.md,,"apply --check OK；变异测试证明 W-04 有牙"
+R8-T17,tech-lead,R8-T16,"窗口执行：弃 r7 -> 应用补丁 -> r9 候选","run_batch 9 条 + framework-verify","VERIFIED",docs/baseline/validation/W-02-W05-RESULT.md,,"8/8 开发 pass + QA_PENDING；坏 PATH 下复现；r8 因授权留痕不完整作废"

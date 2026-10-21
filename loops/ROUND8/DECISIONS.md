@@ -83,3 +83,17 @@
   `ModuleNotFoundError: openapi_spec_validator`。
 - 原因：`run_batch` 内部 spawn `make`，子进程 PATH 不是 `.venv`。
 - 处置：调用前 `export PATH=~/data/dev/llmke/.venv/bin:$PATH`；长期根治仍待 R-02 提案（Makefile 内固定解释器）。
+
+## D14 业主裁决：弃 r7，直接上补丁包
+- 理由：r7 的价值已兑现（193 passed + code_digest 绑定实证）；签名等外部，
+  而新批能一次覆盖"9 条门禁 + R-02 根治 + W-04 回归测试"，一次 QA 抵两次。
+- 执行：`coordination/window-apply.sh`（仓外脚本，先隔离验证）→ r7 置 SUPERSEDED，建 r9。
+- 结果：门禁 8→9；framework-verify 194 passed；evidence-check PASS；p0-gate 仍 2。
+
+## D15 自纠：授权留痕不完整导致 r8 作废
+- 事实：应用补丁包时，`BASELINE-AUTHORITY.change_list` 仍只有 `W-01`，
+  没有记录 W-05/W-05b/W-02/W-04。r8 冻结后才发现，按其设计属元数据不完整。
+- 处置：趁 r8 未签名，补录 `W-02-W05` 条目 → r8 置 SUPERSEDED → 建 r9 → 重跑 9 条门禁。
+- 代价：多一个终态批次 + 一次 9 门禁重跑（约 2 分钟）。
+- 教训：**补丁包里应当包含授权条目**。凡是"代码改了、authority 没改"，就是 P-04 想避免的
+  "元数据与事实不一致"。已把该条加入窗口脚本的待办（下个窗口把 authority 变更也纳入 bundle）。
