@@ -1,0 +1,6 @@
+task_id,owner_agent,dependencies,scope,acceptance_command,status,evidence_path,commit_sha,blocker
+R8-T01,python-parser-agent,none,modules/citation_evidence/**,pytest modules/citation_evidence/tests -q,VERIFIED,modules/citation_evidence/,,
+R8-T02,tech-lead,R8-T01,loops/ROUND8/**,python3 -c "import json;json.load(open('loops/ROUND8/STATE.json'))",VERIFIED,loops/ROUND8/,,
+R8-T03,source-reuse-agent,R8-T02,evidence/reuse-candidate-matrix.csv,+ai_recommendation 列,待定义口径,BLOCKED_EXTERNAL,loops/ROUND8/DECISIONS.md,,"建议口径需 owner 确认，避免批量贴标签"
+R8-T04,qa-owner,none,r5 independent_qa_gate,scripts/loop_guard.py accept-qa,BLOCKED_EXTERNAL,docs/baseline/validation/R5-QA-HANDOFF.md,,"信任根锚点未更新；不得代签"
+R8-T05,data-owner/interface-owner/security-owner/index-owner,none,P0-01..04 关闭证据,make p0-gate,BLOCKED_EXTERNAL,docs/baseline/validation/P0-INPUT-INDEX.md,,"外部权威输入未到"
