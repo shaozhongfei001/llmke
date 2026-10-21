@@ -101,6 +101,80 @@ def build_document_evidence(document_text: str, source: dict, evidence_id: str) 
     }
 
 
+def _document_key(ev: dict) -> tuple:
+    """同一份"文档版本"的身份：kb + file + document_version。chunk_id 刻意排除。"""
+    r = ev["source_ref"]
+    return (r["kb_id"], r["file_id"], r["document_version"])
+
+
+def check_evidence_set(evidence: list[dict]) -> None:
+    """集合级完整性校验（单条装配看不到的问题）。
+
+    两类真实缺陷：
+    1. **重复 evidence_id**：同一 id 指向两段不同文本时，上层按 id 去重会静默丢证据，
+       按 id 索引又会取到错误片段。→ DUPLICATE_EVIDENCE_ID
+    2. **区间重叠**：
+       - 同一 chunk 内两段重叠 → 证据重复计数（支撑率虚高）→ SAME_CHUNK_OVERLAP
+       - 不同 chunk 但区间重叠 → 切分器产出重叠块，同一段原文被两个 chunk 同时认领，
+         去重后仍会互相"佐证"，是更隐蔽的虚高来源 → CROSS_CHUNK_OVERLAP
+    区间为左闭右开，因此 `end == next.start` 相邻不算重叠。
+    """
+    seen: dict[str, int] = {}
+    for i, ev in enumerate(evidence):
+        eid = ev["evidence_id"]
+        if eid in seen:
+            raise EvidenceError(
+                "DUPLICATE_EVIDENCE_ID",
+                f"{eid} 出现在第 {seen[eid]} 与第 {i} 条")
+        seen[eid] = i
+
+    groups: dict[tuple, list[tuple]] = {}
+    for ev in evidence:
+        off = ev["source_ref"]["offset"]
+        groups.setdefault(_document_key(ev), []).append(
+            (off["start"], off["end"], ev["source_ref"]["chunk_id"], ev["evidence_id"]))
+
+    for key, spans in groups.items():
+        spans.sort()
+        cur_start, cur_end, cur_chunk, cur_eid = spans[0]
+        for start, end, chunk, eid in spans[1:]:
+            if start < cur_end:
+                code = ("SAME_CHUNK_OVERLAP" if chunk == cur_chunk
+                        else "CROSS_CHUNK_OVERLAP")
+                raise EvidenceError(
+                    code,
+                    f"{key[1]}@{key[2]}: {cur_eid}[{cur_start},{cur_end}) 与 "
+                    f"{eid}[{start},{end}) 重叠（chunk {cur_chunk} / {chunk}）")
+            # 保留覆盖最远的区间，避免"短区间被长区间吞掉"后漏检
+            if end > cur_end:
+                cur_start, cur_end, cur_chunk, cur_eid = start, end, chunk, eid
+
+
+def assemble_many(items: list[dict], repo_root: Path | str | None = None,
+                  validate: bool = False) -> list[dict]:
+    """批量装配 + 集合级校验。空集合视为失败（fail-closed，不返回"零证据的成功"）。"""
+    if not isinstance(items, list):
+        raise EvidenceError("ILLEGAL_INPUT", "items 必须是数组")
+    if not items:
+        raise EvidenceError("EMPTY_EVIDENCE_SET", "证据集合为空")
+
+    built = []
+    for i, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise EvidenceError("ILLEGAL_INPUT", f"第 {i} 项必须是对象")
+        try:
+            built.append(build_document_evidence(
+                item["document_text"], item["source"], item["evidence_id"]))
+        except KeyError as e:
+            raise EvidenceError("FIELD_MISSING", f"第 {i} 项缺少 {e}") from e
+
+    check_evidence_set(built)
+    if validate:
+        for ev in built:
+            validate_evidence(ev, repo_root if repo_root is not None else Path("."))
+    return built
+
+
 def _load_core(repo_root: Path) -> dict:
     p = Path(repo_root) / CORE_SCHEMA
     if not p.is_file():

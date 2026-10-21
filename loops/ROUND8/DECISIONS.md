@@ -35,3 +35,21 @@
   `doc_digest` 仅对 `traceability_gate` 生效。
 - 含义：开发期新增业务代码不会反复作废候选证据；但**合并仍需「拟合并树 == QA 审查树」**，
   所以这不能用来绕过 QA。
+
+## D8 模块测试目前不在 framework-verify 里（已确认，暂不修）
+- 实测：`grep -n modules Makefile` 无任何命中；`modules/citation_evidence/tests` 的 35 条
+  只能靠 `PYTHONPATH=$PWD pytest modules/...` 手动跑。
+- 为什么不能顺手改：`Makefile` 在冻结清单内（`FROZEN-MANIFEST.files` 含 `Makefile`）。
+  加一个 target 就改变 `control_digest`，会让 r5 的 7 条门禁与 QA 候选**整体 STALE**。
+- 结论：这是真实缺口，但修复必须放在下一次受控冻结窗口里，与"建批次 + 一次收口冻结"合并做，
+  否则用一次候选作废换一个 make target，不划算。
+- 记入待办：`W-01 把 modules/**/tests 纳入 framework-verify`（依赖：下一次冻结窗口授权）。
+
+## D9 集合级校验的边界（本轮实现）
+- 新增 `check_evidence_set` / `assemble_many` / CLI `assemble-set`，只做**加法**，
+  不改变 `build_document_evidence` 与冻结契约的既有语义。
+- 三个新错误码都可机器判定：`DUPLICATE_EVIDENCE_ID`、`SAME_CHUNK_OVERLAP`、
+  `CROSS_CHUNK_OVERLAP`；空集合报 `EMPTY_EVIDENCE_SET`，不返回"零证据的成功"。
+- 已知局限（不隐瞒）：跨文档的重叠不检测（不同 file_id 允许相同区间）；
+  跨 chunk 重叠只能靠**区间相交**发现，若上游切分器给出不重叠但内容重复的块，本校验看不出来
+  —— 那种情况要靠 `content_hash` 比对，不在本切片范围。

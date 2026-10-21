@@ -9,10 +9,10 @@ from __future__ import annotations
 import argparse, json, sys
 from pathlib import Path
 
-from .assembler import (EvidenceError, audit_support, build_document_evidence,
-                        validate_evidence)
+from .assembler import (EvidenceError, assemble_many, audit_support,
+                        build_document_evidence, validate_evidence)
 
-SUBCOMMANDS = ("assemble", "audit")
+SUBCOMMANDS = ("assemble", "assemble-set", "audit")
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -25,6 +25,13 @@ def _parser() -> argparse.ArgumentParser:
     p1.add_argument("--out", type=Path)
     p1.add_argument("--repo-root", type=Path, default=Path("."))
     p1.add_argument("--no-contract-check", action="store_true")
+
+    p1b = sub.add_parser("assemble-set", help="批量组装 + 重复/重叠校验")
+    p1b.add_argument("--input", type=Path, required=True,
+                     help="JSON：item 数组，或 {\"items\": [...]}")
+    p1b.add_argument("--out", type=Path)
+    p1b.add_argument("--repo-root", type=Path, default=Path("."))
+    p1b.add_argument("--no-contract-check", action="store_true")
 
     p2 = sub.add_parser("audit", help="支持率审计（阈值来自契约）")
     p2.add_argument("--claims", type=Path, required=True,
@@ -59,6 +66,21 @@ def _cmd_assemble(a) -> int:
     return 0
 
 
+def _cmd_assemble_set(a) -> int:
+    try:
+        raw = json.loads(a.input.read_text(encoding="utf-8"))
+        items = raw["items"] if isinstance(raw, dict) else raw
+        evs = assemble_many(items, a.repo_root, validate=not a.no_contract_check)
+    except EvidenceError as e:
+        _emit({"ok": False, "code": e.code, "detail": e.detail}, a.out)
+        return 2
+    except (KeyError, json.JSONDecodeError) as e:
+        _emit({"ok": False, "code": "ILLEGAL_INPUT", "detail": str(e)}, a.out)
+        return 2
+    _emit({"ok": True, "count": len(evs), "items": evs}, a.out)
+    return 0
+
+
 def _cmd_audit(a) -> int:
     try:
         raw = json.loads(a.claims.read_text(encoding="utf-8"))
@@ -82,7 +104,8 @@ def main(argv=None) -> int:
     if argv and argv[0] not in SUBCOMMANDS and argv[0] not in ("-h", "--help"):
         argv = ["assemble", *argv]
     a = _parser().parse_args(argv)
-    return _cmd_assemble(a) if a.cmd == "assemble" else _cmd_audit(a)
+    return {"assemble": _cmd_assemble, "assemble-set": _cmd_assemble_set,
+            "audit": _cmd_audit}[a.cmd](a)
 
 
 if __name__ == "__main__":

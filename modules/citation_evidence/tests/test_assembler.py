@@ -253,3 +253,96 @@ def test_cli_assemble_still_accepts_legacy_invocation(tmp_path):
                        cwd=str(ROOT), capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
     assert json.loads(r.stdout)["evidence_id"] == "ev-1"
+
+
+# ---- 集合级完整性：重复 id / 跨 chunk 重叠（单条装配看不见的缺陷） ----
+def item(start, end, chunk="c-7", evidence_id="ev-1"):
+    off = {"start": start, "end": end, "unit": "unicode_codepoint",
+           "text_hash": text_hash(DOC[start:end]), "parser_version": "p-1.0"}
+    return {"evidence_id": evidence_id, "document_text": DOC,
+            "source": src(chunk_id=chunk, offset=off)}
+
+
+def test_set_positive_two_chunks_are_accepted():
+    from modules.citation_evidence.assembler import assemble_many
+    evs = assemble_many([item(0, 6, "c-1", "ev-1"), item(6, 12, "c-2", "ev-2")],
+                        ROOT, validate=True)
+    assert [e["evidence_id"] for e in evs] == ["ev-1", "ev-2"]
+
+
+def test_set_adjacent_ranges_are_not_overlap():
+    """左闭右开：end == next.start 相邻合法，不能误判。"""
+    from modules.citation_evidence.assembler import assemble_many
+    assert len(assemble_many([item(0, 6, "c-1", "ev-1"), item(6, 12, "c-1", "ev-2")])) == 2
+
+
+def test_set_duplicate_evidence_id_rejected():
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([item(0, 6, "c-1", "ev-1"), item(6, 12, "c-2", "ev-1")])
+    assert e.value.code == "DUPLICATE_EVIDENCE_ID"
+
+
+def test_set_same_chunk_overlap_rejected():
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([item(0, 6, "c-1", "ev-1"), item(3, 9, "c-1", "ev-2")])
+    assert e.value.code == "SAME_CHUNK_OVERLAP"
+
+
+def test_set_cross_chunk_overlap_rejected():
+    """切分器产出重叠块时，同一段原文被两个 chunk 认领 —— 支撑率虚高的隐蔽来源。"""
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([item(0, 6, "c-1", "ev-1"), item(4, 10, "c-2", "ev-2")])
+    assert e.value.code == "CROSS_CHUNK_OVERLAP"
+
+
+def test_set_contained_overlap_detected():
+    """短区间完全落在长区间内也必须查出（避免只看相邻对而漏检）。"""
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([item(0, 10, "c-1", "ev-1"), item(2, 3, "c-2", "ev-2")])
+    assert e.value.code == "CROSS_CHUNK_OVERLAP"
+
+
+def test_set_different_documents_may_share_ranges():
+    """不同文件/版本的相同区间不算重叠，否则会误伤。"""
+    from modules.citation_evidence.assembler import assemble_many
+    a = item(0, 6, "c-1", "ev-1")
+    b = item(0, 6, "c-1", "ev-2")
+    b["source"] = {**b["source"], "file_id": "f-2"}
+    assert len(assemble_many([a, b])) == 2
+
+
+def test_set_empty_is_rejected():
+    from modules.citation_evidence.assembler import assemble_many
+    with pytest.raises(EvidenceError) as e:
+        assemble_many([])
+    assert e.value.code == "EMPTY_EVIDENCE_SET"
+
+
+def test_cli_assemble_set_overlap_exit_2(tmp_path):
+    payload = tmp_path / "set.json"
+    payload.write_text(json.dumps([item(0, 6, "c-1", "ev-1"),
+                                   item(4, 10, "c-2", "ev-2")], ensure_ascii=False),
+                       encoding="utf-8")
+    r = subprocess.run([sys.executable, "-m", "modules.citation_evidence.cli",
+                        "assemble-set", "--input", str(payload), "--repo-root", str(ROOT)],
+                       cwd=str(ROOT), capture_output=True, text=True)
+    assert r.returncode == 2, r.stdout + r.stderr
+    out = json.loads(r.stdout)
+    assert out["ok"] is False and out["code"] == "CROSS_CHUNK_OVERLAP"
+    assert "ev-1" in out["detail"] and "ev-2" in out["detail"]
+
+
+def test_cli_assemble_set_positive(tmp_path):
+    payload = tmp_path / "set.json"
+    payload.write_text(json.dumps({"items": [item(0, 6, "c-1", "ev-1"),
+                                             item(6, 12, "c-2", "ev-2")]},
+                                  ensure_ascii=False), encoding="utf-8")
+    r = subprocess.run([sys.executable, "-m", "modules.citation_evidence.cli",
+                        "assemble-set", "--input", str(payload), "--repo-root", str(ROOT)],
+                       cwd=str(ROOT), capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert json.loads(r.stdout)["count"] == 2

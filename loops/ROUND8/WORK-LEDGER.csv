@@ -10,3 +10,4 @@ R8-T08,python-parser-agent,R8-T01,modules/citation_evidence/tests（边界负例
 R8-T09,python-parser-agent,R8-T01,assembler.py::audit_support,pytest modules/citation_evidence/tests -q,VERIFIED,,,契约 support_audit 落地（23 passed）
 R8-T10,source-reuse-agent,R8-T02,evidence/reuse-candidate-matrix-v2.csv,见 AI-ADVISORY-POLICY-V1.md,VERIFIED,loops/LD-legacy-discovery/evidence/reuse-advisory-summary.json,,AI 建议 555 行（owner 批准 0）
 R8-T11,python-parser-agent,R8-T09,modules/citation_evidence/cli.py（audit 子命令）,python -m modules.citation_evidence.cli audit --claims <f>,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,向后兼容 assemble；25 passed
+R8-T12,python-parser-agent,R8-T01,"modules/citation_evidence/{assembler,cli}.py + tests（集合级校验）","pytest modules/citation_evidence/tests -q",VERIFIED,loops/ROUND8/evidence/pytest-r8-set.log,,35 passed；模块测试不属 framework-verify（Makefile 为冻结控制面，见 D8）
