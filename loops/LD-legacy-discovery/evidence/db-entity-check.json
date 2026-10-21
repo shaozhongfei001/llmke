@@ -1,0 +1,4690 @@
+{
+ "scope": "37 tables / DO entities, static only",
+ "warning": "实体字段数 != 实际表结构；结论仅 CANDIDATE，不替代真实 DDL",
+ "src_roots": [
+  "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag",
+  "/home/szf/data/repo/RAG-SRC/_src/rag-alg-service-api/rag-alg-service-api"
+ ],
+ "totals": {
+  "tables": 37,
+  "declared_fields": 482,
+  "entity_fields": 484,
+  "count_match": 33,
+  "count_mismatch": 4,
+  "source_not_found": 0
+ },
+ "missing_files": [],
+ "mismatches": [
+  {
+   "id": "DB-18",
+   "table": "re_embedding_file",
+   "declared": 13,
+   "entity": 14,
+   "fields": [
+    "id",
+    "taskId",
+    "kbId",
+    "kbName",
+    "fileId",
+    "gmtCreate",
+    "gmtModified",
+    "totalChunkNum",
+    "processedChunkNum",
+    "errorChunkNum",
+    "isDel",
+    "isMigrate",
+    "status",
+    "lastError"
+   ]
+  },
+  {
+   "id": "DB-19",
+   "table": "re_embedding_retry_task",
+   "declared": 12,
+   "entity": 13,
+   "fields": [
+    "id",
+    "uid",
+    "taskId",
+    "type",
+    "payload",
+    "lastError",
+    "gmtCreate",
+    "gmtModified",
+    "retryTimes",
+    "isDel",
+    "status",
+    "fileId",
+    "kbId"
+   ]
+  },
+  {
+   "id": "DB-20",
+   "table": "re_embedding_task",
+   "declared": 13,
+   "entity": 14,
+   "fields": [
+    "id",
+    "kbId",
+    "kbName",
+    "embeddingModelName",
+    "status",
+    "isDel",
+    "logSummary",
+    "gmtCreate",
+    "gmtModified",
+    "msgKey",
+    "totalFileNum",
+    "uid",
+    "createBy",
+    "modifiedBy"
+   ]
+  },
+  {
+   "id": "DB-34",
+   "table": "user_operate",
+   "declared": 13,
+   "entity": 12,
+   "fields": [
+    "id",
+    "gmtCreated",
+    "gmtModified",
+    "name",
+    "url",
+    "startTime",
+    "endTime",
+    "userId",
+    "userName",
+    "params",
+    "ip",
+    "success"
+   ]
+  }
+ ],
+ "dialogue_identity_fields": [
+  {
+   "entity": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/DialogueDO.java",
+   "n_fields": 13,
+   "has_create_by": true,
+   "has_user_id": false,
+   "has_kb_id": true
+  }
+ ],
+ "items": [
+  {
+   "id": "DB-01",
+   "legacy_table": "answer",
+   "declared_field_count": 15,
+   "entity_field_count": 15,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/AnswerDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/AnswerDO.java",
+     "table": "answer",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dialogueId",
+       "type": "Long",
+       "column": "dialogueId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "questionId",
+       "type": "Long",
+       "column": "questionId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "content",
+       "type": "String",
+       "column": "content",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "type",
+       "type": "String",
+       "column": "type",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "reference",
+       "type": "String",
+       "column": "reference",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "databaseReference",
+       "type": "String",
+       "column": "databaseReference",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "logResult",
+       "type": "String",
+       "column": "logResult",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "retrieveRecallParam",
+       "type": "String",
+       "column": "retrieveRecallParam",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "recommendQuestion",
+       "type": "String",
+       "column": "recommendQuestion",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "llmType",
+       "type": "Integer",
+       "column": "llmType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resultType",
+       "type": "Integer",
+       "column": "resultType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "respTime",
+       "type": "Long",
+       "column": "respTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 15,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-02",
+   "legacy_table": "api_key_info",
+   "declared_field_count": 11,
+   "entity_field_count": 11,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/ApiKeyInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/ApiKeyInfoDO.java",
+     "table": "api_key_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "apiKey",
+       "type": "String",
+       "column": "apiKey",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "targetId",
+       "type": "Integer",
+       "column": "targetId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "bizType",
+       "type": "Integer",
+       "column": "bizType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "expireTime",
+       "type": "Date",
+       "column": "expireTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 11,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-03",
+   "legacy_table": "biz_label",
+   "declared_field_count": 10,
+   "entity_field_count": 10,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/BizLabelDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/BizLabelDO.java",
+     "table": "biz_label",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "targetId",
+       "type": "Long",
+       "column": "targetId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "label",
+       "type": "String",
+       "column": "label",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "bizType",
+       "type": "Integer",
+       "column": "bizType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "bizName",
+       "type": "String",
+       "column": "bizName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 10,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-04",
+   "legacy_table": "department_info",
+   "declared_field_count": 11,
+   "entity_field_count": 11,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DepartmentInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DepartmentInfoDO.java",
+     "table": "department_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "code",
+       "type": "String",
+       "column": "code",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "admin",
+       "type": "String",
+       "column": "admin",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "parentId",
+       "type": "Long",
+       "column": "parentId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "seq",
+       "type": "Integer",
+       "column": "seq",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 11,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-05",
+   "legacy_table": "dept_privilege",
+   "declared_field_count": 10,
+   "entity_field_count": 10,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DeptPrivilegeDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/DeptPrivilegeDO.java",
+     "table": "dept_privilege",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "targetId",
+       "type": "Long",
+       "column": "targetId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "deptId",
+       "type": "Long",
+       "column": "deptId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "bizType",
+       "type": "Integer",
+       "column": "bizType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "permission",
+       "type": "Integer",
+       "column": "permission",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 10,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-06",
+   "legacy_table": "dialogue",
+   "declared_field_count": 13,
+   "entity_field_count": 13,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/DialogueDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/DialogueDO.java",
+     "table": "dialogue",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "label",
+       "type": "String",
+       "column": "label",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "sessionId",
+       "type": "String",
+       "column": "sessionId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "sysType",
+       "type": "Integer",
+       "column": "sysType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "config",
+       "type": "String",
+       "column": "config",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "configId",
+       "type": "Long",
+       "column": "configId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "configHistory",
+       "type": "String",
+       "column": "configHistory",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kbId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 13,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-07",
+   "legacy_table": "feedback",
+   "declared_field_count": 19,
+   "entity_field_count": 19,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/FeedbackDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/FeedbackDO.java",
+     "table": "feedback",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "answerId",
+       "type": "Long",
+       "column": "answerId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "restult",
+       "type": "Integer",
+       "column": "restult",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userName",
+       "type": "String",
+       "column": "userName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userRealname",
+       "type": "String",
+       "column": "userRealname",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "deptName",
+       "type": "String",
+       "column": "deptName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userPhone",
+       "type": "String",
+       "column": "userPhone",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "queError",
+       "type": "String",
+       "column": "queError",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "ansPoor",
+       "type": "String",
+       "column": "ansPoor",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "formatError",
+       "type": "String",
+       "column": "formatError",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "harmfulInfo",
+       "type": "String",
+       "column": "harmfulInfo",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "othres",
+       "type": "String",
+       "column": "othres",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "supplementExplain",
+       "type": "String",
+       "column": "supplementExplain",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "idealAnswer",
+       "type": "String",
+       "column": "idealAnswer",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 19,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-08",
+   "legacy_table": "file_parse_task",
+   "declared_field_count": 16,
+   "entity_field_count": 16,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FileParseTaskDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FileParseTaskDO.java",
+     "table": "file_parse_task",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kbId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbName",
+       "type": "String",
+       "column": "kbName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileId",
+       "type": "Long",
+       "column": "fileId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileName",
+       "type": "String",
+       "column": "fileName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "taskInfo",
+       "type": "String",
+       "column": "taskInfo",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "startTime",
+       "type": "Date",
+       "column": "startTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "endTime",
+       "type": "Date",
+       "column": "endTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "retryLimit",
+       "type": "Integer",
+       "column": "retryLimit",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "retryTimes",
+       "type": "Integer",
+       "column": "retryTimes",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "errorMsg",
+       "type": "String",
+       "column": "errorMsg",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 16,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-09",
+   "legacy_table": "folder_info",
+   "declared_field_count": 12,
+   "entity_field_count": 12,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FolderInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/FolderInfoDO.java",
+     "table": "folder_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kbId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "type",
+       "type": "Integer",
+       "column": "type",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "parentId",
+       "type": "Long",
+       "column": "parentId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "folderLabel",
+       "type": "String",
+       "column": "folderLabel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fullPath",
+       "type": "String",
+       "column": "fullPath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 12,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-10",
+   "legacy_table": "group_info",
+   "declared_field_count": 9,
+   "entity_field_count": 9,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupInfoDO.java",
+     "table": "group_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "pid",
+       "type": "Long",
+       "column": "pid",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "description",
+       "type": "String",
+       "column": "description",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 9,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-11",
+   "legacy_table": "group_privilege",
+   "declared_field_count": 10,
+   "entity_field_count": 10,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupPrivilegeDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/GroupPrivilegeDO.java",
+     "table": "group_privilege",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "targetId",
+       "type": "Long",
+       "column": "targetId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "groupId",
+       "type": "Long",
+       "column": "groupId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "bizType",
+       "type": "Integer",
+       "column": "bizType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "permission",
+       "type": "Integer",
+       "column": "permission",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 10,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-12",
+   "legacy_table": "interface_info",
+   "declared_field_count": 13,
+   "entity_field_count": 13,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/InterfaceInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/InterfaceInfoDO.java",
+     "table": "interface_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "appName",
+       "type": "String",
+       "column": "appName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "appNameAbbreviate",
+       "type": "String",
+       "column": "appNameAbbreviate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "url",
+       "type": "String",
+       "column": "url",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "method",
+       "type": "String",
+       "column": "method",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resourceId",
+       "type": "Long",
+       "column": "resourceId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resourceName",
+       "type": "String",
+       "column": "resourceName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resourceType",
+       "type": "Integer",
+       "column": "resourceType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 13,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-13",
+   "legacy_table": "kb_label_his",
+   "declared_field_count": 8,
+   "entity_field_count": 8,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KbLabelHisDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KbLabelHisDO.java",
+     "table": "kb_label_his",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kbId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "labe",
+       "type": "String",
+       "column": "labe",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 8,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-14",
+   "legacy_table": "knowledge_base",
+   "declared_field_count": 15,
+   "entity_field_count": 15,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseDO.java",
+     "table": "knowledge_base",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbName",
+       "type": "String",
+       "column": "kbName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "primitiveName",
+       "type": "String",
+       "column": "primitiveName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbType",
+       "type": "Integer",
+       "column": "kbType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbDes",
+       "type": "String",
+       "column": "kbDes",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "sourceUrl",
+       "type": "String",
+       "column": "sourceUrl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "config",
+       "type": "String",
+       "column": "config",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbLabel",
+       "type": "String",
+       "column": "kbLabel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "platform",
+       "type": "String",
+       "column": "platform",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "privateKb",
+       "type": "Integer",
+       "column": "privateKb",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 15,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-15",
+   "legacy_table": "knowledge_base_list",
+   "declared_field_count": 34,
+   "entity_field_count": 34,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseListDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/KnowledgeBaseListDO.java",
+     "table": "knowledge_base_list",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kbId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileId",
+       "type": "String",
+       "column": "fileId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileName",
+       "type": "String",
+       "column": "fileName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileSize",
+       "type": "String",
+       "column": "fileSize",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "filePath",
+       "type": "String",
+       "column": "filePath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fullTextPath",
+       "type": "String",
+       "column": "fullTextPath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isEnable",
+       "type": "Integer",
+       "column": "isEnable",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "parsedFilePath",
+       "type": "String",
+       "column": "parsedFilePath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "parseType",
+       "type": "Integer",
+       "column": "parseType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "aqCount",
+       "type": "Integer",
+       "column": "aqCount",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "faqExtractStatus",
+       "type": "Integer",
+       "column": "faqExtractStatus",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "graphParseStatus",
+       "type": "Integer",
+       "column": "graphParseStatus",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "reviseDate",
+       "type": "String",
+       "column": "reviseDate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "parentFileName",
+       "type": "String",
+       "column": "parentFileName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "version",
+       "type": "String",
+       "column": "version",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "convertedFilePath",
+       "type": "String",
+       "column": "convertedFilePath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "folderId",
+       "type": "Long",
+       "column": "folderId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "sourceUrl",
+       "type": "String",
+       "column": "sourceUrl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "chunking",
+       "type": "boolean",
+       "column": "chunking",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "uid",
+       "type": "String",
+       "column": "uid",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "permission",
+       "type": "Integer",
+       "column": "permission",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isFolder",
+       "type": "Integer",
+       "column": "isFolder",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "groupId",
+       "type": "String",
+       "column": "groupId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "tableFilePaths",
+       "type": "String",
+       "column": "tableFilePaths",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "sourceId",
+       "type": "Long",
+       "column": "sourceId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "pid",
+       "type": "Long",
+       "column": "pid",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "imagePaths",
+       "type": "List<String>",
+       "column": "imagePaths",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "chunkType",
+       "type": "String",
+       "column": "chunkType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 34,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-16",
+   "legacy_table": "model_info",
+   "declared_field_count": 16,
+   "entity_field_count": 16,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ModelInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ModelInfoDO.java",
+     "table": "model_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modelName",
+       "type": "String",
+       "column": "modelName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "type",
+       "type": "Integer",
+       "column": "`type`",
+       "pk": false,
+       "comment": "private Integer type;",
+       "explicit_column": true
+      },
+      {
+       "name": "modelProtocol",
+       "type": "Integer",
+       "column": "modelProtocol",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modelIde",
+       "type": "String",
+       "column": "modelIde",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "apiKey",
+       "type": "String",
+       "column": "apiKey",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "url",
+       "type": "String",
+       "column": "url",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dec",
+       "type": "String",
+       "column": "`dec`",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "`status`",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "errorMsg",
+       "type": "String",
+       "column": "errorMsg",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDtl",
+       "type": "String",
+       "column": "isDtl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "thinking",
+       "type": "Integer",
+       "column": "thinking",
+       "pk": false,
+       "comment": "private Integer trace;",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 16,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-17",
+   "legacy_table": "question",
+   "declared_field_count": 12,
+   "entity_field_count": 12,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/QuestionDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/QuestionDO.java",
+     "table": "question",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dialogueId",
+       "type": "Long",
+       "column": "dialogueId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "content",
+       "type": "String",
+       "column": "content",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "type",
+       "type": "String",
+       "column": "type",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "frontUuid",
+       "type": "String",
+       "column": "frontUuid",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "algModel",
+       "type": "String",
+       "column": "algModel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "algParams",
+       "type": "String",
+       "column": "algParams",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "knowledgeBaseName",
+       "type": "String",
+       "column": "knowledgeBaseName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "knowledgeParams",
+       "type": "String",
+       "column": "knowledgeParams",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "audioUrl",
+       "type": "String",
+       "column": "audioUrl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 12,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-18",
+   "legacy_table": "re_embedding_file",
+   "declared_field_count": 13,
+   "entity_field_count": 14,
+   "count_match": false,
+   "status": "COUNT_MISMATCH",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingFileDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingFileDO.java",
+     "table": "re_embedding_file",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "/",
+       "explicit_column": false
+      },
+      {
+       "name": "taskId",
+       "type": "Long",
+       "column": "task_id",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kb_id",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "kbName",
+       "type": "String",
+       "column": "kb_id",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "fileId",
+       "type": "Long",
+       "column": "file_id",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmt_create",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmt_modified",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "totalChunkNum",
+       "type": "Long",
+       "column": "total_chunk_num",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "processedChunkNum",
+       "type": "Long",
+       "column": "processed_chunk_num",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "errorChunkNum",
+       "type": "Long",
+       "column": "error_chunk_num",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "is_del",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "isMigrate",
+       "type": "Integer",
+       "column": "is_migrate",
+       "pk": false,
+       "comment": "/",
+       "explicit_column": true
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "lastError",
+       "type": "String",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      }
+     ],
+     "n_fields": 14,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-19",
+   "legacy_table": "re_embedding_retry_task",
+   "declared_field_count": 12,
+   "entity_field_count": 13,
+   "count_match": false,
+   "status": "COUNT_MISMATCH",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingRetryTaskDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingRetryTaskDO.java",
+     "table": "re_embedding_retry_task",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": " ",
+       "explicit_column": false
+      },
+      {
+       "name": "uid",
+       "type": "String",
+       "column": "uid",
+       "pk": false,
+       "comment": " ",
+       "explicit_column": true
+      },
+      {
+       "name": "taskId",
+       "type": "Long",
+       "column": "task_id",
+       "pk": false,
+       "comment": " ",
+       "explicit_column": true
+      },
+      {
+       "name": "type",
+       "type": "Integer",
+       "column": "type",
+       "pk": false,
+       "comment": "1-file 2-chunk",
+       "explicit_column": true
+      },
+      {
+       "name": "payload",
+       "type": "String",
+       "column": "payload",
+       "pk": false,
+       "comment": " ",
+       "explicit_column": true
+      },
+      {
+       "name": "lastError",
+       "type": "String",
+       "column": "last_error",
+       "pk": false,
+       "comment": "任务重试简要概括",
+       "explicit_column": true
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmt_create",
+       "pk": false,
+       "comment": " ",
+       "explicit_column": true
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmt_modified",
+       "pk": false,
+       "comment": " ",
+       "explicit_column": true
+      },
+      {
+       "name": "retryTimes",
+       "type": "int",
+       "column": "retry_times",
+       "pk": false,
+       "comment": "重试次数",
+       "explicit_column": true
+      },
+      {
+       "name": "isDel",
+       "type": "int",
+       "column": "is_del",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "1-处理中 2-等待处理 3-处理完成 4-处理失败",
+       "explicit_column": true
+      },
+      {
+       "name": "fileId",
+       "type": "Long",
+       "column": "file_id",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "file_id",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      }
+     ],
+     "n_fields": 13,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-20",
+   "legacy_table": "re_embedding_task",
+   "declared_field_count": 13,
+   "entity_field_count": 14,
+   "count_match": false,
+   "status": "COUNT_MISMATCH",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingTaskDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/ReEmbeddingTaskDO.java",
+     "table": "re_embedding_task",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "/",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kb_id",
+       "pk": false,
+       "comment": "知识库id",
+       "explicit_column": true
+      },
+      {
+       "name": "kbName",
+       "type": "String",
+       "column": "kb_name",
+       "pk": false,
+       "comment": "知识库名称",
+       "explicit_column": true
+      },
+      {
+       "name": "embeddingModelName",
+       "type": "String",
+       "column": "embedding_model_name",
+       "pk": false,
+       "comment": "重新向量化使用的模型",
+       "explicit_column": true
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "1-解析中 2-解析完成 9-解析失败",
+       "explicit_column": true
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "is_del",
+       "pk": false,
+       "comment": "1-删了 0-没删",
+       "explicit_column": true
+      },
+      {
+       "name": "logSummary",
+       "type": "String",
+       "column": "log_summary",
+       "pk": false,
+       "comment": "概要日志",
+       "explicit_column": true
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "msgKey",
+       "type": "String",
+       "column": "msg_key",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "totalFileNum",
+       "type": "Long",
+       "column": "msg_key",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "uid",
+       "type": "String",
+       "column": "total_file_num",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "uid",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "modifiedBy",
+       "type": "String",
+       "column": "create_by",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      }
+     ],
+     "n_fields": 14,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-21",
+   "legacy_table": "resource_info",
+   "declared_field_count": 15,
+   "entity_field_count": 15,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInfoDO.java",
+     "table": "resource_info",
+     "fields": [
+      {
+       "name": "isDtl",
+       "type": "String",
+       "column": "isDtl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "url",
+       "type": "String",
+       "column": "url",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "description",
+       "type": "String",
+       "column": "description",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "icon",
+       "type": "String",
+       "column": "icon",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "pid",
+       "type": "Long",
+       "column": "pid",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "seq",
+       "type": "Long",
+       "column": "seq",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "String",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resourceType",
+       "type": "String",
+       "column": "resourceType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "code",
+       "type": "String",
+       "column": "code",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 15,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-22",
+   "legacy_table": "resource_interface",
+   "declared_field_count": 8,
+   "entity_field_count": 8,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInterfaceDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/ResourceInterfaceDO.java",
+     "table": "resource_interface",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resourceId",
+       "type": "Long",
+       "column": "resourceId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "interfaceId",
+       "type": "Long",
+       "column": "interfaceId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 8,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-23",
+   "legacy_table": "role_info",
+   "declared_field_count": 10,
+   "entity_field_count": 10,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleInfoDO.java",
+     "table": "role_info",
+     "fields": [
+      {
+       "name": "isDtl",
+       "type": "String",
+       "column": "isDtl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "description",
+       "type": "String",
+       "column": "description",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "seq",
+       "type": "Long",
+       "column": "seq",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 10,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-24",
+   "legacy_table": "role_resource",
+   "declared_field_count": 9,
+   "entity_field_count": 9,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleResourceDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/RoleResourceDO.java",
+     "table": "role_resource",
+     "fields": [
+      {
+       "name": "isDtl",
+       "type": "String",
+       "column": "isDtl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "roleId",
+       "type": "Long",
+       "column": "roleId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resourceId",
+       "type": "Long",
+       "column": "resourceId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 9,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-25",
+   "legacy_table": "search_config",
+   "declared_field_count": 15,
+   "entity_field_count": 15,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/SearchConfigDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/domain/model/SearchConfigDO.java",
+     "table": "search_config",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDefault",
+       "type": "Integer",
+       "column": "isDefault",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "configJson",
+       "type": "String",
+       "column": "configJson",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "des",
+       "type": "String",
+       "column": "des",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "modifyBy",
+       "type": "String",
+       "column": "modifyBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "sensitiveWordIds",
+       "type": "String",
+       "column": "sensitiveWordIds",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "defaultAnswer",
+       "type": "String",
+       "column": "defaultAnswer",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "enabledFaq",
+       "type": "Integer",
+       "column": "enabledFaq",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dependOnKb",
+       "type": "Integer",
+       "column": "dependOnKb",
+       "pk": false,
+       "comment": "是否强依赖知识库(0:否;1:是)",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 15,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-26",
+   "legacy_table": "sensitive_words",
+   "declared_field_count": 7,
+   "entity_field_count": 7,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/sensitive-words-service/src/main/java/com/gientech/sensitivewordsservice/domain/model/SensitiveWordsDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/sensitive-words-service/src/main/java/com/gientech/sensitivewordsservice/domain/model/SensitiveWordsDO.java",
+     "table": "sensitive_words",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "descript",
+       "type": "String",
+       "column": "descript",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "words",
+       "type": "LinkedHashSet<String>",
+       "column": "words",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "words",
+       "pk": false,
+       "comment": "",
+       "explicit_column": true
+      }
+     ],
+     "n_fields": 7,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-27",
+   "legacy_table": "syn_log",
+   "declared_field_count": 11,
+   "entity_field_count": 11,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/SynLogDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/domain/model/SynLogDO.java",
+     "table": "syn_log",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "kbId",
+       "type": "Long",
+       "column": "kbId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "targetId",
+       "type": "Long",
+       "column": "targetId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "logType",
+       "type": "Integer",
+       "column": "logType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "errorCode",
+       "type": "String",
+       "column": "errorCode",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "errorMessage",
+       "type": "String",
+       "column": "errorMessage",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "errorDetail",
+       "type": "String",
+       "column": "errorDetail",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 11,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-28",
+   "legacy_table": "tools_database",
+   "declared_field_count": 16,
+   "entity_field_count": 16,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLDatabaseDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLDatabaseDO.java",
+     "table": "tools_database",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "description",
+       "type": "String",
+       "column": "description",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "datasourceType",
+       "type": "String",
+       "column": "datasourceType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dbType",
+       "type": "String",
+       "column": "dbType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dbHost",
+       "type": "String",
+       "column": "dbHost",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dbPort",
+       "type": "Integer",
+       "column": "dbPort",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dbDatabase",
+       "type": "String",
+       "column": "dbDatabase",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dbUser",
+       "type": "String",
+       "column": "dbUser",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dbPassword",
+       "type": "String",
+       "column": "dbPassword",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "jdbcUrl",
+       "type": "String",
+       "column": "jdbcUrl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "jdbcDriverClass",
+       "type": "String",
+       "column": "jdbcDriverClass",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 16,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-29",
+   "legacy_table": "tools_table",
+   "declared_field_count": 14,
+   "entity_field_count": 14,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableDO.java",
+     "table": "tools_table",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "编号",
+       "explicit_column": false
+      },
+      {
+       "name": "databaseId",
+       "type": "Long",
+       "column": "databaseId",
+       "pk": false,
+       "comment": "数据库编号",
+       "explicit_column": false
+      },
+      {
+       "name": "businessName",
+       "type": "String",
+       "column": "businessName",
+       "pk": false,
+       "comment": "业务表名",
+       "explicit_column": false
+      },
+      {
+       "name": "physicalName",
+       "type": "String",
+       "column": "physicalName",
+       "pk": false,
+       "comment": "物理表名",
+       "explicit_column": false
+      },
+      {
+       "name": "description",
+       "type": "String",
+       "column": "description",
+       "pk": false,
+       "comment": "表描述",
+       "explicit_column": false
+      },
+      {
+       "name": "columnCount",
+       "type": "Integer",
+       "column": "columnCount",
+       "pk": false,
+       "comment": "列数量",
+       "explicit_column": false
+      },
+      {
+       "name": "rowCount",
+       "type": "Long",
+       "column": "rowCount",
+       "pk": false,
+       "comment": "行数量",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "创建时间",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "更新时间",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "创建人",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "更新人",
+       "explicit_column": false
+      },
+      {
+       "name": "isGenDesc",
+       "type": "Boolean",
+       "column": "isGenDesc",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "genDescErrMsg",
+       "type": "String",
+       "column": "genDescErrMsg",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "genDescStatus",
+       "type": "String",
+       "column": "genDescStatus",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 14,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-30",
+   "legacy_table": "tools_table_column",
+   "declared_field_count": 11,
+   "entity_field_count": 11,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableColumnDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableColumnDO.java",
+     "table": "tools_table_column",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "databaseId",
+       "type": "Long",
+       "column": "databaseId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "tableId",
+       "type": "Long",
+       "column": "tableId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "businessName",
+       "type": "String",
+       "column": "businessName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "physicalName",
+       "type": "String",
+       "column": "physicalName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "description",
+       "type": "String",
+       "column": "description",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "dataType",
+       "type": "String",
+       "column": "dataType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 11,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-31",
+   "legacy_table": "tools_table_file",
+   "declared_field_count": 18,
+   "entity_field_count": 18,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableFileDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/tools/tools-database/src/main/java/com/gientech/tools/database/domain/model/TLTableFileDO.java",
+     "table": "tools_table_file",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "databaseId",
+       "type": "Long",
+       "column": "databaseId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "tableId",
+       "type": "Long",
+       "column": "tableId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "originalFilename",
+       "type": "String",
+       "column": "originalFilename",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "folderPath",
+       "type": "String",
+       "column": "folderPath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileName",
+       "type": "String",
+       "column": "fileName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "objectName",
+       "type": "String",
+       "column": "objectName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "filePath",
+       "type": "String",
+       "column": "filePath",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "fileSize",
+       "type": "Double",
+       "column": "fileSize",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "columnCount",
+       "type": "Integer",
+       "column": "columnCount",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "rowCount",
+       "type": "Long",
+       "column": "rowCount",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "String",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "useTime",
+       "type": "Long",
+       "column": "useTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "errorMsg",
+       "type": "String",
+       "column": "errorMsg",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 18,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-32",
+   "legacy_table": "user_group",
+   "declared_field_count": 9,
+   "entity_field_count": 9,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserGroupDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserGroupDO.java",
+     "table": "user_group",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userId",
+       "type": "Long",
+       "column": "userId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "groupId",
+       "type": "Long",
+       "column": "groupId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "deptId",
+       "type": "Long",
+       "column": "deptId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 9,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-33",
+   "legacy_table": "user_info",
+   "declared_field_count": 27,
+   "entity_field_count": 27,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserInfoDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserInfoDO.java",
+     "table": "user_info",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userName",
+       "type": "String",
+       "column": "userName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDtl",
+       "type": "String",
+       "column": "isDtl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userPassword",
+       "type": "String",
+       "column": "userPassword",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userRealname",
+       "type": "String",
+       "column": "userRealname",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userEmail",
+       "type": "String",
+       "column": "userEmail",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "url",
+       "type": "String",
+       "column": "url",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userPhone",
+       "type": "String",
+       "column": "userPhone",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "expireTime",
+       "type": "Date",
+       "column": "expireTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "missNum",
+       "type": "Integer",
+       "column": "missNum",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "passwordUpdated",
+       "type": "Date",
+       "column": "passwordUpdated",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "adminResetPassword",
+       "type": "String",
+       "column": "adminResetPassword",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "ip",
+       "type": "String",
+       "column": "ip",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "onlineTime",
+       "type": "Date",
+       "column": "onlineTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "organizationId",
+       "type": "Long",
+       "column": "organizationId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "empNo",
+       "type": "String",
+       "column": "empNo",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "deptId",
+       "type": "String",
+       "column": "deptId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "deptName",
+       "type": "String",
+       "column": "deptName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "appKey",
+       "type": "String",
+       "column": "appKey",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "resignDate",
+       "type": "Date",
+       "column": "resignDate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "feature",
+       "type": "String",
+       "column": "feature",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "systemSource",
+       "type": "Integer",
+       "column": "systemSource",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 27,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-34",
+   "legacy_table": "user_operate",
+   "declared_field_count": 13,
+   "entity_field_count": 12,
+   "count_match": false,
+   "status": "COUNT_MISMATCH",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserOperateDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserOperateDO.java",
+     "table": "user_operate",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreated",
+       "type": "Date",
+       "column": "gmtCreated",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "name",
+       "type": "String",
+       "column": "name",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "url",
+       "type": "String",
+       "column": "url",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "startTime",
+       "type": "Date",
+       "column": "startTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "endTime",
+       "type": "Date",
+       "column": "endTime",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userId",
+       "type": "Long",
+       "column": "userId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userName",
+       "type": "String",
+       "column": "userName",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "params",
+       "type": "String",
+       "column": "params",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "ip",
+       "type": "String",
+       "column": "ip",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "success",
+       "type": "Integer",
+       "column": "success",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 12,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-35",
+   "legacy_table": "user_privilege",
+   "declared_field_count": 10,
+   "entity_field_count": 10,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserPrivilegeDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserPrivilegeDO.java",
+     "table": "user_privilege",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "targetId",
+       "type": "Long",
+       "column": "targetId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userId",
+       "type": "Long",
+       "column": "userId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "bizType",
+       "type": "Integer",
+       "column": "bizType",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "permission",
+       "type": "Integer",
+       "column": "permission",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "isDel",
+       "type": "Integer",
+       "column": "isDel",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 10,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-36",
+   "legacy_table": "user_role",
+   "declared_field_count": 9,
+   "entity_field_count": 9,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserRoleDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserRoleDO.java",
+     "table": "user_role",
+     "fields": [
+      {
+       "name": "isDtl",
+       "type": "String",
+       "column": "isDtl",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "roleId",
+       "type": "Long",
+       "column": "roleId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userId",
+       "type": "Long",
+       "column": "userId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "status",
+       "type": "Integer",
+       "column": "status",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 9,
+     "has_explicit_table": true
+    }
+   ]
+  },
+  {
+   "id": "DB-37",
+   "legacy_table": "user_security_question",
+   "declared_field_count": 8,
+   "entity_field_count": 8,
+   "count_match": true,
+   "status": "CANDIDATE",
+   "entities": [
+    {
+     "path": "gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserSecurityQuestionDO.java",
+     "resolved": "/home/szf/data/repo/RAG-SRC/_src/gien-rag/gien-rag/rag-parent/rag-auth-service/src/main/java/com/gientech/ragauthservice/domain/model/UserSecurityQuestionDO.java",
+     "table": "user_security_question",
+     "fields": [
+      {
+       "name": "id",
+       "type": "Long",
+       "column": "id",
+       "pk": true,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "userId",
+       "type": "Long",
+       "column": "userId",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "question",
+       "type": "String",
+       "column": "question",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "answer",
+       "type": "String",
+       "column": "answer",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtCreate",
+       "type": "Date",
+       "column": "gmtCreate",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "gmtModified",
+       "type": "Date",
+       "column": "gmtModified",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "createBy",
+       "type": "String",
+       "column": "createBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      },
+      {
+       "name": "updateBy",
+       "type": "String",
+       "column": "updateBy",
+       "pk": false,
+       "comment": "",
+       "explicit_column": false
+      }
+     ],
+     "n_fields": 8,
+     "has_explicit_table": true
+    }
+   ]
+  }
+ ]
+}

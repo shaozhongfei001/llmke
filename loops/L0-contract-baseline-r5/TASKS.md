@@ -50,3 +50,21 @@ cd ~/data/dev/llmke
 python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r5     # 期望 PASS
 ~/data/dev/coordination/mk.sh p0-gate                                           # 期望 2（业务仍阻断）
 ```
+
+---
+
+## 6. 合并阻塞期间的持续工作（第三轮追加）
+
+| ID | 事项 | 状态 | 证据 |
+|---|---|---|---|
+| T-10 | 37 表/482 字段 ↔ 源码 DO 实体静态对照 | **部分完成**（静态对照完成；DDL 仍缺，结论只能 CANDIDATE） | `loops/LD-legacy-discovery/evidence/db-entity-check.{md,json}`、工具 `tools/db_entity_check.py` |
+| T-11 | 504 条逐端点决议 | BLOCKED（需调用方在用确认） | 静态核验已完成 504/506 |
+
+**T-10 实测结论**
+
+- 37 表全部找到对应实体（源文件缺失 0）；计数一致 **33/37**。
+- 4 张表计数不符：`re_embedding_file`(13→14)、`re_embedding_retry_task`(12→13)、
+  `re_embedding_task`(13→14)、`user_operate`(13→12)。
+- `dialogue` 实体 13 字段：**`create_by` 存在、`user_id` 不存在**、`kb_id` 存在
+  → 与设计文档「建 `user_id` 索引」的要求冲突，需 `data-owner` 用 DDL 裁定。
+- 边界：实体字段数 ≠ 表结构；未识别继承字段、逻辑删除、JSON 列；不替代 M-04。
