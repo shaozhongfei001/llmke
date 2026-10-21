@@ -8,7 +8,7 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO = Path("/home/szf/data/dev/llmke-r8")
+REPO = Path(__file__).resolve().parents[3]   # 仓库根；不得写死宿主绝对路径（security-check 会拦）
 sys.path.insert(0, str(REPO / "scripts"))
 
 from contract_runtime import canonical, digest, filehash, load  # noqa: E402
