@@ -33,6 +33,35 @@ def main() -> int:
     a = ap.parse_args()
     src = a.src_root.resolve()
 
+    # 驼峰映射的证据来源（决定推断列的证据等级）
+    codegen_hits, explicit_cfg = [], []
+    for p in src.rglob("*.java"):
+        try:
+            t = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        if "NamingStrategy.underline_to_camel" in t:
+            codegen_hits.append(p.relative_to(src).as_posix())
+    for p in list(src.rglob("*.yml")) + list(src.rglob("*.yaml")) + list(src.rglob("*.properties")):
+        try:
+            t = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        for ln in t.splitlines():
+            s = ln.strip()
+            if s.startswith("#"):
+                continue
+            if "map-underscore" in s.lower() or "mapUnderscoreToCamelCase" in s:
+                explicit_cfg.append(p.relative_to(src).as_posix())
+    convention = {
+        "codegen_naming_evidence": codegen_hits[:5],
+        "codegen_evidence_count": len(codegen_hits),
+        "runtime_config_explicit": sorted(set(explicit_cfg)),
+        "level": ("MP_CODEGEN_CONVENTION" if codegen_hits else "CAMEL_INFERENCE"),
+        "note": "无显式运行配置时，运行时行为依赖 MyBatis-Plus 默认（mapUnderscoreToCamelCase=true）；"
+                "代码生成器里的 underline_to_camel 只证明开发期约定，不等于运行期配置",
+    }
+
     reg = yaml.safe_load((a.repo_root / "docs/reuse/DATABASE-ASSETS.yaml").read_text(encoding="utf-8"))
     tables, meta = {}, {}
     for item in reg["items"]:
@@ -128,8 +157,11 @@ def main() -> int:
                 "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
                 "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）",
             },
-            "inferred_basis": ("MP_BASEMAPPER_CONVENTION"
-                               if m.get("mapping_mode") == "MP_BASEMAPPER" else "CAMEL_INFERENCE"),
+            "inferred_basis": ("MP_CODEGEN_CONVENTION"
+                               if (m.get("mapping_mode") == "MP_BASEMAPPER" and codegen_hits)
+                               else ("MP_BASEMAPPER_CONVENTION"
+                                     if m.get("mapping_mode") == "MP_BASEMAPPER"
+                                     else "CAMEL_INFERENCE")),
             "referenced_columns": sorted(ref),
         })
 
@@ -137,6 +169,7 @@ def main() -> int:
         "scope": "全 37 表列引用索引（只读）",
         "warning": "列名多为驼峰推断；SQL 出现不等于数据库存在；本索引不能替代 DDL",
         "files_with_statements": scanned,
+        "convention_evidence": convention,
         "totals": {
             "tables": len(out_tables),
             "columns": sum(x["columns_total"] for x in out_tables),

@@ -2,6 +2,16 @@
  "scope": "全 37 表列引用索引（只读）",
  "warning": "列名多为驼峰推断；SQL 出现不等于数据库存在；本索引不能替代 DDL",
  "files_with_statements": 37,
+ "convention_evidence": {
+  "codegen_naming_evidence": [
+   "gien-rag/gien-rag/rag-parent/rag-auth-service/src/test/java/com/gientech/ragauthservice/utils/CodeGenerator.java",
+   "gien-rag/gien-rag/rag-parent/rag-index-service/src/test/java/com/gientech/ragindexservice/utils/CodeGenerator.java"
+  ],
+  "codegen_evidence_count": 2,
+  "runtime_config_explicit": [],
+  "level": "MP_CODEGEN_CONVENTION",
+  "note": "无显式运行配置时，运行时行为依赖 MyBatis-Plus 默认（mapUnderscoreToCamelCase=true）；代码生成器里的 underline_to_camel 只证明开发期约定，不等于运行期配置"
+ },
  "totals": {
   "tables": 37,
   "columns": 484,
@@ -101,7 +111,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": []
   },
   {
@@ -559,7 +569,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": []
   },
   {
@@ -894,7 +904,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": []
   },
   {
@@ -976,7 +986,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": [
     "gmt_create",
     "id",
@@ -1017,7 +1027,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": [
     "gmt_create",
     "id",
@@ -1265,7 +1275,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": [
     "gmt_create",
     "id"
@@ -1294,7 +1304,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": [
     "business_name",
     "create_by",
@@ -1344,7 +1354,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": [
     "gmt_create",
     "id",
@@ -1485,7 +1495,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": []
   },
   {
@@ -1596,7 +1606,7 @@
     "CAMEL_INFERENCE": "DO 属性驼峰推断（无框架约定支撑时）",
     "SQL_REFERENCE": "SQL/映射文本中出现（不等于 DB 存在）"
    },
-   "inferred_basis": "MP_BASEMAPPER_CONVENTION",
+   "inferred_basis": "MP_CODEGEN_CONVENTION",
    "referenced_columns": []
   }
  ]

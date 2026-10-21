@@ -142,3 +142,4 @@ A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无�
 | R7-M2 | 22 组批量审阅包 | **DONE** | `REUSE-REVIEW-PACK.md`、`evidence/reuse-review-pack-summary.json`；555 行、**例外仅 6 行** | 候选 |
 | R7-A1c | 零引用表核查（映射方式取证） | **DONE** | `sql-refs-all-tables.json` 增 `mapping_mode`；27 XML_SQL / **10 MP_BASEMAPPER**；5 张零引用表全部为 BaseMapper 实体，零引用已解释 | 事实 |
 | R7-M3 | 6 条例外独立裁决单 | **DONE** | `EXCEPTIONS-DECISION-SHEET.md`、`evidence/exceptions-decision-sheet.csv` | 待裁决 |
+| R7-A1d | 驼峰约定取证（决定推断列的证据等级） | **DONE** | 无显式运行配置；代码生成器 2 处 `NamingStrategy.underline_to_camel`；10 张 MP 表的推断基座升级为 `MP_CODEGEN_CONVENTION`，其余 27 表仍 `CAMEL_INFERENCE` | 事实+推断 |
