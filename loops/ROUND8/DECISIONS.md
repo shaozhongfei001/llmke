@@ -97,3 +97,14 @@
 - 代价：多一个终态批次 + 一次 9 门禁重跑（约 2 分钟）。
 - 教训：**补丁包里应当包含授权条目**。凡是"代码改了、authority 没改"，就是 P-04 想避免的
   "元数据与事实不一致"。已把该条加入窗口脚本的待办（下个窗口把 authority 变更也纳入 bundle）。
+
+## D16 P0 闸门红队审计：14/14 拦住，未发现绕过路径
+- 动机：四项 P0 是业务唯一硬阻塞，若"填空文件就能置 CLOSED"，则 p0-gate 是装饰品。
+- 做法：/tmp 造最小 root，构造"除签名外全绿"的基线，再逐点破坏，断言 check() 必须指向该缺陷。
+- 结果：CLOSED 空证据、错 blocker_id、假 snapshot、少答 decision、answer 缺证据、
+  哈希不符、空文件、非 PASS 测试、无 approval、ACCEPTED_RISK 无 waiver、删项、篡改 owner/blocks —— 全部拦住。
+- 自纠：A10 首轮报 MISSED，实为我断言字符串写错（找 waiver_ref，而错误信息是
+  "accepted risk requires separate waiver"）；改正后 14/14。
+- 覆盖不到：伪造签名（需私钥）、证据内容真伪（需人工复核）、过期签名窗口。
+- 已知不一致（只登记不改）：P0-CLOSURE.yaml 的 baseline_version 仍 1.1.0；
+  该文件在 doc_digest 内，改动会让 traceability_gate STALE，故留待窗口处理。
