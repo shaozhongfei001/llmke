@@ -154,3 +154,40 @@ def test_contract_validator_rejects_invalid_object():
     with pytest.raises(EvidenceError) as e2:
         validate_evidence(ev2, ROOT)
     assert e2.value.code == "CONTRACT_VIOLATION"
+
+
+# ---- 负例矩阵补全（边界值，避免"只测正常路径"） ----
+def test_empty_text_rejects_any_span():
+    with pytest.raises(EvidenceError) as e:
+        build_document_evidence("", src(offset={"start": 0, "end": 1, "unit": "unicode_codepoint",
+                                                "text_hash": text_hash(""), "parser_version": "p"}), "ev-1")
+    assert e.value.code == "OFFSET_OUT_OF_BOUNDS"
+
+
+def test_end_zero_rejected():
+    with pytest.raises(EvidenceError) as e:
+        build_document_evidence(DOC, src(offset={**src()["offset"], "start": 0, "end": 0}), "ev-1")
+    assert e.value.code == "OFFSET_RANGE"
+
+
+def test_field_length_limit_enforced():
+    with pytest.raises(EvidenceError) as e:
+        build_document_evidence(DOC, src(document_version="v" * 257), "ev-1")
+    assert e.value.code == "FIELD_TOO_LONG"
+    with pytest.raises(EvidenceError) as e2:
+        build_document_evidence(DOC, src(), "e" * 257)
+    assert e2.value.code == "FIELD_TOO_LONG"
+
+
+def test_source_must_be_dict():
+    with pytest.raises(EvidenceError) as e:
+        build_document_evidence(DOC, ["kb-1"], "ev-1")   # type: ignore[arg-type]
+    assert e.value.code == "ILLEGAL_INPUT"
+
+
+def test_offset_boundary_exactly_at_text_end_is_allowed():
+    """边界正例：end == len(text) 合法（左闭右开）。"""
+    off = {"start": len(DOC) - 1, "end": len(DOC), "unit": "unicode_codepoint",
+           "text_hash": text_hash(DOC[-1]), "parser_version": "p-1.0"}
+    ev = build_document_evidence(DOC, src(offset=off), "ev-edge")
+    validate_evidence(ev, ROOT)

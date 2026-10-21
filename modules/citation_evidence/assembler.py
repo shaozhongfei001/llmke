@@ -49,6 +49,8 @@ def build_document_evidence(document_text: str, source: dict, evidence_id: str) 
     """组装 DocumentEvidence；任何不可信输入一律抛错，不返回"部分正确"的对象。"""
     if not isinstance(document_text, str):
         raise EvidenceError("ILLEGAL_INPUT", "document_text 必须是 str")
+    if not isinstance(source, dict):
+        raise EvidenceError("ILLEGAL_INPUT", "source 必须是 dict")
     _need_str(evidence_id, "evidence_id")
 
     offset = source.get("offset")

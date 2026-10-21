@@ -6,3 +6,4 @@ R8-T04,qa-owner,none,r5 independent_qa_gate,scripts/loop_guard.py accept-qa,BLOC
 R8-T05,data-owner/interface-owner/security-owner/index-owner,none,P0-01..04 关闭证据,make p0-gate,BLOCKED_EXTERNAL,docs/baseline/validation/P0-INPUT-INDEX.md,,"外部权威输入未到"
 R8-T06,python-parser-agent,R8-T01,modules/citation_evidence/assembler.py::SupportGate,pytest modules/citation_evidence/tests -q,VERIFIED,modules/citation_evidence/,,无证据声明默认 block
 R8-T07,python-parser-agent,R8-T01,modules/citation_evidence/assembler.py::validate_evidence,pytest modules/citation_evidence/tests -q,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,替换已弃用 RefResolver（referencing registry）
+R8-T08,python-parser-agent,R8-T01,modules/citation_evidence/tests（边界负例）,pytest modules/citation_evidence/tests -q,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,5 条边界负例 + source 类型守卫

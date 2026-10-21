@@ -40,10 +40,15 @@
       "status": "VERIFIED",
       "desc": "移除弃用 API（RefResolver → referencing）",
       "tests": "14 passed"
+    },
+    "R8-T08": {
+      "status": "VERIFIED",
+      "desc": "负例矩阵补全（空文本/end=0/长度上限/source 类型/右开边界）",
+      "tests": "19 passed"
     }
   },
   "gates": {
-    "framework_verify": "exit 0 / 145 passed / security PASS(544, skipped=1)",
+    "framework_verify": "exit 0 / 145 passed / security PASS",
     "p0_gate": 2,
     "r5_evidence_check": "PASS（原工作树，未变）"
   }
