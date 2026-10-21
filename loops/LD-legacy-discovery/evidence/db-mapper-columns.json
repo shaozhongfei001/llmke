@@ -1,0 +1,729 @@
+{
+ "scope": "四张差异表 + dialogue：Mapper XML 列名 vs DO 字段",
+ "warning": "Mapper 列名是源码事实，但不等于 DDL；索引/约束/引擎/字符集仍需 M-04",
+ "classification_legend": {
+  "SOURCE_FACT": "源码可直接证明（mapping 存在）",
+  "CANDIDATE": "源码可推断，需 DDL 确认",
+  "PENDING_DDL": "必须真实 DDL 才能裁定"
+ },
+ "tables": [
+  {
+   "table_id": "DB-18",
+   "table": "re_embedding_file",
+   "entity": "ReEmbeddingFileDO",
+   "entity_found": true,
+   "mapper_found": true,
+   "classification": "SOURCE_FACT",
+   "items": [
+    {
+     "field": "id",
+     "type": "Long",
+     "column_guess": "id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "taskId",
+     "type": "Long",
+     "column_guess": "task_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "kbId",
+     "type": "Long",
+     "column_guess": "kb_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "kbName",
+     "type": "String",
+     "column_guess": "kb_name",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "fileId",
+     "type": "Long",
+     "column_guess": "file_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "gmtCreate",
+     "type": "Date",
+     "column_guess": "gmt_create",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "gmtModified",
+     "type": "Date",
+     "column_guess": "gmt_modified",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "totalChunkNum",
+     "type": "Long",
+     "column_guess": "total_chunk_num",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "processedChunkNum",
+     "type": "Long",
+     "column_guess": "processed_chunk_num",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "errorChunkNum",
+     "type": "Long",
+     "column_guess": "error_chunk_num",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "isDel",
+     "type": "Integer",
+     "column_guess": "is_del",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "疑似逻辑删除字段（源码可见，语义待 DDL/查询确认）"
+    },
+    {
+     "field": "isMigrate",
+     "type": "Integer",
+     "column_guess": "is_migrate",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "status",
+     "type": "Integer",
+     "column_guess": "status",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "lastError",
+     "type": "String",
+     "column_guess": "last_error",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    }
+   ],
+   "pending": [
+    "id",
+    "taskId",
+    "kbId",
+    "kbName",
+    "fileId",
+    "gmtCreate",
+    "gmtModified",
+    "totalChunkNum",
+    "processedChunkNum",
+    "errorChunkNum",
+    "isDel",
+    "isMigrate",
+    "status",
+    "lastError"
+   ],
+   "extends": null,
+   "entity_has_table_logic": false,
+   "mapper": {
+    "result_map_size": 0,
+    "base_column_list_size": 0,
+    "has_logic_delete": false,
+    "has_json_handler": false,
+    "columns_seen_in_sql": [
+     "id",
+     "is_del",
+     "kb_id",
+     "status",
+     "task_id"
+    ],
+    "sql_column_evidence": "WEAK (手写 SQL 中出现的标识符，非 schema 定义)"
+   }
+  },
+  {
+   "table_id": "DB-19",
+   "table": "re_embedding_retry_task",
+   "entity": "ReEmbeddingRetryTaskDO",
+   "entity_found": true,
+   "mapper_found": true,
+   "classification": "SOURCE_FACT",
+   "items": [
+    {
+     "field": "id",
+     "type": "Long",
+     "column_guess": "id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "uid",
+     "type": "String",
+     "column_guess": "uid",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "taskId",
+     "type": "Long",
+     "column_guess": "task_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "type",
+     "type": "Integer",
+     "column_guess": "type",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "payload",
+     "type": "String",
+     "column_guess": "payload",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "lastError",
+     "type": "String",
+     "column_guess": "last_error",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "gmtCreate",
+     "type": "Date",
+     "column_guess": "gmt_create",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "gmtModified",
+     "type": "Date",
+     "column_guess": "gmt_modified",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "retryTimes",
+     "type": "int",
+     "column_guess": "retry_times",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "isDel",
+     "type": "int",
+     "column_guess": "is_del",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "疑似逻辑删除字段（源码可见，语义待 DDL/查询确认）"
+    },
+    {
+     "field": "status",
+     "type": "Integer",
+     "column_guess": "status",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "fileId",
+     "type": "Long",
+     "column_guess": "file_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": true,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "kbId",
+     "type": "Long",
+     "column_guess": "kb_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    }
+   ],
+   "pending": [
+    "id",
+    "uid",
+    "taskId",
+    "type",
+    "payload",
+    "lastError",
+    "gmtCreate",
+    "gmtModified",
+    "retryTimes",
+    "isDel",
+    "status",
+    "fileId",
+    "kbId"
+   ],
+   "extends": null,
+   "entity_has_table_logic": false,
+   "mapper": {
+    "result_map_size": 0,
+    "base_column_list_size": 0,
+    "has_logic_delete": false,
+    "has_json_handler": false,
+    "columns_seen_in_sql": [
+     "file_id",
+     "id",
+     "is_del",
+     "task_id",
+     "type"
+    ],
+    "sql_column_evidence": "WEAK (手写 SQL 中出现的标识符，非 schema 定义)"
+   }
+  },
+  {
+   "table_id": "DB-20",
+   "table": "re_embedding_task",
+   "entity": "ReEmbeddingTaskDO",
+   "entity_found": true,
+   "mapper_found": true,
+   "classification": "SOURCE_FACT",
+   "items": [
+    {
+     "field": "id",
+     "type": "Long",
+     "column_guess": "id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "kbId",
+     "type": "Long",
+     "column_guess": "kb_id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "kbName",
+     "type": "String",
+     "column_guess": "kb_name",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "embeddingModelName",
+     "type": "String",
+     "column_guess": "embedding_model_name",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "status",
+     "type": "Integer",
+     "column_guess": "status",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "isDel",
+     "type": "Integer",
+     "column_guess": "is_del",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP",
+     "attribution": "疑似逻辑删除字段（源码可见，语义待 DDL/查询确认）"
+    },
+    {
+     "field": "logSummary",
+     "type": "String",
+     "column_guess": "log_summary",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "gmtCreate",
+     "type": "Date",
+     "column_guess": "gmt_create",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "gmtModified",
+     "type": "Date",
+     "column_guess": "gmt_modified",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "msgKey",
+     "type": "String",
+     "column_guess": "msg_key",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "totalFileNum",
+     "type": "Long",
+     "column_guess": "total_file_num",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "uid",
+     "type": "String",
+     "column_guess": "uid",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "createBy",
+     "type": "String",
+     "column_guess": "create_by",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    },
+    {
+     "field": "modifiedBy",
+     "type": "String",
+     "column_guess": "modified_by",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    }
+   ],
+   "pending": [
+    "totalFileNum",
+    "uid",
+    "createBy",
+    "modifiedBy"
+   ],
+   "extends": null,
+   "entity_has_table_logic": false,
+   "mapper": {
+    "result_map_size": 10,
+    "base_column_list_size": 10,
+    "has_logic_delete": false,
+    "has_json_handler": false,
+    "columns_seen_in_sql": [],
+    "sql_column_evidence": "WEAK (手写 SQL 中出现的标识符，非 schema 定义)"
+   }
+  },
+  {
+   "table_id": "DB-34",
+   "table": "user_operate",
+   "entity": "UserOperateDO",
+   "entity_found": true,
+   "mapper_found": true,
+   "classification": "SOURCE_FACT",
+   "items": [
+    {
+     "field": "id",
+     "type": "Long",
+     "column_guess": "id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "gmtCreated",
+     "type": "Date",
+     "column_guess": "gmt_created",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "gmtModified",
+     "type": "Date",
+     "column_guess": "gmt_modified",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "name",
+     "type": "String",
+     "column_guess": "name",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "url",
+     "type": "String",
+     "column_guess": "url",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "startTime",
+     "type": "Date",
+     "column_guess": "start_time",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "endTime",
+     "type": "Date",
+     "column_guess": "end_time",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "userId",
+     "type": "Long",
+     "column_guess": "user_id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "userName",
+     "type": "String",
+     "column_guess": "user_name",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "params",
+     "type": "String",
+     "column_guess": "params",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "ip",
+     "type": "String",
+     "column_guess": "ip",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "success",
+     "type": "Integer",
+     "column_guess": "success",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    }
+   ],
+   "pending": [],
+   "extends": null,
+   "entity_has_table_logic": false,
+   "mapper": {
+    "result_map_size": 12,
+    "base_column_list_size": 12,
+    "has_logic_delete": false,
+    "has_json_handler": false,
+    "columns_seen_in_sql": [],
+    "sql_column_evidence": "WEAK (手写 SQL 中出现的标识符，非 schema 定义)"
+   }
+  },
+  {
+   "table_id": "DIALOGUE",
+   "table": "dialogue",
+   "entity": "DialogueDO",
+   "entity_found": true,
+   "mapper_found": true,
+   "classification": "SOURCE_FACT",
+   "items": [
+    {
+     "field": "id",
+     "type": "Long",
+     "column_guess": "id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": true,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "label",
+     "type": "String",
+     "column_guess": "label",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "sessionId",
+     "type": "String",
+     "column_guess": "session_id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": true,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "status",
+     "type": "Integer",
+     "column_guess": "status",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "gmtCreate",
+     "type": "Date",
+     "column_guess": "gmt_create",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "gmtModified",
+     "type": "Date",
+     "column_guess": "gmt_modified",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "createBy",
+     "type": "String",
+     "column_guess": "create_by",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "updateBy",
+     "type": "String",
+     "column_guess": "update_by",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "sysType",
+     "type": "Integer",
+     "column_guess": "sys_type",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "config",
+     "type": "String",
+     "column_guess": "config",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "configId",
+     "type": "Long",
+     "column_guess": "config_id",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "configHistory",
+     "type": "String",
+     "column_guess": "config_history",
+     "mapped_in_resultmap": true,
+     "seen_in_sql": false,
+     "basis": "MAPPER_RESULTMAP"
+    },
+    {
+     "field": "kbId",
+     "type": "Long",
+     "column_guess": "kb_id",
+     "mapped_in_resultmap": false,
+     "seen_in_sql": false,
+     "basis": "CAMEL_GUESS",
+     "attribution": "可能非持久化属性 / 或 resultMap 未列全 —— 待 DDL 裁定"
+    }
+   ],
+   "pending": [
+    "kbId"
+   ],
+   "extends": null,
+   "entity_has_table_logic": false,
+   "mapper": {
+    "result_map_size": 12,
+    "base_column_list_size": 10,
+    "has_logic_delete": false,
+    "has_json_handler": false,
+    "columns_seen_in_sql": [
+     "id",
+     "session_id"
+    ],
+    "sql_column_evidence": "WEAK (手写 SQL 中出现的标识符，非 schema 定义)"
+   }
+  }
+ ],
+ "notes": []
+}

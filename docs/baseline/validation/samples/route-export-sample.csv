@@ -1,0 +1,28 @@
+service,method,path,handler,framework,exposed_via,environment,exported_at,exported_by,source_note
+rag-qa-service,POST,/retrieval_qa,retrievalQaHandler,spring-mvc,gateway:rag-gateway,prod-like,2026-10-21T10:00:00+08:00,interface-owner-示例,示例行（虚构数据，非真实导出）
+,,,,,,,,,以下为空白行，请逐行填写；一行一条路由
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+# 字段说明（本注释行在提交前可删除）
+# service        服务名，必须与 docs/reuse/INTERFACE-ASSETS.yaml 的 service 对齐
+# method         HTTP 方法，大写
+# path           原始大小写路径（不要规范化、不要小写化、不要去掉尾斜杠）
+# handler        实际处理方法名（用于核对清单里的 handler_reported）
+# framework      spring-mvc / flask / fastapi / django 等
+# exposed_via    该路由的暴露方式：gateway:<name> / direct / internal-only
+# environment    导出环境标识（prod-like / staging / 本地复原环境），必须写清，不得用 prod 冒充
+# exported_at    ISO8601 带时区
+# exported_by    执行导出的人或系统账号
+# source_note    任何解释：例如"排除了被注释的 handler"
+#
+# 完整性要求
+# 1) 必须覆盖 506 条清单涉及的全部 service；
+# 2) 必须有 exported_at 与 environment，缺一视为不可用于 P0-01；
+# 3) 若某服务无法导出，请在 source_note 写 "UNAVAILABLE: <原因>"，不要留空行冒充已导出。
+#
+# 无法提供路由导出时的替代证据（按优先级）
+# a) 网关/接入层访问日志（见 access-log-sample.csv）
+# b) 调用方书面确认（见 caller-confirmation-sample.md）
+# c) 框架启动日志中的 mapping 注册记录（需包含完整 path 与 handler）

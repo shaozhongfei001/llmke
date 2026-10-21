@@ -87,3 +87,22 @@ python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r5     
 
 **r5 候选未受影响**：所有产物位于 `docs/baseline/validation/` 与 `loops/**`（`snapshot()` 排除），
 `record.source_sha256 == snapshot(ROOT)` 复核仍为 `True`。
+
+---
+
+## 8. 第五轮（保护 r5 前提下的并行推进）
+
+| ID | 事项 | 状态 | 产物 | 分类 |
+|---|---|---|---|---|
+| R5-A1 | P0-03 六类负例模拟 + 变异 | **DONE** | `evidence/p0-03-scenarios.json`、`tools/p0_03_scenarios.py` | **SIMULATED** |
+| R5-A3 | P0-01 三种输入样例 | **DONE** | `docs/baseline/validation/samples/`（路由导出 / 访问日志 / 调用方确认） | 模板 |
+| R5-A2 | 四表逐列归因 | **DONE** | `A2-FIELD-ATTRIBUTION.md`、`evidence/db-mapper-columns.json` | **CANDIDATE** |
+| R5-A4 | P-08/P-09/P-10 迁移草案 | **DONE（仅草案）** | `ROUND5-PLANS.md` §1 | 计划 |
+| R5-B1 | PDF 离线依赖与前置 | **DONE（清单）** | 同上 §2 | 计划 |
+| R5-B2 | 六方外部输入包 | **DONE** | 同上 §3 | 计划 |
+
+**关键结果**：P0-03 **7/7 场景 PASS + 7/7 变异体被拒**；
+A2 出现**方向反转**——`user_operate` 12 字段全部有列映射且无继承，说明「台账多一列」比「实体多字段」更可能；
+`dialogue.kbId` 未在 resultMap 中映射，第四轮「kbId 存在」的结论据此降级。
+
+**r5 未受影响**：产物全在 `docs/baseline/validation/`、`loops/**`（`snapshot()` 排除）。

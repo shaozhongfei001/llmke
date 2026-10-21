@@ -1,0 +1,245 @@
+{
+ "scope": "P0-03 六类负例协议模拟（SIMULATED）",
+ "warning": "策略来自草案，未经 security-owner 批准；不得关闭 P0-03，不替代 E1 规范与 E2-E7 实测",
+ "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+ "policy_status": "UNCONFIRMED_ASSUMPTION",
+ "scenarios": [
+  {
+   "scenario": "N1_cross_domain_and_deny_override",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "DENY(不可区分)",
+   "actual": {
+    "other_kb": {
+     "error": "not_found"
+    },
+    "deny_override": {
+     "error": "not_found"
+    }
+   },
+   "pass": true
+  },
+  {
+   "scenario": "N2_graph_unauthorized_interference",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "授权域社区不变",
+   "actual": {
+    "before": {
+     "communities": [
+      [
+       "n1",
+       "n2"
+      ]
+     ],
+     "count": 1
+    },
+    "after": {
+     "communities": [
+      [
+       "n1",
+       "n2"
+      ]
+     ],
+     "count": 1
+    }
+   },
+   "pass": true
+  },
+  {
+   "scenario": "N3_side_channel_indistinguishability",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "拒绝与不存在响应完全一致，且无计数",
+   "actual": {
+    "denied": {
+     "error": "not_found"
+    },
+    "missing": {
+     "error": "not_found"
+    }
+   },
+   "pass": true
+  },
+  {
+   "scenario": "N4_cache_isolation_after_policy_change",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "策略版本变化后缓存不得命中旧结论",
+   "actual": {
+    "first": {
+     "error": "not_found"
+    },
+    "second": {
+     "doc_id": "d1",
+     "content": "content-of-d1"
+    },
+    "policy_version": 2
+   },
+   "pass": true
+  },
+  {
+   "scenario": "N5_revocation_residue",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "撤权后立即 DENY",
+   "actual": {
+    "before": {
+     "doc_id": "d1",
+     "content": "content-of-d1"
+    },
+    "after": {
+     "error": "not_found"
+    }
+   },
+   "pass": true
+  },
+  {
+   "scenario": "N6_faq_inherit_source_permission",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "FAQ 命中后按来源文档复核 → DENY",
+   "actual": {
+    "error": "not_found"
+   },
+   "pass": true
+  },
+  {
+   "scenario": "N7_error_metadata_leak",
+   "policy_source": "ROUND4-PARALLEL-WORK.md §3（草案，待 security-owner 确认）",
+   "policy_status": "UNCONFIRMED_ASSUMPTION",
+   "classification": "SIMULATED",
+   "expected": "错误对象字段 ⊆ {code,message}",
+   "actual": {
+    "code": "E_NOT_FOUND",
+    "message": "resource unavailable"
+   },
+   "pass": true
+  }
+ ],
+ "mutation_check": [
+  {
+   "scenario": "N1_cross_domain_and_deny_override",
+   "mutant": "{'strict': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "other_kb": {
+     "doc_id": "d4",
+     "content": "content-of-d4"
+    },
+    "deny_override": {
+     "error": "not_found"
+    }
+   }
+  },
+  {
+   "scenario": "N2_graph_unauthorized_interference",
+   "mutant": "{'filter_graph': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "before": {
+     "communities": [
+      [
+       "n1",
+       "n2",
+       "n3",
+       "n4"
+      ]
+     ],
+     "count": 1
+    },
+    "after": {
+     "communities": [
+      [
+       "n1",
+       "n2",
+       "n3",
+       "n4",
+       "n5",
+       "n6"
+      ]
+     ],
+     "count": 1
+    }
+   }
+  },
+  {
+   "scenario": "N3_side_channel_indistinguishability",
+   "mutant": "{'leak': True}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "denied": {
+     "error": "denied_or_missing",
+     "doc_id": "d4",
+     "total_docs": 6,
+     "policy_version": 1
+    },
+    "missing": {
+     "error": "denied_or_missing",
+     "doc_id": "no-such-doc",
+     "total_docs": 6,
+     "policy_version": 1
+    }
+   }
+  },
+  {
+   "scenario": "N4_cache_isolation_after_policy_change",
+   "mutant": "{'cache_with_version': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "first": {
+     "error": "not_found"
+    },
+    "second": {
+     "error": "not_found"
+    },
+    "policy_version": 2
+   }
+  },
+  {
+   "scenario": "N5_revocation_residue",
+   "mutant": "{'revoke': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "before": {
+     "doc_id": "d1",
+     "content": "content-of-d1"
+    },
+    "after": {
+     "doc_id": "d1",
+     "content": "content-of-d1"
+    }
+   }
+  },
+  {
+   "scenario": "N6_faq_inherit_source_permission",
+   "mutant": "{'inherit': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "error": null,
+    "answer": "faq-answer-f1"
+   }
+  },
+  {
+   "scenario": "N7_error_metadata_leak",
+   "mutant": "{'allowlist': False}",
+   "mutant_pass": false,
+   "mutant_actual": {
+    "code": "E_NOT_FOUND",
+    "message": "resource unavailable",
+    "doc_id": "d1",
+    "kb": "kb1",
+    "policy_version": 1
+   }
+  }
+ ],
+ "mutants_total": 7,
+ "mutants_rejected": 7,
+ "failures": []
+}
