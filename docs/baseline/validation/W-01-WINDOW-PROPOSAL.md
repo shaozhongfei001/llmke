@@ -49,7 +49,16 @@ P-03 把摘要拆成 `control_digest`（205 个控制文件）与 `doc_digest`�
 - 在 `source_files`（217）里 —— 旧 `digest_scheme=1` 会因此判 STALE；
 - 不在 `control_digest`、也不在 `doc_digest` —— 新 `digest_scheme=2` **不会**判 STALE。
 
-结论：**改 `assembler.py` 一行代码，r5 的 7 条门禁与 QA 候选记录仍全部 PASS。**
+**已实测证实（2026-10-21，在 `modules/citation_evidence/assembler.py` 末尾追加一行语义无关的注释后测量，随后 `git checkout` 复原）：**
+
+| 观测量 | 改代码前 | 改代码后 |
+|---|---|---|
+| `snapshot`（整树） | `f4f6ee2d9d5280de…` | **`3dbb9755416557f1…`**（变了） |
+| `control_digest` | `60bae549f5d5c43e…` | `60bae549f5d5c43e…`（没变） |
+| `evidence-check --loop r5` | PASS | **PASS（exit 0）** |
+| 旧语义 `digest_scheme=1` 会不会判 STALE | — | **会**（记录 `source_sha256=f4f6ee2d…` ≠ 当前 `3dbb9755…`） |
+
+结论：**改 `assembler.py` 一行代码，r5 的 7 条门禁与 QA 候选记录仍全部 PASS**——已实测，不是推断。
 
 这既是 P-03 的设计意图（开发期改业务代码不该反复作废控制面证据），也是一个必须显式封口的洞：
 一旦把模块测试接进门禁，这条门禁**跑完就腐**——它证明"当时那版代码过了"，但证据不绑那版代码。
@@ -257,6 +266,30 @@ python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r6   # 
 | r6 签名 + 信任根锚点更新 | `qa-owner` | 按 `R5-QA-HANDOFF.md` §3 流程 |
 
 ---
+
+## 附 A：L2 缺口的实验记录（可复现）
+
+```bash
+cd ~/data/dev/llmke-r8
+# 1) 实验前
+python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r5   # PASS
+# 2) 改一行注释（语义不变）
+printf '\n# probe\n' >> modules/citation_evidence/assembler.py
+PYTHONPATH=scripts python3 -c "
+from pathlib import Path
+from baseline_support import snapshot, control_digest
+print(snapshot(Path('.')), control_digest(Path('.')))"                      # snapshot 变、control 不变
+python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r5   # 仍然 PASS  ← 缺口
+# 3) 复原
+git checkout -- modules/citation_evidence/assembler.py
+```
+
+实测结论：整树 `snapshot` 从 `f4f6ee2d…` 变到 `3dbb9755…`，
+`control_digest` 保持 `60bae549…`，`evidence-check` 仍 PASS。
+说明 **`digest_scheme=2` 把业务代码变更完全排除在失效条件之外**。
+
+这不是 P-03 的错误，而是它的已知代价；W-01 的任务是给它加一条**窄口径**的补充绑定
+（只有声明依赖代码的门禁才看 `code_digest`），而不是退回"整树绑定"。
 
 ## 附：复现本文所有数字
 
