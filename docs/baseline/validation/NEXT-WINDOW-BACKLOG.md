@@ -20,9 +20,12 @@
 
 ## W-05（建议最高优先，**补丁已验证**）R-02 根治：Makefile 不得从 PATH 取解释器
 
-> 2026-10-22 更新：已在隔离工作树试打并验证（193 passed / framework-verify exit 0 / 负向失败响亮）。
-> 补丁与验证矩阵见 `W-05-VERIFIED-PATCH.md` 与 `patches/w05-makefile-python.diff`（`git apply --check` 通过）。
+> 2026-10-22 更新：**已并入验证过的补丁包** `patches/window-bundle-v1.diff`（含 W-05 + W-05b + W-02 + W-04）。
+> 验证矩阵与 3 条硬约束见 `WINDOW-BUNDLE-VERIFIED.md`；`git apply --check` 通过。
 > 仍未应用到 r8 —— 应用会让 r7 候选失效。
+>
+> 新增发现：只改 Makefile **不够**（W-05b）。门禁 argv 的 `python3` 由 `sys.executable` 决定，
+> 若入口自己用 conda python3 启动，`mutation_probe_gate` 会单独失败，比全红更难查。
 
 ### 为什么排第一
 
@@ -66,6 +69,7 @@
 ## W-02（可选）L3：把模块测试单列为独立门禁
 
 - 现状：模块测试只在 `framework-test` 内跑，证据上依附于 `independent_qa_gate`，看不出"39 条模块测试"这一层。
+- 2026-10-22：已在隔离树端到端预演（9 条门禁批次 8 pass + QA pending，evidence-check PASS），补丁在补丁包内。
 - 改动：`GATE-CATALOG.yaml` 增 `framework.modules`（`argv: [make, module-test]`），新批次 `LOOP.yaml` 增 `module_test_gate`。
 - 代价：控制面 +2 处；门禁数 8 → 9。
 - 收益：QA 可单独复核"模块测试是否 pass"，而不必从 `framework-verify` 的合并输出里推断。

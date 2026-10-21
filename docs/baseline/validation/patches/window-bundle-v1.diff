@@ -1,0 +1,212 @@
+diff --git a/Makefile b/Makefile
+index 1e51e93..438441d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,18 +1,25 @@
+-.PHONY: help generate check contract-all framework-test framework-verify tooling-test oracle-readonly-guard-test p0-check p0-gate p0-status security-check baseline-check rules-check trace-check mutation-probe reuse-check discovery-verify business-verify run-dev memory-check evidence-check new-loop baton-transfer
++.PHONY: help generate check contract-all framework-test framework-verify tooling-test oracle-readonly-guard-test p0-check p0-gate p0-status security-check baseline-check rules-check trace-check mutation-probe reuse-check discovery-verify business-verify run-dev memory-check evidence-check new-loop baton-transfer module-test python-info
+ LOOP ?=
+ EXECUTOR ?=
+ PROFILE ?= L1
++# W-05 解释器唯一来源：优先 LLMKE_PYTHON，其次仓库内 .venv，最后回退 PATH。
++# 为什么：Makefile 内所有 python3 都从 PATH 取；conda/系统 shell 下会取到缺依赖的解释器，
++# 表现为"门禁莫名红"（R-02 已发生 3 次，其中一次是 run_batch 内部 spawn make）。
++LLMKE_PYTHON ?= $(shell [ -x .venv/bin/python3 ] && echo .venv/bin/python3 || echo python3)
++PY := $(LLMKE_PYTHON)
+ help:
+-	@python3 -c "print('framework-verify / p0-check / p0-gate / run-dev LOOP=... EXECUTOR=... / business-verify PROFILE=L1')"
++	@$(PY) -c "print('framework-verify / p0-check / p0-gate / run-dev LOOP=... EXECUTOR=... / business-verify PROFILE=L1')"
+ generate:
+-	@python3 scripts/contract_generate.py
++	@$(PY) scripts/contract_generate.py
+ check:
+-	@python3 scripts/contract_check.py
++	@$(PY) scripts/contract_check.py
+ contract-all:
+ 	@$(MAKE) --no-print-directory generate
+ 	@$(MAKE) --no-print-directory check
+ framework-test:
+-	@python3 -m pytest tests/ modules/ -q
++	@$(PY) -m pytest tests/ modules/ -q
++module-test:
++	@$(PY) -m pytest modules/ -q
+ framework-verify:
+ 	@$(MAKE) --no-print-directory contract-all
+ 	@$(MAKE) --no-print-directory rules-check
+@@ -22,41 +29,43 @@ framework-verify:
+ 	@$(MAKE) --no-print-directory framework-test
+ 	@$(MAKE) --no-print-directory baseline-check
+ tooling-test:
+-	@python3 -m pytest tests/test_contract_toolchain.py tests/test_installer.py -q
++	@$(PY) -m pytest tests/test_contract_toolchain.py tests/test_installer.py -q
+ oracle-readonly-guard-test:
+-	@python3 -m pytest tests/test_readonly_guard.py -q
++	@$(PY) -m pytest tests/test_readonly_guard.py -q
+ p0-check:
+-	@python3 scripts/p0_closure_check.py --mode integrity
++	@$(PY) scripts/p0_closure_check.py --mode integrity
+ p0-status: p0-check
+ p0-gate:
+-	@python3 scripts/p0_closure_check.py --mode strict
++	@$(PY) scripts/p0_closure_check.py --mode strict
+ security-check:
+-	@python3 scripts/security_scan.py --all-files --tracked-sensitive
++	@$(PY) scripts/security_scan.py --all-files --tracked-sensitive
+ baseline-check:
+-	@python3 scripts/freeze_baseline.py
++	@$(PY) scripts/freeze_baseline.py
+ rules-check:
+-	@python3 scripts/sync_rules.py
++	@$(PY) scripts/sync_rules.py
+ trace-check:
+-	@python3 scripts/trace_check.py
++	@$(PY) scripts/trace_check.py
+ mutation-probe:
+-	@python3 scripts/mutation_probe.py
++	@$(PY) scripts/mutation_probe.py
+ reuse-check:
+-	@python3 scripts/readiness_check.py --mode inventory
++	@$(PY) scripts/readiness_check.py --mode inventory
+ discovery-verify: reuse-check p0-check trace-check
+ business-verify:
+-	@python3 scripts/p0_closure_check.py --mode strict --loop $(PROFILE)
+-	@python3 scripts/readiness_check.py --mode strict --loop $(PROFILE)
++	@$(PY) scripts/p0_closure_check.py --mode strict --loop $(PROFILE)
++	@$(PY) scripts/readiness_check.py --mode strict --loop $(PROFILE)
+ 	@$(MAKE) --no-print-directory contract-all
+-	@python3 scripts/business_gate.py --profile $(PROFILE) --stage build
+-	@python3 scripts/business_gate.py --profile $(PROFILE) --stage test
+-	@python3 scripts/evaluation_dispatch.py --profile $(PROFILE)
++	@$(PY) scripts/business_gate.py --profile $(PROFILE) --stage build
++	@$(PY) scripts/business_gate.py --profile $(PROFILE) --stage test
++	@$(PY) scripts/evaluation_dispatch.py --profile $(PROFILE)
+ run-dev:
+-	@python3 scripts/run_batch.py --loop $(LOOP) --executor $(EXECUTOR)
++	@$(PY) scripts/run_batch.py --loop $(LOOP) --executor $(EXECUTOR)
+ memory-check:
+-	@python3 scripts/loop_guard.py memory-check --loop $(LOOP)
++	@$(PY) scripts/loop_guard.py memory-check --loop $(LOOP)
+ evidence-check:
+-	@python3 scripts/loop_guard.py evidence-check --loop $(LOOP)
++	@$(PY) scripts/loop_guard.py evidence-check --loop $(LOOP)
+ new-loop:
+-	@python3 scripts/new_loop.py $(LOOP)
++	@$(PY) scripts/new_loop.py $(LOOP)
+ baton-transfer:
+-	@python3 scripts/loop_guard.py baton-transfer --loop $(LOOP) --to $(TO) --executor $(EXECUTOR) --expected-revision $(REVISION)
++	@$(PY) scripts/loop_guard.py baton-transfer --loop $(LOOP) --to $(TO) --executor $(EXECUTOR) --expected-revision $(REVISION)
++python-info:
++	@$(PY) -c "import sys;print('make sees:',sys.executable)"
+diff --git a/docs/policies/GATE-CATALOG.yaml b/docs/policies/GATE-CATALOG.yaml
+index 8d8bb78..9dc0d96 100644
+--- a/docs/policies/GATE-CATALOG.yaml
++++ b/docs/policies/GATE-CATALOG.yaml
+@@ -26,6 +26,17 @@ gates:
+     - contract
+     - diagnostic
+     - implementation
++  framework.modules:
++    argv:
++    - make
++    - module-test
++    required_checks:
++    - module_tests
++    type: dev_self_check
++    allowed_kinds:
++    - contract
++    - diagnostic
++    - implementation
+   framework.regressions:
+     argv:
+     - python3
+diff --git a/scripts/_pin.py b/scripts/_pin.py
+new file mode 100644
+index 0000000..e75282e
+--- /dev/null
++++ b/scripts/_pin.py
+@@ -0,0 +1,34 @@
++"""W-05b：进程入口自钉解释器（只依赖标准库，必须最先被导入）。
++
++R-02 的根因不是 Makefile 单点：整条链**第一个** `python3` 来自 PATH。
++门禁 argv 里的 `python3` 已由 loop_guard 换成 `sys.executable`，因此只要入口用对解释器，
++spawn 出去的 make / pytest / 门禁命令就都对。
++
++优先级：LLMKE_PYTHON → <repo>/.venv/bin/python3 → 保持现状（不改变任何门禁语义）。
++为什么必须"先于重型导入"：系统 python3 可能连 yaml 都没有，等到 main() 里再钉就已经太晚。
++"""
++import os
++import sys
++from pathlib import Path
++
++
++def _pin() -> None:
++    if os.environ.get("LLMKE_PYTHON_REEXEC") == "1":
++        return
++    root = Path(__file__).resolve().parents[1]
++    want = os.environ.get("LLMKE_PYTHON")
++    if not want:
++        cand = root / ".venv" / "bin" / "python3"
++        want = str(cand) if cand.is_file() else None
++    if not want or not os.access(want, os.X_OK):
++        return
++    if os.path.realpath(want) == os.path.realpath(sys.executable):
++        return
++    env = dict(os.environ)
++    env["LLMKE_PYTHON_REEXEC"] = "1"
++    env["LLMKE_PYTHON"] = want
++    env["PATH"] = str(Path(want).parent) + os.pathsep + env.get("PATH", "")
++    os.execve(want, [want] + sys.argv, env)
++
++
++_pin()
+diff --git a/scripts/loop_guard.py b/scripts/loop_guard.py
+index 6654fad..f54fd15 100644
+--- a/scripts/loop_guard.py
++++ b/scripts/loop_guard.py
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """Loop v2: state/argv/DAG/baton/budget enforcement; external QA attestation."""
+ from __future__ import annotations
++import _pin  # noqa: F401  W-05b 必须在重型导入之前
+ import argparse,json,os,re,subprocess,sys
+ from pathlib import Path
+ from contract_runtime import load,inside,digest,filehash,ContractViolation
+diff --git a/scripts/run_batch.py b/scripts/run_batch.py
+index 3b26cc4..2d7988d 100644
+--- a/scripts/run_batch.py
++++ b/scripts/run_batch.py
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """Run only declared development gates; never claim independent QA."""
+ import argparse
++import _pin  # noqa: F401  W-05b 必须在重型导入之前
+ from baseline_support import ROOT
+ from loop_guard import spec,run_gate
+ if __name__=='__main__':
+diff --git a/tests/test_loop_guard.py b/tests/test_loop_guard.py
+index 01959e5..94d9131 100644
+--- a/tests/test_loop_guard.py
++++ b/tests/test_loop_guard.py
+@@ -87,3 +87,22 @@ def test_transfer_does_not_unblock(tmp_path):
+  root,d=make_loop(tmp_path,status='BLOCKED')
+  assert guard(root,'baton-transfer','--loop','T1','--to','worker-1','--executor','tech-lead','--expected-revision','1').returncode==0
+  assert load(d/'STATE.json')['blocked'] is True
++
++
++def test_stale_qa_candidate_rejected_even_with_valid_signature(tmp_path,monkeypatch):
++    """W-04：签名有效 ≠ 可以接受过期候选。
++
++    `accept_qa` 里 stale 检查必须先于签名校验；顺序被调换或检查被删掉时，
++    "过期候选 + 有效签名"会被接受，而现有测试都发现不了。
++    """
++    root,d=make_loop(tmp_path);devpass(root)
++    assert guard(root,'baton-transfer','--loop','T1','--to','qa-independent','--executor','dev-1','--expected-revision','2').returncode==0
++    assert guard(root,'qa-run','--loop','T1','--gate','e2e_smoke_gate','--executor','qa-independent').returncode==0
++    rec=load(d/'evidence/manifest.json')['gates']['e2e_smoke_gate'];g=load(d/'LOOP.yaml')['gates'][1]
++    key,kid,principal=authority(tmp_path,root,monkeypatch)
++    envelope=sign(tmp_path,key,kid,principal,'QA_ATTESTATION',qa_subject('T1',g,rec))
++    (root/'scripts'/'extra.py').write_text('x = 1\n')      # 候选过期：控制面变了
++    dump(tmp_path/'approval.json',envelope)
++    p=guard(root,'accept-qa','--loop','T1','--gate','e2e_smoke_gate','--attestation',str(tmp_path/'approval.json'))
++    assert p.returncode!=0,p.stdout+p.stderr
++    assert 'STALE' in (p.stdout+p.stderr)
