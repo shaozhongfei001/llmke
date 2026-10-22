@@ -41,6 +41,17 @@ change_list:
       R-02 同一缺陷已致 3 次事故（直接 make 两次、run_batch 内部 spawn make 一次）；
       仅改 Makefile 不足，门禁 argv 的 python3 取 sys.executable，入口用错解释器时
       mutation_probe_gate 会单独失败。另：模块测试此前不在门禁内（39 条）。
+  - id: W-08
+    summary: >-
+      建 L0-contract-baseline-r11 作为独立复签候选（8 条开发门禁重跑，QA 留 QA_PENDING），
+      LOOP.yaml 的 allowed_holders 增加 qa-external-02（否则 qa-run 报 unknown target holder）；
+      同时落盘两份规则载体：docs/policies/GATE-EXECUTION-RULES.md（门禁判定禁接管道）、
+      docs/policies/CHANGE-REQUESTS.yaml（变更登记，编号沿用 BL-<版本>）。
+      已知不可逆代价：r10 九条门禁转为 STALE。
+    approved_by: project-owner (2026-10-22, in-session：选择 A「现在建 r11，停在 QA_PENDING」)
+    rationale: >-
+      r10 的 QA 签名由实现方持有私钥执行（业主授权自签），且窗口已于 06:47:14Z 过期，
+      不可作为独立背书；独立 QA 要求可签目标就绪后方可签名。
 not_included:
   - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
   - requirements.lock 去重——待 baseline-owner 批准

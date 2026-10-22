@@ -1,0 +1,2 @@
+{"argv": ["make", "generate"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-22T14:19:38.670260+00:00"}
+generate: PASS (18 contracts, clean staged outputs)

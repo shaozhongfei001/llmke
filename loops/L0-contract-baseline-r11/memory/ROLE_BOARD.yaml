@@ -1,0 +1,5 @@
+view_only: true
+state_revision: 13
+baton:
+  holder: qa-external-02
+status: QA_PENDING
