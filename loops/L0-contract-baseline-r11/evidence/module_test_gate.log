@@ -1,4 +1,4 @@
-{"argv": ["make", "module-test"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-22T14:19:45.719522+00:00"}
-..........sssssssss...............................................ssssss [ 74%]
-ssssssssssssss...........                                                [100%]
-68 passed, 29 skipped in 0.49s
+{"argv": ["make", "module-test"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-22T14:44:53.986074+00:00"}
+........................................................................ [ 74%]
+.........................                                                [100%]
+97 passed in 33.33s

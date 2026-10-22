@@ -1,8 +1,8 @@
 # Generated view
 
-State revision: 13
+State revision: 17
 
-Baton holder: `qa-external-02`
+Baton holder: `integration-agent`
 
 Status: QA_PENDING
 
