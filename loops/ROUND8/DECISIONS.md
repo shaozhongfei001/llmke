@@ -366,3 +366,13 @@
   因此本次签名应视为"业主授权自签"，不得作为独立 QA 背书引用。
 - 教训：门禁能拦"同名主体"，拦不住"同一双手换身份"。若要真独立，需要第二个主体持独立私钥重签。
 - 工作分支变更：后续工作应在 main（或新分支）进行；`round8/delivery` 已落后于 main。
+## D46 误判陷阱：`external trust root not configured` 看起来像"没签名"
+- 现象：r10 已签名且 `STATE=DONE`，直接跑 `evidence-check` 仍报
+  `FAIL: independent_qa_gate: external trust root not configured; independent approval stays PENDING`。
+- 真因：**没设 `LLMKE_TRUST_ROOT`**。已签名批次要验签，读不到信任根就按"未独立批准"处理。
+- 危险点：这句话的字面意思是"没配置"，读起来却像"未签名/候选失效"，
+  极易得出"我的签名丢了"这种错误结论（本次差点如此）。
+- 处置：新增仓外入口 `coordination/evidence-check.sh`，自动定位工作树并设置信任根；
+  缺信任根时**明确报错并解释原因**，不再伪装成 PENDING。
+- 提示：`framework-verify` 不需要信任根（不验签），所以"门禁全绿但 evidence-check 红"是正常组合，
+  只差一个环境变量。
