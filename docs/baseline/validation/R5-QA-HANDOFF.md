@@ -1,5 +1,10 @@
 # r5 独立 QA 交接包（含硬阻塞）
 
+> **本文件已作废（r5 已被 SUPERSEDED）。**
+> 保留原因：记录当时的候选指纹与签署步骤，供复盘。
+> **不要**用它去签当前批次；当前无活动候选，需先建新批次（见 `NEXT-SESSION.md`）。
+
+
 - 候选批次：`L0-contract-baseline-r5`
 - 冻结基线：`VERSION=1.1.1`、`FROZEN-MANIFEST` revision **6**、控制面 **205** 文件
 - `baseline_sha256 = 213c6ebc203ef846c3edf5397a9640310a683391878ddb5af4c12b8da25cbc52`

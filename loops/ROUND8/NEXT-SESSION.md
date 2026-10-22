@@ -35,7 +35,7 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 - 落地：`schema-v1.3.sql`（43 表）+ `schema-verify.sh`（43 表、97 模块测试、契约↔表列一致）
 - 切片：A 证据落库 / B 分块存储 / C 代次机制（S1–S5）/ D 授权过滤下沉 SQL（E1/E3）/ E 组合链路 / F 端到端黄金路径 / 体检工具
 - 落地：`docs/baseline/validation/artifacts/schema-v1.1.sql`（38 表）+ `schema-verify.sh`（一键真机验证）
-- 切片 A：证据接真库端到端（5 条集成测试，模块 44 passed）
+- 切片 A–F + 体检工具：模块 97 passed（A 证据 / B 分块 / C 代次 / D 授权 / E 组合 / F 端到端）
 
 ### 下一条准确命令（验证现状）
 
@@ -43,13 +43,14 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 cd ~/data/dev/llmke-r8
 export PATH=~/data/dev/llmke/.venv/bin:$PATH
 docs/baseline/validation/schema-verify.sh          # 起实例+建表+跑集成测试，期望 PASS
-make framework-verify                              # 期望 exit 0 / 199 passed
+make framework-verify                              # 期望 exit 0 / 252 passed
 PYTHONPATH=$PWD python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r9
 ```
 
 ### 续跑顺序（下次接手直接照做）
 
-1. **等 qa-owner 签 r9**（信任根锚点指向 `cf8a72c8…`）——这是合并与 L1 的前置；
+1. **先建新批次**（r9 已因新增实现作废，见 D33）：实现暂停后建批 → 跑 9 条门禁 → 生成 QA 载荷
+   → qa-owner 把信任根锚点指到新 `baseline_sha256` 再签名——这是合并与 L1 的前置；
 2. 拿到 `index-owner` 对 `P0-04-DESIGN-PROPOSAL.md` 5 条裁定 → 升 schema V1.2 并实现 5 条测试；
 3. 拿到 `security-owner` 对 `P0-03-DESIGN-PROPOSAL.md` 5 条裁定 → 实现 E1–E6；
 4. 若业主决定迁移旧数据（当前决策为**空库起步**）→ 按 `target-schema-v1-mapping.csv`
