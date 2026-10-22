@@ -44,7 +44,7 @@ cd ~/data/dev/llmke-r8
 export PATH=~/data/dev/llmke/.venv/bin:$PATH
 docs/baseline/validation/schema-verify.sh          # 起实例+建表+跑集成测试，期望 PASS
 make framework-verify                              # 期望 exit 0 / 252 passed
-PYTHONPATH=$PWD python3 scripts/loop_guard.py evidence-check --loop L0-contract-baseline-r9
+~/data/dev/coordination/evidence-check.sh L0-contract-baseline-r10
 ```
 
 ### 续跑顺序（下次接手直接照做）
