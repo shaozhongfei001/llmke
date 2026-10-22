@@ -51,3 +51,27 @@ make p0-gate > /tmp/p0.log 2>&1; echo "rc=$?（期望 2）"
 ## 说明
 
 文档中不写宿主绝对路径（写 `~/`），否则 `security-check` 判失败。
+
+## 收口窗口（唯一剩余流程）
+
+前置检查（不通过不要进窗口）：
+
+```bash
+cd ~/data/dev/llmke
+PATH=$PWD/.venv/bin:$PATH ~/data/dev/coordination/close-batch.py --loop L0-contract-baseline-r11
+# 现状：NOT READY（锚点/主体/私钥/载荷四项 BLOCK），rc=2
+```
+
+三项 profile 动作到位、QA 签好后，窗口内执行（脚本会再查一遍再动手）：
+
+```bash
+PATH=$PWD/.venv/bin:$PATH ~/data/dev/coordination/close-batch.py \
+  --loop L0-contract-baseline-r11 --envelope <签名文件> --execute
+```
+
+## 三条已记录的风险（勿再误判）
+
+1. 签名后 1 小时 r11 必然转红（`BL-1.1.1-01` 未实现）；窗口外看到
+   `invalid approval validity window` 属**预期**，不是签名损坏。合并/留痕必须在窗口内完成。
+2. `qa-run` 执行者是实现方（`integration-agent`），provenance 偏弱；**下一批次由 QA 侧执行 qa-run**。
+3. 证据必须落盘：`accept-qa`/`finish` 后立即再提交一次 `loops/<loop>/**`。
