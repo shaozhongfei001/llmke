@@ -1,0 +1,1 @@
+{"attempts":{"baseline_gate":1,"contract_check_gate":1,"contract_generate_gate":1,"mutation_probe_gate":1,"p0_register_gate":1,"security_scan_gate":1,"traceability_gate":1},"baton_holder":"integration-agent","blocked":false,"loop_id":"L0-contract-baseline-r4","revision":9,"schema_version":2,"status":"IN_DEV","updated_at":"2026-10-21T11:36:24.115112+00:00"}

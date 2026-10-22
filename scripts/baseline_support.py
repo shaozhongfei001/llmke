@@ -45,6 +45,57 @@ def source_files(root):
  return sorted(set(out))
 
 def snapshot(root):return digest({rel:filehash(Path(root)/rel) for rel in source_files(root)})
+
+# --- P-03：证据绑定范围必须等于「真实输入范围」 ---------------------------------
+# 旧行为：整个源码树合成一个哈希。于是改一行说明文档，7 条开发门禁与已签 QA 全部 STALE，
+# 每次推进文档都要重跑全部门禁（预算只有 3 次），这是反复返工的根因。
+# 新行为：拆成两个摘要，判定 STALE 用 control_digest；
+# 只有显式声明「依赖文档」的门禁（读 docs/baseline/TRACE.yaml 的 traceability_gate）
+# 才额外比较 doc_digest。旧记录没有 digest_scheme，按 legacy 语义继续比较整树哈希。
+DIGEST_SCHEME=3
+DOC_EXCLUDED=('contracts/build/','docs/reviews/','docs/registers/closures/',
+              'docs/approvals/','docs/baseline/validation/')
+DOC_DEPENDENT_GATES=frozenset({'traceability_gate'})
+
+# --- W-01：业务代码也必须被"该绑它的门禁"绑住 -----------------------------------
+# 实测缺口（2026-10-21）：assembler.py 追加一行注释后整树 snapshot 变了，
+# 但 control_digest 没变、evidence-check 仍 PASS —— 即 scheme=2 下没有任何门禁证据绑定业务代码。
+# 处置：新增第三个摘要 code_digest，只被 CODE_DEPENDENT_GATES 比较。
+# 刻意**不**把业务代码并入 control_digest：那会让每次改代码作废全部门禁，等于重演 P-03 前的返工。
+CODE_ROOTS=('modules','apps','services','lib','frontend')
+CODE_DEPENDENT_GATES=frozenset({'independent_qa_gate'})
+
+def code_files(root):
+ """业务实现代码集：CODE_ROOTS 下 *.py，排除 tests 目录与 __pycache__（测试强度由控制面绑定）。"""
+ root=Path(root);out=[]
+ for sub in CODE_ROOTS:
+  for p in (root/sub).rglob('*.py'):
+   if not p.is_file():continue
+   parts=p.parts
+   if '__pycache__' in parts or 'tests' in parts:continue
+   out.append(p.relative_to(root).as_posix())
+ return sorted(set(out))
+
+def code_digest(root):return digest({r:filehash(Path(root)/r) for r in code_files(root)})
+
+def control_files(root):
+ """控制面文件集：复用 freeze_baseline 的权威定义，确保「冻结什么」与「证据绑什么」一致。"""
+ from freeze_baseline import controls
+ return sorted(controls(Path(root)))
+
+def doc_files(root):
+ """说明性文档集：docs/** 中不属于控制面、且不在排除前缀内的部分。"""
+ root=Path(root);ctl=set(control_files(root));out=[]
+ for p in (root/'docs').rglob('*'):
+  if not p.is_file():continue
+  rel=p.relative_to(root).as_posix()
+  if rel.startswith(DOC_EXCLUDED) or rel in ctl:continue
+  out.append(rel)
+ return sorted(set(out))
+
+def control_digest(root):return digest({r:filehash(Path(root)/r) for r in control_files(root)})
+def doc_digest(root):return digest({r:filehash(Path(root)/r) for r in doc_files(root)})
+
 def baseline_hash(root):
  p=Path(root)/'docs/baseline/FROZEN-MANIFEST.json'
  if not p.is_file():raise ContractViolation('baseline manifest missing')

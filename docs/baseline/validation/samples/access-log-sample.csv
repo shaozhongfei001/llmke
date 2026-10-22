@@ -1,0 +1,25 @@
+observed_at,service,method,path,status,caller_service,count,window_start,window_end,environment,collected_by,source_note
+2026-10-20T09:15:00+08:00,rag-qa-service,POST,/retrieval_qa,200,web-frontend,137,2026-10-20T00:00:00+08:00,2026-10-20T23:59:59+08:00,prod-like,ops-示例,示例行（虚构数据，非真实日志）
+,,,,,,,,,,,以下为空白行
+,,,,,,,,,,,
+,,,,,,,,,,,
+# 字段说明（提交前可删除）
+# observed_at    首次观测时间（用于证明"至少被调用过一次"）
+# service        被调用服务
+# method/path    原始大小写，必须与清单一致才能自动比对
+# status         HTTP 状态码（用于区分"被调用但失败"）
+# caller_service 调用方标识（网关、前端、其他服务）
+# count          该窗口内调用次数（聚合值即可）
+# window_start/end 统计窗口，必须是连续且可解释的时间段
+# environment    日志来源环境；本地开发日志不得充当生产证据
+# collected_by   取数人或系统账号
+# source_note    说明：是否抽样、是否过滤健康检查、是否含内部重试
+#
+# 完整性要求
+# 1) 至少覆盖一个完整业务周期（建议 7 天），并写明窗口；
+# 2) 必须包含 caller_service —— 只有 path 没有调用方，不能证明"在用"；
+# 3) 健康检查/探针流量必须在 source_note 中说明是否剔除；
+# 4) 日志需可追溯（给出日志系统索引/查询语句或导出文件名）。
+#
+# 隐私要求
+# 不得包含请求体、用户标识、IP、token、URL 查询串中的业务参数；只保留聚合维度。

@@ -1,0 +1,2 @@
+{"argv": ["make", "p0-check"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-21T15:31:09.601935+00:00"}
+p0-check: PASS (integrity)

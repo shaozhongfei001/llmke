@@ -14,6 +14,8 @@ def closed_fixture(tmp_path,monkeypatch):
  root=p0_fixture(tmp_path);pid='P0-01';p=root/'docs/registers/P0-CLOSURE.yaml';d=load(p);item=next(x for x in d['items'] if x['id']==pid)
  item.update(status='CLOSED',evidence=['docs/registers/closures/P0-01.json']);dump(p,d)
  log=root/'docs/registers/closures/synthetic-case.log';log.parent.mkdir(parents=True,exist_ok=True);log.write_text('Isolated verifier fixture; not a real legacy routing result.\n')
+ (root/'VERSION').write_text('1.1.1\n')
+ dump(root/'docs/baseline/BASELINE-AUTHORITY.yaml',{'authority':'isolated closure fixture','authorized_by':'fixture','authorized_at':'2026-10-21','scope':['test'],'change_list':[{'id':'FIXTURE','summary':'isolated'}]})
  freeze(root,write=True)
  body={'blocker_id':pid,'status':'CLOSED','source_snapshot_sha256':snapshot(root),'answers':{f'D{i+1:02}':{'conclusion':'synthetic structural fixture','evidence':[{'path':log.relative_to(root).as_posix(),'sha256':filehash(log)}]} for i in range(len(item['decision_required']))},'verified_tests':[{'id':'synthetic-only','result':'PASS'}]}
  key,kid,principal=authority(tmp_path,root,monkeypatch,roles=['integration-agent','baseline-owner'],principal='synthetic-owner')

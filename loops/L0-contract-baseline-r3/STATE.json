@@ -1,0 +1,17 @@
+{
+  "attempts": {
+    "contract_check_gate": 1,
+    "contract_generate_gate": 1,
+    "mutation_probe_gate": 1,
+    "traceability_gate": 1
+  },
+  "baton_holder": "integration-agent",
+  "blocked": false,
+  "loop_id": "L0-contract-baseline-r3",
+  "revision": 6,
+  "schema_version": 2,
+  "status": "SUPERSEDED",
+  "updated_at": "2026-10-21T11:35:55.260512+00:00",
+  "replaced_by": "L0-contract-baseline-r4",
+  "terminal_reason": "窗口内重冻结发生在门禁执行中间，3 条已通过记录绑定旧基线；不改写历史记录，改由 r4 在同一冻结面重跑"
+}

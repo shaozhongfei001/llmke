@@ -1,5 +1,28 @@
-LLMKE technical baseline 1.1.0
-Date: 2026-10-20 Asia/Shanghai
+LLMKE technical baseline 1.1.1
+Date: 2026-10-21 Asia/Shanghai
 Business P0: OPEN
 Independent QA: PENDING
 Actual validation: docs/baseline/validation
+
+Local increments（相对 1.1.0 冻结包）
+- 批次：新增 L0-contract-baseline-r2、LD-legacy-discovery-r2（替代预算耗尽的旧批次）
+- 目录：新增 docs/integration/、coordination/（仓外共享区）
+- 框架修复（受控窗口，见 docs/baseline/BASELINE-AUTHORITY.yaml）
+  P-01 证据日志个人路径豁免（可计数，凭据不豁免）
+  P-03 摘要拆分 control_digest / doc_digest
+  P-04 冻结元数据外置（BASELINE-AUTHORITY.yaml）
+  P-05 版本号 1.1.0 -> 1.1.1
+  P-06 批次终态 SUPERSEDED / RETIRED
+- 未实施：P-02（待 qa-owner）、requirements.lock 去重（待 baseline-owner）
+
+版本口径（V1.1.1 起生效，消除同名不同物）
+- 执行基线版本唯一来源：VERSION 文件；FROZEN-MANIFEST.baseline_version 由它派生
+- contracts/registry.yaml 的 baseline_version 与各合同 version：契约包自身版本，不随执行基线变动
+- docs/** 的 version：各文档自身版本
+- loops/*/LOOP.yaml 的 baseline_version：该批次执行时所依据的基线；已执行/终态批次保留原值（不改写历史）
+
+W-01 窗口（2026-10-21，业主批准三个冻结面文件）
+- framework-test 收集 modules/：145 -> 193 测试
+- 新增 code_digest：仅 independent_qa_gate 比较，scheme 升 3
+- evidence-check 不再跳过 QA_PENDING 记录（W-01b），候选过期当场可见
+- 未改：VERSION（1.1.1 不变）、契约、门禁 pass 条件

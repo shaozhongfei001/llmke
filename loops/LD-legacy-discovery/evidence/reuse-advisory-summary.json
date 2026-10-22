@@ -1,0 +1,16 @@
+{
+ "total": 555,
+ "by_action": {
+  "ADAPT_CANDIDATE": 9,
+  "REWRITE_CANDIDATE": 1,
+  "INSUFFICIENT_EVIDENCE": 542,
+  "KEEP_CANDIDATE": 2,
+  "RETIRE_CANDIDATE": 1
+ },
+ "by_confidence": {
+  "MEDIUM": 4,
+  "LOW": 551
+ },
+ "owner_approved": 0,
+ "policy": "AI_ADVISORY_RULE_V1（置信上限 MEDIUM；不填 owner 字段）"
+}

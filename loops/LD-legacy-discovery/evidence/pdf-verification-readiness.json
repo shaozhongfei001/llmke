@@ -1,0 +1,54 @@
+{
+ "generated_at": "2026-10-21T12:12:14.599335+00:00",
+ "purpose": "PDF 集成验证的前置就绪度探测（只读，不产生等价结论）",
+ "legacy_arm": {
+  "root": "RAG-SRC/_src/rag-alg-service-api/.../alg_doc_parse_service",
+  "python": "3.12.13",
+  "deps_probe": {
+   "magic_pdf": "MISSING(ModuleNotFoundError)",
+   "onnxruntime": "MISSING(ModuleNotFoundError)",
+   "cv2": "MISSING(ModuleNotFoundError)",
+   "tika": "MISSING(ModuleNotFoundError)",
+   "fitz": "MISSING(ModuleNotFoundError)",
+   "pdfminer": "AVAILABLE",
+   "docx": "AVAILABLE",
+   "pypdf": "MISSING(ModuleNotFoundError)"
+  },
+  "status": "NOT_RUNNABLE"
+ },
+ "doc2md_arm": {
+  "root": "~/data/dev/doc2md",
+  "head": "d9e4f9831f77b8f2d2ab33ead6a744c2562fe39d",
+  "dirty": false,
+  "venv": false,
+  "importable": false,
+  "status": "NOT_RUNNABLE"
+ },
+ "samples": {
+  "docx-image.docx": {
+   "sha256": "efd100b7227067c990d7bfd04f8d2a04ddded47a068af580ed1a4a59d446eceb",
+   "bytes": 50185
+  },
+  "docx-plain.docx": {
+   "sha256": "f4982001defc71791fa7b5af39db08cb953df151d458da2799aca4abb824b3fc",
+   "bytes": 36716
+  },
+  "docx-table.docx": {
+   "sha256": "a846ab142d8d24afe3f552f95888c4b261dd7c8908921a16a2932c4a7838fa1d",
+   "bytes": 36944
+  },
+  "pdf-digital.pdf": {
+   "sha256": "4a21313b00f82571822fff6a8c821729cba13c8a72cb93dc6430ce9f7ba9f72a",
+   "bytes": 3577
+  },
+  "pdf-encrypted.pdf": {
+   "sha256": "99d75002be855201acba4cf67be744f21d9f3a4d75b90072e0431ad86dd0bacf",
+   "bytes": 4445
+  },
+  "pdf-scanned.pdf": {
+   "sha256": "cbc158de9363ebe9f4235ada03b720b138779f03197ddc0c2b87fc4bdb0d28f9",
+   "bytes": 6525683
+  }
+ },
+ "conclusion": "两臂均不可运行：旧解析臂缺 magic_pdf/onnxruntime/cv2/tika/fitz；doc2md 臂无 venv 且包不可导入。"
+}

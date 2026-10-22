@@ -1,0 +1,1 @@
+{"at": "2026-10-21T11:35:55.434565+00:00", "gate": "traceability_gate", "event": "failure", "reason": "command exited 1; evidence loops/L0-contract-baseline-r3/evidence/traceability_gate.log"}

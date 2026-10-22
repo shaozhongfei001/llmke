@@ -26,6 +26,17 @@ gates:
     - contract
     - diagnostic
     - implementation
+  framework.modules:
+    argv:
+    - make
+    - module-test
+    required_checks:
+    - module_tests
+    type: dev_self_check
+    allowed_kinds:
+    - contract
+    - diagnostic
+    - implementation
   framework.regressions:
     argv:
     - python3

@@ -61,3 +61,27 @@ prior evidence invalid: inventory_gate: source/baseline changed; evidence STALE
 - 状态：**BLOCKED**（待 L0 的新批次或 owner 决议后一并重跑；不得手工重置 attempts）。
 - 教训：文档类产出应**批量合并**后一次性重跑，或优先落在 `docs/approvals/`、`docs/baseline/validation/`
   等不参与快照的目录（本次已按用户指定路径写入，代价如实记录）。
+
+## 第四轮发现（2026-10-21）
+
+### FAIL-4TH-01 `db-entity-check.json` 写入宿主绝对路径，触发 39 处 PERSONAL_ABSOLUTE_PATH
+
+- 现象：`security-check` 由 PASS 变为 `FAIL (39 finding(s))`，全部指向
+  `loops/LD-legacy-discovery/evidence/db-entity-check.json` 的 `resolved` 字段。
+- 根因：`db_entity_check.py` 把 `hit.resolve()`（源码绝对路径）写进产物；
+  该文件是 `.json`，不在「证据日志个人路径豁免」范围内（豁免只覆盖 `loops/*/evidence/*.log`）。
+  属**我自己引入**的回归，发生在提交 `a378c23`；当时只跑了 `evidence-check`，未跑 `security-check`，故未被发现。
+- 处理：产物改为相对路径（`entity_rel`），`src_roots` 改为固定的相对描述；
+  生成器新增自检——产物若含宿主绝对路径则**拒绝写入**并返回 3。
+- 复验：重新生成后 `grep` 残留 0；`security_scan --all-files --tracked-sensitive` → `PASS (508 file(s))`。
+- 遗留：`a378c23` 的历史内容仍含该路径（分支未合并、未推送）。该值是本地用户名路径，**不是凭据**；
+  合并前建议 squash 该提交，或在合并说明中显式记录（不由 TL 单方面改写历史）。
+- 状态：**CLOSED（代码与产物已修）；历史提交处置待业主选择**
+- 教训：产物类文件必须比日志更严格——日志可豁免，产物不豁免；生成器必须自检，不能靠事后扫描发现。
+
+### FAIL-4TH-02 两臂 PDF 解析均不可运行，等价性验证无法执行
+
+- 现象：`legacy` 臂缺 `magic_pdf`/`onnxruntime`/`cv2`/`tika`/`fitz`；doc2md 臂无 `.venv`、包不可导入。
+- 处理：不降级为 `pdfplumber`，不把组件测试当集成等价；转为「就绪度探测 + 协议 + 输入清单」。
+- 证据：`evidence/pdf-verification-readiness.json`、`docs/baseline/validation/ROUND4-PARALLEL-WORK.md` §4。
+- 状态：**BLOCKED（缺运行环境与参考输出）**

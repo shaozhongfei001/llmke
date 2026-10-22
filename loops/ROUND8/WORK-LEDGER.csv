@@ -1,0 +1,28 @@
+task_id,owner_agent,dependencies,scope,acceptance_command,status,evidence_path,commit_sha,blocker
+R8-T01,python-parser-agent,none,modules/citation_evidence/**,pytest modules/citation_evidence/tests -q,VERIFIED,modules/citation_evidence/,,
+R8-T02,tech-lead,R8-T01,loops/ROUND8/**,python3 -c "import json;json.load(open('loops/ROUND8/STATE.json'))",VERIFIED,loops/ROUND8/,,
+R8-T03,source-reuse-agent,R8-T02,evidence/reuse-candidate-matrix.csv,+ai_recommendation 列,待定义口径,BLOCKED_EXTERNAL,loops/ROUND8/DECISIONS.md,,"建议口径需 owner 确认，避免批量贴标签"
+R8-T04,qa-owner,none,r5 independent_qa_gate,scripts/loop_guard.py accept-qa,BLOCKED_EXTERNAL,docs/baseline/validation/R5-QA-HANDOFF.md,,"信任根锚点未更新；不得代签"
+R8-T05,data-owner/interface-owner/security-owner/index-owner,none,P0-01..04 关闭证据,make p0-gate,BLOCKED_EXTERNAL,docs/baseline/validation/P0-INPUT-INDEX.md,,"外部权威输入未到"
+R8-T06,python-parser-agent,R8-T01,modules/citation_evidence/assembler.py::SupportGate,pytest modules/citation_evidence/tests -q,VERIFIED,modules/citation_evidence/,,无证据声明默认 block
+R8-T07,python-parser-agent,R8-T01,modules/citation_evidence/assembler.py::validate_evidence,pytest modules/citation_evidence/tests -q,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,替换已弃用 RefResolver（referencing registry）
+R8-T08,python-parser-agent,R8-T01,modules/citation_evidence/tests（边界负例）,pytest modules/citation_evidence/tests -q,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,5 条边界负例 + source 类型守卫
+R8-T09,python-parser-agent,R8-T01,assembler.py::audit_support,pytest modules/citation_evidence/tests -q,VERIFIED,,,契约 support_audit 落地（23 passed）
+R8-T10,source-reuse-agent,R8-T02,evidence/reuse-candidate-matrix-v2.csv,见 AI-ADVISORY-POLICY-V1.md,VERIFIED,loops/LD-legacy-discovery/evidence/reuse-advisory-summary.json,,AI 建议 555 行（owner 批准 0）
+R8-T11,python-parser-agent,R8-T09,modules/citation_evidence/cli.py（audit 子命令）,python -m modules.citation_evidence.cli audit --claims <f>,VERIFIED,loops/ROUND8/evidence/pytest-r8.log,,向后兼容 assemble；25 passed
+R8-T12,python-parser-agent,R8-T01,"modules/citation_evidence/{assembler,cli}.py + tests（集合级校验）","pytest modules/citation_evidence/tests -q",VERIFIED,loops/ROUND8/evidence/pytest-r8-set.log,,35 passed；模块测试不属 framework-verify（Makefile 为冻结控制面，见 D8）
+R8-T13,python-parser-agent,R8-T12,assembler.py::check_evidence_set（parser_version 一致性）,"pytest modules/citation_evidence/tests -q",VERIFIED,loops/ROUND8/evidence/pytest-r8-parser-version.log,,39 passed；混版本先于重叠判定报错
+R8-T14,tech-lead,R8-T01,"Makefile + baseline_support.py + loop_guard.py（W-01）","make framework-verify",VERIFIED,docs/baseline/validation/W-01-RESULT.md,,193 passed；code_digest 绑定 independent_qa_gate
+R8-T15,tech-lead,R8-T14,"loop_guard.evidence_errors（W-01b：不再跳过 QA_PENDING）","evidence-check 候选过期必须非 0",VERIFIED,docs/baseline/validation/W-01-RESULT.md,,"改一行注释 -> FAIL: implementation code changed；r6 因此作废重建 r7"
+R8-T16,tech-lead,R8-T15,"patches/window-bundle-v1.diff（W-05/W-05b/W-02/W-04）","隔离树端到端：9 门禁 + 194 passed + 坏 PATH 复现","VERIFIED",docs/baseline/validation/WINDOW-BUNDLE-VERIFIED.md,,"apply --check OK；变异测试证明 W-04 有牙"
+R8-T17,tech-lead,R8-T16,"窗口执行：弃 r7 -> 应用补丁 -> r9 候选","run_batch 9 条 + framework-verify","VERIFIED",docs/baseline/validation/W-02-W05-RESULT.md,,"8/8 开发 pass + QA_PENDING；坏 PATH 下复现；r8 因授权留痕不完整作废"
+R8-T18,qa-external,R8-T01,"docs/baseline/validation/p0-gate-redteam-audit.py（P0 闸门红队）","python3 docs/baseline/validation/p0-gate-redteam-audit.py",VERIFIED,docs/baseline/validation/P0-GATE-REDTEAM-AUDIT.md,,14/14 用例被拦；未改控制面
+R8-T19,data-owner,R8-T02,"docs/baseline/validation/p0-02-ddl-diff.py（DDL↔台账差异仪器）","python3 docs/baseline/validation/p0-02-ddl-diff.py --ddl <sql>",VERIFIED,docs/baseline/validation/P0-02-DDL-INSTRUMENT.md,,6 组合成夹具；指纹对缩进/CRLF 稳定
+R8-T20,interface-owner,R8-T02,"docs/baseline/validation/p0-01-route-extract.py（源码路由提取）","python3 ... --src <rag-parent> --csv <csv>",VERIFIED,docs/baseline/validation/P0-01-ROUTE-EXTRACT.md,,"Java 440 vs 源码 440；1 条注释接口 + 1 条未登记"
+R8-T21,data-owner,R8-T19,"docs/baseline/validation/p0-02-ddl-diff.py（v2 字段级）","python3 ... --ddl <sql>",VERIFIED,docs/baseline/validation/P0-02-DDL-INSTRUMENT.md,,"接入字段明细 CSV；4 类差异已验证"
+R8-T22,data-owner,R8-T21,"docs/baseline/validation/p0-02-entity-extract.py（ORM 实体基线）","python3 ... --src <rag-parent> --out <csv>",VERIFIED,docs/baseline/validation/P0-02-ENTITY-BASELINE.md,,"实体 37 表/491 列；CSV 81 处不符（29 字段名/7 非持久化/13 类型）"
+R8-T23,data-owner,R8-T22,"docs/baseline/validation/p0-02-table-ownership.py（表归属/跨服务）","python3 ... --only-cross",VERIFIED,docs/baseline/validation/P0-02-TABLE-COUPLING.md,,"9/37 表跨服务；user_operate 双实体"
+R8-T24,data-owner,R8-T22,"p0-02-ddl-generate.py（ORM→候选 DDL）","python3 ... --out /tmp/entity-schema.sql",VERIFIED,docs/baseline/validation/P0-02-DDL-BASELINE-FROM-CODE.md,,"37 表/479 列；回环 PASS；证实 dialogue 无 user_id 索引不可建"
+R8-T25,index-owner,R8-T02,"p0-02-index-infer.py（查询反推索引）+ P0-04 现状核查","python3 ... --min-count 2",VERIFIED,"docs/baseline/validation/P0-02-INDEX-INFERENCE.md; docs/baseline/validation/P0-04-READINESS.md",,"116 组候选；5.1 三条索引现有查询均未用；P0-04 四机制全缺"
+R8-T26,baseline-owner,R8-T24,"SCHEMA-STANDARD-V1 + schema-generate.py + artifacts","p0-02-ddl-diff 回环 PASS",VERIFIED,docs/baseline/validation/SCHEMA-V1-RESULT.md,,"37 表/478 列；154 处审计列改写；发现 DO 重复列映射缺陷"
+R8-T27,tech-lead,R8-T26,"schema V1.1 合并 + schema-verify.sh + 盘点 + P0-04 提案","docs/baseline/validation/schema-verify.sh",VERIFIED,docs/baseline/validation/ROUND-INVENTORY-2026-10-22.md,,"38 表/491 列落地验证 PASS；44 模块测试"

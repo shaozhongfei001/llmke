@@ -87,3 +87,22 @@ def test_transfer_does_not_unblock(tmp_path):
  root,d=make_loop(tmp_path,status='BLOCKED')
  assert guard(root,'baton-transfer','--loop','T1','--to','worker-1','--executor','tech-lead','--expected-revision','1').returncode==0
  assert load(d/'STATE.json')['blocked'] is True
+
+
+def test_stale_qa_candidate_rejected_even_with_valid_signature(tmp_path,monkeypatch):
+    """W-04：签名有效 ≠ 可以接受过期候选。
+
+    `accept_qa` 里 stale 检查必须先于签名校验；顺序被调换或检查被删掉时，
+    "过期候选 + 有效签名"会被接受，而现有测试都发现不了。
+    """
+    root,d=make_loop(tmp_path);devpass(root)
+    assert guard(root,'baton-transfer','--loop','T1','--to','qa-independent','--executor','dev-1','--expected-revision','2').returncode==0
+    assert guard(root,'qa-run','--loop','T1','--gate','e2e_smoke_gate','--executor','qa-independent').returncode==0
+    rec=load(d/'evidence/manifest.json')['gates']['e2e_smoke_gate'];g=load(d/'LOOP.yaml')['gates'][1]
+    key,kid,principal=authority(tmp_path,root,monkeypatch)
+    envelope=sign(tmp_path,key,kid,principal,'QA_ATTESTATION',qa_subject('T1',g,rec))
+    (root/'scripts'/'extra.py').write_text('x = 1\n')      # 候选过期：控制面变了
+    dump(tmp_path/'approval.json',envelope)
+    p=guard(root,'accept-qa','--loop','T1','--gate','e2e_smoke_gate','--attestation',str(tmp_path/'approval.json'))
+    assert p.returncode!=0,p.stdout+p.stderr
+    assert 'STALE' in (p.stdout+p.stderr)

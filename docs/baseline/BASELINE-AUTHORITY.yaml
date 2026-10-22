@@ -1,0 +1,47 @@
+authority: 业主批准 V1.1.0 → V1.1.1 受控变更窗口（框架缺陷提案 P-01/P-03/P-04/P-05/P-06）+ W-01 第二窗口（模块测试接入门禁与业务代码证据绑定；业主 2026-10-21 选择"乙"：放弃 r5 候选，W-01 与 r6 建批在同一次冻结内完成）
+authorized_by: project-owner (in-session authorization, 2026-10-21)
+authorized_at: "2026-10-21"
+scope:
+  - framework-evidence-binding
+  - freeze-metadata
+  - version-and-build-info
+  - module-test-gating
+  - code-evidence-binding
+change_list:
+  - id: P-01
+    summary: security_scan 对 loops/*/evidence/*.log 豁免「个人绝对路径」判定，凭据/连接串/私钥/生产主机不豁免，且输出跳过计数
+  - id: P-03
+    summary: 证据摘要拆分为 control_digest / doc_digest，STALE 判定用 control_digest，仅 traceability_gate 额外比较 doc_digest，旧记录按 legacy 语义兼容
+  - id: P-04
+    summary: 冻结元数据（authority/authorized_by/frozen_at/manifest_revision）改由本文件提供，缺失则拒绝写入
+  - id: P-05
+    summary: VERSION 升 1.1.1，BUILD-INFO 增「本地增量」段
+  - id: P-06
+    summary: loop_guard 新增 SUPERSEDED/RETIRED 终态，拒绝执行门禁与 finish，终态不参与 STALE 判定
+  - id: W-01
+    summary: >-
+      Makefile.framework-test 增加 modules/ 收集（145 → 184 测试）；新增 code_digest
+      （modules/apps/services/lib/frontend 的实现代码，排除 tests 与 __pycache__）与
+      CODE_DEPENDENT_GATES（当前仅 independent_qa_gate，因其 argv 为 make framework-verify）；
+      digest_scheme 升 3，只有声明依赖代码的门禁比较 code_sha256，scheme<=2 的旧记录不回溯改写。
+      不把业务代码并入 control_digest（避免重演 P-03 前的大范围返工）。
+    approved_by: project-owner (2026-10-21, in-session：批准 Makefile / scripts/baseline_support.py / scripts/loop_guard.py 三个冻结面文件)
+    rationale: >-
+      实测缺口：modules/citation_evidence/assembler.py 追加一行注释后，整树 snapshot
+      f4f6ee2d → 3dbb9755，而 control_digest 不变、r5 的 evidence-check 仍 PASS，
+      即 digest_scheme=2 下没有任何门禁证据绑定业务代码。
+  - id: W-02-W05
+    summary: >-
+      W-05 Makefile 固定解释器（LLMKE_PYTHON/PY，@python3 -> @$(PY) 25 处，新增 module-test 与 python-info）；
+      W-05b 新增 scripts/_pin.py 入口自钉（run_batch/loop_guard 首个导入，无 venv 时回退 PATH）；
+      W-02 GATE-CATALOG 增 framework.modules，批次增第 9 条门禁 module_test_gate；
+      W-04 tests 增「签名有效但候选过期必须被拒」。
+    approved_by: project-owner (2026-10-22, in-session：裁决"弃 r7、直接上补丁包")
+    rationale: >-
+      R-02 同一缺陷已致 3 次事故（直接 make 两次、run_batch 内部 spawn make 一次）；
+      仅改 Makefile 不足，门禁 argv 的 python3 取 sys.executable，入口用错解释器时
+      mutation_probe_gate 会单独失败。另：模块测试此前不在门禁内（39 条）。
+not_included:
+  - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
+  - requirements.lock 去重——待 baseline-owner 批准
+rollback: git revert 本窗口提交；FROZEN-MANIFEST 由 `python3 scripts/freeze_baseline.py --write` 重新生成

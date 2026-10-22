@@ -1,0 +1,254 @@
+{
+ "groups": [
+  {
+   "group": "GRP-DB-任务/同步",
+   "rows": 5,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 5
+   },
+   "exceptions": 3,
+   "owners": [
+    "index-owner"
+   ]
+  },
+  {
+   "group": "GRP-DB-公共业务配置",
+   "rows": 2,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 2
+   },
+   "exceptions": 0,
+   "owners": [
+    "tech-lead"
+   ]
+  },
+  {
+   "group": "GRP-DB-知识库/目录/文件",
+   "rows": 4,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 4
+   },
+   "exceptions": 0,
+   "owners": [
+    "data-owner"
+   ]
+  },
+  {
+   "group": "GRP-DB-结构化查询元数据",
+   "rows": 4,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 4
+   },
+   "exceptions": 0,
+   "owners": [
+    "data-owner"
+   ]
+  },
+  {
+   "group": "GRP-DB-身份/组织/功能或数据授权",
+   "rows": 16,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 16
+   },
+   "exceptions": 1,
+   "owners": [
+    "security-owner"
+   ]
+  },
+  {
+   "group": "GRP-DB-问答/配置",
+   "rows": 6,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 6
+   },
+   "exceptions": 0,
+   "owners": [
+    "qa-domain-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-alg_doc_parse_service",
+   "rows": 11,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 11
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-alg_llm_inference_service",
+   "rows": 14,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 14
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-alg_retrieval_service",
+   "rows": 4,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 4
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-index_fulltext_service",
+   "rows": 10,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 10
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-index_graph_service",
+   "rows": 7,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 7
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-index_structure_service",
+   "rows": 5,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 5
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-index_vector_service",
+   "rows": 14,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 14
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-rag-auth-service",
+   "rows": 138,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 138
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-rag-graph-service",
+   "rows": 17,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 17
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-rag-index-service",
+   "rows": 182,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 182
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-rag-qa-service",
+   "rows": 68,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 67,
+    "FACT": 1
+   },
+   "exceptions": 1,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-sensitive-words-service",
+   "rows": 12,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 12
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-tools/tools-database",
+   "rows": 23,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 23
+   },
+   "exceptions": 1,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-ITF-version_service",
+   "rows": 1,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 1
+   },
+   "exceptions": 0,
+   "owners": [
+    "interface-owner"
+   ]
+  },
+  {
+   "group": "GRP-SRC-JAVA",
+   "rows": 8,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 8
+   },
+   "exceptions": 0,
+   "owners": [
+    "algorithm-owner",
+    "data-owner",
+    "integration-agent",
+    "qa-domain-owner",
+    "security-owner"
+   ]
+  },
+  {
+   "group": "GRP-SRC-PY",
+   "rows": 4,
+   "by_evidence": {
+    "SOURCE_OBSERVATION": 4
+   },
+   "exceptions": 0,
+   "owners": [
+    "algorithm-owner",
+    "index-owner"
+   ]
+  }
+ ],
+ "total_rows": 555,
+ "total_exceptions": 6
+}
