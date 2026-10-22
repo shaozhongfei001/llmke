@@ -263,3 +263,10 @@
 - 处置：r9 置 SUPERSEDED（证据与日志保留，不改写），terminal_reason 写明原因。
 - 推论：新增**测试**不会作废候选（tests 不在 code_digest 内），新增**实现**会。
   这条要写进交接，避免下次误判为门禁坏了。
+
+## D34 契约↔表列一致性检查（带变异验证）
+- 工具 `contract-schema-check.py`：把 `$defs.DocumentEvidence/SourceRef/Offset` 的必填字段
+  与 `document_evidence` 列做显式映射比对，并校验 `offset_unit` 常量与表默认值一致。
+- 映射是**手写表**，不推断：猜出来的映射会在契约重命名时静默失配。
+- 变异验证（证明不是空转）：删掉 text_hash 列 -> FAIL 2 项；offset_unit 默认改 utf16 -> FAIL 1 项。
+- 已接入 `schema-verify.sh` 作为建表后、跑测试前的硬关卡。

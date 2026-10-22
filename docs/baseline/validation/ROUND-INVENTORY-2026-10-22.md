@@ -3,7 +3,7 @@
 工作树：`~/data/dev/llmke-r8`（`round8/delivery`）
 当前候选：**无活动候选**（r9 已 `SUPERSEDED`，见 D33）
 门禁实况：`framework-verify` **exit 0 / 212 passed**、`evidence-check r9` **PASS（终态）**、`p0-gate` **exit 2**
-落地验证：`schema-verify.sh` PASS（39 表 / 506 列 / 57 模块测试）
+落地验证：`schema-verify.sh` PASS（39 表 / 506 列 / 57 模块测试 / 契约↔表列一致）
 
 ---
 

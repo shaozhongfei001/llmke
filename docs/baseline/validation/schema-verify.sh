@@ -39,6 +39,10 @@ EXPECTED_TABLES="$(grep -c '^CREATE TABLE' "$SCHEMA")"
 say "表=$TABLES（预期 $EXPECTED_TABLES）  列=$COLS"
 [ "$TABLES" = "$EXPECTED_TABLES" ] || fail "表数量不符：实际 $TABLES，预期 $EXPECTED_TABLES"
 
+say "契约 ↔ 表列一致性"
+( cd "$ROOT" && PATH="$HOME/data/dev/llmke/.venv/bin:$PATH" \
+  python3 docs/baseline/validation/contract-schema-check.py ) || fail "契约与表列不一致（先修契约或表）"
+
 say "模块集成测试（真库读写）"
 ( cd "$ROOT" && PATH="$HOME/data/dev/llmke/.venv/bin:$PATH" PYTHONPATH="$ROOT" \
   LLMKE_MYSQL_SOCKET="${MYSQL_PROBE_DIR:-/tmp/mysql-probe}/mysql.sock" \
