@@ -246,3 +246,20 @@
   技术上做不到文件级隔离；与其先查再滤，不如显式降级）。
 - E1–E6 每条给出可断言判据；另提长任务必须记录发起时 authz_version，跨撤权即中止。
 - 5 条待 security-owner 裁定（粒度、合并优先级、FAQ 继承、图降级可接受性、TTL 上限）。
+
+## D32 切片 B：分块存储（document_chunk）并与证据打通
+- 表：`document_chunk`（存 text，因为分块是检索单元；text_hash 与证据同算法）。
+  唯一键 (kb,file,version,chunk_index) 防同版本重复块；idx_doc_range 支撑区间查询。
+- 模块：`modules/chunk_store`；`to_evidence_source()` 直接产出证据 source，**不需要换算层**。
+- 测试：8 单元 + 5 真库（往返 text/hash、唯一键、重叠可被 SQL 查出、应用层先行拒绝、
+  以及"库里的分块 -> 证据 -> 过契约 -> 落证据表 -> 回读一致"的接缝验证）。
+- schema 升 V1.2：39 表 / 506 列；`schema-verify.sh` 一并升级为跑全部 modules。
+
+## D33 批次策略：候选是快照，不是持续状态；r9 置终态
+- 事实：新增实现代码（chunk_store.py）改变 code_digest，r9 的 QA 证据按 W-01 语义失效
+  （evidence-check 报 independent_qa_gate STALE）。**这是设计生效，不是故障**。
+- 决策：落地期不逐提交重建批次——否则每加一个文件就要跑 9 条门禁并重签，成本不可承受。
+  改为：**实现暂停、准备验收时**才建新批次、重跑门禁、生成 QA 载荷。
+- 处置：r9 置 SUPERSEDED（证据与日志保留，不改写），terminal_reason 写明原因。
+- 推论：新增**测试**不会作废候选（tests 不在 code_digest 内），新增**实现**会。
+  这条要写进交接，避免下次误判为门禁坏了。

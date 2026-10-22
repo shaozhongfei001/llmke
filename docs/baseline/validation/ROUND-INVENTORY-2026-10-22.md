@@ -1,8 +1,9 @@
 # 本轮长程任务盘点（2026-10-22 收口）
 
 工作树：`~/data/dev/llmke-r8`（`round8/delivery`）
-当前候选：`L0-contract-baseline-r9`（`QA_PENDING`，9 条门禁，冻结 `revision=10`）
-门禁实况：`framework-verify` **exit 0 / 199 passed**、`evidence-check r9` **PASS**、`p0-gate` **exit 2**
+当前候选：**无活动候选**（r9 已 `SUPERSEDED`，见 D33）
+门禁实况：`framework-verify` **exit 0 / 212 passed**、`evidence-check r9` **PASS（终态）**、`p0-gate` **exit 2**
+落地验证：`schema-verify.sh` PASS（39 表 / 506 列 / 57 模块测试）
 
 ---
 
@@ -23,6 +24,7 @@
 | 11 | 索引反推（116 组候选） | 文档 3 条索引 0 条被现有查询使用；队列表对不上 |
 | 12 | P0-04 现状核查 | 四类机制全缺；任务领取有 CAS 但无租约回收 |
 | 13 | **切片 A**：证据接真库端到端 | 5 条集成测试；44 module tests |
+| 14 | **切片 B**：分块存储（`document_chunk`） | 8 单元 + 5 真库；分块→证据接缝打通 |
 
 ---
 

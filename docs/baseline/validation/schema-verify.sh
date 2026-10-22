@@ -12,7 +12,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 PROBE="${MYSQL_PROBE:-$HOME/data/dev/coordination/mysql-probe.sh}"
-SCHEMA="$ROOT/docs/baseline/validation/artifacts/schema-v1.1.sql"
+SCHEMA="$ROOT/docs/baseline/validation/artifacts/schema-v1.2.sql"
 DB="${LLMKE_SCHEMA_DB:-llmke_verify}"
 KEEP=0
 [ "${1:-}" = "--keep" ] && KEEP=1
@@ -42,7 +42,7 @@ say "表=$TABLES（预期 $EXPECTED_TABLES）  列=$COLS"
 say "模块集成测试（真库读写）"
 ( cd "$ROOT" && PATH="$HOME/data/dev/llmke/.venv/bin:$PATH" PYTHONPATH="$ROOT" \
   LLMKE_MYSQL_SOCKET="${MYSQL_PROBE_DIR:-/tmp/mysql-probe}/mysql.sock" \
-  LLMKE_CI_DB="${DB}_ci" python3 -m pytest modules/citation_evidence/tests -q ) || fail "集成测试未通过"
+  LLMKE_CI_DB="${DB}_ci" python3 -m pytest modules -q ) || fail "集成测试未通过"
 
 if [ "$KEEP" = 0 ]; then
   "$PROBE" sql -e "DROP DATABASE IF EXISTS \`$DB\`" >/dev/null
