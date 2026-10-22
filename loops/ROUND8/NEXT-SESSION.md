@@ -31,9 +31,9 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 ## 2026-10-22 收口状态（无人值守轮）
 
 - 候选：**无活动候选**（r9 已 SUPERSEDED；新增实现会作废候选，见 D33）
-- 门禁：`framework-verify` exit 0 / **242 passed**；`evidence-check r9` PASS（终态）；`p0-gate` exit 2
-- 落地：`schema-v1.3.sql`（43 表）+ `schema-verify.sh`（43 表、87 模块测试、契约↔表列一致）
-- 切片：A 证据落库 / B 分块存储 / C 代次机制（S1–S5）/ D 授权过滤下沉 SQL（E1/E3）
+- 门禁：`framework-verify` exit 0 / **247 passed**；`evidence-check r9` PASS（终态）；`p0-gate` exit 2
+- 落地：`schema-v1.3.sql`（43 表）+ `schema-verify.sh`（43 表、92 模块测试、契约↔表列一致）
+- 切片：A 证据落库 / B 分块存储 / C 代次机制（S1–S5）/ D 授权过滤下沉 SQL（E1/E3）/ E 组合链路
 - 落地：`docs/baseline/validation/artifacts/schema-v1.1.sql`（38 表）+ `schema-verify.sh`（一键真机验证）
 - 切片 A：证据接真库端到端（5 条集成测试，模块 44 passed）
 
