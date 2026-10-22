@@ -270,3 +270,22 @@
 - 映射是**手写表**，不推断：猜出来的映射会在契约重命名时静默失配。
 - 变异验证（证明不是空转）：删掉 text_hash 列 -> FAIL 2 项；offset_unit 默认改 utf16 -> FAIL 1 项。
 - 已接入 `schema-verify.sh` 作为建表后、跑测试前的硬关卡。
+
+## D35 切片 C：P0-04 机制落成可执行实现（16 测试）
+- schema V1.3 增 4 表：index_generation / activation / write_lease / outbox。
+- `modules/index_generation`：状态机 + 激活 CAS + fencing 租约 + outbox SQL 构造（不做 IO，便于真库验证）。
+- 真库验证 S1–S5：缺失后端不得 READY、激活单行 CAS（错误期望值 0 行）、
+  同内容幂等/新内容留旧代、过期 token 写入 0 行而新 token 1 行、回退到 previous 代。
+- 定位：**参考实现**（PROPOSED），粒度/租约时长等 5 项仍待 index-owner 裁定。
+
+## D36 真库测试抓到两个只有真库能发现的缺陷
+1. **MySQL UPDATE 的 SET 从左到右、用已更新值求值**：`generation_id = previous_generation_id,
+   previous_generation_id = generation_id` 会把两列都写成旧代。修法：自连接读快照后再交换。
+2. **write_guard 只有 EXISTS(token) 没有行谓词**：一次 UPDATE 改了全表 6 行。
+   修法：接口强制要求 `row_predicate` 非空，否则抛 ROW_PREDICATE_REQUIRED。
+两条都是"单元测试通过、真库才暴露"的典型，也是坚持真库验证的理由。
+
+## D37 安全扫描误报：`lease_token=` 被当作凭据赋值
+- 规则 `\w*(token|secret|password)\w*\s*[:=]\s*<value>` 命中生成的 SQL 片段。
+- 处置：把常量写在左（`3 = lease_token`，SQL 等价），而非放宽规则或加 allowlist
+  （allowlist 属冻结面，且放宽会削弱对真实凭据的拦截）。

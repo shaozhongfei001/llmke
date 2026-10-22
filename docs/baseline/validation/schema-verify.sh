@@ -12,7 +12,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 PROBE="${MYSQL_PROBE:-$HOME/data/dev/coordination/mysql-probe.sh}"
-SCHEMA="$ROOT/docs/baseline/validation/artifacts/schema-v1.2.sql"
+SCHEMA="$ROOT/docs/baseline/validation/artifacts/schema-v1.3.sql"
 DB="${LLMKE_SCHEMA_DB:-llmke_verify}"
 KEEP=0
 [ "${1:-}" = "--keep" ] && KEEP=1
