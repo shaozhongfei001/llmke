@@ -388,6 +388,8 @@
 - 我方额外发现（此前未识别）：`controls()` 把 `loops/**/LOOP.yaml` 计入控制面，
   **因此"新建批次"本身就是控制面变更**，必然触发重冻结并使前一批 STALE。
   这解释了为何"建 r11 + 保住 r10 证据"不可兼得。
+- 措辞修正（QA 指出，避免记录失真）：建 r11 之后 r10 从"可复核候选"降为"历史记录"，
+  其 8 条开发门禁的"当前有效"价值随之消失；不得再表述为"树与门禁绑定成立"。
 - 处置：补丁移出仓库（`coordination/rejected/w07-audit-clock.REJECTED-by-QA.diff`），不 `git add`；
   r11 建批撤回（`loops/L0-contract-baseline-r11` 已删除），仓库回到 control_digest 与 r10 记录一致的状态。
 - 教训：**不许把安全判定挂在未签名、可变的运行态上**。审计若要"当时有效"，锚点必须来自
@@ -411,3 +413,31 @@
   短期用仓外检查兜住"未跟踪文件被当作证据"（`coordination/pre-commit-security.sh` 前置）。
 - STALE 清单顺序不稳定：**排期**（`loop_guard.py` 属控制面，改则 STALE，随 CR-01 同批）。
 - 门禁判定禁接 `| tail`：**做**（立即）——统一取 `PIPESTATUS[0]` 或不接管道。
+
+## D51 接受 QA 第二轮五条：三处"未落盘"已补载体，两处技术缺口已写入 r11
+- QA 判定：结论接受，但指出 3 处"已执行"实际未落盘、2 处会让 r11 直接失败的技术缺口。
+  我方核对，**五条全部成立**。
+- 落盘补正（口述 ≠ 落盘，下一会话必须能继承）：
+  | 原口述 | 现在载体 |
+  |---|---|
+  | "该目录只放结论、不放可执行补丁" | `docs/baseline/validation/patches/README.md`（含现状与例外登记要求） |
+  | "门禁判定禁接 \| tail" | `docs/policies/GATE-EXECUTION-RULES.md`（R1–R4，含 2026-10-22 真实反例） |
+  | "CR-01 立号" | 改编号：`docs/policies/CHANGE-REQUESTS.yaml`，`BL-1.1.1-01/02/03`，沿用 `TRACE.yaml` 的 `BL-<版本>` 体系；未占用裸号 |
+- 编号说明：全域原本不存在 `CR-[0-9]+` 体系，裸号会冲突；QA 指出的这一点成立，故改 BL。
+  三条均含 `problem / proposal / compat / acceptance`，其中 -03 已 `ADOPTED`（有载体文件）。
+- 缺口 1（已修）：`qa-external-02` 原本不在 `allowed_holders`，`transfer/qa-run` 会报
+  `unknown target holder`。r11 建批时已写入（建批写入不算改历史）；holder 名与签名
+  principal 必须一致，已在 `HANDOFF.md` 写明。
+- 缺口 2（已写死顺序）：`loops/*/LOOP.yaml` 属控制面，故顺序只能是
+  **先落 LOOP.yaml/计划/规则 → 一次冻结 → 再跑门禁**。r11 实测按此顺序通过；颠倒即
+  `frozen control file set changed`。
+- attempts 预算（QA 提醒，已遵守）：`run_gate` 失败一次即消耗一次，上限 3。签名链
+  先在仓外演练：新生成 ed25519 → `qa_sign.py` 签名 rc=0 → 正确公钥验签 rc=0；
+  错误公钥 rc=1、篡改载荷 rc=1、私钥放仓库内被拒 rc=1。r11 的 attempts 一次未消耗。
+- 密钥措辞修正：本机既有 `qa-ed25519-2026-10` **已被实现方使用过，属已污染**，
+  即使转交第三方也不构成独立主体。业主项必须是"**新生成**独立密钥"，不是"把现有钥匙交出去"。
+- r11 现状：9 条门禁 = 8 pass + `independent_qa_gate=QA_PENDING`（scheme=3）；
+  `evidence-check r11 PASS`；`make framework-verify` rc=0 / 252 passed / 0 skipped；
+  `schema-verify` rc=0 且 0 处不一致；`p0-gate` rc=2。
+- 仍未解：信任根无 `qa-external-02`、锚点仍是候选自身摘要、独立私钥尚未生成并交付。
+  在这三项到位前，载荷不得生成（1 小时窗口会被空耗）。
