@@ -8,9 +8,10 @@
 |---|---|
 | 门禁 | `framework-verify` exit 0 / **252 passed、0 skipped**（需 MySQL 实例在跑） |
 | 落地验证 | `schema-verify.sh` PASS：43 表 / 538 列 / 97 模块测试 / 契约一致 / 体检 6 项 |
-| 活动候选 | **`L0-contract-baseline-r10`**（`QA_PENDING`，8/8 开发门禁 pass，待签） |
+| 活动候选 | 无（r10 已 `DONE` 并合入 `main`：`b597fcc`） |
 | 候选指纹 | `baseline_sha256=f5e07f56…`、`subject=66945f09…`、冻结 `revision=11`、212 文件 |
 | 业务闸门 | `p0-gate` **exit 2**（四项 P0 全 OPEN） |
+| 签名性质 | r10 为**业主授权自签**（非第三方独立 QA），详见 `R10-QA-HANDOFF.md` §8 |
 
 ## 在用（工具/脚本/SQL）（11）
 

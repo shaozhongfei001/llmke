@@ -30,7 +30,7 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 
 ## 2026-10-22 收口状态（无人值守轮）
 
-- 候选：**`L0-contract-baseline-r10`**（`QA_PENDING`，8/8 开发门禁 pass；签署见 `R10-QA-HANDOFF.md`）
+- 候选：r10 已 `DONE` 并合入 `main`（合并提交 `b597fcc`）；工作分支改用 main
 - 门禁：`framework-verify` exit 0 / **252 passed**；`evidence-check r9` PASS（终态）；`p0-gate` exit 2
 - 落地：`schema-v1.3.sql`（43 表）+ `schema-verify.sh`（43 表、97 模块测试、契约↔表列一致）
 - 切片：A 证据落库 / B 分块存储 / C 代次机制（S1–S5）/ D 授权过滤下沉 SQL（E1/E3）/ E 组合链路 / F 端到端黄金路径 / 体检工具

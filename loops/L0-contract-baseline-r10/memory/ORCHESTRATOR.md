@@ -1,9 +1,9 @@
 # Generated view
 
-State revision: 18
+State revision: 19
 
 Baton holder: `qa-external`
 
-Status: QA_PENDING
+Status: DONE
 
 Authoritative file: ../STATE.json

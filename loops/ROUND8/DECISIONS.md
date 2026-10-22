@@ -355,3 +355,14 @@
   `module_test_gate` 的 argv 改用 `LLMKE_REQUIRE_DB=1 pytest modules/`，
   并在测试里对该环境变量显式 fail 而非 skip；开发机默认不设该变量，不影响本地开发。
   这会动 `Makefile`/`tests`，必须在新窗口与批次一起做（否则本候选立即作废）。
+
+## D45 r10 签署与合入 main（业主授权；记录独立性缺口）
+- 业主授权：更新信任根锚点 -> 按交接包签名 -> accept-qa -> 合并。
+- 已执行：锚点 c8a73c37 -> f5e07f56（原文件已备份）；签名 -> accept-qa -> finish（r10 = DONE）；
+  合并预演确认无冲突且合并后树与 QA 审查树一致（16296d1b）；main 合并提交 b597fcc。
+- 合并后复核：main 上 framework-verify 252 passed / 0 skipped；r10 evidence-check PASS；p0-gate exit 2。
+- **必须记录的事实**：签名由实现方使用业主持有的 qa-owner-01 私钥执行。
+  `implementation_principals` 检查通过仅因主体名不同，**不代表存在第三方复核**。
+  因此本次签名应视为"业主授权自签"，不得作为独立 QA 背书引用。
+- 教训：门禁能拦"同名主体"，拦不住"同一双手换身份"。若要真独立，需要第二个主体持独立私钥重签。
+- 工作分支变更：后续工作应在 main（或新分支）进行；`round8/delivery` 已落后于 main。
