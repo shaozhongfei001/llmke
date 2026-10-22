@@ -169,3 +169,48 @@ def test_outbox_enqueue_and_claim_once(db):
     assert second == 0                         # 已被 SENDING，不得重复投递
     out, _ = run("SELECT state,attempts FROM index_outbox ORDER BY id DESC LIMIT 1")
     assert out.strip() == "SENDING\t1"
+
+
+# ---------- 并发：CAS 必须只有一个赢家 ----------
+def _run_parallel(statements: list[str], n: int = 8) -> list[int]:
+    """同时启动 n 个 mysql 进程执行同一条语句，返回各自的影响行数。
+
+    为什么用多进程而不是线程：真正的排他性由数据库提供，
+    进程数够多且同时启动就足以制造竞争窗口；结果必须是确定性的（和恰好为 1）。
+    """
+    procs = [subprocess.Popen(
+        [MYSQL, f"--socket={SOCKET}", "-uroot", "-N", "-B", DB],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        for _ in range(n)]
+    # 先全部写入并 flush（此时各进程同时开始执行），再由 communicate 关闭 stdin。
+    # 手动 close 后再 communicate 会触发 "I/O operation on closed file"。
+    for p in procs:
+        p.stdin.write(f"{statements[0]};\nSELECT ROW_COUNT();\n")
+        p.stdin.flush()
+    out = []
+    for p in procs:
+        so = p.communicate(timeout=60)[0]
+        lines = [x for x in so.strip().splitlines() if x.strip()]
+        out.append(int(lines[-1]) if lines and lines[-1].lstrip("-").isdigit() else -1)
+    return out
+
+
+def test_concurrent_activation_has_exactly_one_winner(db):
+    g1 = new_generation("kb-race", "a1" * 32)
+    g2 = new_generation("kb-race", "a2" * 32)
+    run(activate_seed_sql("kb-race", g1, "ops"))
+
+    results = _run_parallel([activation_cas_sql("kb-race", g2, g1, "ops")], n=8)
+    assert results.count(1) == 1, f"应恰好一个进程切换成功，实际 {results}"
+    assert results.count(0) == 7, f"其余必须都是 0 行，实际 {results}"
+
+    out, _ = run("SELECT generation_id FROM index_generation_activation WHERE kb_id='kb-race'")
+    assert int(out.strip()) == g2
+
+
+def test_concurrent_outbox_claim_has_exactly_one_winner(db):
+    run(outbox_enqueue_sql("kb", "kb-race", "INDEX_READY", '{"g":1}'))
+    results = _run_parallel([outbox_claim_sql(1)], n=8)
+    assert results.count(1) == 1, f"同一条事件只能被领一次，实际 {results}"
+    out, _ = run("SELECT state FROM index_outbox WHERE aggregate_id='kb-race'")
+    assert out.strip() == "SENDING"
