@@ -376,3 +376,38 @@
   缺信任根时**明确报错并解释原因**，不再伪装成 PENDING。
 - 提示：`framework-verify` 不需要信任根（不验签），所以"门禁全绿但 evidence-check 红"是正常组合，
   只差一个环境变量。
+
+## D48 接受 QA 否决：W-07 补丁三条问题全部成立（我方缺陷）
+- QA 结论：不得应用。我方复核，三条**全部成立**，无异议：
+  1. **对 r10 无效**：r10 的 QA 记录 `ran_at=05:33:23Z`，签名窗口下界 `issued-5min=05:42:14Z`，
+     锚点落在窗口外 → 补丁后仍 FAIL。（我把锚点取在"门禁执行时刻"，而载荷是在其后生成的。）
+  2. **一应用即作废它想保住的证据**：应用后 `control_digest 94f52bb3 -> 1a2f8f7d`，r10 九条全 STALE。
+  3. **安全属性反转（最严重）**：`sealed = terminal or status=='DONE'`，`sealed` 取自 `STATE.json`，
+     时钟取自 `ran_at`，两者**都不在冻结面、不被任何摘要覆盖**。我自己的两条用例即为反例：
+     同一 manifest（已 `pass` + 过期信封），`status=DONE` 放行、`status=IN_DEV` 拒绝 —— 差异只有一行未签名状态。
+- 我方额外发现（此前未识别）：`controls()` 把 `loops/**/LOOP.yaml` 计入控制面，
+  **因此"新建批次"本身就是控制面变更**，必然触发重冻结并使前一批 STALE。
+  这解释了为何"建 r11 + 保住 r10 证据"不可兼得。
+- 处置：补丁移出仓库（`coordination/rejected/w07-audit-clock.REJECTED-by-QA.diff`），不 `git add`；
+  r11 建批撤回（`loops/L0-contract-baseline-r11` 已删除），仓库回到 control_digest 与 r10 记录一致的状态。
+- 教训：**不许把安全判定挂在未签名、可变的运行态上**。审计若要"当时有效"，锚点必须来自
+  被摘要覆盖的、一次写入不可改的凭据，而不是 `STATE.json` 或 `ran_at`。
+
+## D49 立项 CR-01：签名消费回执（替代 W-07 的错误方向）
+- 方向（采纳 QA 建议）：`accept_qa` 消费签名的同时，落一份**纳入 `control_digest` 的消费回执**
+  （含 envelope 摘要、subject、`consumed_at`、loop/gate），审计只认回执，不再读 `STATE.json`/`ran_at`。
+- 必须带的验收（缺一不批）：
+  ① 仅修改 `STATE.json` 的 `status` 不得放行过期签名；
+  ② 仅修改 `manifest.json` 的 `ran_at` 不得放行；
+  ③ 回执被改动一个字节 → 审计 FAIL；
+  ④ 活批次仍用墙钟（重放旧签名批准新合并必须被拒）；
+  ⑤ 终态批次在窗口外仍可审计通过（回执证明"当时有效"）。
+- 排期：下一次受控窗口（与 STALE 排序、门禁粒度合并做），需业主批准；`CR-01`，未立号前不落地。
+
+## D50 治理加固决定（回应 QA §3.3）
+- 补丁无痕塞入：**做**（立即）——被否决补丁已移出仓库；并约定 `docs/baseline/validation/` 下
+  只放**结论**，不放**可执行补丁**（补丁一律放仓外或被否决目录）。
+- `docs/baseline/validation/` 为冻结排除前缀：**排期**——纳入控制面需改 `controls()`，属窗口动作；
+  短期用仓外检查兜住"未跟踪文件被当作证据"（`coordination/pre-commit-security.sh` 前置）。
+- STALE 清单顺序不稳定：**排期**（`loop_guard.py` 属控制面，改则 STALE，随 CR-01 同批）。
+- 门禁判定禁接 `| tail`：**做**（立即）——统一取 `PIPESTATUS[0]` 或不接管道。
