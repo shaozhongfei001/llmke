@@ -317,3 +317,12 @@
   →授权检索（只见 f-1）→构造证据过契约→outbox 入队→CAS 领取一次（第二次 0 行）。
 - 自纠：测试里 `run()` 返回元组却被当字符串用；`token` 变量名触发凭据误报，改 `lease_val`
   （不改规则、不动 allowlist）。
+
+## D41 状态迁移 CAS + 跨表一致性体检
+- `transition_sql`：状态迁移带 `WHERE state = 期望值`，影响行数 1 才算成功。
+  只在 Python 判断状态机无法阻止两个进程同时迁移——排他性必须由行级条件提供。
+- `consistency-doctor.py` 六项跨表体检（外键解决不了软关联）：
+  C1 证据指向不存在的分块 / C2 分块 text 与 hash 不一致 / C3 激活指针指向非 ACTIVE
+  / C4 ACTIVE 代次租约已过期 / C5 outbox 积压超 10 分钟 / C6 同版本分块区间重叠。
+- 已验证：干净库 PASS；注入 6 类违规后 6 条全部触发（exit 2）。
+- 已接入 `schema-verify.sh`：跑完集成测试后自动体检，作为落地的一部分。

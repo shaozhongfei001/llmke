@@ -2,8 +2,8 @@
 
 工作树：`~/data/dev/llmke-r8`（`round8/delivery`）
 当前候选：**无活动候选**（r9 已 `SUPERSEDED`，见 D33）
-门禁实况：`framework-verify` **exit 0 / 249 passed**、`evidence-check r9` **PASS（终态）**、`p0-gate` **exit 2**
-落地验证：`schema-verify.sh` PASS（43 表 / 94 模块测试 / 契约↔表列一致）
+门禁实况：`framework-verify` **exit 0 / 250 passed**、`evidence-check r9` **PASS（终态）**、`p0-gate` **exit 2**
+落地验证：`schema-verify.sh` PASS（43 表 / 95 模块测试 / 契约一致 / 体检 6 项 PASS）
 
 ---
 
@@ -29,6 +29,7 @@
 | 16 | **切片 D**：授权过滤下沉 SQL（P0-03） | 10 单元 + 4 真库；E1/E3 真库验证 |
 | 17 | **切片 E**：授权→取块→证据 组合验证 | 5 真库；越权显式拒绝、篡改可检出 |
 | 18 | **切片 F**：插入 fencing + 端到端黄金路径 | 17+6 测试；全链路一次跑通 |
+| 19 | 状态迁移 CAS + 跨表一致性体检 | 6 项体检；干净库 PASS、注入违规 6/6 触发 |
 
 ---
 

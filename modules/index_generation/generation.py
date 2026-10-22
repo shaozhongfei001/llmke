@@ -49,6 +49,20 @@ def assert_ready_to_activate(state: str, physical_locations: dict) -> None:
         raise GenerationError("LOCATION_MISSING", ",".join(missing))
 
 
+def transition_sql(generation_id: int, from_state: str, to_state: str) -> str:
+    """状态迁移也必须是 CAS：`WHERE state = 期望值`，影响行数 1 才算迁移成功。
+
+    为什么：状态机如果只在 Python 里判断，两个进程仍可能同时把 BUILDING 改成 VALIDATING；
+    真正的排他性只能由数据库的行级条件提供。
+    """
+    assert_transition(from_state, to_state)
+    return (
+        "UPDATE index_generation "
+        f"SET state = {q(to_state)} "
+        f"WHERE generation_id = {int(generation_id)} AND state = {q(from_state)}"
+    )
+
+
 def q(value: Any) -> str:
     """极小的 SQL 字面量转义：只用于测试与运维脚本，不接受任意 SQL 拼接。"""
     if value is None:

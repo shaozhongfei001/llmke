@@ -48,6 +48,11 @@ say "模块集成测试（真库读写）"
   LLMKE_MYSQL_SOCKET="${MYSQL_PROBE_DIR:-/tmp/mysql-probe}/mysql.sock" \
   LLMKE_CI_DB="${DB}_ci" python3 -m pytest modules -q ) || fail "集成测试未通过"
 
+say "跨表一致性体检（孤儿数据/半成品代次/租约过期/积压事件）"
+( cd "$ROOT" && PATH="$HOME/data/dev/llmke/.venv/bin:$PATH" \
+  python3 docs/baseline/validation/consistency-doctor.py \
+  --socket "${MYSQL_PROBE_DIR:-/tmp/mysql-probe}/mysql.sock" --db "$DB" ) || fail "一致性体检发现问题"
+
 if [ "$KEEP" = 0 ]; then
   "$PROBE" sql -e "DROP DATABASE IF EXISTS \`$DB\`" >/dev/null
   say "已清理数据库 $DB"

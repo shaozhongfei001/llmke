@@ -85,3 +85,16 @@ def test_insert_guarded_requires_lease_and_valid_columns():
 
     with pytest.raises(GenerationError):
         insert_guarded_sql("kb-1", 7, 3, "document_chunk", [], "1")
+
+
+def test_transition_sql_is_cas_on_current_state():
+    """状态迁移也要 CAS：只在 Python 判断，两个进程仍可能同时迁移。"""
+    from modules.index_generation import transition_sql
+
+    sql = transition_sql(7, "BUILDING", "VALIDATING")
+    assert "state = 'VALIDATING'" in sql
+    assert "WHERE generation_id = 7 AND state = 'BUILDING'" in sql
+
+    with pytest.raises(GenerationError) as e:
+        transition_sql(7, "BUILDING", "ACTIVE")
+    assert e.value.code == "ILLEGAL_TRANSITION"
