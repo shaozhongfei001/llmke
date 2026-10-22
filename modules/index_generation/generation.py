@@ -149,6 +149,31 @@ def write_guard_sql(kb_id: str, generation_id: int, token: int, table: str,
     )
 
 
+def insert_guarded_sql(kb_id: str, generation_id: int, token: int, table: str,
+                       columns: list[str], values_sql: str) -> str:
+    """带 fencing 的**插入**：`INSERT ... SELECT ... WHERE EXISTS(租约校验)`。
+
+    为什么必须有这一条：
+        `write_guard_sql` 只能约束 UPDATE。真实链路里分块是 INSERT 进来的，
+        如果插入不带 token 校验，旧 worker 仍然能往新代里塞数据——S4 等于没防住。
+    影响行数 0 表示租约已失效（被别人接管或过期），调用方必须放弃本次写入。
+    """
+    if not table.replace("_", "").isalnum():
+        raise GenerationError("ILLEGAL_TABLE", table)
+    if not columns or not values_sql.strip():
+        raise GenerationError("ILLEGAL_COLUMNS", "必须给出列与值")
+    for c in columns:
+        if not c.replace("_", "").isalnum():
+            raise GenerationError("ILLEGAL_COLUMN", c)
+    cols = ",".join(f"`{c}`" for c in columns)
+    return (
+        f"INSERT INTO `{table}` ({cols}) SELECT {values_sql} "
+        "FROM DUAL WHERE EXISTS (SELECT 1 FROM index_write_lease "
+        f"  WHERE kb_id={q(kb_id)} AND generation_id={int(generation_id)} "
+        f"    AND {int(token)} = lease_token AND expires_at >= NOW(3))"
+    )
+
+
 def outbox_enqueue_sql(aggregate: str, aggregate_id: str, event_type: str, payload_json: str) -> str:
     """事件与业务写入必须在同一事务内调用本语句。"""
     return (

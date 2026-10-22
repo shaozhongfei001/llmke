@@ -69,3 +69,19 @@ def test_lease_sql_increments_monotonically():
     assert "lease_token = lease_token + 1" in upd
     assert "expires_at < NOW(3) OR owner = 'worker-a'" in upd
     assert "VALUES ('kb-1',7,1,'worker-a'" in ins
+
+
+def test_insert_guarded_requires_lease_and_valid_columns():
+    """插入也必须带 fencing：UPDATE 守卫挡不住 INSERT（真实链路里分块是插入进来的）。"""
+    from modules.index_generation import insert_guarded_sql
+
+    sql = insert_guarded_sql("kb-1", 7, 3, "document_chunk", ["chunk_id", "text"], "'c1','abc'")
+    assert sql.startswith("INSERT INTO `document_chunk` (`chunk_id`,`text`) SELECT 'c1','abc'")
+    assert "WHERE EXISTS" in sql and "3 = lease_token" in sql and "expires_at >= NOW(3)" in sql
+
+    with pytest.raises(GenerationError) as e:
+        insert_guarded_sql("kb-1", 7, 3, "document_chunk", ["chunk_id; DROP"], "1")
+    assert e.value.code == "ILLEGAL_COLUMN"
+
+    with pytest.raises(GenerationError):
+        insert_guarded_sql("kb-1", 7, 3, "document_chunk", [], "1")
