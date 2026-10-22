@@ -25,11 +25,11 @@
       "owner": "source-reuse-agent"
     },
     "R8-T04": {
-      "status": "BLOCKED_EXTERNAL",
-      "desc": "r5 独立 QA 签署",
-      "evidence": "docs/baseline/validation/R5-QA-HANDOFF.md",
-      "owner": "qa-owner",
-      "blocker": "信任根锚点未更新；不得代签"
+      "status": "CLOSED_WITHOUT_ENDORSEMENT",
+      "desc": "独立 QA 签署（r11）",
+      "evidence": "loops/L0-contract-baseline-r11/EVIDENCE.md",
+      "owner": "qa-external",
+      "note": "技术复核 PASS；未出具独立签名。私钥已 shred 且无交付证据，公钥悬空；attempts 2/3。业主裁定就此为止（D54）"
     },
     "R8-T05": {
       "status": "BLOCKED_EXTERNAL",
@@ -207,5 +207,6 @@
     "r10_evidence_check": "STALE（建 r11 致 control_digest 变化，既定代价）",
     "freeze": "revision 12 / 215 文件 / 1.1.1"
   },
-  "status_note": "工程可自主推进部分已归零（无 READY 项）；轮次未结束：r11 待独立 QA 签署，P0-01~04 全 OPEN，L1-L4 BLOCKED"
+  "status_note": "工程可自主推进部分已归零（无 READY 项）；轮次未结束：r11 待独立 QA 签署，P0-01~04 全 OPEN，L1-L4 BLOCKED",
+  "round_conclusion": "技术完成、无独立背书（业主 2026-10-23 裁定收尾）。p0-gate rc=2，P0-01~04 全 OPEN，L1–L4 BLOCKED，业务不可开工。"
 }
