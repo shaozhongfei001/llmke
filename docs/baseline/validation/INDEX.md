@@ -6,9 +6,10 @@
 
 | 项 | 值 |
 |---|---|
-| 门禁 | `framework-verify` exit 0 / **252 passed** |
+| 门禁 | `framework-verify` exit 0 / **252 passed、0 skipped**（需 MySQL 实例在跑） |
 | 落地验证 | `schema-verify.sh` PASS：43 表 / 538 列 / 97 模块测试 / 契约一致 / 体检 6 项 |
-| 活动候选 | **无**（r5–r9 均已 SUPERSEDED） |
+| 活动候选 | **`L0-contract-baseline-r10`**（`QA_PENDING`，8/8 开发门禁 pass，待签） |
+| 候选指纹 | `baseline_sha256=f5e07f56…`、`subject=66945f09…`、冻结 `revision=11`、212 文件 |
 | 业务闸门 | `p0-gate` **exit 2**（四项 P0 全 OPEN） |
 
 ## 在用（工具/脚本/SQL）（11）
@@ -106,6 +107,12 @@
 | `SCHEMA-V1-RESULT.md` | LLMKE 目标 schema V1：生成结果与核查 |
 | `W-01-RESULT.md` | W-01 / W-01b 窗口实施结果 |
 | `W-02-W05-RESULT.md` | 窗口结果：弃 r7 → 应用补丁包（W-05 / W-05b / W-02 / W-04） |
+
+## 当前候选交接（1）
+
+| 文件 | 说明 |
+|---|---|
+| `R10-QA-HANDOFF.md` | r10 独立 QA 交接（**当前唯一有效候选**） |
 
 ## 已作废/历史（3）
 

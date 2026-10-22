@@ -334,3 +334,24 @@
   * 激活 CAS：恰好 1 个成功、7 个 0 行，指针指向新代；
   * outbox 领取：恰好 1 个成功，事件状态变 SENDING，不重复投递。
 - 这条把"原子性"从推理变成了实测；串行测试无法证明排他性。
+
+## D43 建 r10：把"无活动候选"变回"可直接送签"
+- 背景：r9 因新增实现作废（D33），此后一直是"无活动候选"；而送签必须有候选。
+- 时点选择：六切片已收口、暂无实现要改，**此时建批最省**——不会马上又被 code_digest 作废。
+- 执行：一次收口冻结（revision 11 / 212 文件）+ 9 条门禁（坏 PATH 下跑，顺带验证 W-05b）
+  → 8 条 pass + QA_PENDING → evidence-check PASS → 生成载荷。
+- 指纹：baseline_sha256 = f5e07f56…；subject = c1d112e7…。
+- 交接：`R10-QA-HANDOFF.md`（唯一有效候选；r5/r7/r9 的交接包均已标 VOID）。
+- 纪律不变：签名仍须 qa-owner 先把信任根锚点指到 f5e07f56，实现者不得自签。
+
+## D44 教训：数据库测试被跳过时，门禁仍然"通过"
+- 现象：实例停止后 `make framework-verify` 变成 `223 passed, 29 skipped` —— 门禁照样 exit 0。
+  一次候选可以在"29 项真库测试从未执行"的情况下拿到 8/8 pass。
+- 为什么会这样：真库测试用 `skipif` 设计（开发机无 MySQL 时不该红），
+  而门禁没有"必须 0 skipped"的约束。
+- 处置（本次）：重跑 `module_test_gate` 与 QA 候选，确保记录来自 **252 passed / 0 skipped** 的运行；
+  重新生成载荷（subject 变为 `66945f09…`）。
+- 待办（需控制面变更，未做）：把"0 skipped"变成门禁条件。方案：
+  `module_test_gate` 的 argv 改用 `LLMKE_REQUIRE_DB=1 pytest modules/`，
+  并在测试里对该环境变量显式 fail 而非 skip；开发机默认不设该变量，不影响本地开发。
+  这会动 `Makefile`/`tests`，必须在新窗口与批次一起做（否则本候选立即作废）。

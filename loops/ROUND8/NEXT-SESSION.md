@@ -30,7 +30,7 @@ PYTHONPATH=$PWD ~/data/dev/llmke/.venv/bin/python -m pytest modules/citation_evi
 
 ## 2026-10-22 收口状态（无人值守轮）
 
-- 候选：**无活动候选**（r9 已 SUPERSEDED；新增实现会作废候选，见 D33）
+- 候选：**`L0-contract-baseline-r10`**（`QA_PENDING`，8/8 开发门禁 pass；签署见 `R10-QA-HANDOFF.md`）
 - 门禁：`framework-verify` exit 0 / **252 passed**；`evidence-check r9` PASS（终态）；`p0-gate` exit 2
 - 落地：`schema-v1.3.sql`（43 表）+ `schema-verify.sh`（43 表、97 模块测试、契约↔表列一致）
 - 切片：A 证据落库 / B 分块存储 / C 代次机制（S1–S5）/ D 授权过滤下沉 SQL（E1/E3）/ E 组合链路 / F 端到端黄金路径 / 体检工具
@@ -49,8 +49,8 @@ PYTHONPATH=$PWD python3 scripts/loop_guard.py evidence-check --loop L0-contract-
 
 ### 续跑顺序（下次接手直接照做）
 
-1. **先建新批次**（r9 已因新增实现作废，见 D33）：实现暂停后建批 → 跑 9 条门禁 → 生成 QA 载荷
-   → qa-owner 把信任根锚点指到新 `baseline_sha256` 再签名——这是合并与 L1 的前置；
+1. **等 qa-owner 签 r10**（信任根锚点需先指到 `f5e07f56…`）——这是合并与 L1 的前置；
+   若在签名前又改了实现代码，r10 会再次作废，需重走建批（D33）；
 2. 拿到 `index-owner` 对 `P0-04-DESIGN-PROPOSAL.md` 5 条裁定 → 升 schema V1.2 并实现 5 条测试；
 3. 拿到 `security-owner` 对 `P0-03-DESIGN-PROPOSAL.md` 5 条裁定 → 实现 E1–E6；
 4. 若业主决定迁移旧数据（当前决策为**空库起步**）→ 按 `target-schema-v1-mapping.csv`

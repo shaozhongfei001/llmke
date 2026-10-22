@@ -1,0 +1,2 @@
+{"argv": ["make", "check"], "exit_code": 0, "executor": "integration-agent", "at": "2026-10-22T05:27:57.901594+00:00"}
+check: PASS (18 contracts, semantic + exact linkage)

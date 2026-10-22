@@ -104,6 +104,13 @@ loops:
     state: READY
     objective: W-05+W-05b+W-02+W-04 收口候选
     replaces: L0-contract-baseline-r8
+  L0-contract-baseline-r10:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: 六切片基座收口候选
+    replaces: L0-contract-baseline-r9
 retired_loop_aliases:
   L1-implementation: L1
 unplanned:
