@@ -9,75 +9,203 @@
       "status": "VERIFIED",
       "desc": "引用证据组装器（纵向切片）",
       "evidence": "modules/citation_evidence/",
+      "owner": "python-parser-agent",
       "tests": "10 passed"
     },
     "R8-T02": {
       "status": "VERIFIED",
       "desc": "ROUND8 状态账本与交接",
-      "evidence": "loops/ROUND8/"
+      "evidence": "loops/ROUND8/",
+      "owner": "tech-lead"
     },
     "R8-T03": {
       "status": "VERIFIED",
       "desc": "555 矩阵 AI 建议（原 BLOCKED，口径已授权）",
-      "evidence": "docs/baseline/validation/AI-ADVISORY-POLICY-V1.md"
+      "evidence": "docs/baseline/validation/AI-ADVISORY-POLICY-V1.md",
+      "owner": "source-reuse-agent"
     },
     "R8-T04": {
       "status": "BLOCKED_EXTERNAL",
       "desc": "r5 独立 QA 签署",
-      "blocker": "信任根锚点 c8a73c37 != 213c6ebc；实现者不得代签"
+      "evidence": "docs/baseline/validation/R5-QA-HANDOFF.md",
+      "owner": "qa-owner",
+      "blocker": "信任根锚点未更新；不得代签"
     },
     "R8-T05": {
       "status": "BLOCKED_EXTERNAL",
       "desc": "真实 DDL/运行时路由/E1/S1-S5",
-      "blocker": "对应 owner 未提供"
+      "evidence": "docs/baseline/validation/P0-INPUT-INDEX.md",
+      "owner": "data-owner/interface-owner/security-owner/index-owner",
+      "blocker": "外部权威输入未到"
     },
     "R8-T06": {
       "status": "VERIFIED",
       "desc": "不支持声明拦截（unsupported_policy=block）",
+      "evidence": "modules/citation_evidence/",
+      "owner": "python-parser-agent",
+      "blocker": "无证据声明默认 block",
       "tests": "13 passed"
     },
     "R8-T07": {
       "status": "VERIFIED",
       "desc": "移除弃用 API（RefResolver → referencing）",
+      "evidence": "loops/ROUND8/evidence/pytest-r8.log",
+      "owner": "python-parser-agent",
+      "blocker": "替换已弃用 RefResolver（referencing registry）",
       "tests": "14 passed"
     },
     "R8-T08": {
       "status": "VERIFIED",
       "desc": "负例矩阵补全（空文本/end=0/长度上限/source 类型/右开边界）",
+      "evidence": "loops/ROUND8/evidence/pytest-r8.log",
+      "owner": "python-parser-agent",
+      "blocker": "5 条边界负例 + source 类型守卫",
       "tests": "19 passed"
     },
     "R8-T09": {
       "status": "VERIFIED",
       "desc": "支持率审计（契约阈值 0.95/30 从契约读取）",
+      "owner": "python-parser-agent",
+      "blocker": "契约 support_audit 落地（23 passed）",
       "tests": "23 passed"
     },
     "R8-T10": {
       "status": "VERIFIED",
       "desc": "555 行 AI 建议（口径 V1 已授权，owner 批准 0）",
-      "evidence": "evidence/reuse-candidate-matrix-v2.csv"
+      "evidence": "loops/LD-legacy-discovery/evidence/reuse-advisory-summary.json",
+      "owner": "source-reuse-agent",
+      "blocker": "AI 建议 555 行（owner 批准 0）"
     },
     "R8-T11": {
       "status": "VERIFIED",
       "desc": "CLI 增加 audit 子命令（向后兼容 assemble）",
+      "evidence": "loops/ROUND8/evidence/pytest-r8.log",
+      "owner": "python-parser-agent",
+      "blocker": "向后兼容 assemble；25 passed",
       "tests": "25 passed"
     },
     "R8-T12": {
       "status": "VERIFIED",
       "desc": "集合级完整性：重复 evidence_id / 同 chunk 重叠 / 跨 chunk 重叠 / 空集合（fail-closed）",
       "evidence": "loops/ROUND8/evidence/pytest-r8-set.log",
+      "owner": "python-parser-agent",
+      "blocker": "35 passed；模块测试不属 framework-verify（Makefile 为冻结控制面，见 D8）",
       "tests": "35 passed"
     },
     "R8-T13": {
       "status": "VERIFIED",
       "desc": "parser_version 混用检测（同一文档版本出现两套 offset 坐标系）",
       "evidence": "loops/ROUND8/evidence/pytest-r8-parser-version.log",
+      "owner": "python-parser-agent",
+      "blocker": "39 passed；混版本先于重叠判定报错",
       "tests": "39 passed"
+    },
+    "R8-T14": {
+      "status": "VERIFIED",
+      "desc": "Makefile + baseline_support.py + loop_guard.py（W-01）",
+      "evidence": "docs/baseline/validation/W-01-RESULT.md",
+      "owner": "tech-lead",
+      "blocker": "193 passed；code_digest 绑定 independent_qa_gate"
+    },
+    "R8-T15": {
+      "status": "VERIFIED",
+      "desc": "loop_guard.evidence_errors（W-01b：不再跳过 QA_PENDING）",
+      "evidence": "docs/baseline/validation/W-01-RESULT.md",
+      "owner": "tech-lead",
+      "blocker": "改一行注释 -> FAIL: implementation code changed；r6 因此作废重建 r7"
+    },
+    "R8-T16": {
+      "status": "VERIFIED",
+      "desc": "patches/window-bundle-v1.diff（W-05/W-05b/W-02/W-04）",
+      "evidence": "docs/baseline/validation/WINDOW-BUNDLE-VERIFIED.md",
+      "owner": "tech-lead",
+      "blocker": "apply --check OK；变异测试证明 W-04 有牙"
+    },
+    "R8-T17": {
+      "status": "VERIFIED",
+      "desc": "窗口执行：弃 r7 -> 应用补丁 -> r9 候选",
+      "evidence": "docs/baseline/validation/W-02-W05-RESULT.md",
+      "owner": "tech-lead",
+      "blocker": "8/8 开发 pass + QA_PENDING；坏 PATH 下复现；r8 因授权留痕不完整作废"
+    },
+    "R8-T18": {
+      "status": "VERIFIED",
+      "desc": "docs/baseline/validation/p0-gate-redteam-audit.py（P0 闸门红队）",
+      "evidence": "docs/baseline/validation/P0-GATE-REDTEAM-AUDIT.md",
+      "owner": "qa-external",
+      "blocker": "14/14 用例被拦；未改控制面"
+    },
+    "R8-T19": {
+      "status": "VERIFIED",
+      "desc": "docs/baseline/validation/p0-02-ddl-diff.py（DDL↔台账差异仪器）",
+      "evidence": "docs/baseline/validation/P0-02-DDL-INSTRUMENT.md",
+      "owner": "data-owner",
+      "blocker": "6 组合成夹具；指纹对缩进/CRLF 稳定"
+    },
+    "R8-T20": {
+      "status": "VERIFIED",
+      "desc": "docs/baseline/validation/p0-01-route-extract.py（源码路由提取）",
+      "evidence": "docs/baseline/validation/P0-01-ROUTE-EXTRACT.md",
+      "owner": "interface-owner",
+      "blocker": "Java 440 vs 源码 440；1 条注释接口 + 1 条未登记"
+    },
+    "R8-T21": {
+      "status": "VERIFIED",
+      "desc": "docs/baseline/validation/p0-02-ddl-diff.py（v2 字段级）",
+      "evidence": "docs/baseline/validation/P0-02-DDL-INSTRUMENT.md",
+      "owner": "data-owner",
+      "blocker": "接入字段明细 CSV；4 类差异已验证"
+    },
+    "R8-T22": {
+      "status": "VERIFIED",
+      "desc": "docs/baseline/validation/p0-02-entity-extract.py（ORM 实体基线）",
+      "evidence": "docs/baseline/validation/P0-02-ENTITY-BASELINE.md",
+      "owner": "data-owner",
+      "blocker": "实体 37 表/491 列；CSV 81 处不符（29 字段名/7 非持久化/13 类型）"
+    },
+    "R8-T23": {
+      "status": "VERIFIED",
+      "desc": "docs/baseline/validation/p0-02-table-ownership.py（表归属/跨服务）",
+      "evidence": "docs/baseline/validation/P0-02-TABLE-COUPLING.md",
+      "owner": "data-owner",
+      "blocker": "9/37 表跨服务；user_operate 双实体"
+    },
+    "R8-T24": {
+      "status": "VERIFIED",
+      "desc": "p0-02-ddl-generate.py（ORM→候选 DDL）",
+      "evidence": "docs/baseline/validation/P0-02-DDL-BASELINE-FROM-CODE.md",
+      "owner": "data-owner",
+      "blocker": "37 表/479 列；回环 PASS；证实 dialogue 无 user_id 索引不可建"
+    },
+    "R8-T25": {
+      "status": "VERIFIED",
+      "desc": "p0-02-index-infer.py（查询反推索引）+ P0-04 现状核查",
+      "evidence": "docs/baseline/validation/P0-02-INDEX-INFERENCE.md; docs/baseline/validation/P0-04-READINESS.md",
+      "owner": "index-owner",
+      "blocker": "116 组候选；5.1 三条索引现有查询均未用；P0-04 四机制全缺"
+    },
+    "R8-T26": {
+      "status": "VERIFIED",
+      "desc": "SCHEMA-STANDARD-V1 + schema-generate.py + artifacts",
+      "evidence": "docs/baseline/validation/SCHEMA-V1-RESULT.md",
+      "owner": "baseline-owner",
+      "blocker": "37 表/478 列；154 处审计列改写；发现 DO 重复列映射缺陷"
+    },
+    "R8-T27": {
+      "status": "VERIFIED",
+      "desc": "schema V1.1 合并 + schema-verify.sh + 盘点 + P0-04 提案",
+      "evidence": "docs/baseline/validation/ROUND-INVENTORY-2026-10-22.md",
+      "owner": "tech-lead",
+      "blocker": "38 表/491 列落地验证 PASS；44 模块测试"
     }
   },
   "gates": {
-    "framework_verify": "exit 0 / 145 passed（r8 工作树，mk.sh 自动识别 root）",
+    "framework_verify": "exit 0 / 252 passed, 0 skipped（main，MySQL 实例需先启动）",
+    "schema_verify": "exit 0 / C1-C6 全 PASS / 0 处不一致",
     "p0_gate": 2,
-    "r5_evidence_check": "PASS（原工作树，未变）",
-    "module_tests": "39 passed（不属 framework-verify，见 D8）"
-  }
+    "r11_evidence_check": "PASS（8 pass + independent_qa_gate=QA_PENDING，scheme=3）",
+    "r10_evidence_check": "STALE（建 r11 致 control_digest 变化，既定代价）",
+    "freeze": "revision 12 / 215 文件 / 1.1.1"
+  },
+  "status_note": "工程可自主推进部分已归零（无 READY 项）；轮次未结束：r11 待独立 QA 签署，P0-01~04 全 OPEN，L1-L4 BLOCKED"
 }
