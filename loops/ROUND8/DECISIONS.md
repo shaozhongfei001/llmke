@@ -289,3 +289,13 @@
 - 规则 `\w*(token|secret|password)\w*\s*[:=]\s*<value>` 命中生成的 SQL 片段。
 - 处置：把常量写在左（`3 = lease_token`，SQL 等价），而非放宽规则或加 allowlist
   （allowlist 属冻结面，且放宽会削弱对真实凭据的拦截）。
+
+## D38 切片 D：授权过滤下沉到 SQL 层（P0-03 不变式可执行）
+- `modules/authz`：上下文结构/时效校验 + `compile_chunk_predicate` / `compile_evidence_predicate`。
+- 不变式落地方式：产出**SQL 谓词**，调用方放进 WHERE；不是取回后在 Python 里 if 掉。
+  这样"未授权内容在数据库层就不会被取出"，可被 SQL 直接证明。
+- 图检索降级：`can_use_graph` 仅对整库授权返回 True（因 retrieval_graph 无文件范围参数）。
+- 标识符白名单（`^[A-Za-z0-9._:-]{1,64}$`）阻止注入；无上下文一律拒绝，不按空权限继续（E6）。
+- 真库验证（E1/E3）：file_scope={'kb-1':['f-1']} 时，chunk 与 evidence 查询返回的文件集合都只有 f-1；
+  通配 '*' 才返回 f-1+f-2；扩展相邻块沿用同一谓词不跨文件。
+- 位置：参考实现，权限粒度/合并优先级等 5 项待 security-owner 裁定。
