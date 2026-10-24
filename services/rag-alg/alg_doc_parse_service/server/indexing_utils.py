@@ -63,6 +63,30 @@ async def _insert_es_batch_async(
     return batch_idx
 
 
+
+def normalize_for_es(document_list):
+    """[R12-FIX-PARSE-08] ES 侧文档瘦身：剔除不适合动态 mapping 的深层数组字段。
+
+    实测（`docx-image.docx` → r12_it_parse_004）：图片块的 `metadata.boxes` 是
+    「多个 OCR 框 × 4 点 × 2 坐标」的四层数组，ES 动态 mapping 无法推断 dims，报
+        Mapper for [metadata.boxes] conflicts with existing mapper: Cannot update parameter [dims] from [4] to [2]
+    → 整批 400、回滚，含图片的文档**无法落库**。
+
+    处置：**ES payload 中剔除 `boxes`**（检索侧不需要它，页内 bbox 已由 `position` 表达；
+    API 响应里的 `boxes` 保持不变）。`base64` 同理剔除（体积大且 ES 不用）。
+    """
+    import copy
+    out = []
+    for doc in document_list:
+        d = copy.deepcopy(doc)
+        md = d.get('metadata')
+        if isinstance(md, dict):
+            md.pop('boxes', None)
+            md.pop('base64', None)
+        out.append(d)
+    return out
+
+
 async def index_es(
     index_name: str,
     document_list
@@ -73,6 +97,8 @@ async def index_es(
     """
     if not document_list:
         return
+
+    document_list = normalize_for_es(document_list)
 
     doc_parse_config = DocParseConfig()
     es_ip = doc_parse_config.configs['java-common']['server']['host-ip']

@@ -1,0 +1,302 @@
+{
+  "question": "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？",
+  "answer": "æ ¹æ®æä¾çä¿¡æ¯ï¼ä½ ä»¬è¿ç§åæ±½è½¦é¶é¨ä»¶çä¸­åä¼ä¸ï¼æå¤å¯ä»¥ç³è¯·çæä¿¡é¢åº¦ä¸º3000{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878873830,\"status\":1,\"reply\":{\"content\":\"ä¸å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼æé¿æéä¸º2027å¹´3æ31æ¥ã[retrive-tag id=\"4608317002698722357\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]å½åå·²ä½¿ç¨æä¿¡é¢åº¦1800{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878880600,\"status\":1,\"reply\":{\"content\":\"ä¸å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ã\n\nå¨âæºé è´·âäº§åçæé«é¢åº¦ä¸º5000{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878885634,\"status\":1,\"reply\":{\"content\":\"ä¸å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼ä¿¡ç¨é¨å{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878885635,\"status\":1,\"reply\":{\"content\":\"ä¸è¶è¿\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}1000{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878885637,\"status\":1,\"reply\":{\"content\":\"ä¸å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878885637,\"status\":1,\"reply\":{\"content\":\"çæåµä¸\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼ä½ ä»¬è¿å¯ä»¥ç³è¯·é¢å¤ç2000{\"sessionId\":\"kb_8\",\"queryId\":\"q-1792878862598\",\"lastDate\":1792878885640,\"status\":1,\"reply\":{\"content\":\"ä¸å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ä¿¡ç¨é¢åº¦ãè´·æ¬¾æéæé¿å¯è¾¾3å¹´ã\n\nå¸æè¿è½å¸®å©å°æ¨ï¼å¦æææ´å¤é®é¢ï¼æ¬¢è¿ç»§ç»­å¨è¯¢ã",
+  "frames": [
+    {
+      "sessionId": "kb_8",
+      "queryId": "q-1792878862598",
+      "lastDate": 1792878872773,
+      "status": 1,
+      "reply": {
+        "content": "",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": null,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_8",
+      "queryId": "q-1792878862598",
+      "lastDate": 1792878873364,
+      "status": 1,
+      "reply": {
+        "content": "æ ¹æ®",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_8",
+      "queryId": "q-1792878862598",
+      "lastDate": 1792878873382,
+      "status": 1,
+      "reply": {
+        "content": "æä¾ç",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_8",
+      "queryId": "q-1792878862598",
+      "lastDate": 1792878873401,
+      "status": 1,
+      "reply": {
+        "content": "ä¿¡æ¯",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_8",
+      "queryId": "q-1792878862598",
+      "lastDate": 1792878873419,
+      "status": 1,
+      "reply": {
+        "content": "ï¼",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_8",
+      "queryId": "q-1792878862598",
+      "lastDate": 1792878873439,
+      "status": 1,
+      "reply": {
+        "content": "ä½ ä»¬",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    }
+  ],
+  "reference": [
+    {
+      "metadata": {
+        "source": "r12-rag/kb_8/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+        "file_path": "r12-rag/kb_8/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+        "id": "cjEyLXJhZy9rYl84L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==",
+        "search_type": [
+          "es",
+          "milvus"
+        ],
+        "offset": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "pic_offset_list": [],
+        "chunk_type": "table",
+        "position": [],
+        "file_id": 25,
+        "page_size": [],
+        "page_number": [],
+        "table_name": "table-0-æä¿¡å°è´¦",
+        "chunk_index": 0,
+        "table_summary_id": 4.1325132865399613e+18,
+        "score": 0.04317384585738182,
+        "rerank_score_rank": 1,
+        "rrf_score": 0.2,
+        "rrf_score_rank": 1
+      },
+      "order_num": "4608317002698722357",
+      "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_8/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0-æä¿¡å°è´¦.md",
+      "rerank_score_rank": "1",
+      "rrf_score": "0.2",
+      "rrf_score_rank": "1",
+      "score": "0.04317384585738182",
+      "sourceFileName": "R12FIX-credit-ledger.xlsx",
+      "type": "table"
+    }
+  ]
+}

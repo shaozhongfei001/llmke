@@ -485,6 +485,12 @@ data: {"end": ""}
 - 溯源未被破坏：`need_trace_source=true` 时末尾帧为 `data: {"answer": "[retrive-tag id=\"trace-001\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]"}`，`has_citation=true`
 - 每帧 JSON 仍可 `JSON.parseObject`（内容未改，只加了 `data: ` 前缀与 `\n\n` 分隔）
 
+**上游 status 语义（易被写反，R12 已核源码）**：Java `rag-parent/rag-common/src/main/java/com/gientech/ragcommon/qa/enmus/ReplyStatusEnums.java`
+`RUN(1,"进行中")` / **`PARSE_SUCCESS(2,"结束")`** / `PARSE_FAIL(3,"异常")`。
+即 **收尾帧 `status=2` 才是正常结束，`status=3` 是异常**。本服务 SSE 帧里**不含 `status` 字段**（实测 27 帧：`answer`×26 + `end`×1），`status` 由 Java `doRunRs` 赋值。
+
+**前端回归（fe-builder 独立完成，2026-10-25，详见 `status/frontend.md §16`）**：前端不直连 19996（唯一流式入口是网关 `/proxy/qa/ai/question[_re]`）；7 处消费点均为 `@microsoft/fetch-event-source@2.0.1`，其解析器 `valueOffset = fieldLength + (line[fieldLength+1] === 32 ? 2 : 1)` 同时兼容 `data: {...}`（带空格）与 Java 现状 `data:{...}`（不带空格），按空行切事件；nginx 18088 与 dev 15174 两条路径均 200 / 0 坏帧 / 无兜底文案（`status=2`），且 nginx 不缓冲（`ttfb=4.01s / total=4.44s`）。结论：**前端零改动通过**。
+
 **兼容性说明**：`stream` 字段默认 `True`（`LLMOpenChatConfig.stream`），Java 不传也会走流式并收到 `{"end": ""}` 收尾帧；SSE 是 Spring 与浏览器 `fetch-event-source` 的公共标准，前端无需改动。
 
 ---
@@ -502,6 +508,34 @@ data: {"end": ""}
 ```
 
 实测该形态写入 `r12_tl_ok` → `code=200`、计数 +1。反而**手工探测**用 `{id, content_with_weight, source}` 这种自定义键会 500（现已被 `R12-ADAPT-ALG-08` 改为 422 + 明确提示）。`type` 字段是 `str`（默认 `""`）；传数字 `1` 会 422（pydantic v2 不做 int→str 转换），Java 侧本来也不传该字段。
+
+### 10.6 决策记录：VLM 质量状态字段归属（R12-DECISION-01，2026-10-25 06:3x）
+
+**问题**（parse-ops 提出）：含图片文档的 `vlm_status` / `vlm_needs_crosscheck` / `vlm_finish_reason` / `vlm_prompt_n` 只进了 ES，Milvus 集合因 schema 建成即固定而被过滤（实测 `_r12_it_parse_005` 查询报 `field vlm_status not exist`）。是否要在向量 schema 加列？
+
+**决策：不加列，Milvus 不承载该状态；ES 为唯一权威。** 依据（三处消费者核查）：
+
+| 核查点 | 实测 | 影响 |
+|---|---|---|
+| Python 服务是否消费 `vlm_*` | `grep` 于 index_data / retrieval / llm 三服务 → **0 命中** | 无人读 |
+| 检索是否透出 | `process_return_results()` 固定白名单 20 个 key，未登记字段返回前即被丢弃 | 加了也不出 19995 |
+| Java 是否消费 | `rag-common/.../qa/dto/Document.java` 无 `vlm*`、无 `boxes`（grep 0 命中） | 加了也不进 Java 链路 |
+| 历史集合 | Milvus schema 按集合固定（001/002/003/005 已建） | 只有新集合有 → **同一链路不同知识库字段不一致**，QA 更易踩坑 |
+
+**对外口径（已与 parse-ops 对齐）**：`metadata.vlm_status` / `metadata.vlm_needs_crosscheck` **只存在于 ES**；Milvus 不含，任何"Milvus 里找不到该字段"都不算缺陷。
+**QA 过滤注意**（取自 `r12_it_parse_005` 真实动态 mapping）：`vlm_status` 是 `text` + `keyword` 子字段（`ignore_above:256`）→ 按值过滤须用 `metadata.vlm_status.keyword`；`vlm_needs_crosscheck` 是 `boolean`，可直接 term。
+
+**QA 可直接抄的过滤语句**（parse-ops 在 `r12_it_parse_005` 真实 mapping 上独立复核并通过，与我方结论一致）：
+```json
+{"term": {"metadata.vlm_status.keyword": "ok"}}          // total=1（命中 image 块）
+{"term": {"metadata.vlm_needs_crosscheck": false}}       // total=1
+```
+该索引实际动态字段：`vlm_status`/`vlm_finish_reason` = `text + keyword(ignore_above=256)`；`vlm_needs_crosscheck` = `boolean`；`vlm_prompt_n`/`vlm_cache_n` = `long`；`position` = `text + keyword`；`boxes` **无此字段**（已被解析侧剔除）。
+
+**R13 参考（若确需 Milvus 侧可见，三处必须同时改，缺一即无效）**：① `milvus_kb_config.py::MILVUS_FIELDS` 加列（仅新集合生效，需决定是否重建历史集合）；② `process_return_results()` 白名单放行；③ Java `Document` DTO 加字段。
+
+**附带结论（`boxes`）**：`boxes` 不在 ES 基础 mapping（37 个 metadata 字段中只有 `position`），必然走动态映射；图片块 `boxes` 是变深数组，动态映射按首篇文档推断 `dims`，后续层数不同即冲突（parse-ops 撞到的 `Cannot update parameter [dims] from [4] to [2]`）。**结论：解析侧剔除 `boxes`/`base64` 正确**；将来若需图片区域高亮，载体应是已有的 `position`（字符串、mapping 有定义、检索已透传），若要保留 `boxes` 只能传 JSON 字符串。
+**顺带说明**：`r12_it_parse_005` 的 metadata 字段数 37→49 属 ES **动态映射正常行为**，不是 mapping 被污染；只要 `page_content`（`ik_max_word`）与 `metadata.pk/file_id/offset/position/chunk_index` 在，检索与溯源不受影响。
 
 ---
 
@@ -553,3 +587,19 @@ curl -s -X POST http://127.0.0.1:19200/_analyze -H 'Content-Type: application/js
 2. `multi_version.url` 的真实端点（当前占位指向 18082，无实际多版本扩召回）。
 3. 图谱服务（19529）本轮未起，`enabled_graph=true` 的请求需要在图谱侧就绪后再验。
 4. `score_threshold` 的最终取值需业务侧按语料标定（实测分布见 §6c2 提示）。
+5. **表格问答链路（`/llm_rotate_answer`）：代码可达、数据不可达 —— 不记为已覆盖，也不算缺口**（2026-10-25 06:2x 定稿，与 `status/frontend.md §16.8` 互证）：
+
+   **路由链（两侧源码对上）**：`retrieval_service.py:425` 产出 `data.table_selected_list`（仅当 `enabled_table_select=true` 且 `filter_tables_by_query` 选中表）→ `RetrievedData.java:40` `data.getString("table_selected_list")` → `getTableSelectedDocuments()` → `AiServiceImpl:331` `!isEmpty(tableSelectedDocuments)` → `LLM_TABLE` + `getLlmRotateAnswer()`。
+
+   **为什么在问答链路上不可达（三点独立核实）**：
+   | 环节 | 事实 | 我的核实 |
+   |---|---|---|
+   | Java 问答流是否设置开关 | 不设置。`publicQuestionRe`(284) → `retrieveRecall(…, false)`(1932) 把助手 config JSON 原样 POST 到 19995；`setEnabledTableSelect(req4Platform.getTableFilterEnabled())` 只服务 `AiController:85 POST /qa/ai/retrieveDocs4Plat` | 采纳 fe-builder 追踪结论（其 §16.8） |
+   | Python 侧默认值 | `app/base.py:104` `enabled_table_select: bool = False`；`QARetrieveConfig.model_config` 仅 `protected_namespaces`，**全服务无 `alias_generator`** → 键名必须字面 `enabled_table_select`，驼峰无效 | 我实测：`grep -n enabled_table_select app/base.py` → `104: bool = False`；`grep alias_generator\|populate_by_name\|AliasChoices` → 0 命中 |
+   | 前端是否设置 | `frontend/src` 内 `enabled_table_select\|enabledTableSelect\|tableFilterEnabled` **0 处** | 我实测 grep 命中数 = 0 |
+
+   → 链路结论：前端问答 → 助手 config 无该开关 → 19995 取默认 `False` → 无 `table_selected_list` → `tableSelectedDocuments` 空 → rotate 分支进不去。**因此调 `filter_tables_by_query` 也不改变结论**（只会让"手工直连 19995 传 true"这条路通）。
+
+   **本轮已验/未验边界**：`/llm_rotate_answer` 的 **SSE 分帧**已直连自测通过（28 帧、首帧 `data: {"answer": …}`、末帧 `data: {"end": ""}`、`content-type: text/event-stream`）；**经前端不可达**，故不计入验收面。唯一例外：人工把 `enabled_table_select: true` 写进助手 `configJson`（DB 改数）才会触发，属造数行为。
+   若 R12 之后真要做表格问答，需两处改动（均不在本轮范围）：① 助手配置暴露该开关；② 问答流召回路径把它透传到 19995。
+

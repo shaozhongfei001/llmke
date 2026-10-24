@@ -60,3 +60,18 @@ other-nacos:
     # TL 2026-10-25 裁定：index 配置由 alg-ops 统一发布，解析侧只引用、不重复发布同名 data_id
     data-id: index_data_config_py
     group: DEFAULT_GROUP
+
+# ---- [R12-TL] 异步解析回写 Java 的两个端点（代码 .format(ip,port) 后直接 requests.post）
+# ip 取 other-nacos.java-common.server.host-ip，port 取 other-nacos.java-gateway.server.port
+async-callback: "http://{ip}:{port}/index/parseTask/callback"
+minio-upload: "http://{ip}:{port}/index/knowledgeBase/file/uploadParsedFile"
+
+# ---- [R12-TL] 多版本/表格指标路径需要的检索侧只读配置（缺则 KeyError: 'es_config'，非致命但会污染日志）
+es_config:
+  host: 127.0.0.1
+  port: 19200
+retrieval_top_k: 10
+multi_version:
+  url: ""            # Java 侧无该端点，多版本能力 R13 再评估（保留空串表示未启用）
+url_table_indicator:
+  url: ""

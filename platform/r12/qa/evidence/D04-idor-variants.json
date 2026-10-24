@@ -1,0 +1,14 @@
+{
+  "kbIds_enum": {
+    "status": 200,
+    "records": []
+  },
+  "list_all": {
+    "status": 200,
+    "records": []
+  },
+  "delete_file": {
+    "status": 200,
+    "body": "{'success': True, 'errorMsg': None, 'errorCode': None, 'data': True}"
+  }
+}

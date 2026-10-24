@@ -192,6 +192,17 @@ llama-server 会缓存「相同图片 + 相同 prompt 前缀」的计算结果�
 >   ⇒ 校验规则：`cache_n ≤ 5% prompt` 才算一次干净的首次测量。
 > - `bench_vl.py` 已按此实现：每次运行随机换图 + `cache_n` 校验 + 打印服务端 tok/s。
 
+> **"慢"的真实成因：不是机器慢，是槽间争抢（05:40 定位）**
+> parse 侧一次 2 图测量在 load≈30 下 532s 未完成，服务端日志显示同一条请求：
+> **prefill 正常（157.9s / 3331 token = 21.1 tok/s）、生成被饿死（374.6s / 276 token = 0.73 tok/s）**。
+> 同一时刻另一个槽正在处理 3871 token 的长请求（邻居任务）⇒ **2 个槽里一个做长 prefill，另一个的 generation 会被抢到 0.7 tok/s**。
+> 推论：①"load1 高"只是表象，**真正的判据是"两个槽都空闲"**；②VLM 自身 `--threads 20` 一个请求就吃 ~8–12 核，
+> **用 load1 当测量闸门是循环论证**（一开始测，load 就涨）。
+> 为此新增 `models/measure_window.py`：同时判 **load1/load5、MemAvailable、VLM 进程 CPU（<0.25 核 = 空闲）、embedding/rerank 占用**，输出 GO/NO-GO。
+> 两种模式（parse 侧反例促成）：`--mode capacity` 要求负载**与**槽都干净（容量数据要可引用）；`--mode functional` 只要求槽空闲 + 内存够，负载仅提示不阻塞（功能/回归用例的正确性与负载无关）。
+> 实测反例：`load1=19.67/load5=26.49` 但 `VLM cpu=0.00 核` ⇒ capacity 判 NO-GO、functional 判 GO —— **"机器忙"和"模型槽被占"是两件事**。
+> 另测到**邻居的 rerank 大 batch 会瞬时吃掉 17.7 核**（embedding 也曾 1.5 核），同样会抢 VLM 的 CPU，属跨角色资源冲突，需排期而非调参。
+
 > **已排除的严重怀疑：同尺寸不同图片不会被旧 KV 污染（负结果，重要）**
 > 担心点：A4 扫描页尺寸全相同、图像在 prompt 里占位 token 也相同，若按 token 前缀匹配就可能复用**上一张图的 KV**。
 > 实测 3 张同尺寸（1240×1754）不同内容的图，同一问题连续请求：
@@ -317,6 +328,8 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
 被截断的 VLM 输出是半句/残缺文本，混入 `page_content` 会污染正文（实测：`max_tokens=1` 时合并结果 347 字 OCR + **3 字残句** = 352 字）。
 → 截断即弃用该段 VLM 文本，或至少加显式分隔标记并在 chunk 元数据里带 `vlm_status='truncated'`；
 → **状态字段必须随 chunk 一起落库**（ES/Milvus payload），否则解析输出之后下游无从判断这段文字来源是否完整。
+→ 落库实测（parse 侧 2026-10-25）：**ES 通道保留** `vlm_status / vlm_finish_reason / vlm_needs_crosscheck / vlm_prompt_n`（剔除 `boxes`/`base64` 后 count=2 成功）；
+**Milvus 通道会按建表 schema 过滤掉未声明的 `vlm_*` 键** ⇒ **证据链校验以 ES 通道为准**，Milvus 只用于向量召回；若要两边一致，建议把 `vlm_*` 打包进 schema 里已存在的单个 VARCHAR（如 `meta_json`），避免每次加标记都改表。
 
 **R-2【服务不得直接对外暴露】**
 18092（LLM）、18093（VLM）、18090（embedding）、18091（rerank）**均未设 API key**，只监听 `127.0.0.1`。

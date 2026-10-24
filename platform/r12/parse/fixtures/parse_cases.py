@@ -14,6 +14,7 @@ R12 解析服务样本回归（12 用例）。
 import argparse
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.error
@@ -59,6 +60,11 @@ CASES = [
     dict(id="C10", file="image-slide.pptx",  desc="PPTX 文本（图片通路上游已关闭）",  chinese=True,  types=["text"], loc=False),
     dict(id="C11", file="pdf-encrypted.pdf", desc="加密PDF 负例：应优雅失败",         business_fail=True, expect_code=1100),
     dict(id="C12", files=["cn-digital.pdf", "cn-scan.pdf"], desc="多文件同请求（2 文件）", chinese=True, types=["text"], loc=True),
+    # [R12-FIX-CONV-03 回归] 中文 docx **直读**完整性：防止 Java 侧退回"docx→无中文字体 PDF"导致汉字全丢
+    # 实测事故：转换后 PDF 只剩 47 字/0 汉字（`“”PRD-CORP-LOAN-2026-01R1250...`），直读 docx 为 459 字/376 汉字（100%）
+    dict(id="C16", file="cn-docx-direct.docx", desc="中文DOCX直读 汉字完整性（防CONV-03回归）",
+         chinese=True, types=["text"], loc=True, min_chars=380, min_chinese=350,
+         text_kw=["智造贷", "授信额度", "5000", "三年", "汽车零部件"]),
     # 附加压力用例（需 --with-stress）：规则大表按行切分 + 表头重复，摘要只取前 9 行
     dict(id="C13", file="big-table.xlsx", desc="大表 40行×8列 规则表切分（附加）",
          chinese=True, types=["table"], loc=False, table_md=True, needs_llm=True, stress=True,
@@ -102,6 +108,28 @@ def gen_fixtures(src_dir: Path):
         ]):
             d.text((30, 30 + i * 60), line, font=f1 if i == 0 else f2, fill="black")
         return img
+
+    p_cn_docx = FIX_LOCAL / "cn-docx-direct.docx"
+    if not p_cn_docx.exists():
+        from docx import Document as _Doc
+        _d = _Doc()
+        _lines = [
+            '"智造贷"企业流动资金贷款产品说明书',
+            '文件编号：PRD-CORP-LOAN-2026-01（R12 回归夹具）',
+            '一、适用对象',
+            '面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。',
+            '二、授信额度',
+            '单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。',
+            '三、贷款期限与利率',
+            '流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。',
+            '四、还款方式',
+            '可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。',
+            '五、办理时限',
+            '资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。',
+        ]
+        for _t in _lines:
+            _d.add_paragraph(_t)
+        _d.save(p_cn_docx)
 
     p = FIX_LOCAL / "scan-text.png"
     if not p.exists():
@@ -187,11 +215,13 @@ def upload(bucket: str, endpoint: str, ak: str, sk: str):
     if not cli.bucket_exists(bucket):
         cli.make_bucket(bucket)
         print(f"[minio] 创建 bucket {bucket}")
-    for name, _, _ in SAMPLES:
-        f = FIX_LOCAL / name
-        if f.exists():
-            cli.fput_object(bucket, f"fixtures/{name}", str(f))
-    print(f"[minio] 上传完成 -> {endpoint}/{bucket}/fixtures/")
+    # 全量上传目录内的夹具（原实现只传 SAMPLES 白名单，新增夹具会漏传并报 NoSuchKey）
+    n = 0
+    for f in sorted(FIX_LOCAL.iterdir()):
+        if f.is_file():
+            cli.fput_object(bucket, f"fixtures/{f.name}", str(f))
+            n += 1
+    print(f"[minio] 上传完成 {n} 个 -> {endpoint}/{bucket}/fixtures/")
 
 
 # ---------------------------------------------------------------- HTTP
@@ -270,6 +300,14 @@ def assert_case(case, http, raw):
             chk(f"has_type_{t}", t in types, f"types={sorted(set(types))}")
     if case.get("chinese"):
         chk("contains_chinese", CJK(text), repr(text[:60]))
+    if case.get("min_chars"):
+        chk("min_chars", len(text) >= case["min_chars"], f"chars={len(text)} expect>={case['min_chars']}")
+    if case.get("min_chinese"):
+        # 汉字数覆盖率：直读 docx 必须≈真值；若上游又退回"无字体 PDF"，这里会直接掉到 0
+        n_cn = sum(1 for ch in text if "\u4e00" <= ch <= "\u9fff")
+        chk("min_chinese", n_cn >= case["min_chinese"], f"chinese={n_cn} expect>={case['min_chinese']}")
+    for kw in case.get("text_kw", []):
+        chk(f"text_contains_{kw}", kw in text, repr(text[:80]))
     if case.get("loc"):
         loc_ok = False
         for c in chunks:
@@ -293,6 +331,30 @@ def assert_case(case, http, raw):
     for kw in case.get("ocr_kw", []):
         chk(f"ocr_contains_{kw}", kw in text, repr(text[:80]))
     return checks, failed, data
+
+
+
+WINDOW_TOOL = "/home/szf/data/dev/llmke-r12/platform/r12/models/measure_window.py"
+WINDOW_PY = "/home/szf/data/dev/llmke-r12/platform/r12/venvs/models/bin/python"
+
+
+def window_gate(max_load: float, mode: str = "functional") -> bool:
+    """调用 model-ops 的 measure_window.py 判 GO/NO-GO（0=GO, 1=NO-GO, 2=不可达）。
+
+    两种模式（model-ops 依据我给的"load 19.67 但 VLM cpu=0.00"反例新增）：
+      - `capacity`  ：load1/load5 + 槽空闲 + 内存，三项全过才 GO → 耗时数据可作容量引用；
+      - `functional`：只要槽空闲 + 内存够即可跑 → 断言/功能回归不该因邻居编译 Java 被跳过。
+    判据：`needs_mm` 用例中，`vlm_heavy`（多图容量）走 capacity，其余走 functional。
+    工具缺失时退回 load1/load5 双阈值并说明降级。
+    """
+    if os.path.exists(WINDOW_TOOL) and os.path.exists(WINDOW_PY):
+        proc = subprocess.run([WINDOW_PY, WINDOW_TOOL, "--load", str(max_load), "--mode", mode],
+                              capture_output=True, text=True, timeout=60)
+        print(proc.stdout.rstrip())
+        return proc.returncode == 0
+    load1, load5, _ = os.getloadavg()
+    print(f"[window] 未找到 measure_window.py，退回 load 闸门 load1={load1:.1f}/load5={load5:.1f} <= {max_load}")
+    return load1 <= max_load and load5 <= max_load
 
 
 def main():
@@ -335,10 +397,13 @@ def main():
         if case.get("vlm_heavy") and not args.with_vlm_heavy:
             print(f"[{cid}] SKIP(未加 --with-vlm-heavy): {case['desc']}")
             continue
-        load1 = os.getloadavg()[0]
-        if case.get("needs_mm") and load1 > args.max_load:
-            print(f"[{cid}] SKIP(load1={load1:.1f} > {args.max_load}): VLM 在高负载下会退到 0.18 tok/s，"
-                  f"跑出来的耗时是假数据，不作为结论")
+        # [measure_window] VLM 用例的 GO/NO-GO 以 model-ops 的窗口工具为准：
+        # 真因是「槽间争抢」（邻居的 prefill 会把本请求的生成饿到 0.73 tok/s），
+        # 而 VLM 自己 --threads 20，用 load1 当闸门是循环论证；关键判据是 VLM 进程 cpu < 0.25 核（两槽都空闲）。
+        gate_mode = "capacity" if case.get("vlm_heavy") else "functional"
+        if case.get("needs_mm") and not window_gate(args.max_load, gate_mode):
+            print(f"[{cid}] SKIP(窗口 NO-GO/{gate_mode}): 见上方 measure_window 输出——"
+                  f"{'VLM 槽被占用或负载未达标（容量数据不可引用）' if gate_mode == 'capacity' else 'VLM 槽被占用/内存不足'}")
             continue
         if case.get("needs_mm") and not has_mm:
             status, note = "BLOCKED_FOR_MM", "未提供 MM_URL/MM_MODEL（VLM 未就绪，R12 已知限制）"

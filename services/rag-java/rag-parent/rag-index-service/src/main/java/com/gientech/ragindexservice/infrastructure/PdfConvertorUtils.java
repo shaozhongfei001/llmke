@@ -96,11 +96,23 @@ public class PdfConvertorUtils {
 
             inputStream = fileStorageUtils.getInputStreamByUrl(kbFile.getFilePath(), null);
             pdfOutputStream = new ByteArrayOutputStream();
-            //转pdf
-            converter.convert(inputStream)
-                    .to(pdfOutputStream)
-                    .as(DefaultDocumentFormatRegistry.PDF)
-                    .execute();
+            // R12-FIX-CONV-01：原实现直接 convert(InputStream)，JodConverter 会写一个无扩展名的
+            // tempfile_N 交给 LibreOffice，LO 无法识别格式 → "Could not open document: tempfile_0"。
+            // pptx 没有 XWPF 兜底（只有 docx 有），因此必失败。改为落临时文件（带真实扩展名）再转换。
+            java.nio.file.Path tmpSource = java.nio.file.Files.createTempFile("r12conv-", "." + fileType);
+            try {
+                java.nio.file.Files.copy(inputStream, tmpSource, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                converter.convert(tmpSource.toFile())
+                        .to(pdfOutputStream)
+                        .as(DefaultDocumentFormatRegistry.PDF)
+                        .execute();
+            } finally {
+                try {
+                    java.nio.file.Files.deleteIfExists(tmpSource);
+                } catch (Exception ignore) {
+                    // 临时文件清理失败不影响主流程
+                }
+            }
             byte[] byteArray = pdfOutputStream.toByteArray();
             pdfInputStream = new ByteArrayInputStream(byteArray);
             //存pdf
@@ -113,25 +125,25 @@ public class PdfConvertorUtils {
         } catch (Exception ex) {
             log.error("libreoffice convert filePath:{},error msg:{}", kbFile.getFilePath(), ex.getMessage());
             if (FILE_TYPE_WORD.contains(fileType)) {
-                try {
-                    inputStream = fileStorageUtils.getInputStreamByUrl(kbFile.getFilePath(), null);
-                    doc = new XWPFDocument(inputStream);
-                    PdfOptions options = PdfOptions.create();
-                    IXWPFConverter<PdfOptions> instance = PdfConverter.getInstance();
-                    instance.convert(doc, pdfOutputStream, options);
-                    byte[] byteArray = pdfOutputStream.toByteArray();
-                    pdfInputStream = new ByteArrayInputStream(byteArray);
-                    //存pdf
-                    FileInfo fileInfo = fileStorageUtils.putObject(folder, MultipartFileUtils.convertToMultipartFile(pdfInputStream, kbFile.getConvertedFileName()), null);
-                    kbFile.setFileSize(fileInfo.getFileSize());
-                    kbFile.setConvertedFilePath(fileInfo.getFilePath());
-                    kbFile.setParsedFilePath(fileInfo.getFilePath());
-                    knowledgeBaseFileDomainService.update(kbFile);
-                } catch (StackOverflowError | Exception e) {
-                    log.error("XWPFDocument convert filePath:{},error msg:{}", kbFile.getFilePath(), e.getMessage());
-                    updateFailStatus(kbFile, taskId, e.getMessage(),e.getMessage());
-                    throw new ApplicationException(ErrCodeEnum.XWPFDOCUMENT_ERROR);
-                }
+                // R12-FIX-CONV-03：原逻辑用 XWPFDocument(xdocreport) 兜底转 PDF。实测该转换不嵌入中文字体，
+                // 生成的 PDF 文本层**丢失全部汉字**（Milvus/ES 里只剩 ASCII 与标点，offset 从 ~600 字缩到 47 字），
+                // 会静默毁掉中文语料。改为回落原始 docx，由解析服务 deepdoc DOCXParser 直接解析（中英文完整）。
+                // 影响：docx 无 PDF 预览（前端预览降级），正文/表格进入索引；已登记为已知限制。
+                log.warn("docx 转 PDF 不可用（LibreOffice 缺 writer 过滤器 / XWPF 中文丢字），回落直接解析原始 docx：{}",
+                        kbFile.getFilePath());
+                kbFile.setConvertedFilePath(kbFile.getFilePath());
+                kbFile.setParsedFilePath(kbFile.getFilePath());
+                knowledgeBaseFileDomainService.update(kbFile);
+            } else if (FILE_TYPE_PPT.contains(fileType)) {
+                // R12-FIX-CONV-02：本机 LibreOffice 缺少 writer/impress 过滤器（只有 core/common/math），
+                // 任何 office 文件都无法转换（已验证 soffice CLI 对 .txt 也报 source file could not be loaded）。
+                // pptx 又没有 docx 的 XWPF 兜底，原逻辑会直接判失败，导致 PPTX 完全不可解析。
+                // 处理：不阻断解析，回落到原始文件交给解析服务（deepdoc 自带 PPTParser 可解析 pptx 文本/表格）。
+                // 影响：PPTX 无 PDF 预览（前端预览降级），但正文/表格进入索引与检索；已登记为已知限制。
+                log.warn("pptx 转 PDF 失败，回落为直接解析原始文件：{}，原因：{}", kbFile.getFilePath(), ex.getMessage());
+                kbFile.setConvertedFilePath(kbFile.getFilePath());
+                kbFile.setParsedFilePath(kbFile.getFilePath());
+                knowledgeBaseFileDomainService.update(kbFile);
             } else {
                 if (DOC.equals(fileType)){
                     errorMsg = wordConverErrorMsg;

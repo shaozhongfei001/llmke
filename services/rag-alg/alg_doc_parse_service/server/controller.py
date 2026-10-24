@@ -276,7 +276,13 @@ class _Parser:
         patterns = [
             r"[0-9]{6,}",                                  # 账号/长编号
             r"[0-9][0-9,]*\.[0-9]{2}",                     # 金额（两位小数）
-            r"[0-9]{4}\s*[-/.年]\s*[0-9]{1,2}\s*[-/.月]\s*[0-9]{1,2}",  # 日期
+            # 金额（万元/亿元计价）：1,250 万元 / 3.2 亿元 —— 只认两位小数会漏
+            r"[0-9][0-9,]*(?:\.[0-9]+)?\s*(?:万元|亿元|万|亿)",
+            # 日期：尾部「日/号」必须纳入，否则等值比对会错位（2026年10月20 ≠ 2026年10月20日）
+            r"[0-9]{4}\s*[-/.年]\s*[0-9]{1,2}\s*[-/.月]\s*[0-9]{1,2}\s*[日号]?",
+            # 百分比/利率：4.35% / 年化 3.85% / LPR+50BP —— 错一位即实质错误
+            r"[0-9]+(?:\.[0-9]+)?\s*%",
+            r"(?:LPR|lpr)\s*[+-]\s*[0-9]+\s*(?:BP|bp|个基点)",
             r"[A-Za-z]{2,}-[A-Za-z0-9-]{4,}",              # 形如 SPDB-2026-PJ-00871 / CASE-AAA111
         ]
         found, seen = [], set()
@@ -290,8 +296,18 @@ class _Parser:
 
     @staticmethod
     def _merge_image_text(metadata) -> str:
-        """[R12-FIX-PARSE-02] 图片块文本 = OCR 基线 ∪ VLM 描述（VLM 只补充、不覆盖）。"""
-        parts = [p for p in (metadata.ocr_text, metadata.vlm_text) if p and p.strip()]
+        """[R12-FIX-PARSE-02] 图片块文本 = OCR 基线 ∪ VLM 描述（VLM 只补充、不覆盖）。
+
+        [R12-FIX-PARSE-06] 但 `vlm_status == 'truncated'`（finish_reason=length）时**不并入**：
+        截断残句常是半句/半词/半个数字（如 `金额 1,250.0`、`账号 6222001234`），
+        拼进正文后下游无法分辨，且可能"补上"一个看起来合理的数字前缀，比缺文本更有害。
+        宁可缺，不可污染；状态仍保留在 metadata.vlm_status / vlm_finish_reason 上供下游识别。
+        """
+        ocr = (metadata.ocr_text or '').strip()
+        if metadata.vlm_status == 'truncated':
+            return ocr
+        vlm = (metadata.vlm_text or '').strip()
+        parts = [p for p in (ocr, vlm) if p]
         return '\n\n'.join(parts)
 
     def chunk(self):
@@ -704,7 +720,18 @@ def parse_task(parse_params: ParseParams):
         if isinstance(payload, ParseResponse):
             payload = json.loads(payload.model_dump_json())
 
-        response = requests.post(async_callback, json=payload)
+        # [R12-FIX-PARSE-07] task_id 为空时跳过回调：
+        # 非 Java 发起的 /parse（如脚本/联调）没有 task_id，Java 侧会 NPE
+        # （`FileParseTask.getRetryTimes() because "task" is null`），
+        # 这里会把后台任务打成 500 并污染日志。真实 Java 调用一定带 task_id。
+        _task_id = payload.get('task_id') if isinstance(payload, dict) else None
+        if not _task_id:
+            logger.warning('该解析任务没有 task_id（非 Java 主链发起），跳过异步回调')
+            return
+
+        # [R12-FIX-PARSE-07] 补超时：原实现无 timeout，网关挂住会把后台线程占死
+        response = requests.post(async_callback, json=payload,
+                                 timeout=DocParseConfig().config.get('gateway_timeout', 60))
 
         if response.status_code != 200:
             raise HTTPException(response.status_code,

@@ -614,8 +614,8 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 | **质量** | VLM 可用时图片块 = `OCR 347 字 + VLM 543 字` 并存（不再互相覆盖）；分档 `vlm_status` 可区分 `ok/unavailable/over_budget/kv_starved/timeout/failed`；图片块有页内 `position`，但**无页码**（docx 无分页，如实为空） |
 | **容量** | 单图实测：**105.72s**（`20261024T203443Z`）、**115.62s**（VLM 超时恢复后复测）；**VLM 不可用时 1.33s**（纯 OCR）。⚠ **不算配置收益**：348.12s / 505.92s 与 105.72s 的差异来自**测量窗口的机器负载不同**，不是 2 槽私有配置带来的提速 —— 见 §16.5 的权威判据（服务端 `prompt eval` 速率）。配置变更的真实收益只有两条：**消除跨请求 KV 争抢导致的 500（改为排队）** 与 **RSS 7.7G→4.5G** |
 | **验收含义** | 质量维度已达 D-1 判据；**容量维度是限制项**：20 页扫描件按 348s/页估算约 **1.9 小时**，不满足交互式解析，需在 R13 容量清单处理（TL 已明确不为此降低 7B offload） |
-| **C14/C15 多图容量：仍未取到数（窗口失效，如实记录）** | 05:33 窗口 `load1=10.38 / available=9G` 时启动 **2 图 v2 新样本**（1240×1754 密排、带唯一时间戳编号，**物理上不可能命中 prompt cache**）；期间**外部负载从 10 抬到 30–35**（另一角色在共用本解析服务跑 `kb_5/*` 任务），VLM 生成降到 **0.73 tok/s**（单图 eval 374.6s/276 token），请求 20 分钟未完成被客户端中止 → **无有效数据**。v2 样本（`docx-2images-v2.docx` / `docx-3images-v2.docx`）与取数口径（`cache_n ≤5%×prompt_n`）已就绪，等**专属低负载窗口**（load1≲10 且无其它角色压测）再测。 |
-| **口径注记** | 348.12s = 旧共享池配置；**105.72s = 新配置（2 槽 × 私有 16384）**，两者都非"最优值"。**load1 > 15 时 VLM 会退到 0.18 tok/s（model-ops 实测）**，此时耗时不具代表性 → 回归脚本已加 `--max-load`（默认 15，可 `R12_MAX_LOAD` 覆盖）**自动跳过 VLM 用例并打印跳过原因**；我已用 `R12_MAX_LOAD=1` 实测跳过分支生效（`[C08] SKIP(load1=20.0 > 1.0)`，PASS=11）。**C14/C15 多图容量仍未在新配置下测过**，需低负载窗口（load1 ≲ 10）再跑，跑前会与 model-ops 确认内存 |
+| **C14/C15 多图容量：仍未取到数（窗口失效，如实记录）** | 05:33 窗口 `load1=10.38 / available=9G` 时启动 **2 图 v2 新样本**（1240×1754 密排、带唯一时间戳编号，**物理上不可能命中 prompt cache**）；期间**邻居 `kb_5/*` 任务与本请求抢占同一 VLM 进程的槽**（prefill 21.1 tok/s 正常、生成降到 **0.73 tok/s**，非机器慢 —— 根因见 **§16.9-1**）（单图 eval 374.6s/276 token），请求 20 分钟未完成被客户端中止 → **无有效数据**。v2 样本（`docx-2images-v2.docx` / `docx-3images-v2.docx`）与取数口径（`cache_n ≤5%×prompt_n`）已就绪，等**专属低负载窗口**（load1≲10 且无其它角色压测）再测。 |
+| **口径注记** | 348.12s = 旧共享池配置；**105.72s = 新配置（2 槽 × 私有 16384）**，两者都非"最优值"。**load1 > 15 时 VLM 会退到 0.18 tok/s（model-ops 实测）**，此时耗时不具代表性 → 回归脚本已加 `--max-load`（默认 15，可 `R12_MAX_LOAD` 覆盖）**自动跳过 VLM 用例并打印跳过原因**；我已用 `R12_MAX_LOAD=1` 实测跳过分支生效（`[C08] SKIP(load1=20.0 > 1.0)`，PASS=11）。**C14/C15 多图容量仍未在新配置下测过**，需**独占 VLM 槽的窗口**（判据改为 `measure_window.py`：VLM cpu<0.25 核 且 load1/load5≤10，见 §16.9-2）再跑，跑前会与 model-ops 确认内存 |
 
 ### 16.4 B 项（/parse 带索引）——**已跑通（ES + Milvus 双落库）**
 
@@ -716,3 +716,136 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 **4) 一次真实 bug 与降级路径的正向证据**
 `_detect_sensitive_tokens` 首次接入时我误写成裸函数名（漏 `self.`），运行抛 `NameError` → **被 D-1 的失败降级兜住**：`vlm_status='failed'`、OCR 347 字保留、**HTTP 200**、日志有明确错误行。修复后复测 `vlm_status='ok'`。
 → 说明"单图增强失败不得整篇失败"这条设计**不仅防端点故障，也防增强路径自身的代码缺陷**。
+### 16.8 TL 追加要求与后续修复（2026-10-25 05:4x）
+
+**1) 配置对齐（TL 在 live 上补了两个键，我已回写权威副本）**
+TL 直接在 Nacos `alg_doc_config_py` 上补了异步链路必需的
+`async-callback: "http://{ip}:{port}/index/parseTask/callback"`、
+`minio-upload: "http://{ip}:{port}/index/knowledgeBase/file/uploadParsedFile"`，
+以及只读的 `es_config` / `retrieval_top_k` / `multi_version.url` / `url_table_indicator.url`。
+→ 我已把 **live 内容原样回写** `platform/r12/nacos/alg_doc_config_py.yaml`（避免我下次发布覆盖掉），并核对 4 个键齐备。
+
+**2) 异步 `/parse`（不是 `/parse_sync`）复验**
+| 证据 | 结果 |
+|---|---|
+| Python 日志 | **`KeyError` 计数 = 0**；`回调接口成功` 多条（task_id 23/25/27，URL `http://127.0.0.1:8088/index/parseTask/callback`） |
+| Java `file_parse_task` | id 23/25/26/27 **status=4（成功）**，均有 `end_time`（05:41:06–05:41:25），无 `error_msg`（id25 首次尝试有一次 ES 建索引失败，retry_times=1 后成功） |
+| Java `knowledge_base_list` | 对应行 **status=3**、`parsed_file_path` 非空、`source_url` 指向 MinIO |
+| ES 侧 | `kb_5/6/7/8` 分别 5/3/2/4 docs，`table_summary_kb_5/kb_8`、`table_chunks_kb_5/kb_8` 各 1 → `getFileChunks` 有数据 |
+| 我另做的独立异步验证（不写 Java 表） | `POST /parse` → 200「正在执行」(0.01s)；后台 `index服务插入索引总花费时间：4.75s`；ES `r12_it_parse_003`=1、Milvus `_r12_it_parse_003`=1 |
+
+**3) 新增两处修复**
+- **R12-FIX-PARSE-06（正确性）**：`vlm_status=='truncated'` 时 **VLM 残句不再并入 `page_content`**（只保留 OCR）。理由：截断残句常是半句/半词/半个数字（`金额 1,250.0`），拼进正文无法分辨，比缺文本更有害。
+- **R12-FIX-PARSE-07（健壮性）**：`revoke_callback` 在 **task_id 为空时跳过回调**并 warn（非 Java 主链调用会触发 Java NPE `task is null` 并把后台任务打成 500），并给回调 `requests.post` 补 `gateway_timeout`(默认 60s)。
+- **R12-FIX-PARSE-08（落库阻断修复）**：ES 侧 payload **剔除 `metadata.boxes` / `base64`**。
+  实测证据：`docx-image.docx` → `r12_it_parse_004` 报
+  `Mapper for [metadata.boxes] conflicts with existing mapper: Cannot update parameter [dims] from [4] to [2]` → 整批 400 + 回滚 → **含图片的文档完全无法落库**。
+  修复后同文档 → `r12_it_parse_005`：**ES count=2（成功）**，且文档里 `vlm_status=ok / vlm_finish_reason=stop / vlm_needs_crosscheck=False / vlm_prompt_n=1` 均可查回。
+
+**4) 一个新发现的跨服务限制（需 alg-ops 决策）**
+`vlm_status` 等状态字段**只在 ES 里存在，Milvus 里没有**：Milvus schema 建成即固定（首批文本块决定 schema），后续图片块的 `vlm_*` 键被服务端按 schema 过滤。
+→ 影响：只走 Milvus 通道的召回看不到"该文本来自一次截断/需交叉校验的 VLM 输出"。当前 R12 检索是 ES+Milvus 混合，**证据链校验请以 ES 通道为准**；若要 Milvus 也带上，需 alg-ops 在其 schema 增加 `vlm_status` / `vlm_needs_crosscheck` 两列（属其服务改动）。
+
+**5) `file_path` 接口契约（实测澄清）**
+解析侧 `FileParams.file_path` 要求 **MinIO `bucket/object`**（如 `r12-rag/fixtures/x.pdf`）；我传完整 `http://127.0.0.1:19000/...` 会被当成 bucket=`http:` → `invalid bucket name http:`。
+Java 主链不受影响（其任务参数在调用前已归一化为 `r12-rag/kb_x/...`，Python 侧日志可见该形态）。
+
+**6) 取数纪律补充（model-ops）**：`load1` 的瞬时低点会骗人（我 05:17 以 load1=10.38 开跑，3 分钟内爬到 29.25）。回归脚本 `--max-load` 已改为 **load1 与 load5 同时 ≤ 阈值**才跑 VLM 用例。
+
+**7) 敏感字段正则补强（model-ops 反馈）**：日期尾部 `日/号` 纳入；新增「万元/亿元金额」「百分比/年化利率」「LPR±BP」三类。字段级要求（TL 已采纳进 R12 验收）：**编号/账号/金额/日期/利率不得只靠 VLM，必须 OCR/正则/校验位交叉校验**；对应可核对条目 = 图片块 `vlm_needs_crosscheck` / `vlm_sensitive_tokens`。
+### 16.9 容量口径再纠正（model-ops 定位根因：槽间争抢，不是机器慢）+ 三个新结论
+
+**1) "慢"的真因是槽间争抢，不是整机负载 —— 532s 那条记录改判**
+模型服务端日志对同一条请求（task 2663）的分段实测：
+- prefill：**157.9s / 3331 token = 21.1 tok/s（正常）**
+- generation：**374.6s / 276 token = 0.73 tok/s（被饿死）**
+
+同一时刻另一个槽在跑 **3871 token** 的长请求（`kb_5/*`）。⇒ **prefill 正常说明模型没退化、KV 没爆、配置没问题**，是"邻居的 prefill 抢走了本请求生成阶段的 CPU"。
+**结论改写**：本轮 C14/C15 未完成**不是容量结论**，应记为「**槽争抢导致生成饿死，非容量结论**」。两者对 R13 的指导完全相反：前者要**排期（独占窗口）**，后者会误导成"需要更强机器"。
+
+**2) 用 load1 当闸门是循环论证，已改用 `measure_window.py`**
+VLM 自己 `--threads 20`，一个在飞请求就吃 8.49 核 ⇒ 开跑后 load1 抬升有一部分是我自己的请求造成的。回归脚本 `parse_cases.py` 已把 VLM 用例闸门换成 model-ops 的窗口工具，**核心判据 = VLM 进程 `cpu < 0.25 核`（两槽都空闲）**，辅以 `load1 与 load5 同时 ≤ 阈值`、`MemAvailable ≥ 4G`、`Swap=0` 风险提示；工具缺失时退回 load 双阈值并打印降级说明。实测样例（05:57）：
+```
+load1=19.67 load5=26.49 nproc=20 | MemAvailable=8.0G SwapTotal=0.0G
+VLM cpu=0.00 核 | embedding 0.01 核 | rerank 0.00 核
+NO-GO：✗ 负载未达标（load1/load5 要求都 ≤10）
+```
+注意这条样例说明：**当前 load 高但不是 VLM 在忙（cpu=0.00）** —— 即"机器忙"和"模型槽被占"是两件事，必须分开测。
+
+**3) 落库幂等性实测（model-ops 提出的"回调重复会不会重复建索引"）**
+同一文件（`cn-digital.pdf`）对同一 index（`r12_it_idem`）连续落库两次：
+- 第一次 6.23s → ES count=1；第二次 9.11s → ES count=**1**；Milvus `_r12_it_idem` count=**1**。
+- 机制：`index_es` / `index_milvus` 均以 `duplicate_flag=True` 走"**先按 source 删除旧数据再插入**"。
+⇒ **回调重试不会造成重复文档**（同一 task_id 重复回调 = 覆盖写），这条可作为 R12 幂等结论。
+
+**4) `boxes` vs `position` 的边界必须写死（ES 400 的根因归纳）**
+`metadata.boxes` 是「维度不定的嵌套数组」（多框 × 4 点 × 2 坐标），ES 动态 mapping 只认第一批文档的形状：
+**先落 4 层文档、后落 2 层（或反之）必然 `dims` 冲突，且是整批 400 + 回滚** —— 不是"这一批坏了"，而是"这类文档根本进不去"。
+因此边界定义为：
+- **`boxes` = 解析中间态**（用于构建 `position` 与图片关联），**不进检索存储**；
+- **`position` = 下游定位字段**（页内 bbox），**必须保留**（D-1 的修复目标之一就是图片块补定位）。
+⚠ 后续若有"为了完整把 boxes 塞回 ES"的改动，会立刻复现本次 400，**请以本节为禁止项依据**。
+
+**5) Milvus 侧状态字段的可行方案（实测 schema 后修正 model-ops 的建议）**
+`_r12_it_parse_005` schema 共 **33 个字段**，**不存在 `meta_json` 之类可复用的通用 VARCHAR**（最接近的 `title_path` 已被标题层级占用）。
+⇒ 打包方案需要 alg-ops **新增一列**（建议 `meta_json VARCHAR(65535)`），我们把 `vlm_status` / `vlm_finish_reason` / `vlm_needs_crosscheck` / `vlm_prompt_n` / `vlm_cache_n` 打包进去，**以后加标记不用再改表**。
+在此之前的口径不变：**证据链校验以 ES 通道为准，Milvus 只做向量召回**。
+### 16.10 质量状态字段的权威口径（alg-ops 决策 ②：Milvus 不加列，已实测确认）
+
+**决策（alg-ops 2026-10-25，含三处消费者核查）**：**Milvus 不加列，`vlm_*` 以 ES 为唯一权威。**
+
+**写死口径（QA 可直接引用）**：
+> `vlm_status` / `vlm_needs_crosscheck` **只存在于 ES**（路径 `metadata.vlm_status`、`metadata.vlm_needs_crosscheck`）；
+> **Milvus 不含这两个字段，任何"在 Milvus 里找不到该字段"都不算缺陷。**
+> 职责划分：**ES = 全文与质量状态**；**Milvus = 纯向量召回**。
+
+**决策依据（对方给的证据，我认可）**：
+| 核查点 | 结果 |
+|---|---|
+| index_data / retrieval / llm 三服务是否消费 `vlm_*` | grep **0 命中** |
+| 检索返回是否透出 | `process_return_results()` 白名单式固定 20 key，未登记字段返回前即被丢弃 |
+| Java 侧 `Document` DTO | 无 `vlm`、无 `boxes`（grep 0 命中） |
+| 更硬的理由 | Milvus schema **按集合固定**，老集合(001/002/003/005)已建成改不了 → 加列会造成"同链路不同知识库字段不一致"，QA 脚本更易踩坑 |
+
+**我在真实 mapping 上复核过（不是照抄）** —— `r12_it_parse_005`：
+```
+metadata 字段数 = 49（基础 37 + 动态映射 12）
+vlm_status            : text + keyword(ignore_above=256)
+vlm_finish_reason     : text + keyword(ignore_above=256)
+vlm_needs_crosscheck  : boolean
+vlm_prompt_n / vlm_cache_n : long
+position              : text + keyword
+boxes                 : （无此字段，已按 R12-FIX-PARSE-08 剔除）
+```
+**可执行查询样例（实测均命中）**：
+- 值过滤必须用 keyword 子字段：`{"term":{"metadata.vlm_status.keyword":"ok"}}` → total=1（image 块）
+- 布尔过滤直接 term：`{"term":{"metadata.vlm_needs_crosscheck":false}}` → total=1
+- 直接用 `metadata.vlm_status` 会走分词，匹配不准 —— **QA 脚本请按上面两条写**。
+
+**两个辅助口径（alg-ops 提供，已入我文档）**：
+1. `metadata` 字段数 37 → 49 **是 ES 动态映射的正常行为，不是 mapping 被污染**；只要核心字段（`page_content` 的 `ik_max_word`、`metadata.pk/file_id/offset/position/chunk_index`）在，检索与溯源不受影响。
+2. `/static_count` 与 ES `_count` 同源，且对方在接口返回前已 `indices.refresh` ⇒ **写入拿到 200 之后立刻查是准的**；若将来并发/批量写，采样点必须是"每批 200 之后"。
+
+**`boxes` 结论（双方一致，已定案）**：ES 基础 mapping 的 37 个 metadata 字段里**没有 `boxes`**（有 `position`），故 `boxes` 必然走动态映射 → 变深数组按首篇文档推断 dims → 层数不同即冲突（我撞到的 `dims 4→2`）。**保持剔除，不改回数组**；前端若要做图片区域高亮，正确载体是 **`position`**（已是字符串、mapping 已有、检索透传）。
+
+**R13 参考（若真要让 Milvus 带状态，三处一起改，缺一处即死数据）**：
+① `milvus_kb_config.py` 的 `MILVUS_FIELDS` 加列（仅对新集合生效，需明确是否重建历史集合）；② `process_return_results()` 白名单放行；③ Java `Document` DTO 加字段。
+### 16.11 窗口闸门升级为双模式（C08 首次在忙机器上跑通）
+
+**变化**：我那条"load1=19.67 但 VLM cpu=0.00"的反例，直接促使 model-ops 把工具拆成两档；我把两档接进回归脚本：
+- `--mode capacity`：`load1/load5` **且** 槽空闲 **且** 内存够，三项全过才 GO → **耗时数据可作容量引用**（C14/C15 多图容量走这档）；
+- `--mode functional`：只要**槽空闲 + 内存够**（负载只提示不阻塞）→ **断言/功能回归走这档**，避免"邻居在编译 Java 就把功能用例全 SKIP"造成覆盖率白丢。
+
+**实测退出码**（正确测法，不被管道吞）：`functional → 0(GO)`、`capacity → 1(NO-GO)`；同一时刻 `load1=10.46/load5=21.73`、VLM 槽空闲 —— 正好演示"机器忙但模型闲"。
+
+**直接收益（本次回归）**：
+```
+— 测量窗口检查（mode=functional）—
+[C08] PASS http=200 56.23s chunks=2  DOCX 内嵌图片（需VLM）
+PASS=12 FAIL=0 BLOCKED=0
+```
+→ **C08 首次在"load1 11→20"的忙机器上跑通**（此前一直被 load 闸门 SKIP）；同时也再次验证 R12-FIX-PARSE-06（截断不并入正文）与 07（回调跳过）未破坏图片块产出（chunks=2：text + image）。
+
+**证据补强：这不是"我和邻居"的问题，是多角色共享 20 核**
+model-ops 采样到 **`rerank cpu=17.73 核`（瞬时大 batch，2 秒后回 0）**、`embedding 曾 1.5 核`、`VLM 8.49 核（kb_5 在飞）`、`MemAvailable 5.9G`。
+⇒ 向 TL 申请窗口的证据已扩为三行：**VLM 8.49 核（kb_5 在飞）/ rerank 17.73 核（瞬时大 batch）/ MemAvailable 5.9G**。**只有 TL 能排期**，不由角色间互等。

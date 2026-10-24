@@ -354,3 +354,162 @@ docker exec r12-fe nginx -t      # syntax is ok / test is successful
 1. 文档预览 / 知识分析 / 写作附件预览：首行是否出现半行垂直偏移（§15.1）
 2. 含公式的文档：公式字形是否回落为系统字体（§15.2 类 1）
 3. 会话设置页 + 模板页的选择框：文件图标是否空白/破图（§15.2 类 2）
+
+## 16. SSE 格式变更回归（alg-ops 2026-10-25 05:45 通知：19996 流式端点改为标准 SSE）
+
+**结论：前端零改动，已回归通过。**
+
+### 16.1 前端是否直连 19996 —— 否
+
+- `grep -rn "19996\|llm_open_chat\|llm_generate_sync\|llm_rotate_answer\|llm_multi_model" src` → **0 处真实引用**（命中的 2 条是 `assets/*/icon-pdf.svg` 路径里的数字串，误匹配）
+- 前端流式唯一入口是网关：`/proxy/qa/ai/question` 与 `/proxy/qa/ai/question_re`（= `${getUrlPrefix()}/qa/ai/question` + `_re`）
+
+### 16.2 消费端解析方式（7 处，全部 SSE 规范实现）
+
+| 文件 | 方式 |
+|---|---|
+| `src/pages/HomePage/IntelligentChat/AIChat/services/servers.ts` | `@microsoft/fetch-event-source@2.0.1` |
+| `src/components/SdAiChat/core/services/servers.ts` | 同上 |
+| `src/components/AiChatComparison/core/services/servers.ts` | 同上 |
+| `src/components/AiChat/core/services/servers.ts` | 同上 |
+| `src/components/AiEditor/core/services/servers.ts` | 同上 |
+| `src/components/Template/server.ts` | 同上 |
+| `src/components/ModuleTest/components/useEditorStreamFetch.tsx` | 同上 |
+
+关键证据：该库解析器**对 `data:` 后是否带空格两者都兼容**——
+`node_modules/@microsoft/fetch-event-source/lib/esm/parse.js`：
+`const valueOffset = fieldLength + (line[fieldLength + 1] === 32 ? 2 : 1);`（32=空格，带空格则跳 2 字节）
+因此 `data: {"answer":"企"}`（alg 新格式，带空格）与 `data:{"content":"你"}`（Java 网关现状，不带空格）都能得到正确 JSON，且都以空行 `\n\n` 切事件。
+
+唯一的**手工流解析点**（非 fetch-event-source）：
+`src/components/KnowledgeBaseZh/RetrieveTest/index.tsx:319` —— `response.body.getReader()` + `TextDecoder`，按 `split("\n")` 逐行、`line.startsWith("data:")` 后 `replace("data:","").trim()` 再 `JSON.parse`。
+- 它请求的是 `/proxy/qa/ai/retrieveTecallTest`（**Java 检索测试**，非 19996），不在本次变更面内；
+- 写法对 `data: xxx` 与 `data:xxx` 都成立（有 `replace("data:","").trim()`），空行被 `startsWith("data:")` 过滤，**无需改动**；
+- 理论脆弱点（仅记录）：若某帧 JSON 内含字面换行会被按行撕开；后端现输出为紧凑单行 JSON，不触发。
+
+### 16.3 回归结果（实测）
+
+**A. alg 19996 直连（按 alg-ops 给的命令）**
+```
+curl -N -H 'Accept: text/event-stream' -X POST http://127.0.0.1:19996/llm_open_chat -d '{...}'
+→ data: {"answer": "你好"}\n\n
+  data: {"end": ""}\n\n
+```
+`cat -A` 确认分隔符是 `$`+`$`（LF+LF），**不是 `\r\n`**，与通知一致。
+
+**B. 网关 → 后端 → 前端消费链（真实数据）**
+
+| 入口 | 指标 | 结果 |
+|---|---|---|
+| nginx **18088** `/proxy/qa/ai/question_re` | http / ct | **200** / `text/event-stream` |
+| 同上 | 帧数与解析 | 25 个 JSON 帧，`bad_frames=0` |
+| 同上 | 回复内容 | `你好！目前没有找到具体的信息来回答你的问题。请提供更多详细内…`（43 字，真实 LLM） |
+| 同上 | 是否兜底文案 | `'模型没有返回' in reply` → **False** |
+| 同上 | 收尾帧 | `status=2, resultType=1`（正常结束） |
+| dev **15174** `/proxy/qa/ai/question_re` | 同上 | **200** / `text/event-stream`，14 帧，0 坏帧，回复 22 字，无兜底文案，`status=2` |
+
+**C. nginx 是否缓冲 SSE（防"前端一直转圈"）**
+`/qa/` location 已带 `proxy_set_header X-Accel-Buffering no` 且 server 级 `proxy_buffering off`；实测 `ttfb=4.01s`、`total=4.44s`（首帧远早于结束），且 `curl -N | head` 能在流未结束时先拿到前 25 行 → **逐帧下发，未被缓冲**。
+
+### 16.4 给 alg-ops 的答复要点
+
+1. 前端不直连 19996，无需改代码；
+2. 消费端为 `@microsoft/fetch-event-source@2.0.1`，其解析器显式跳过 `data:` 后的可选单空格 → 新格式（带空格）与旧格式（不带）都解析正确；
+3. 直连 19996 自测：帧序 `data: {"answer":...}` … `data: {"end": ""}`，`\n\n` 分隔，与通知完全一致；
+4. 端到端经网关（18088 与 15174 两条路径）收到真实流式回答，无「模型没有返回」兜底，收尾帧 `status=2`。
+
+### 16.5 收尾判据（源码级核对，勿再误用 status=3）
+
+我本地独立核对了 Java 枚举，**`status=2` 才是正常结束，`status=3` 是异常**：
+
+`services/rag-java/rag-parent/rag-common/src/main/java/com/gientech/ragcommon/qa/enmus/ReplyStatusEnums.java`
+
+```java
+public enum ReplyStatusEnums {
+    RUN(1,"进行中"),
+    PARSE_SUCCESS(2,"结束"),
+    PARSE_FAIL(3,"异常");
+    ...
+    @JsonValue
+    public int getCode() { return code; }
+```
+
+- 因此 QA/验收判据应为：**末帧 `status == 2` 且回复非空** = 通过；`status == 3` = 失败；`status == 1` 只出现在中间帧（流未结束）。
+- 若有人以「`status=3` 收尾」作为通过标准，属判据写反（alg-ops 已确认并同步 TL），本文档 §16.3 的 `status=2` 结论不受影响。
+- 另：`status` 字段由 Java 侧（`doRunRs`）赋值，alg 19996 的帧内**不含** `status`（帧内只有 `{"answer": ...}` 与收尾 `{"end": ""}`），故上游即使被原样透传也不会覆盖 Java 的 `status`。
+
+### 16.6 与 alg-ops 双向对齐的冻结基线（2026-10-25，双方各留档一份）
+
+对端记录位置：`platform/r12/status/alg.md §10.4`；本端记录位置：本节。
+
+| 项 | 冻结口径 | 我方复核 |
+|---|---|---|
+| 帧格式 | `data: <JSON>\n\n`（空行分隔）；内容仅 `{"answer": "..."}` 与收尾 `{"end": ""}`；**不含** `status`/`event`/`id`/`retry` | 实测 `data: ` 行 2 条 / `"answer"` 1 / `"end"` 1 / `grep -c status`=0 |
+| 响应头 | `content-type: text/event-stream; charset=utf-8`、`cache-control: no-cache`、`x-accel-buffering: no` | 逐字匹配（本节复测输出见下） |
+| 覆盖端点（19996） | `/llm_open_chat`、`/llm_generate_sync`、`/llm_rotate_answer`、`/llm_multi_model` | 见下方「覆盖边界（源码级更正）」——**不是**简单的"只有 open_chat 在链路内" |
+| 判定 | 末帧 `status=2`（Java 赋值）＋ 无「模型没有返回」＋ 每帧可 `JSON.parse` | 18088/15174 两条链路均满足 |
+| 变更纪律 | **双向**：①alg 动帧格式前先给我新 `curl -N` 原始输出；②我方重建 `dist`（重新 `npm run build` 或改 `vite.config.ts`/前端源码）前先告知 alg。任一侧变更后都在「直连 19996 / 网关 18088 / 网关 15174 / 前端 fetch-event-source 解析」四层重测通过才放行 | 已互认（2026-10-25 双向补齐） |
+
+实测响应头（`-D` 抓取，原样）：
+
+```
+cache-control: no-cache
+x-accel-buffering: no
+content-type: text/event-stream; charset=utf-8
+```
+
+进程留档：监听 `:19996` 的 python pid = **175945**（另有一 fork 子进程 177190 共享该 socket），与 alg-ops 记录的 05:45 重启后 pid 一致。
+
+**前端进程不会被 `algctl.sh` 波及（已核脚本，非口头保证）**：`platform/r12/run/algctl.sh`
+- 服务名白名单仅 4 项：第 129 行 `ALL=(index_vector_service index_fulltext_service alg_retrieval_service alg_llm_inference_service)`；
+- 端口映射仅 4 个：第 53-56 行 `19526 / 19527 / 19995 / 19996`，`listen_pids()`(62) 只按 `sport = :<port>` 取 pid；
+- `kill -9` 仅在 113 行，作用于「pidfile pid + 该端口监听 pid」（101 行收集、112 行复查）；
+- `grep -cE "docker|pkill|killall|kubectl"` = **0**（无宽口径杀进程动作）。
+
+故 `r12-fe` 容器、`fe-dev`、`fe-nginx` 不在其作用域；反之我也不使用 `pkill -f` 之类宽口径命令（本机同时跑 4 个模型进程，宽口径才是真风险）。
+
+**后续若发现 5xx 或坏帧，处置约定**：带原始 `curl -N` 输出 + 精确时间戳给 alg-ops 对日志时间点；本端同时记录到本文件，不改前端代码（前端对两种 `data:` 写法均兼容，见 §16.2）。
+
+### 16.7 覆盖边界（源码级更正：`/llm_rotate_answer` 也在前端链路内）
+
+对照 alg-ops 的「`/llm_open_chat` 是唯一入口」口径，我核了 Java 调用点，**该表述不准确**，据实更正如下（文件：`services/rag-java/rag-parent/rag-qa-service/.../AiServiceImpl.java`）：
+
+| alg 端点 | 是否在前端链路 | 源码依据 |
+|---|---|---|
+| `/llm_open_chat` | **是（主链路，已端到端回归 ✓）** | `questionRe()`(2160) → `publicQuestionRe()`(220) → `modelBasedInferenceRe()` 默认 `modelUrl = nacosConfig.getLlmOpenChatUrl()`(327)；`modelBasedInferenceRe` 内 `.uri(modelUrl)`(959)、`.accept(TEXT_EVENT_STREAM)`、`.bodyToFlux(String.class)` |
+| `/llm_rotate_answer` | **代码可达，但前端路径实际不可达（见下）** | 331-332：`else if (!CollectionUtils.isEmpty(tableSelectedDocuments)) { resultType = LLM_TABLE; llmOpenChatUrl = nacosConfig.getLlmRotateAnswer(); }`；同一 `modelBasedInferenceRe` 走 `.uri(modelUrl)`(959)。`tableSelectedDocuments` 来自检索结果（291），**前提是 19995 返回 `table_selected_list`** —— 该键只在 `enabled_table_select=true` 时产生，而前端问答路径无法把它置 true（见 §16.8） |
+| `/llm_generate_sync` | 否 | `NacosConfig:26` 有 `@Value("${spring.ai.gt.llm-chat-url}")` 字段，但**全仓无任何调用点**（仅 yml 与字段声明） |
+| `/llm_multi_model` | 否 | `services/rag-java` 全仓无该 URL 引用（仅有无关的 `multi_model_info`/`multi_model_name` 常量） |
+| （附）`/llm_question_rewrite` | 是，但**非流式** | 364-370 `restTemplate.postForObject(...)` 同步取字符串；不在本次 SSE 变更的 4 个端点内，不受影响 |
+| （附）`/llm_faq_select` | 否 | 全仓无 `getLlmFaqSelect` 调用点 |
+
+**为什么这仍然不需要我补测（判断，非事实）**：
+
+1. 前端**从不直接看到 alg 的帧**——前端收到的一律是 Java 用 `ReplyDTO` 重新编码的 SSE（`data:{...}`，字段 `sessionId/queryId/lastDate/status/reply/...`，见 §16.3 实抓）。所以帧格式对前端的影响只取决于 Java 的发射格式，与 Java 调 alg 哪个 URL 无关。
+2. Java 调 rotate 与调 openChat 用的是**同一个** `modelBasedInferenceRe` 消费链（同一 `.accept(TEXT_EVENT_STREAM).bodyToFlux(String.class)`），只要 rotate 的帧格式与 openChat 一致（alg-ops 已自测：rotate 28 帧、`data: {"answer": "企业"}` 首帧、`data: {"end": ""}` 末帧），Java 侧消费行为相同。
+3. 因此 `status` 由 Java `doRunRs` 赋值、前端解析逻辑不变，**格式风险与 openChat 等价**。
+
+**登记为已知覆盖边界（不掩盖）**：我没有做「含表格块知识库」的表格问答端到端回归（需要 KB 里有表格解析产物，属 parse/QA 侧造数范围）。若 TL/QA 要求闭环，两种做法：①由 QA 用含表格的库跑一次表格问答并回放 `curl -N`；②我构造 `sysType/tableSelectedDocuments` 命中的请求——但该字段来自检索结果而非请求参数，前端无法直接伪造，只能靠造数。
+
+### 16.8 修正我自己的上一版结论：rotate 分支在前端路径上**实际不可达**（开关未接线）
+
+§16.7 上一版写「知识库命中表格块时会自动走 rotate」，这句**过度了**，核对开关链路后更正：
+
+| 环节 | 事实 | 源码 |
+|---|---|---|
+| Python 侧总闸 | `enabled_table_select: bool = False`（默认关闭）；只有为 True 才走 `filter_tables_by_query` 并产出 `table_selected_list` | `services/rag-alg/alg_retrieval_service/app/base.py:104`、`retrieval_service.py:399` |
+| 唯一的开关映射点 | `retrieveDocReq.setEnabledTableSelect(req4Platform.getTableFilterEnabled())` | `RetrieveDocReqConvertor.java:17` |
+| 但该映射点服务的是**另一个接口** | `AiController.java:85` 的 `POST /qa/ai/retrieveDocs4Plat`（"platform 检索"接口），**不是问答流** | `AiController.java:85` |
+| 问答流用的是**另一条**召回路径 | `publicQuestionRe`(284) → `retrieveRecall(aiRequest, alParams, dialogueId, false)`(1932)：直接把助手 **config JSON** `restTemplate.postForObject(searchDocsUrl)` 打到 19995，**完全不经过** `RetrieveDocReqConvertor`，也就**没有**任何地方设置 `enabled_table_select` | `AiServiceImpl.java:284 / 1932-1950` |
+| 前端也没提供该字段 | 全前端 `grep enabled_table_select / tableFilterEnabled` = **0 处**（命中项都是第三方压缩库里的 `tableSelectionColumnWidth` 之类无关标识） | `frontend/plateform/src` |
+
+**结论（事实链）**：前端问答 → 助手 config 里没有表格开关 → 19995 的 `enabled_table_select` 取默认 `False` → 不返回 `table_selected_list` → `tableSelectedDocuments` 为空 → `AiServiceImpl:331` 的 rotate 分支**在前端路径上不会进入**。
+
+严格边界：`QARetrieveConfig`（`base.py:83`）无 `alias_generator`，JSON 键必须是字面 `enabled_table_select`；前端 0 处设置该键，故正常路径下为 `False`。**唯一例外**是有人手工把 `enabled_table_select: true` 写进助手 `configJson`（DB 侧改数，非前端能力）——那时才会触发，属运维/造数行为，不在本轮验收面。
+
+**因此**：
+- `/llm_rotate_answer` 的 SSE 帧格式已由 alg-ops 直连自测通过（28 帧），但**该分支经前端不可达**，本轮**不记为已覆盖**，也不是缺口；
+- 若 R12 将来要支持表格问答，需要两处改动（都不在我本轮范围）：①助手配置/前端暴露 `tableFilterEnabled`（或 config JSON 写入 `enabled_table_select`）；②Java 问答流的召回路径把该开关透传到 19995。
+- `/llm_generate_sync`（零调用点）、`/llm_multi_model`（无引用）、`/llm_faq_select`（零调用点）同样不在链路内。
+
+**对端交叉确认（2026-10-25）**：alg-ops 已逐条独立复核本节三点（Python `base.py:104` 默认 False 同行号、`alias_generator/populate_by_name/AliasChoices` 0 命中、前端该三词 0 命中），并将 `status/alg.md §13` 第 5 条改为与本文件一致的口径「代码可达、数据不可达 —— 不记为已覆盖，也不算缺口」。对端同时声明一条对称边界：`filter_tables_by_query`（`retrieval_fun_tool.py:472`）的选表能力本轮**未验证，且按本链路分析验证无意义**（开关不接线，验了也进不到问答面）。双方结论一致，本节不再变更。

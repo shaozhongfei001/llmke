@@ -59,7 +59,7 @@ def s1(s):
 
 
 # ---------------------------------------------------------------- S2 建库
-def s2(s, kb_name="R12主链"):
+def s2(s, kb_name="R12业务主链"):
     code, body = api(s, "GET", "/index/knowledgeBase/list?pageNo=1&pageSize=50", s.token)
     for r in ((body.get("data") or {}).get("records") or []) if isinstance(body, dict) else []:
         if r.get("kbName") == kb_name:
@@ -186,17 +186,17 @@ def ask(s, session_id, query_id, content, config_id=None, extra=None):
                       headers={"Authorization": s.token, "Accept": "text/event-stream",
                                "Content-Type": "application/json", "User-Agent": UA},
                       stream=True, timeout=600)
+    r.encoding = "utf-8"
     frames, text = [], []
     for raw in r.iter_lines(decode_unicode=True):
-        if not raw:
-            continue
-        line = raw[5:].strip() if raw.startswith("data:") else raw.strip()
+        if not raw or not raw.startswith("data:"):
+            continue          # 只认 SSE data 帧；其余（event:/注释/续行）忽略，避免把协议文本当答案
+        line = raw[5:].strip()
         if not line:
             continue
         try:
             obj = json.loads(line)
         except Exception:
-            text.append(line)
             continue
         frames.append(obj)
         reply = obj.get("reply") or {}
@@ -315,7 +315,7 @@ def main():
         kb_id = (kb or {}).get("id")
         kb_name = (kb or {}).get("primitiveName")
         if want("S5") and kb_name:
-            q = "银行承兑汇票如果提前换成现金，利率是怎么定的？"
+            q = "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？"
             answer, ref, qid = s5(s, kb_name, q)
             if want("S6"):
                 fid = None
@@ -333,7 +333,7 @@ def main():
             if want("S4"):
                 ok_files = s4(s, up)
                 if ok_files and (want("S5")):
-                    q = "银行承兑汇票如果提前换成现金，利率是怎么定的？"
+                    q = "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？"
                     answer, ref, qid = s5(s, kb_name, q)
                     if want("S6") and ref:
                         fid = (ref[0].get("metadata") or {}).get("file_id")
