@@ -43,7 +43,8 @@ export class HttpClient<SecurityDataType = unknown> {
   private format?: ResponseType;
 
   constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
-    this.instance = axios.create({ ...axiosConfig, baseURL: axiosConfig.baseURL || "http://10.64.13.66:2230/auth" });
+    // R12：兜底改为相对路径 /auth（dev 走 vite 代理、prod 走 nginx 反代），不再指向不存在的内网主机
+    this.instance = axios.create({ ...axiosConfig, baseURL: axiosConfig.baseURL || "/auth" });
     this.secure = secure;
     this.format = format;
     this.securityWorker = securityWorker;

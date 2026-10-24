@@ -1,0 +1,27 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.033
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/list?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.022
+  }
+]

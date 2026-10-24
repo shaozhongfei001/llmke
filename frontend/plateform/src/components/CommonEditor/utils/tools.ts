@@ -142,9 +142,12 @@ export const reference_data_transformData = (
         title: label,
         file_name: fileName,
         file_type: file_type,
-        file_source: getMarkExcludeType(file_type)
-          ? `http://10.15.12.13:9000/${item.metadata.source}`
-          : item.parsedFilePath,
+        // R12：引用→原文统一走本前端 /minio 反代，不再拼内网 MinIO 主机；
+        // parsedFilePath 为空时（问答引用常见）也必须回落到原始文件，否则点开是空白。
+        file_source:
+          getMarkExcludeType(file_type) || !item.parsedFilePath
+            ? `/minio/${String(item.metadata.source).replace(/^\/+/, "")}`
+            : item.parsedFilePath,
         metadata: item.metadata,
         pdfPages: item.pdfPages,
         contents: referenceMark

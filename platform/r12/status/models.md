@@ -4,6 +4,8 @@
 依据：`platform/r12/R12-ENV-CONTRACT.md`。18090/18091/18092 与契约一致；**18093（VLM）原为契约外新增，TL 已于 2026-10-25 批准纳入 R12 契约**（定位：可选增强，非硬依赖）
 结论：**四个服务全部真实可用**——`models/verify.py` 27/27 PASS（18090/18091/18092）、`models/verify_vl.py` 全 PASS（18093），均退出码 0
 
+<!-- R12-DOC-STATE {"schema": 1, "service": "models", "era": "2026-10-25T06:22", "values": {"emb_port": 18090, "emb_dim": 1024, "rr_port": 18091, "llm_port": 18092, "llm_ctx": 8192, "llm_ngl": 99, "vlm_port": 18093, "vlm_model": "qwen2.5-vl-3b-instruct", "vlm_parallel": 2, "vlm_ctx_total": 32768, "vlm_ctx_slot": 16384, "vlm_ngl": 0}} -->
+
 ---
 
 ## 1. 服务总览
@@ -189,7 +191,10 @@ llama-server 会缓存「相同图片 + 相同 prompt 前缀」的计算结果�
 > - **权威延迟指标 = `prompt_per_second` / `predicted_per_second`**（服务端自测），**不要用 `load1` 倒推**——load1 采样时点滞后，
 >   parse 侧实测过「请求期间低负载、请求结束后 load1 才升到 25.96」的错配。
 > - **`cache_n` = 从 KV 缓存复用的 prompt token 数**（实测：首次约 14–29，仅模板前缀；**完全相同的图片+问题第二次复用 506/507**，`prompt_n` 掉到 1）。
->   ⇒ 校验规则：`cache_n ≤ 5% prompt` 才算一次干净的首次测量。
+>   ⇒ 校验规则：**`cache_n / (prompt_n + cache_n) ≤ 5%`** 才算一次干净的首次测量。
+>   口径订正（parse 侧 06:20）：llama.cpp 的 `prompt_n` = **本次实际评估**的 token，`cache_n` = **复用**的 token，两者之和才是总 prompt
+>   （实测 `usage.prompt_tokens == prompt_n + cache_n`：493+14=507、1+506=507）。分母必须用 `prompt_n + cache_n`；
+>   写成 `cache_n / prompt_n` 会把"完全命中"算成 296200%，反而看不出问题。
 > - `bench_vl.py` 已按此实现：每次运行随机换图 + `cache_n` 校验 + 打印服务端 tok/s。
 
 > **"慢"的真实成因：不是机器慢，是槽间争抢（05:40 定位）**
@@ -202,6 +207,27 @@ llama-server 会缓存「相同图片 + 相同 prompt 前缀」的计算结果�
 > 两种模式（parse 侧反例促成）：`--mode capacity` 要求负载**与**槽都干净（容量数据要可引用）；`--mode functional` 只要求槽空闲 + 内存够，负载仅提示不阻塞（功能/回归用例的正确性与负载无关）。
 > 实测反例：`load1=19.67/load5=26.49` 但 `VLM cpu=0.00 核` ⇒ capacity 判 NO-GO、functional 判 GO —— **"机器忙"和"模型槽被占"是两件事**。
 > 另测到**邻居的 rerank 大 batch 会瞬时吃掉 17.7 核**（embedding 也曾 1.5 核），同样会抢 VLM 的 CPU，属跨角色资源冲突，需排期而非调参。
+
+> **单图冷测的耗时构成（06:10 干净窗口，parse 侧 C14 图2）**：prompt 2879（`prompt_n 2863 + cache_n 16`，命中率 0.56% ✅）、
+> **prefill 96.25s @ 29.74 tok/s** + **generation 170 tok / 46.21s @ 3.66 tok/s** = **142.47s**。
+> 该 prefill 速率与我 05:15 在 load1≈13.4 测的 29.25 tok/s 互相印证（同负载档一致）。
+> ⇒ 容量要点：**prefill（图像 token）占约 2/3 时间，generation 每 token 才是真慢**；按此推算 2 张冷图约 285s（估算，需实测）。
+
+> **一阶成本模型（低负载档，load1 ≤5、20 线程；系数经 10 个历史任务独立复核）**
+> `单图耗时 T(s) ≈ 0.0334 × image_tokens + 0.287 × output_tokens`（generation 系数取 272–302 中值）
+> - prefill 系数：**33.4 / 33.62 / 34.14 ms/img-token**（我 1 条 + parse 侧 2 条独立数据，差 1.5% 内）✅
+> - generation：**272–302 ms/out-token（3.3–3.7 tok/s）**，272 是**下界不是中位**；
+>   **长输出更贵**：输出 427 token 时升到 **361 ms/token** ⇒ 线性模型对长输出会低估，>300 token 输出需实测。
+> - 自校验：A4（2863 img tok）+170 输出 → 公式 141.8s vs **实测 142.47s（差 0.5%）**；900×420+64 → 34.4s vs 实测 37.5s（负载更高）。
+> - **推算必须写死假设**：`2 张 A4 冷图 ≈ 301s`、`3 张 ≈ 440s`，前提是**每图 200 字输出（≈400 tok 合计）**；
+>   若误把 200 字理解成"两图共 200 字"，会得到 246s（差 55s）。**推算值一律标注"推算、非实测"**；偏差 >20% 视为"发现"，要查并发/KV/内存带宽，**不得回头改模型去拟合**。
+> - **负载敏感度（parse 侧 10 任务复算，比我原表更保守）**：prefill 33.6→47.4 ms/token（load 3.5→30，**1.41×**）；generation 272→1357 ms/token（**5.0×**）。
+>   ⇒ 高负载下瓶颈是 **generation（5×）而非图像大小（1.4×）**，加核/配额 > 缩图（且缩图在真实小字件上会 NO_TEXT）。
+> - **取数纪律**：容量数据必须同时带 `prompt_n / cache_n / out_tok` 三件套，否则**不可校验**（FIX-PARSE-05 之前的数据没采 `timings`，无法反推 token，不能拿来推翻或支持模型）。
+> - **era 依赖（与 parse 侧 §16.18.1 同规则）**：本模型系数属于 `era=2026-10-25T06:22`（线程 20/20/20/20、18093 `parallel 2 + ctx 32768`）。
+>   **一旦执行 B（线程配额变更）或再改 ctx/parallel，era 立即失效：系数必须重标定，旧系数不得复用于新 era 的推算**；
+>   同理，引用任何耗时/容量数据前先确认它的 era 与当前配置一致，否则标「不可校验」。
+
 
 > **已排除的严重怀疑：同尺寸不同图片不会被旧 KV 污染（负结果，重要）**
 > 担心点：A4 扫描页尺寸全相同、图像在 prompt 里占位 token 也相同，若按 token 前缀匹配就可能复用**上一张图的 KV**。
@@ -250,7 +276,31 @@ platform/r12/models/llama.cpp/build/bin/llama-server \
 cd platform/r12/models && ../venvs/models/bin/python verify.py      # 18090/18091/18092 期望 RESULT: ALL PASS
 cd platform/r12/models && ../venvs/models/bin/python verify_vl.py   # 18093（先跑 make_test_image.py 生成图）
 cd platform/r12/models && ../venvs/models/bin/python bench_vl.py    # 18093 首次请求延迟基准（诚实口径）
+cd platform/r12/models && ../venvs/models/bin/python measure_window.py       # 测量窗口闸门（capacity）
+cd platform/r12/models && ../venvs/models/bin/python check_doc_consistency.py # 文档腐化检查（文档 vs 运行态）
 ```
+
+`check_doc_consistency.py` 把本文档里的关键参数（18092 ctx、18093 parallel/ctx、embedding 维度、pidfile↔listening pid、工具文件是否存在）
+与**活着的进程**逐条对账。起因：今天两个角色各自踩过"配置改了文档没跟"（本文 §6.8 的 N≤3、parse 侧 §3 的 16384），
+这类错误不报错、不失败，只会让后人按旧数字决策。**已做变异测试证明它真会失败**：把文档 `--ctx-size 8192` 改成 4096 → `FAIL 文档 4096 vs 实测 8192`；恢复 → PASS。
+**每次改配置后必须跑一次**；它绿 = 文档可引用，它红 = 文档不可引用。
+
+**退出码分三类，目的是告诉你该改哪里**（与 parse 侧 §16.18.2 同口径；三类都已做变异自测）：
+
+| rc | 类别 | 含义 | 该改什么 |
+|---|---|---|---|
+| 0 | 一致 | 文档与运行态相同 | — |
+| 1 | `FAIL` | 取到值但**不相等**（`vlm_ctx_slot 8192 vs 实测 16384`） | 配置或文档 |
+| 3 | `ERROR` | **根本没取到值**（key 改名 / 路径解析错 / 层级变动） | **检查器**，不是配置 |
+| 2 | `UNREACHABLE` | 端口/进程连不上 | 环境（服务没起） |
+
+`ERROR` 会**立即中止比对并优先返回**——因为一行都没比上，继续比只会误导。三类自测：
+```bash
+sed 's/"vlm_ctx_slot": 16384,//' status/models.md > /tmp/m1.md && python models/check_doc_consistency.py --doc /tmp/m1.md   # rc=3 ERROR
+sed 's/"vlm_ctx_slot": 16384/"vlm_ctx_slot": 8192/' status/models.md > /tmp/m2.md && python models/check_doc_consistency.py --doc /tmp/m2.md  # rc=1 FAIL
+sed 's/"emb_port": 18090/"emb_port": 18999/' status/models.md > /tmp/m3.md && python models/check_doc_consistency.py --doc /tmp/m3.md        # rc=2 UNREACH
+```
+`--doc` 参数就是为自测加的；没有它，自测只能靠"手动改真文档再恢复"，那是风险不是测试。
 
 `bench_vl.py` 强制三条口径，供对外引用的性能数字必须来自它：①`load1 > 15` 直接 SKIP（高负载下 0.18 tok/s，测出的耗时是噪声）；
 ②每次测量**生成全新图片**（不命中缓存）；③**每张图独立请求**（符合 R-1 红线）。实测样例（load1=21.46，900×420，510 image token）：
@@ -289,8 +339,10 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
    - ctx 两次上调：4096 → **8192**（单张大图视觉 token 就 4111，4096 放不下）→ **16384**（多图/大图要留 KV 余量，
      8192 下 68% 就出 `failed to find free space in the KV cache`、71% 直接 `failed to process mtmd chunk`）。均为纯内存开销，不占显存（RSS 起步 3.9G，多图任务后峰值 7.7G）。
    - **并发必须按水位限**（§3.4 表）：安全水位取 `Σ(prompt+max_tokens) ≤ 0.6×ctx`；超预算不是静默截断，而是硬 500（`Context size has been exceeded` 或 `mtmd chunk`），且会连累同批其他请求。
-     16384 下整页扫描件（≈2728 token/张）**N≤3**（实测 3 图 8355 token 通过）；但吞吐上并发无收益，**运行时仍按 N=1**。
-     parse 的 `run_in_thread_pool`（controller.py:194）默认 32 并发线程池仍是风险点，需其调用侧自限。
+     **现行配置（04:35 起）**：2 槽 × **私有** 16384 ⇒ 单请求上限 16384（3 图 8355 ✅、4 图 ~11000 不推荐）；
+     跨请求争抢已消除（4 并发全 200、超出 2 个改排队，见 §3.4）。吞吐上并发仍无收益（1.08×），**运行时按 N=1**。
+     parse 的 `run_in_thread_pool`（controller.py:194）默认 32 并发线程池仍是风险点（会造成排队长尾与线程阻塞），需其调用侧自限。
+   - **单请求超过 16384 仍会硬 500**；且 2 槽里一个做长 prefill 时另一槽生成会被饿到 0.73 tok/s（§3.4「槽间争抢」）。
    - **并发不带来吞吐**（实测 1.08×），推荐值为 1 —— 并发只会放大延迟。
    - **不建议一刀切缩放图片**：parse 的真实 A4 小字扫描页压到长边 1024 后模型判定「无文字」（连跑 3 次），768 丢页眉；
      而我用合成小字页在 1024 下仍可读。差异来自「有效字形像素高度 + 扫描噪声」，只能拿真实扫描件集标定，不能写成通用阈值。
@@ -347,19 +399,20 @@ transformers 以 `local_files_only=True` 加载，LLM/VLM 使用本地 GGUF；�
 本组四个服务不依赖 MySQL / Redis / Elasticsearch / MinIO / Milvus / Nacos，只依赖本地模型文件与 CPU/GPU。
 → ES 重启、Milvus 重建、Nacos 配置发布期间，模型服务无需停机，也不会因此失败。
 
-## 9. 交付快照（2026-10-25 05:05）
+## 9. 交付快照（2026-10-25 06:22）
 
 | 服务 | 端口 | PID | 连续运行 | RSS | 状态 |
 |---|---|---|---|---|---|
-| embedding (bge-m3) | 18090 | 3356869 | 3h15m | 1.9G | UP |
-| rerank (bge-reranker-v2-m3) | 18091 | 3356870 | 3h15m | 1.7G | UP |
-| LLM (Qwen2.5-7B Q4_K_M) | 18092 | 3366947 | 3h13m | 1.4G | UP |
-| VLM (Qwen2.5-VL-3B + mmproj) | 18093 | 4001031 | 1h00m | 7.7G | UP |
+| embedding (bge-m3) | 18090 | 3356869 | 4h22m | 2.0G | UP |
+| rerank (bge-reranker-v2-m3) | 18091 | 3356870 | 4h22m | 2.2G | UP |
+| LLM (Qwen2.5-7B Q4_K_M) | 18092 | 3366947 | 4h20m | 2.3G | UP |
+| VLM (Qwen2.5-VL-3B + mmproj) | 18093 | 4001031 | 2h06m | 7.2G | UP |
 
-- GPU：5202 MiB / 6144 MiB（仅 7B 使用，`--n-gpu-layers 99`）
+- GPU：5204 MiB / 6144 MiB（仅 7B 使用，`--n-gpu-layers 99`）；MemAvailable 6.4G（**无 swap**）
 - 关键参数：18092 `--ctx-size 8192`；18093 `--parallel 2 --ctx-size 32768`（每槽私有 16384）、`--n-gpu-layers 0`
-- 验证：`verify.py` ALL PASS（27 断言）、`verify_vl.py` ALL PASS、`bench_vl.py` 带负载哨兵与 `cache_n` 校验
+- 验证：`verify.py` ALL PASS（27 断言）、`verify_vl.py` ALL PASS、`bench_vl.py`（负载哨兵 + `cache_n` 校验）、`measure_window.py`（GO/NO-GO 闸门）
 - 复跑一键：`platform/r12/models/start-all.sh {up|down|status|restart}`
+- 注：PID 与 RSS 是**快照时点**，重启后会变；判定服务是否健康请用 `start-all.sh status` 或 `measure_window.py`，不要引用本节 PID。
 
 ## 10. 线程预算（结构性瓶颈，待 TL 裁定 A/B）
 

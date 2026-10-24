@@ -52,7 +52,7 @@ export const defaultStyles: any = {
     icons: {
       aiAvatar: "/icons/sheets.png",
       userAvatar:
-        "http://10.15.12.13:9000/dev-rag-data/header_pic/JIABINBIN00/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20231212161213.jpg",
+        "/minio/dev-rag-data/header_pic/JIABINBIN00/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20231212161213.jpg",
       // 使用 zui-icon 新版本图标（Files/xxx_color 格式）
       pdf: <Icon type="Files/pdf_color" size={18} />,
       docx: <Icon type="Files/docx_color" size={18} />,

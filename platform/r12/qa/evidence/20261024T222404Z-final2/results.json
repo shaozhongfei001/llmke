@@ -1,0 +1,8 @@
+[
+  {
+    "scene": "S2",
+    "case": "知识库存在(qa_r12_final)",
+    "verdict": "PASS",
+    "detail": "kbId=10 primitive=kb_10 private=0"
+  }
+]

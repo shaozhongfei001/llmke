@@ -1,0 +1,32 @@
+[
+  {
+    "file_id": 51,
+    "ext": "docx",
+    "cited_len": 0,
+    "coverage": 0.0,
+    "n_elements": 0,
+    "page_numbers": [
+      0
+    ],
+    "page_ok": true,
+    "has_offset_or_position": true,
+    "chunk_api_total": 0,
+    "chunk_api_ok": false,
+    "source": "r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+  },
+  {
+    "file_id": 53,
+    "ext": "pptx",
+    "cited_len": 0,
+    "coverage": 0.0,
+    "n_elements": 0,
+    "page_numbers": [
+      0
+    ],
+    "page_ok": true,
+    "has_offset_or_position": true,
+    "chunk_api_total": 0,
+    "chunk_api_ok": false,
+    "source": "r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx"
+  }
+]

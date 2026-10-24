@@ -165,7 +165,7 @@ const FileList: React.FC<FileListProps> = ({
                     const { page_content, id, pic_url_list, metadata } = l;
                     const { chunk_type, image_path } = metadata;
                     // pic_url_list.push(
-                    //   "http://10.15.12.13:9000/dev-rag-data/演示富文本/演示富文本_保险Ⅱ行业点评报告国常会个人养老金个人所得税优惠政策点评优限额降税费个人参与积极性有望提升行业研报/V0/parsed/images/image-4.jpg"
+                    //   "/minio/dev-rag-data/演示富文本/演示富文本_保险Ⅱ行业点评报告国常会个人养老金个人所得税优惠政策点评优限额降税费个人参与积极性有望提升行业研报/V0/parsed/images/image-4.jpg"
                     // )
                     // console.log(l)
                     return (

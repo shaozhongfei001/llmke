@@ -21,21 +21,20 @@ const helps: Helps = { AppPassportProvider, useAppPassport };
 export { AppPassportProvider, useAppPassport };
 export default helps;
 
+/**
+ * 统一把「存储绝对地址」改写成走本前端反代的相对路径。
+ * R12：原实现被改成 `return url || ""`（等价失效），导致引用点开时浏览器直连
+ * 内网/本机 MinIO 绝对地址（含历史内网主机与 9000 端口写法）跨域或不可达。
+ * 现在统一收敛到 VITE_MINIO_PREFIX（dev=/minio 走 vite proxy，prod=/minio 走 nginx）。
+ * 兼容三种输入：已是相对路径、绝对 http(s) 地址、纯对象键（bucket/key...）。
+ */
 export const dealMinioUrl = (url: string) => {
-  // | undefined | string[]
-  return url || "";
-  // if (!url) return "";
-  // if (Array.isArray(url)) {
-  //   const urlArr = url.map((item) => {
-  //     const arr = item.split("/").slice(3);
-  //     return `${getMinioUrlPrefix()}/` + arr.join("/");
-  //   });
-  //   return urlArr;
-  // }
-
-  // const arr = url.split("/").slice(3);
-
-  // return `${getMinioUrlPrefix()}/` + arr.join("/");
+  if (!url) return "";
+  const prefix = import.meta.env.VITE_MINIO_PREFIX || "/minio";
+  if (url.startsWith("/")) return url;
+  const absMatch = url.match(/^https?:\/\/[^/]+\/(.*)$/i);
+  if (absMatch) return `${prefix}/${absMatch[1]}`;
+  return `${prefix}/${url.replace(/^\/+/, "")}`;
 };
 
 export const uniqArr2By = (array1: any[], array2: any[], key: string) => {
@@ -64,7 +63,9 @@ export const isImage = (type: string) => {
   return ["png", "jpg", "jpeg"].includes(type);
 };
 
-export const TempBaseUrl = `http://${location.hostname}:9000/`;
+// R12：原为 `http://${location.hostname}:9000/`（硬编码 MinIO 9000 且跨域），
+// 改为本前端反代前缀（dev=/minio via vite proxy，prod=/minio via nginx → 127.0.0.1:19000）
+export const TempBaseUrl = `${import.meta.env.VITE_MINIO_PREFIX || "/minio"}/`;
 
 export const getFileHost = (convertedPath: string) => {
   if (convertedPath.includes("http")) {

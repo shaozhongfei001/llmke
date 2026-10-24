@@ -12,7 +12,7 @@ export const transformDbDetail = (data: any) => {
   //     "password": "Gientech!2024",
   //     "type": 0,
   //     "driver": "com.mysql.cj.jdbc.Driver",
-  //     "address": "10.15.12.13:3306",
+  //     "address": "127.0.0.1:3306",
   //     "creatorId": "1000",
   //     "modifiedBy": "1000",
   //     "gmtCreate": "2025-03-21 17:46:56",

@@ -1,0 +1,14 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.024
+  }
+]

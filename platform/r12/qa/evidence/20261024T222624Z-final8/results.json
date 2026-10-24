@@ -1,0 +1,80 @@
+[
+  {
+    "scene": "S2",
+    "case": "知识库存在(qa_r12_final)",
+    "verdict": "PASS",
+    "detail": "kbId=10 primitive=kb_10 private=0"
+  },
+  {
+    "scene": "S3",
+    "case": "复用库内已有文件（未重传）",
+    "verdict": "PASS",
+    "detail": "kbId=10 文件数=5"
+  },
+  {
+    "scene": "S2",
+    "case": "检索配置已存在（复用）",
+    "verdict": "PASS",
+    "detail": "configId=7 kb=kb_10"
+  },
+  {
+    "scene": "S5",
+    "case": "提问1（21字）得到模型回答",
+    "verdict": "PASS",
+    "detail": "http=200 帧=25 答案长度=197"
+  },
+  {
+    "scene": "S5",
+    "case": "提问1 返回引用",
+    "verdict": "PASS",
+    "detail": "引用条数=2"
+  },
+  {
+    "scene": "S5",
+    "case": "提问2（23字）得到模型回答",
+    "verdict": "PASS",
+    "detail": "http=200 帧=24 答案长度=196"
+  },
+  {
+    "scene": "S5",
+    "case": "提问2 返回引用",
+    "verdict": "PASS",
+    "detail": "引用条数=2"
+  },
+  {
+    "scene": "S5",
+    "case": "换措辞后命中相同文件（语义检索证据）",
+    "verdict": "PASS",
+    "detail": "措辞1文件=['51', '53'] 措辞2文件=['51', '53'] 交集=['51', '53']"
+  },
+  {
+    "scene": "S6",
+    "case": "引用 file_id 属于本库已上传文件",
+    "verdict": "PASS",
+    "detail": "2 个引用 file_id 全部属于本库(5 个文件)"
+  },
+  {
+    "scene": "S6",
+    "case": "提问请求体不含正文文本字段",
+    "verdict": "PASS",
+    "detail": "payload 字段=['configId', 'content', 'queryId', 'sessionId', 'sysType', 'type'] content=21≈问题=21"
+  },
+  {
+    "scene": "S6",
+    "case": "答案要点能在引用原文中找到支撑（强要素覆盖 ≥60%）",
+    "verdict": "PASS",
+    "detail": "强要素 20 个，覆盖 65.0%（2-gram 参考值 58.8%）；缺失示例 ['最长为三', '造贷的单', '贷的单户', '限最长为', '的单户最']"
+  },
+  {
+    "scene": "S6",
+    "case": "引用定位信息合法（pdf 有页码 / 非 pdf 有 offset 或坐标）",
+    "verdict": "PASS",
+    "detail": "docx#51 pages=[0] off=True; pptx#53 pages=[0] off=True"
+  },
+  {
+    "scene": "S6",
+    "case": "引用所属文件的分块可被接口取到（点击定位前提）",
+    "verdict": "FAIL",
+    "detail": "docx#51 chunk_api=0; pptx#53 chunk_api=0"
+  }
+]

@@ -1,0 +1,170 @@
+[
+  {
+    "scene": "S2",
+    "case": "知识库存在(qa_r12_final)",
+    "verdict": "PASS",
+    "detail": "kbId=10 primitive=kb_10 private=0"
+  },
+  {
+    "scene": "S8",
+    "case": "N1 无 token 访问受保护接口",
+    "verdict": "PASS",
+    "detail": "无 token http=401，对照 http=200",
+    "extra": {
+      "obs": {
+        "status": 401,
+        "control_status": 200,
+        "snippet": "{'errorCode': '30022', 'errorMsg': '没有token', 'success': False}"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N2 伪造 JWT（alg=none / 伪签名）",
+    "verdict": "PASS",
+    "detail": "3 种伪造 token 全部拒绝: alg_none->401, wrong_sig->401, random->401",
+    "extra": {
+      "obs": {
+        "control_status": 200,
+        "results": [
+          {
+            "label": "alg_none",
+            "status": 401
+          },
+          {
+            "label": "wrong_sig",
+            "status": 401
+          },
+          {
+            "label": "random",
+            "status": 401
+          }
+        ]
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N3 篡改 token payload 保留原签名",
+    "verdict": "PASS",
+    "detail": "篡改 token http=401",
+    "extra": {
+      "obs": {
+        "status": 401,
+        "control_status": 200,
+        "leaked_admin": false,
+        "who": "qa_user_c->admin",
+        "snippet": "{'errorCode': '30013', 'errorMsg': '登录失效已过，请重新登录', 'success': False}"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N4 会话注销后旧 token 复用",
+    "verdict": "PASS",
+    "detail": "注销后旧 token http=401",
+    "extra": {
+      "obs": {
+        "status": 401,
+        "control_status": 200
+      }
+    }
+  },
+  {
+    "scene": "S2",
+    "case": "知识库存在(qa_r12_priv)",
+    "verdict": "PASS",
+    "detail": "kbId=7 primitive=kb_7 private=1"
+  },
+  {
+    "scene": "S8",
+    "case": "N5 越权：非属主读他人私有知识库",
+    "verdict": "FAIL",
+    "detail": "越权：非属主 qa_user_b 读到他人私有库 kbId=7（owner=admin）共 1 条文件记录",
+    "extra": {
+      "obs": {
+        "status": 200,
+        "n_records": 1,
+        "kb_private": 1,
+        "kb_id": "7",
+        "kb_owner": "admin",
+        "who": "qa_user_b",
+        "snippet": "{'success': True, 'errorMsg': None, 'errorCode': None, 'data': {'records': [{'id': '56', 'kbId': '7', 'fileName': None, 'fileSize': None, 'size': 'nullMB', 'filePath': None, 'fullTextPath': None, 'con"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N5b 非属主按 fileId 直读他人文件",
+    "verdict": "PASS",
+    "detail": "http=200 data=null(未泄露) resp={\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": null}"
+  },
+  {
+    "scene": "S8",
+    "case": "N5c 越权删除他人私有库文件",
+    "verdict": "PASS",
+    "detail": "file_id=56 http=200 resp={\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": false}"
+  },
+  {
+    "scene": "S8",
+    "case": "N6 网关白名单端点未授权可达",
+    "verdict": "PASS",
+    "detail": "2 个白名单端点均返回 (401, 403)",
+    "extra": {
+      "obs": {
+        "results": [
+          {
+            "path": "/index/knowledgeBase/file/list?kbId=1&type=1",
+            "method": "GET",
+            "status": 401,
+            "snippet": "{'errorCode': '30022', 'errorMsg': '没有token', 'success': False}"
+          },
+          {
+            "path": "/index/knowledgeBase/file/multiple/version?kbId=1&type=1",
+            "method": "GET",
+            "status": 401,
+            "snippet": "{'errorCode': '30022', 'errorMsg': '没有token', 'success': False}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N6b 内部回写入口仍免 token（R12-KNOWN-01）",
+    "verdict": "FAIL",
+    "detail": "未授权可达: /index/parseTask/callback->500({'success': False, 'errorMsg': 'Cannot i); /index/knowledgeBase/file/uploadParsedFile?kbId=1&fileId=1&userId=1->500({'success': False, 'errorMsg': '知识库不存在',)"
+  },
+  {
+    "scene": "S8",
+    "case": "N7 坏文件必须明确失败（随机字节）",
+    "verdict": "PASS",
+    "detail": "进入解析失败态 status=4，chunk=0",
+    "extra": {
+      "obs": {
+        "reject": false,
+        "http": 200,
+        "snippet": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"57\", \"kbId\": \"10\", \"fileName\": \"random-bytes.pdf\", \"fileSize\": 4096.0, \"size\":",
+        "final_status": 4,
+        "chunk_count": 0,
+        "file_id": "57"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N8 扩展名伪装文件必须明确失败",
+    "verdict": "PASS",
+    "detail": "进入解析失败态 status=4，chunk=0",
+    "extra": {
+      "obs": {
+        "reject": false,
+        "http": 200,
+        "snippet": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"66\", \"kbId\": \"10\", \"fileName\": \"plain-text-pretend.pdf\", \"fileSize\": 2820.0, \"",
+        "final_status": 4,
+        "chunk_count": 0,
+        "file_id": "66"
+      }
+    }
+  }
+]

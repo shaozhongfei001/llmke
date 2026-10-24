@@ -48,7 +48,7 @@ const cases = [
           {
             fileId: 12,
             fileName: "xxxxx年报",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年报.pdf",
+            fileUrl: "/minio/xxxxx年报.pdf",
             pageId: 5,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -63,7 +63,7 @@ const cases = [
           {
             fileId: 11,
             fileName: "xxxxx年报111",
-            fileUrl: "http://10.15.12.13:9009/xx1111xxx年报.pdf",
+            fileUrl: "/minio/xx1111xxx年报.pdf",
             pageId: 5,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -86,7 +86,7 @@ const cases = [
           {
             fileId: 12,
             fileName: "xxxxx年报",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年报.pdf",
+            fileUrl: "/minio/xxxxx年报.pdf",
             pageId: 5,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -101,7 +101,7 @@ const cases = [
           {
             fileId: 11,
             fileName: "xxxxx年报111",
-            fileUrl: "http://10.15.12.13:9009/xx1111xxx年报.pdf",
+            fileUrl: "/minio/xx1111xxx年报.pdf",
             pageId: 5,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -124,7 +124,7 @@ const cases = [
           {
             fileId: 123,
             fileName: "xxxxx年报3",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年3报.pdf",
+            fileUrl: "/minio/xxxxx年3报.pdf",
             pageId: 5,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -139,7 +139,7 @@ const cases = [
           {
             fileId: 1233,
             fileName: "xxxxx年报33",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年33报.pdf",
+            fileUrl: "/minio/xxxxx年33报.pdf",
             pageId: 53,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -162,7 +162,7 @@ const cases = [
     //       {
     //         fileId: 12,
     //         fileName: "000xxxxx年报44",
-    //         fileUrl: "http://10.15.12.13:9009/xxxxx年报44.pdf",
+    //         fileUrl: "/minio/xxxxx年报44.pdf",
     //         pageId: 5,
     //         position: "[417, 729, 534, 729, 534, 762, 417, 762]"
     //       }
@@ -185,7 +185,7 @@ const cases = [
           {
             fileId: 12,
             fileName: "111xxxxx年报44",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年报44.pdf",
+            fileUrl: "/minio/xxxxx年报44.pdf",
             pageId: 5,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -203,7 +203,7 @@ const cases = [
           {
             fileId: 13444,
             fileName: "111xxxxx年报4444",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年报444.pdf",
+            fileUrl: "/minio/xxxxx年报444.pdf",
             pageId: 5444,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -219,7 +219,7 @@ const cases = [
               {
                 fileId: 12,
                 fileName: "222subxxxxx年报44",
-                fileUrl: "http://10.15.12.13:9009/xxxxx年报sub44.pdf",
+                fileUrl: "/minio/xxxxx年报sub44.pdf",
                 pageId: 5,
                 position: "[417, 729, 534, 729, 534, 762, 417, 762]"
               }
@@ -235,7 +235,7 @@ const cases = [
               {
                 fileId: 13444,
                 fileName: "222subxxxxx年报4444",
-                fileUrl: "http://10.15.12.13:9009/xxxxx年报sub444.pdf",
+                fileUrl: "/minio/xxxxx年报sub444.pdf",
                 pageId: 5444,
                 position: "[417, 729, 534, 729, 534, 762, 417, 762]"
               }
@@ -255,7 +255,7 @@ const cases = [
           {
             fileId: 13444,
             fileName: "111xxxxx年报4444",
-            fileUrl: "http://10.15.12.13:9009/xxxxx年报444.pdf",
+            fileUrl: "/minio/xxxxx年报444.pdf",
             pageId: 5444,
             position: "[417, 729, 534, 729, 534, 762, 417, 762]"
           }
@@ -271,7 +271,7 @@ const cases = [
               {
                 fileId: 12,
                 fileName: "333sub777xxxxx年报44",
-                fileUrl: "http://10.15.12.13:9009/xxxxx年报sub77744.pdf",
+                fileUrl: "/minio/xxxxx年报sub77744.pdf",
                 pageId: 5,
                 position: "[417, 729, 534, 729, 534, 762, 417, 762]"
               }
@@ -287,7 +287,7 @@ const cases = [
               {
                 fileId: 13444,
                 fileName: "333sub7777xxxxx年报4444",
-                fileUrl: "http://10.15.12.13:9009/xxxxx年报sub777444.pdf",
+                fileUrl: "/minio/xxxxx年报sub777444.pdf",
                 pageId: 57,
                 position: "[417, 729, 534, 729, 534, 762, 417, 762]"
               }

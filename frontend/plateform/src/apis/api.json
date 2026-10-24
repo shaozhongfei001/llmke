@@ -9,7 +9,7 @@
     },
     "servers": [
       {
-        "url": "http://10.15.12.13:2230/auth",
+        "url": "/auth",
         "description": "Generated server url"
       }
     ],

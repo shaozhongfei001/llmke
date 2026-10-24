@@ -1,0 +1,241 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.024
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/list?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.02
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/list?kbId=10&pageNo=1&pageSize=100",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.156
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=51",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=51&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.044
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=52",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=52&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.045
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=53",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.021
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=53&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.043
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=54",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=54&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.04
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=55",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=55&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.047
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/search/config/searchList?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.013
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/qa/ai/question_re",
+    "status": 200,
+    "req_keys": [
+      "configId",
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "query_len": 21,
+    "elapsed": 19.118
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/qa/ai/question_re",
+    "status": 200,
+    "req_keys": [
+      "configId",
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "query_len": 23,
+    "elapsed": 22.212
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=51&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.044
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=53&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.044
+  }
+]

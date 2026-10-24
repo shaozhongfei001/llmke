@@ -1,0 +1,208 @@
+[
+  {
+    "q": "智造贷这个产品的授信额度是多少？期限多长？",
+    "qid": "qa-1792880784351-0",
+    "answer": "智造贷的单户最高授信额度为人民币5000万元。[retrive-tag id=\"2244568281013590219\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag][retrive-tag id=\"4263948634322265178\" image_urls=\"\" fromType=\"0\"][1][/retrive-tag]贷款期限最长为三年。",
+    "refs": [
+      {
+        "metadata": {
+          "source": "r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+          "file_path": "r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+          "id": "cjEyLXJhZy9rYl8xMC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3gvVjAvUjEyRklYLXByb2R1Y3QtbG9hbi5kb2N4",
+          "search_type": [
+            "es",
+            "milvus"
+          ],
+          "offset": [
+            [
+              0,
+              459
+            ]
+          ],
+          "pic_offset_list": [],
+          "chunk_type": "text",
+          "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+          "file_id": 51,
+          "image_path": "",
+          "page_size": "[[0, 0]]",
+          "page_number": [
+            0
+          ],
+          "table_name": "",
+          "chunk_index": 0,
+          "score": 0.9941334128379822,
+          "rerank_score_rank": 1,
+          "rrf_score": 0.6666666666666666,
+          "rrf_score_rank": 2
+        },
+        "order_num": "2244568281013590219",
+        "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "rerank_score_rank": "1",
+        "rrf_score": "0.6666666666666666",
+        "rrf_score_rank": "2",
+        "score": "0.9941334128379822",
+        "sourceFileName": "R12FIX-product-loan.docx",
+        "type": "text"
+      },
+      {
+        "metadata": {
+          "source": "r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+          "file_path": "r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+          "id": "cjEyLXJhZy9rYl8xMC9SMTJGSVgtcHJvZHVjdC1pbnRyby5wcHR4L1YwL1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHg=",
+          "search_type": [
+            "es",
+            "milvus"
+          ],
+          "offset": [
+            [
+              0,
+              123
+            ]
+          ],
+          "pic_offset_list": [],
+          "chunk_type": "text",
+          "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+          "file_id": 53,
+          "image_path": "",
+          "page_size": "[[0, 0]]",
+          "page_number": [
+            0
+          ],
+          "table_name": "",
+          "chunk_index": 0,
+          "score": 0.993851900100708,
+          "rerank_score_rank": 2,
+          "rrf_score": 0.3333333333333333,
+          "rrf_score_rank": 3
+        },
+        "order_num": "4263948634322265178",
+        "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+        "rerank_score_rank": "2",
+        "rrf_score": "0.3333333333333333",
+        "rrf_score_rank": "3",
+        "score": "0.993851900100708",
+        "sourceFileName": "R12FIX-product-intro.pptx",
+        "type": "text"
+      }
+    ],
+    "req_keys": [
+      "configId",
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "req_body": {
+      "sessionId": "qa-sess-1792880784",
+      "queryId": "qa-1792880784351-0",
+      "content": "智造贷这个产品的授信额度是多少？期限多长？",
+      "type": "text",
+      "sysType": "KNO_INDEX",
+      "configId": 7
+    }
+  },
+  {
+    "q": "智造贷给企业的贷款最多能批多少钱，可以贷几年？",
+    "qid": "qa-1792880825226-1",
+    "answer": "智造贷单户最高授信额度为人民币5000万元，贷款期限最长为三年。[retrive-tag id=\"1372371217783123611\" image_urls=\"\" fromType=\"0\"][1][/retrive-tag][retrive-tag id=\"2020986643712560613\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]",
+    "refs": [
+      {
+        "metadata": {
+          "source": "r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+          "file_path": "r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+          "id": "cjEyLXJhZy9rYl8xMC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3gvVjAvUjEyRklYLXByb2R1Y3QtbG9hbi5kb2N4",
+          "search_type": [
+            "es",
+            "milvus"
+          ],
+          "offset": [
+            [
+              0,
+              459
+            ]
+          ],
+          "pic_offset_list": [],
+          "chunk_type": "text",
+          "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+          "file_id": 51,
+          "image_path": "",
+          "page_size": "[[0, 0]]",
+          "page_number": [
+            0
+          ],
+          "table_name": "",
+          "chunk_index": 0,
+          "score": 0.9682745933532715,
+          "rerank_score_rank": 1,
+          "rrf_score": 0.6666666666666666,
+          "rrf_score_rank": 1
+        },
+        "order_num": "2020986643712560613",
+        "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_10/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "rerank_score_rank": "1",
+        "rrf_score": "0.6666666666666666",
+        "rrf_score_rank": "1",
+        "score": "0.9682745933532715",
+        "sourceFileName": "R12FIX-product-loan.docx",
+        "type": "text"
+      },
+      {
+        "metadata": {
+          "source": "r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+          "file_path": "r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+          "id": "cjEyLXJhZy9rYl8xMC9SMTJGSVgtcHJvZHVjdC1pbnRyby5wcHR4L1YwL1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHg=",
+          "search_type": [
+            "es",
+            "milvus"
+          ],
+          "offset": [
+            [
+              0,
+              123
+            ]
+          ],
+          "pic_offset_list": [],
+          "chunk_type": "text",
+          "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+          "file_id": 53,
+          "image_path": "",
+          "page_size": "[[0, 0]]",
+          "page_number": [
+            0
+          ],
+          "table_name": "",
+          "chunk_index": 0,
+          "score": 0.9614272117614746,
+          "rerank_score_rank": 2,
+          "rrf_score": 0.3333333333333333,
+          "rrf_score_rank": 2
+        },
+        "order_num": "1372371217783123611",
+        "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_10/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+        "rerank_score_rank": "2",
+        "rrf_score": "0.3333333333333333",
+        "rrf_score_rank": "2",
+        "score": "0.9614272117614746",
+        "sourceFileName": "R12FIX-product-intro.pptx",
+        "type": "text"
+      }
+    ],
+    "req_keys": [
+      "configId",
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "req_body": {
+      "sessionId": "qa-sess-1792880784",
+      "queryId": "qa-1792880825226-1",
+      "content": "智造贷给企业的贷款最多能批多少钱，可以贷几年？",
+      "type": "text",
+      "sysType": "KNO_INDEX",
+      "configId": 7
+    }
+  }
+]

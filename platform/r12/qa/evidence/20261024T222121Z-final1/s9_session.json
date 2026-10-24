@@ -1,0 +1,52 @@
+{
+  "sessionId": "qa-s9-1792880563",
+  "get": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": {
+      "label": "QA独立复核会话",
+      "sessionId": "qa-s9-1792880563",
+      "gmtCreate": "2026-10-25 06:22:43",
+      "gmtModified": "2026-10-25 06:22:43",
+      "createBy": "admin",
+      "updateBy": "admin",
+      "filePath": "http://127.0.0.1:19000",
+      "configId": null,
+      "kbId": null,
+      "queryReplyPairList": [],
+      "searchConfigDTO": {
+        "id": "1",
+        "status": 1,
+        "isDefault": 1,
+        "configJson": "{\"knowledge_base_name\": \"kb_9\", \"model_name\": \"qwen2.5-7b-instruct\", \"rerank_model_name\": \"bge-reranker-v2-m3\", \"plan_model_name\": \"qwen2.5-7b-instruct\", \"recommend_model_name\": \"qwen2.5-7b-instruct\", \"enabled_llm\": true, \"need_trace_source\": true, \"enabled_rerank\": true, \"enabled_faq\": false, \"score_threshold\": 0.001, \"top_k\": 10, \"max_round\": 5, \"enable_thinking\": false, \"enable_web_search\": false, \"enabled_table_select\": false, \"enable_database\": false}",
+        "name": "R12默认问答配置",
+        "des": "默认(kb_9)",
+        "createBy": "admin",
+        "gmtCreate": "2026-10-25 05:20:42",
+        "permission": null,
+        "sensitiveWordIds": null,
+        "defaultAnswer": null,
+        "model": false,
+        "enabledFaq": 0,
+        "dependOnKb": 0,
+        "isDel": 1
+      }
+    }
+  },
+  "list_rows": [
+    {
+      "label": "QA独立复核会话",
+      "sessionId": "qa-s9-1792880563",
+      "gmtCreate": "2026-10-25 06:22:43",
+      "gmtModified": "2026-10-25 06:22:43",
+      "createBy": "admin",
+      "updateBy": "admin",
+      "filePath": null,
+      "configId": null,
+      "kbId": null,
+      "queryReplyPairList": null,
+      "searchConfigDTO": null
+    }
+  ]
+}

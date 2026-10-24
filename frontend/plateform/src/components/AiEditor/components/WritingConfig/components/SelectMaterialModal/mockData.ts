@@ -12,11 +12,11 @@ export const mockData = [
     fileSize: 0.06,
     size: "0.06MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/60号文识别点.xlsx",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/60号文识别点.xlsx",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/parsed/60号文识别点.xlsx.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/parsed/60号文识别点.xlsx.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/parsed/60号文识别点.xlsx.md",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/parsed/60号文识别点.xlsx.md",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -24,7 +24,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/parsed/60号文识别点.xlsx.md",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V0/parsed/60号文识别点.xlsx.md",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_号文识别点",
@@ -56,11 +56,11 @@ export const mockData = [
     fileSize: 0.02,
     size: "0.02MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）(1).txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）(1).txt",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/parsed/保险保障基金管理办法（2020年修订）(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/parsed/保险保障基金管理办法（2020年修订）(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -68,7 +68,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）(1).pdf",
     faqExtractStatus: null,
     reviseDate: "2020",
     parentFileName: "newtest_保险保障基金管理办法",
@@ -100,11 +100,11 @@ export const mockData = [
     fileSize: 0.02,
     size: "0.02MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）.txt",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/parsed/保险保障基金管理办法（2020年修订）.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/parsed/保险保障基金管理办法（2020年修订）.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -112,7 +112,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险保障基金管理办法/V0/保险保障基金管理办法（2020年修订）.pdf",
     faqExtractStatus: null,
     reviseDate: "2020",
     parentFileName: "newtest_保险保障基金管理办法",
@@ -144,11 +144,11 @@ export const mockData = [
     fileSize: 0.05,
     size: "0.05MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/黄佑铭蛙泳课程计划.docx",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/黄佑铭蛙泳课程计划.docx",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/parsed/黄佑铭蛙泳课程计划.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/parsed/黄佑铭蛙泳课程计划.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/黄佑铭蛙泳课程计划.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/黄佑铭蛙泳课程计划.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -156,7 +156,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/黄佑铭蛙泳课程计划.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_黄佑铭蛙泳课程计划/V0/黄佑铭蛙泳课程计划.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_黄佑铭蛙泳课程计划",
@@ -188,11 +188,11 @@ export const mockData = [
     fileSize: 2.09,
     size: "2.09MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/d.html",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/d.html",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/parsed/d.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/parsed/d.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/d.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/d.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -200,7 +200,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/d.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_dhtml/V0/d.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_dhtml",
@@ -232,11 +232,11 @@ export const mockData = [
     fileSize: 0.15,
     size: "0.15MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/索引管理.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/索引管理.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/parsed/索引管理.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/parsed/索引管理.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/索引管理.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/索引管理.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -244,7 +244,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/索引管理.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_索引管理/V0/索引管理.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_索引管理",
@@ -284,11 +284,11 @@ export const mockData = [
     fileSize: 0.06,
     size: "0.06MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/60号文识别点(1).xlsx",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/60号文识别点(1).xlsx",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/parsed/60号文识别点(1).xlsx.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/parsed/60号文识别点(1).xlsx.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/parsed/60号文识别点(1).xlsx.md",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/parsed/60号文识别点(1).xlsx.md",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -296,7 +296,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/parsed/60号文识别点(1).xlsx.md",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_号文识别点/V1/parsed/60号文识别点(1).xlsx.md",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_号文识别点",
@@ -328,11 +328,11 @@ export const mockData = [
     fileSize: 0.24,
     size: "0.24MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/104717j3fbnbxn3gt9ifnc.jpg",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/104717j3fbnbxn3gt9ifnc.jpg",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/parsed/104717j3fbnbxn3gt9ifnc.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/parsed/104717j3fbnbxn3gt9ifnc.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/104717j3fbnbxn3gt9ifnc.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/104717j3fbnbxn3gt9ifnc.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -340,7 +340,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/104717j3fbnbxn3gt9ifnc.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_jfbnbxngtifnc/V0/104717j3fbnbxn3gt9ifnc.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_jfbnbxngtifnc",
@@ -372,11 +372,11 @@ export const mockData = [
     fileSize: 0.67,
     size: "0.67MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/382211351.jpg",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/382211351.jpg",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/parsed/382211351.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/parsed/382211351.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/382211351.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/382211351.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -384,7 +384,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/382211351.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_382211351/V0/382211351.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_382211351",
@@ -416,11 +416,11 @@ export const mockData = [
     fileSize: 1.88,
     size: "1.88MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/背景.png",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/背景.png",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/parsed/背景.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/parsed/背景.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/背景.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/背景.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -428,7 +428,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/背景.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_背景/V0/背景.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_背景",
@@ -468,11 +468,11 @@ export const mockData = [
     fileSize: 0.22,
     size: "0.22MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/保险销售行为管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/保险销售行为管理办法.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/parsed/保险销售行为管理办法.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/parsed/保险销售行为管理办法.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/保险销售行为管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/保险销售行为管理办法.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -480,7 +480,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/保险销售行为管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_保险销售行为管理办法/V0/保险销售行为管理办法.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_保险销售行为管理办法",
@@ -513,11 +513,11 @@ export const mockData = [
     fileSize: 0.13,
     size: "0.13MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/parsed/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/parsed/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -525,7 +525,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知/V0/财政部国务院国资委金融监管总局关于加强审计报告查验工作的通知.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -566,11 +566,11 @@ export const mockData = [
     fileSize: 0.19,
     size: "0.19MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/个人贷款管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/个人贷款管理办法.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/parsed/个人贷款管理办法.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/parsed/个人贷款管理办法.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/个人贷款管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/个人贷款管理办法.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -578,7 +578,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/个人贷款管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_个人贷款管理办法/V0/个人贷款管理办法.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_个人贷款管理办法",
@@ -619,11 +619,11 @@ export const mockData = [
     fileSize: 0.1,
     size: "0.1MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/parsed/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/parsed/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -631,7 +631,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V0/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -673,11 +673,11 @@ export const mockData = [
     fileSize: 0.12,
     size: "0.12MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/parsed/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/parsed/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -685,7 +685,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V0/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -719,11 +719,11 @@ export const mockData = [
     fileSize: 0.17,
     size: "0.17MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/parsed/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/parsed/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -731,7 +731,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V0/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -765,11 +765,11 @@ export const mockData = [
     fileSize: 0.12,
     size: "0.12MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/parsed/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/parsed/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -777,7 +777,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知/V1/国家金融监督管理总局关于个人税收递延型商业养老保险试点与个人养老金衔接有关事项的通知(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -811,11 +811,11 @@ export const mockData = [
     fileSize: 0.17,
     size: "0.17MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/parsed/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/parsed/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -823,7 +823,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知/V1/国家金融监督管理总局关于加强科技型企业全生命周期金融服务的通知(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -857,11 +857,11 @@ export const mockData = [
     fileSize: 0.1,
     size: "0.1MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/parsed/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/parsed/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -869,7 +869,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知/V1/国家金融监督管理总局关于加强中国出口信用保险公司地市级分支机构管理有关事项的通知(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -910,11 +910,11 @@ export const mockData = [
     fileSize: 0.19,
     size: "0.19MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/商业银行金融资产风险分类办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/商业银行金融资产风险分类办法.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/parsed/商业银行金融资产风险分类办法.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/parsed/商业银行金融资产风险分类办法.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/商业银行金融资产风险分类办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/商业银行金融资产风险分类办法.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -922,7 +922,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/商业银行金融资产风险分类办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V0/商业银行金融资产风险分类办法.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_商业银行金融资产风险分类办法",
@@ -954,11 +954,11 @@ export const mockData = [
     fileSize: 0.52,
     size: "0.52MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/商业银行资本管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/商业银行资本管理办法.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/parsed/商业银行资本管理办法.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/parsed/商业银行资本管理办法.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/商业银行资本管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/商业银行资本管理办法.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -966,7 +966,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/商业银行资本管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行资本管理办法/V0/商业银行资本管理办法.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_商业银行资本管理办法",
@@ -1006,11 +1006,11 @@ export const mockData = [
     fileSize: 0.16,
     size: "0.16MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/人身保险产品信息披露管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/人身保险产品信息披露管理办法.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/parsed/人身保险产品信息披露管理办法.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/parsed/人身保险产品信息披露管理办法.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/人身保险产品信息披露管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/人身保险产品信息披露管理办法.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1018,7 +1018,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/人身保险产品信息披露管理办法.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V0/人身保险产品信息披露管理办法.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_人身保险产品信息披露管理办法",
@@ -1050,11 +1050,11 @@ export const mockData = [
     fileSize: 0.16,
     size: "0.16MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/融资担保公司监督管理条例.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/融资担保公司监督管理条例.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/parsed/融资担保公司监督管理条例.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/parsed/融资担保公司监督管理条例.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/融资担保公司监督管理条例.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/融资担保公司监督管理条例.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1062,7 +1062,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/融资担保公司监督管理条例.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V0/融资担保公司监督管理条例.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_融资担保公司监督管理条例",
@@ -1095,11 +1095,11 @@ export const mockData = [
     fileSize: 0.14,
     size: "0.14MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/parsed/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/parsed/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1107,7 +1107,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V0/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号.pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -1140,11 +1140,11 @@ export const mockData = [
     fileSize: 0.16,
     size: "0.16MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/人身保险产品信息披露管理办法(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/人身保险产品信息披露管理办法(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/parsed/人身保险产品信息披露管理办法(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/parsed/人身保险产品信息披露管理办法(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/人身保险产品信息披露管理办法(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/人身保险产品信息披露管理办法(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1152,7 +1152,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/人身保险产品信息披露管理办法(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_人身保险产品信息披露管理办法/V1/人身保险产品信息披露管理办法(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_人身保险产品信息披露管理办法",
@@ -1184,11 +1184,11 @@ export const mockData = [
     fileSize: 0.16,
     size: "0.16MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/融资担保公司监督管理条例(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/融资担保公司监督管理条例(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/parsed/融资担保公司监督管理条例(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/parsed/融资担保公司监督管理条例(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/融资担保公司监督管理条例(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/融资担保公司监督管理条例(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1196,7 +1196,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/融资担保公司监督管理条例(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_融资担保公司监督管理条例/V1/融资担保公司监督管理条例(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_融资担保公司监督管理条例",
@@ -1229,11 +1229,11 @@ export const mockData = [
     fileSize: 0.14,
     size: "0.14MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/parsed/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/parsed/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1241,7 +1241,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令第号/V1/商业汇票承兑贴现与再贴现管理办法中国人民银行中国银行保险监督管理委员会令2022第4号(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName:
@@ -1274,11 +1274,11 @@ export const mockData = [
     fileSize: 0.19,
     size: "0.19MB",
     filePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/商业银行金融资产风险分类办法(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/商业银行金融资产风险分类办法(1).pdf",
     fullTextPath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/parsed/商业银行金融资产风险分类办法(1).pdf.txt",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/parsed/商业银行金融资产风险分类办法(1).pdf.txt",
     convertedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/商业银行金融资产风险分类办法(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/商业银行金融资产风险分类办法(1).pdf",
     status: 3,
     isEnable: 1,
     parseType: 1,
@@ -1286,7 +1286,7 @@ export const mockData = [
     fileType: null,
     embeddingModelName: null,
     parsedFilePath:
-      "http://10.15.12.13:9000/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/商业银行金融资产风险分类办法(1).pdf",
+      "/minio/dev-rag-data/intelbrain-dw/1035/newtest/newtest_商业银行金融资产风险分类办法/V1/商业银行金融资产风险分类办法(1).pdf",
     faqExtractStatus: null,
     reviseDate: null,
     parentFileName: "newtest_商业银行金融资产风险分类办法",

@@ -15,7 +15,7 @@ export const traverse = (nodes: Node[], handleFn: any) => {
   });
 };
 
-const DemoEnv = ["10.15.12.13:9009", "10.15.12.13:9005"];
+// R12：原 DemoEnv 内网地址常量未被任何代码引用（getDemoEnv 已硬编码 return true），删除以免残留内网主机
 const Include = ["10.64.7.145", "localhost"];
 
 // export const getDemoEnv = () => {

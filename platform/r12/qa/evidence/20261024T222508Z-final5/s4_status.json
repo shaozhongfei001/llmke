@@ -1,0 +1,52 @@
+[
+  {
+    "fileId": "51",
+    "name": "51",
+    "label": "51",
+    "kbId": "10",
+    "primitive": "kb_10",
+    "final_status": 3,
+    "chunk_count": 1,
+    "chunk_api_count": 0
+  },
+  {
+    "fileId": "52",
+    "name": "52",
+    "label": "52",
+    "kbId": "10",
+    "primitive": "kb_10",
+    "final_status": 3,
+    "chunk_count": 2,
+    "chunk_api_count": 1
+  },
+  {
+    "fileId": "53",
+    "name": "53",
+    "label": "53",
+    "kbId": "10",
+    "primitive": "kb_10",
+    "final_status": 3,
+    "chunk_count": 1,
+    "chunk_api_count": 0
+  },
+  {
+    "fileId": "54",
+    "name": "54",
+    "label": "54",
+    "kbId": "10",
+    "primitive": "kb_10",
+    "final_status": 3,
+    "chunk_count": 2,
+    "chunk_api_count": 2
+  },
+  {
+    "fileId": "55",
+    "name": "55",
+    "label": "55",
+    "kbId": "10",
+    "primitive": "kb_10",
+    "final_status": 3,
+    "chunk_count": 1,
+    "chunk_api_count": 1
+  }
+]

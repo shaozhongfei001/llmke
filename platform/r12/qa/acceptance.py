@@ -161,7 +161,7 @@ def s4(s, uploaded, timeout_s=600):
             if st != last:
                 print(f"    status {f['name']} -> {st}")
                 last = st
-            if st in (3,):  # 解析完成（KbFileStatusEnums）
+            if st == 3 or (f.get("expect") == "fail" and st == 4):
                 break
             time.sleep(3)
         expect = f.get("expect", "ok")

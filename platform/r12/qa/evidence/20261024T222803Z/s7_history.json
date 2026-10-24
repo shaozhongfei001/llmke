@@ -1,0 +1,143 @@
+{
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": {
+    "records": [
+      {
+        "label": null,
+        "sessionId": "kb_9",
+        "gmtCreate": "2026-10-25 06:02:25",
+        "gmtModified": "2026-10-25 06:30:03",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": null,
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-sess-1792880784",
+        "gmtCreate": "2026-10-25 06:26:24",
+        "gmtModified": "2026-10-25 06:27:05",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "7",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-sess-1792880721",
+        "gmtCreate": "2026-10-25 06:25:22",
+        "gmtModified": "2026-10-25 06:25:46",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "7",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-sess-1792880656",
+        "gmtCreate": "2026-10-25 06:24:16",
+        "gmtModified": "2026-10-25 06:24:36",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "7",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": "QA重复会话复现",
+        "sessionId": "qa-s9-1792880563-dup",
+        "gmtCreate": "2026-10-25 06:23:30",
+        "gmtModified": "2026-10-25 06:23:30",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": null,
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-s9-1792880563-dup",
+        "gmtCreate": "2026-10-25 06:22:43",
+        "gmtModified": "2026-10-25 06:22:43",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": null,
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": "QA独立复核会话",
+        "sessionId": "qa-s9-1792880563",
+        "gmtCreate": "2026-10-25 06:22:43",
+        "gmtModified": "2026-10-25 06:22:43",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": null,
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-sess-1792880526",
+        "gmtCreate": "2026-10-25 06:22:07",
+        "gmtModified": "2026-10-25 06:22:24",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "7",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-kb9-1792880359",
+        "gmtCreate": "2026-10-25 06:19:19",
+        "gmtModified": "2026-10-25 06:19:19",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "6",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "qa-q-1792880326",
+        "gmtCreate": "2026-10-25 06:18:47",
+        "gmtModified": "2026-10-25 06:18:47",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "5",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      }
+    ],
+    "total": 34,
+    "size": 10,
+    "current": 1,
+    "pages": 4
+  }
+}

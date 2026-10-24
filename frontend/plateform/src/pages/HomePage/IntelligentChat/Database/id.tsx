@@ -14,10 +14,7 @@ import PermisssonConfig, {
   TypeDrawConfig
 } from "../../../Components/PermissionConfig";
 import "@gientech/modual/style.css";
-const HOST_13 = `10.15.12.13`;
-const HOST_11 = `10.15.12.11`;
-const host =
-  window.location.hostname == HOST_11 ? HOST_11 + ":8889" : HOST_13 + ":8888";
+// R12：上传走相对路径（dev 由 vite 代理、prod 由 nginx 反代），不再拼内网主机
 
 export default function DatabasePage() {
   const navigator = useNavigate();
@@ -27,7 +24,7 @@ export default function DatabasePage() {
   const { getToken, getUserInfo } = useAppPassport();
   const token = getToken() || undefined;
   const useInfo = getUserInfo();
-  const uploadUrl = `http://${host}/index/database/dataTable/uploadFile`;
+  const uploadUrl = `/index/database/dataTable/uploadFile`;
 
   const [permission, setPermission] = useState();
 

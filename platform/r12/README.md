@@ -57,6 +57,9 @@ docker restart r12-es
 cd services/rag-java/rag-parent
 mvn -B -s ../../platform/r12/maven/settings-r12.xml -DskipTests install
 
+# 桶只读策略（让前端 /minio 反代能打开引用原文；仅隔离环境，生产改为后端流式转发/预签名）
+bash platform/r12/bin/set-minio-policy.sh
+
 # 前端
 cd frontend/plateform && npm install --legacy-peer-deps --registry=https://mirrors.tencent.com/npm/ && npm run build
 

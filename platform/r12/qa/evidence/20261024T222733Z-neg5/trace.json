@@ -1,0 +1,775 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.035
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/list?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.032
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/list?pageNo=1&pageSize=5",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.029
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/list?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.023
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 200,
+    "elapsed": 0.215
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 200,
+    "elapsed": 0.103
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.013
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.016
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.03
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.011
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.011
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.036
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.024
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=57",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=57&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 500,
+    "elapsed": 0.027
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 200,
+    "elapsed": 0.097
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.013
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.011
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.011
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.013
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.007
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.012
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.02
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.015
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.011
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.015
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.016
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.013
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.013
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.008
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.009
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileStatusById?fileId=66",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.01
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/file/getFileChunks?kbId=10&docId=66&pageNo=1&pageSize=200",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 500,
+    "elapsed": 0.028
+  }
+]
