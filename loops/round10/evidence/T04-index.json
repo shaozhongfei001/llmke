@@ -85,7 +85,12 @@
     },
     "state_md": true,
     "tasks": {
-      "present": false
+      "by_status": {
+        "BLOCKED_EXTERNAL": 4,
+        "VERIFIED": 4
+      },
+      "count": 8,
+      "present": true
     }
   },
   "round8": {

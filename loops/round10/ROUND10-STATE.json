@@ -1,0 +1,59 @@
+{
+  "round": 10,
+  "status": "CLOSED",
+  "head_at_report": "eec8b7ac2a42875db8e688f61204293f6aa9b374",
+  "tree_sha": "49b01d7137882c296774db6c950524add9534d49",
+  "tasks": {
+    "R10-T01": {
+      "status": "VERIFIED",
+      "desc": "状态重建与账本",
+      "owner": "tech-lead",
+      "evidence": "loops/round10/ROUND10-STATE.md"
+    },
+    "R10-T02": {
+      "status": "VERIFIED",
+      "desc": "HTTP 入口 + 11 条语义测试",
+      "owner": "python-rag-agent",
+      "evidence": "loops/round10/evidence/T02-http-tests.log"
+    },
+    "R10-T03": {
+      "status": "VERIFIED",
+      "desc": "真库 HTTP 端到端 3 条",
+      "owner": "python-rag-agent",
+      "evidence": "loops/round10/evidence/T03-http-db.log"
+    },
+    "R10-T04": {
+      "status": "VERIFIED",
+      "desc": "收口冻结 + r13 候选（8 pass + QA_PENDING）",
+      "owner": "tech-lead",
+      "evidence": "loops/round10/evidence/T02-framework-verify.log"
+    },
+    "R10-T05": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "route export 与调用方确认（P0-01）",
+      "owner": "interface-owner"
+    },
+    "R10-T06": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "生产 DDL 与恢复副本（P0-02）",
+      "owner": "data-owner"
+    },
+    "R10-T07": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "E1 规范批准（P0-03）",
+      "owner": "security-owner"
+    },
+    "R10-T08": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "generation_id / claimed_at 加列（P0-04）",
+      "owner": "index-owner"
+    }
+  },
+  "gates": {
+    "framework_verify": "rc=0 / 317 passed / 0 skipped",
+    "evidence_r13": "PASS",
+    "p0_gate": "rc=2",
+    "freeze": "revision 14 / 220 文件 / 1.1.1"
+  },
+  "conclusion": "HTTP 入口交付完成；四项 P0 全 OPEN，业务不可开工；r13 为 QA_PENDING，无独立签署"
+}
