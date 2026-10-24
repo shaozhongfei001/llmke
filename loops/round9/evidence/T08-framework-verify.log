@@ -1,0 +1,13 @@
+generate: PASS (18 contracts, clean staged outputs)
+check: PASS (18 contracts, semantic + exact linkage)
+rule-mirror: PASS
+trace-check: PASS
+p0-check: PASS (integrity)
+security-check: PASS (802 file(s) scanned; evidence_logs_personal_path_skipped=0)
+........................................................................ [ 24%]
+........................................................................ [ 48%]
+........................................................................ [ 72%]
+........................................................................ [ 97%]
+........                                                                 [100%]
+296 passed in 86.08s (0:01:26)
+baseline: PASS (technical artifact only; independent QA/business readiness separate)

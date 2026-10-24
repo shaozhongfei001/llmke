@@ -5,7 +5,7 @@
 """
 from modules.answer_api.service import (AnswerError, POLICY_STATE, build_answer,
                                         to_api_error, to_api_response)
-from modules.answer_api.sql_adapter import fetch_chunks
+from modules.answer_api.sql_adapter import fetch_chunks, fetch_chunks_active
 
 __all__ = ["AnswerError", "POLICY_STATE", "build_answer", "fetch_chunks",
-           "to_api_error", "to_api_response"]
+           "to_api_error", "to_api_response", "fetch_chunks_active"]

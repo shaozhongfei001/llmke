@@ -54,3 +54,16 @@
   被当作两份文档**，重叠检测失效，答案会把新旧版本同时引用，读者看到的是重复依据。
 - 处置：`MIXED_DOCUMENT_VERSION` 显式拒绝；正确修法是上游只保留一个有效版本（属检索/代次职责）。
 - 局限（如实）：本守卫只能发现"一次答案里混版本"；跨请求的版本漂移仍靠 generation 指针约束。
+
+## D-R9-09 代次守卫只能"按版本对齐"，这是 schema 缺口（不隐瞒）
+- 实测：`document_chunk` **没有 `generation_id`**（schema V1.3 第 679–699 行），只有
+  `document_version`。因此"某块属于哪一代"没有直接证据。
+- 本轮实现（`fetch_chunks_active`）：相关子查询取激活指针指向的代次，要求 `state='ACTIVE'`，
+  且 `c.document_version = g.document_version`；指针缺失/状态不符 → 子查询为 NULL → 0 行 → 拒绝。
+  这条路径是 fail-closed 的（不降级为"用最后一版"），已用真库 4 条测试锁定。
+- **局限（登记，不当作已解决）**：同一 KB 内若不同文件处于不同版本代次，本守卫无法区分；
+  严格说它证明的是"版本对齐"，不是"块属于该代次"。
+- 正确修法：`document_chunk` 增 `generation_id`，或建 `chunk_generation(chunk_id, generation_id)` 映射；
+  属 P0-04（设计仍 PROPOSED），需 index-owner 裁定。已登记 `R9-T09 BLOCKED_EXTERNAL`。
+- 教训：这一处如果只在 Python 里"取回后再过滤"，旧代次内容会先进内存与日志，
+  违反"未授权内容不进入上下文"的不变式——所以必须做在 SQL 里。

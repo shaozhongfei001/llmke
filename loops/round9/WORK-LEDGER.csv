@@ -6,3 +6,5 @@ R9-T04,gate-evidence-agent,R9-T02,"loops/round9/**（工具在仓外）","coordi
 R9-T05,data-owner,,docs/registers/P0-CLOSURE.yaml,"n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
 R9-T06,python-rag-agent,R9-T03,"modules/answer_api/ranking.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"8 passed；确定性打分，丢弃项进审计"
 R9-T07,python-rag-agent,R9-T06,"modules/answer_api/service.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"同文件多版本 -> MIXED_DOCUMENT_VERSION"
+R9-T08,python-rag-agent,R9-T07,"modules/answer_api/sql_adapter.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T08-pytest.log,,"4 passed 真库；指针缺失->0 行->拒绝"
+R9-T09,index-owner,R9-T08,"docs/baseline/validation/artifacts/schema-v1.3.sql","n/a（需 schema 决策）",BLOCKED_EXTERNAL,,,index-owner

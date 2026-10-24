@@ -50,10 +50,23 @@
       "evidence": "loops/round9/evidence/T06-T07-pytest.log",
       "owner": "python-rag-agent",
       "tests": "1 passed（MIXED_DOCUMENT_VERSION）"
+    },
+    "R9-T08": {
+      "status": "VERIFIED",
+      "desc": "代次守卫：只取 ACTIVE 代次的块（document_chunk 无 generation_id，按 document_version 对齐）",
+      "evidence": "loops/round9/evidence/T08-pytest.log",
+      "owner": "python-rag-agent",
+      "tests": "4 passed 真库（旧代不可见 / 状态不一致→0 行 / 指针缺失→拒绝 / 切换生效）"
+    },
+    "R9-T09": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "document_chunk 缺少 generation_id：同 KB 多文件跨代时守卫无法区分",
+      "blocker": "需 index-owner 裁定加列或建 chunk_generation 映射（P0-04 设计仍 PROPOSED）",
+      "blocker_owner": "index-owner"
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 292 passed / 0 skipped（252 基线 + 40 新增）",
+    "framework_verify": "rc=0 / 296 passed / 0 skipped（252 基线 + 44）",
     "p0_gate": "rc=2（P0-01~04 全 OPEN，预期）",
     "schema_verify": "本轮未跑（UNKNOWN）",
     "r11_evidence_check": "FAIL：independent_qa_gate: implementation code changed（新增 modules 代码导致 code_digest 变化，属设计内失效）"
