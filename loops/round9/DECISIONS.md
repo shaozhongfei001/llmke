@@ -149,3 +149,12 @@
 4. **第十轮 DAG**：`ROUND10-INPUTS.md` —— 8 个节点、每节点可执行命令、7 项 owner 输入清单。
 - 结论：第九轮的**工程交付物**齐了；`p0-gate` 仍 rc=2，四项 P0 全 OPEN，业务不可开工。
   是否宣布轮次关闭，属业主裁定（与第八轮同样口径，不自我宣布）。
+
+## D-R9-17 第十轮预备：DDL 结构校验器（仓外，不重开轮次）
+- 工具：`coordination/ddl-validate.py`，输入任意 MySQL DDL，输出 ERROR/WARN 与退出码。
+- 对 `schema-v1.3.sql`：43 表 / 538 列，**0 ERROR / 4 WARN**；
+  其中 `W3 document_chunk 无 generation_id`、`W4 index_outbox 无 claimed_at`
+  与此前登记的 R9-T09 / R9-T12 **独立吻合**（工具从 DDL 复现，不是抄结论）。
+- 自纠：首版把 `INT UNSIGNED` 截成 `INT`，误报 2 个 ERROR；已修（类型修饰词属于类型）。
+  **工具误报比漏报更危险**——报错会让人去改本来没问题的 schema。
+- 意义：B1（生产 DDL 对账）现在有现成校验器，data-owner 一给 DDL 就能跑，不需要再写代码。

@@ -40,7 +40,11 @@ PYTHONPATH=$PWD python3 scripts/run_batch.py --loop L0-contract-baseline-r12 --e
 3. 验收：改 `docs/baseline/validation/schema-verify.sh` 一个字节 → `evidence-check` 必须 FAIL。
 
 ### B1/B2 P0-02（需 O3）
+已有前置工具：`coordination/ddl-validate.py`（对 schema-v1.3：0 ERROR / 4 WARN；
+W3/W4 与 R9-T09/T12 独立吻合）。拿到生产 DDL 先跑它，再跑对账：
 ```bash
+python3 coordination/ddl-validate.py --ddl <生产DDL.sql> --out /tmp/ddl.json; echo "rc=$?"
+```
 python3 coordination/p0-02-diff.py --old <生产DDL.sql> --new docs/baseline/validation/artifacts/schema-v1.3.sql \
   --out /tmp/p002.json --md /tmp/p002.md
 ```

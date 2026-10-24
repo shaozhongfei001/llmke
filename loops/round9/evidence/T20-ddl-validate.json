@@ -1,0 +1,29 @@
+{
+  "columns": 538,
+  "ddl": "schema-v1.3.sql",
+  "errors": [],
+  "status": "PASS",
+  "tables": 43,
+  "warnings": [
+    {
+      "code": "W1",
+      "msg": "start_time 建议 DATETIME(3)",
+      "table": "file_parse_task"
+    },
+    {
+      "code": "W1",
+      "msg": "end_time 建议 DATETIME(3)",
+      "table": "file_parse_task"
+    },
+    {
+      "code": "W3",
+      "msg": "无 generation_id：块无法直接归属代次（P0-04 已知缺口）",
+      "table": "document_chunk"
+    },
+    {
+      "code": "W4",
+      "msg": "无 claimed_at：可见性超时只能用 next_attempt_at 近似（P0-04 已知缺口）",
+      "table": "index_outbox"
+    }
+  ]
+}
