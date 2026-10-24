@@ -5,7 +5,7 @@
     "doc": "419508441da8fd3a5d65d0c34aa975839ac4c9e38615312a6a5436dbd49d0989"
   },
   "env": {
-    "executable": "/home/szf/data/dev/llmke/../llmke/.venv/bin/python3",
+    "executable_basename": "python3",
     "mysql_client": "mysql  Ver 8.0.41-0ubuntu0.22.04.1 for Linux on x86_64 ((Ubuntu))",
     "platform": "Linux-6.8.0-47-generic-x86_64-with-glibc2.35",
     "python": "3.12.13"
@@ -33,7 +33,7 @@
     },
     "evidence_would_stay_valid": true
   },
-  "repo": "/home/szf/data/dev/llmke",
+  "repo": "llmke",
   "restored_ok": true,
   "status": "PROBE_COMPLETE_NOT_A_FIX",
   "untracked_probe": {
