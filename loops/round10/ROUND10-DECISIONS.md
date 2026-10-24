@@ -21,3 +21,19 @@
   客户端仍只看到 `INTERNAL`。既不外泄，也不让 500 变成黑洞。
 - 同时修了测试自身的缺陷：假执行器按 SQL 形状分流时，chunk 查询含相关子查询 `g.document_version`，
   被误判成代次探针，返回一行版本号 → `IndexError`。判据改为先看 `SELECT chunk_id`。
+
+## D-R10-04 干净树复跑：审查对象 == 执行对象（VERIFIED）
+- 在 `/tmp/r10-clean`（detach 于 HEAD `eec8b7a`）复算：control/code/doc/baseline 四个摘要与主树
+  **逐字节一致**；`framework-verify` rc=0 / 317 passed；`evidence-check r13` PASS。
+- 差异仅一处：`security-check` 扫描文件数 844（干净树）vs 857（主树），来源是未跟踪产物——
+  它们不进任何摘要，因此不影响结论，但说明"文件数"不是可信指标。
+- 价值：以后不能再把"我在开发树跑绿了"当作"审查对象也绿"；两者必须由摘要证明同构。
+
+## D-R10-05 失效矩阵：两条成立、一条如实暴露局限
+- A 改 `modules/answer_api/service.py` → `implementation code changed; evidence STALE`（rc=1）
+- B 改 `scripts/loop_guard.py` → `frozen control changed ... control surface changed`（rc=1）
+- C 改 `docs/baseline/validation/schema-verify.sh` → **rc=0（未失效）**
+- C 是已知局限的直接证据：`command_digest` 只绑定门禁 argv 中的脚本，而
+  `schema-verify.sh` 是**人工执行**的验证命令。修法（移入 `scripts/` 或加 `record-check`）
+  属控制面变更，登记 `R10-T10 BLOCKED_WINDOW`。
+- 记录方式说明：探针在干净树内执行并 `git checkout` 还原，未触碰主树工作区。

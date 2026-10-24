@@ -1,0 +1,31 @@
+# 干净工作树复跑与失效矩阵（2026-10-24）
+
+## 1 干净树 == 主树（摘要逐字节一致）
+
+worktree: /tmp/r10-clean，detach 于 HEAD eec8b7a
+
+clean  control=a2b928847b4d198d code=fe88199a410575e6 doc=2c6356c677809b13 baseline=49b7f205b0a51b54
+main   control=a2b928847b4d198d code=fe88199a410575e6 doc=2c6356c677809b13 baseline=49b7f205b0a51b54
+
+结论：**审查对象 == 执行对象**（同一 commit 的干净检出与开发树在三个摘要与基线摘要上完全一致）。
+
+## 2 干净树门禁复跑
+
+framework-verify rc=0 / 317 passed / 0 skipped（104.38s，MySQL 8.0.41）
+evidence-check r13 rc=0 / PASS
+security-check PASS（844 文件；主树 857 —— 差异来自未跟踪产物，不进摘要）
+
+## 3 失效矩阵（在干净树内改动 → 校验 → 还原）
+
+| 改动 | evidence-check rc | 输出要点 | 判定 |
+|---|---|---|---|
+| 基线（无改动） | 0 | PASS | 正常 |
+| A 追加一行注释到 `modules/answer_api/service.py` | **1** | `independent_qa_gate: implementation code changed; evidence STALE` | 符合设计 |
+| B 追加一行注释到 `scripts/loop_guard.py` | **1** | `frozen control changed: scripts/loop_guard.py; ... control surface changed` | 符合设计 |
+| C 追加一行注释到 `docs/baseline/validation/schema-verify.sh` | **0** | PASS | **已知局限**：该脚本不在门禁 argv 中，命令闭包为空 |
+| 还原后 | 0 | PASS | 无残留 |
+
+结论：
+- "改代码/改控制面 → 旧证据失效"两条都成立且可复现；
+- C 项证明 `command_digest`（scheme=4）只覆盖"门禁 argv 里的脚本"，
+  **人工验证命令**仍不被绑定 → 已登记 `R10-T10`，正解为移入 `scripts/` 或新增人工检查登记。

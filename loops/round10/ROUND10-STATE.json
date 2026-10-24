@@ -47,6 +47,19 @@
       "status": "BLOCKED_EXTERNAL",
       "desc": "generation_id / claimed_at 加列（P0-04）",
       "owner": "index-owner"
+    },
+    "R10-T09": {
+      "status": "VERIFIED",
+      "owner": "redteam-agent",
+      "desc": "干净树复跑 + 三类失效矩阵（代码/控制面/排除前缀脚本）",
+      "evidence": "loops/round10/evidence/T09-clean-repro.txt",
+      "result": "干净树与主树三摘要一致；A/B 失效、C 未失效（已知局限）"
+    },
+    "R10-T10": {
+      "status": "BLOCKED_WINDOW",
+      "owner": "project-owner",
+      "desc": "人工验证命令绑定（移入 scripts/ 或新增 record-check）",
+      "blocker": "属控制面变更，需窗口；会使 r13 失效"
     }
   },
   "gates": {
