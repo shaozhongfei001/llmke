@@ -1,16 +1,15 @@
 task_id,agent,dependency,source_files,acceptance_command,state,evidence_path,commit_sha,blocker_owner
-R9-T01,tech-lead,,git/loops,"git rev-parse HEAD; git status",VERIFIED,loops/round9/evidence/T01-env-verify.txt,,
-R9-T02,python-rag-agent,R9-T01,"modules/answer_api/{service,sql_adapter,cli}.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"18+7 passed（含 12 条负例与 HTTP 映射）"
-R9-T03,python-rag-agent,R9-T02,"modules/answer_api/tests/test_answer_db.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"5 passed 真库；chunk_ids 不能放宽"
-R9-T04,gate-evidence-agent,R9-T02,"loops/round9/**（工具在仓外）","coordination/round9-index.py --out ...",VERIFIED,loops/round9/evidence/T04-index.json,,"缺号 D47；批次 10 个；r8 任务 25/1/1"
-R9-T05,data-owner,,docs/registers/P0-CLOSURE.yaml,"n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
-R9-T06,python-rag-agent,R9-T03,"modules/answer_api/ranking.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"8 passed；确定性打分，丢弃项进审计"
-R9-T07,python-rag-agent,R9-T06,"modules/answer_api/service.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"同文件多版本 -> MIXED_DOCUMENT_VERSION"
-R9-T08,python-rag-agent,R9-T07,"modules/answer_api/sql_adapter.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T08-pytest.log,,"4 passed 真库；指针缺失->0 行->拒绝"
-R9-T09,index-owner,R9-T08,"docs/baseline/validation/artifacts/schema-v1.3.sql","n/a（需 schema 决策）",BLOCKED_EXTERNAL,,,index-owner
-R9-T05,tech-lead,R9-T01,"coordination/p0-02-diff.py（仓外）","p0-02-diff.py --out ... --md ...",VERIFIED_DRYRUN,loops/round9/evidence/T05-p0-02-diff.json,,"37/478 -> 43/538；6 新表 60 列；映射 480 行=478 列+2 注释"
-R9-T10,data-owner,R9-T05,"docs/baseline/validation/artifacts/**","n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
-R9-T11,python-rag-agent,R9-T08,"modules/index_generation/{generation,__init__}.py","python -m pytest modules/index_generation/tests -q",VERIFIED,loops/round9/evidence/T11-outbox-pytest.log,,"3 passed 真库；重投/去重/到限/回收"
-R9-T12,index-owner,R9-T11,"docs/baseline/validation/artifacts/schema-v1.3.sql","n/a（需 schema 决策）",BLOCKED_EXTERNAL,,,index-owner
-R9-T13,redteam-agent,R9-T01,"coordination/r9-digest-gap-probe.py（仓外）","python3 r9-digest-gap-probe.py",VERIFIED,loops/round9/evidence/T13-digest-gap.json,,"改 schema-verify.sh 三摘要不变；未跟踪文件亦不可见"
-R9-T14,tech-lead,R9-T13,"scripts/{loop_guard,baseline_support}.py","n/a（需窗口）",BLOCKED_WINDOW,,,project-owner
+R9-T01,tech-lead,,git/loops,git rev-parse HEAD; git status,VERIFIED,loops/round9/evidence/T01-env-verify.txt,,
+R9-T02,python-rag-agent,R9-T01,"modules/answer_api/{service,sql_adapter,cli}.py",python -m pytest modules/answer_api/tests -q,VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,18+7 passed（含 12 条负例与 HTTP 映射）
+R9-T03,python-rag-agent,R9-T02,modules/answer_api/tests/test_answer_db.py,python -m pytest modules/answer_api/tests -q,VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,5 passed 真库；chunk_ids 不能放宽
+R9-T04,gate-evidence-agent,R9-T02,loops/round9/**（工具在仓外）,coordination/round9-index.py --out ...,VERIFIED,loops/round9/evidence/T04-index.json,,缺号 D47；批次 10 个；r8 任务 25/1/1
+R9-T05,tech-lead,R9-T01,coordination/p0-02-diff.py（仓外）,p0-02-diff.py --out ... --md ...,VERIFIED_DRYRUN,loops/round9/evidence/T05-p0-02-diff.json,,37/478 -> 43/538；6 新表 60 列；映射 480 行=478 列+2 注释
+R9-T06,python-rag-agent,R9-T03,modules/answer_api/ranking.py,python -m pytest modules/answer_api/tests -q,VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,8 passed；确定性打分，丢弃项进审计
+R9-T07,python-rag-agent,R9-T06,modules/answer_api/service.py,python -m pytest modules/answer_api/tests -q,VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,同文件多版本 -> MIXED_DOCUMENT_VERSION
+R9-T08,python-rag-agent,R9-T07,modules/answer_api/sql_adapter.py,python -m pytest modules/answer_api/tests -q,VERIFIED,loops/round9/evidence/T08-pytest.log,,4 passed 真库；指针缺失->0 行->拒绝
+R9-T09,index-owner,R9-T08,docs/baseline/validation/artifacts/schema-v1.3.sql,n/a（需 schema 决策）,BLOCKED_EXTERNAL,,,index-owner
+R9-T10,data-owner,R9-T05,docs/baseline/validation/artifacts/**,n/a（缺真实 DDL）,BLOCKED_EXTERNAL,,,data-owner
+R9-T11,python-rag-agent,R9-T08,"modules/index_generation/{generation,__init__}.py",python -m pytest modules/index_generation/tests -q,VERIFIED,loops/round9/evidence/T11-outbox-pytest.log,,3 passed 真库；重投/去重/到限/回收
+R9-T12,index-owner,R9-T11,docs/baseline/validation/artifacts/schema-v1.3.sql,n/a（需 schema 决策）,BLOCKED_EXTERNAL,,,index-owner
+R9-T13,redteam-agent,R9-T01,coordination/r9-digest-gap-probe.py（仓外）,python3 r9-digest-gap-probe.py,VERIFIED,loops/round9/evidence/T13-digest-gap.json,,改 schema-verify.sh 三摘要不变；未跟踪文件亦不可见
+R9-T14,tech-lead,R9-T13,"scripts/{loop_guard,baseline_support}.py",n/a（需窗口）,BLOCKED_WINDOW,,,project-owner
