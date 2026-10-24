@@ -1,0 +1,223 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录后取菜单",
+    "verdict": "PASS",
+    "detail": "http=200 success=True menus=7"
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户身份",
+    "verdict": "PASS",
+    "detail": "userName=admin"
+  },
+  {
+    "scene": "S1",
+    "case": "登录响应不回显口令/哈希",
+    "verdict": "PASS",
+    "detail": "响应中 userPassword 字段为 null，未回显"
+  },
+  {
+    "scene": "S2",
+    "case": "知识库存在(qa_r12_indep)",
+    "verdict": "PASS",
+    "detail": "kbId=5 primitive=kb_5 private=0"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "verdict": "PASS",
+    "detail": "http=200 fileId=9 name=pdf-digital.pdf"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "verdict": "PASS",
+    "detail": "http=200 fileId=10 name=docx-table.docx"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 XLSX 表格",
+    "verdict": "PASS",
+    "detail": "http=200 fileId=11 name=table-ledger.xlsx"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PPTX 图片页",
+    "verdict": "PASS",
+    "detail": "http=200 fileId=12 name=image-slide.pptx"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 扫描图片(纯图)",
+    "verdict": "PASS",
+    "detail": "http=200 fileId=13 name=scan-text.png"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成且 chunk 落地 PDF 数字版",
+    "verdict": "PASS",
+    "detail": "fileId=9 status=3 chunk=2"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成且 chunk 落地 DOCX 含表格",
+    "verdict": "PASS",
+    "detail": "fileId=10 status=3 chunk=1"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成且 chunk 落地 XLSX 表格",
+    "verdict": "PASS",
+    "detail": "fileId=11 status=3 chunk=1"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PPTX 图片页",
+    "verdict": "BLOCKED",
+    "detail": "fileId=12 最终状态=4"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成且 chunk 落地 扫描图片(纯图)",
+    "verdict": "PASS",
+    "detail": "fileId=13 status=3 chunk=1"
+  },
+  {
+    "scene": "S2",
+    "case": "创建独立检索配置",
+    "verdict": "PASS",
+    "detail": "http=200 configId=2 kb=kb_5 "
+  },
+  {
+    "scene": "S5",
+    "case": "提问1（21字）得到模型回答",
+    "verdict": "PASS",
+    "detail": "http=200 帧=144 答案长度=4134"
+  },
+  {
+    "scene": "S5",
+    "case": "提问1 返回引用",
+    "verdict": "BLOCKED",
+    "detail": "引用条数=0"
+  },
+  {
+    "scene": "S5",
+    "case": "提问2（24字）得到模型回答",
+    "verdict": "PASS",
+    "detail": "http=200 帧=324 答案长度=3358"
+  },
+  {
+    "scene": "S5",
+    "case": "提问2 返回引用",
+    "verdict": "BLOCKED",
+    "detail": "引用条数=0"
+  },
+  {
+    "scene": "S6",
+    "case": "引用 file_id 属于本库已上传文件",
+    "verdict": "BLOCKED",
+    "detail": "本轮无引用"
+  },
+  {
+    "scene": "S6",
+    "case": "提问请求体不含正文文本字段",
+    "verdict": "PASS",
+    "detail": "payload 字段=['configId', 'content', 'queryId', 'sessionId', 'sysType', 'type'] content=21≈问题=21"
+  },
+  {
+    "scene": "S6",
+    "case": "引用内容能在原文 chunk 中找到支撑",
+    "verdict": "BLOCKED",
+    "detail": "本轮无引用可核对"
+  },
+  {
+    "scene": "S7",
+    "case": "按 sessionId 恢复历史对话",
+    "verdict": "PASS",
+    "detail": "http=200 success=True 长度=2936"
+  },
+  {
+    "scene": "S7",
+    "case": "历史中包含本轮流式回答",
+    "verdict": "FAIL",
+    "detail": "查找片段='é\\x93¶è¡\\x8cæ\\x89¿{\"sessionId' 命中=False"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "verdict": "PASS",
+    "detail": "http=200 total=8"
+  },
+  {
+    "scene": "S9",
+    "case": "创建会话",
+    "verdict": "PASS",
+    "detail": "http=200 resp={\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"label\": \"QA独立复核会话\", \"sessionId\": \"qa-s9-1792877293\", \"gmtCreate\": \"2026-10-25 05:28:1"
+  },
+  {
+    "scene": "S9",
+    "case": "按 sessionId 恢复会话（label 往返一致）",
+    "verdict": "PASS",
+    "detail": "http=200 期望label=QA独立复核会话 实际='QA独立复核会话'"
+  },
+  {
+    "scene": "S9",
+    "case": "同一 sessionId 不得重复落库",
+    "verdict": "PASS",
+    "detail": "sessionId=qa-s9-1792877293 记录数=1（>1 表示无唯一约束，历史恢复可能取到空壳）",
+    "extra": {
+      "rows": [
+        {
+          "label": "QA独立复核会话",
+          "sessionId": "qa-s9-1792877293",
+          "gmtCreate": "2026-10-25 05:28:14",
+          "gmtModified": "2026-10-25 05:28:14",
+          "createBy": "admin",
+          "updateBy": "admin",
+          "filePath": null,
+          "configId": null,
+          "kbId": null,
+          "queryReplyPairList": null,
+          "searchConfigDTO": null
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S9",
+    "case": "提问后再建会话不得产生重复会话记录",
+    "verdict": "FAIL",
+    "detail": "sessionId=qa-s9-1792877293-dup 记录数=2；恢复返回 label=None",
+    "extra": {
+      "rows": [
+        {
+          "label": "QA重复会话复现",
+          "sessionId": "qa-s9-1792877293-dup",
+          "gmtCreate": "2026-10-25 05:28:31",
+          "gmtModified": "2026-10-25 05:28:31",
+          "createBy": "admin",
+          "updateBy": "admin",
+          "filePath": null,
+          "configId": null,
+          "kbId": null,
+          "queryReplyPairList": null,
+          "searchConfigDTO": null
+        },
+        {
+          "label": null,
+          "sessionId": "qa-s9-1792877293-dup",
+          "gmtCreate": "2026-10-25 05:28:14",
+          "gmtModified": "2026-10-25 05:28:14",
+          "createBy": "admin",
+          "updateBy": "admin",
+          "filePath": null,
+          "configId": null,
+          "kbId": null,
+          "queryReplyPairList": null,
+          "searchConfigDTO": null
+        }
+      ]
+    }
+  }
+]

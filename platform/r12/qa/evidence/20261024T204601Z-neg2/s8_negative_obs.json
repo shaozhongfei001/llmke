@@ -1,0 +1,85 @@
+{
+  "N1": {
+    "status": 401,
+    "control_status": 200,
+    "snippet": "{'errorCode': '30022', 'errorMsg': '没有token', 'success': False}"
+  },
+  "N2": {
+    "control_status": 200,
+    "results": [
+      {
+        "label": "alg_none",
+        "status": 401
+      },
+      {
+        "label": "wrong_sig",
+        "status": 401
+      },
+      {
+        "label": "random",
+        "status": 500
+      }
+    ]
+  },
+  "N3": {
+    "status": 200,
+    "control_status": 200,
+    "leaked_admin": false,
+    "snippet": "{'success': True, 'errorMsg': None, 'errorCode': None, 'data': {'id': '1', 'userName': 'admin', 'userRealname': '系统管理员',"
+  },
+  "N4": {
+    "status": 401,
+    "control_status": 200
+  },
+  "N5": {
+    "status": 200,
+    "n_records": 0,
+    "kb_private": 1,
+    "kb_id": "3",
+    "kb_owner": "admin",
+    "who": "qa_user_b",
+    "snippet": "{'success': True, 'errorMsg': None, 'errorCode': None, 'data': {'records': [], 'total': 0, 'size': 10, 'current': 1, 'pages': 0}}"
+  },
+  "N6": {
+    "results": [
+      {
+        "path": "/index/knowledgeBase/file/list?kbId=1&type=1",
+        "method": "GET",
+        "status": 500,
+        "snippet": "{'success': False, 'errorMsg': 'Cannot parse null string', 'errorCode': '999', 'data': Non"
+      },
+      {
+        "path": "/index/knowledgeBase/file/multiple/version?kbId=1&type=1",
+        "method": "GET",
+        "status": 500,
+        "snippet": "{'success': False, 'errorMsg': \"\\n### Error querying database.  Cause: java.sql.SQLSyntaxE"
+      },
+      {
+        "path": "/index/parseTask/callback",
+        "method": "POST",
+        "status": 500,
+        "snippet": "{'success': False, 'errorMsg': 'Cannot invoke \"com.gientech.ragindexservice.domain.entity."
+      },
+      {
+        "path": "/index/knowledgeBase/file/uploadParsedFile?kbId=1&fileId=1&userId=1",
+        "method": "POST",
+        "status": 500,
+        "snippet": "{'success': False, 'errorMsg': '知识库文件不存在', 'errorCode': '10002', 'data': None}"
+      }
+    ]
+  },
+  "N7": {
+    "reject": true,
+    "http": 500,
+    "snippet": "{\"success\": false, \"errorMsg\": \"模型类型不能为空\", \"errorCode\": \"7009\", \"data\": null}",
+    "final_status": null,
+    "chunk_count": null
+  },
+  "N8": {
+    "reject": true,
+    "http": 500,
+    "snippet": "{\"success\": false, \"errorMsg\": \"模型类型不能为空\", \"errorCode\": \"7009\", \"data\": null}",
+    "final_status": null,
+    "chunk_count": null
+  }
+}

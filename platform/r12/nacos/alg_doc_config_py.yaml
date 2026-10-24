@@ -44,7 +44,7 @@ milvus_insert_retry_backoff: 0.5
 # ---- [R12-FIX-PARSE-04] 多模态输出上限 ----
 online_multi_modal_model:
   qwen2.5-vl-3b-instruct:
-    output_max_tokens: 256
+    output_max_tokens: 768   # [R12-FIX-PARSE-05] 密排中文A4逐字实测 427/512=83%（余量仅1.2x）→ 提至768；仍 100% 依赖 finish_reason=length→truncated 判定
 
 other-nacos:
   java-common:

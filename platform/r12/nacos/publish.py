@@ -8,10 +8,14 @@
 
 行为：
   - 只处理 DATA_IDS 白名单，避免误覆盖他人 data_id（parse-ops 的 alg_doc_* 不在名单内）。
+  - 落盘文件里的口令一律写 ${R12_xxx} 占位（仓库不留明文），发布前从 platform/r12/.env 注入；
+    若仍有未解析的 ${VAR} 则直接失败，避免把占位符发到 Nacos 导致服务用错口令。
   - 发布后立刻 GET 回读并逐字节比对（内容不一致即失败退出），避免"以为发了其实没生效"。
   - 打印每个 data_id 的 md5（对回读内容计算），供证据留档。
 """
 import hashlib
+import os
+import re
 import sys
 import time
 import urllib.parse
@@ -20,13 +24,37 @@ import urllib.request
 NACOS = "http://127.0.0.1:18848/nacos"
 GROUP = "DEFAULT_GROUP"
 TENANT = ""  # public 命名空间
-BASE_DIR = "/home/szf/data/dev/llmke-r12/platform/r12/nacos"
+R12_DIR = "/home/szf/data/dev/llmke-r12/platform/r12"
+BASE_DIR = f"{R12_DIR}/nacos"
 DATA_IDS = [
     "alg_common_py",
     "index_data_config_py",
     "alg_retrieval_config_py",
     "alg_llm_config_py",
 ]
+
+
+def load_env():
+    """把 platform/r12/.env 注入 os.environ（不覆盖已存在的真实环境变量）"""
+    path = f"{R12_DIR}/.env"
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
+
+def render(content, data_id):
+    """展开 ${VAR} 占位；有残留则报错（禁止把占位符当作真实口令发布）"""
+    rendered = re.sub(r"\$\{([A-Z0-9_]+)\}", lambda m: os.environ.get(m.group(1), m.group(0)), content)
+    left = re.findall(r"\$\{[A-Z0-9_]+\}", rendered)
+    if left:
+        raise SystemExit(f"[FAIL] {data_id} 仍有未解析变量 {sorted(set(left))}，请检查 platform/r12/.env")
+    return rendered
 
 
 def _request(path, params=None, data=None, method="GET"):
@@ -62,11 +90,12 @@ def fetch(data_id):
 
 def main():
     verify_only = "--verify" in sys.argv
+    load_env()
     ok = True
     for data_id in DATA_IDS:
         path = f"{BASE_DIR}/{data_id}.yaml"
         with open(path, encoding="utf-8") as f:
-            content = f.read()
+            content = render(f.read(), data_id)
         if not verify_only:
             resp = publish(data_id, content)
             if resp.strip().lower() != "true":

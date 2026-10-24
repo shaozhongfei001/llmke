@@ -17,6 +17,7 @@ from view.api.search_by_page_view import SearchByPageView
 from view.api.search_by_custom_param_view import SearchByCustomParamView
 from view.api.update_doc_view import UpdateDocView
 from view.api.update_by_id_view import UpdateByIdView
+from view.api.static_count_view import StaticCountView
 
 # Instantiate views to register their routes with the shared router.
 CreateEsIndexView(path="/create_es_index", tags=["create_es_index"], summary="创建ES索引")
@@ -45,6 +46,7 @@ SearchByCustomParamView(
 )
 UpdateDocView(path="/update_doc", tags=["update_doc"], summary="修改数据")
 UpdateByIdView(path="/update_by_id", tags=["update_by_id"], summary="根据ID修改数据")
+StaticCountView(path="/static_count", tags=["static_count"], summary="统计索引中文档数量")
 
 
 def register_routes(app: FastAPI):

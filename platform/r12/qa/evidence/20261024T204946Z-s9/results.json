@@ -1,0 +1,37 @@
+[
+  {
+    "scene": "S9",
+    "case": "创建会话",
+    "verdict": "PASS",
+    "detail": "http=200 resp={\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"label\": \"QA独立复核会话\", \"sessionId\": \"qa-s9-1792874986\", \"gmtCreate\": \"2026-10-25 04:49:4"
+  },
+  {
+    "scene": "S9",
+    "case": "按 sessionId 恢复会话（label 往返一致）",
+    "verdict": "PASS",
+    "detail": "http=200 期望label=QA独立复核会话 实际='QA独立复核会话'"
+  },
+  {
+    "scene": "S9",
+    "case": "同一 sessionId 不得重复落库",
+    "verdict": "PASS",
+    "detail": "sessionId=qa-s9-1792874986 记录数=1（>1 表示无唯一约束，历史恢复可能取到空壳）",
+    "extra": {
+      "rows": [
+        {
+          "label": "QA独立复核会话",
+          "sessionId": "qa-s9-1792874986",
+          "gmtCreate": "2026-10-25 04:49:47",
+          "gmtModified": "2026-10-25 04:49:47",
+          "createBy": "admin",
+          "updateBy": "admin",
+          "filePath": null,
+          "configId": null,
+          "kbId": null,
+          "queryReplyPairList": null,
+          "searchConfigDTO": null
+        }
+      ]
+    }
+  }
+]

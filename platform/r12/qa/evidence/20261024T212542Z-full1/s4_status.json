@@ -1,0 +1,54 @@
+[
+  {
+    "fileId": "9",
+    "name": "pdf-digital.pdf",
+    "label": "PDF 数字版",
+    "kbId": "5",
+    "final_status": 3,
+    "chunk_count": 2,
+    "chunk_ids": [
+      "4347204627604745460",
+      "581895899861850515"
+    ]
+  },
+  {
+    "fileId": "10",
+    "name": "docx-table.docx",
+    "label": "DOCX 含表格",
+    "kbId": "5",
+    "final_status": 3,
+    "chunk_count": 1,
+    "chunk_ids": [
+      "1855367569416070149"
+    ]
+  },
+  {
+    "fileId": "11",
+    "name": "table-ledger.xlsx",
+    "label": "XLSX 表格",
+    "kbId": "5",
+    "final_status": 3,
+    "chunk_count": 1,
+    "chunk_ids": [
+      "242582227212938951"
+    ]
+  },
+  {
+    "fileId": "12",
+    "name": "image-slide.pptx",
+    "label": "PPTX 图片页",
+    "kbId": "5",
+    "final_status": 4
+  },
+  {
+    "fileId": "13",
+    "name": "scan-text.png",
+    "label": "扫描图片(纯图)",
+    "kbId": "5",
+    "final_status": 3,
+    "chunk_count": 1,
+    "chunk_ids": [
+      "3114401550401395558"
+    ]
+  }
+]

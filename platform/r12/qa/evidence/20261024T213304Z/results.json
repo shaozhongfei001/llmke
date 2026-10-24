@@ -1,0 +1,86 @@
+[
+  {
+    "scene": "S2",
+    "case": "知识库已存在（复用）",
+    "ok": true,
+    "detail": "kbId=6 primitive=kb_6"
+  },
+  {
+    "scene": "S5",
+    "case": "真实模型回答（23字问题）",
+    "ok": true,
+    "detail": "http=200 帧数=2 答案长度=42",
+    "extra": {
+      "answer_head": "æ¨¡åææ æ³è¿åï¼è¯·ç¨ååè¯!!!",
+      "frames_head": [
+        {
+          "sessionId": "kb_6",
+          "queryId": "q-1792877584673",
+          "lastDate": 1792877596329,
+          "status": 1,
+          "reply": {
+            "content": "",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": null,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        },
+        {
+          "sessionId": "kb_6",
+          "queryId": "q-1792877584673",
+          "lastDate": 1792877602685,
+          "status": 3,
+          "reply": {
+            "content": "æ¨¡åææ æ³è¿åï¼è¯·ç¨ååè¯!!!",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": null,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S5",
+    "case": "回答带引用",
+    "ok": false,
+    "detail": "引用条数=0",
+    "extra": {
+      "reference_head": []
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "服务端取回原文",
+    "ok": false,
+    "detail": "引用中无 file_id，无法核对原文"
+  },
+  {
+    "scene": "S7",
+    "case": "历史对话可恢复",
+    "ok": true,
+    "detail": "http=200 resp={'success': True, 'errorMsg': None, 'errorCode': None, 'data': None}"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "ok": true,
+    "detail": "http=200"
+  }
+]

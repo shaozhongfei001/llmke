@@ -1,0 +1,134 @@
+[
+  {
+    "case": "N1",
+    "name": "无 token 访问受保护接口",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "PASS",
+    "baseline_why": "无 token http=401，对照 http=200",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "无 token 未被拒绝 http=200（对照 http=200）",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "N2",
+    "name": "伪造 JWT（alg=none / 伪签名）",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "FAIL",
+    "baseline_why": "未被规范化拒绝(5xx，非放行，属健壮性/信息泄露缺陷): random->500",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "伪造 token 被放行(2xx): forged->200",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "n/a(基线本身不是PASS)"
+  },
+  {
+    "case": "N3",
+    "name": "篡改 token payload 保留原签名",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "PASS",
+    "baseline_why": "篡改 token http=401",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "篡改 token 后拿到了 admin 的数据（身份伪造成功）",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "N4",
+    "name": "会话注销后旧 token 复用",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "PASS",
+    "baseline_why": "注销后旧 token http=401",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "注销后旧 token 仍可用 http=200",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "N5",
+    "name": "越权：非属主读他人私有知识库",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "FAIL",
+    "baseline_why": "越权：非属主 qa_user_b 读到他人私有库 kbId=7（owner=admin）共 1 条文件记录",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "越权：非属主 qa_user_b 读到他人私有库 kbId=7（owner=admin）共 3 条文件记录",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "n/a(基线本身不是PASS)"
+  },
+  {
+    "case": "N6",
+    "name": "网关白名单端点未授权可达",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "FAIL",
+    "baseline_why": "未带任何凭证即可进入业务链路: /index/knowledgeBase/file/list?kbId=1&type=1->500({'success': False, 'errorMsg': 'Cannot p), /index/knowledgeBase/file/multiple/version?kbId=1&type=1->500({'success': False, 'errorMsg': \"\\n### Er), /index/parseTask/callback->500({'success': False, 'errorMsg': 'Cannot i), /index/knowledgeBase/file/uploadParsedFile?kbId=1&fileId=1&userId=1->500({'success': False, 'errorMsg': '知识库不存在',)",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "未带任何凭证即可进入业务链路: /index/parseTask/callback->500(npe)",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "n/a(基线本身不是PASS)"
+  },
+  {
+    "case": "N7",
+    "name": "坏文件必须明确失败（随机字节）",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "PASS",
+    "baseline_why": "进入解析失败态 status=4，chunk=0",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "静默成功：解析状态=3(成功) 但 chunk=0，等于用空文档污染知识库",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "N8",
+    "name": "扩展名伪装文件必须明确失败",
+    "baseline_src": "真实观察(20261024T213354Z-neg4)",
+    "baseline_verdict": "PASS",
+    "baseline_why": "进入解析失败态 status=4，chunk=0",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "静默成功：解析状态=3(成功) 但 chunk=0，等于用空文档污染知识库",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "N9",
+    "name": "删除文档后不得再被引用",
+    "baseline_src": "合成合规基线",
+    "baseline_verdict": "PASS",
+    "baseline_why": "删除后 1 条引用均不含被删文档 ['1']",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "被删文档仍在引用中出现 file_id=['1']",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "P1",
+    "name": "引用 file_id 必须属于本库",
+    "baseline_src": "合成合规基线",
+    "baseline_verdict": "PASS",
+    "baseline_why": "1 个引用 file_id 全部属于本库(1 个文件)",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "引用指向本库未上传的文件: ['999999']",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "P2",
+    "name": "提问请求体不含正文",
+    "baseline_src": "合成合规基线",
+    "baseline_verdict": "PASS",
+    "baseline_why": "payload 字段=['content', 'sessionId'] content=20≈问题=20",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "请求体出现非白名单字段: ['fileContent']",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  },
+  {
+    "case": "P3",
+    "name": "解析成功必须真的有内容",
+    "baseline_src": "合成合规基线",
+    "baseline_verdict": "PASS",
+    "baseline_why": "status=3 chunk=7",
+    "mutated_verdict": "FAIL",
+    "mutated_why": "静默成功：status=3(解析成功) 但 chunk=0",
+    "M1_违约观察被判FAIL": "PASS",
+    "M2_期望反转后应非PASS": "空转"
+  }
+]

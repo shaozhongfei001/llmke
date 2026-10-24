@@ -1,0 +1,22 @@
+[
+  {
+    "fileId": "14",
+    "name": "pdf-digital.pdf",
+    "label": "PDF 数字版"
+  },
+  {
+    "fileId": "15",
+    "name": "docx-plain.docx",
+    "label": "DOCX 纯文本"
+  },
+  {
+    "fileId": "16",
+    "name": "docx-table.docx",
+    "label": "DOCX 含表格"
+  },
+  {
+    "fileId": "17",
+    "name": "pdf-scanned.pdf",
+    "label": "PDF 扫描件(OCR)"
+  }
+]

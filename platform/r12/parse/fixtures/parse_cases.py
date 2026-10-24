@@ -260,6 +260,11 @@ def assert_case(case, http, raw):
         n_img = sum(1 for t in types if t == "image")
         chk("image_chunks_match", n_img == case["expect_image_chunks"],
             f"expect={case['expect_image_chunks']} got={n_img}")
+        # [R12-FIX-PARSE-05] 廉价截断判据：finish_reason='length' ⇒ VLM 文本不完整，不可作为完整转录源
+        trunc = [c["metadata"].get("vlm_finish_reason") for c in chunks
+                 if c.get("metadata", {}).get("type") == "image"
+                 and c["metadata"].get("vlm_finish_reason") == "length"]
+        chk("image_text_not_truncated", not trunc, f"truncated_chunks={len(trunc)}")
     if case.get("types"):
         for t in case["types"]:
             chk(f"has_type_{t}", t in types, f"types={sorted(set(types))}")
@@ -300,6 +305,8 @@ def main():
     ap.add_argument("--skip-upload", action="store_true")
     ap.add_argument("--with-stress", action="store_true", help="额外跑 C13 大表压力用例")
     ap.add_argument("--with-vlm-heavy", action="store_true", help="额外跑 C14/C15 多图用例（单次 500-700s，串行）")
+    ap.add_argument("--max-load", type=float, default=float(os.environ.get("R12_MAX_LOAD", 15)),
+                    help="load1 超过该值时跳过所有 VLM 用例（model-ops 实测 load≈30 时 VLM 只有 0.18 tok/s，会得到假超时）")
     args = ap.parse_args()
 
     os.environ.setdefault("R12_BUCKET", args.bucket)
@@ -328,6 +335,11 @@ def main():
         if case.get("vlm_heavy") and not args.with_vlm_heavy:
             print(f"[{cid}] SKIP(未加 --with-vlm-heavy): {case['desc']}")
             continue
+        load1 = os.getloadavg()[0]
+        if case.get("needs_mm") and load1 > args.max_load:
+            print(f"[{cid}] SKIP(load1={load1:.1f} > {args.max_load}): VLM 在高负载下会退到 0.18 tok/s，"
+                  f"跑出来的耗时是假数据，不作为结论")
+            continue
         if case.get("needs_mm") and not has_mm:
             status, note = "BLOCKED_FOR_MM", "未提供 MM_URL/MM_MODEL（VLM 未就绪，R12 已知限制）"
             rows.append(dict(**case, status=status, note=note)); nblock += 1
@@ -339,18 +351,21 @@ def main():
             print(f"[{cid}] {status}: {case['desc']} — {note}")
             continue
 
+        load_before = os.getloadavg()[0]
         http, raw, dt = call(args.base, keys)
+        load_after = os.getloadavg()[0]
         checks, failed, data = assert_case(case, http, raw)
         (outdir / f"{cid}-{keys[0]}.json").write_text(raw, encoding="utf-8")
         status = "PASS" if not failed else "FAIL"
-        rows.append(dict(**case, status=status, http=http, sec=round(dt, 2), checks=checks,
+        rows.append(dict(**case, status=status, http=http, sec=round(dt, 2),
+                         load1_before=round(load_before, 2), load1_after=round(load_after, 2), checks=checks,
                          failed=failed, chunks=(len(data) if isinstance(data, list) else None),
                          first80=(data[0].get("page_content", "")[:80] if isinstance(data, list) and data else None)))
         if status == "PASS":
             npass += 1
         else:
             nfail += 1
-        print(f"[{cid}] {status} http={http} {dt:.2f}s chunks={rows[-1]['chunks']} {case['desc']}"
+        print(f"[{cid}] {status} http={http} {dt:.2f}s load1={load_before:.1f}->{load_after:.1f} chunks={rows[-1]['chunks']} {case['desc']}"
               + ("" if status == "PASS" else f"  failed={failed}"))
 
     (outdir / "result.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -359,7 +374,7 @@ def main():
                f"- PASS={npass} FAIL={nfail} BLOCKED={nblock}", ""]
     for r in rows:
         summary.append(f"| {r['id']} | {r['file'] if isinstance(r.get('file'), str) else '+'.join(r['files'])} | {r['status']} | "
-                       f"{r.get('chunks')} | {r.get('first80')} |")
+                       f"{r.get('chunks')} | {r.get('sec')} | {r.get('load1_before')}->{r.get('load1_after')} | {r.get('first80')} |")
     (outdir / "summary.md").write_text("\n".join(summary) + "\n", encoding="utf-8")
     print(f"\nPASS={npass} FAIL={nfail} BLOCKED={nblock}  输出目录 {outdir}")
     return 1 if nfail else 0

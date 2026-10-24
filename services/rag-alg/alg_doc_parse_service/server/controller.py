@@ -3,6 +3,7 @@ import base64
 import copy
 import json
 import os
+import re
 import time
 import traceback
 import uuid
@@ -199,7 +200,7 @@ class _Parser:
             prompt += QUERY
 
             try:
-                response = multi_modal_client.chat([
+                response, meta = multi_modal_client.chat([
                     MultiModalMessage(
                         type='text',
                         content=prompt
@@ -208,9 +209,26 @@ class _Parser:
                         type='image',
                         content=base64.b64decode(metadata.base64)
                     )
-                ])
+                ], return_meta=True)
                 metadata.vlm_text = response
-                metadata.vlm_status = 'ok'
+                metadata.vlm_finish_reason = (meta or {}).get('finish_reason')
+                _timings = (meta or {}).get('timings') or {}
+                metadata.vlm_prompt_n = _timings.get('prompt_n')
+                metadata.vlm_cache_n = _timings.get('cache_n')
+                # [R12-FIX-PARSE-05] 字符敏感字段标记：VLM 实测会丢字（CASE-CCC333 → CASE-CC333），
+                # 编号/账号/金额/日期不得只靠 VLM，需下游用 OCR/正则交叉校验。
+                _tokens = self._detect_sensitive_tokens(response)
+                metadata.vlm_sensitive_tokens = _tokens
+                metadata.vlm_needs_crosscheck = bool(_tokens)
+                # [R12-FIX-PARSE-05] finish_reason='length' ⇒ 输出被 max_tokens 截断，
+                # 不能当作"完整逐字转录"用；单独打 truncated 档，便于 QA 用廉价断言识别。
+                if metadata.vlm_finish_reason == 'length':
+                    metadata.vlm_status = 'truncated'
+                    logger.warning(f'第{_index}张图片 VLM 输出被截断（finish_reason=length，'
+                                   f'output_max_tokens={DocParseConfig().config.get("online_multi_modal_model", {}).get(_multi_modal_config.model_id, {}).get("output_max_tokens", 4096)}），'
+                                   f'该图文本不完整')
+                else:
+                    metadata.vlm_status = 'ok'
             except Exception as exc:
                 # [R12-FIX-PARSE-03] 单图 VLM 失败不得让整篇解析失败（原实现异常冒泡 → 整篇 500，
                 # 连正文都拿不到）。这里只降级打标：保留 OCR 文本，标注失败分档。
@@ -245,6 +263,30 @@ class _Parser:
             pass
 
         logger.info(f'多模态处理花费时间：{(time.perf_counter() - timer):.2f}s')
+
+    @staticmethod
+    def _detect_sensitive_tokens(text: str) -> list[str]:
+        """[R12-FIX-PARSE-05] 抽出"字符敏感"片段：长数字串、金额、日期、带连字符的编号。
+
+        VLM 逐字转录存在字符级误识（实测 CASE-CCC333 → CASE-CC333，连续相同字符被合并），
+        因此这些片段不能直接当证据字段，必须由 OCR / 正则 / 校验位交叉校验。
+        """
+        if not text:
+            return []
+        patterns = [
+            r"[0-9]{6,}",                                  # 账号/长编号
+            r"[0-9][0-9,]*\.[0-9]{2}",                     # 金额（两位小数）
+            r"[0-9]{4}\s*[-/.年]\s*[0-9]{1,2}\s*[-/.月]\s*[0-9]{1,2}",  # 日期
+            r"[A-Za-z]{2,}-[A-Za-z0-9-]{4,}",              # 形如 SPDB-2026-PJ-00871 / CASE-AAA111
+        ]
+        found, seen = [], set()
+        for pat in patterns:
+            for m in re.finditer(pat, text):
+                tok = m.group(0).strip()
+                if tok and tok not in seen:
+                    seen.add(tok)
+                    found.append(tok)
+        return found[:10]
 
     @staticmethod
     def _merge_image_text(metadata) -> str:

@@ -80,10 +80,15 @@ class EmbedChangeController:
             elif isinstance(embedding_info, dict):
                 vector_dim = embedding_info.get("dim")
         if not vector_dim:
+            # [R12-ADAPT-ALG-06] 原实现直接用 model_name 索引 online_embedding_model，
+            # 但 DatabaseConfigModel.model_name 默认 None（Java 调 /create_milvus_collection 不带该字段），
+            # 导致 {"...": None} 取 KeyError → 接口 500。此处按代码既有意图回落默认模型 embedding_model，
+            # 不改变"优先请求体 dim > nacos 模型 dim"的优先级，也不伪造维度值。
+            effective_model_name = model_name or (nacos_config or {}).get("embedding_model")
             try:
-                vector_dim = nacos_config["online_embedding_model"][model_name]["dim"]
+                vector_dim = nacos_config["online_embedding_model"][effective_model_name]["dim"]
             except KeyError as e:
-                raise Exception(f"未在nacos配置中找到模型 {model_name} 的向量维度") from e
+                raise Exception(f"未在nacos配置中找到模型 {effective_model_name} 的向量维度") from e
         try:
             vector_dim = int(vector_dim)
         except (TypeError, ValueError) as e:

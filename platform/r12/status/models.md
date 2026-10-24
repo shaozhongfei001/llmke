@@ -1,7 +1,7 @@
 # R12 模型与制品服务状态（model-ops 交付）
 
 更新时间：2026-10-25　执行角色：model-ops（模型与制品）
-依据：`platform/r12/R12-ENV-CONTRACT.md` v12.1。18090/18091/18092 与契约完全一致；**18093（VLM）为契约外新增**（原因与实测见 §6.8，待 TL 裁定是否纳入契约）
+依据：`platform/r12/R12-ENV-CONTRACT.md`。18090/18091/18092 与契约一致；**18093（VLM）原为契约外新增，TL 已于 2026-10-25 批准纳入 R12 契约**（定位：可选增强，非硬依赖）
 结论：**四个服务全部真实可用**——`models/verify.py` 27/27 PASS（18090/18091/18092）、`models/verify_vl.py` 全 PASS（18093），均退出码 0
 
 ---
@@ -13,7 +13,7 @@
 | embedding | `http://127.0.0.1:18090/v1/embeddings` | `BAAI/bge-m3` (1024 维) | CPU 20 线程 | UP |
 | rerank | `http://127.0.0.1:18091/v1/rerank` | `BAAI/bge-reranker-v2-m3` | CPU 20 线程 | UP |
 | LLM | `http://127.0.0.1:18092/v1/chat/completions` | `Qwen2.5-7B-Instruct Q4_K_M` (GGUF) | CUDA0 RTX 3060 Laptop，33/33 层全量 offload | UP |
-| VLM（契约外新增） | `http://127.0.0.1:18093/v1/chat/completions` | `Qwen2.5-VL-3B-Instruct Q4_K_M` + mmproj-f16 | CPU 20 线程 | UP |
+| VLM（TL 已批准纳入契约） | `http://127.0.0.1:18093/v1/chat/completions` | `Qwen2.5-VL-3B-Instruct Q4_K_M` + mmproj-f16 | CPU 20 线程（2 槽 × 16384） | UP |
 
 一键启停：`platform/r12/models/start-all.sh {up|down|status|restart}`
 - 冷启动实测 **5.1s** 全部就绪（页面缓存热；首次含模型加载见下表）。**含 VLM 后 6-8s**
@@ -78,16 +78,17 @@
 > 余量结论：5000 字符表（parse 实测 prompt≈4069）+1000 max_tokens ≈ 5069，8192 下单一请求剩约 3100；
 > **两个大表并发就会超预算**，大表必须串行（parse 已把 `table_split_max_worker` 降到 1）。
 
-### 3.4 VLM（18093，契约外新增）
+### 3.4 VLM（18093，TL 已批准纳入契约）
 | 指标 | 实测值 |
 |---|---|
 | 模型 | `Qwen2.5-VL-3B-Instruct-Q4_K_M` + `mmproj-f16`（llama.cpp mtmd） |
-| 上下文 | **16384**（02:35 → 8192；03:20 → 16384，为多图整页扫描件留 KV 余量） |
-| 图片编码（视觉塔，纯 CPU） | **约 16–26s / 张**（900×420 PNG，约 518 image tokens）；**负载敏感**：load≈25 时同图单次实测 111.5s（≈7×），parse 侧另测到 0.28 tok/s 的极端值 → **高负载按 ≥10× 余量估算** |
+| 上下文 | **2 槽 × 16384（`--parallel 2 --ctx-size 32768`，每槽私有 KV，04:35 起）**；历史：4096 → 8192(02:35) → 16384 共享(03:20) |
+| 图片编码（视觉塔，纯 CPU） | **约 16–26s / 张**（900×420 PNG，约 518 image tokens）；**极度负载敏感**：load≈25 时同图 111.5s；**load≈30 时实测 2801 token 图 prompt eval 212s + 64 token 生成 359s（0.18 tok/s）≈ 571s**，parse 侧同源观测 0.28 tok/s → **高负载按 30–50× 余量估算，且此时基本不适合在线使用** |
 | 图片 token 公式（实测拟合） | `tokens ≈ (W/28) × (H/28)` —— 900×420→518、1600×747→1570、2048×956→2513、2048×1800→4111，全部吻合 |
 | 大图实测 | 2048×1800 JPEG → prompt 4111 tokens，**239.3s**，答案仍正确（`对公客户存款与授信情况表`）——4111 token 已超过旧配置 ctx 4096（现在是 16384） |
 | 格式支持 | PNG 与 JPEG 的 `data:image/{png,jpeg};base64,...` 均实测可用 |
 | mime 校验 | 不校验：把 PNG 字节声明成 `image/jpeg` 仍能正确识别（按字节嗅探），parse 侧硬编码 jpeg 不是问题 |
+| 负载 vs 吞吐（A4 ≈2780 image token，首次请求） | load1=**13.4** → prompt eval **29.25 tok/s**，总 **125.2s**；load1=**25–30** → prompt eval **13.21 tok/s**（212s 仅 prefill），总 348–571s。<br>**同一份 13.21 tok/s 在「4 槽共享池」与「2 槽私有」两种配置下完全一致 ⇒ 单图延迟由机器负载决定，与 `--parallel`/ctx 配置无关**（不要把低负载窗口的提速归因于配置） |
 | 表格 → Markdown | **37.7s，4 行表格逐格全对**（见下方样例） |
 | 定向问答（按客户名） | 「华东制造集团的日均存款和授信额度」→ **1250 / 8000**（正确），16.8s |
 | 自由描述 | 27.7s，正确说出标题「对公客户存款与授信情况表」+ 3 个客户名 + 3 个日均存款数字 |
@@ -136,9 +137,15 @@
 > 对照：parse 侧 OCR 也抓到了该页眉，但带噪声（`SCANNED PAGE-notex layene 1 of eline 2ofascanned`），VLM 版本逐字干净。
 > 因此职责划分应是 **OCR 负责覆盖度/定位，VLM 负责精确转录，二者互补**；不要据此立"VLM 页眉盲区"缺陷。
 
-**并发与共享 KV 预算（`kv_unified=true` ⇒ ctx 是 4 个槽的共享池，不是每人一份）**
+**并发与 KV 预算**
 
-ctx 于 **03:20 从 8192 提到 16384**（原因见本段下方「能力边界」与预算实测）。下表把 8192 与 16384 两轮实测并列，样本是 parse 侧真实 fixture（`platform/r12/parse/fixtures/generated/docx-{2,3}images.docx` 内嵌的 1240×1754 PNG，2728 token/张）：
+> **04:35 配置变更（消除跨请求 KV 争抢）**：`--parallel 2 --ctx-size 32768` ⇒ 服务端分配 **2 个槽、每槽私有 16384**（日志 `n_slots = 2, n_ctx_slot = 16384, kv_unified = 'false'`）。
+> 早前是 `n_slots=4 + kv_unified=true`，16384 由 4 个槽**共享**——这正是"2 图 71% 占用即 `failed to process mtmd chunk`"的成因。
+> 改后实测：**4 个并发独立请求（各 2801 token）全部 200，零 mtmd/KV 错误**（c0 716.9s / c1 405.7s / c2 259.7s / c3 574.4s，墙钟 716.9s，load≈29.6），
+> 超出 2 个的请求**排队而非报错**。⇒ 调用侧并发过高不再导致整篇 500，代价是延迟线性拉长。
+> 注意 per-slot 16384 意味着**单个请求自身也必须 ≤16384**（3 图 8355 ✅，超过则仍会失败）。
+
+下表保留两轮历史实测（8192 共享池 / 16384 共享池）作为成因证据，样本是 parse 侧真实 fixture（`platform/r12/parse/fixtures/generated/docx-{2,3}images.docx` 内嵌的 1240×1754 PNG，2728 token/张）：
 
 | ctx | 场景 | prompt tokens | 占 ctx | 结果 |
 |---|---|---|---|---|
@@ -155,18 +162,43 @@ ctx 于 **03:20 从 8192 提到 16384**（原因见本段下方「能力边界�
 
 结论（据此修正早前"N=2 就安全"的说法）：
 1. **失败根因是 KV 余量，不是 mtmd 并发编码本身**：unified KV 需要给整段图像 chunk 找到**连续**空间；占用到 68% 就开始出现 `failed to find free space in the KV cache`，到 71% 直接 `failed to process mtmd chunk`（parse 实测），超过 100% 则 `Context size has been exceeded`。
-2. **安全水位取 ctx 的 ≤60%**，且必须另留 `max_tokens`。按 60% 反推：每图 T 个 token 时 `N = floor(0.6*ctx - max_tokens) / T`。
-   16384 下 T≈2728（整页扫描件）→ **N≤3**（实测 3 图 8355 通过）；T≈500 → N≤8（受 n_slots=4 限制，即 4）。
-3. **并发几乎不换吞吐**（1.08×），只放大延迟 → **推荐并发 1**；「单请求内含 2–3 图」比「2–3 个并发请求」安全（前者 KV 连续、后者碎片化）。
-4. **失败形态是硬 500 而非降级**，parse 侧 LLM 失败会异常冒泡成整篇 500，所以宁可按低水位配置。
-5. ctx 提到 16384 的代价是内存：VLM RSS 起步 **3.9G**，跑过一轮多图任务后峰值到 **7.7G**（KV + 计算/批缓冲，纯 RAM，不占显存）。
-   **这已经到上限**：本机 available 一度只有 7G，因此**不要再往上加 ctx**（16384 已能覆盖 3 图 8355 token，占 51%）；若要跑更多图请改为多请求串行。
+2. **安全水位取可用 ctx 的 ≤60%**，且必须另留 `max_tokens`。按 60% 反推：每图 T 个 token 时 `N = floor(0.6*ctx - max_tokens) / T`。
+   共享池时代 16384 下 T≈2728（整页扫描件）→ N≤3；**现在每槽私有 16384，单个请求上限即 16384**。
+   **新配置下已实测**：单请求 3 图（3×1240×1754 全新图）→ prompt **8374** token、**HTTP 200**、零 mtmd/KV 错误、613.3s（load1 18→27）✅；
+   4 图约 11000（占 67%），理论上可容纳但不推荐。
+6. **单页逐字转录的 `max_tokens` 余量实测（中文）**：
+   - 稀疏页（fixture，14 行短句）→ 输出 140–200 token，512 有 2.5× 余量；
+   - **密排页（36 行中文条款、输出 704 字）→ 实际用掉 427 token、`finish=stop`**，512 只剩 **1.2×** 余量。
+   - 中文经验比 ≈ **1.65 字/token** ⇒ `max_tokens=512` 约合 **840 汉字**输出；超过会 `finish=length`。
+   - ⇒ 条款/合同类整页密排扫描件建议 **768–1024**；若坚持 512，必须依赖 `finish_reason=='length'` 判定 `truncated`（调用侧已实现），否则会静默只抄半页。
+7. **多图逐字转录时 `max_tokens` 必须按图数放大**：同一 3 图请求用 `max_tokens=600` 实测 `finish_reason=length` —— 只抄完【图1】的 14 行就截断，图2/图3 完全没输出，
+   且【图1】**页眉再次被略过**（模型先抄正文，预算耗尽后跳过头行）。单张 A4（14 行小字）逐字约需 150–200 token，3 图应给 **≥1500**。
+   这与"页眉不是识别盲区、而是输出预算问题"的结论一致（见 §3.4 更正块）。
+3. **并发几乎不换吞吐**（1.08×），只放大延迟 → **推荐并发 1**。
+4. **失败形态**：单请求自身超 per-slot ctx → 硬 500；**跨请求超配在 04:35 后不再产生 500**，而是排队（实测 4 并发全 200）。
+5. 内存：共享池配置（4 槽/16384）多图任务后 RSS 峰值 **7.7G**；**现配置（2 槽 × 16384 私有）起步 4.5G**，反而更省。
+   仍**不建议再加 ctx**：本机 available 一度只有 7G，且加 ctx 对吞吐无帮助。
 6. 注意 `verify_vl.py` 打印的耗时是**缓存热值**（实测 25.5s / 1.14s / 6.2s，因为是脚本内复用的同一张图），**不可当作性能指标**；
    冷启动/首次请求的真实值见 §3.4（20–457s，随图大小与负载变化）。
 
 **延迟评估方法（缓存陷阱，必读）**
 llama-server 会缓存「相同图片 + 相同 prompt 前缀」的计算结果：同一张图同一问题，**首次 38.1s / 111.5s，第二次仅 0.7s / 2.0s**（我在 4 并发实验里也复现了这个假象，一度误判并发有 2.35× 收益）。
 因此：①**报延迟只认首次请求**；②**每次测量必须换新图片**；③不要用重复请求评估吞吐。
+
+> **取数机制（04:50 定稿，比 `uptime` 可靠）**：非流式响应体自带 `timings`，字段有 `prompt_n / cache_n / prompt_per_second / predicted_per_second`。
+> - **权威延迟指标 = `prompt_per_second` / `predicted_per_second`**（服务端自测），**不要用 `load1` 倒推**——load1 采样时点滞后，
+>   parse 侧实测过「请求期间低负载、请求结束后 load1 才升到 25.96」的错配。
+> - **`cache_n` = 从 KV 缓存复用的 prompt token 数**（实测：首次约 14–29，仅模板前缀；**完全相同的图片+问题第二次复用 506/507**，`prompt_n` 掉到 1）。
+>   ⇒ 校验规则：`cache_n ≤ 5% prompt` 才算一次干净的首次测量。
+> - `bench_vl.py` 已按此实现：每次运行随机换图 + `cache_n` 校验 + 打印服务端 tok/s。
+
+> **已排除的严重怀疑：同尺寸不同图片不会被旧 KV 污染（负结果，重要）**
+> 担心点：A4 扫描页尺寸全相同、图像在 prompt 里占位 token 也相同，若按 token 前缀匹配就可能复用**上一张图的 KV**。
+> 实测 3 张同尺寸（1240×1754）不同内容的图，同一问题连续请求：
+> `CASE-AAA111` → `AAA111` ✅（prompt_n 2793 / cache_n 14）、`CASE-BBB222` → `BBB222` ✅（2793 / 14）、
+> `CASE-CCC333` → **`CASE-CC333` ❌**（2778 / 29）。
+> 前两张证明**不同图片不会复用旧 KV**（否则会答出前一张的编号）；第三张**prompt_n 为全量、非缓存**，是**字符级识别错误**（三个连续 C 丢了一个）。
+> ⇒ ①跨图缓存污染不存在，parse 一图一请求的链路安全；②但 **VLM 逐字并非字符零错**，连号/重复字符易丢，**编号、金额、日期这类字符敏感字段不能只靠 VLM**，需 OCR 或结构化校验兜底。
 
 表格 → Markdown 实测输出（未做任何后处理）：
 ```
@@ -191,12 +223,12 @@ platform/r12/models/llama.cpp/build/bin/llama-server \
   --model platform/r12/models/gguf/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf \
   --alias qwen2.5-7b-instruct --host 127.0.0.1 --port 18092 \
   --ctx-size 8192 --n-gpu-layers 99 --threads 8 --jinja --no-webui --metrics
-# vlm（契约外新增，纯 CPU）
+# vlm（TL 已批准纳入契约，纯 CPU）
 platform/r12/models/llama.cpp/build/bin/llama-server \
   --model platform/r12/models/gguf-vl/Qwen2.5-VL-3B-Instruct-Q4_K_M.gguf \
   --mmproj platform/r12/models/gguf-vl/mmproj-Qwen2.5-VL-3B-Instruct-f16.gguf \
   --alias qwen2.5-vl-3b-instruct --host 127.0.0.1 --port 18093 \
-  --ctx-size 16384 --n-gpu-layers 0 --threads 20 --no-mmproj-offload --jinja --no-webui
+  --ctx-size 32768 --parallel 2 --n-gpu-layers 0 --threads 20 --no-mmproj-offload --jinja --no-webui
 ```
 
 可调环境变量：`EMB_DEVICE/EMB_THREADS/EMB_MAX_BATCH/EMB_MAX_LEN`、`RR_BATCH/RR_MAX_LEN/RR_THREADS`、`LLM_NGL/LLM_CTX/LLM_THREADS/GGUF_PATH`、`VL_NGL/VL_CTX/VL_THREADS/VL_MMPROJ_OFFLOAD/VL_IMAGE_MAX_TOKENS/VL_MODEL_PATH/VL_MMPROJ_PATH`。
@@ -206,7 +238,12 @@ platform/r12/models/llama.cpp/build/bin/llama-server \
 ```bash
 cd platform/r12/models && ../venvs/models/bin/python verify.py      # 18090/18091/18092 期望 RESULT: ALL PASS
 cd platform/r12/models && ../venvs/models/bin/python verify_vl.py   # 18093（先跑 make_test_image.py 生成图）
+cd platform/r12/models && ../venvs/models/bin/python bench_vl.py    # 18093 首次请求延迟基准（诚实口径）
 ```
+
+`bench_vl.py` 强制三条口径，供对外引用的性能数字必须来自它：①`load1 > 15` 直接 SKIP（高负载下 0.18 tok/s，测出的耗时是噪声）；
+②每次测量**生成全新图片**（不命中缓存）；③**每张图独立请求**（符合 R-1 红线）。实测样例（load1=21.46，900×420，510 image token）：
+首次 **37.5s**，marker 命中 1/1；同机 `--force` 可用于高负载对照。
 `verify.py` 覆盖：维度=1024、batch index 顺序、真实 token usage、相关/无关余弦对比、str 与 list[str] 两种入参、
 rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一致性、SSE 分片数>1 + `[DONE]` + 中文汉字计数、
 非流式对照 + 真实 `completion_tokens`、TTFT 上限。任一项不满足退出码非 0。
@@ -221,8 +258,8 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
 2. **venv 内 torch 是 CPU 版（`2.6.0+cpu`，`torch.cuda.is_available()==False`）**。若要给 embedding 上 GPU，
    需另装 CUDA 版 torch（额外约 3GB 依赖）并解决与 LLM 争用显存；本轮**未做**，不声称支持。
    `EMB_DEVICE=cuda` 开关存在但当前依赖下会失败 —— 这是真实限制，不是配置遗漏。
-3. **llama-server 未设 API key**（日志有 `no API key is set and CORS allows all origins` 告警）。
-   服务只监听 `127.0.0.1`，仅本机可访问；网关侧（18088/8088）如要暴露必须自行加鉴权，**不能直接把 18092 对外**。
+3. **四个服务均未设 API key**（llama-server 日志有 `no API key is set and CORS allows all origins` 告警），只监听 `127.0.0.1`。
+   **不得直接对外暴露或做端口映射**；前端/外部调用必须经 Java 网关（8088）或前端反代（18088）转发并在网关侧鉴权限流 —— 详见 §8 R-2。
 4. **不出网**：transformers `local_files_only=True`，llama-server 纯本地 GGUF。运行期采样 `ss -tanp`：
    三个服务的连接**全部为 127.0.0.1 回环**，非回环连接数 0（排除的其他监听端口 8106/12340 属既有进程，非本批次服务）。
 5. **下载来源**：pypi/github 直连不可用或极慢（github ~60KB/s）；已按 TL 指定走阿里云镜像与 `hf-mirror.com`。
@@ -230,7 +267,7 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
 6. **rerank 长文档吞吐偏低**（5.1 doc/s，CPU fp32、512 token）。若整链路压测不够，优先调 `RR_BATCH=32` 或缩短 `RR_MAX_LEN=256`；
    不建议上 GPU（见限制 1）。
 7. `models/bge-m3/onnx/` 已删除（2.2G 重复制品，服务走 PyTorch 路径）；如需 onnxruntime 方案需重新下载。
-8. **VLM 只能跑 CPU，且是契约外新增端口 18093**。为解 parse 侧「文档内图片理解」的阻塞（18092 是纯文本 7B，无视觉），
+8. **VLM 只能跑 CPU**（18093 已由 TL 批准纳入契约，但受显存限制只能 CPU）。为解 parse 侧「文档内图片理解」的阻塞（18092 是纯文本 7B，无视觉），
    新增 `Qwen2.5-VL-3B-Instruct`（GGUF Q4_K_M + mmproj-f16，llama.cpp mtmd）。实测结论：
    - 把 mmproj 放 GPU 会直接失败：`cudaMalloc failed: out of memory`（需 1276.40 MiB，当时仅余约 1.2GB）→ `GGML_ASSERT(buffer)` abort。
      因此固定 `--n-gpu-layers 0 --no-mmproj-offload`，显存占用 0，不与 7B 争抢。
@@ -248,7 +285,7 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
      而我用合成小字页在 1024 下仍可读。差异来自「有效字形像素高度 + 扫描噪声」，只能拿真实扫描件集标定，不能写成通用阈值。
    - **页眉页脚不是盲区**（03:40 更正）：真实 fixture 上 VLM 逐字读出 `SCANNED PAGE - no text layer`；
      先前的"漏读"是我的合成图 + `max_tokens` 截断造成的假象，不据此立缺陷。
-   - 18093 未写入 `R12-ENV-CONTRACT.md`，已同步 TL；若 TL 不采纳，删掉该服务即可，不影响 18090/18091/18092。
+   - 18093 已由 TL 批准纳入 `R12-ENV-CONTRACT.md`（可选增强、非硬依赖）；调用侧仍应按「VLM 不可用可降级为纯 OCR」设计，避免把可选能力变成硬依赖。
 
 ## 7. 给其他角色的接口约定
 
@@ -258,7 +295,7 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
   响应 `{"model":...,"results":[{"index":i,"relevance_score":f,"score":f}],"usage":{...}}`，**已按分数降序**；`index` 指向原始文档下标。
 - LLM：标准 OpenAI `POST /v1/chat/completions`，`stream:true` 返回标准 SSE；`/v1/models` 返回 `qwen2.5-7b-instruct`；
   健康检查用 `/health`（llama.cpp 原生，返回 `{"status":"ok"}`）。
-- VLM：`http://127.0.0.1:18093/v1/chat/completions`，model=`qwen2.5-vl-3b-instruct`，ctx=16384，
+- VLM：`http://127.0.0.1:18093/v1/chat/completions`，model=`qwen2.5-vl-3b-instruct`，2 槽 × 16384（每槽私有），
   `content` 数组里放 `{"type":"text","text":...}` 与 `{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}`（png/jpeg 均可）。
   **客户端超时必须 ≥600s**（纯 CPU 且负载敏感：515 token 图约 20–30s，2700 token 扫描页 215–457s）。
   提问建议指向具体客户名/字段名，纯「第 N 行」容易串行。
@@ -268,3 +305,45 @@ rerank 两种请求体（`documents` / `texts`）+ `top_n`、`score` 字段一�
   （3 图单请求实测丢整图并虚构条目，详见 §3.4「能力边界」），只能用于整体摘要/分类。
   **分辨率没有通用安全阈值**，是否缩放须在真实扫描件上标定，见 §3.4「分辨率」小节。
 - **重启约定**：18092/18093 的 down/up 演练会打断调用方（parse 侧 LLM 失败是异常冒泡→整篇 500）。重启前先通知 parse-ops。
+
+## 8. 红线与安全边界（对外必须遵守，本节为可检索口径）
+
+**R-1【逐字转录 / 证据提取必须一图一请求】**
+同一请求内塞多张图会给模型制造"整图丢失 + 按模式补全虚构"的确定性错误（实测：3 图单请求丢整张英文页 140 token 内容，并虚构出不存在的「副本 3 / 客户 3 / 123 万」；`finish_reason=stop`、输出仅 57 token，已排除 max_tokens 截断）。
+→ **多图拼接只能做整体摘要/分类；其结果不得作为证据链文本源**，不得写入 chunk、索引、检索语料或对外报告的证据字段。
+→ 该错误"编号连续、格式规整"，人工抽检与常规字段校验均无法发现，且**重试/投票无效**（确定性行为）。
+
+**R-1b【`finish_reason=='length'` 的输出不得并入正文】**
+被截断的 VLM 输出是半句/残缺文本，混入 `page_content` 会污染正文（实测：`max_tokens=1` 时合并结果 347 字 OCR + **3 字残句** = 352 字）。
+→ 截断即弃用该段 VLM 文本，或至少加显式分隔标记并在 chunk 元数据里带 `vlm_status='truncated'`；
+→ **状态字段必须随 chunk 一起落库**（ES/Milvus payload），否则解析输出之后下游无从判断这段文字来源是否完整。
+
+**R-2【服务不得直接对外暴露】**
+18092（LLM）、18093（VLM）、18090（embedding）、18091（rerank）**均未设 API key**，只监听 `127.0.0.1`。
+llama-server 启动日志明确告警 `no API key is set and CORS allows all origins`。
+→ **一律不得直接对外暴露或做端口映射**；前端与外部调用必须经 Java 网关（8088）/ 前端反代（18088）转发并在网关侧做鉴权与限流。
+→ 不要用 `[::1]` 访问（只绑 IPv4 回环，会 connection refused）；显式写 `127.0.0.1`。
+
+**R-3【私有资料不出网】**
+transformers 以 `local_files_only=True` 加载，LLM/VLM 使用本地 GGUF；运行期采样 `ss -tanp` 三服务连接全部为回环，非回环连接 0。禁止把它们接到任何外部 API（含云端 LLM/embedding）。
+
+**R-4【禁止假服务】**
+不允许以"随机向量 / 固定文本 / mock 分支"替代真实推理；模型不可用时必须显式报错或在调用侧标记降级状态（如 `vlm_status='failed'`），并回落 OCR 等真实能力，**不得返回伪造结果**。
+
+**R-5【不依赖中间件】**
+本组四个服务不依赖 MySQL / Redis / Elasticsearch / MinIO / Milvus / Nacos，只依赖本地模型文件与 CPU/GPU。
+→ ES 重启、Milvus 重建、Nacos 配置发布期间，模型服务无需停机，也不会因此失败。
+
+## 9. 交付快照（2026-10-25 05:05）
+
+| 服务 | 端口 | PID | 连续运行 | RSS | 状态 |
+|---|---|---|---|---|---|
+| embedding (bge-m3) | 18090 | 3356869 | 3h15m | 1.9G | UP |
+| rerank (bge-reranker-v2-m3) | 18091 | 3356870 | 3h15m | 1.7G | UP |
+| LLM (Qwen2.5-7B Q4_K_M) | 18092 | 3366947 | 3h13m | 1.4G | UP |
+| VLM (Qwen2.5-VL-3B + mmproj) | 18093 | 4001031 | 1h00m | 7.7G | UP |
+
+- GPU：5202 MiB / 6144 MiB（仅 7B 使用，`--n-gpu-layers 99`）
+- 关键参数：18092 `--ctx-size 8192`；18093 `--parallel 2 --ctx-size 32768`（每槽私有 16384）、`--n-gpu-layers 0`
+- 验证：`verify.py` ALL PASS（27 断言）、`verify_vl.py` ALL PASS、`bench_vl.py` 带负载哨兵与 `cache_n` 校验
+- 复跑一键：`platform/r12/models/start-all.sh {up|down|status|restart}`

@@ -1,0 +1,107 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.12
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/qa/dialogue/create",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.09
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/dialogue/getDialogBySessionId?sessionId=qa-s9-1792874994",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.074
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/dialogue/list?pageNo=1&pageSize=10",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.057
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/qa/ai/question_re",
+    "status": 500,
+    "req_keys": [
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "query_len": 11,
+    "elapsed": 0.084
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/qa/dialogue/create",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.058
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/dialogue/list?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.081
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/dialogue/getDialogBySessionId?sessionId=qa-s9-1792874994-dup",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.086
+  }
+]

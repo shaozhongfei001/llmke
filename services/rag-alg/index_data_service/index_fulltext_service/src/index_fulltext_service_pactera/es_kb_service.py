@@ -588,6 +588,38 @@ def search_by_custom_param(param_query: QueryParamModel) -> BaseResponse:
 def create_query(query, k):
     return {"query": {"match": {"page_content": query}}, "size": k}
 
+
+def static_count(static_param) -> BaseResponse:
+    """[R12-ADAPT-ALG-07] 全文侧文档计数（Java 契约要求，上游源码缺失）
+
+    语义与向量服务 /static_count 对齐（返回 data.count），但口径改用 ES `_count`：
+    向量侧用的是 `num_entities`，会漏掉尚未 flush 的段（R12 实测出现过 0 vs 1 的差异）。
+    索引不存在时不报错、按 0 计（避免 Java 统计空知识库时拿到 500），并在 data.detail 里给出每索引明细。
+    """
+    names = static_param.index_name
+    if isinstance(names, str):
+        names = [names]
+    es = return_nacos_model().es_client()
+    total = 0
+    detail = {}
+    for name in names:
+        index_name = is_index_lower(name)
+        if not is_index(index_name):
+            detail[index_name] = None          # None = 索引不存在（与"存在但 0 条"区分开）
+            continue
+        try:
+            if static_param.col_name:
+                body = {"query": {"terms": {f"metadata.{static_param.col_name}.keyword": static_param.col_values}}}
+                resp = es.count(index=index_name, body=body)
+            else:
+                resp = es.count(index=index_name)
+            detail[index_name] = resp["count"]
+            total += resp["count"]
+        except Exception as ex:
+            logger.error(f'{index_name}统计失败,{ex}')
+            return BaseResponse(code=500, msg=f'{index_name}统计失败,{ex}')
+    return BaseResponse(code=200, msg='成功查询数据', data={"count": total, "detail": detail})
+
 # def get_retriever_documents(index_name, query: str, k=server_config["vector_search_top_k"]) -> BaseResponse:
 #     """
 #     通过langchain提供方法查询数据。

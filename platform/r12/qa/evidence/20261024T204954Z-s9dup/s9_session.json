@@ -1,0 +1,36 @@
+{
+  "sessionId": "qa-s9-1792874994",
+  "get": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": {
+      "label": "QA独立复核会话",
+      "sessionId": "qa-s9-1792874994",
+      "gmtCreate": "2026-10-25 04:49:55",
+      "gmtModified": "2026-10-25 04:49:55",
+      "createBy": "admin",
+      "updateBy": "admin",
+      "filePath": "http://127.0.0.1:19000",
+      "configId": null,
+      "kbId": null,
+      "queryReplyPairList": [],
+      "searchConfigDTO": null
+    }
+  },
+  "list_rows": [
+    {
+      "label": "QA独立复核会话",
+      "sessionId": "qa-s9-1792874994",
+      "gmtCreate": "2026-10-25 04:49:55",
+      "gmtModified": "2026-10-25 04:49:55",
+      "createBy": "admin",
+      "updateBy": "admin",
+      "filePath": null,
+      "configId": null,
+      "kbId": null,
+      "queryReplyPairList": null,
+      "searchConfigDTO": null
+    }
+  ]
+}

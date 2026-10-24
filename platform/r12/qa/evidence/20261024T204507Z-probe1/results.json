@@ -1,0 +1,26 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录后取菜单",
+    "verdict": "PASS",
+    "detail": "http=200 success=True menus=7"
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户身份",
+    "verdict": "PASS",
+    "detail": "userName=admin"
+  },
+  {
+    "scene": "S1",
+    "case": "登录响应不回显口令/哈希",
+    "verdict": "PASS",
+    "detail": "响应中 userPassword 字段为 null，未回显"
+  },
+  {
+    "scene": "S2",
+    "case": "创建知识库(R12-QA-独立复核库)",
+    "verdict": "PASS",
+    "detail": "http=200 kbId=2 primitive=kb_2 "
+  }
+]

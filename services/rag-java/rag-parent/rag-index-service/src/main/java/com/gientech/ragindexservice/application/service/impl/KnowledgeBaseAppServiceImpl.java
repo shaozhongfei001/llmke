@@ -376,7 +376,10 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
     private void checkEmbeddingModelChangeAndSendMsg(KnowledgeBase knowledgeBase) {
         KnowledgeBaseDTO originalKb = knowledgeBaseAppService.getKbById(knowledgeBase.getId());
         String originalEmbeddingName = originalKb.getEmbeddingModelName();
-        if (!originalEmbeddingName.equals(knowledgeBase.getEmbeddingModelName())) {
+        // R12-FIX-KB-01：建库时若 model_info 为空，config 里 embeddingModelName 会落成 null，
+        // 后续任何 updateConf 都会在此 NPE，导致该知识库永远无法配置。改为 null 安全比较。
+        String currentEmbeddingName = knowledgeBase.getEmbeddingModelName();
+        if (!java.util.Objects.equals(originalEmbeddingName, currentEmbeddingName)) {
             //向量模型变更
             ModelSimpDTO chosenEmbeddingModel = modelInfoAppService.getByModeName(knowledgeBase.getEmbeddingModelName());
             String uid = UUID.randomUUID().toString();

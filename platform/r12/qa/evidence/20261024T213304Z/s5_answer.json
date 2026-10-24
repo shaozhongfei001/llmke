@@ -1,0 +1,47 @@
+{
+  "question": "银行承兑汇票如果提前换成现金，利率是怎么定的？",
+  "answer": "æ¨¡åææ æ³è¿åï¼è¯·ç¨ååè¯!!!",
+  "frames": [
+    {
+      "sessionId": "kb_6",
+      "queryId": "q-1792877584673",
+      "lastDate": 1792877596329,
+      "status": 1,
+      "reply": {
+        "content": "",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": null,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_6",
+      "queryId": "q-1792877584673",
+      "lastDate": 1792877602685,
+      "status": 3,
+      "reply": {
+        "content": "æ¨¡åææ æ³è¿åï¼è¯·ç¨ååè¯!!!",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": null,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    }
+  ],
+  "reference": []
+}

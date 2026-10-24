@@ -1,0 +1,32 @@
+[
+  {
+    "fileId": "9",
+    "name": "pdf-digital.pdf",
+    "label": "PDF 数字版",
+    "kbId": "5"
+  },
+  {
+    "fileId": "10",
+    "name": "docx-table.docx",
+    "label": "DOCX 含表格",
+    "kbId": "5"
+  },
+  {
+    "fileId": "11",
+    "name": "table-ledger.xlsx",
+    "label": "XLSX 表格",
+    "kbId": "5"
+  },
+  {
+    "fileId": "12",
+    "name": "image-slide.pptx",
+    "label": "PPTX 图片页",
+    "kbId": "5"
+  },
+  {
+    "fileId": "13",
+    "name": "scan-text.png",
+    "label": "扫描图片(纯图)",
+    "kbId": "5"
+  }
+]

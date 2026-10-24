@@ -1,0 +1,170 @@
+[
+  {
+    "scene": "S2",
+    "case": "知识库存在(qa_r12_indep)",
+    "verdict": "PASS",
+    "detail": "kbId=5 primitive=kb_5 private=0"
+  },
+  {
+    "scene": "S8",
+    "case": "N1 无 token 访问受保护接口",
+    "verdict": "PASS",
+    "detail": "无 token http=401，对照 http=200",
+    "extra": {
+      "obs": {
+        "status": 401,
+        "control_status": 200,
+        "snippet": "{'errorCode': '30022', 'errorMsg': '没有token', 'success': False}"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N2 伪造 JWT（alg=none / 伪签名）",
+    "verdict": "FAIL",
+    "detail": "未被规范化拒绝(5xx，非放行，属健壮性/信息泄露缺陷): random->500",
+    "extra": {
+      "obs": {
+        "control_status": 200,
+        "results": [
+          {
+            "label": "alg_none",
+            "status": 401
+          },
+          {
+            "label": "wrong_sig",
+            "status": 401
+          },
+          {
+            "label": "random",
+            "status": 500
+          }
+        ]
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N3 篡改 token payload 保留原签名",
+    "verdict": "PASS",
+    "detail": "篡改 token http=401",
+    "extra": {
+      "obs": {
+        "status": 401,
+        "control_status": 200,
+        "leaked_admin": false,
+        "who": "qa_user_c->admin",
+        "snippet": "{'errorCode': '30013', 'errorMsg': '登录失效已过，请重新登录', 'success': False}"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N4 会话注销后旧 token 复用",
+    "verdict": "PASS",
+    "detail": "注销后旧 token http=401",
+    "extra": {
+      "obs": {
+        "status": 401,
+        "control_status": 200
+      }
+    }
+  },
+  {
+    "scene": "S2",
+    "case": "创建知识库(qa_r12_priv)",
+    "verdict": "PASS",
+    "detail": "http=200 kbId=7 primitive=kb_7 "
+  },
+  {
+    "scene": "S8",
+    "case": "N5 越权：非属主读他人私有知识库",
+    "verdict": "FAIL",
+    "detail": "越权：非属主 qa_user_b 读到他人私有库 kbId=7（owner=admin）共 1 条文件记录",
+    "extra": {
+      "obs": {
+        "status": 200,
+        "n_records": 1,
+        "kb_private": 1,
+        "kb_id": "7",
+        "kb_owner": "admin",
+        "who": "qa_user_b",
+        "snippet": "{'success': True, 'errorMsg': None, 'errorCode': None, 'data': {'records': [{'id': '21', 'kbId': '7', 'fileName': None, 'fileSize': None, 'size': 'nullMB', 'filePath': None, 'fullTextPath': None, 'con"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N5b 非属主按 fileId 直读他人文件",
+    "verdict": "PASS",
+    "detail": "http=200 data=null(未泄露) resp={\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": null}"
+  },
+  {
+    "scene": "S8",
+    "case": "N6 网关白名单端点未授权可达",
+    "verdict": "FAIL",
+    "detail": "未带任何凭证即可进入业务链路: /index/knowledgeBase/file/list?kbId=1&type=1->500({'success': False, 'errorMsg': 'Cannot p), /index/knowledgeBase/file/multiple/version?kbId=1&type=1->500({'success': False, 'errorMsg': \"\\n### Er), /index/parseTask/callback->500({'success': False, 'errorMsg': 'Cannot i), /index/knowledgeBase/file/uploadParsedFile?kbId=1&fileId=1&userId=1->500({'success': False, 'errorMsg': '知识库不存在',)",
+    "extra": {
+      "obs": {
+        "results": [
+          {
+            "path": "/index/knowledgeBase/file/list?kbId=1&type=1",
+            "method": "GET",
+            "status": 500,
+            "snippet": "{'success': False, 'errorMsg': 'Cannot parse null string', 'errorCode': '999', 'data': Non"
+          },
+          {
+            "path": "/index/knowledgeBase/file/multiple/version?kbId=1&type=1",
+            "method": "GET",
+            "status": 500,
+            "snippet": "{'success': False, 'errorMsg': \"\\n### Error querying database.  Cause: java.sql.SQLSyntaxE"
+          },
+          {
+            "path": "/index/parseTask/callback",
+            "method": "POST",
+            "status": 500,
+            "snippet": "{'success': False, 'errorMsg': 'Cannot invoke \"com.gientech.ragindexservice.domain.entity."
+          },
+          {
+            "path": "/index/knowledgeBase/file/uploadParsedFile?kbId=1&fileId=1&userId=1",
+            "method": "POST",
+            "status": 500,
+            "snippet": "{'success': False, 'errorMsg': '知识库不存在', 'errorCode': '10001', 'data': None}"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N7 坏文件必须明确失败（随机字节）",
+    "verdict": "PASS",
+    "detail": "进入解析失败态 status=4，chunk=0",
+    "extra": {
+      "obs": {
+        "reject": false,
+        "http": 200,
+        "snippet": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"22\", \"kbId\": \"5\", \"fileName\": \"random-bytes.pdf\", \"fileSize\": 4096.0, \"size\": ",
+        "final_status": 4,
+        "chunk_count": 0,
+        "file_id": "22"
+      }
+    }
+  },
+  {
+    "scene": "S8",
+    "case": "N8 扩展名伪装文件必须明确失败",
+    "verdict": "PASS",
+    "detail": "进入解析失败态 status=4，chunk=0",
+    "extra": {
+      "obs": {
+        "reject": false,
+        "http": 200,
+        "snippet": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"23\", \"kbId\": \"5\", \"fileName\": \"plain-text-pretend.pdf\", \"fileSize\": 2820.0, \"s",
+        "final_status": 4,
+        "chunk_count": 0,
+        "file_id": "23"
+      }
+    }
+  }
+]

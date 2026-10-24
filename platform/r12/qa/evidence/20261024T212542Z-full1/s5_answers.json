@@ -1,0 +1,46 @@
+[
+  {
+    "q": "银行承兑汇票提前换成现金，利率是怎么定的？",
+    "qid": "qa-1792877230612-0",
+    "answer": "é¶è¡æ¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877253870,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}æ±ç¥¨æåæ¢æç°éæ¶åçå©çéå¸¸{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877254083,\"status\":1,\"reply\":{\"content\":\"åæ¬\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ä»¥ä¸å ä¸ªæ¹é¢ï¼\n\n1. **è´´ç°ç**ï¼é¶è¡ä¼æ ¹æ®å¸åº{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877254469,\"status\":1,\"reply\":{\"content\":\"æåµ\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}åèªèº«èµéææ¬ç¡®å®è´´ç°çãä¸è¬{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877254758,\"status\":1,\"reply\":{\"content\":\"æåµä¸\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼è´´ç°çä¼é«äºåæçè´·æ¬¾å©çã\n\n2. **æåå¤©æ°**ï¼å¦ææ¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877255288,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}æ±ç¥¨å¨å°ææ¥åè¢«æå{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877255517,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ä»ï¼é¶è¡å¯è½ä¼æ ¹æ®æåå¤©æ°æ¶åä¸å®çå©æ¯ï¼ä»¥è¡¥å¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877255852,\"status\":1,\"reply\":{\"content\":\"å¶\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}èµéå ç¨çææ¬ã\n\n3. **ä¿¡ç¨é£é©**ï¼é¶è¡è¿ä¼èèæ¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877256216,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}æ±ç¥¨çä¿¡ç¨é£é©ï¼å¦ææ¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877256449,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}äººä¿¡ç¨ç¶åµä¸ä½³ï¼é¶è¡å¯è½ä¼æé«è´´ç°çä»¥è¦çæ½å¨çé£é©æå¤±ã\n\nå æ­¤ï¼{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877256947,\"status\":1,\"reply\":{\"content\":\"å·ä½ç\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}å©çéè¦æ ¹æ®é¶è¡çè§å®åå¸åº{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877230612-0\",\"lastDate\":1792877257111,\"status\":1,\"reply\":{\"content\":\"æåµ\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}æ¥ç¡®å®ï¼éå¸¸ä¼å¨è´´ç°ççåºç¡ä¸å ä¸ä¸å®çæµ®å¨ç¹æ°ã",
+    "refs": [],
+    "req_keys": [
+      "configId",
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "req_body": {
+      "sessionId": "qa-sess-1792877230",
+      "queryId": "qa-1792877230612-0",
+      "content": "银行承兑汇票提前换成现金，利率是怎么定的？",
+      "type": "text",
+      "sysType": "KNO_INDEX",
+      "configId": 2
+    }
+  },
+  {
+    "q": "如果承兑汇票还没到期就贴现，利息按什么规则计算？",
+    "qid": "qa-1792877257720-1",
+    "answer": "æ¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877285053,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}æ±ç¥¨å¨æªå°æåè´´ç°æ¶ï¼å©æ¯éå¸¸{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877285426,\"status\":1,\"reply\":{\"content\":\"æç§\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ä»¥ä¸è§åè®¡ç®ï¼\n\n$$\n\\text{è´´ç°å©æ¯} = \\text{æ±ç¥¨é¢é¢} \\times \\text{è´´ç°ç} \\times \\left(1 - \\frac{\\text{è´´ç°å¤©æ°}}{\\text{æ±ç¥¨å¤©æ°}}\\right)\n$$\n\n{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877286884,\"status\":1,\"reply\":{\"content\":\"å¶ä¸­\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼\n- **æ±ç¥¨é¢é¢**ï¼æ¿{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877287131,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}æ±ç¥¨çç¥¨é¢éé¢ã\n- **è´´ç°ç**ï¼é¶è¡æ ¹æ®å¸åº{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877287575,\"status\":1,\"reply\":{\"content\":\"æåµ\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}åèªèº«èµéææ¬ç¡®å®çè´´ç°çã\n- **è´´ç°å¤©æ°**ï¼ä»è´´ç°æ¥è³æ±ç¥¨å°ææ¥{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877288266,\"status\":1,\"reply\":{\"content\":\"çå®é\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}å¤©æ°ã\n- **æ±ç¥¨å¤©æ°**ï¼æ±ç¥¨çæ»å¤©æ°ï¼éå¸¸ä¸ºä»æ±ç¥¨ç­¾åæ¥è³å°ææ¥çå¤©æ°ã\n\nä¾å¦ï¼å¦ææ±ç¥¨é¢é¢ä¸º 100,000{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877289414,\"status\":1,\"reply\":{\"content\":\" å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}ï¼è´´ç°çä¸º 0.5%ï¼è´´ç°å¤©æ°ä¸º 10 å¤©ï¼æ±ç¥¨æ»å¤©æ°ä¸º 60 å¤©ï¼åï¼\n\n$$\n\\text{è´´ç°å©æ¯} = 100,000 \\times 0.005 \\times \\left(1 - \\frac{10}{60}\\right) = 100,000 \\times 0.005 \\times \\left(1 - \\frac{1}{6}\\right) = 100,000 \\times 0.005 \\times \\frac{5}{6} = 416.67 \\text{{\"sessionId\":\"qa-sess-1792877230\",\"queryId\":\"qa-1792877257720-1\",\"lastDate\":1792877293092,\"status\":1,\"reply\":{\"content\":\"å\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":1,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}}\n$$",
+    "refs": [],
+    "req_keys": [
+      "configId",
+      "content",
+      "queryId",
+      "sessionId",
+      "sysType",
+      "type"
+    ],
+    "req_body": {
+      "sessionId": "qa-sess-1792877230",
+      "queryId": "qa-1792877257720-1",
+      "content": "如果承兑汇票还没到期就贴现，利息按什么规则计算？",
+      "type": "text",
+      "sysType": "KNO_INDEX",
+      "configId": 2
+    }
+  }
+]

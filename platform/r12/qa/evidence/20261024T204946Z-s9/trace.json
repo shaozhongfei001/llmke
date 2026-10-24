@@ -1,0 +1,53 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.073
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/qa/dialogue/create",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.073
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/dialogue/getDialogBySessionId?sessionId=qa-s9-1792874986",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.053
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/qa/dialogue/list?pageNo=1&pageSize=10",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.069
+  }
+]

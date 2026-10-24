@@ -9,7 +9,10 @@ import traceback
 
 import requests
 from langchain_core.documents import Document
-from zhipuai import ZhipuAI
+
+# [R12-ADAPT-ALG-03] 原为模块级 `from zhipuai import ZhipuAI`（R12 未安装该依赖，见任务书"不装 zhipuai"）。
+# 模块级导入会让整个检索服务在 import 期就崩，即使请求里 enable_web_search=false。
+# 改为惰性导入，仅在真正调用智谱联网搜索时导入。
 
 from app.operators.client import es_client
 from base import WebSearchResult

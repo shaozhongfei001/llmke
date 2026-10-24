@@ -78,13 +78,13 @@ public class AuthFilter implements GatewayFilter, Ordered {
             "/auth/user/kaptcha",
             "/auth/user/registerKaptcha",
             "/auth/user/regist",
+            // R12-SEC-01：以下两个是解析服务的内部回写入口，必须保持可达（Python 侧无 token）。
+            // 已知缺口：当前仅靠网络边界，未做共享密钥；R13 需补内部令牌校验（见 R12 验收报告"已知安全缺口"）。
             "/index/knowledgeBase/file/uploadParsedFile",
-            "/index/knowledgeBase/file/list",
+            "/index/parseTask/callback",
             "/graph/search/ping",
             "/auth/user/simpleLogin",
-            "/index/knowledgeBase/file/multiple/version",
             "/auth/authenticate/callback",
-            "/index/parseTask/callback",
             "/auth/agent/agentLogin",
             "/auth/kaptcha/kaptchaSix",
             "/auth/userSecurityQuestion/findByUserName",

@@ -1,0 +1,82 @@
+[
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/auth/user/simpleLogin",
+    "header_keys": [
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": false,
+    "status": 200,
+    "elapsed": 0.196
+  },
+  {
+    "label": "admin",
+    "method": "GET",
+    "path": "/index/knowledgeBase/list?pageNo=1&pageSize=50",
+    "header_keys": [
+      "Authorization",
+      "User-Agent",
+      "X-Platform"
+    ],
+    "token_present": true,
+    "status": 200,
+    "elapsed": 0.088
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 500,
+    "elapsed": 0.174
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 500,
+    "elapsed": 0.07
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 500,
+    "elapsed": 0.098
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 500,
+    "elapsed": 0.079
+  },
+  {
+    "label": "admin",
+    "method": "POST",
+    "path": "/index/knowledgeBase/file/uploadFileList",
+    "part_keys": [
+      "uploadFileParam"
+    ],
+    "file_part": "files",
+    "status": 500,
+    "elapsed": 0.094
+  }
+]

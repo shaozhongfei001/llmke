@@ -28,6 +28,49 @@ from operators.common.log import logger
 from utils import return_nacos_model
 
 
+# [R12-ADAPT-ALG-09] 流式端点改为标准 SSE 分帧。
+# 背景（TL 实测）：Java `AiServiceImpl:917-928` 用 WebClient `.accept(TEXT_EVENT_STREAM)`
+# + `.bodyToFlux(String.class)`，Spring 会走 `ServerSentEventHttpMessageReader`；
+# 而本服务原来返回 `media_type="text/plain"` + `{"answer":"银行"}\r\n` 的单换行帧，
+# 没有 `data:` 前缀 → Java 侧 `WebClientResponseException: 200 OK`（解码层失败），前端拿兜底文案。
+# 改法：只改分帧，不改 JSON 内容 —— 每帧变成 `data: <原 JSON>\n\n`，结束帧 `data: {"end": ""}\n\n`，
+# 并把 media_type 改为 `text/event-stream`，使 Spring SSE reader 与前端 fetch-event-source 都能直接消费。
+SSE_MEDIA_TYPE = "text/event-stream"
+SSE_HEADERS = {
+    "Cache-Control": "no-cache",      # 禁缓存，避免中间层合并帧
+    "Connection": "keep-alive",
+    "X-Accel-Buffering": "no",        # 网关/nginx 不缓冲，保证逐帧下发
+}
+
+
+def _sse_frames(chunk):
+    """把内部 "json\r\n" 帧拆成若干 `data: json\n\n` SSE 事件（JSON 内容一字不改）。"""
+    if chunk is None:
+        return
+    text = chunk if isinstance(chunk, str) else str(chunk)
+    for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        line = line.strip()
+        if line:
+            yield f"data: {line}\n\n"
+
+
+def sse_response(generator) -> StreamingResponse:
+    """统一包装同步/异步帧生成器为标准 SSE 响应。"""
+    if hasattr(generator, "__aiter__"):
+        async def _aiter():
+            async for chunk in generator:
+                for frame in _sse_frames(chunk):
+                    yield frame
+        body = _aiter()
+    else:
+        def _iter():
+            for chunk in generator:
+                for frame in _sse_frames(chunk):
+                    yield frame
+        body = _iter()
+    return StreamingResponse(body, media_type=SSE_MEDIA_TYPE, headers=SSE_HEADERS)
+
+
 def text_tracing(token: str, documents: [dict], trace_by_llm: bool, trigger_param: TriggerConfig, attr_param: AttributeParameter, web_documents_list=None, rerank_model_info=None):
     """溯源功能"""
     if not documents:
@@ -84,25 +127,56 @@ async def llm_open_chat(llm_open_model: LLMOpenChatConfig):
 
     """
 
+    # [R12-ADAPT-ALG-01] 原实现三处调用 text_tracing 的参数与函数签名不符：
+    #   text_tracing(token, documents, trace_by_llm, trigger_param, attr_param, web_documents_list, rerank_model_info) -> 5 元组
+    #   而原代码写成 text_tracing(full_answer, token, documents) 且尾部用不存在的 finally_flag=True，
+    #   导致 /llm_open_chat 一进入流式循环即 TypeError（接口不可用）。
+    # 这里按同文件 sync_llm_generate() 的既有正确用法重建溯源状态机（TriggerConfig + AttributeParameter），
+    # 逐帧输出仍未改动：{"answer": ...} 若干帧 + 结束帧 {"end": ""}；documents 为空时 text_tracing 原样透传 token。
     async def event_stream():
         config_manager = return_nacos_model().get_config()
-        full_answer = ""
-        token = ""
-        if "qwen_api" in llm_open_model.model_info["model_name"]:
-            async for token in requests_qwen_llm(llm_open_model, config_manager):
-                full_answer, token, _ = text_tracing(full_answer, token, llm_open_model.documents)
-                yield json.dumps({"answer": token}, ensure_ascii=False) + "\r\n"
-        else:
-            async for token in async_general_service(llm_open_model, config_manager):
-                full_answer, token, _ = text_tracing(full_answer, token, llm_open_model.documents)
-                yield json.dumps({"answer": token}, ensure_ascii=False) + "\r\n"
+        trigger_param = TriggerConfig()          # 溯源触发状态（逐帧推进）
+        merge_documents = list(llm_open_model.documents or [])
+        if llm_open_model.web_documents_list:
+            merge_documents.extend(llm_open_model.web_documents_list)
+        attr_param = AttributeParameter(merge_documents)   # 溯源参考句切分结果
+        model_name = llm_open_model.model_info["model_name"]
+        generator = requests_qwen_llm(llm_open_model, config_manager) if "qwen_api" in model_name \
+            else async_general_service(llm_open_model, config_manager)
+        async for token in generator:
+            if not isinstance(token, str):      # 上游异常时 async_general_service 会 yield {}（原行为）
+                continue
+            yield_token, attr_result, remain_token, trigger_param, attr_param = text_tracing(
+                token, llm_open_model.documents, llm_open_model.trace_by_llm,
+                trigger_param, attr_param,
+                web_documents_list=llm_open_model.web_documents_list,
+                rerank_model_info=llm_open_model.rerank_model_info)
+            if yield_token:
+                yield json.dumps({"answer": yield_token}, ensure_ascii=False) + "\r\n"
+            if attr_result:
+                yield json.dumps({"answer": attr_result}, ensure_ascii=False) + "\r\n"
+            if remain_token:
+                yield json.dumps({"answer": remain_token}, ensure_ascii=False) + "\r\n"
+
+        # 流结束：冲刷未决句子并做末尾兜底溯源（等价 sync_llm_generate 的收尾分支）
+        if llm_open_model.stream and llm_open_model.need_trace_source:
+            if trigger_param.pending_lines or trigger_param.cur_text:
+                _, attr_result, _, trigger_param, attr_param = text_tracing(
+                    "\n\n", llm_open_model.documents, llm_open_model.trace_by_llm,
+                    trigger_param, attr_param,
+                    web_documents_list=llm_open_model.web_documents_list,
+                    rerank_model_info=llm_open_model.rerank_model_info)
+                if attr_result:
+                    yield json.dumps({"answer": attr_result}, ensure_ascii=False) + "\r\n"
+            if len(attr_param.matched_results) == 0:
+                attr_text = "\n".join(trigger_param.pending_lines) if trigger_param.pending_lines else ""
+                attr_result, attr_param = last_attribute(attr_text + trigger_param.cur_text, attr_param)
+                if attr_result:
+                    yield json.dumps({"answer": attr_result}, ensure_ascii=False) + "\r\n"
         if llm_open_model.stream:
-            if full_answer:
-                full_answer, token, attr_text = text_tracing(full_answer, token, llm_open_model.documents, finally_flag=True)
-                yield json.dumps({"answer": attr_text}, ensure_ascii=False) + "\r\n"
             yield json.dumps({"end": ""}, ensure_ascii=False)
 
-    return StreamingResponse(event_stream(), media_type="text/plain")
+    return sse_response(event_stream())   # [R12-ADAPT-ALG-09] 标准 SSE 分帧
 
 
 def llm_check_model(basic_config: LLMBasicConfig):
@@ -176,7 +250,7 @@ def llm_multi_model(multi_model: MultiModelConfig):
         if multi_model.stream:
             yield json.dumps({"end": ""}, ensure_ascii=False)
 
-    return StreamingResponse(event_stream(), media_type="text/plain")
+    return sse_response(event_stream())   # [R12-ADAPT-ALG-09] 标准 SSE 分帧
 
 
 def sync_llm_generate(llm_open_model: LLMOpenChatConfig):
@@ -444,7 +518,7 @@ def sync_llm_generate(llm_open_model: LLMOpenChatConfig):
             llm_open_model.query = None
 
     _check_and_process_document()
-    return StreamingResponse(event_stream(), media_type="text/plain")
+    return sse_response(event_stream())   # [R12-ADAPT-ALG-09] 标准 SSE 分帧
 
 
 def sync_llm_rounds_generate(llm_open_model: LLMOpenChatConfig):
@@ -540,7 +614,7 @@ def sync_llm_rounds_generate(llm_open_model: LLMOpenChatConfig):
         return summary_texts
 
     summary_texts = knowledge_extract()
-    return StreamingResponse(event_stream(summary_texts), media_type="text/plain")
+    return sse_response(event_stream(summary_texts))   # [R12-ADAPT-ALG-09] 标准 SSE 分帧
 
 
 def llm_question_recommend(recommend_model: QuestionRecommendConfig):

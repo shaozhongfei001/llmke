@@ -12,7 +12,21 @@ import random
 import aiohttp
 import httpx
 import requests
-from dashscope import Generation
+
+# [R12-ADAPT-ALG-05] 原为模块级 `from dashscope import Generation`（阿里百炼 SDK）。
+# R12 的 LLM 通路由本机 18092（OpenAI 兼容）承担，按任务书不安装 dashscope；
+# 模块级导入会拖垮整个 LLM 服务（即使只走 async_general_service）。
+# 改为惰性导入，只在 model_name 命中 "qwen_api" 分支（requests_qwen_llm）时才需要该 SDK。
+
+def _load_dashscope_generation():
+    try:
+        from dashscope import Generation  # noqa: PLC0415 - 惰性导入是本处刻意行为
+        return Generation
+    except ImportError as e:
+        raise RuntimeError(
+            "model_name 命中 qwen_api 分支，需要 dashscope SDK，但 R12 venv 未安装"
+            "（见 status/alg.md 依赖处置表）；请改用 OpenAI 兼容端点或安装 dashscope"
+        ) from e
 
 from base import LLMOpenChatConfig, FAQChatConfig, FAQSelectConfig, FAQSimiConfig, LLMBasicConfig, \
     QuestionRecommendConfig, QuestionRewriteConfig, SqlGenConfig
@@ -105,6 +119,7 @@ async def requests_qwen_llm(llm_open_model: LLMOpenChatConfig, server_config):
     max_tokens = llm_open_model.max_tokens or server_config["MAX_TOKENS"]
     if max_tokens > 2000:
         max_tokens = 1999
+    Generation = _load_dashscope_generation()  # [R12-ADAPT-ALG-05] 惰性导入
     responses = Generation.call(model=model_id,
                                 messages=messages,
                                 top_p=llm_open_model.top_p,

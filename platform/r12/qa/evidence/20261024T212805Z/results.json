@@ -1,0 +1,58 @@
+[
+  {
+    "scene": "S2",
+    "case": "知识库已存在（复用）",
+    "ok": true,
+    "detail": "kbId=4 primitive=kb_4"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=14 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "14"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=15 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "15"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=16 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "16"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=17 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "17"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 明确失败（负例）",
+    "ok": false,
+    "detail": "http=200 resp={'success': True, 'errorMsg': None, 'errorCode': None, 'data': [{'id': '18', 'kbId': '4', 'fileName': 'pdf-encrypted.pdf', 'fileSize': 4445.0, 'size': '4445.0MB"
+  }
+]

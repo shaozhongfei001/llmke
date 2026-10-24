@@ -78,7 +78,7 @@ class MultiModalClient:
         if api_key:
             self.headers = {'Authorization': api_key}
 
-    def chat(self, messages: list[MultiModalMessage]) -> str:
+    def chat(self, messages: list[MultiModalMessage], return_meta: bool = False):
         content = []
         image = None
         for message in messages:
@@ -139,7 +139,19 @@ class MultiModalClient:
                 raise err
 
             try:
-                return response.json()['choices'][0]['message']['content']
+                # [R12-FIX-PARSE-05] 采集 finish_reason：'length' 表示输出被 max_tokens 截断，
+                # 此时文本不可作为"完整逐字转录"使用（实测 256 token 会把 14 行小字页抄一半）。
+                _data = response.json()
+                _content = _data['choices'][0]['message']['content']
+                if return_meta:
+                    return _content, {
+                        'finish_reason': _data['choices'][0].get('finish_reason'),
+                        'usage': _data.get('usage') or {},
+                        # [R12-FIX-PARSE-05] llama-server 自带 timings：prompt_n/cache_n 可判定这次测量是否干净
+                        # （cache_n 过大说明命中了 prompt cache，耗时不代表首次开销）
+                        'timings': _data.get('timings') or {},
+                    }
+                return _content
             except Exception as e:
                 err = ModelRequestInternalError('多模态模型返回格式错误：' + response.text)
                 err.kind = 'failed'

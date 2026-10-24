@@ -3,7 +3,7 @@
 - 角色：parse-ops　生成：2026-10-25　更新：2026-10-25（含 TL 决定登记、A/B/C 三项交付）　服务：`0.0.0.0:12340`
 - 工作根目录：`/home/szf/data/dev/llmke-r12`
 
-**结论**：服务已启动并完成 **12 个用例**的真实端到端解析验证（**12 PASS / 0 FAIL / 0 BLOCKED**）。表格、图片、定位字段**没有做"只留纯文本"的降级**；所有降级与阻塞按类写在 §8。**DOCX 内嵌图片**已在 VLM `18093` 就绪后重跑通过（正文块+图片块都在，满足 TL 决定③），但**图片块文字质量存在真实缺陷 D-1**（二次多模态处理自我退化后覆盖，§8-①），需 CR 修复。
+**结论（2026-10-25 晚更新）**：D-1/D-2/D-3 三项 CR 已按 TL 批准实施（编号 `R12-FIX-PARSE-02/03/04`），并在**两种状态**下完成 12 用例回归：**VLM 可用 12 PASS / VLM 不可用 12 PASS**（后者**无任何 500**，C08 由改造前 500/0.37s 变为 **200/1.33s**）。详见 §16。表格、图片、定位字段**没有做"只留纯文本"的降级**；所有降级与阻塞按类写在 §8。**DOCX 内嵌图片**已在 VLM `18093` 就绪后重跑通过（正文块+图片块都在，满足 TL 决定③），但**图片块文字质量存在真实缺陷 D-1**（二次多模态处理自我退化后覆盖，§8-①），需 CR 修复。
 
 **2026-10-25 更新（本机 LLM 就绪后）**：`18092` 已实测可用（`qwen2.5-7b-instruct`，OpenAI 兼容、无鉴权），**表格摘要已由本机端点自证通过**（C07/C09），此前"外部 DeepSeek 一次性验证"的临时记录**已被本机自证取代**（见 §9）。
 
@@ -295,6 +295,14 @@ W srv decode: failed to find free space in the KV cache, retrying with smaller b
 - **缺陷仍在（降级为高风险 + 缺降级）**：①`multi_modal_process` 仍用 `run_in_thread_pool(max_workers=None)` → 默认线程池最多 32，**N 图文档会同时发 N 个请求，水位不可控**；②**单图/单请求失败仍整篇 500**，没有"返回正文 + 标注失败图片"的降级；③水位安全线依赖服务端 ctx，R12 换模型/改 ctx 就会再现。
 - CR 建议（**本轮仍未改代码**）：①加 `multi_modal_max_workers` 配置（**默认 1**；实测并发无吞吐收益，1.08×，但单请求内含 2–3 图是安全的，可允许）；②单图失败降级，不得整篇失败；③按 `ctx ≤60%` 水位做准入（`Σ(prompt+max_tokens) ≤ 0.6×ctx`）。
 
+**服务端槽位模型已变更（model-ops 2026-10-25 04:35，需按此理解 D-2）**：
+- 旧：`n_slots=4 + kv_unified=true` → **4 槽共享 16384**，71% 占用即 `failed to process mtmd chunk`；
+- **新：`--parallel 2 --ctx-size 32768`** → **2 槽、每槽私有 16384**（日志 `n_slots = 2, n_ctx_slot = 16384, kv_unified = 'false'`），RSS 起步 4.5G（旧配置多图后峰值 7.7G）；
+- model-ops 实测 4 个并发请求全部 200、零 mtmd/KV 错误（c0 716.9s / c1 405.7s / c2 259.7s / c3 574.4s，墙钟 716.9s），**第 3、4 个请求排队而非报错**。
+- 因此 D-2 的措辞修正为：**并发不再导致整篇 500，而是"排队 + 延迟线性拉长"**；500 现在只会在**单个请求自身超 16384** 时发生（`Context size has been exceeded`）。
+- **但并发上限仍然要加**，理由从"防 500"改为"**防排队长尾 + 防 worker 线程被拖死**"（叠加 D-3 无 timeout 时就是永久阻塞）——结论不变：默认 1。
+- 单请求可用上限：1 图 2802 ✅ / 2 图 5581 ✅ / 3 图 8355 ✅ / 4 图约 11000（67%，不推荐）。
+
 **⑦ `use_multi_modal=false` 的含义**：只关掉 `load_files` 里"对文档内图片再做一次 OCR/VLM"的开关；PDF/PNG 的 OCR 由 parser 自身完成，不受影响（已由 C03/C04/C05 证明）。文档内图片若需要 VLM 摘要，须 `use_multi_modal=true` + VLM 可用。
 
 ---
@@ -475,11 +483,11 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 | 项 | 状态 | 说明 |
 |---|---|---|
 | **A** Nacos 配置整理交付 | ✅ 完成 | `platform/r12/nacos/` 4 个 data_id 文件 + `README-parse-configs.md`（含 TL 要求补齐的全部键、取值出处、发布命令）。已按此内容在本机发布并重启验证（health=200） |
-| **B** `/parse` 带索引落库 | ⏸ 阻塞待 TL | 缺 `es-insert` / `milvus-insert` **URL 模板与端口口径**（不编造）；ES 19200 未监听。TL 通知就绪后执行，并核对 ES 文档数 / Milvus 行数与 chunk 数一致 |
+| **B** `/parse` 带索引落库 | ✅ 已跑通 | 走代理（19527/19526）；`cn-digital.pdf` → ES 1 / Milvus 1 == chunk 1；`table-ledger.xlsx` → 表摘要与表格块各 1（ES+Milvus）。详见 §16.4 |
 | **C** 12 用例固化脚本 | ✅ 完成 | `platform/r12/parse/fixtures/{run-parse-cases.sh,parse_cases.py}`；本机 18092 自测 **11 PASS / 0 FAIL / 1 BLOCKED**（C08 等 VLM）；加 `--with-stress` 为 12 PASS（C13 大表 14 chunk） |
-| **G** 超时健壮性（D-3） | ❌ 全链路无 timeout | 4 处 LLM/VLM/embedding 调用均未传 timeout，`except Timeout` 不可达；端点挂住 → 线程永久阻塞。修法见 §14-10 |
-| **F** 多图文档可用性 | ⚠ 服务端已缓解 / 调用侧 CR 未修 | 8192 时 2/3 图整篇 500；**16384 后 2 图 200/675.65s、3 图 200/526.96s**。仍缺：并发上限（默认 32 线程池）+ 单图失败降级 |
-| **E** VLM(18093) 接入（新增） | ⚠ 结构通过 / 质量缺陷 | C08 从 500 变 200（正文块+图片块都在），但发现 **D-1**：二次多模态处理以首轮输出为输入 → 自我退化为「没有文字信息」并覆盖 OCR 文本（根因已复现，需 CR） |
+| **G** 超时健壮性（D-3） | ✅ 已修（4 处补 timeout） | 4 处 LLM/VLM/embedding 调用均未传 timeout，`except Timeout` 不可达；端点挂住 → 线程永久阻塞。修法见 §14-10 |
+| **F** 多图文档可用性 | ✅ 调用侧已修（并发=1） | 8192 时 2/3 图整篇 500；**16384 后 2 图 200/675.65s、3 图 200/526.96s**。仍缺：并发上限（默认 32 线程池）+ 单图失败降级 |
+| **E** VLM(18093) 接入（新增） | ✅ 已修复并验收 | C08 从 500 变 200（正文块+图片块都在），但发现 **D-1**：二次多模态处理以首轮输出为输入 → 自我退化为「没有文字信息」并覆盖 OCR 文本（根因已复现，需 CR） |
 | **D** 本机 LLM 接入（新增） | ✅ 完成 | C07/C09 表格摘要已由 `18092` 自证（§9.1）；容量约束实测并已把 `table_split_max_worker` 降为 1（§9.2）；大表端到端 200/14 chunk（§9.3） |
 
 ---
@@ -488,16 +496,16 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 
 1. **【已解除】18092 文本 LLM**：已实测可用，C07/C09 已转本机自证（§9.1）。
 2. **【已解除】VLM `18093`**：已就绪并重跑 C08，正文块+图片块都在（证据见 §8-①）。**但发现缺陷 D-1（见第 5 条）**；另 18093 是 R12 契约外新增端口，仍**需 TL 明确批准**（model-ops 已上报 `platform/r12/status/models.md §6.8`）。
-3. **【阻塞，需 TL 给口径】`es-insert` / `milvus-insert`**：URL 模板（路径）+ 端口走本体（19200/19630）还是代理（19527/19526）→ 我做 B 项验收（真实文件落 ES + Milvus 并核对 chunk 数）。
+3. **【已解除】`es-insert` / `milvus-insert` 与 B 项验收**：按 TL 口径走代理（19527/19526），已用两个真实文件验证 ES+Milvus 双落库且计数与 chunk 数一致（§16.4）。遗留一个待确认项：Milvus 集合名多一个前导 `_`（`_<index_name>`），已向 alg-ops 确认是否刻意约定。
 4. **【已解除】ctx 已扩容**：`18092`(LLM) 8192 —— 我复测 5000 字符表 `prompt_tokens=4066` 正常受理无截断（§9.2）；`18093`(VLM) 16384 —— 2/3 图已通过（§8-⑨）。
-5. **【需 CR，优先级最高】缺陷 D-1：图片块被二次多模态处理覆盖**（§8-①）。**归因已定**：我方本来就是"一图一请求"（代码 + 日志双证），单图单请求 VLM 逐字正确率高（model-ops 3/3），**图片块质量损失的唯一我方原因是"二次多模态处理以首轮输出为输入"**，与多图拼接、max_tokens 都无关。修法：①二次处理幂等化（跳过已有 VLM 产出的图片）或直接去掉；②图片块 `page_content` 改为「OCR 文本 ∪ VLM 描述」合并而非覆盖；③若保留二次处理，第二轮 prompt 不得把首轮输出当作「图片内文字内容」。**修前图片块文字不可信，且会丢掉 OCR 已抽到的文字**。
+5. **【已实施 R12-FIX-PARSE-02】缺陷 D-1：图片块被二次多模态处理覆盖**（§8-①，实施与验证见 §16）。**归因已定**：我方本来就是"一图一请求"（代码 + 日志双证），单图单请求 VLM 逐字正确率高（model-ops 3/3），**图片块质量损失的唯一我方原因是"二次多模态处理以首轮输出为输入"**，与多图拼接、max_tokens 都无关。修法：①二次处理幂等化（跳过已有 VLM 产出的图片）或直接去掉；②图片块 `page_content` 改为「OCR 文本 ∪ VLM 描述」合并而非覆盖；③若保留二次处理，第二轮 prompt 不得把首轮输出当作「图片内文字内容」。**修前图片块文字不可信，且会丢掉 OCR 已抽到的文字**。
    ④**调用粒度必须一图一请求 —— 这属 D-1 的修复要求（正确性问题），不放在 D-2 的并发里**：多图单请求会"整图丢失+虚构"，且**重试无效**（确定性行为）。我方现状已满足（代码 + 日志双证），此处是防止 R13 做"多图摘要"时误用。
    另立**红线**（来自 model-ops 决定性证据，我方代码目前不违反）：**逐字转录/证据提取必须一图一请求**；多图拼进同一 VLM 请求会「整图内容丢失 + 虚构条目」（他实测 3 图输出仅 57 token、`finish=stop`，丢失整页并虚构"副本3/客户3/123万"）。R13 若做"多图摘要"，其结果**绝不能当文本源**。
-6. **【需 CR，高风险】缺陷 D-2：多图文档水位不可控 + 无降级**（§8-⑨）。服务端 ctx 提到 16384 后 2/3 图已能过，**但这是加内存换来的**：`multi_modal_process` 仍是默认 32 线程池、失败仍整篇 500。建议：①加 `multi_modal_max_workers`（默认 1，允许单请求内 2–3 图）；②单图失败降级为"返回正文 + 标注 `image_parse_failed`"；③准入按 `Σ(prompt+max_tokens) ≤ 0.6×ctx`。**换模型/改 ctx 即可能再现，不能当已解决。**
+6. **【已实施 R12-FIX-PARSE-03】缺陷 D-2：多图文档水位不可控 + 无降级**（§8-⑨，实施见 §16）。服务端 ctx 提到 16384 后 2/3 图已能过，**但这是加内存换来的**：`multi_modal_process` 仍是默认 32 线程池、失败仍整篇 500。建议：①加 `multi_modal_max_workers`（默认 1，允许单请求内 2–3 图）；②单图失败降级为"返回正文 + 标注 `image_parse_failed`"；③准入按 `Σ(prompt+max_tokens) ≤ 0.6×ctx`。**换模型/改 ctx 即可能再现，不能当已解决。**
 7. **【需 CR】两处硬编码**（本轮未动）：`llm_chat` 的 `max_tokens=1000`、`summarize_table` 的 5000 字符截断。若 R12 要支持超大不规则表，应改为可配置项。
 8. **【已撤回，改为低优先提示，不需 CR】原"页眉/页脚盲区"结论作废**：原分辨率下 VLM **能逐字读对页眉**（我定向提问实测 `SCANNED PAGE - no text layer`，finish=stop；model-ops 在真实 fixture 上独立复验一致）。此前"漏页眉"的真实原因是：①他的合成图 `max_tokens=220` 被正文抄写**打满导致输出截断**；②我的 768 档**降分辨率**导致小字丢失。
 9. **【需 CR，需标定】图片预处理策略**：实测"长边压到 1024"会让小字扫描件读不出文字（§9.1.1 表，3/3 次 NO_TEXT），**不能当无损优化照搬**；当前链路不缩放（能读但单图 2774 image token、负载下 100–250s）。建议按文档类型标定后再决定是否引入缩放。
-10. **【需 CR，新增缺陷 D-3】所有 LLM/VLM/embedding 调用都没有 timeout，会永久占死线程**
+10. **【已实施 R12-FIX-PARSE-04】缺陷 D-3：所有 LLM/VLM/embedding 调用都没有 timeout**
  实测代码（`requests.post` 全部无 `timeout=` 参数）：`deepdoc/utils.py:72`（表格摘要 `llm_chat`）、`deepdoc/utils.py:99`（`llm_completions`）、`deepdoc/utils.py:152`（`embedding_func`，图片关联用）、`server/multi_modal_utils.py:108`（VLM）。
  后果：任意一个端点挂住（负载高、进程假死、网络半开），对应 worker 线程**永久阻塞**，FastAPI 请求永不返回；`multi_modal_utils.py:109` 的 `except Timeout` **实际不可达**（因为从没传 timeout）。model-ops 建议"客户端超时 ≥600s"，但**客户端根本没有超时**。
  修法（各加一行 + 配置项）：`timeout=config.get('llm_timeout', 300)` / `multi_modal_timeout` 默认 600。
@@ -507,7 +515,7 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 
 ---
 
-## 15. 附录：D-1 / D-2 改动草案（**未实施，等 CR 批准**）
+## 15. 附录：D-1 / D-2 / D-3 改动草案（**已于 2026-10-25 按 TL 裁定实施，实施记录见 §16**）
 
 > 目的：让 TL 一次看清改动面与风险，批准后我按此实施并回归。所有改动都在 `services/rag-alg/alg_doc_parse_service/**`（我的独占范围），不改接口契约、不改返回体结构（只**新增**可选 metadata 字段）。
 
@@ -561,3 +569,150 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 
 ### 15.4 需要 TL 额外拍板的一项（来自 model-ops 建议）
 若 D-1/D-2 实施后"一图一请求 + 串行"的吞吐仍不可接受（每张 100–450s 是硬成本；R12 的一个 20 页扫描 docx 可能要 1–2 小时），可考虑**把 7B 的 offload 降下来换 VLM 上 GPU**。这属服务端资源配置，需 TL 决定，我不擅自动。
+
+---
+
+## 16. 实施记录（TL 于 2026-10-25 全部批准后执行）
+
+批准内容：18093 纳入契约（可选增强）、D-1/D-2/D-3 三项 CR、编号统一 `R12-FIX-PARSE-xx`、**不批降低 7B offload**、B 项走代理（19527/19526）。
+
+### 16.1 代码改动清单（全部在我的独占目录内）
+
+| 编号 | 文件:位置 | 改动 |
+|---|---|---|
+| **R12-FIX-PARSE-01** | `server/controller.py` chunk 排序 | （此前已落地）表格块 `page_number` 为空时兜底为 0，修复 docx 含表格整篇 500 |
+| **R12-FIX-PARSE-02** | `deepdoc/output_object/image.py` | `ParsedImageMetadata` 新增 `ocr_text` / `vlm_text` / `vlm_status`（均有默认值，下游兼容） |
+| | `server/controller.py:multi_modal_process()` | ①OCR 文本固化为 `ocr_text` 基线；②**VLM 结果不再覆盖**，`page_content = OCR ∪ VLM`；③**幂等**（`vlm_status=='ok'` 直接跳过，消灭"二次处理拿首轮输出再问"的自我退化）；④prompt 的"图片内文字"改取 `ocr_text`（切断反馈污染）；⑤单图失败只打标不抛异常；⑥有 `boxes` 时补页内 `position`，`page_size=image_size`，**`page_number` 不伪造仍为空** |
+| **R12-FIX-PARSE-03** | `server/controller.py:multi_modal_process()` | `run_in_thread_pool(..., max_workers=config.get('multi_modal_max_workers', 1))`；配置默认 1 |
+| **R12-FIX-PARSE-04** | `server/multi_modal_utils.py` | ①`requests.post(..., timeout=config.get('multi_modal_timeout', 600))`（原**无 timeout**，`except Timeout` 不可达）；②错误分档 `err.kind ∈ {timeout, unavailable, over_budget, kv_starved, failed}`，两种 500 按 body message 区分 |
+| | `deepdoc/utils.py:72/101/156` | 补 `llm_timeout`(300) / `embedding_timeout`(60) 三处 timeout |
+| **R12-FIX-PARSE-05** | `server/multi_modal_utils.py:chat()` | 增加 `return_meta=True` 时返回 `finish_reason`/`usage`（默认 False，旧调用方不受影响） |
+| | `deepdoc/output_object/image.py` + `server/controller.py` | 新增 `vlm_finish_reason` 字段；`finish_reason=='length'` ⇒ `vlm_status='truncated'`（文本不完整，不可当完整转录源）；`output_max_tokens` 由 **256 → 512** |
+| | Nacos `alg_doc_config_py` | 新增 `multi_modal_max_workers:1`、`multi_modal_timeout:600`、`llm_timeout:300`、`embedding_timeout:60`、`es-insert`、`milvus-insert`；`other-nacos.index` 改为**引用 alg-ops 的 `index_data_config_py`**（不再重复发布同名 data_id） |
+
+### 16.2 双状态回归（TL 要求：VLM 可用 / VLM 指向关闭端口，后者不得 500）
+
+| 状态 | 结果 | 证据目录 |
+|---|---|---|
+| **VLM 可用**（18093） | **12 PASS / 0 FAIL / 0 BLOCKED** | `logs/parse/cases/20261024T202339Z/` |
+| **VLM 不可用**（multi_model_info.url → 127.0.0.1:18100 关闭端口） | **12 PASS / 0 FAIL / 0 BLOCKED**，**无任何 500** | `logs/parse/cases/20261024T203136Z/` |
+
+**验收判据核对（§15.1 四条全部达成）**
+| # | 判据 | 实测 |
+|---|---|---|
+| 1 | 图片块同时含 OCR 与 VLM，OCR 不丢 | ✅ image chunk `len=892` = `ocr_text 347` + `vlm_text 543`，`vlm_status='ok'` |
+| 2 | 幂等（两次解析一致） | ✅ 本次请求 **VLM 调用次数=1**（改造前为 2），"二次多模态处理"耗时 **0.01s**（跳过） |
+| 3 | `position` 非空、`page_number` 仍空（不伪造） | ✅ `position=[[26.67,30]…]`、`page_size=[1240,1754]`、`page_number=[]` |
+| 4 | **VLM 不可用时仍 200 + 纯 OCR 降级** | ✅ **C08 = HTTP 200 / 1.33s**（改造前 **500 / 0.37s**），`vlm_status='unavailable'`，`ocr_text` 347 字保留、`vlm_text=None` |
+| 5 | 超时路径（D-3 新分支） | ✅ 把 `multi_modal_timeout` 临时调成 **2s** → C08 **HTTP 200 / 15.61s**，`vlm_status='timeout'`、`ocr_text` 347 保留、`vlm_text=None`；随后**已恢复 600s**（live 值已核对），正常路径复测 `vlm_status='ok'`、`ocr_text 347 + vlm_text 548 = 897` |
+| 6 | **输出截断分档（R12-FIX-PARSE-05）** | ✅ 把 `output_max_tokens` 临时调成 **1** → C08 **HTTP 200 / 27.79s**，`vlm_status='truncated'`、`vlm_finish_reason='length'`、`vlm_len=3`、`ocr_text` 347 保留（合并 352）；随后**已恢复 512**（live 值已核对）。另测 `output_max_tokens=24` 时模型自然 `stop`（输出 37 字）→ 说明"描述型"输出天然短，**截断风险主要出现在"逐字转录型"用法**，故用 `finish_reason` 断言兜底而非无限加大预算 |
+
+### 16.3 C08 单列：质量与容量双维度（按 TL 要求，不并入"12 全 PASS"单一结论）
+
+| 维度 | 结论 |
+|---|---|
+| **质量** | VLM 可用时图片块 = `OCR 347 字 + VLM 543 字` 并存（不再互相覆盖）；分档 `vlm_status` 可区分 `ok/unavailable/over_budget/kv_starved/timeout/failed`；图片块有页内 `position`，但**无页码**（docx 无分页，如实为空） |
+| **容量** | 单图实测：**105.72s**（`20261024T203443Z`）、**115.62s**（VLM 超时恢复后复测）；**VLM 不可用时 1.33s**（纯 OCR）。⚠ **不算配置收益**：348.12s / 505.92s 与 105.72s 的差异来自**测量窗口的机器负载不同**，不是 2 槽私有配置带来的提速 —— 见 §16.5 的权威判据（服务端 `prompt eval` 速率）。配置变更的真实收益只有两条：**消除跨请求 KV 争抢导致的 500（改为排队）** 与 **RSS 7.7G→4.5G** |
+| **验收含义** | 质量维度已达 D-1 判据；**容量维度是限制项**：20 页扫描件按 348s/页估算约 **1.9 小时**，不满足交互式解析，需在 R13 容量清单处理（TL 已明确不为此降低 7B offload） |
+| **C14/C15 多图容量：仍未取到数（窗口失效，如实记录）** | 05:33 窗口 `load1=10.38 / available=9G` 时启动 **2 图 v2 新样本**（1240×1754 密排、带唯一时间戳编号，**物理上不可能命中 prompt cache**）；期间**外部负载从 10 抬到 30–35**（另一角色在共用本解析服务跑 `kb_5/*` 任务），VLM 生成降到 **0.73 tok/s**（单图 eval 374.6s/276 token），请求 20 分钟未完成被客户端中止 → **无有效数据**。v2 样本（`docx-2images-v2.docx` / `docx-3images-v2.docx`）与取数口径（`cache_n ≤5%×prompt_n`）已就绪，等**专属低负载窗口**（load1≲10 且无其它角色压测）再测。 |
+| **口径注记** | 348.12s = 旧共享池配置；**105.72s = 新配置（2 槽 × 私有 16384）**，两者都非"最优值"。**load1 > 15 时 VLM 会退到 0.18 tok/s（model-ops 实测）**，此时耗时不具代表性 → 回归脚本已加 `--max-load`（默认 15，可 `R12_MAX_LOAD` 覆盖）**自动跳过 VLM 用例并打印跳过原因**；我已用 `R12_MAX_LOAD=1` 实测跳过分支生效（`[C08] SKIP(load1=20.0 > 1.0)`，PASS=11）。**C14/C15 多图容量仍未在新配置下测过**，需低负载窗口（load1 ≲ 10）再跑，跑前会与 model-ops 确认内存 |
+
+### 16.4 B 项（/parse 带索引）——**已跑通（ES + Milvus 双落库）**
+
+配置与代码：`es-insert`/`milvus-insert` 按 TL 口径（`/insert_fulltext_documents`、`/insert_vector_documents_custom`，走代理）；`index` 引用 alg-ops 的 `index_data_config_py`；探针 `platform/r12/parse/fixtures/index_probe.py` 走 `/parse_sync`（与 `/parse` 共用 `index_es`/`index_milvus`，不需 java-gateway 回调）。
+
+**实测（真实文件 → 代理 → ES/Milvus，代理 19526/19527 由 alg-ops 于 05:0x 起）**
+
+| 用例 | `/parse_sync` | ES（本体 19200 只读） | Milvus（`rag_knowledge_base`） | 一致性 |
+|---|---|---|---|---|
+| `cn-digital.pdf` → `r12_it_parse_001` | **200 / success=true / 17.75s**（高负载窗口，含 embedding 争用；不可当性能基线） | `r12_it_parse_001` = **1** | `_r12_it_parse_001` = **1**（`source=r12-rag/fixtures/cn-digital.pdf`） | ✅ chunk 1 == ES 1 == Milvus 1 |
+| `table-ledger.xlsx` → `r12_it_parse_002` | **200 / success=true / 22.52s**（同上，高负载窗口） | `table_summary_r12_it_parse_002` = **1**、`table_chunks_r12_it_parse_002` = **1** | `_table_summary_…` = **1**、`_table_chunks_…` = **1** | ✅ 表格块与表摘要双写；该样本无正文块故 `r12_it_parse_002` 未创建（符合预期） |
+
+服务端日志佐证：`index_vector_service.log` → `集合:r12_it_parse_001创建成功` + `POST /insert_vector_documents_custom 200 OK`。
+
+**接口契约与数据约束核对（alg-ops 反馈 + 我方实测落库类型）**
+- **payload 键名以代码为准**（我此前在消息里口述的 `index_name`/`embed_model` 是错的，已更正文档）：
+  - ES：`{"index_name", "document_list", "duplicate_flag"}`（`indexing_utils.py:27-31`）
+  - Milvus：`{"collection_name", "model_name", "document_list", "db_name", "duplicate_flag"}`（`indexing_utils.py:197-203`）
+  - 响应均校验 `code == 200`（成功 `msg` 形如 `…共保存3条数据` / `{'insert_count': 3, 'ids': [...]}`）
+- **落库后实测字段类型**（`_r12_it_parse_001`，33 字段）：`file_id="9001"`（字符串，检索侧会 `int()`，必须纯数字）、`chunk_index=0`（int）、`page_number=[1,1,…]` / `labels=[]` / `pic_offset_list=[]` / `text_parent_id_list=[]`（ARRAY）、`offset="[[0, 203]]"` / `position="[[[183.0,174.0],…]]"` / `page_size="…"`（JSON 字符串）、`vector` dim=**1024**、`source`/`knowledge_base_name` 正确。
+- 结论：**解析侧现有 payload 天然满足 alg-ops 的三条约束**（file_id 数字、数组传真 list、chunk_index 数字），无需改代码。
+
+**两个必须记下的跨服务事实**
+1. **Milvus 集合名带前导下划线（已由 alg-ops 用 `generate_collection_name_uuid()` 实测确认规则）**：传 `index_name=r12_it_parse_001` → 实际集合 **`_r12_it_parse_001`**；ES 索引名**原样使用**（仅小写归一）。
+   - **更正（我先前写错）**：**调代理检索不需要加 `_`**（19526 `/milvus_vector_search`、19995 `/retrieval_documents`、19527 `search_by_custom_param` 都传**原始名**，代理内部自己再跑一遍该函数）；**只有直连 pymilvus 的校验脚本**才用 `_<index_name>`。
+   - **索引名约束（重要）**：只用 `[a-z0-9_]`。含 `-` 或中文 → 上游 `uuid5` 成不可预测名（QA 按规则找不到）；含大写 → **ES 小写化、Milvus 保大写**，两侧不一致。
+   - `embed_model` 必须精确等于 `alg_common_py.online_embedding_model` 的键名（当前仅 `bge-m3`，dim=1024），填错 500。
+2. **Milvus 行数校验要用 `count(*)`**：`get_collection_stats().row_count` 有延迟（我第一查返回 0，实际 `count(*)`=1），校验一律用 `count(*)`。
+
+另：ES 集群 `_cluster/health` 在创建索引后由 green 变 **yellow**（单节点副本未分配，非错误）；`get_collection_stats` 的行数延迟同理。TL 提到的 alg-ops IK 插件重启窗口未撞上。
+
+**alg-ops 侧旁证（基础设施视角，与我方读到的完全一致）**：Milvus `rag_knowledge_base` 集合 `_r12_it_parse_001` / `_table_summary_r12_it_parse_002` / `_table_chunks_r12_it_parse_002`（`num_entities` 已累加），ES 三个同名索引各 1 doc；**两道代理无 500/422，payload 与其 pydantic 模型对齐**。
+两个后续要注意的事实（记入 R13 参考）：
+1. **ES 的 `table_summary_*` / `table_chunks_*` 会自动切到专用 mapping**（`ES_INDEX_MAPPING_SUMMARY` / `_CHUNKS`），无需解析侧先建索引；`/create_es_index` 传这些名字也走专用 mapping。
+2. **Milvus 集合 schema 建成即固定**（当前 `enable_question_vector=false`，无 `question_vector` 字段）——后续若要启用 FAQ 双向量必须**重建集合**，不能靠 upsert 加字段。
+### 16.5 容量口径纠正（重要，避免 R13 规划高估）
+
+我最初把 "C08 348.12s → 105.72s" 写成配置收益，**该结论已被 model-ops 证伪、我复核后撤回**。
+
+**权威判据：服务端 `prompt eval` 速率**（单图请求只占一个槽，槽位模型对它没有影响）
+| 观测 | prompt tokens | prompt eval 速率 | 说明 |
+|---|---|---|---|
+| 我的 105.72s 那次（`task 44`） | 2949 | **28.58 tok/s**（103.19s） | 低负载窗口 |
+| model-ops 的 125.2s 那次（`task 549`） | 2778 | **29.25 tok/s**（94.96s） | load1≈13 |
+| 我早前 348.12s 那次 | ~2900 | 折算 **≈11–13 tok/s** | 高负载窗口（load1≈20–25） |
+| model-ops 高负载 4 并发那次 | 2801 | **13.21 tok/s**（212s） | load1≈29.6；**旧 4 槽共享池配置下同为 13.21 tok/s** |
+
+→ 同一负载下新旧配置单图吞吐一致，所以：
+1. **单图延迟由 load1 决定**（20 核机器上大致 `load1≈13 → ≈29 tok/s`、`load1≈25–30 → ≈13 tok/s`，近似反比）；
+2. **配置变更收益 = 消除并发 500（改排队）+ RSS 7.7G→4.5G，不是单图提速**；
+3. **C08 容量数值必须带负载上下文引用**。
+
+**已落实的取数纪律**
+- 回归脚本记录每用例前后 `load1`（`result.json` 的 `load1_before/load1_after`、`summary.md` 增 load 列），容量结论按 `≤10 / 10–15 / >15` 三档引用；
+- 引用延迟**优先用服务端 `prompt eval` 速率**（`logs/model-vlm.log` 的 `print_timing`），比 `uptime` 客观——我实测到 load1 读数滞后（请求结束后读到 25.96，而该请求实际 28.6 tok/s）；
+- `load1 > 15` 时 VLM 用例直接 SKIP（`--max-load`），不产出假数据。
+
+### 16.6 `output_max_tokens` 由 256 → 512（依据 model-ops 实测 + 我方复验）
+
+- **外部证据**：model-ops 在新配置下补测"单请求 3 图"：3×1240×1754、prompt **8374** token → **HTTP 200**、零 mtmd/KV 错误、**613.3s**（load1 18→27）→ 2 槽 × 私有 16384 对 3 图容量足够，**C14/C15 不会被 500 干扰**。
+- **但同请求 `max_tokens=600` → `finish_reason=length`**：只抄完【图1】14 行即截断，图2/图3 无输出，且图1 页眉被略过（先抄正文、预算耗尽）。他估算：单张 A4 逐字 **150–200 token**，3 图需 **≥1500**。
+- **我方处置**：`output_max_tokens` **256 → 512**；新增 `finish_reason` 采集、`vlm_status='truncated'` 分档、回归断言 `image_text_not_truncated`。**未直接拉到 1024/1500**：本服务是**一图一请求**，512 对单图逐字有 2–3 倍余量，且高负载下不浪费生成时间；真出现长转录需求再按图调整。
+- **实测分支**：`output_max_tokens=1` → **200 / 27.79s**，`truncated` + `finish_reason=length`、`vlm_len=3`、OCR 347 保留；`=24` → **200 / 187.89s**，自然 `stop`（37 字）→ 说明"描述型"输出天然短，**截断风险集中在"逐字转录型"用法**；已恢复 512（live 值核对）。
+
+**密排页定标（model-ops 实测，推翻我"2–3 倍余量"的说法）**
+| 页面密度 | 逐字输出 | `max_tokens=512` 余量 |
+|---|---|---|
+| 稀疏（我 fixture 14 行） | 140–200 token | **2.5×** |
+| **密排中文 A4（36 行条款、约 1000 汉字）** | **427 token**（`finish=stop`、wall 249.7s、pp 29.3 tok/s、`cache_n=16`） | **仅 1.2×** |
+经验比 ≈**1.65 字/token** ⇒ 512 ≈ **840 汉字**，超过即 `length`。
+→ **处置：`output_max_tokens` 提到 768**（密排页 1.8× 余量；代价只在"真的写长"时产生，`stop` 不影响耗时）；并**100% 依赖 `finish_reason=='length' → truncated`** 作为安全网。
+→ **R13 提醒**：真实合同/条款页必须用**密排页**重新标定（别用稀疏 fixture 外推），再决定 512/768/1024。
+
+**"truncated 会不会被合并掩盖"已实测排除**：`max_tokens=1` 那次返回的图片块 `vlm_status` 仍为 **`truncated`**、`vlm_finish_reason='length'`，即使 `page_content` 合并了 OCR 347 字（merged 352）。因为 `vlm_status` 是**图片块自身字段**、合并只改 `page_content`，**不存在文档级状态覆盖图片级状态**；回归断言 `image_text_not_truncated` 也按"任一块 truncated 即 FAIL"判定。
+### 16.7 取数机制与"字符级误识"（吸收 model-ops 实测，并已落到代码）
+
+**1) 用响应体 `timings` 判断测量是否干净（已采集进 metadata）**
+`llama-server` 非流式响应自带 `timings.prompt_n / cache_n / prompt_per_second / predicted_per_second`。我已在 `chat(return_meta=True)` 里带上 `timings`，并写入图片块 `vlm_prompt_n` / `vlm_cache_n`。
+判据（model-ops 口径）：**`cache_n ≤ 5% × prompt` 才算干净测量**；`cache_n` 接近 `prompt_n` 说明整段命中 prompt cache，耗时不能代表首次开销。
+
+**我方实测印证（同一张图重复解析，我们自己也踩了缓存）**：
+| 次 | 耗时 | `prompt_n` | `cache_n` | 结论 |
+|---|---|---|---|---|
+| 首次 | 79.86s | 2865 | — | 冷 |
+| 第二次 | **14.71s** | **1** | **2865** | 全量缓存命中，**假快** |
+| 第三次 | 51.56s | **1** | **2962** | 仍是全量缓存 |
+→ **C08/C14/C15 的容量数字必须用"新图/新文档"测**，否则量到的是缓存命中时延。回归脚本复用固定 fixture，因此其秒数**只能看量级**，不能作为容量结论（已在脚本头部注明）。
+
+**2) 跨图 KV 污染不存在（model-ops 实测，对我方链路是好消息）**
+他连续用 3 张同尺寸不同内容的图、同一问题请求：`CASE-AAA111→AAA111`✅、`CASE-BBB222→BBB222`✅、`CASE-CCC333→CASE-CC333`❌。前两例证明**不会答出前一张的内容**（跨图污染排除），我方"一图一请求"链路安全。
+第三例是**字符级误识**（三个连续 `C` 丢了一个），且 `prompt_n` 是全量、非缓存 → 真实识别错误，不是缓存导致。
+
+**3) 字符敏感字段必须交叉校验（已实现标记）**
+`ParsedImageMetadata` 新增 `vlm_needs_crosscheck` + `vlm_sensitive_tokens`；`_Parser._detect_sensitive_tokens()` 用 4 条正则抽取：≥6 位数字串、金额（两位小数）、日期（`2026年10月20日`/`2026-10-20`）、带连字符编号（`SPDB-2026-PJ-00871`、`CASE-AAA111`）。
+- 实测：`编号：CASE-CCC333 金额 1,250.00 元，日期 2026年10月20日，账号 6222001234567890` → `['6222001234567890', '1,250.00', '2026年10月20', 'CASE-CCC333']`；`SCANNED PAGE - no text layer` → `[]`（不误报）。
+- 语义：**这些片段不得只靠 VLM**，下游需用 OCR 文本 / 正则 / 校验位交叉校验后才能进证据字段。这条同时是"OCR ∪ VLM 并存"的实证理由：两者错误不同源（VLM 语言顺但会丢字，OCR 字符稳但有噪声）。
+
+**4) 一次真实 bug 与降级路径的正向证据**
+`_detect_sensitive_tokens` 首次接入时我误写成裸函数名（漏 `self.`），运行抛 `NameError` → **被 D-1 的失败降级兜住**：`vlm_status='failed'`、OCR 347 字保留、**HTTP 200**、日志有明确错误行。修复后复测 `vlm_status='ok'`。
+→ 说明"单图增强失败不得整篇失败"这条设计**不仅防端点故障，也防增强路径自身的代码缺陷**。

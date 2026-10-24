@@ -49,17 +49,20 @@
 ```
 POST <es-insert>
 {"index_name": "<index_name>", "document_list": [chunk...], "duplicate_flag": true|false}
+ （以上字段名以 `server/indexing_utils.py:27-31` 为准：ES 侧 payload 键就是 `index_name`）
 期望响应 {"code": 200, ...}
 ```
 ```
 POST <milvus-insert>
-{"index_name": "...", "embed_model": "<embedding model id>", "db_name": "rag_knowledge_base",
+{"collection_name": "<index_name>", "model_name": "<embedding model id>", "db_name": "rag_knowledge_base",
  "document_list": [chunk...], "duplicate_flag": true|false}
+ （**注意键名**：Milvus 侧是 `collection_name` / `model_name`，不是 `index_name` / `embed_model`；
+   以 `server/indexing_utils.py:197-203` 为准。写错键名会被代理忽略/422）
 期望响应 {"code": 200, ...}
 ```
 
 **需要 TL 确认两件事**（我按契约推理存在矛盾，故不填）：
-1. 这两个 URL 该指向 **ES/Milvus 本体** 还是 **代理服务**？契约 §1 里 ES=19200、Milvus=19630 是本体；但同一张表里 `index_fulltext_service`=19527（ES 代理）、`index_vector_service`=19526（Milvus 代理）才是接收 `{index_name,document_list}` 这种业务 JSON 的一方。若走代理，`index.es_server.port` 应填 19527、`index.milvus_server.port` 填 19526（此时与"es 19200 / milvus 19630"的字面要求不同）。
+1. 这两个 URL 该指向 **ES/Milvus 本体** 还是 **代理服务**？契约 §1 里 ES=19200、Milvus=19630 是本体；但同一张表里 `index_fulltext_service`=19527（ES 代理）、`index_vector_service`=19526（Milvus 代理）才是接收业务 JSON 的一方。**该疑点已由 TL 于 2026-10-25 裁定：走代理**，`index.es_server.port=19527`、`index.milvus_server.port=19526`（不是本体 19200/19630），并且已实测打通（见 parse.md §16.4）。
 2. 两个接口的**路径**（如 `/es/v1/insert`、`/milvus/v1/insert`）——代码里只有 `{ip}:{port}` 变量，路径必须写死在模板里，猜错就会 404。
 
 TL 给出"URL 模板 + 端口口径"后，我 5 分钟内补进 `alg_doc_config_py` 并跑 B 项验收（真实文件 → ES + Milvus 落库 + 计数核对）。
@@ -79,3 +82,15 @@ curl -s "$NACOS/v1/cs/configs?dataId=alg_doc_config_py&group=DEFAULT_GROUP&tenan
 ```
 
 改完需**重启**解析服务（`other-nacos` 的增删只在启动期生效；单个 data_id 的 content 变更由 watcher 热生效）。
+
+## 6. B 项实测补充（2026-10-25，已打通）
+
+- 代理已由 alg-ops 起（19526/19527），解析侧 `es-insert`/`milvus-insert` 模板按上文生效；`/parse_sync` 实测 ES+Milvus 双落库，计数与 chunk 数一致。
+- **Milvus 集合名会被上游加前导下划线**：传 `r12_it_parse_001` → 实际集合 `_r12_it_parse_001`（`generate_collection_name_uuid()` 上游既有逻辑）。**但"加 `_`"只对直连 pymilvus 的校验脚本成立**：调代理（19526 `/milvus_vector_search`、19995 `/retrieval_documents`、19527 `search_by_custom_param`）时**传原始名**，代理内部会自己再跑一遍该函数。
+- **索引名请只用 `[a-z0-9_]`**：含 `-` 或中文会被 `uuid5` 成不可预测名字（QA 按 `_<index_name>` 会找不到）；含大写会出现 **ES 小写化 / Milvus 保大写** 的不一致（ES 侧 `is_index_lower()` 会转小写）。
+- **`embed_model` 必须精确等于 Nacos `alg_common_py.online_embedding_model` 的键名**（当前仅 `bge-m3`，dim=1024），填错会 500（`未在nacos配置中找到模型 … 的向量维度`）。
+- **ES `_count` 也可能有延迟**（代理 `refresh=False` 批量提交、最后统一刷新）：断言前加 ≤1s 重试。
+- **行数校验用 `count(*)`**：`get_collection_stats().row_count` 有延迟。
+- 落库后实测字段类型（`_r12_it_parse_001`）：`file_id` 存为字符串 `"9001"`（检索侧会 `int()`，必须是纯数字串）、`chunk_index` 为 int、`page_number/labels/pic_offset_list/text_parent_id_list` 为 ARRAY、`offset`/`position`/`page_size` 为 JSON 字符串、`vector` dim=1024。
+- **ES 专用 mapping**：`table_summary_*` / `table_chunks_*` 由代理自动套 `ES_INDEX_MAPPING_SUMMARY` / `_CHUNKS`，解析侧无需预建索引。
+- **Milvus schema 建成即固定**（当前无 `question_vector`）：启用 FAQ 双向量需重建集合，upsert 不能加字段。
