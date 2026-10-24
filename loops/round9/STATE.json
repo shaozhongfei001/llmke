@@ -83,6 +83,19 @@
       "desc": "index_outbox 缺 claimed_at / lease_expires_at，且 schema 注释未列 SENDING",
       "blocker": "需 index-owner 裁定加列与状态枚举（P0-04 设计仍 PROPOSED）",
       "blocker_owner": "index-owner"
+    },
+    "R9-T13": {
+      "status": "VERIFIED",
+      "owner": "redteam-agent",
+      "desc": "摘要缺口实测：排除前缀内的门禁脚本与运行环境均未被任何摘要覆盖",
+      "evidence": "loops/round9/evidence/T13-digest-gap.json",
+      "result": "改 schema-verify.sh 三个摘要全不变、旧证据仍 PASS；实验后已还原（restored_ok=true）"
+    },
+    "R9-T14": {
+      "status": "BLOCKED_WINDOW",
+      "owner": "tech-lead",
+      "desc": "修复缺口：门禁记录增加 command_digest + 脚本移入控制面",
+      "blocker": "属控制面变更，需受控窗口与业主批准；会使当前候选失效"
     }
   },
   "gates": {

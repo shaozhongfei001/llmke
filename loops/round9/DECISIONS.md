@@ -94,3 +94,15 @@
 - 已测（真库 3 条）：领取后不可重复领取；`mark_sent` 后为 SENT 且不可再领；
   失败退避 4 次后第 5 次落 FAILED（attempts=5）；租约到期可回收并重新领取（attempts 递增）。
 - 登记 `R9-T12 BLOCKED_EXTERNAL`（index-owner）：加 `claimed_at`/`lease_expires_at` 与统一状态枚举。
+
+## D-R9-12 实测：证据能证明"树没变"，不能证明"验证脚本没变"
+- 实验（`coordination/r9-digest-gap-probe.py`）：在 `docs/baseline/validation/schema-verify.sh`
+  末尾追加一行注释 → `control/code/doc` 三个摘要**全部不变**，`evidence-check` 仍判有效；还原后一致。
+- 原因：该脚本位于冻结排除前缀，而它不是"文档"，是**被当作验证命令执行的程序**。
+  排除前缀的本意是"说明性文件不参与摘要"，现在被一个可执行文件占了位。
+- 同理：解释器版本（3.12.13）、MySQL 版本（8.0.41）、已安装包集合，都不在任何摘要内。
+  同一棵树在不同环境可能得到不同结论，记录却完全一致。
+- 边界（不夸大）：`make framework-verify` / `p0-gate` 的入口在 `Makefile` 与 `scripts/`，
+  都在控制面内，改它们会让摘要变化；本缺口针对"被当门禁执行的排除前缀脚本"与"运行环境"。
+- 建议修法：门禁记录增加 `command_digest`（B），并把脚本移入 `scripts/`（A）；两者同窗口做。
+  已登记 `R9-T14 BLOCKED_WINDOW`，本轮只测不改。

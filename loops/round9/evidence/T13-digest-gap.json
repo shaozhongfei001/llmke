@@ -1,0 +1,45 @@
+{
+  "digests_before": {
+    "code": "fbfc50bdbc6b26925c0cd0b556944722e6ddbea6fde0ee19ea612922f7497cac",
+    "control": "39f4b8393ce6dee1d27b59a9a3ddcaeba1681eeeeda44c3c7f8db61c2ec89203",
+    "doc": "419508441da8fd3a5d65d0c34aa975839ac4c9e38615312a6a5436dbd49d0989"
+  },
+  "env": {
+    "executable": "/home/szf/data/dev/llmke/../llmke/.venv/bin/python3",
+    "mysql_client": "mysql  Ver 8.0.41-0ubuntu0.22.04.1 for Linux on x86_64 ((Ubuntu))",
+    "platform": "Linux-6.8.0-47-generic-x86_64-with-glibc2.35",
+    "python": "3.12.13"
+  },
+  "env_in_digest": {
+    "covered_file_count": 249,
+    "note": "解释器版本、MySQL 版本、已安装包集合均无对应文件进入摘要；requirements.lock 只约束\"声明的依赖\"，不约束\"实际运行的解释器与 DB\"",
+    "python_binary_or_version_file": true,
+    "requirements_lock_covered": true
+  },
+  "probe_file": {
+    "exists": true,
+    "path": "docs/baseline/validation/schema-verify.sh"
+  },
+  "probe_result": {
+    "changed": {
+      "code": false,
+      "control": false,
+      "doc": false
+    },
+    "digests_after_mutation": {
+      "code": "fbfc50bdbc6b26925c0cd0b556944722e6ddbea6fde0ee19ea612922f7497cac",
+      "control": "39f4b8393ce6dee1d27b59a9a3ddcaeba1681eeeeda44c3c7f8db61c2ec89203",
+      "doc": "419508441da8fd3a5d65d0c34aa975839ac4c9e38615312a6a5436dbd49d0989"
+    },
+    "evidence_would_stay_valid": true
+  },
+  "repo": "/home/szf/data/dev/llmke",
+  "restored_ok": true,
+  "status": "PROBE_COMPLETE_NOT_A_FIX",
+  "untracked_probe": {
+    "code_changed": false,
+    "control_changed": false,
+    "doc_changed": false,
+    "note": "未跟踪文件不在任何 digest 内；它若是被门禁 import/执行的，同样构成漏项"
+  }
+}
