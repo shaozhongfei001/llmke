@@ -1,0 +1,18 @@
+# record-check 补丁（已验证，未应用）
+
+- 补丁：`coordination/patches/r10-manual-check.diff`（128 行，2 文件）
+- 内容：`loop_guard.py` 新增 `record-check` 子命令 + `evidence_errors` 校验 `manual_checks`
+  新增 `tests/test_manual_check.py`（3 条）
+- 作用：把"人工验证命令"（如 `bash docs/baseline/validation/schema-verify.sh`）的
+  argv 闭包摘要、退出码、输出日志写入批次 manifest，复核时比较 → 改脚本即失效。
+  这正是 T09-C 项暴露的缺口（改 schema-verify.sh 后 evidence-check 仍 PASS）。
+- 在隔离树验证（`/tmp/r10-patch`，detach 于 `01ec46d`）：
+  - `tests/test_manual_check.py`：**3 passed**
+    （脚本被改 → `manual check schema: command changed`；非 0 退出 → 失效；日志被篡改 → hash mismatch）
+  - `make framework-verify`：**320 passed / 0 skipped**；`baseline` FAIL（预期：
+    未冻结的补丁树，基线摘要必然不一致）
+- 应用到主树：`git apply --check` **OK**（可干净应用）
+- 未应用原因：改 `scripts/` 属控制面，会让 r13 STALE；按"本轮只冻结一次"的纪律推迟，
+  与 `R10-T10` 同窗口执行（应用后需一次冻结 + 新建批次）。
+- 已知局限（仍需承认）：`record-check` 依赖"人记得登记"；不登记的命令依旧不被绑定。
+  若要彻底消除，应把验证脚本移入 `scripts/`（控制面）而不是留在排除前缀。

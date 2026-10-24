@@ -87,9 +87,11 @@
     "tasks": {
       "by_status": {
         "BLOCKED_EXTERNAL": 4,
-        "VERIFIED": 4
+        "BLOCKED_WINDOW": 1,
+        "VERIFIED": 5,
+        "VERIFIED_DRYRUN": 1
       },
-      "count": 8,
+      "count": 11,
       "present": true
     }
   },
