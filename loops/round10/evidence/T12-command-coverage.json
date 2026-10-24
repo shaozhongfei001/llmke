@@ -1,0 +1,31 @@
+{
+  "by_binding": {
+    "CONTROL": 1,
+    "GATE": 1,
+    "UNBOUND": 1
+  },
+  "commands": 3,
+  "doc": "INDEPENDENT-QA-PROMPT.md",
+  "doc_found": true,
+  "loop": "L0-contract-baseline-r14",
+  "rows": [
+    {
+      "binding": "GATE",
+      "command": "make framework-verify",
+      "why": "门禁 argv 完全匹配"
+    },
+    {
+      "binding": "CONTROL",
+      "command": "make p0-gate",
+      "why": "Makefile 在控制面"
+    },
+    {
+      "binding": "UNBOUND",
+      "command": "python3 docs/baseline/validation/p0-01-route-extract.py",
+      "why": "未被任何摘要或记录绑定"
+    }
+  ],
+  "unbound": [
+    "python3 docs/baseline/validation/p0-01-route-extract.py"
+  ]
+}

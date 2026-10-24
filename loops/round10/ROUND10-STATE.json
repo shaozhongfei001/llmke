@@ -67,6 +67,19 @@
       "owner": "gate-evidence-agent",
       "desc": "record-check 补丁（隔离树验证后应用）",
       "evidence": "loops/round10/evidence/T11-manual-check-patch.txt"
+    },
+    "R10-T12": {
+      "status": "VERIFIED_DRYRUN",
+      "owner": "redteam-agent",
+      "desc": "验证命令覆盖审计：3 条命令中 1 GATE/1 CONTROL/1 UNBOUND",
+      "evidence": "loops/round10/evidence/T12-command-coverage.txt",
+      "result": "UNBOUND = P0-01 route-extract（缺 --src/--csv，无法采集）"
+    },
+    "R10-T13": {
+      "status": "BLOCKED_EXTERNAL",
+      "owner": "interface-owner",
+      "desc": "P0-01 路由提取器的命令绑定（需 Java 源码与清单 CSV）",
+      "blocker": "无 --src/--csv 时脚本 rc=2，record-check 无法登记（非 0 即证据失效）"
     }
   },
   "gates": {

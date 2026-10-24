@@ -1,0 +1,41 @@
+# 验证命令覆盖审计（r14，2026-10-24）
+
+工具：`coordination/verify-command-coverage.py`
+输入：`docs/baseline/validation/INDEPENDENT-QA-PROMPT.md` 的 bash 代码块 + r14 manifest
+
+## 结果：3 条命令
+
+| 命令 | 绑定 | 说明 |
+|---|---|---|
+| `make framework-verify` | **GATE** | 门禁 argv 匹配（baseline/module 等门禁走 make） |
+| `make p0-gate` | **CONTROL** | Makefile 在控制面，改它会变 control_digest |
+| `python3 docs/baseline/validation/p0-01-route-extract.py` | **UNBOUND** | 脚本在冻结排除前缀，未登记，改它不影响任何摘要 |
+
+## UNBOUND 那条为什么不能现在补
+
+```
+python3 docs/baseline/validation/p0-01-route-extract.py
+→ rc=2  usage: ... --src SRC --csv CSV are required
+```
+
+它需要 Java 源码（`--src`）与清单 CSV，二者都不在仓库内。
+`record-check` 要求被登记命令退出码为 0（非 0 即证据失效），因此**在 P0-01 输入到位前无法绑定**。
+→ 登记 `R10-T13 BLOCKED_EXTERNAL`（interface-owner）。输入到位后一条命令即可绑定：
+
+```bash
+python3 scripts/loop_guard.py record-check --loop <新批次> --name route-extract \
+  --executor tech-lead --argv python3 docs/baseline/validation/p0-01-route-extract.py \
+  --src <Java源码> --csv <清单CSV>
+```
+
+## 工具自身局限（如实）
+
+- 只解析 ```bash 代码块；正文内联写的命令（如 `bash docs/baseline/validation/schema-verify.sh`）
+  不会被统计，因此本表是"下界"而非全集；
+- 判定 `CONTROL` 的依据是"脚本路径在控制面"，不验证该脚本是否真的被这条命令调用。
+
+## 结论
+
+- 门禁与 Make 目标类命令已被绑定；
+- **P0-01 的提取器是唯一未绑定项**，且其阻塞与 P0-01 本身同源（缺 Java 源码/CSV）；
+- 这说明"验证命令的绑定"与"P0 输入"不是两件事：没有输入，连验证都跑不起来。

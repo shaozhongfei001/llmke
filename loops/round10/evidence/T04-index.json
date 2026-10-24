@@ -91,10 +91,11 @@
     "state_md": true,
     "tasks": {
       "by_status": {
-        "BLOCKED_EXTERNAL": 4,
-        "VERIFIED": 7
+        "BLOCKED_EXTERNAL": 5,
+        "VERIFIED": 7,
+        "VERIFIED_DRYRUN": 1
       },
-      "count": 11,
+      "count": 13,
       "present": true
     }
   },

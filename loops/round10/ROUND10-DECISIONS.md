@@ -56,3 +56,14 @@
 - 验证（主树实测）：改 `schema-verify.sh` 一行 → `manual check schema-verify: command changed;
   evidence STALE`（rc=1）；`git checkout` 还原 → PASS（rc=0）。**T09-C 的缺口已闭合。**
 - 代价：r13 转 SUPERSEDED（证据保留）；本轮共两次冻结，均因触及控制面，不属反复试错。
+
+## D-R10-08 覆盖审计：还有一条"验证命令"未被绑定，且它与 P0-01 同源
+- 审计对象：QA 文档里要求人执行的命令（3 条）。
+- 结果：`make framework-verify` = GATE、`make p0-gate` = CONTROL、
+  `python3 docs/baseline/validation/p0-01-route-extract.py` = **UNBOUND**。
+- 为什么不能立刻补：该脚本需要 `--src`（Java 源码）与 `--csv`，缺参即 `rc=2`；
+  而 `record-check` 只接受退出码 0 的命令（非 0 会让整批证据失效）。
+  → 在 P0-01 输入到位前，这条命令**在原理上无法绑定**，登记 `R10-T13 BLOCKED_EXTERNAL`。
+- 意义：这是"P0 输入缺失"与"证据绑定"两件事的交点——没有输入，连验证都跑不起来；
+  不能靠再写一个工具绕过。
+- 工具局限（写进证据文件）：只解析 bash 代码块，正文内联命令不计入，故本审计是下界。
