@@ -2,8 +2,8 @@
   "batches": {
     "by_status": {
       "DONE": 1,
-      "QA_PENDING": 2,
-      "SUPERSEDED": 8
+      "QA_PENDING": 1,
+      "SUPERSEDED": 9
     },
     "count": 11,
     "rows": [
@@ -15,7 +15,7 @@
       {
         "loop": "L0-contract-baseline-r11",
         "revision": 17,
-        "status": "QA_PENDING"
+        "status": "SUPERSEDED"
       },
       {
         "loop": "L0-contract-baseline-r12",
