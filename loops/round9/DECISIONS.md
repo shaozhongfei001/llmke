@@ -67,3 +67,18 @@
   属 P0-04（设计仍 PROPOSED），需 index-owner 裁定。已登记 `R9-T09 BLOCKED_EXTERNAL`。
 - 教训：这一处如果只在 Python 里"取回后再过滤"，旧代次内容会先进内存与日志，
   违反"未授权内容不进入上下文"的不变式——所以必须做在 SQL 里。
+
+## D-R9-10 P0-02 dry-run：37/478 → 43/538 的差异被完整解释（但仍未关闭 P0-02）
+- 输入全部来自仓内产物：`target-schema-v1.sql`、`schema-v1.3.sql`、`target-schema-v1-mapping.csv`；
+  不重跑 ORM 生成器（它要 `--src` 指向仓外 Java 源码，路径一变数字就不可复现）。
+- 实测：
+  - 旧目标 schema **37 表 / 478 列**；v1.3 **43 表 / 538 列**；
+  - 差异 = **6 张新表 / 60 列**：`document_chunk`、`document_evidence`、`index_generation`、
+    `index_generation_activation`、`index_outbox`、`index_write_lease`；
+  - 原 37 表**列集合完全未变**（0 新增、0 删除、0 类型变化）。
+- 顺带修正一处长期口径偏差：映射文件 **480 行 = 478 个真列 + 2 条注释**
+  （`seq（去掉 AUTO_INCREMENT）`、`(merged into table_file_paths)` 被写进了 `new_column` 字段）。
+  工具首版把 `retrieve_recall_Param` 也当注释（正则只允许小写），已修正为大小写兼容。
+- **仍未回答**（故 P0-02 保持 OPEN，登记 `R9-T10 BLOCKED_EXTERNAL`）：
+  真实生产 DDL 是否等于 `target-schema-v1.sql`；37 表遗留库与 ORM 推导是否一致；
+  迁移能否在恢复副本上执行；新增对象是否有业务需求或 owner 决策支撑。

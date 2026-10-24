@@ -1,0 +1,242 @@
+{
+  "counts": {
+    "mapping_annotation_rows": 2,
+    "mapping_rows": 480,
+    "mapping_tables": 37,
+    "mapping_valid_columns": 478,
+    "new_schema": {
+      "columns": 538,
+      "tables": 43
+    },
+    "old_schema": {
+      "columns": 478,
+      "tables": 37
+    }
+  },
+  "mapping": {
+    "annotation_rows": [
+      {
+        "table": "department_info",
+        "value": "seq（去掉 AUTO_INCREMENT）"
+      },
+      {
+        "table": "knowledge_base_list",
+        "value": "(merged into table_file_paths)"
+      }
+    ],
+    "mapped_columns_absent_from_schema": {},
+    "mapping_tables_missing_from_schema": [],
+    "target_columns_without_mapping": {},
+    "target_tables_without_mapping": [
+      "document_chunk",
+      "document_evidence",
+      "index_generation",
+      "index_generation_activation",
+      "index_outbox",
+      "index_write_lease"
+    ]
+  },
+  "p0_02_state": "OPEN",
+  "per_table": {
+    "answer": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "api_key_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "biz_label": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "department_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "dept_privilege": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "dialogue": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "feedback": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "file_parse_task": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "folder_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "group_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "group_privilege": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "interface_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "kb_label_his": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "knowledge_base": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "knowledge_base_list": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "model_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "question": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "re_embedding_file": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "re_embedding_retry_task": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "re_embedding_task": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "resource_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "resource_interface": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "role_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "role_resource": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "search_config": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "sensitive_words": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "syn_log": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "tools_database": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "tools_table": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "tools_table_column": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "tools_table_file": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "user_group": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "user_info": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "user_operate": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "user_privilege": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "user_role": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    },
+    "user_security_question": {
+      "added_columns": [],
+      "removed_columns": [],
+      "type_changed": []
+    }
+  },
+  "sources": [
+    "docs/baseline/validation/artifacts/target-schema-v1.sql",
+    "docs/baseline/validation/artifacts/schema-v1.3.sql",
+    "docs/baseline/validation/artifacts/target-schema-v1-mapping.csv"
+  ],
+  "status": "DRY_RUN",
+  "tables_added": [
+    "document_chunk",
+    "document_evidence",
+    "index_generation",
+    "index_generation_activation",
+    "index_outbox",
+    "index_write_lease"
+  ],
+  "tables_removed": []
+}

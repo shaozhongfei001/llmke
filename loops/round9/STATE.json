@@ -32,10 +32,11 @@
       "tool": "~/data/dev/coordination/round9-index.py（仓外，避免改控制面）"
     },
     "R9-T05": {
-      "status": "BLOCKED_EXTERNAL",
-      "desc": "P0-02 37 表与 43 表逐表映射与 DDL 差异报告",
-      "blocker": "缺真实 DDL 与恢复副本；仅能 dry-run",
-      "blocker_owner": "data-owner"
+      "status": "VERIFIED_DRYRUN",
+      "desc": "P0-02 三产物对账：旧目标 schema 37/478 → v1.3 43/538，差 6 张新表 60 列",
+      "evidence": "loops/round9/evidence/T05-p0-02-diff.json",
+      "owner": "tech-lead",
+      "note": "仅证明仓库内三份产物自洽；真实 DDL/迁移仍未验证，P0-02 仍 OPEN"
     },
     "R9-T06": {
       "status": "VERIFIED",
@@ -63,6 +64,12 @@
       "desc": "document_chunk 缺少 generation_id：同 KB 多文件跨代时守卫无法区分",
       "blocker": "需 index-owner 裁定加列或建 chunk_generation 映射（P0-04 设计仍 PROPOSED）",
       "blocker_owner": "index-owner"
+    },
+    "R9-T10": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "P0-02 真实 DDL 校验与迁移 dry-run（需生产快照/恢复副本）",
+      "blocker": "无真实 DDL 与恢复副本；不得对生产库执行迁移",
+      "blocker_owner": "data-owner"
     }
   },
   "gates": {

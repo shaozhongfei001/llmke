@@ -8,3 +8,5 @@ R9-T06,python-rag-agent,R9-T03,"modules/answer_api/ranking.py","python -m pytest
 R9-T07,python-rag-agent,R9-T06,"modules/answer_api/service.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"同文件多版本 -> MIXED_DOCUMENT_VERSION"
 R9-T08,python-rag-agent,R9-T07,"modules/answer_api/sql_adapter.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T08-pytest.log,,"4 passed 真库；指针缺失->0 行->拒绝"
 R9-T09,index-owner,R9-T08,"docs/baseline/validation/artifacts/schema-v1.3.sql","n/a（需 schema 决策）",BLOCKED_EXTERNAL,,,index-owner
+R9-T05,tech-lead,R9-T01,"coordination/p0-02-diff.py（仓外）","p0-02-diff.py --out ... --md ...",VERIFIED_DRYRUN,loops/round9/evidence/T05-p0-02-diff.json,,"37/478 -> 43/538；6 新表 60 列；映射 480 行=478 列+2 注释"
+R9-T10,data-owner,R9-T05,"docs/baseline/validation/artifacts/**","n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
