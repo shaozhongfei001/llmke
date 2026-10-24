@@ -1,0 +1,62 @@
+# R12 解析服务主配置（doc-parse）。维护：parse-ops；权威发布：TL
+server:
+  host: 0.0.0.0
+  port: 12340
+  workers: 1
+log_path: /home/szf/data/dev/llmke-r12/platform/r12/logs/parse
+layout_garbage_path: /home/szf/data/dev/llmke-r12/platform/r12/logs/parse/layout_garbage
+table_split_max_worker: 1
+chunk_size: 512
+overlap_size: 100
+use_ali: false
+use_fudan: false
+use_text_in: false
+use-mineru: false
+use_multi_modal: false
+bypass: true
+garbage_filter: false
+image_boxes_batch_size: 2
+excel_parse_max_worker: 1
+# 本服务不直连业务库；mysql 段由 other-nacos.java-common 提供（此处必须留空 map）
+mysql: {}
+
+# ---- [R12-FIX-PARSE-03] 多模态并发与超时（D-2 / D-3）----
+# 默认 1：实测并发无吞吐收益（1.08x），且 CPU 上 N 图并发会打穿 VLM 的 KV 水位（mtmd 硬失败）
+multi_modal_max_workers: 1
+multi_modal_timeout: 600      # [R12-FIX-PARSE-04] VLM 客户端超时（原代码未传 timeout）
+llm_timeout: 300              # [R12-FIX-PARSE-04] 表格摘要等 LLM 调用超时
+embedding_timeout: 60         # [R12-FIX-PARSE-04] 图片关联用 embedding 超时
+
+# ---- 索引写入模板（B 项；口径由 TL 2026-10-25 裁定：走代理，不走本体）----
+es-insert: "http://{ip}:{port}/insert_fulltext_documents"
+milvus-insert: "http://{ip}:{port}/insert_vector_documents_custom"
+es_insert_batch_size: 500
+es_insert_concurrency: 5
+es_insert_timeout: 300
+es_insert_retries: 2
+es_insert_retry_backoff: 0.5
+milvus_insert_batch_size: 500
+milvus_insert_concurrency: 5
+milvus_insert_timeout: 300
+milvus_insert_retries: 2
+milvus_insert_retry_backoff: 0.5
+
+# ---- [R12-FIX-PARSE-04] 多模态输出上限 ----
+online_multi_modal_model:
+  qwen2.5-vl-3b-instruct:
+    output_max_tokens: 256
+
+other-nacos:
+  java-common:
+    namespace: ""
+    data-id: alg_doc_parse_java_common
+    group: DEFAULT_GROUP
+  java-gateway:
+    namespace: ""
+    data-id: alg_doc_parse_java_gateway
+    group: DEFAULT_GROUP
+  index:
+    namespace: ""
+    # TL 2026-10-25 裁定：index 配置由 alg-ops 统一发布，解析侧只引用、不重复发布同名 data_id
+    data-id: index_data_config_py
+    group: DEFAULT_GROUP

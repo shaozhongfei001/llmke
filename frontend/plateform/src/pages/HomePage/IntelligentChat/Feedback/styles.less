@@ -1,0 +1,92 @@
+.nlp-feedback-main {
+  background-color: #fff;
+  padding: 0 30px;
+  height: calc(100% - 40px);
+  // background: #80A6EF;
+
+  .ant-table-wrapper .ant-table {
+    scrollbar-color: unset;
+  }
+  .ant-table-thead {
+    .ant-table-cell {
+      background: #fafafa !important;
+      // color: #fff;
+    }
+  }
+  .ant-select-selector {
+    border: 1px solid #d9d9d9 !important;
+    background: #ffffff !important;
+  }
+
+  /* 修改整个滚动条的宽度 */
+  ::-webkit-scrollbar {
+    width: 7px; /* 或者使用 'thin', 'medium', 'thick' */
+    height: 7px;
+  }
+
+  /* 修改滚动条滑块在鼠标悬停时的样式 */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b; /* 悬停时的颜色 */
+  }
+
+  /* 修改滚动条轨道的样式 */
+  ::-webkit-scrollbar-track {
+    // background-color: #f1f1f1; /* 轨道颜色 */
+    width: 7px;
+  }
+
+  .nlp-feedback-expectation,
+  .nlp-feedback-problem-types,
+  .nlp-feedback-supplementary,
+  .nlp-feedback-model-response {
+    & > span {
+      // display: none;
+      opacity: 0;
+    }
+  }
+  .nlp-feedback-expectation:hover,
+  .nlp-feedback-problem-types:hover,
+  .nlp-feedback-supplementary:hover,
+  .nlp-feedback-model-response:hover {
+    & > span {
+      // display: block;
+      opacity: 1;
+    }
+  }
+}
+
+.nlp-feedback-title-area {
+  height: 80px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+
+  .nlp-feedback-title-area-operations {
+    gap: 16px;
+  }
+}
+
+.nlp-feedback-modal {
+  .ant-modal-header {
+    margin: 0 0 40px;
+  }
+  .ant-modal-header:after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background-color: #d9d9d9;
+    left: 0;
+    top: 60px;
+  }
+  .ant-modal-title {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.rowHoverTable {
+  .ant-table-cell-row-hover {
+    background: #f1f5ff !important;
+  }
+}

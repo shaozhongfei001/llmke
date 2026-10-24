@@ -1,0 +1,49 @@
+# R12 索引数据服务配置（data_id=index_data_config_py, group=DEFAULT_GROUP, namespace=public）
+# 维护：alg-ops。被 index_vector_service(19526) 与 index_fulltext_service(19527) 同时读取，
+# 两者按不同键取值：vector 取 milvus_*，fulltext 取 es_*，互不覆盖。
+
+# ===== 向量服务（Milvus 代理）=====
+milvus_server:
+  host: 0.0.0.0
+  port: 19526
+
+milvus_conn_config:
+  milvus_database: rag_knowledge_base                   # 连接别名 + 目标库名
+  milvus_connect:
+    host: 127.0.0.1
+    port: 19630
+    # user/password/secure 由代码 .get() 读取，本机无认证故留空（见 utils.py:113-122）
+  vector_search_top_k: 10
+  embed_chunk_size: 10                                  # 单次 embedding 请求文本条数
+  embed_concurrency: 8
+  embed_timeout: 120
+  insert_batch_size: 500
+  insert_concurrency: 4
+  enable_question_vector: false                         # FAQ 双向量检索关闭（R12 不启用 faq_ 集合）
+  milvus_kwargs:
+    index_params:                                       # /create_milvus_index 使用
+      index_type: HNSW
+      metric_type: IP                                   # bge-m3 输出已 L2 归一化，内积=余弦
+      params:
+        M: 16
+        efConstruction: 200
+    search_params:                                      # /milvus_vector_search 默认检索参数
+      metric_type: IP
+      params:
+        ef: 64
+
+# ===== 全文服务（ES 代理）=====
+es_server:
+  host: 0.0.0.0
+  port: 19527
+
+es_conn_config:
+  es_connect:
+    host: 127.0.0.1
+    port: 19200
+    scheme: http
+    user: ""
+    password: ""
+    verify_certs: false                                 # 单节点无 TLS/无认证
+  index_similarity: BM25                                # es_kb_config.py 建索引时读取
+  vector_search_top_k: 10

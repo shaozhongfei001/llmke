@@ -1,0 +1,24 @@
+# R12 混合检索服务配置（data_id=alg_retrieval_config_py, group=DEFAULT_GROUP, namespace=public）
+# 维护：alg-ops。与 alg_common_py 合并后生效（本文件覆盖同名键）。
+# 代码读取点：app/base.py（QARetrieveConfig 默认值）、app/multiple_retrieval.py、app/reranker_service.py、
+#            app/retrieval_fun_tool.py、app/retrieval_service.py。
+
+server:
+  host: 0.0.0.0
+  port: 19995
+
+default_model_name: qwen2.5-7b-instruct               # /retrieval_documents 未传 model_info 时的默认模型名
+score_threshold: 0.05                                 # rerank 绝对阈值（bge-reranker 实测分值区间 0.0000~0.6）
+faq_score_threshold: 0.3
+retrieval_top_k: 10
+chunk_num_of_table_select: 30
+adjacent_chunk_num: 0                                 # 不做邻近切片拼接
+
+# 多版本 chunk 扩召回（get_multi_version_dict 无条件取 server_config['multi_version']['url']）
+# R12 的 Java 侧没有该端点；指向真实存在的 rag-index-service，取 404 后按 else 分支返回 None，
+# 代码在 multi_version_dict 为空时不进入多版本分支（不伪造空数据，见 status/alg.md §5）。
+multi_version:
+  url: http://127.0.0.1:18082/index/kbFile/multiVersion
+
+# 联网搜索 / 数据库问答：R12 无 zhipuai key、无 database 服务，开关由请求体控制，默认关闭
+url_table_indicator: ""

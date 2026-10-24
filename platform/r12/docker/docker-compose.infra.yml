@@ -1,0 +1,203 @@
+# R12 基础设施编排（与既有 WeKnora 等演示容器端口隔离）
+# 用法：docker compose -f platform/r12/docker/docker-compose.infra.yml --env-file platform/r12/.env up -d
+name: r12rag
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: r12-mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --default-time-zone=+08:00
+      - --lower-case-table-names=0
+      - --max_connections=500
+    environment:
+      MYSQL_ROOT_PASSWORD: ${R12_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: gienrag
+      TZ: Asia/Shanghai
+    ports:
+      - "13306:3306"
+    volumes:
+      - r12-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${R12_MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4.10-alpine
+    container_name: r12-redis
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${R12_REDIS_PASSWORD}"]
+    ports:
+      - "16379:6379"
+    volumes:
+      - r12-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${R12_REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:8.13.4
+    container_name: r12-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - cluster.name=r12-rag
+      - TZ=Asia/Shanghai
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+      nofile: { soft: 65536, hard: 65536 }
+    ports:
+      - "19200:9200"
+      - "19300:9300"
+    volumes:
+      - r12-es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    container_name: r12-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${R12_MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${R12_MINIO_SECRET_KEY}
+      TZ: Asia/Shanghai
+    ports:
+      - "19000:9000"
+      - "19001:9001"
+    volumes:
+      - r12-minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: r12-etcd
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: "1000"
+      ETCD_QUOTA_BACKEND_BYTES: "4294967296"
+      ETCD_SNAPSHOT_COUNT: "50000"
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    volumes:
+      - r12-etcd-data:/etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
+
+  milvus:
+    image: milvusdb/milvus:v2.5.6
+    container_name: r12-milvus
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MINIO_ACCESS_KEY_ID: ${R12_MINIO_ACCESS_KEY}
+      MINIO_SECRET_ACCESS_KEY: ${R12_MINIO_SECRET_KEY}
+      TZ: Asia/Shanghai
+    volumes:
+      - r12-milvus-data:/var/lib/milvus
+    ports:
+      - "19630:19530"
+      - "19191:9091"
+    depends_on:
+      etcd:
+        condition: service_started
+      minio:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9091/healthz"]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: r12-nacos
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+      JVM_XMN: 256m
+      TZ: Asia/Shanghai
+    ports:
+      - "18848:8848"
+      - "19848:9848"
+    volumes:
+      - r12-nacos-data:/home/nacos/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS 'http://127.0.0.1:8848/nacos/v1/console/health/readiness' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+    restart: unless-stopped
+
+  rocketmq-namesrv:
+    image: apache/rocketmq:4.9.7
+    container_name: r12-rocketmq-namesrv
+    command: sh mqnamesrv
+    environment:
+      JAVA_OPT_EXT: "-Xms256m -Xmx256m -Xmn128m"
+      TZ: Asia/Shanghai
+    ports:
+      - "19876:9876"
+    volumes:
+      - r12-rocketmq-namesrv-logs:/home/rocketmq/logs
+    restart: unless-stopped
+
+  rocketmq-broker:
+    image: apache/rocketmq:4.9.7
+    container_name: r12-rocketmq-broker
+    # 镜像默认非 root 用户，命名卷由 root 创建会导致写日志/存储失败（exit 253）
+    user: "0:0"
+    command: ["sh", "-c", "cd /home/rocketmq/rocketmq-4.9.7/bin && sh mqbroker -c ../conf/broker.conf"]
+    environment:
+      NAMESRV_ADDR: r12-rocketmq-namesrv:9876
+      JAVA_OPT_EXT: "-Xms512m -Xmx512m -Xmn256m"
+      TZ: Asia/Shanghai
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+    volumes:
+      - ./rocketmq/broker.conf:/home/rocketmq/rocketmq-4.9.7/conf/broker.conf:ro
+      - r12-rocketmq-broker-logs:/home/rocketmq/logs
+      - r12-rocketmq-store:/home/rocketmq/store
+    depends_on:
+      - rocketmq-namesrv
+    restart: unless-stopped
+
+volumes:
+  r12-mysql-data:
+  r12-redis-data:
+  r12-es-data:
+  r12-minio-data:
+  r12-etcd-data:
+  r12-milvus-data:
+  r12-nacos-data:
+  r12-rocketmq-namesrv-logs:
+  r12-rocketmq-broker-logs:
+  r12-rocketmq-store:

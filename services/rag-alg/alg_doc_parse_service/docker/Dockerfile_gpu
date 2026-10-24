@@ -1,0 +1,19 @@
+FROM harbor.gientech.com/rag-alg-service-api/alg_doc_parse_service_base:gpu
+
+COPY . /workdir
+WORKDIR /workdir
+
+# 注意要将deepdoc/huqie.txt.trie加进来 这个文件并不在gitlab上
+RUN mv deepdoc/huqie.txt /root/ && \
+    mv deepdoc/huqie.txt.trie /root/ && \
+    mv tiktoken_cache /root/
+
+# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install Cython==3.1.2 && pip install -U magic-pdf[full] && pip install --no-cache-dir -r requirements.txt
+
+ENV TIKTOKEN_CACHE_DIR="/root/tiktoken_cache"
+ENV NLTK_DATA: "/root/nltk_data"
+ENV JAVA_HOME: "/root/jdk-22.0.2"
+ENV PATH: "/root/jdk-22.0.2/bin:${PATH}"
+ENV OCR_PATH: "/root/ocr_models"
+ENV CUDA_VISIBLE_DEVICES: "0"

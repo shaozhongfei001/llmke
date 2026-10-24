@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.SynLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.SynLogDO">
+        <id column="id" property="id" />
+        <result column="kb_id" property="kbId" />
+        <result column="target_id" property="targetId" />
+        <result column="log_type" property="logType" />
+        <result column="error_code" property="errorCode" />
+        <result column="error_message" property="errorMessage" />
+        <result column="error_detail" property="errorDetail" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, kb_id, target_id, log_type, error_code, error_message, error_detail, gmt_create, gmt_modified, create_by, update_by
+    </sql>
+
+    <select id="findByFileIds" resultType="com.gientech.ragindexservice.domain.model.SynLogDO">
+        select <include refid="Base_Column_List"></include>
+        from syn_log
+        where target_id in
+        <foreach collection="fileIds" item="fileId" separator="," close=")" open="(">
+            #{fileId}
+        </foreach>
+    </select>
+
+</mapper>

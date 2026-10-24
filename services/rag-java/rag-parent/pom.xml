@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+	<groupId>com.gientech</groupId>
+	<artifactId>rag-parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>rag-parent</name>
+	<description>rag-parent</description>
+
+	<modules>
+		<!-- R12-ADAPT A-02：内网私有 starter 的仓库内等价实现，必须先于业务模块构建 -->
+		<module>gien-starter-redisson</module>
+		<module>gien-starter-file-storage</module>
+		<module>gien-starter-easyexcel</module>
+		<module>gien-starter-swagger</module>
+		<module>rag-common</module>
+		<module>rag-gateway</module>
+		<module>rag-auth-service</module>
+        <module>rag-index-service</module>
+		<module>rag-qa-service</module>
+		<module>sensitive-words-service</module>
+		<module>elastic-search-service</module>
+		<module>rag-graph-service</module>
+		<module>tools/tools-database</module>
+	</modules>
+
+	<properties>
+		<java.version>17</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<spring-cloud.version>2023.0.1</spring-cloud.version>
+		<spring-boot.version>3.2.6</spring-boot.version>
+		<mysql.version>8.0.28</mysql.version>
+		<mybatis-plus.version>3.5.5</mybatis-plus.version>
+		<lombok.version>1.18.32</lombok.version>
+		<mapstruct.version>1.5.2.Final</mapstruct.version>
+		<spring-cloud-alibaba.version>2022.0.0.0-RC2</spring-cloud-alibaba.version>
+		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+		<redisson.version>3.18.0</redisson.version>
+		<velocity.version>2.3</velocity.version>
+		<jwt.version>4.4.0</jwt.version>
+		<fastjson.version>2.0.47</fastjson.version>
+		<rocketmq-starter.version>2.3.0</rocketmq-starter.version>
+		<Dm8JdbcDriver18.version>8.1.1.49</Dm8JdbcDriver18.version>
+		<springfox.version>3.0.0</springfox.version>
+		<neo4j-driver.version>4.4.0</neo4j-driver.version>
+		<hutool.version>5.7.22</hutool.version>
+		<pdfbox.version>2.0.24</pdfbox.version>
+		<poi-scratchpad.version>4.1.1</poi-scratchpad.version>
+		<poi-ooxml.version>4.1.1</poi-ooxml.version>
+		<javax.servlet.version>3.1.0</javax.servlet.version>
+		<okio.version>2.8.0</okio.version>
+		<springdoc-openapi.version>2.2.0</springdoc-openapi.version>
+		<kaptcha.version>2.3.2</kaptcha.version>
+		<jakarta.el.version>4.0.1</jakarta.el.version>
+		<milvus-sdk-java.version>2.3.4</milvus-sdk-java.version>
+		<rocketmq-client.version>5.1.0</rocketmq-client.version>
+		<commons-csv.version>1.10.0</commons-csv.version>
+		<opencsv.version>5.2</opencsv.version>
+		<ansj-seg.version>5.1.6</ansj-seg.version>
+		<mybatis-enhance-actable>1.5.0.RELEASE</mybatis-enhance-actable>
+		<elastic-search.version>8.11.4</elastic-search.version>
+		<agent.release.version>9.3.0</agent.release.version>
+		<gien-starter.version>0.0.1-SNAPSHOT</gien-starter.version>
+		<jodconvertor.version>4.4.8</jodconvertor.version>
+		<nebula.client.version>3.3.0</nebula.client.version>
+		<commons-csv.version>1.10.0</commons-csv.version>
+		<flexmark.version>0.64.0</flexmark.version>
+		<caffeine.version>3.1.8</caffeine.version>
+		<fr.opensagres.poi.xwpf.converter.pdf.version>2.0.3</fr.opensagres.poi.xwpf.converter.pdf.version>
+	</properties>
+
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${mysql.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.baomidou</groupId>
+				<artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+				<version>${mybatis-plus.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.baomidou</groupId>
+				<artifactId>mybatis-plus-generator</artifactId>
+				<version>${mybatis-plus.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mapstruct</groupId>
+				<artifactId>mapstruct</artifactId>
+				<version>${mapstruct.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mapstruct</groupId>
+				<artifactId>mapstruct-processor</artifactId>
+				<version>${mapstruct.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.alibaba.cloud</groupId>
+				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
+				<version>${spring-cloud-alibaba.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.redisson</groupId>
+				<artifactId>redisson-spring-boot-starter</artifactId>
+				<version>${redisson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.velocity</groupId>
+				<artifactId>velocity-engine-core</artifactId>
+				<version>${velocity.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.auth0</groupId>
+				<artifactId>java-jwt</artifactId>
+				<version>${jwt.version}</version>
+			</dependency>
+
+			<!-- kaptcha验证码 -->
+			<dependency>
+				<groupId>com.github.penggle</groupId>
+				<artifactId>kaptcha</artifactId>
+				<version>${kaptcha.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.alibaba.fastjson2</groupId>
+				<artifactId>fastjson2</artifactId>
+				<version>${fastjson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.rocketmq</groupId>
+				<artifactId>rocketmq-spring-boot-starter</artifactId>
+				<version>${rocketmq-starter.version}</version>
+			</dependency>
+			<!-- R12-ADAPT: 达梦 DM8 驱动移除（无 DM 授权服务/驱动制品），数据库引擎适配为 MySQL 8.0。
+			     影响面：仅 driver-class-name 与方言；SQL 方言差异由 rag-common 适配层处理。
+			     证据：docs/r12/ADAPTATIONS.md#A-01 -->
+
+			<dependency>
+				<groupId>org.neo4j.driver</groupId>
+				<artifactId>neo4j-java-driver</artifactId>
+				<version>${neo4j-driver.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.gientech</groupId>
+				<artifactId>rag-common</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.pdfbox</groupId>
+				<artifactId>pdfbox</artifactId>
+				<version>${pdfbox.version}</version>
+			</dependency>
+
+			<!--解析doc文档的HWPFDocument对象在这个包里-->
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-scratchpad</artifactId>
+				<version>${poi-scratchpad.version}</version>
+			</dependency>
+
+			<!--解析docx文档的XWPFDocument对象在这个包里-->
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml</artifactId>
+				<version>${poi-ooxml.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>fr.opensagres.xdocreport</groupId>
+				<artifactId>fr.opensagres.poi.xwpf.converter.pdf</artifactId>
+				<version>${fr.opensagres.poi.xwpf.converter.pdf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.squareup.okio</groupId>
+				<artifactId>okio</artifactId>
+				<version>${okio.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-all</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+				<version>${springdoc-openapi.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.glassfish</groupId>
+				<artifactId>jakarta.el</artifactId>
+				<version>${jakarta.el.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.milvus</groupId>
+				<artifactId>milvus-sdk-java</artifactId>
+				<version>${milvus-sdk-java.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.rocketmq</groupId>
+				<artifactId>rocketmq-client</artifactId>
+				<version>${rocketmq-client.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>${opencsv.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ansj</groupId>
+				<artifactId>ansj_seg</artifactId>
+				<version>${ansj-seg.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.gitee.sunchenbin.mybatis.actable</groupId>
+				<artifactId>mybatis-enhance-actable</artifactId>
+				<version>${mybatis-enhance-actable}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>co.elastic.clients</groupId>
+				<artifactId>elasticsearch-java</artifactId>
+				<version>${elastic-search.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.skywalking</groupId>
+				<artifactId>apm-toolkit-log4j-2.x</artifactId>
+				<version>${agent.release.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-actuator</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>33.0.0-jre</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.gientech</groupId>
+				<artifactId>gien-starter-swagger</artifactId>
+				<version>${gien-starter.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.gientech</groupId>
+				<artifactId>gien-starter-file-storage</artifactId>
+				<version>${gien-starter.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.gientech</groupId>
+				<artifactId>gien-starter-redisson</artifactId>
+				<version>${gien-starter.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.gientech</groupId>
+				<artifactId>gien-starter-easyexcel</artifactId>
+				<version>${gien-starter.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jodconverter</groupId>
+				<artifactId>jodconverter-spring-boot-starter</artifactId>
+				<version>${jodconvertor.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodconverter</groupId>
+				<artifactId>jodconverter-local</artifactId>
+				<version>${jodconvertor.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodconverter</groupId>
+				<artifactId>jodconverter-remote</artifactId>
+				<version>${jodconvertor.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.vesoft</groupId>
+				<artifactId>client</artifactId>
+				<version>${nebula.client.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-csv</artifactId>
+				<version>${commons-csv.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.vladsch.flexmark</groupId>
+				<artifactId>flexmark-all</artifactId>
+				<version>${flexmark.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.ben-manes.caffeine</groupId>
+				<artifactId>caffeine</artifactId>
+				<version>${caffeine.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<target>${java.version}</target>
+					<source>${java.version}</source>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
+
+	<!-- R12-ADAPT A-02：原内网 starter 传递提供的 tika（StringUtils/Tika 类型探测），显式声明 -->
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+	</dependencies>
+
+</project>

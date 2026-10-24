@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.ResourceInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.ResourceInfoDO">
+        <id column="id" property="id" />
+        <result column="is_dtl" property="isDtl" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="create_by" property="createBy" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="update_by" property="updateBy" />
+        <result column="name" property="name" />
+        <result column="url" property="url" />
+        <result column="description" property="description" />
+        <result column="icon" property="icon" />
+        <result column="pid" property="pid" />
+        <result column="seq" property="seq" />
+        <result column="status" property="status" />
+        <result column="resource_type" property="resourceType" />
+        <result column="code" property="code" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        is_dtl, gmt_create, create_by, gmt_modified, update_by, id, name, url, description, icon, pid, seq, status, resource_type, code
+    </sql>
+
+    <select resultMap="BaseResultMap" id="queryByRoleIds">
+        select distinct res.*
+        from resource_info res inner join role_resource role on (res.id = role.resource_id AND role.status=1)
+        WHERE res.is_dtl='0' and
+        role.is_dtl='0' and role.role_id in
+        <foreach collection="roleIds" item="roleId" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <select id="queryVisibleByRoleIds" resultType="com.gientech.ragauthservice.domain.model.ResourceInfoWithVisibleDO">
+        SELECT
+        DISTINCT res.*,
+        rr.resource_id
+        FROM
+        resource_info res
+        LEFT JOIN role_resource rr
+        on (
+        res.id = rr.resource_id
+        and res.status = 1
+        and res.is_dtl = '0'
+        and rr.is_dtl = '0'
+        and rr.role_id in
+        <foreach collection="roleIds" item="roleId" separator="," close=")" open="(">#{roleId}
+        </foreach>
+        )
+        ORDER BY res.seq asc
+    </select>
+
+
+
+
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.BizLabelMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.BizLabelDO">
+        <id column="id" property="id"/>
+        <id column="target_id" property="targetId"/>
+        <id column="label" property="label"/>
+        <id column="biz_type" property="bizType"/>
+        <id column="gmt_create" property="gmtCreate"/>
+        <id column="gmt_modified" property="gmtModified"/>
+        <id column="create_by" property="createBy"/>
+        <id column="update_by" property="updateBy"/>
+        <id column="is_del" property="isDel"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,target_id,label,biz_type,gmt_create,gmt_modified,create_by,update_by,is_del
+    </sql>
+    <insert id="insertBatch" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO biz_label (biz_type, target_id, label) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.bizType}, #{item.targetId}, #{item.label})
+        </foreach>
+    </insert>
+
+    <select id="findHistoryOfKbLabel" resultType="com.gientech.ragindexservice.domain.model.BizLabelDO">
+        select distinct label
+        from biz_label
+        where target_id in (select id
+                            from knowledge_base_list
+                            where kb_id = #{kbId}
+                              AND `status` > 0
+                            union all
+                            select id
+                            from folder_info
+                            where kb_id = #{kbId}
+                              AND `status` = 1)
+    </select>
+    <select id="findByKbNames" resultType="com.gientech.ragindexservice.domain.model.BizLabelDO">
+        SELECT
+        kb.kb_id as target_id,
+        GROUP_CONCAT(DISTINCT t1.label) AS label,
+        kb.primitive_name AS biz_name
+        FROM
+        biz_label t1
+        LEFT JOIN (
+        -- 联合出三种类型的 target_id 和对应 kb_name
+        SELECT id AS target_id, primitive_name, id AS kb_id FROM gienrag.knowledge_base WHERE status = 1 AND
+        primitive_name IN
+        <foreach collection="kbNames" item="kbName" separator="," open="(" close=")">
+            #{kbName}
+        </foreach>
+        UNION ALL
+        SELECT f.id AS target_id, kb.primitive_name, kb.id as kb_id
+        FROM folder_info f
+        JOIN gienrag.knowledge_base kb ON f.kb_id = kb.id
+        WHERE f.status = 1 AND kb.status = 1 AND kb.primitive_name
+        IN
+        <foreach collection="kbNames" item="kbName" separator="," open="(" close=")">
+            #{kbName}
+        </foreach>
+        UNION ALL
+        SELECT fi.id AS target_id, kb.primitive_name, kb.id as kb_id
+        FROM knowledge_base_list fi
+        JOIN gienrag.knowledge_base kb ON fi.kb_id = kb.id
+        WHERE kb.status = 1 AND kb.primitive_name IN
+        <foreach collection="kbNames" item="kbName" separator="," open="(" close=")">
+            #{kbName}
+        </foreach>
+        ) kb ON t1.target_id = kb.target_id
+        WHERE
+        t1.is_del = 1 AND kb.primitive_name is not null
+        GROUP BY
+        kb.kb_id, kb.primitive_name
+    </select>
+    <select id="findLabelByFileIdsAndFolderIds"
+            resultType="com.gientech.ragindexservice.domain.model.BizLabelDO">
+        <if test="folderIds!=null and folderIds.size() > 0">
+            WITH RECURSIVE folder_path AS (
+            SELECT f.id AS folder_id, f.parent_id, f.id AS original_folder_id
+            FROM folder_info f
+            WHERE f.id IN
+            <foreach collection="folderIds" item="folderId" separator="," open="(" close=")">
+                #{folderId}
+            </foreach>
+
+            UNION ALL
+
+            SELECT fi.id, fi.parent_id, fp.original_folder_id
+            FROM folder_info fi
+            JOIN folder_path fp ON fi.id = fp.parent_id
+            )
+            SELECT GROUP_CONCAT(distinct t2.label) as label,t1.original_folder_id as id, biz_type
+            FROM folder_path t1 LEFT JOIN biz_label
+            t2 on t1.folder_id = t2.target_id
+            GROUP BY original_folder_id, biz_type
+        </if>
+        <if test="folderIds!=null and fileIds!=null and folderIds.size()>0 and fileIds.size()>0">
+            UNION ALL
+        </if>
+        <if test="fileIds!=null and fileIds.size() > 0">
+            SELECT GROUP_CONCAT(distinct label) as label,target_id as id, biz_type FROM biz_label WHERE target_id in
+            <foreach collection="fileIds" item="fileId" open="(" close=")" separator=",">
+                #{fileId}
+            </foreach>
+            group by target_id,biz_type
+        </if>
+    </select>
+
+    <select id="findLabelByTargetIds" resultType="com.gientech.ragindexservice.domain.model.BizLabelDO">
+        SELECT GROUP_CONCAT(distinct label) as label, target_id as id, biz_type
+        FROM biz_label
+        WHERE target_id in
+        <foreach collection="targetIds" item="targetId" open="(" close=")" separator=",">
+            #{targetId}
+        </foreach>
+        group by target_id, biz_type
+    </select>
+</mapper>

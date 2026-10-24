@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.FileParseTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.FileParseTaskDO">
+        <id column="id" property="id"/>
+        <id column="kb_id" property="kbId"/>
+        <id column="kb_name" property="kbName"/>
+        <id column="file_id" property="fileId"/>
+        <id column="file_name" property="fileName"/>
+        <id column="task_info" property="taskInfo"/>
+        <id column="status" property="status"/>
+        <id column="start_time" property="startTime"/>
+        <id column="end_time" property="endTime"/>
+        <id column="retry_limit" property="retryLimit"/>
+        <id column="retry_times" property="retryTimes"/>
+        <id column="error_msg" property="errorMsg"/>
+        <id column="create_by" property="createBy"/>
+        <id column="gmt_create" property="gmtCreate"/>
+        <id column="modify_by" property="modifyBy"/>
+        <id column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        ,kb_id,kb_name,file_id,file_name,task_info,status,start_time,end_time,retry_limit,retry_times,error_msg,create_by,gmt_create,modify_by,gmt_modified
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into file_parse_task(kb_id, kb_name,file_id, file_name, task_info, status,start_time,
+        end_time,retry_limit,retry_times,error_msg,create_by,gmt_create,modify_by,gmt_modified)
+        values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.kbId}, #{it.kbName},#{it.fileId}, #{it.fileName}, #{it.taskInfo}, #{it.status},
+            #{it.startTime},#{it.endTime},#{it.retryLimit},#{it.retryTimes},#{it.errorMsg},#{it.createBy},
+            #{it.gmtCreate},#{it.modifyBy},#{it.gmtModified})
+        </foreach>
+    </insert>
+    <update id="updateStatusByIds">
+        UPDATE file_parse_task
+        SET status = #{status},gmt_modified = NOW()
+        where id in <foreach collection="taskIds" separator="," open="(" close=")" item="id">#{id}</foreach>
+    </update>
+    <select id="getTaskList" resultType="com.gientech.ragindexservice.domain.model.FileParseTaskDO">
+        select
+        <include refid="Base_Column_List"/>
+        from file_parse_task
+        where
+        status in
+        <foreach collection="taskStatus" item="status" separator="," open="(" close=")">
+            #{status}
+        </foreach>
+        and retry_limit > retry_times
+        order by id asc
+        limit #{limit}
+    </select>
+
+    <update id="deleteByFileIds" >
+        UPDATE file_parse_task
+        SET status = 0
+        where file_id in <foreach collection="fileIds" separator="," open="(" close=")" item="fileId">#{fileId}</foreach>
+    </update>
+
+    <update id="deleteByKbIds" >
+        UPDATE file_parse_task
+        SET status = 0
+        where kb_id in <foreach collection="kbIds" separator="," open="(" close=")" item="kbId">#{kbId}</foreach>
+    </update>
+
+    <select id="getSequenceByFileId" resultType="java.lang.Long">
+        SELECT
+          count(1)
+        FROM
+        file_parse_task
+        WHERE
+        id <![CDATA[<]]> (SELECT id FROM file_parse_task WHERE file_id = #{fileId} and status in(1,2,3) limit 1)
+        and status in(1);
+    </select>
+
+</mapper>

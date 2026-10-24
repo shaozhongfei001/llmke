@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="1800">
+    <!--    1.自动检测和重新加载配置，每30分钟（1800s)检测一次-->
+    <!--    2.每个日志文件最大为10MB，每天备份，每天备份文件个数最多5个，多了会覆盖-->
+    <!--    3.备份日志放到以当前年月命名的目录-->
+    <!--    4.保存路径为用户目录-->
+    <Properties>
+        <Property name="LOG_PATTERN">
+            %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %5level %C - %msg%n
+        </Property>
+        <Property name="LOG_HOME">
+            ${sys:LOG_HOME:-/tmp/r12-logs}
+        </Property>
+        <Property name="FILE_NAME">
+            rag-auth-service.log
+        </Property>
+        <Property name="FILE_PATTERN">
+            ${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}-%i.log
+        </Property>
+
+        <Property name="FILE_NAME_ERROR">
+            error-${FILE_NAME}
+        </Property>
+        <Property name="FILE_PATTERN_ERROR">
+            ${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME_ERROR}-%d{yyyy-MM-dd}-%i.log
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <!--        日志输出到标准控制台-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8" pattern="${LOG_PATTERN}"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="${LOG_HOME}/${FILE_NAME}" filePattern="${FILE_PATTERN}">
+            <PatternLayout charset="UTF-8" pattern="${LOG_PATTERN}"></PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <!--            每个时间段最多只有15个文件-->
+            <DefaultRolloverStrategy max="15" >
+                <!--                超过60天就删了（测试）-->
+                <Delete basePath="${LOG_HOME}" maxDepth="60">
+                    <IfFileName glob="*/*.log"/>
+                    <IfLastModified age="2D"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile name="RollingFileError" fileName="${LOG_HOME}/${FILE_NAME_ERROR}" filePattern="${FILE_PATTERN_ERROR}">
+            <PatternLayout charset="UTF-8" pattern="${LOG_PATTERN}"></PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!--    过滤-->
+        <Logger name="org.springframework" level="INFO"/>
+        <Logger name="org.mybatis" level="INFO"/>
+        <!--    日志默认打印到控制台-->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="RollingFileError"/>
+        </Root>
+    </Loggers>
+</Configuration>
+

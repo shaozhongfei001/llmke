@@ -1,0 +1,49 @@
+.userOperate {
+  .ant-timeline-item-label {
+    width: 115px !important;
+  }
+  /* .ant-timeline.ant-timeline-right .ant-timeline-item-content {
+      inset-inline-start: calc(25% - 4px) !important;
+      width: calc(75% - 12px) !important;
+      text-align: start;
+  } */
+  .ant-timeline.ant-timeline-right .ant-timeline-item-tail {
+    inset-inline-start: 25% !important;
+  }
+  .ant-timeline.ant-timeline-right .ant-timeline-item-head {
+    inset-inline-start: calc(25% - 4px) !important;
+  }
+  .ant-timeline.ant-timeline-right .ant-timeline-item-label {
+    inset-inline-start: 0 !important;
+    width: calc(25% - 12px) !important;
+    text-align: right;
+    padding-inline-end: 16px;
+  }
+  .ant-timeline.ant-timeline-alternate .ant-timeline-item-tail,
+  .ant-timeline.ant-timeline-right .ant-timeline-item-tail,
+  .ant-timeline.ant-timeline-label .ant-timeline-item-tail,
+  .ant-timeline.ant-timeline-alternate .ant-timeline-item-head,
+  .ant-timeline.ant-timeline-right .ant-timeline-item-head,
+  .ant-timeline.ant-timeline-label .ant-timeline-item-head,
+  .ant-timeline.ant-timeline-alternate .ant-timeline-item-head-custom,
+  .ant-timeline.ant-timeline-right .ant-timeline-item-head-custom,
+  .ant-timeline.ant-timeline-label .ant-timeline-item-head-custom {
+    inset-inline-start: 15% !important;
+  }
+  .ant-timeline.ant-timeline-label .ant-timeline-item-label {
+    inset-block-start: 0;
+  }
+  .ant-timeline.ant-timeline-alternate
+    .ant-timeline-item-left
+    .ant-timeline-item-content,
+  .ant-timeline.ant-timeline-right
+    .ant-timeline-item-left
+    .ant-timeline-item-content,
+  .ant-timeline.ant-timeline-label
+    .ant-timeline-item-left
+    .ant-timeline-item-content {
+    inset-inline-start: calc(18% - 4px) !important;
+    width: calc(80% - 12px) !important;
+    text-align: start;
+  }
+}

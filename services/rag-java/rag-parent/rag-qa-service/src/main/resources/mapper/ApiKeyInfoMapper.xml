@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragqaservice.domain.mapper.ApiKeyInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragqaservice.domain.model.ApiKeyInfoDO">
+        <id column="id" property="id" />
+        <id column="api_key" property="apiKey" />
+        <id column="target_id" property="targetId" />
+        <id column="status" property="status" />
+        <id column="biz_type" property="bizType" />
+        <id column="expire_time" property="expireTime" />
+        <id column="is_del" property="isDel" />
+        <id column="create_by" property="createBy" />
+        <id column="gmt_create" property="gmtCreate" />
+        <id column="modify_by" property="modifyBy" />
+        <id column="gmt_modified" property="gmtModified" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+        <sql id="Base_Column_List">
+            id,api_key,target_id,status,biz_type,expire_time,is_del,create_by,gmt_create,modify_by,gmt_modified
+        </sql>
+
+</mapper>

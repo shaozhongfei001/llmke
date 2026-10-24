@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: sensitive-words-service
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: http://10.15.12.13:8848
+        namespace: rag-local-wudf
+      config:
+        server-addr: http://10.15.12.13:8848
+        namespace: rag-local-wudf
+        prefix: ${spring.application.name}
+        file-extension: yml
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+      - optional:nacos:common.yml

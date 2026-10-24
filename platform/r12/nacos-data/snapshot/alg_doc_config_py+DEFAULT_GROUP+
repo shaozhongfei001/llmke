@@ -1,0 +1,23 @@
+server:
+  host: 0.0.0.0
+  port: 12340
+  workers: 1
+log_path: /home/szf/data/dev/llmke-r12/platform/r12/logs/parse
+chunk_size: 512
+overlap_size: 100
+use_ali: false
+use_fudan: false
+use_text_in: false
+use-mineru: false
+use_multi_modal: false
+bypass: true
+garbage_filter: false
+image_boxes_batch_size: 2
+excel_parse_max_worker: 1
+# 本服务自身不直连 mysql 落库，java-common 的 mysql 段由下方 other-nacos 提供
+mysql: {}
+other-nacos:
+  java-common:
+    namespace: ""
+    data-id: alg_doc_parse_java_common
+    group: DEFAULT_GROUP

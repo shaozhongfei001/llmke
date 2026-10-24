@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.DepartmentInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.DepartmentInfoDO">
+        <id column="id" property="id"/>
+        <id column="name" property="name"/>
+        <id column="code" property="code"/>
+        <id column="admin" property="admin"/>
+        <id column="parent_id" property="parentId"/>
+        <id column="status" property="status"/>
+        <id column="gmt_create" property="gmtCreate"/>
+        <id column="gmt_modified" property="gmtModified"/>
+        <id column="create_by" property="createBy"/>
+        <id column="modify_by" property="modifyBy"/>
+        <id column="seq" property="seq"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,name,code,admin,parent_id,status,gmt_create,gmt_modified,create_by,modify_by
+    </sql>
+
+    <select id="recursiveListById" resultType="com.gientech.ragauthservice.domain.model.DepartmentInfoDO">
+        WITH RECURSIVE department_tree AS (SELECT id, name, parent_id, 0 AS depth, gmt_create
+        FROM department_info
+        WHERE  status != -1
+        <choose>
+            <when test="deptId!=null">
+                AND id = #{deptId}
+            </when>
+            <otherwise>
+                AND parent_id is null
+            </otherwise>
+        </choose>
+        UNION ALL
+        SELECT d.id, d.name, d.parent_id, dt.depth +1 as depth, d.gmt_create
+        FROM department_info d
+        INNER JOIN department_tree dt ON d.parent_id = dt.id
+        WHERE status != -1
+        <if test="depth!=null">
+            <![CDATA[ AND dt.depth < #{depth} ]]>
+        </if>
+        )
+        SELECT *
+        FROM department_tree ORDER BY gmt_create DESC;
+    </select>
+
+    <select id="recursiveListByIds" resultType="com.gientech.ragauthservice.domain.model.DepartmentInfoDO">
+        WITH RECURSIVE department_tree AS (SELECT id, name, parent_id, gmt_create
+        FROM department_info
+        WHERE id IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+        AND status != -1
+        UNION ALL
+        SELECT d.id, d.name, d.parent_id,d.gmt_create
+        FROM department_info d
+        INNER JOIN department_tree dt ON d.parent_id = dt.id
+        WHERE status != -1
+        )
+        SELECT distinct *
+        FROM department_tree ORDER BY gmt_create DESC;
+    </select>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO gienrag.department_info ( name, code, admin, parent_id, status, gmt_create, gmt_modified, create_by,
+        modify_by )
+        VALUES
+        <foreach collection="list" item="it" separator=",">(
+            #{it.name},#{it.code},#{it.admin},#{it.parentId},#{it.status},#{it.gmtCreate},
+            #{it.gmtModified},#{it.createBy},#{it.modifyBy}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findByParentNameAndName" resultType="com.gientech.ragauthservice.domain.model.DepartmentInfoDO">
+        SELECT t1.*
+        FROM gienrag.department_info t1 LEFT JOIN gienrag.department_info t2 ON t1.parent_id = t2.id
+        WHERE t1.name = #{deptName} AND t2.name = #{parentDeptName}
+    </select>
+</mapper>

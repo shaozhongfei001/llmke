@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.GroupPrivilegeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.GroupPrivilegeDO">
+        <id column="id" property="id"/>
+        <result column="target_id" property="targetId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="biz_type" property="bizType"/>
+        <result column="permission" property="permission"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, target_id, group_id, biz_type, permission, gmt_create, gmt_modified, create_by, update_by
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into group_privilege(target_id, group_id, biz_type, permission, gmt_create, gmt_modified, create_by,
+        update_by) values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.targetId}, #{it.groupId},#{it.bizType}, #{it.permission}, #{it.gmtCreate}, #{it.gmtModified},
+            #{it.createBy},#{it.updateBy})
+        </foreach>
+    </insert>
+
+    <update id="updatePermissionBatch">
+        UPDATE group_privilege
+        SET permission = #{permission}
+        <where>id in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            <if test="elementId!=null">
+                AND group_id = #{elementId}
+            </if>
+        </where>
+    </update>
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragqaservice.domain.mapper.AnswerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragqaservice.domain.model.AnswerDO">
+        <result column="id" property="id" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="dialogue_id" property="dialogueId" />
+        <result column="question_id" property="questionId" />
+        <result column="content" property="content" />
+        <result column="type" property="type" />
+        <result column="reference" property="reference" />
+        <result column="log_result" property="logResult" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, gmt_create, gmt_modified, dialogue_id, question_id, content, type, reference
+    </sql>
+
+    <select id="getAnswerIdByQueryId" resultType="long">
+        SELECT
+            a.id answerId
+        FROM
+            question q
+                INNER JOIN answer a ON q.id = a.question_id
+                AND q.front_uuid = #{queryId}
+    </select>
+
+    <select id="getAnswerByQueryId" resultType="com.gientech.ragqaservice.domain.model.AnswerDO">
+        SELECT
+            a.*
+        FROM question q
+                 INNER JOIN answer a ON q.id = a.question_id
+            AND q.front_uuid = #{queryId}
+    </select>
+</mapper>

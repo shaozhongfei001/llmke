@@ -1,0 +1,91 @@
+# R12 运行剖面（A-03：配置版本化，Nacos 仅用于服务发现）
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  application:
+    name: rag-auth-service
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13306/gienrag?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    username: root
+    password: '${R12_MYSQL_PASSWORD}'
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 20
+      minimum-idle: 2
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 16379
+      password: '${R12_REDIS_PASSWORD}'
+      database: 0
+      timeout: 5000
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:18848
+        namespace: public
+        group: DEFAULT_GROUP
+        register-enabled: true
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+server:
+  port: 18081
+  servlet:
+    context-path: /auth
+  host-ip: 127.0.0.1
+mybatis:
+  table:
+    auto: update
+  model:
+    pack: com.gientech.ragauthservice.domain.model
+  database:
+    type: mysql
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml,classpath*:com/gitee/sunchenbin/mybatis/actable/mapping/*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+aes:
+  key: '1234567890123456'
+  iv: '1234567890123456'
+thread-pool:
+  core-pool-size: 16
+  max-pool-size: 64
+  queue-capacity: 512
+storage:
+  default-platform: rag-qa
+  default-storage-properties:
+    end-point: http://127.0.0.1:19000
+    domain: http://127.0.0.1:19000
+    bucket-name: r12-rag
+    access-key: r12minio
+    secret-key: '${R12_MINIO_SECRET_KEY}'
+logging:
+  level:
+    root: INFO
+auth:
+  default:
+    role-id: 3
+  super:
+    role-id: 1
+  admin:
+    role-id: 2
+loginSetting:
+  appKeys: '["rag-qa","rag-index"]'
+system:
+  version: R12
+  subversion: '1'
+  detail: LLMKE R12
+  date: '2026-10-25'
+
+rocketmq:
+  name-server: 127.0.0.1:19876
+  producer:
+    group: r12-producer
+    send-message-timeout: 60000

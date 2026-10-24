@@ -1,0 +1,106 @@
+{
+  "name": "store",
+  "description": "存储层代码生成规范",
+  "glob": "web/src/store/**/*.{ts,tsx}",
+  "rules": {
+    "directory": {
+      "structure": {
+        "web/src/store": {
+          "indexdb": ["types.ts", "database.ts", "[domain].ts", "index.ts"],
+          "state": ["types.ts", "[domain].ts", "index.ts"],
+          "os": ["types.ts", "index.ts"]
+        }
+      }
+    },
+    "types": {
+      "baseModel": {
+        "id": "string",
+        "createdAt": "number",
+        "updatedAt": "number"
+      },
+      "naming": {
+        "interface": "PascalCase",
+        "type": "PascalCase",
+        "enum": "PascalCase"
+      }
+    },
+    "implementation": {
+      "crud": ["create", "read", "update", "delete"],
+      "async": true,
+      "errorHandling": true,
+      "timestamps": ["createdAt", "updatedAt"]
+    },
+    "exports": {
+      "moduleExport": "const",
+      "typeExport": "*",
+      "namespace": true
+    },
+    "documentation": {
+      "moduleDoc": true,
+      "methodDoc": true,
+      "typeDoc": true
+    }
+  },
+  "templates": {
+    "types": {
+      "file": "types.ts",
+      "content": [
+        "// 基础模型接口",
+        "export interface BaseModel {",
+        "  id: string;",
+        "  createdAt: number;",
+        "  updatedAt: number;",
+        "}",
+        "",
+        "// 领域模型",
+        "export interface {{name}} extends BaseModel {",
+        "  {{fields}}",
+        "}"
+      ]
+    },
+    "domain": {
+      "file": "{{name}}.ts",
+      "content": [
+        "import { db } from './database';",
+        "import { {{name}} } from './types';",
+        "",
+        "export const {{nameLower}} = {",
+        "  async create(data: Omit<{{name}}, 'id' | 'createdAt' | 'updatedAt'>) {",
+        "    const timestamp = Date.now();",
+        "    const item = {",
+        "      id: `{{nameLower}}_${timestamp}`,",
+        "      createdAt: timestamp,",
+        "      updatedAt: timestamp,",
+        "      ...data",
+        "    };",
+        "    await db.{{nameLower}}s.add(item);",
+        "    return item;",
+        "  },",
+        "",
+        "  async list(filters?: Partial<{{name}}>) {",
+        "    let collection = db.{{nameLower}}s.toCollection();",
+        "    if (filters) {",
+        "      collection = collection.filter(item => {",
+        "        return Object.entries(filters).every(([key, value]) => item[key as keyof {{name}}] === value);",
+        "      });",
+        "    }",
+        "    return await collection.toArray();",
+        "  },",
+        "",
+        "  async update(id: string, data: Partial<{{name}}>) {",
+        "    const updates = {",
+        "      ...data,",
+        "      updatedAt: Date.now()",
+        "    };",
+        "    await db.{{nameLower}}s.update(id, updates);",
+        "    return await db.{{nameLower}}s.get(id);",
+        "  },",
+        "",
+        "  async delete(id: string) {",
+        "    await db.{{nameLower}}s.delete(id);",
+        "  }",
+        "};"
+      ]
+    }
+  }
+} 

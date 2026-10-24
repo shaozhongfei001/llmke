@@ -1,0 +1,61 @@
+/* 写作助手 */
+.sider-box .section-title {
+  height: 24px;
+  line-height: 24px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.sider-box .section-title::before {
+  content: "";
+  width: 4px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #bd9cff, #3c6dff, #0359ff);
+  position: relative;
+  top: calc(50% - 6px);
+  margin-right: 5px;
+}
+
+.sider-box .review-item:hover {
+  background: linear-gradient(to bottom, #dde8ff 0%, white 30%);
+  border-radius: 4px;
+  box-shadow: 0px 4px 12px 0px #8188a240;
+}
+
+.sider-box .ant-menu-item {
+  height: 66px;
+  display: flex;
+}
+
+.sider-box :where(.css-dev-only-do-not-override-a3dpjy).ant-form-item {
+  margin-bottom: 16px;
+}
+
+.material
+  :where(.css-dev-only-do-not-override-a3dpjy).ant-tag-checkable-checked {
+  color: #055aff;
+  background-color: #e2e9ff;
+}
+.border-color-cls {
+  .ant-input,
+  .ant-btn {
+    border-color: #d9d9d9;
+  }
+}
+
+.material-box .ant-tabs-ink-bar-animated,
+.nlp-editor-review-tabs .ant-tabs-ink-bar-animated {
+  height: 3px !important;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(
+    313.7deg,
+    #bd9cff -2.37%,
+    #3c6dff 68.78%,
+    #0359ff 100%
+  );
+}
+.review-tag-box {
+  .ant-tag {
+    margin-inline-end: 0px;
+  }
+}

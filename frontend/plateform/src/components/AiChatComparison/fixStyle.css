@@ -1,0 +1,13 @@
+.anticon .anticon-enter .ant-typography-edit-content-confirm {
+  display: none !important;
+  /* width: auto;
+  height: 32px !important;
+  background: transparent;
+  overflow-y: hidden; */
+}
+textarea {
+  width: auto;
+  height: 32px !important;
+  background: transparent;
+  overflow-y: hidden;
+}

@@ -1,0 +1,47 @@
+.departmentTabs {
+  .ant-tabs-nav {
+    margin-bottom: 0;
+  }
+}
+
+.userTree {
+  .ant-tree-node-content-wrapper {
+  }
+  .ant-tree-treenode {
+    height: 42px;
+    line-height: 42px;
+    white-space: nowrap;
+  }
+
+  .ant-tree-switcher:before {
+    height: 42px;
+  }
+  .ant-tree-node-selected {
+    background-color: #f3f6ff !important;
+  }
+  /* .ant-tree-treenode-selected {
+    background-color: #f3f6ff;
+    border-radius: 4px;
+    .ant-tree-node-selected {
+      background-color: transparent;
+    }
+    .ant-tree-node-content-wrapper:hover{
+
+    }
+  } */
+}
+
+.hideScroll {
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 0; /* 横向滚动条宽度 */
+    height: 8px; /* 纵向滚动条高度设为0 */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e8e8e8; /* 横向滚动条滑块颜色 */
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent; /* 滚动条轨道透明 */
+  }
+}

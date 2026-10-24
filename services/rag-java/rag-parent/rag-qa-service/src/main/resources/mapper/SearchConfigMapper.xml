@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragqaservice.domain.mapper.SearchConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragqaservice.domain.model.SearchConfigDO">
+        <id column="id" property="id"/>
+        <result column="status" property="status"/>
+        <result column="is_default" property="isDefault"/>
+        <result column="config_json" property="configJson"/>
+        <result column="name" property="name"/>
+        <result column="des" property="des"/>
+        <result column="create_by" property="createBy"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="modify_by" property="modifyBy"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="sensitive_word_ids" property="sensitiveWordIds"/>
+        <result column="default_answer" property="defaultAnswer"/>
+        <result column="enabled_faq" property="enabledFaq"/>
+        <result column="depend_on_kb" property="dependOnKb"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , status, is_default, config_json, name, des, create_by, gmt_create, modify_by, gmt_modified, sensitive_word_ids, default_answer, enabled_faq, depend_on_kb
+    </sql>
+
+    <update id="updateSensitiveWord">
+        UPDATE search_config
+        SET `sensitive_word_ids` = TRIM(BOTH ',' FROM
+                                        REPLACE(CONCAT(',', `sensitive_word_ids`, ','), CONCAT(',', #{wordId}, ','),
+                                                ','))
+        WHERE FIND_IN_SET(#{wordId}, `sensitive_word_ids`) > 0
+    </update>
+
+    <update id="updateKnowledgeBase">
+        UPDATE search_config
+        SET config_json = JSON_SET(
+                config_json,
+                '$.knowledge_base_name',
+                TRIM(BOTH ';' FROM
+                     REPLACE(JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.knowledge_base_name')), #{baseName}, ''))
+                          )
+        WHERE JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.knowledge_base_name')) LIKE CONCAT('%', #{baseName}, '%');
+    </update>
+
+    <update id="updateSourceKnowledgeBase">
+        UPDATE search_config
+        SET config_json = JSON_SET(
+                config_json,
+                '$.knowledge_base_name_source',
+                TRIM(BOTH ';' FROM
+                     REPLACE(JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.knowledge_base_name_source')), #{sourceName},
+                             ''))
+                          )
+        WHERE JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.knowledge_base_name_source')) LIKE
+              CONCAT('%', #{sourceName}, '%');
+    </update>
+
+    <update id="updateKbSourceName">
+        UPDATE search_config
+        SET config_json = JSON_SET(
+                config_json,
+                '$.knowledge_base_name_source',
+                TRIM(BOTH ';' FROM
+                     REPLACE(JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.knowledge_base_name_source')), #{sourceName},
+                             #{targetName}))
+                          )
+        WHERE JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.knowledge_base_name_source')) LIKE
+              CONCAT('%', #{sourceName}, '%');
+    </update>
+
+    <update id="updateDbIndex">
+        UPDATE search_config
+        SET config_json = JSON_REMOVE(
+                config_json,
+                REPLACE(
+                        JSON_UNQUOTE(JSON_SEARCH(config_json, 'one', #{dbIndex}, NULL, '$.database_name[*].key')),
+                        '.key',
+                        ''
+                )
+                          )
+        WHERE JSON_SEARCH(config_json, 'one', #{dbIndex}, NULL, '$.database_name[*].key') IS NOT NULL;
+    </update>
+
+    <update id="renameDbIndex">
+        UPDATE search_config
+        SET config_json =
+                JSON_SET(
+                        config_json,
+                        REPLACE(
+                                JSON_UNQUOTE(
+                                        JSON_SEARCH(config_json, 'one', #{oldDbLabel}, NULL, '$.database_name[*].label')
+                                ),
+                                '.key',
+                                '.label'
+                        ),
+                        #{newDbLabel}
+                )
+        WHERE JSON_SEARCH(config_json, 'one', #{dbKey}, NULL, '$.database_name[*].key') IS NOT NULL
+    </update>
+
+    <update id="updateTrace">
+        UPDATE search_config
+        SET config_json = JSON_SET(
+                config_json,
+                '$.need_trace_source',
+                ${needTrace}
+                          )
+        WHERE status = 1
+          AND JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.model_name')) = #{modelName};
+    </update>
+
+    <update id="updateModelConfig">
+        UPDATE search_config
+        SET config_json = JSON_SET(
+                config_json,
+                '$.thinking', ${thinking}
+                          )
+        WHERE status = 1
+          AND JSON_UNQUOTE(JSON_EXTRACT(config_json, '$.model_name')) = #{modelName};
+    </update>
+
+    <update id="updateCreator">
+        UPDATE search_config
+        <set>
+            create_by=#{userName},modify_by=#{userName}
+            <if test="isClearKb==true">
+                ,config_json = JSON_SET(config_json, '$.knowledge_base_name_source', '','$.knowledge_base_name','')
+            </if>
+        </set>
+        <where>
+            id IN
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            <if test="isClearKb">
+                AND JSON_EXTRACT(config_json, '$.knowledge_base_name_source') IS NOT NULL
+                AND JSON_EXTRACT(config_json, '$.knowledge_base_name') IS NOT NULL
+            </if>
+        </where>
+    </update>
+
+    <update id="replaceModelName">
+        UPDATE search_config
+        SET config_json = CAST(
+                REPLACE(JSON_UNQUOTE(config_json),
+                        #{sourceModelName},
+                        #{targetModelName}) AS JSON
+                          )
+        WHERE status = 1
+          AND JSON_SEARCH(config_json, 'one', #{sourceModelName}) IS NOT NULL;
+    </update>
+
+    <select id="selectReferenceByModelName" resultType="int">
+        SELECT count(1)
+        FROM search_config
+        WHERE status = 1
+          AND JSON_SEARCH(config_json, 'one', #{modelName}) IS NOT NULL;
+    </select>
+
+</mapper>

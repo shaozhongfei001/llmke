@@ -1,0 +1,94 @@
+.duplicate-modal-title {
+  color: #2a2a2a;
+  font-size: 16px;
+  font-weight: 700;
+  &::before {
+    content: "!";
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    border-radius: 100%;
+    text-align: center;
+    background-color: #faad14;
+    color: #fff;
+    line-height: 24px;
+    margin-right: 12px;
+  }
+}
+.bottom-line {
+  border-bottom: 1px solid #f0f0f0;
+  height: 1px;
+  width: 650px;
+  margin: 0 0 16px -28px;
+}
+.single-file-wrap {
+  padding-left: 36px;
+  color: #2a2a2a;
+  .file-name {
+    margin-bottom: 12px;
+    span {
+      margin-right: 8px;
+    }
+  }
+  .single-btn-group {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+}
+
+.skip-btn,
+.overwrite-btn {
+  border: 1px solid #d9d9d9;
+  color: #000;
+}
+.newversion-btn {
+  background: linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%);
+  color: #fff;
+}
+
+.more-file-wrap {
+  .ant-table-thead .ant-table-cell {
+    background-color: #fafafa !important;
+    padding: 0 4px !important;
+    height: 40px !important;
+  }
+  .ant-table-tbody .ant-table-cell {
+    padding: 0 4px !important;
+    height: 40px !important;
+  }
+  .custom-duplicate-header {
+    font-family: Microsoft YaHei;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2a2a2a;
+  }
+  .duplicate-table-btn-group-wrap {
+    button {
+      color: #055aff;
+      font-size: 12px;
+    }
+    .btn-disabled {
+      color: #c5c5c5;
+    }
+  }
+  .ant-table-wrapper .ant-table {
+    scrollbar-color: auto !important;
+  }
+  .more-file-footer {
+    display: flex;
+    justify-content: space-between;
+    .total-wrap {
+      font-size: 14px;
+      color: #000;
+      span {
+        margin: 0 3px;
+        color: #999;
+      }
+    }
+    .more-btn-group {
+      display: flex;
+      gap: 8px;
+    }
+  }
+}

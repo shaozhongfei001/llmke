@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: rag-auth-service
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: http://127.0.0.1:8848/
+        namespace: rag-local
+      config:
+        server-addr: http://127.0.0.1:8848
+        namespace: rag-local
+        prefix: ${spring.application.name}
+        file-extension: yml
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+      - optional:nacos:common.yml

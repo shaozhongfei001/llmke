@@ -1,0 +1,113 @@
+.cec-knowledge-base-box {
+  .content-wrap {
+    height: 515px !important;
+    padding: 16px 15px 0 15px !important;
+  }
+
+  .ant-tabs-ink-bar-animated {
+    height: 4px !important;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(
+      313.7deg,
+      #bd9cff -2.37%,
+      #3c6dff 68.78%,
+      #0359ff 100%
+    );
+  }
+
+  .knowledgebase-wrap {
+    .title-wrap {
+      padding: 0;
+      .tabs-wrap {
+        margin-left: 7px;
+        .tab {
+          .span {
+            color: #222;
+            margin-top: 15px;
+          }
+        }
+        .active {
+          span {
+            color: #1d70f5;
+            &::before {
+              bottom: -5px;
+            }
+          }
+        }
+      }
+      .tabs-wrap::after {
+        top: 50px;
+      }
+    }
+
+    .search-bar {
+      padding: 0 24px 0 !important;
+      margin-top: 0 !important;
+      .ant-input-outlined {
+        margin-right: 0 !important;
+      }
+    }
+  }
+
+  .detail-wrap {
+    background-color: white !important;
+    height: 400px;
+    padding: 0;
+    .crumbs {
+      padding-top: 0;
+    }
+    .file-table-wrap {
+      height: 100%;
+      padding: 0 24px;
+      .kb-table-wrap {
+        margin: 0;
+      }
+      .detail-box {
+        height: 100% !important;
+        > div {
+          height: 100% !important;
+          .kb-table-wrap {
+            height: calc(100% - 64px);
+            .ant-table-body {
+              height: 338px !important;
+              max-height: calc(100% - 620px) !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.custom-modal {
+  .ant-modal-content {
+    padding: 0;
+  }
+  .ant-modal-header {
+    margin: 0;
+  }
+  .content-wrap {
+    padding: 0;
+  }
+  .ant-modal-footer {
+    margin: 0;
+  }
+}
+
+.material-tree-wrap {
+  .ant-tree-list-scrollbar-thumb {
+    background-color: #c5c2c2 !important;
+    width: 4px !important;
+  }
+  .ant-tree-list-holder {
+    overflow-x: hidden;
+  }
+  .ant-tree-switcher {
+    svg {
+      color: #888;
+      font-size: 16px;
+      position: relative;
+      top: 2px;
+    }
+  }
+}

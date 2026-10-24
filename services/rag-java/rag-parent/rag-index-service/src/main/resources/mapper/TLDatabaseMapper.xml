@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.tools.database.domain.mapper.TLDatabaseMapper">
+    <select id="getHighestPermission" resultType="integer">
+        SELECT MAX(permission)
+        FROM (
+        <if test="deptId!=null and deptId!=''">
+            SELECT permission
+            FROM dept_privilege
+            WHERE dept_id = #{deptId} AND is_del = 1
+            AND biz_type = 12
+            AND target_id = #{databaseId}
+            AND permission > 0
+            UNION
+        </if>
+        SELECT permission
+        FROM group_privilege gp
+        LEFT JOIN user_group ug ON gp.group_id = ug.group_id
+        WHERE ug.user_id = #{userId} AND gp.is_del = 1
+        AND biz_type = 12
+        AND target_id = #{databaseId}
+        AND permission > 0
+        UNION
+        <include refid="selectPermissionByDeptIdInGroup"/>
+        UNION
+        SELECT permission
+        FROM user_privilege
+        WHERE user_id = #{userId} AND is_del = 1
+        AND biz_type = 12
+        AND target_id = #{databaseId}
+        AND permission > 0
+        UNION
+        SELECT permission
+        FROM user_privilege
+        WHERE user_id = -1 AND is_del = 1 AND biz_type = 12 AND target_id=#{databaseId} AND permission > 0
+        UNION
+        SELECT 3
+        FROM tools_database
+        WHERE create_by=#{userName} AND id = #{databaseId}) t1
+
+    </select>
+
+    <sql id="selectPermissionByDeptIdInGroup">
+        (WITH RECURSIVE cte AS (SELECT c.id,
+                                       c.parent_id
+                                FROM department_info AS c
+                                WHERE c.id = #{deptId}
+
+                                UNION ALL
+
+                                SELECT p.id,
+                                       p.parent_id
+                                FROM department_info AS p
+                                         INNER JOIN cte
+                                                    ON p.id = cte.parent_id)
+         SELECT gp.permission AS permission
+         FROM cte
+                  LEFT JOIN user_group ug ON cte.id = ug.dept_id
+                  LEFT JOIN group_privilege gp ON ug.group_id = gp.group_id
+         WHERE gp.biz_type = 12 AND gp.is_del = 1
+           AND permission > 0
+           AND gp.target_id = #{databaseId})
+    </sql>
+</mapper>

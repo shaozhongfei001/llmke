@@ -1,0 +1,18 @@
+from deepdoc.output_object import ParsedText
+from deepdoc.splitter.utils import group_documents
+from .base import BaseSplitter
+from .intel_splitter import IntelSectionSplitter
+
+
+class IntelSplitter(BaseSplitter):
+    def chunk(self, documents: list[ParsedText]) -> list[ParsedText]:
+        documents_group_by_source = group_documents(documents)
+        chunks = []
+        splitter = IntelSectionSplitter(
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
+            separators=self.separators
+        )
+        for source, documents in documents_group_by_source.items():
+            chunks += splitter.split_documents(documents, source.split("/")[-1])
+        return chunks

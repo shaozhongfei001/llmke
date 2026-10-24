@@ -1,0 +1,5 @@
+from index_structure_service.models.knowledge_base_model import KnowledgeBaseModel
+from index_structure_service.models.message_model import MessageModel
+from index_structure_service.models.knowledge_file_model import KnowledgeFileModel, FileDocModel
+from index_structure_service.models.conversation_model import ConversationModel
+from index_structure_service.models.knowledge_metadata_model import SummaryChunkModel

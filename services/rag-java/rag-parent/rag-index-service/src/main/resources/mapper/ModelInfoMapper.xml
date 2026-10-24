@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.ModelInfoMapper">
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.ModelInfoDO">
+        <!--@mbg.generated-->
+        <!--@Table model_info-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="model_name" jdbcType="VARCHAR" property="modelName"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="model_protocol" jdbcType="TINYINT" property="modelProtocol"/>
+        <result column="model_ide" jdbcType="VARCHAR" property="modelIde"/>
+        <result column="api_key" jdbcType="VARCHAR" property="apiKey"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="dec" jdbcType="VARCHAR" property="dec"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="error_msg" jdbcType="VARCHAR" property="errorMsg"/>
+        <result column="is_dtl" jdbcType="CHAR" property="isDtl"/>
+        <result column="thinking" jdbcType="CHAR" property="thinking"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id,
+        model_name,
+        `type`,
+        model_protocol,
+        model_ide,
+        api_key,
+        url,
+        `dec`,
+        `status`,
+        error_msg,
+        is_dtl,
+        thinking,
+        gmt_create,
+        gmt_modified,
+        create_by,
+        update_by
+    </sql>
+
+    <select id="allPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM (
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM model_info b
+        <where>
+            b.create_by = #{queryParam.createBy}
+            AND b.is_dtl = '0'
+            <if test="queryParam.status != null">
+                AND b.status = #{queryParam.status}
+            </if>
+            <if test="queryParam.type != null">
+                AND b.type = #{queryParam.type}
+            </if>
+            <if test="queryParam.modelName != null">
+                AND b.model_name = #{queryParam.modelName}
+            </if>
+        </where>
+        ORDER BY b.gmt_create DESC
+        <!-- 确保子查询的排序不被系统优化,导致排序失效 -->
+        LIMIT 10000
+        ) AS part1
+        UNION
+        SELECT <include refid="Base_Column_List"/>
+        FROM (
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM model_info a
+        <where>
+            <choose>
+                <when test="queryParam.idList != null and queryParam.idList.size() != 0">
+                    a.id IN
+                    <foreach item="id" index="index" collection="queryParam.idList" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                    AND a.is_dtl = '0'
+                    <if test="queryParam.status != null">
+                        AND a.status = #{queryParam.status}
+                    </if>
+                    <if test="queryParam.type != null">
+                        AND a.type = #{queryParam.type}
+                    </if>
+                    <if test="queryParam.modelName != null">
+                        AND a.model_name = #{queryParam.modelName}
+                    </if>
+                </when>
+                <otherwise>
+                    1=0
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY a.gmt_create DESC
+        <!-- 确保子查询的排序不被系统优化,导致排序失效 -->
+        LIMIT 10000
+        ) AS part2
+    </select>
+
+    <update id="updateCreator">
+        UPDATE model_info
+        SET create_by=#{userName}, update_by=#{userName}
+        WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

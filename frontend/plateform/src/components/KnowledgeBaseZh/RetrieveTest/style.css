@@ -1,0 +1,10 @@
+.hide-scrollBar {
+  overflow-y: auto; /* 或 overflow: auto */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.hide-scrollBar::-webkit-scrollbar {
+  overflow-y: auto; /* 或 overflow: auto */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}

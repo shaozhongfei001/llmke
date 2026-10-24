@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.InterfaceInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.InterfaceInfoDO">
+        <id column="id" property="id"/>
+        <id column="app_name" property="appName"/>
+        <id column="app_name_abbreviate" property="appNameAbbreviate"/>
+        <id column="name" property="name"/>
+        <id column="url" property="url"/>
+        <id column="method" property="method"/>
+        <id column="gmt_create" property="gmtCreate"/>
+        <id column="gmt_modified" property="gmtModified"/>
+        <id column="create_by" property="createBy"/>
+        <id column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        ,app_name,app_name_abbreviate,name,url,method,gmt_create,gmt_modified,create_by,update_by
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into
+        interface_info(id,app_name,app_name_abbreviate,name,url,method,gmt_create,gmt_modified,create_by,update_by)
+        values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.id},#{it.appName},#{it.appNameAbbreviate}, #{it.name}, #{it.url},
+            #{it.method},#{it.gmtCreate},#{it.gmtModified},#{it.createBy},#{it.updateBy})
+        </foreach>
+    </insert>
+    <select id="listAll" resultType="com.gientech.ragauthservice.domain.model.InterfaceInfoDO">
+        SELECT *
+        FROM interface_info
+    </select>
+    <select id="selectCustomPage" resultType="com.gientech.ragauthservice.domain.model.InterfaceInfoDO">
+        SELECT t1.id,
+        app_name,
+        t1.name,
+        t1.url,
+        method,
+        t2.id as resource_id,
+        t3.name as resource_name,
+        resource_type
+        FROM interface_info t1
+        left join resource_interface t2 on t1.id = t2.interface_id
+        left join resource_info t3 on t2.resource_id = t3.id
+        <if test="fuzzy!=null and fuzzy!=''">
+            WHERE t1.url like CONCAT('%',#{fuzzy},'%')
+        </if>
+        order by t1.gmt_create desc
+    </select>
+
+
+</mapper>

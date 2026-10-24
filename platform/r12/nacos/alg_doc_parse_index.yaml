@@ -1,0 +1,11 @@
+# R12 解析服务私有 index 副本（/parse 带索引时使用）
+# 端口口径由 TL 2026-10-25 裁定：走代理 —— ES 走 index_fulltext_service 19527，Milvus 走 index_vector_service 19526
+# （注：ES 本体 19200 / Milvus 本体 19630 不直接接收业务 JSON）
+es_server:
+  host: 127.0.0.1
+  port: 19527
+milvus_server:
+  host: 127.0.0.1
+  port: 19526
+milvus_conn_config:
+  milvus_database: rag_knowledge_base

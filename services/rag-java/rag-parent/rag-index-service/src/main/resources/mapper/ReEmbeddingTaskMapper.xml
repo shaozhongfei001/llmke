@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.ReEmbeddingTaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.ReEmbeddingTaskDO">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="kbId" column="kb_id" jdbcType="BIGINT"/>
+            <result property="kbName" column="kb_name" jdbcType="VARCHAR"/>
+            <result property="embeddingModelName" column="embedding_model_name" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="isDel" column="is_del" jdbcType="TINYINT"/>
+            <result property="logSummary" column="log_summary" jdbcType="VARCHAR"/>
+            <result property="gmtCreate" column="gmt_create" jdbcType="DATE"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="DATE"/>
+            <result property="msgKey" column="msg_key" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,kb_id,kb_name,embedding_model_name,`status`,is_del,
+        log_summary,gmt_create,gmt_modified,msg_key
+    </sql>
+
+
+
+</mapper>

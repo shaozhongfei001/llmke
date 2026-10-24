@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.KbLabelHisMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.KbLabelHisDO">
+        <id column="id" property="id" />
+        <id column="kb_id" property="kbId" />
+        <id column="labe" property="labe" />
+        <id column="is_del" property="isDel" />
+        <id column="create_by" property="createBy" />
+        <id column="gmt_create" property="gmtCreate" />
+        <id column="modify_by" property="modifyBy" />
+        <id column="gmt_modified" property="gmtModified" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+        <sql id="Base_Column_List">
+            id,kb_id,labe,is_del,create_by,gmt_create,modify_by,gmt_modified
+        </sql>
+
+</mapper>

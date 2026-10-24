@@ -1,0 +1,44 @@
+schema_version: 2
+baseline_version: 1.1.1
+loop_id: R12-real-rag
+kind: implementation
+objective:
+- 恢复原工程（gien-rag / rag-alg-service-api / ai-plateform）并打通真实 RAG 主链
+- 真实模型（LLM/Embedding/Rerank/VLM）+ 真实索引（Milvus/ES）+ 真实解析（deepdoc+OCR）
+- 交付可复现部署制品并保持服务运行
+authorization:
+  amendment: docs/baseline/R12-SCOPE-AMENDMENT.yaml
+  note: 隔离开发/预生产验证获授权；生产 P0 状态未变，生产发布仍需真实证据
+scope:
+  write_paths:
+  - services/rag-java
+  - services/rag-alg
+  - frontend/plateform
+  - platform/r12
+  - docs/r12
+  - docs/baseline
+  - loops/R12-real-rag
+  forbidden:
+  - 手改 generated
+  - 直接修改验收状态
+  - 无批准的生产数据变更
+  - 删除失败场景或降低断言强度
+required_blockers: []
+reuse_assets:
+- CODE-01
+- CODE-02
+implementation_principals:
+- tech-lead
+tech_lead_principal: tech-lead
+allowed_holders:
+- tech-lead
+- backend-engineer
+- python-engineer
+- algorithm-owner
+- frontend-engineer
+- integration-agent
+- qa-external
+gates: []
+notes: >
+  R12 由 TL 编排，功能门禁以 platform/r12/qa 下的验收脚本 + 逐场景证据为准；
+  独立 QA 签署不属于本 loop 的自签范围。

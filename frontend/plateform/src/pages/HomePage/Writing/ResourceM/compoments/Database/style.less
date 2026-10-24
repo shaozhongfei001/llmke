@@ -1,0 +1,52 @@
+/* 基础样式 */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* 卡片之间的间距 */
+  box-sizing: border-box;
+  .card {
+    border: 1px solid #eee;
+    height: 200px; /* 固定高度 */
+    box-sizing: border-box;
+    transition: all 0.3s ease; /* 平滑过渡效果 */
+  }
+}
+
+/* 响应式布局 */
+@media (min-width: 200px) {
+  .card {
+    flex: 0 0 calc(16.666% - 20px);
+    max-width: calc(16.666% - 20px);
+  }
+}
+
+@media (min-width: 1600px) and (max-width: 2000px) {
+  .card {
+    flex: 0 0 calc(20% - 20px);
+    max-width: calc(20% - 20px);
+  }
+}
+
+@media (min-width: 670px) and (max-width: 1600px) {
+  .card {
+    flex: 0 0 calc(25% - 20px);
+    max-width: calc(25% - 20px);
+  }
+}
+
+@media (max-width: 670px) {
+  .card {
+    flex: 0 0 calc(25% - 20px);
+    max-width: calc(25% - 20px);
+  }
+}
+
+.add-table-modal-content {
+  padding: 0 !important;
+}
+.add-table-modal-header {
+  padding: 20px 24px 0 !important;
+}
+.add-table-modal-footer {
+  padding: 0px 24px 20px !important;
+}

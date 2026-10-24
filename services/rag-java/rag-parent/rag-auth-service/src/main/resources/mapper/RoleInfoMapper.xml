@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.RoleInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.RoleInfoDO">
+        <id column="id" property="id" />
+        <result column="is_dtl" property="isDtl" />
+        <result column="create_by" property="createBy" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="update_by" property="updateBy" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="name" property="name" />
+        <result column="description" property="description" />
+        <result column="seq" property="seq" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        is_dtl, create_by, gmt_create, update_by, gmt_modified, id, name, description, seq, status
+    </sql>
+
+</mapper>

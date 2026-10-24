@@ -1,0 +1,75 @@
+FROM python:3.11.9
+
+# 注意要将ocr_models、nltk_data和deepdoc/huqie.txt.trie加进来 这三个文件并不在gitlab上
+COPY . /workdir
+WORKDIR /workdir
+
+RUN sed -i 's|http://deb.debian.org/debian|http://mirrors.aliyun.com/debian|g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update && \
+    apt-get install -y ffmpeg libsm6 libxext6 libgl1 nano iputils-ping vim && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# 注意需要根据系统及cpu架构来切换不同的jdk https://jdk.java.net/22/
+RUN apt-get update && \
+    apt-get install ffmpeg libsm6 libxext6 libgl1 nano iputils-ping vim -y && \
+    python3 -m pip install --upgrade pip -i https://pypi.mirrors.ustc.edu.cn/simple && \
+    python3 -m pip install --no-cache-dir -r requirements.txt \
+        -i https://pypi.tuna.tsinghua.edu.cn/simple \
+        --timeout 120 --retries 5 && \
+    tar -xvf openjdk-22.0.2_linux-x64_bin.tar -C /root && \
+    rm -f openjdk-22.0.2_linux-x64_bin.tar && \
+    mv nltk_data /root/ && \
+    mv ocr_models /root/ && \
+    mv tika-server.jar /root/ && \
+    mv tika-server.jar.md5 /root/ && \
+    mv tiktoken_cache /root/ && \
+    mv deepdoc/huqie.txt /root/ && \
+    mv deepdoc/huqie.txt.trie /root/ && \
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'Asia/Shanghai' > /etc/timezone
+
+
+# arm64打包
+## 注意需要根据系统及cpu架构来切换不同的jdk https://jdk.java.net/22/
+#RUN apt-get update && \
+#    apt-get install ffmpeg libsm6 libxext6 libgl1 nano iputils-ping vim -y && \
+#    python -m pip install --upgrade pip && \
+#    pip install --no-cache-dir -r requirements.txt \
+#        -i https://pypi.tuna.tsinghua.edu.cn/simple \
+#        --timeout 120 --retries 5 && \
+#    tar -xvf openjdk-22.0.2_linux-aarch64_bin.tar -C /root && \
+#    rm -f openjdk-22.0.2_linux-aarch64_bin.tar && \
+#    mv nltk_data /root/ && \
+#    mv ocr_models /root/ && \
+#    mv tika-server.jar /root/ && \
+#    mv tika-server.jar.md5 /root/ && \
+#    mv tiktoken_cache /root/ && \
+#    mv deepdoc/huqie.txt /root/ && \
+#    mv deepdoc/huqie.txt.trie /root/ && \
+#    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+#    echo 'Asia/Shanghai' > /etc/timezone
+
+
+ENV TIKTOKEN_CACHE_DIR="/root/tiktoken_cache"
+ENV NLTK_DATA: "/root/nltk_data"
+ENV JAVA_HOME: "/root/jdk-22.0.2"
+ENV PATH: "/root/jdk-22.0.2/bin:${PATH}"
+ENV OCR_PATH: "/root/ocr_models"
+ENV CUDA_VISIBLE_DEVICES: "0"
+
+
+# 一定要设置好java的环境变量 否则.doc格式的文档无法解析
+# 开发环境最好将项目目录挂载出来方便调试
+#docker run -itd \
+#--name rag-alg-doc-parse-service \
+#-v {代码的宿主机路径}:/workdir \
+#-e NACOS_SERVER_ADDRESS=http://{ip}:{port} \
+#-e NLTK_DATA=/root/nltk_data \
+#-e JAVA_HOME=/root/jdk-22.0.2 \
+#-e PATH=/root/jdk-22.0.2/bin:${PATH} \
+#-e TIKA_PATH=/root \
+#-e OCR_PATH=/root/ocr_models \
+#--network host rag-alg-doc-parse-service:latest
+# 需要依赖的其他服务端口：minio、mysql、索引服务（milvus+es）、网关服务端口、大模型端口、embedding端口、nacos端口
+# 9000 3306 19526 19527 8889 n n 8848

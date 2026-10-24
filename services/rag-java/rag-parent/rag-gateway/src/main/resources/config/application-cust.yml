@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: rag-gateway
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacosAddr}/
+        namespace: ${nacosNamespace}
+        username: ${nacosUsername}
+        password: ${nacosPassword}
+      config:
+        server-addr: ${nacosAddr}
+        namespace: ${nacosNamespace}
+        username: ${nacosUsername}
+        password: ${nacosPassword}
+        prefix: ${spring.application.name}
+        file-extension: yml
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+      - optional:nacos:common.yml

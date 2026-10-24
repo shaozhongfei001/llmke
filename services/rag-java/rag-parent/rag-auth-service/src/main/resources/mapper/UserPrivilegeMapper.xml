@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.UserPrivilegeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.UserPrivilegeDO">
+        <id column="id" property="id"/>
+        <result column="target_id" property="targetId"/>
+        <result column="user_id" property="userId"/>
+        <result column="biz_type" property="bizType"/>
+        <result column="permission" property="permission"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, target_id, user_id, biz_type, permission, gmt_create, gmt_modified, create_by, update_by
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into user_privilege(target_id, user_id, biz_type, permission, gmt_create, gmt_modified, create_by,
+        update_by) values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.targetId}, #{it.userId},#{it.bizType}, #{it.permission}, #{it.gmtCreate}, #{it.gmtModified},
+            #{it.createBy},#{it.updateBy})
+        </foreach>
+    </insert>
+
+    <update id="updatePermissionBatch">
+        UPDATE user_privilege
+        SET permission = #{permission}
+        <where>id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            <if test="elementId!=null">
+                AND user_id = #{elementId}
+            </if>
+        </where>
+    </update>
+
+    <select id="getPermission" resultType="com.gientech.ragcommon.auth.dto.PrivilegeDTO">
+        SELECT
+        target_id AS targetId ,
+        permission AS permission,
+        biz_type AS bizType
+        FROM
+        user_privilege
+        WHERE
+        is_del = 1
+        AND
+        biz_type = #{bizType}
+        <if test="userId!=null">
+            AND user_id = #{userId}
+        </if>
+        <if test="targetId!=null">
+            AND target_id = #{targetId}
+        </if>
+        UNION
+        SELECT target_id AS targetId ,
+        permission AS permission,
+        biz_type AS bizType
+        FROM
+        group_privilege
+        WHERE
+        is_del = 1 AND
+        group_id IN (
+        SELECT gi.id
+        FROM group_info gi INNER JOIN user_group ug
+        ON gi.id = ug.group_id
+        <if test="userId!=null">
+            AND ug.user_id = #{userId}
+        </if>
+        )
+        AND biz_type = #{bizType}
+        <if test="targetId!=null">
+            AND target_id = #{targetId}
+        </if>
+    </select>
+
+    <select id="getTransferType" resultType="java.lang.Integer">
+        SELECT DISTINCT biz_type
+        FROM user_privilege
+        WHERE is_del = 1 AND user_id = #{userId}
+        UNION
+        SELECT 1
+        FROM knowledge_base
+        WHERE create_by = #{userName}
+        UNION
+        SELECT 2
+        FROM search_config
+        WHERE create_by = #{userName}
+        UNION
+        SELECT 3
+        FROM model_info
+        WHERE create_by = #{userName}
+    </select>
+</mapper>

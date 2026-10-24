@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.RoleResourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.RoleResourceDO">
+        <id column="id" property="id" />
+        <result column="is_dtl" property="isDtl" />
+        <result column="create_by" property="createBy" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="update_by" property="updateBy" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="role_id" property="roleId" />
+        <result column="resource_id" property="resourceId" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        is_dtl, create_by, gmt_create, update_by, gmt_modified, id, role_id, resource_id, status
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id" >
+        insert into role_resource(is_dtl, create_by, gmt_create, update_by, gmt_modified, role_id,resource_id,status) values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.isDtl}, #{it.createBy}, #{it.gmtCreate}, #{it.updateBy}, #{it.gmtModified}, #{it.roleId},#{it.resourceId},#{it.status})
+        </foreach>
+    </insert>
+
+
+
+</mapper>

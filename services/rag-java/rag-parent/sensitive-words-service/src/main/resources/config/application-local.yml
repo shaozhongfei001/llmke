@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: sensitive-words-service
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: http://10.15.12.13:8848/
+        namespace: rag-local-cj
+      config:
+        server-addr: http://10.15.12.13:8848
+        namespace: rag-local-cj
+        prefix: ${spring.application.name}
+        file-extension: yml
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+      - optional:nacos:common.yml
+
+#mybatis:
+#  table:
+#    auto: add
+#  model:
+#    pack: com.gientech.sensitivewordsservice.domain.model
+#  database:
+#    type: mysql
+#mybatis-plus:
+#  mapper-locations: classpath*:com/gitee/sunchenbin/mybatis/actable/mapping/*/*.xml

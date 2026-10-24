@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.DeptPrivilegeMapper">
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.DeptPrivilegeDO">
+        <!--@mbg.generated-->
+        <!--@Table dept_privilege-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="target_id" jdbcType="BIGINT" property="targetId"/>
+        <result column="dept_id" jdbcType="BIGINT" property="deptId"/>
+        <result column="biz_type" jdbcType="TINYINT" property="bizType"/>
+        <result column="permission" jdbcType="TINYINT" property="permission"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modified" jdbcType="TIMESTAMP" property="gmtModified"/>
+        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, target_id, dept_id, biz_type, permission, gmt_create, gmt_modified, create_by,
+        update_by
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into dept_privilege(target_id, dept_id, biz_type, permission, gmt_create, gmt_modified, create_by,
+        update_by) values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.targetId}, #{it.deptId},#{it.bizType}, #{it.permission}, #{it.gmtCreate}, #{it.gmtModified},
+            #{it.createBy},#{it.updateBy})
+        </foreach>
+    </insert>
+
+    <update id="updateBatch">
+        UPDATE dept_privilege
+        SET permission = #{permission}
+        <where>id in
+            <foreach collection="#{ids}" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            <if test="elementId!=null">
+                AND dept_id = #{elementId}
+            </if>
+        </where>
+    </update>
+</mapper>

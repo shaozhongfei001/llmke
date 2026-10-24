@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.ReEmbeddingFileMapper">
+
+
+    <select id="getNonProcessedFileCount" resultType="int">
+        SELECT COUNT(1) AS total_count
+        FROM (SELECT 1
+              FROM re_embedding_file
+              WHERE task_id = #{taskId} AND kb_id = #{kbId}
+                AND is_del = 0
+                AND status IN (0, 1)
+
+              UNION ALL
+
+              SELECT 1
+              FROM re_embedding_retry_task
+              WHERE task_id = #{taskId}  AND kb_id = #{kbId}
+                AND is_del = 0 and type = 1
+                AND status IN (1, 2)) t;
+    </select>
+</mapper>

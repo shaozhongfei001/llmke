@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <localRepository>/home/szf/.m2/repository</localRepository>
+  <interactiveMode>false</interactiveMode>
+  <mirrors>
+    <mirror>
+      <id>r12-aliyun</id>
+      <name>R12 offline-friendly mirror (overrides all repos)</name>
+      <url>https://maven.aliyun.com/repository/public</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+</settings>

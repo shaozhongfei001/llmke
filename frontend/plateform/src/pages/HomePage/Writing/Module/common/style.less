@@ -1,0 +1,107 @@
+.component-module {
+  .ant-tabs-nav::before {
+    border-bottom: 1px solid #eeeeee;
+  }
+}
+.chapter-tree-container {
+  padding: 16px 20px 16px 20px;
+
+  .ant-tree {
+    // min-width: 290px;
+    width: 100%;
+  }
+  .ant-tree-treenode {
+    display: flex;
+    flex-direction: row;
+    height: 36px;
+    line-height: 36px;
+    align-items: center;
+    width: 100%;
+    padding-right: 4px;
+  }
+  .ant-tree-treenode:hover {
+    background: #f5f5f5;
+  }
+  .ant-tree-treenode-selected {
+    background-color: #f1f5ff;
+    border-radius: 4px;
+  }
+  .ant-tree-node-selected {
+    background-color: transparent !important;
+  }
+  .tree-item-selected {
+    background-color: #f1f5ff;
+  }
+
+  .ant-tree-node-content-wrapper:hover {
+    background-color: transparent;
+  }
+
+  .ant-tree-node-content-wrapper {
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .ant-tree-switcher:hover:before {
+    background-color: transparent !important;
+  }
+  // .ant-tree-switcher {
+  //   line-height: 40px;
+  // }
+  .ant-tree .ant-tree-switcher .ant-tree-switcher-icon {
+    font-size: 14px;
+    color: #888888;
+  }
+
+  .ant-tree-treenode-draggable .ant-tree-draggable-icon {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* 鼠标悬停时显示 */
+  .ant-tree-treenode-draggable:hover .ant-tree-draggable-icon {
+    opacity: 1;
+  }
+
+  .ant-tree-treenode .tree-node-extends {
+    visibility: hidden;
+  }
+
+  .ant-tree-treenode:hover .tree-node-extends {
+    visibility: visible !important;
+  }
+
+  .tree-node-extends {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 36px;
+    margin-left: 2px;
+  }
+
+  .add-btn {
+    .ant-btn-icon {
+      margin-top: -2px;
+    }
+  }
+  .add-btn:hover {
+    background: #f1f5fc !important;
+    color: #055aff !important;
+  }
+
+  .operate-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .operate-btn:hover {
+    background: #fff !important;
+
+    color: #055aff !important;
+  }
+}
+
+.desc {
+  border-bottom: 1px solid #eeeeee;
+}

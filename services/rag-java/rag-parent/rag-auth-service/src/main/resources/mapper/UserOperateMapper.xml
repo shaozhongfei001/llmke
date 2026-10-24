@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.UserOperateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.UserOperateDO">
+        <id column="id" property="id" />
+        <id column="gmt_created" property="gmtCreated" />
+        <id column="gmt_modified" property="gmtModified" />
+        <id column="name" property="name" />
+        <id column="url" property="url" />
+        <id column="start_time" property="startTime" />
+        <id column="end_time" property="endTime" />
+        <id column="user_id" property="userId" />
+        <id column="user_name" property="userName" />
+        <id column="params" property="params" />
+        <id column="ip" property="ip" />
+        <id column="success" property="success" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+        <sql id="Base_Column_List">
+            id,gmt_created,gmt_modified,name,url,start_time,end_time,user_id,user_name,params,ip,success
+        </sql>
+
+</mapper>

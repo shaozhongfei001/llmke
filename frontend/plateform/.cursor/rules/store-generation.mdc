@@ -1,0 +1,155 @@
+---
+description: 存储层，zustand,状态管理，indexdb,cookie, localstorage
+globs: 
+alwaysApply: false
+---
+# Store Development Standards
+
+## 目录结构规范
+
+```
+store/
+├── [module_name]/           # 存储模块（如：indexdb, state, os等）
+│   ├── types.ts            # 模块类型定义
+│   ├── constants.ts        # 模块常量定义（可选）
+│   ├── [domain].ts         # 领域模型实现（如：users.ts, tasks.ts）
+│   └── index.ts            # 模块统一导出
+└── index.ts                # 根级导出
+```
+
+## 类型定义规范
+
+1. 每个存储模块必须有独立的 `types.ts`
+2. 基础类型必须继承通用接口（如：BaseModel）
+3. 类型命名必须清晰且具有语义性
+4. 导出类型必须添加详细注释
+5. 复杂类型应该被拆分为小的可复用接口
+
+示例：
+```typescript
+// 基础模型接口
+export interface BaseModel {
+  id: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+// 用户模型
+export interface User extends BaseModel {
+  username: string;
+  email: string;
+  role: UserRole;
+}
+```
+
+## 模块实现规范
+
+1. 每个领域模型应独立成文件
+2. 必须实现标准的 CRUD 操作
+3. 异步操作必须使用 async/await
+4. 必须包含错误处理
+5. 必须维护时间戳（createdAt, updatedAt）
+
+示例：
+```typescript
+export const users = {
+  async create(data: CreateUserDto) {
+    const timestamp = Date.now();
+    const user = {
+      id: generateId(),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      ...data
+    };
+    return await db.users.add(user);
+  }
+};
+```
+
+## 导出规范
+
+1. 模块内部实现对外不可见
+2. 统一从 index.ts 导出
+3. 导出时使用命名空间
+4. 同时导出类型定义
+
+示例：
+```typescript
+// 模块导出
+export const moduleName = {
+  subModule1,
+  subModule2
+};
+
+// 类型导出
+export * from './types';
+```
+
+## 错误处理规范
+
+1. 所有异步操作必须使用 try/catch
+2. 必须定义错误类型和错误码
+3. 统一的错误返回格式
+
+示例：
+```typescript
+try {
+  await db.users.add(user);
+} catch (error) {
+  throw new StoreError({
+    code: 'USER_CREATE_FAILED',
+    message: '创建用户失败',
+    cause: error
+  });
+}
+```
+
+## 注释规范
+
+1. 每个模块必须有模块级注释
+2. 每个公开方法必须有 JSDoc 注释
+3. 复杂逻辑必须有行内注释
+4. 类型定义必须有说明性注释
+
+示例：
+```typescript
+/**
+ * 用户管理模块
+ * 提供用户的增删改查操作
+ */
+
+/**
+ * 创建新用户
+ * @param data 用户数据
+ * @returns 创建的用户对象
+ * @throws {StoreError} 创建失败时抛出
+ */
+async create(data: CreateUserDto): Promise<User>
+```
+
+## 测试规范
+
+1. 每个模块必须有单元测试
+2. 必须测试成功和失败场景
+3. 必须测试边界条件
+4. 测试文件与源文件结构对应
+
+## 性能规范
+
+1. 避免不必要的数据库查询
+2. 合理使用索引
+3. 大数据集分页处理
+4. 缓存常用数据
+
+## 安全规范
+
+1. 敏感数据必须加密存储
+2. 用户输入必须验证和转义
+3. 权限检查必须在存储层实现
+4. 避免 SQL 注入风险
+
+## 版本控制
+
+1. 数据库 Schema 版本管理
+2. 向后兼容性处理
+3. 数据迁移方案

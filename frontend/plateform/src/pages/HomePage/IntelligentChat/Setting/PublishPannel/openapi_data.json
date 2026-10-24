@@ -1,0 +1,846 @@
+{
+  "openapi": "3.0.1",
+  "externalDocs": { "description": "rag" },
+  "servers": [],
+  "paths": {
+    "/apis/feedback": {
+      "post": {
+        "tags": ["接口文档"],
+        "summary": "反馈",
+        "operationId": "feedback",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/反馈请求参数" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "boolean" } } }
+          }
+        }
+      }
+    },
+    "/apis/uploadFiles": {
+      "post": {
+        "tags": ["接口文档"],
+        "summary": "批量上传文件(文档上传问答)",
+        "operationId": "docUploadFile",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "uids",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "files",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string", "format": "binary" }
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/apis/question_re": {
+      "post": {
+        "tags": ["接口文档"],
+        "summary": "检索召回接口和模型推理接口，返回结果未拼接",
+        "operationId": "questionRe",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AI请求体" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/提问响应体" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apis/create": {
+      "post": {
+        "tags": ["接口文档"],
+        "summary": "创建对话",
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/对话创建请求入参对象" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "$ref": "#/components/schemas/对话详情" } }
+            }
+          }
+        }
+      }
+    },
+    "/apis/que/list": {
+      "get": {
+        "tags": ["接口文档"],
+        "summary": "问题列表",
+        "operationId": "queList",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/JSONObject" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apis/getFileStatusByUids": {
+      "get": {
+        "tags": ["接口文档"],
+        "summary": "通过uid查看文件解析状态",
+        "operationId": "getFileStatusByUid",
+        "parameters": [
+          {
+            "name": "uids",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/文件状态" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apis/exist": {
+      "get": {
+        "tags": ["接口文档"],
+        "summary": "判断文件是否上传过",
+        "operationId": "exist",
+        "parameters": [
+          {
+            "name": "kbName",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "default": 4 }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "boolean" } } }
+          }
+        }
+      }
+    },
+    "/apis/deleteByUid": {
+      "delete": {
+        "tags": ["接口文档"],
+        "summary": "通过uid删除上传的文件",
+        "operationId": "deleteByUid",
+        "parameters": [
+          {
+            "name": "queryId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "uid",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/文件详情" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apis/cancel": {
+      "delete": {
+        "tags": ["接口文档"],
+        "summary": "取消反馈",
+        "operationId": "cancel",
+        "parameters": [
+          {
+            "name": "queryId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "用户token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "boolean" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "反馈请求参数": {
+        "required": ["queryId", "restult"],
+        "type": "object",
+        "properties": {
+          "queryId": { "type": "string", "description": "queryId" },
+          "restult": {
+            "type": "integer",
+            "description": "0：踩；1：赞",
+            "format": "int32"
+          },
+          "userRealname": { "type": "string", "description": "用户真实名称" },
+          "deptName": { "type": "string", "description": "部门名称" },
+          "userPhone": { "type": "string", "description": "收集" },
+          "queError": { "type": "string", "description": "理解问题有误" },
+          "ansPoor": { "type": "string", "description": "回答不佳" },
+          "formatError": { "type": "string", "description": "格式错误" },
+          "harmfulInfo": { "type": "string", "description": "有害信息" },
+          "othres": { "type": "string", "description": "其他" },
+          "supplementExplain": { "type": "string", "description": "补充说明" },
+          "idealAnswer": { "type": "string", "description": "理想回答" }
+        }
+      },
+      "AI请求体": {
+        "required": ["content", "queryId", "sessionId", "type"],
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "description": "会话id",
+            "nullable": true
+          },
+          "queryId": {
+            "type": "string",
+            "description": "提问id",
+            "nullable": true
+          },
+          "sysType": {
+            "type": "string",
+            "description": "系统类型(INT_SESSION:智能会话;KNO_INDEX:知识索引;TEMPORARY:临时会话  RETRIEVE_RECALL_TEST:知识检索召回测试",
+            "enum": [
+              "INT_SESSION",
+              "KNO_INDEX",
+              "TEMPORARY",
+              "RETRIEVE_RECALL_TEST"
+            ]
+          },
+          "lastDate": {
+            "type": "string",
+            "description": "提问时间",
+            "format": "date-time"
+          },
+          "audioUrl": { "type": "string", "description": "存的语音地址" },
+          "type": {
+            "type": "string",
+            "description": "内容类型不能（TEXT：文本；VOICE：语音）",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "description": "提问内容",
+            "nullable": true
+          },
+
+          "fileUids": {
+            "type": "array",
+            "description": "文件uid,文档上传问答使用",
+            "items": {
+              "type": "string",
+              "description": "文件uid,文档上传问答使用"
+            }
+          },
+          "config": {
+            "type": "string",
+            "description": "检索召回配置信息(前端组装成josn格式的数据类型)"
+          }
+        }
+      },
+      "提问内容响应体": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string", "description": "答案内容" },
+          "markdown": { "type": "string", "description": "类型" }
+        },
+        "description": "答案内容"
+      },
+      "提问响应体": {
+        "type": "object",
+        "properties": {
+          "sessionId": { "type": "string", "description": "会话id" },
+          "queryId": { "type": "string", "description": "提问id" },
+          "lastDate": {
+            "type": "string",
+            "description": "问题提交时间",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "description": "答案类型体：1.进行中，2.结束，3.异常",
+            "enum": ["1", "2", "3"]
+          },
+          "reply": { "$ref": "#/components/schemas/提问内容响应体" },
+          "reference": { "type": "string", "description": "召回文档" },
+          "docsTree": { "type": "string", "description": "召回文档(树状结构)" },
+          "resultType": {
+            "type": "integer",
+            "description": "响应的类型 1:正常大模型推理; 2:FAQ; 3 命中敏感词;4 强知识依赖;5文档上传问答",
+            "format": "int32"
+          },
+          "filePaths": {
+            "type": "string",
+            "description": "文件路径(文档上传问答所用的文件路径)"
+          },
+          "respTime": {
+            "type": "integer",
+            "description": "接口响应时间(毫秒)",
+            "format": "int64"
+          },
+          "tokens": {
+            "type": "integer",
+            "description": "tokens数量",
+            "format": "int32"
+          },
+          "promptContent": { "type": "string", "description": "prompt数据" },
+          "llmType": {
+            "type": "integer",
+            "description": "推理类型 1:推理接口, 2:表格推理接口 默认值1",
+            "format": "int32"
+          }
+        }
+      },
+      "对话创建请求入参对象": {
+        "required": ["label", "sessionId"],
+        "type": "object",
+        "properties": {
+          "label": { "type": "string", "description": "对话名称" },
+          "sessionId": { "type": "string", "description": "对话id" },
+          "sysType": {
+            "type": "string",
+            "description": "系统类型(INT_SESSION:智能会话;KNO_INDEX:知识索引;TEMPORARY:临时会话)",
+            "enum": [
+              "INT_SESSION",
+              "KNO_INDEX",
+              "TEMPORARY",
+              "RETRIEVE_RECALL_TEST"
+            ]
+          },
+          "kbId": {
+            "type": "integer",
+            "description": "知识id(仅用于文档上传问答使用)",
+            "format": "int64"
+          }
+        }
+      },
+      "QueryReplyPairDTO": {
+        "type": "object",
+        "properties": {
+          "query": { "$ref": "#/components/schemas/问题响应体" },
+          "reply": { "$ref": "#/components/schemas/回答响应体" }
+        },
+        "description": "问答对"
+      },
+      "回答响应体": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "主键", "format": "int64" },
+          "gmtCreate": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          },
+          "content": { "type": "string", "description": "回答内容" },
+          "type": {
+            "type": "string",
+            "description": "内容类型（TEXT：文本；VOICE：语音）"
+          },
+          "reference": {
+            "type": "string",
+            "description": "引用文章内容（召回内容）"
+          },
+          "queryId": { "type": "string", "description": "前端生成的提问id" },
+          "feedbackResult": {
+            "type": "integer",
+            "description": "反馈结果 0：踩；1：赞",
+            "format": "int32"
+          },
+          "feedbackId": {
+            "type": "integer",
+            "description": "反馈id",
+            "format": "int64"
+          },
+          "parsedFilePaths": { "type": "array", "items": { "type": "string" } },
+          "recommendQuestion": { "type": "string", "description": "问题推荐" },
+          "llmType": {
+            "type": "integer",
+            "description": "推理类型 1:常推理接口, 2:表格推理接口 默认值1",
+            "format": "int32"
+          },
+          "resultType": {
+            "type": "integer",
+            "description": "响应的类型 1:正常大模型推理; 2:FAQ; 3 命中敏感词;4 强知识依赖;5文档上传问答",
+            "format": "int32"
+          },
+          "respTime": {
+            "type": "integer",
+            "description": "问答接口响应时间(毫秒)",
+            "format": "int64"
+          },
+          "tokens": { "type": "integer", "format": "int32" }
+        },
+        "description": "答案"
+      },
+      "对话详情": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string", "description": "对话名称" },
+          "sessionId": { "type": "string", "description": "对话id" },
+          "gmtCreate": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          },
+          "gmtModified": {
+            "type": "string",
+            "description": "更新时间",
+            "format": "date-time"
+          },
+          "createBy": { "type": "string", "description": "更新人" },
+          "filePath": { "type": "string", "description": "文件地址" },
+          "configId": {
+            "type": "integer",
+            "description": "配置助手id",
+            "format": "int64"
+          },
+          "kbId": {
+            "type": "integer",
+            "description": "知识库id",
+            "format": "int64"
+          },
+          "queryReplyPairList": {
+            "type": "array",
+            "description": "问答对",
+            "items": { "$ref": "#/components/schemas/QueryReplyPairDTO" }
+          },
+          "searchConfigDTO": { "$ref": "#/components/schemas/查询配置详情" }
+        }
+      },
+      "查询配置详情": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "主键", "format": "int64" },
+          "status": {
+            "type": "integer",
+            "description": "状态 0:禁用；1:正常 默认值1",
+            "format": "int32"
+          },
+          "isDefault": {
+            "type": "integer",
+            "description": "是否默认 0:否；1:是 默认值1",
+            "format": "int32"
+          },
+          "configJson": { "type": "string", "description": "配置详情" },
+          "name": { "type": "string", "description": "名称" },
+          "des": { "type": "string", "description": "描述" },
+          "createBy": { "type": "string", "description": "创建人" },
+          "gmtCreate": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          },
+          "permission": {
+            "type": "integer",
+            "description": "数据权限 0:无任何权限, 1: 读权限，2: 读写权限, 3: 所有权限",
+            "format": "int32"
+          },
+          "sensitiveWordIds": { "type": "string", "description": "敏感词" },
+          "defaultAnswer": {
+            "type": "string",
+            "description": "默认回答(sensitive_word_ids不为空时,必填)"
+          },
+          "model": { "type": "boolean" },
+          "enabledFaq": { "type": "integer", "format": "int32" },
+          "dependOnKb": {
+            "type": "integer",
+            "description": "是否强依赖知识库 0:否；1:是 默认值1",
+            "format": "int32"
+          },
+          "isDel": {
+            "type": "integer",
+            "description": "是否删除 -1 删除  1 正常 默认值1",
+            "format": "int32"
+          }
+        }
+      },
+      "问题响应体": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "主键", "format": "int64" },
+          "gmtCreate": {
+            "type": "string",
+            "description": "创建时间",
+            "format": "date-time"
+          },
+          "content": { "type": "string", "description": "提问内容" },
+          "type": {
+            "type": "string",
+            "description": "内容类型（TEXT：文本；VOICE：语音）"
+          },
+          "queryId": { "type": "string", "description": "前端生成的提问id" },
+          "audioUrl": { "type": "string", "description": "存储地址" },
+          "filePaths": {
+            "type": "string",
+            "description": "文档上传问答的文件路径"
+          }
+        },
+        "description": "问题"
+      },
+      "JSONObject": {
+        "type": "object",
+        "properties": { "empty": { "type": "boolean" } },
+        "additionalProperties": { "type": "object" }
+      },
+      "文件状态": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "主键", "format": "int64" },
+          "kbId": {
+            "type": "integer",
+            "description": "知识库id",
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer",
+            "description": "状态 0:删除 1:正常 2:解析中，3:解析成功 4: 解析失败",
+            "format": "int32"
+          },
+          "faqExtractStatus": {
+            "type": "integer",
+            "description": "faq抽取状态 1 未抽取；2 抽取中；3 抽取成功 4 抽取失败 默认值 1",
+            "format": "int32"
+          },
+          "graphParseStatus": {
+            "type": "integer",
+            "description": "图解析状态 1 未解析；2 解析中 3 解析成功 4 解析失败",
+            "format": "int32"
+          },
+          "uid": { "type": "string", "description": "文件的解析文件路径" }
+        }
+      },
+      "SynLogDTO": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "kbId": { "type": "integer", "format": "int64" },
+          "targetId": { "type": "integer", "format": "int64" },
+          "logType": { "type": "integer", "format": "int32" },
+          "errorCode": { "type": "string" },
+          "errorMessage": { "type": "string" },
+          "errorDetail": { "type": "string" }
+        },
+        "description": "文件解析/抽取异常日志"
+      },
+      "文件详情": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "主键", "format": "int64" },
+          "kbId": {
+            "type": "integer",
+            "description": "知识库id",
+            "format": "int64"
+          },
+          "fileName": { "type": "string", "description": "文件名称" },
+          "fileSize": {
+            "type": "number",
+            "description": "文件大小 M",
+            "format": "double"
+          },
+          "size": { "type": "string", "description": "文件大小 带单位" },
+          "filePath": { "type": "string", "description": "文件路径" },
+          "fullTextPath": { "type": "string", "description": "全文txt路径" },
+          "convertedFilePath": {
+            "type": "string",
+            "description": "更易于算法解析的文件的路径"
+          },
+          "status": {
+            "type": "integer",
+            "description": "状态  0:删除 1:正常 2:解析中，3:解析成功 4: 解析失败",
+            "format": "int32"
+          },
+          "isEnable": {
+            "type": "integer",
+            "description": "启用禁用状态 0:禁用;1启用",
+            "format": "int32"
+          },
+          "parseType": {
+            "type": "integer",
+            "description": "文件解析类型: 1 文件解析；2 FAQ解析 3 图解析；4 文档上传问答 ； 10 文件解析&faq抽取",
+            "format": "int32"
+          },
+          "chunkSize": {
+            "type": "integer",
+            "description": "文本块大小(块token数)",
+            "format": "int32"
+          },
+          "fileType": {
+            "type": "string",
+            "description": "文档类型（解析方法），目前支持四种类型，[naive, laws, book, table]"
+          },
+          "embeddingModelName": {
+            "type": "string",
+            "description": "嵌入模型名称"
+          },
+          "parsedFilePath": {
+            "type": "string",
+            "description": "解析后的文件路径"
+          },
+          "faqExtractStatus": {
+            "type": "integer",
+            "description": "faq抽取状态 1 未抽取；2 抽取成功 2 抽取失败 默认值 1",
+            "format": "int32"
+          },
+          "reviseDate": { "type": "string", "description": "修订实时间" },
+          "parentFileName": { "type": "string", "description": "父文件名称" },
+          "version": { "type": "string", "description": "版本号" },
+          "folderId": {
+            "type": "integer",
+            "description": "文件夹id",
+            "format": "int64"
+          },
+          "folderName": { "type": "string", "description": "文件夹名称" },
+          "sourceUrl": { "type": "string", "description": "文件导入url" },
+          "synLogs": {
+            "type": "array",
+            "description": "文件解析/抽取异常日志",
+            "items": { "$ref": "#/components/schemas/SynLogDTO" }
+          },
+          "kbFiles": {
+            "type": "array",
+            "description": "子文件",
+            "items": { "$ref": "#/components/schemas/文件详情" }
+          },
+          "isFolder": {
+            "type": "integer",
+            "description": "是否是文件夹 0:否  1:是",
+            "format": "int32"
+          },
+          "imagePaths": {
+            "type": "array",
+            "description": "图片路径",
+            "items": { "type": "string", "description": "图片路径" }
+          },
+          "tableFilePaths": { "type": "string", "description": "表格路径" },
+          "pdfPage": {
+            "type": "integer",
+            "description": "pdf 文件页数",
+            "format": "int32"
+          },
+          "nodeCount": {
+            "type": "integer",
+            "description": "节点数",
+            "format": "int32"
+          },
+          "edgeCount": {
+            "type": "integer",
+            "description": "关系数",
+            "format": "int32"
+          },
+          "uid": {
+            "type": "string",
+            "description": "文件的uid(uid是前端生成的,文档上传问答使用,通过uid来判断文件解析状态)"
+          },
+          "graphParseStatus": {
+            "type": "integer",
+            "description": "图解析状态 1 未解析；2 解析中 3 解析成功 4 解析失败",
+            "format": "int32"
+          },
+          "上传状态--解决上传失败信息太少": {
+            "type": "integer",
+            "description": " 1 上传成功；2 上传失败 ",
+            "format": "int32"
+          },
+          "上传结果信息--解决上传失败信息太少": { "type": "string" },
+          "index--和公文对齐": {
+            "type": "integer",
+            "description": "文件顺序",
+            "format": "int32"
+          },
+          "chunking": { "type": "boolean", "description": "是否解析切片" },
+          "kbName": { "type": "string", "description": "知识库" },
+          "elementType": {
+            "type": "integer",
+            "description": "elementType",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "description": "parentId",
+            "format": "int64"
+          },
+          "permission": {
+            "type": "integer",
+            "description": "permission",
+            "format": "int32"
+          },
+          "fullFolderPath": {
+            "type": "string",
+            "description": "文件组id,算法端生成"
+          },
+          "label": { "type": "string", "description": "文件/文件夹标签" },
+          "uploadTime": {
+            "type": "string",
+            "description": "文件上传时间",
+            "format": "date-time"
+          },
+          "aqCount": {
+            "type": "integer",
+            "description": "问答对数",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}

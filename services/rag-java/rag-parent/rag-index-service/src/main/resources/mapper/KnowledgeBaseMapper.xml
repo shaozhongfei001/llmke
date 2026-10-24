@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.KnowledgeBaseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.KnowledgeBaseDO">
+        <id column="id" property="id"/>
+        <result column="kb_name" property="kbName"/>
+        <result column="primitive_name" property="primitiveName"/>
+        <result column="kb_type" property="kbType"/>
+        <result column="kb_des" property="kbDes"/>
+        <result column="source_url" property="sourceUrl"/>
+        <result column="status" property="status"/>
+        <result column="config" property="config"/>
+        <result column="kb_label" property="kbLabel"/>
+        <result column="create_by" property="createBy"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="modify_by" property="modifyBy"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="platform" property="platform"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , kb_name,primitive_name, kb_type, platform, kb_des, source_url, status, config,kb_label,create_by, gmt_create, modify_by, gmt_modified
+    </sql>
+
+    <sql id="selectPermissionByDeptIdInGroup">
+        (WITH RECURSIVE cte AS (SELECT c.id,
+                                       c.parent_id
+                                FROM department_info AS c
+                                WHERE c.id = #{deptId}
+
+                                UNION ALL
+
+                                SELECT p.id,
+                                       p.parent_id
+                                FROM department_info AS p
+                                         INNER JOIN cte
+                                                    ON p.id = cte.parent_id)
+         SELECT gp.permission AS permission
+         FROM cte
+                  LEFT JOIN user_group ug ON cte.id = ug.dept_id
+                  LEFT JOIN group_privilege gp ON ug.group_id = gp.group_id
+         WHERE gp.biz_type = 1
+           AND gp.is_del = 1
+           AND permission > 0
+           AND gp.target_id = #{kbId})
+    </sql>
+
+    <select id="getHighestPermission" resultType="integer">
+        SELECT MAX(permission)
+        FROM (
+        <if test="deptId!=null and deptId!=''">
+            SELECT permission
+            FROM dept_privilege
+            WHERE dept_id = #{deptId} AND is_del = 1
+            AND biz_type = 1
+            AND target_id = #{kbId}
+            AND permission > 0
+            UNION
+        </if>
+        SELECT permission
+        FROM group_privilege gp
+        LEFT JOIN user_group ug ON gp.group_id = ug.group_id
+        WHERE ug.user_id = #{userId} AND gp.is_del = 1
+        AND biz_type = 1
+        AND target_id = #{kbId}
+        AND permission > 0
+        UNION
+        <include refid="selectPermissionByDeptIdInGroup"/>
+        UNION
+        SELECT permission
+        FROM user_privilege
+        WHERE user_id = #{userId} AND is_del = 1
+        AND biz_type = 1
+        AND target_id = #{kbId}
+        AND permission > 0
+        UNION
+        SELECT permission
+        FROM user_privilege
+        WHERE user_id = -1 AND is_del = 1 AND biz_type=1 AND target_id=#{kbId} AND permission > 0
+        UNION
+        SELECT 3
+        FROM knowledge_base
+        WHERE create_by=#{userName} AND id = #{kbId}) t1
+
+    </select>
+
+
+    <update id="updateCreator">
+        UPDATE knowledge_base
+        SET create_by=#{userName},modify_by=#{userName}
+        WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="replaceModel">
+        UPDATE knowledge_base
+        SET config = CAST(
+                REPLACE(JSON_UNQUOTE(config),
+                        #{sourceModelName},
+                        #{targetModelName}) AS JSON
+                          )
+        WHERE status = 1
+          AND JSON_SEARCH(config, 'one', #{sourceModelName}) IS NOT NULL;
+    </update>
+
+    <select id="selectUseSpecifiedModelKbList" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseDO">
+        SELECT id, kb_name, primitive_name, platform
+        FROM knowledge_base
+        WHERE status = 1
+          AND JSON_UNQUOTE(JSON_EXTRACT(config, CONCAT('$.', #{modelTypeName}))) = #{modelName}
+    </select>
+
+    <select id="selectReferenceByModelName" resultType="int">
+        SELECT count(1)
+        FROM knowledge_base
+        WHERE status = 1 and JSON_SEARCH(config, 'one', #{modelName}) IS NOT NULL;
+    </select>
+</mapper>

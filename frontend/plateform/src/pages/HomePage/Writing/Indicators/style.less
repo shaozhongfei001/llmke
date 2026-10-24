@@ -1,0 +1,71 @@
+.category-tree {
+  .ant-tree-treenode {
+    height: 40px;
+    // margin-bottom: 0;
+    .ant-tree-title {
+      // position: relative;
+      // left: -10px;
+    }
+    .tree-node-extend {
+      visibility: hidden;
+    }
+    &:hover {
+      background-color: #f5f5f5;
+      .tree-node-extend {
+        visibility: visible;
+      }
+    }
+    .ant-tree-node-content-wrapper {
+      background-color: transparent;
+      padding-left: 0;
+    }
+  }
+  .ant-tree-treenode-selected {
+    background-color: #f1f5ff;
+    &:hover {
+      background-color: #f1f5ff;
+    }
+    .ant-tree-node-selected {
+      background-color: #f1f5ff;
+    }
+  }
+  .ant-tree-draggable-icon {
+    display: none;
+  }
+  .ant-tree-switcher {
+    margin-left: 4px;
+    position: relative;
+    top: 5px;
+    &::before {
+      background-color: transparent !important;
+    }
+    .ant-tree-switcher-icon {
+      color: #888;
+      svg {
+        font-size: 16px;
+      }
+    }
+  }
+  .tip-before {
+    .inset-tip {
+      display: inline-block;
+      top: -1px;
+
+      left: 56px;
+    }
+  }
+  .tip-after {
+    .inset-tip {
+      display: inline-block;
+      bottom: -3px;
+      left: 56px;
+    }
+  }
+  .tip-child {
+    .inset-tip {
+      display: inline-block;
+      bottom: -3px;
+      left: 116px;
+    }
+  }
+}

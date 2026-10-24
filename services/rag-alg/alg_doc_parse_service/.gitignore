@@ -1,0 +1,25 @@
+# ocr models directory
+ocr_models
+
+# layout garbage directory
+layout_garbage
+
+# datrie file
+*.trie
+huqie.txt
+
+# nltk data
+nltk_data
+
+# nacos-data
+nacos-data
+
+# tika
+tika-server.jar*
+
+# test files
+test*
+
+mineru_temp_dir
+
+openjdk-*_linux-*_bin.tar.gz

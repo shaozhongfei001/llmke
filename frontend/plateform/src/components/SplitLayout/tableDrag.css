@@ -1,0 +1,173 @@
+.tree-table-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #595959;
+  font-size: 16px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.instructions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #595959;
+}
+
+.instructions .before-hint::before,
+.instructions .after-hint::before,
+.instructions .child-hint::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  border-radius: 2px;
+}
+
+.instructions .before-hint::before {
+  background-color: #3498db;
+}
+
+.instructions .after-hint::before {
+  background-color: #2ecc71;
+}
+
+.instructions .child-hint::before {
+  background-color: #9b59b6;
+}
+
+.tree-table {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tree-table .ant-table-thead > tr > th {
+  background-color: #f0f2f5;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.draggable-row {
+  position: relative;
+  transition: all 0.2s;
+}
+
+.draggable-row.over {
+  background-color: #e8f4fc;
+}
+
+.draggable-row.dragging {
+  opacity: 0.6;
+  background-color: #d6eaf8;
+}
+
+.drag-handle {
+  cursor: move;
+  text-align: center;
+}
+
+.drag-icon {
+  color: #7f8c8d;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.drag-handle:hover .drag-icon {
+  color: #3498db;
+  transform: scale(1.2);
+}
+
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.drop-indicator.top {
+  top: 0;
+  background-color: #3498db;
+}
+
+.drop-indicator.bottom {
+  top: 25%;
+  background-color: #2ecc71;
+}
+
+.drop-indicator.child {
+  top: 50%;
+  background-color: #9b59b6;
+}
+
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.folder-icon {
+  font-size: 18px;
+  color: #3498db;
+}
+
+.file-icon {
+  font-size: 18px;
+  color: #27ae60;
+}
+
+.features {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.features h3 {
+  color: #2c3e50;
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.features ul {
+  padding-left: 20px;
+}
+
+.features li {
+  margin: 12px 0;
+  line-height: 1.6;
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.UserGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.UserGroupDO">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, group_id, dept_id, gmt_create, gmt_modified, create_by, update_by
+    </sql>
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into user_group(user_id, dept_id, group_id, gmt_create, gmt_modified, create_by, update_by) values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.userId}, #{it.deptId}, #{it.groupId}, #{it.gmtCreate}, #{it.gmtModified}, #{it.createBy}, #{it.updateBy})
+        </foreach>
+    </insert>
+    <select id="findByGroupIds" resultType="java.util.Map">
+        SELECT
+        group_id as groupId,
+        count(group_id) as userCount
+        from user_group
+        where is_del = 1 and group_id in
+        <foreach collection="groupIds" open="(" close=")" separator="," item="groupId">
+            #{groupId}
+        </foreach>
+        GROUP BY group_id
+    </select>
+
+    <select id="getUserListByGroupList" resultType="com.gientech.ragauthservice.domain.entity.UserInfo">
+        SELECT DISTINCT t2.id,t2.user_name,t2.emp_no,t2.dept_id,t2.dept_name
+        FROM user_group t1 LEFT JOIN user_info t2 ON t1.user_id = t2.id
+        WHERE t2.`status` != -1 AND t2.is_dtl = '0' AND
+        t1.is_del = 1 and t1.group_id in
+        <foreach collection="groupIds" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getDeptListByGroupId" resultType="com.gientech.ragauthservice.domain.entity.DepartmentInfo">
+        SELECT DISTINCT t2.id, t2.name
+        FROM user_group t1
+                 LEFT JOIN department_info t2 ON t1.dept_id = t2.id
+        WHERE t2.`status` != -1  AND
+        t1.is_del = 1 and t1.group_id = #{groupId}
+    </select>
+
+    <select id="flatUserList" resultType="com.gientech.ragauthservice.domain.model.UserInfoDO">
+        WITH RECURSIVE department_tree AS (SELECT id, name, parent_id
+                                           FROM department_info
+                                           WHERE id IN (SELECT dept_id
+                                                        FROM user_group
+                                                        WHERE is_del = 1 and group_id = #{groupId} AND user_group.dept_id IS NOT NULL)
+                                             AND status != -1
+                                           UNION ALL
+                                           SELECT d.id, d.name, d.parent_id
+                                           FROM department_info d INNER JOIN department_tree dt ON d.parent_id = dt.id  WHERE status != -1
+        )
+        SELECT distinct t2.*
+        FROM department_tree t1
+                 LEFT JOIN user_info t2 ON t1.id = t2.dept_id
+        WHERE t2.id IS NOT NULL
+        UNION
+        SELECT DISTINCT t4.*
+        FROM user_group t3
+                 LEFT JOIN user_info t4 ON t3.user_id = t4.id
+        WHERE t3.dept_id IS NULL
+          AND t3.group_id = #{groupId}
+    </select>
+</mapper>

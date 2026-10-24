@@ -1,0 +1,11 @@
+@keyframes fadeOut {
+  from {
+    background: #b4d5ee;
+  }
+  to {
+    background: white;
+  }
+}
+.ai-paragraph {
+  animation: fadeOut 2s ease forwards;
+}

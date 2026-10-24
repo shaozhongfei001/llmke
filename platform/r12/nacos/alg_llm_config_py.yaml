@@ -1,0 +1,22 @@
+# R12 LLM 编排服务配置（data_id=alg_llm_config_py, group=DEFAULT_GROUP, namespace=public）
+# 维护：alg-ops。与 alg_common_py 合并后生效（本文件覆盖同名键）。
+# 代码读取点：app/base.py（各 Config 默认值，import 期即取值）、app/llm_api_function.py、app/llm_service.py。
+
+server:
+  host: 0.0.0.0
+  port: 19996
+
+max_tokens: 1024                                      # 兼容旧键（MultiModelConfig / LLMOpenChatConfig 默认值）
+MAX_TOKENS: 1024                                      # llm_api_function.py 运行期兜底取值（大写键）
+temperature: 0.7
+llm_top_k: 5
+rotate_answer:
+  max_char_length: 15000                              # 大信息量轮询总结的上下文上限
+faq_select_model:
+  top_k: 5
+  max_score: 1.0
+  min_score: 0.2
+sql_gen_model:                                        # SqlGenConfig 的默认值在 import 期取值，缺键会启动失败
+  top_k: 5
+  max_score: 1.0
+  min_score: 0.2

@@ -1,0 +1,56 @@
+# R12 算法服务共享配置（data_id=alg_common_py, group=DEFAULT_GROUP, namespace=public）
+# 维护：alg-ops。本文件是 Nacos 上该 data_id 的唯一权威内容（发布脚本 platform/r12/nacos/publish.py）。
+# 说明：四个 python 算法服务启动时都会 get_config(<自身 data_id>) 并与本文件 merge（自身覆盖共享），
+#      见各服务 utils.py::get_config 的 {**config_data2, **config_data1}。
+
+# ===== 模型服务（全部指向本机真实端点，A-06 决议）=====
+online_embedding_model:
+  bge-m3:
+    server_url: http://127.0.0.1:18090/v1/embeddings    # OpenAI 兼容 /v1/embeddings
+    model_id: bge-m3                                    # 请求体 model 字段
+    dim: 1024                                           # 实测维度，Milvus schema 依赖此值
+    key: ""                                             # 本机端点无鉴权
+    max_tokens: 8192
+
+embedding_model: bge-m3                                 # 默认 embedding 模型名（代码按此名索引 online_embedding_model）
+
+rerank_server:
+  bge-reranker-v2-m3:
+    server_url: http://127.0.0.1:18091/v1/rerank
+    api_key: ""
+    max_tokens: 400
+rerank_model:
+  model_name: bge-reranker-v2-m3
+rerank_batch_size: 16
+rerank_max_token_delta: 50
+
+llm_server:                                            # 检索侧做 query 改写/表格筛选时调用
+  host: 127.0.0.1
+  port: 18092
+  api_name: v1/chat/completions
+
+# ===== 数据面（检索服务走代理端口，不直连中间件）=====
+es_config:                                             # 检索侧 ES 代理 = index_fulltext_service
+  host: 127.0.0.1
+  port: 19527
+milvus_config:                                         # 检索侧 Milvus 代理 = index_vector_service
+  host: 127.0.0.1
+  port: 19526
+graph_config:                                          # R12 不启用图谱（18084 未起），仅满足代码取值
+  host: 127.0.0.1
+  port: 19529
+
+# ===== 公共开关/阈值 =====
+compatible_flag: false                                 # false = 标准 OpenAI 兼容请求体（非华为 mindia 模式）
+retrieval_top_k: 10
+es_threshold: 0.6                                      # ES 相对阈值：score < max(score)*0.6 丢弃
+milvus_threshold: 0.3                                  # Milvus 绝对阈值（IP 归一化向量，实测相关句 0.5~0.8）
+score_threshold: 0.05                                  # rerank 绝对阈值（bge-reranker 分数区间实测 0.0000~0.6，见 status/alg.md §6c）
+query_enrich: false                                    # 关闭 query 自动扩展（省 LLM 调用，避免改变检索语义）
+
+# ===== Redis（LLM 服务的会话/附件缓存）=====
+redis_config:
+  host: 127.0.0.1
+  port: 16379
+  password: ${R12_REDIS_PASSWORD}
+  db: 0

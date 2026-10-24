@@ -1,0 +1,22 @@
+/* 设置动画的持续时间和关键帧 */
+@keyframes colorChange {
+  0% {
+    background-color: #e5edff; /* 初始颜色为蓝色 */
+  }
+  100% {
+    background-color: none; /* 最终颜色为白色 */
+  }
+}
+
+.history-doc-box {
+  .ant-table-tbody {
+    .ant-table-cell {
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+    }
+  }
+  /* 应用动画到元素 */
+  .animated-background {
+    animation: colorChange 3s ease-in-out forwards; /* 应用动画，持续 3 秒，平滑过渡，动画结束后保持最终状态 */
+  }
+}

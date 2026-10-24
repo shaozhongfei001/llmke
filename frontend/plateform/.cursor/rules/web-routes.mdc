@@ -1,0 +1,167 @@
+---
+description: 
+globs: src/routes/*/.tsx
+alwaysApply: false
+---
+# 路由架构规范
+
+## 目录结构
+
+```
+src/routes/
+├── index.tsx                # 根路由配置文件
+├── modules/                 # 业务模块路由
+├── context/                 # 路由上下文
+├── hooks/                   # 路由相关钩子
+├── components/              # 路由组件
+├── middlewares/            # 路由中间件
+└── types/                  # 路由类型定义
+```
+
+## 文件命名规范
+
+### 1. 路由模块文件 (modules/)
+- 使用 kebab-case 命名方式
+- 以功能模块命名，例如：`user-management.tsx`, `data-analysis.tsx`
+- 子路由使用目录嵌套，例如：
+  ```
+  modules/
+  ├── user-management/
+  │   ├── index.tsx
+  │   ├── user-list.tsx
+  │   └── user-detail.tsx
+  ```
+
+### 2. 组件文件 (components/)
+- 使用 PascalCase 命名方式
+- 组件文件名与组件名保持一致
+- 例如：`RouteGuard.tsx`, `AuthWrapper.tsx`
+
+### 3. 钩子文件 (hooks/)
+- 使用 camelCase 命名方式
+- 以 `use` 开头
+- 例如：`useRoutePermission.ts`, `useRouteQuery.ts`
+
+### 4. 中间件文件 (middlewares/)
+- 使用 camelCase 命名方式
+- 以功能描述命名
+- 例如：`authMiddleware.ts`, `loggerMiddleware.ts`
+
+### 5. 类型文件 (types/)
+- 使用 PascalCase 命名方式
+- 以 `.d.ts` 或 `.types.ts` 结尾
+- 例如：`Route.d.ts`, `RouteConfig.types.ts`
+
+## 函数命名规范
+
+### 1. 路由组件
+- 使用 PascalCase
+- 以页面功能命名
+- 例如：
+  ```typescript
+  export function UserManagement() { ... }
+  export function DataAnalysisDashboard() { ... }
+  ```
+
+### 2. 路由钩子
+- 使用 camelCase
+- 以 `use` 开头
+- 例如：
+  ```typescript
+  export function useRouteParams() { ... }
+  export function useRouteNavigation() { ... }
+  ```
+
+### 3. 中间件函数
+- 使用 camelCase
+- 以功能描述命名
+- 例如：
+  ```typescript
+  export function checkAuthStatus() { ... }
+  export function validateRouteAccess() { ... }
+  ```
+
+## 路由配置规范
+
+### 1. 路由定义
+```typescript
+interface RouteConfig {
+  path: string;
+  element: React.ReactNode;
+  children?: RouteConfig[];
+  meta?: {
+    title: string;
+    auth?: boolean;
+    permissions?: string[];
+  };
+}
+```
+
+### 2. 路由注册
+```typescript
+const routes: RouteConfig[] = [
+  {
+    path: '/user',
+    element: <UserLayout />,
+    meta: {
+      title: '用户中心',
+      auth: true
+    },
+    children: [
+      {
+        path: 'list',
+        element: <UserList />,
+        meta: {
+          title: '用户列表',
+          permissions: ['user.view']
+        }
+      }
+    ]
+  }
+];
+```
+
+## 最佳实践
+
+### 1. 路由懒加载
+```typescript
+const UserModule = lazy(() => import('./modules/user-management'));
+```
+
+### 2. 路由守卫
+```typescript
+function RouteGuard({ children }: { children: React.ReactNode }) {
+  const auth = useAuth();
+  return auth.isAuthenticated ? children : <Navigate to="/login" />;
+}
+```
+
+### 3. 路由元信息
+```typescript
+function useRouteTitle() {
+  const route = useRoute();
+  useEffect(() => {
+    document.title = route.meta?.title || 'Default Title';
+  }, [route]);
+}
+```
+
+### 4. 错误边界
+```typescript
+function RouteErrorBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <ErrorBoundary fallback={<ErrorPage />}>
+      {children}
+    </ErrorBoundary>
+  );
+}
+```
+
+## 开发规范
+
+1. 每个路由模块必须有独立的类型定义
+2. 路由配置必须包含必要的元信息（title, auth 等）
+3. 需要鉴权的路由必须配置 auth 属性
+4. 大型路由模块应使用懒加载
+5. 必须处理路由加载错误和 404 情况
+6. 路由参数必须有类型定义和验证 

@@ -1,0 +1,1612 @@
+Plugin Configuration
+How to configure and customize Plate plugins.
+
+Plate plugins are highly configurable, allowing you to customize their behavior to suit your needs. This guide will walk you through the most common configuration options and how to use them.
+
+Getting Started: Components - Instructions for adding plugins to your editor
+PlatePlugin API - The complete API reference for creating plugins
+Basic Plugin Configuration
+New Plugin
+The most basic plugin configuration requires only a key:
+
+const MyPlugin = createPlatePlugin({
+  key: 'minimal',
+});
+Copy
+While this plugin doesn't do anything yet, it's a starting point for more complex configurations.
+
+Existing Plugin
+The .configure method allows you to configure an existing plugin:
+
+const ConfiguredPlugin = MyPlugin.configure({
+  options: {
+    myOption: 'new value',
+  },
+});
+Copy
+Node Plugins
+Node plugins are used to define new types of nodes in your editor using the node property. These can be elements (either block or inline) or leaf nodes (for text-level formatting).
+
+Elements
+To create a new type of element, use the node.isElement option:
+
+const ParagraphPlugin = createPlatePlugin({
+  key: 'p',
+  node: {
+    isElement: true,
+    type: 'p',
+  },
+});
+Copy
+You can associate a component with your element. See Plugin Components for more information.
+
+const ParagraphPlugin = createPlatePlugin({
+  key: 'p',
+  node: {
+    isElement: true,
+    type: 'p',
+    component: ParagraphElement,
+  },
+});
+Copy
+Inline, Void, and Leaf Nodes
+For inline elements, void elements, or leaf nodes, use the appropriate node options:
+
+const LinkPlugin = createPlatePlugin({
+  key: 'link',
+  node: {
+    isElement: true,
+    isInline: true,
+    type: 'a',
+  },
+});
+ 
+const ImagePlugin = createPlatePlugin({
+  key: 'image',
+  node: {
+    isElement: true,
+    isVoid: true,
+    type: 'img',
+  },
+});
+ 
+const BoldPlugin = createPlatePlugin({
+  key: 'bold',
+  node: {
+    isLeaf: true,
+  },
+});
+Copy
+Behavioral Plugins
+Rather than render an element or a mark, you may want to customize the behavior of your editor. Various plugin options are available to modify the behavior of Plate.
+
+Event Handlers
+The recommended way to respond to user-generated events from inside a plugin is with the handlers plugin option. A handler should be a function that takes a PlatePluginContext & { event } object.
+
+The onChange handler, which is called when the editor value changes, is an exception to this rule; the context object includes the changed value instead of event.
+
+const ExamplePlugin = createPlatePlugin({
+  key: 'example',
+  handlers: {
+    onChange: ({ editor, value })  => {
+      console.info(editor, value);
+    },
+    onKeyDown: ({ editor, event }) => {
+      console.info(`You pressed ${event.key}`);
+    },
+  },
+});
+Copy
+Inject Props
+You may want to inject a class name or CSS property into any node having a certain property. For example, the following plugin sets the textAlign CSS property on paragraphs with an align property.
+
+const AlignPlugin = createPlatePlugin({
+  key: 'align',
+  inject: {
+    nodeProps: {
+      defaultNodeValue: 'start',
+      nodeKey: 'align',
+      styleKey: 'textAlign',
+      validNodeValues: ['start', 'left', 'center', 'right', 'end', 'justify'],
+    },
+    targetPlugins: [ParagraphPlugin.key],
+    // This is injected into all `targetPlugins`. In this example, ParagraphPlugin will be able to deserialize `textAlign` style.
+    targetPluginToInject: ({ editor, plugin }) => ({
+      parsers: {
+        html: {
+          deserializer: {
+            parse: ({ element, node }) => {
+              if (element.style.textAlign) {
+                node[editor.getType(plugin)] = element.style.textAlign;
+              }
+            },
+          },
+        },
+      },
+    }),
+  },
+});
+Copy
+A paragraph node affected by the above plugin would look like this:
+
+{
+  type: 'p',
+  align: 'right',
+  children: [{ text: 'This paragraph is aligned to the right!' }],
+}
+Copy
+Extend Editor (Advanced)
+Occasionally, you'll need to override the built-in editor methods provided by Slate to work around bugs or add complex functionality. To do this, you can use the extendEditor plugin option to directly mutate properties of the editor object after its creation.
+
+One common application of this technique is to create custom normalizers.
+
+const CustomNormalizerPlugin = createPlatePlugin({
+  key: 'customNormalizer',
+  extendEditor: ({ editor }) => {
+    const { normalizeNode } = editor;
+ 
+    editor.normalizeNode = ([node, path]) => {
+      // Custom normalization logic here
+      // ...
+ 
+      // Call other normalizers
+      normalizeNode([node, path]);
+    };
+ 
+    return editor;
+  },
+});
+Copy
+Advanced Plugin Configuration
+Plugin Store
+Each plugin has its own store, which can be used to manage plugin-specific state.
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: {
+    count: 0,
+  },
+}).extend(({ editor, plugin, setOption }) => ({
+  handlers: {
+    onClick: () => {
+      setOption('count', 1);
+    },
+  },
+}));
+Copy
+You can access and update the store using the following methods:
+
+// Get the current value
+const count = editor.getOption(MyPlugin, 'count');
+ 
+// Set a new value
+editor.setOption(MyPlugin, 'count', 5);
+ 
+// Update the value based on the previous state
+editor.setOption(MyPlugin, 'count', (prev) => prev + 1);
+Copy
+In React components, you can use the useOption hook to subscribe to store changes:
+
+const MyComponent = () => {
+  const count = editor.useOption(MyPlugin, 'count');
+  return <div>Count: {count}</div>;
+};
+Copy
+See more in Plugin Context and Editor Methods guides.
+
+Dependencies
+You can specify plugin dependencies using the dependencies property. This ensures that the required plugins are loaded before the current plugin.
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  dependencies: ['paragraphPlugin', 'listPlugin'],
+});
+Copy
+Enabled Flag
+The enabled property allows you to conditionally enable or disable a plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  enabled: true, // or false to disable
+});
+Copy
+Nested Plugins
+Plate supports nested plugins, allowing you to create plugin hierarchies. Use the plugins property to define child plugins:
+
+const ParentPlugin = createPlatePlugin({
+  key: 'parent',
+  plugins: [
+    createPlatePlugin({ key: 'child1' }),
+    createPlatePlugin({ key: 'child2' }),
+  ],
+});
+Copy
+Plugin Priority
+The priority property determines the order in which plugins are registered and executed. Plugins with higher priority values are processed first:
+
+const HighPriorityPlugin = createPlatePlugin({
+  key: 'highPriority',
+  priority: 100,
+});
+ 
+const LowPriorityPlugin = createPlatePlugin({
+  key: 'lowPriority',
+  priority: 50,
+});
+Copy
+This is particularly useful when you need to ensure certain plugins are initialized or run before others.
+
+Custom Parsers
+The parsers property accepts string keys to build your own parsers:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  parsers: {
+    myCustomParser: {
+      deserializer: {
+        parse: // ...
+      },
+      serializer: {
+        parse: // ...
+      }
+    },
+  },
+});
+Copy
+Core plugins includes html and htmlReact parsers.
+
+Typed Plugins
+Using above methods, plugin types are automatically inferred from the given configuration.
+
+If you need to pass an explicit type as generic, you can use createTPlatePlugin.
+
+Using createTPlatePlugin
+The createTPlatePlugin function allows you to create a typed plugin:
+
+type CodeBlockConfig = PluginConfig<
+  // key
+  'code_block',
+  // options
+  { syntax: boolean; syntaxPopularFirst: boolean },
+  // api
+  {
+    plugin: {
+      getSyntaxState: () => boolean;
+    };
+    toggleSyntax: () => void;
+  },
+  // transforms
+  {
+    insert: {
+      codeBlock: (options: { language: string }) => void;
+    }
+  }
+>;
+ 
+const CodeBlockPlugin = createTPlatePlugin<CodeBlockConfig>({
+  key: 'code_block',
+  options: { syntax: true, syntaxPopularFirst: false },
+}).extendEditorApi<CodeBlockConfig['api']>(() => ({
+  plugin: {
+    getSyntaxState: () => true,
+  },
+  toggleSyntax: () => {},
+})).extendEditorTransforms<CodeBlockConfig['transforms']>(() => ({
+  insert: {
+    codeBlock: ({ editor, getOptions }) => {
+      editor.insertBlock({ type: 'code_block', language: getOptions().language });
+    },
+  },
+}));
+Copy
+Using Typed Plugins
+When using typed plugins, you get full type checking and autocompletion ✨
+
+const editor = createPlateEditor({
+  plugins: [ExtendedCodeBlockPlugin],
+});
+ 
+// Type-safe access to options
+const options = editor.getOptions(ExtendedCodeBlockPlugin);
+options.syntax;
+options.syntaxPopularFirst;
+options.hotkey;
+ 
+// Type-safe API
+editor.api.toggleSyntax();
+editor.api.plugin.getSyntaxState();
+editor.api.plugin2.setLanguage('python');
+editor.api.plugin.getLanguage();
+ 
+// Type-safe Transforms
+editor.tf.insert.codeBlock({ language: 'typescript' });
+
+
+Plugin Methods
+Explore the various methods available for extending Plate plugins.
+
+Configuration Methods
+When extending plugins, all properties are deeply merged by default, with two exceptions: arrays are replaced entirely, and the options object is shallow merged.
+
+.configure
+The .configure method allows you to override the plugin's configuration.
+
+const ConfiguredPlugin = MyPlugin.configure({
+  options: {
+    myOption: 'new value',
+  },
+});
+Copy
+You can also use a function to access the current configuration:
+
+const ConfiguredPlugin = MyPlugin.configure(({ getOptions }) => ({
+  options: {
+    ...getOptions(),
+    myOption: `${getOptions().myOption} + extra`,
+  },
+}));
+Copy
+It's used to modify existing properties of the plugin.
+It doesn't add new properties to the plugin.
+The last configuration applied is the one used by the editor.
+It doesn't return an extended type, maintaining the original plugin type.
+.configurePlugin
+The .configurePlugin method allows you to configure the properties of a nested plugin:
+
+const TablePlugin = createPlatePlugin({
+  key: 'table',
+  plugins: [TableCellPlugin],
+}).configurePlugin(TableCellPlugin, {
+  options: {
+    cellOption: 'modified',
+  },
+});
+Copy
+It's used to configure nested plugins within a parent plugin.
+Like .configure, it modifies existing properties but doesn't add new ones.
+It's useful for adjusting the behavior of sub-plugins without extending their types.
+.extend
+The .extend method allows you to extend the plugin's configuration and functionality.
+
+const ExtendedPlugin = MyPlugin.extend({
+  options: {
+    newOption: 'new value',
+  },
+});
+Copy
+You can also use a function to access the current configuration and editor:
+
+const ExtendedPlugin = MyPlugin.extend(({ editor, plugin }) => ({
+  options: {
+    newOption: 'new value',
+  },
+  handlers: {
+    onKeyDown: () => {
+      // Custom key down logic
+    },
+  },
+}));
+Copy
+It's used to add new properties or modify existing ones in the plugin.
+It returns a new plugin instance with extended types.
+It's chainable, allowing multiple extensions to be applied sequentially.
+.extendPlugin
+The .extendPlugin method allows you to extend the configuration and functionality of a nested plugin:
+
+const TablePlugin = createPlatePlugin({
+  key: 'table',
+  plugins: [TableCellPlugin],
+}).extendPlugin(TableCellPlugin, {
+  options: {
+    newCellOption: 'added',
+  },
+  handlers: {
+    onKeyDown: () => {
+      // Custom key down logic for table cells
+    },
+  },
+});
+Copy
+It's used to extend nested plugins within a parent plugin.
+It can add new properties and modify existing ones in the nested plugin.
+It returns a new parent plugin instance with the extended nested plugin.
+Difference between .configure and .extend
+While both methods can be used to modify plugin configuration, they have some key differences:
+
+Chaining: .extend is chainable, while .configure is not.
+Type extension: .extend returns a new plugin instance with extended types, while .configure maintains the original type.
+New properties: .extend can add new properties to the plugin configuration, while .configure only modifies existing ones.
+Choose the appropriate method based on whether you need to extend the plugin's type and functionality (use .extend) or simply modify existing configuration (use .configure).
+
+.extendOptions
+The extendOptions method allows you to extend the plugin options with selectors.
+
+const CounterPlugin = createPlatePlugin({
+  key: 'counter',
+  options: {
+    count: 0,
+  },
+}).extendOptions(({ getOptions }) => ({
+  doubleCount: () => getOptions().count * 2,
+  isEven: () => getOptions().count % 2 === 0,
+}));
+Copy
+You can then use these extended options in your components or other plugin methods:
+
+const CounterComponent = () => {
+  const { useOption } = useEditorPlugin(CounterPlugin);
+  
+  const count = useOption('count');
+  const doubleCount = useOption('doubleCount');
+  const isEven = useOption('isEven');
+ 
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <p>Double Count: {doubleCount}</p>
+      <p>Is Even: {isEven ? 'Yes' : 'No'}</p>
+    </div>
+  );
+};
+Copy
+It allows you to create derived state or computed values from plugin options.
+Extended options are accessible using the getOption and useOption methods, just like regular options.
+Extended options are recomputed whenever the underlying options change.
+.withComponent
+The withComponent method allows you to set or replace the component associated with a plugin.
+
+const ParagraphPlugin = createPlatePlugin({
+  key: 'p',
+  node: {
+    isElement: true,
+    type: 'p',
+  },
+}).withComponent(ParagraphElement);
+Copy
+API and Transforms
+Plugins can define their own API methods and transforms that will be merged into the editor's API and transforms. This is done using the extendApi, extendEditorApi, extendTransforms, and extendEditorTransforms methods.
+
+.extendApi
+Use extendApi to add plugin-specific API methods:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+}).extendApi(() => ({
+  pluginMethod: () => 'plugin method result',
+}));
+ 
+// Access the plugin's API
+editor.api.myPlugin.api.pluginMethod();
+Copy
+.extendEditorApi
+Use extendEditorApi to add root-level API methods:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+}).extendEditorApi(({ getOptions }) => ({
+  editorMethod: () => getOptions().someOption,
+}));
+ 
+// Access the plugin's API
+editor.api.editorMethod();
+Copy
+.extendTransforms
+Use extendTransforms to add plugin-specific transform methods:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+}).extendTransforms(() => ({
+  pluginTransform: () => {
+    // Custom transform logic
+  },
+}));
+ 
+// Access the plugin's transform
+editor.tf.myPlugin.pluginTransform();
+ 
+// NOTE: `editor.tf` in a short alias to `editor.transforms`
+editor.transforms.myPlugin.pluginTransform();
+Copy
+.extendEditorTransforms
+Use extendEditorTransforms to add root-level transform methods:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+}).extendEditorTransforms(({ editor }) => ({
+  editorTransform: () => {
+    // Custom editor transform logic
+  },
+}));
+ 
+// Access the plugin's transform
+editor.tf.editorTransform();
+Copy
+Difference between API and Transforms
+While there is currently no core difference between API and Transforms in Plate, they serve distinct purposes and are designed with future extensibility in mind:
+
+Transforms:
+
+Store all Slate transforms and editor operations here. Structured to potentially support middlewares in the future, allowing for more complex transform pipelines and devtools.
+Typically used for operations that modify the editor state, such as inserting, deleting, or transforming content.
+Example: editor.tf.toggle.block(), editor.tf.toggle.mark({ key: 'bold' })
+API:
+
+Store all queries, utility functions, and other methods that don't directly modify the editor state.
+Example: editor.api.save(), editor.api.debug.log()
+Chaining Extensions
+You can chain these methods to create a comprehensive plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: {
+    baseValue: 5,
+  },
+})
+  .extendApi(() => ({
+    pluginMethod: () => 'plugin method',
+  }))
+  .extendEditorApi(({ getOptions }) => ({
+    multiply: (factor: number) => getOptions().baseValue * factor,
+  }))
+  .extendTransforms(() => ({
+    pluginTransform: () => {
+      // Plugin-specific transform
+    },
+  }))
+  .extendEditorTransforms(({ editor }) => ({
+    editorTransform: () => {
+      // Editor-specific transform
+    },
+  }));
+ 
+editor.api.myPlugin.api.pluginMethod();
+editor.api.multiply(3);
+editor.tf.myPlugin.pluginTransform();
+editor.tf.editorTransform();
+Copy
+Convert a Slate Plugin to a Plate Plugin
+To convert a typed Slate plugin to a Plate plugin, you can use toPlatePlugin:
+
+const CodeBlockPlugin = toPlatePlugin(createSlatePlugin({ key: 'code_block' }), {
+  extendEditor: ({ api, editor }) => {
+    api.plugin.getSyntaxState();
+    return editor;
+  },
+  handlers: {},
+  options: { hotkey: ['mod+opt+8', 'mod+shift+8'] },
+});
+
+
+Plugin Shortcuts
+Learn how to configure and use keyboard shortcuts in Plate plugins.
+
+This guide covers the configuration and usage of keyboard shortcuts in Plate plugins, allowing you to create custom hotkeys for various editor actions.
+
+Plugin Shortcuts
+Plate provides a set of default shortcuts for common actions.
+
+Text Formatting
+BoldPlugin
+
+toggleBold: Mod+B
+ItalicPlugin
+
+toggleItalic: Mod+I
+UnderlinePlugin
+
+toggleUnderline: Mod+U
+StrikethroughPlugin
+
+toggleStrikethrough: Mod+Shift+X
+CodePlugin
+
+toggleCode: Mod+E
+SubscriptPlugin
+
+toggleSubscript: Mod+,
+SuperscriptPlugin
+
+toggleSuperscript: Mod+.
+HighlightPlugin
+
+toggleHighlight: Mod+Shift+H
+Block Formatting
+ParagraphPlugin
+
+toggleParagraph: Mod+Alt+0 or Mod+Shift+0
+BlockquotePlugin
+
+toggleBlockquote: Mod+Shift+.
+HeadingPlugin
+
+toggleHeading1: Mod+Alt+1 or Mod+Shift+1
+toggleHeading2: Mod+Alt+2 or Mod+Shift+2
+toggleHeading3: Mod+Alt+3 or Mod+Shift+3
+CodeBlockPlugin
+
+toggleCodeBlock: Mod+Alt+8
+Lists
+ListPlugin
+
+toggleBulletedList: Mod+Alt+5
+toggleNumberedList: Mod+Alt+6
+TodoListPlugin
+
+toggleTodoList: Mod+Alt+4 or Mod+Shift+4
+Comments
+CommentsPlugin
+toggleComment: Mod+Shift+M
+Notes
+Mod represents Cmd on macOS and Ctrl on Windows/Linux.
+Shortcuts can be customized or extended as needed in your Plate configuration.
+Adding Shortcuts to Plugins
+You can add shortcuts to your plugins using the shortcuts option. Each shortcut is defined with a unique key and an object containing the handler, keys, and other optional properties.
+
+Here's a basic example:
+
+const ParagraphPlugin = createPlatePlugin({
+  key: 'p',
+  shortcuts: {
+    toggleParagraph: {
+      handler: ({ editor }) => {
+        editor.toggleBlock({ type: 'p' });
+      },
+      keys: ['mod+opt+0', 'mod+shift+0'],
+    },
+  },
+});
+Copy
+In this example, pressing Cmd+Option+0 or Cmd+Shift+0 (on Mac) or Ctrl+Alt+0 or Ctrl+Shift+0 (on Windows/Linux) will toggle the paragraph block.
+
+Shortcut Properties
+Each shortcut can have the following properties:
+
+handler: A function that is called when the shortcut is triggered.
+keys: A string or array of strings representing the key combination(s).
+priority: (Optional) A number indicating the priority of the shortcut.
+preventDefault: (Optional) A boolean to prevent the default browser action.
+Multiple Shortcuts
+You can define multiple shortcuts for a single plugin:
+
+const FormattingPlugin = createPlatePlugin({
+  key: 'formatting',
+  shortcuts: {
+    toggleBold: {
+      handler: ({ editor }) => {
+        editor.toggleMark('bold');
+      },
+      keys: 'mod+b',
+    },
+    toggleItalic: {
+      handler: ({ editor }) => {
+        editor.toggleMark('italic');
+      },
+      keys: 'mod+i',
+    },
+  },
+});
+Copy
+Shortcut Priority
+When multiple plugins define shortcuts with the same key combination, you can use the priority property to determine which one takes precedence:
+
+const HighPriorityPlugin = createPlatePlugin({
+  key: 'highPriority',
+  shortcuts: {
+    myShortcut: {
+      handler: () => console.info('High priority'),
+      keys: 'mod+k',
+      priority: 100,
+    },
+  },
+});
+ 
+const LowPriorityPlugin = createPlatePlugin({
+  key: 'lowPriority',
+  shortcuts: {
+    myShortcut: {
+      handler: () => console.info('Low priority'),
+      keys: 'mod+k',
+      priority: 50,
+    },
+  },
+});
+Copy
+In this case, the HighPriorityPlugin shortcut will be triggered when Cmd+K (Mac) or Ctrl+K (Windows/Linux) is pressed.
+
+Disabling Shortcuts
+You can disable a specific shortcut by setting its value to null:
+
+const MyPlugin = ParagraphPlugin.configure({
+  shortcuts: {
+    myShortcut: null,
+  },
+});
+Copy
+Extending Shortcuts
+You can extend or override shortcuts using the extend method:
+
+const ExtendedPlugin = BasePlugin.extend({
+  shortcuts: {
+    newShortcut: {
+      handler: () => console.info('New shortcut'),
+      keys: 'mod+shift+n',
+    },
+  },
+});
+Copy
+Root Plugin Shortcuts
+You can also define shortcuts at the root level when creating the editor:
+
+const editor = createPlateEditor({
+  plugins: [/* your plugins */],
+  shortcuts: {
+    globalShortcut: {
+      handler: () => console.info('Global shortcut triggered'),
+      keys: 'mod+g',
+    },
+  },
+});
+Copy
+Root-level shortcuts have the highest priority by default.
+
+Best Practices
+Consider using the preventDefault option for shortcuts that might conflict with browser defaults.
+Be mindful of existing shortcuts in your application to avoid conflicts.
+Use the priority property when you need fine-grained control over which shortcut is triggered.
+
+Plugin Context
+Understanding and utilizing the Plugin Context in Plate plugins.
+
+The Plugin Context is an object available in all plugin methods, providing access to the editor instance, plugin configuration, and utility functions.
+
+Accessing Plugin Context
+Plugin Methods
+The Plugin Context is available as the first parameter in all plugin methods:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  handlers: {
+    onKeyDown: (ctx) => {
+      // ctx is the Plugin Context
+      console.info(ctx.editor, ctx.plugin);
+    },
+  },
+});
+Copy
+getEditorPlugin
+This function is particularly useful when you need to access the context of another plugin. It allows for cross-plugin communication and interaction, enabling more complex and interconnected plugin behaviors.
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  handlers: {
+    onKeyDown: ({ editor }) => {
+      const linkCtx = getEditorPlugin(LinkPlugin);
+    },
+  },
+});
+Copy
+useEditorPlugin
+In React components, you can use the useEditorPlugin hook to access the Plugin Context:
+
+const MyComponent = () => {
+  const { editor, plugin, useOption, type } = useEditorPlugin(MyPlugin);
+  
+  return <div>{useOption('myOption')}</div>;
+};
+Copy
+Plugin Context Properties
+editor
+The current PlateEditor instance:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  handlers: {
+    onChange: ({ editor }) => {
+      console.info('Editor value:', editor.children);
+    },
+  },
+});
+Copy
+plugin
+The current plugin configuration:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  handlers: {
+    onKeyDown: ({ plugin }) => {
+      console.info('Plugin key:', plugin.key);
+    },
+  },
+});
+Copy
+getOption
+A function to get a specific option value for the plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: { myOption: 'default' },
+  handlers: {
+    onClick: ({ getOption }) => {
+      const myOption = getOption('myOption');
+      console.info('My option value:', myOption);
+    },
+  },
+});
+Copy
+getOptions
+A function to get all options for the plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: { option1: 'value1', option2: 'value2' },
+  handlers: {
+    onClick: ({ getOptions }) => {
+      const options = getOptions();
+      console.info('All options:', options);
+    },
+  },
+});
+Copy
+setOption
+A function to set a specific option value for the plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: { count: 0 },
+  handlers: {
+    onClick: ({ setOption }) => {
+      setOption('count', 1);
+    },
+  },
+});
+Copy
+setOptions
+A function to set multiple options for the plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: { option1: 'value1', option2: 'value2' },
+  handlers: {
+    onClick: ({ setOptions }) => {
+      setOptions({
+        option1: 'newValue1',
+        option2: 'newValue2',
+      });
+    },
+  },
+});
+Copy
+useOption
+A hook to subscribe to a specific option value in a React component:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  options: { count: 0 },
+  useHooks: ({ useOption }) => {
+    const count = useOption('count');
+    return <div>Count: {count}</div>;
+  },
+});
+Copy
+type
+The node type associated with the plugin:
+
+const MyPlugin = createPlatePlugin({
+  key: 'myPlugin',
+  node: { type: 'myNodeType' },
+  handlers: {
+    onKeyDown: ({ type }) => {
+      console.info('Node type:', type);
+    },
+  },
+});
+
+Plugin Components
+Learn how to create and style custom components for Plate plugins.
+
+By default, Plate plugins are headless, meaning all nodes will be rendered as plain text. This guide will show you how to create and style custom components for your editor.
+
+Plate UI
+Unless you prefer to build everything from scratch, we recommend using Plate UI to get started. Plate UI is a collection of components that you can copy into your app and modify to suit your needs.
+
+In most respects, the process of adding components to your editor is the same regardless of whether you use Plate UI or build your own components from scratch.
+
+Defining Components
+The simplest way of defining a component is using PlateElement or PlateLeaf as a wrapper for your content. This will ensure that the correct props are applied to your HTML element as required by Slate.
+
+Note that the children prop must be rendered unconditionally in order for the editor to work correctly, including for void nodes.
+
+Element
+import { PlateElement, PlateElementProps } from '@udecode/plate-common/react';
+ 
+export function BlockquoteElement({
+  className,
+  children,
+  ...props
+}: PlateElementProps) {
+  return (
+    <PlateElement asChild className={className} {...props}>
+      <blockquote>{children}</blockquote>
+    </PlateElement>
+  );
+}
+Copy
+Leaf
+import { PlateLeaf, PlateLeafProps } from '@udecode/plate-common/react';
+ 
+export function CodeLeaf({ className, children, ...props }: PlateLeafProps) {
+  return (
+    <PlateLeaf asChild className={className} {...props}>
+      <code>{children}</code>
+    </PlateLeaf>
+  );
+}
+Copy
+Styling with CSS
+We recommend styling components using Tailwind CSS, which is the pattern used by Plate UI. However, it's also possible to use a global CSS file to style nodes based on the class names generated by Slate.
+
+For each node, Slate will generate a class name with slate- followed by the type of the node. For example, paragraph nodes can be styled as follows:
+
+.slate-p {
+  margin-bottom: 1rem;
+}
+Copy
+Register Components
+To use your components with Plate, you'll need to register them with the associated plugin. There are two ways of doing so.
+
+Plugin Options
+To register a component, use node.component option:
+
+const ParagraphPlugin = createPlatePlugin({
+  // ... 
+  node: {
+    component: ParagraphElement,
+  },
+});
+ 
+// OR
+const ParagraphPlugin = BaseParagraphPlugin.withComponent(ParagraphElement)
+Copy
+Editor Options
+Alternatively, you can specify the component for each plugin key using the override.components option of createPlateEditor:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, LinkPlugin],
+  override: {
+    components: {
+      [ParagraphPlugin.key]: ParagraphElement,
+      [LinkPlugin.key]: LinkElement,
+      // ...other components
+    },
+  },
+});
+
+Editor Configuration
+Learn how to configure and customize the Plate editor.
+
+This guide covers the configuration options for the Plate editor, including basic setup, plugin management, and advanced configuration techniques.
+
+Basic Editor Configuration
+To create a basic Plate editor, you can use the createPlateEditor function, or usePlateEditor in a React component:
+
+import { createPlateEditor } from '@udecode/plate-common/react';
+ 
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, HeadingPlugin],
+});
+Copy
+Initial Value
+Set the initial content of the editor:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin],
+  value: [
+    {
+      type: 'p',
+      children: [{ text: 'Hello, Plate!' }],
+    },
+  ],
+});
+Copy
+You can also initialize the editor with an HTML string and the associated plugins:
+
+const editor = createPlateEditor({
+  plugins: [BoldPlugin, ItalicPlugin],
+  value: '<p>This is <b>bold</b> and <i>italic</i> text!</p>',
+});
+Copy
+For a comprehensive list of plugins that support HTML string deserialization, refer to the Plugin Deserialization Rules section.
+
+Adding Plugins
+You can add plugins to your editor by including them in the plugins array:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, HeadingPlugin, ListPlugin],
+});
+Copy
+Max Length
+Set the maximum length of the editor:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin],
+  maxLength: 100,
+});
+Copy
+Advanced Configuration
+Id
+Set a custom id for the editor:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin],
+  id: 'my-custom-editor-id',
+});
+Copy
+If defined, you should always pass the id as the first argument in any editor retrieval methods.
+
+Normalization
+Control whether the editor should normalize its content on initialization:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin],
+  shouldNormalizeEditor: true,
+});
+Copy
+Note that normalization may take a few dozen milliseconds for large documents, such as the playground value.
+
+Auto-selection
+Configure the editor to automatically select a range:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin],
+  autoSelect: 'end', // or 'start', or true
+});
+Copy
+This is not the same as auto-focus: you can select text without focusing the editor.
+
+Component Overrides
+Override default components for plugins:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, HeadingPlugin],
+  override: {
+    components: {
+      [ParagraphPlugin.key]: CustomParagraphComponent,
+      [HeadingPlugin.key]: CustomHeadingComponent,
+    },
+  },
+});
+Copy
+Plugin Overrides
+Override specific plugin configurations:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, HeadingPlugin],
+  override: {
+    plugins: {
+      [ParagraphPlugin.key]: {
+        options: {
+          customOption: true,
+        },
+      },
+    },
+  },
+});
+Copy
+Disable Plugins
+Disable specific plugins:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, HeadingPlugin, ListPlugin],
+  override: {
+    enabled: {
+      [HistoryPlugin.key]: false,
+    },
+  },
+});
+Copy
+Overriding Plugins
+You can override core plugins or previously defined plugins by adding a plugin with the same key. The last plugin with a given key wins:
+
+const CustomParagraphPlugin = createPlatePlugin({
+  key: 'p',
+  // Custom implementation
+});
+ 
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, CustomParagraphPlugin],
+});
+Copy
+Root Plugin
+From the root plugin, you can configure any plugin:
+
+const editor = createPlateEditor({
+  plugins: [ParagraphPlugin, HeadingPlugin],
+  rootPlugin: (plugin) =>
+    plugin.configurePlugin(LengthPlugin, {
+    options: {
+        maxLength: 100,
+      },
+    }),
+});
+Copy
+Typed Editor
+createPlateEditor will automatically infer the types for your editor from the value and the plugins you pass in. For explicit type creation, use the generics:
+
+Plugins Type
+const editor = createPlateEditor<Value, typeof TablePlugin | typeof LinkPlugin>({
+  plugins: [TablePlugin, LinkPlugin],
+});
+ 
+// Usage
+editor.tf.insert.tableRow()
+Copy
+Value Type
+For more complex editors, you can define your types in a separate file (e.g., plate-types.ts):
+
+import type { TElement, TText } from '@udecode/plate-common';
+import type { TPlateEditor } from '@udecode/plate-common/react';
+ 
+// Define custom element types
+interface ParagraphElement extends TElement {
+  align?: 'left' | 'center' | 'right' | 'justify';
+  children: RichText[];
+  type: typeof ParagraphPlugin.key;
+}
+ 
+interface ImageElement extends TElement {
+  children: [{ text: '' }]
+  type: typeof ImagePlugin.key;
+  url: string;
+}
+ 
+// Define custom text types
+interface FormattedText extends TText {
+  bold?: boolean;
+  italic?: boolean;
+}
+ 
+export type MyRootBlock = ParagraphElement | ImageElement;
+ 
+// Define the editor's value type
+export type MyValue = MyRootBlock[];
+ 
+// Define the custom editor type
+export type MyEditor = TPlateEditor<MyValue, typeof TablePlugin | typeof LinkPlugin>;
+ 
+export const useMyEditorRef = () => useEditorRef<MyEditor>();
+ 
+// Usage
+const value: MyValue = [{
+  type: 'p',
+  children: [{ text: 'Hello, Plate!' }],
+}]
+ 
+const editorInferred = createPlateEditor({
+  plugins: [TablePlugin, LinkPlugin],
+  value,
+});
+ 
+// or 
+const editorExplicit = createPlateEditor<MyValue, typeof TablePlugin | typeof LinkPlugin>({
+  plugins: [TablePlugin, LinkPlugin],
+  value,
+});
+Copy
+Benefits
+We strongly recommend using typed editors for the following reasons:
+
+Type Safety: The editor enforces the structure of your document, preventing invalid operations.
+Autocomplete: Your IDE can provide better autocomplete suggestions based on your custom types.
+Refactoring: Changing types in one place will highlight necessary changes throughout your codebase.
+Documentation: Types serve as a form of self-documentation for your editor's structure and capabilities.
+
+Editor Methods
+Explore the various methods available for interacting with and customizing the Plate editor.
+
+This guide covers the various methods available on the Plate editor instance.
+
+Accessing the Editor
+How you access the editor instance depends on the context in which you need it.
+
+Below Plate
+Use one of these hooks:
+
+useEditorRef: Never re-render.
+useEditorSelector: Re-render only when a specific editor property changes.
+useEditorState: Re-render on every change.
+import { useEditorRef, useEditorSelector, useEditorState } from '@udecode/plate-common/react';
+ 
+const MyComponent = () => {
+  const editor = useEditorRef();
+  const hasSelection = useEditorSelector((editor) => !!editor.selection, []);
+  const editorState = useEditorState();
+  
+  // ...
+};
+Copy
+useEditorRef
+Use a reference to editor that never gets replaced. This should be the default choice.
+Since editor is a mutable object that gets updated by reference, useEditorRef is always sufficient for accessing the editor inside callbacks.
+useEditorRef will never cause your component to re-render, so it's the best choice for performance.
+useEditorSelector
+Subscribe to a specific selector based on editor. This is the most performant option for subscribing to state changes.
+Example usage: const hasSelection = useEditorSelector((editor) => !!editor.selection, []);
+When you want your component to re-render in response to a specific change that you're interested in, you can use useEditorSelector to access the relevant property.
+The selector function is called every time the editor changes (i.e. on every keystroke or selection change), but the component only re-renders when the return value changes.
+For this to work properly, you should make sure that the return value can be compared using ===. In most cases, this means returning a primitive value, like a number, string or boolean.
+You can provide a custom equalityFn in the options to useEditorSelector for cases where === isn't sufficient.
+If the selector function depends on any locally scoped variables, you should include these in the dependency list.
+useEditorState
+Re-render every time the editor changes.
+Using useEditorState will cause your component to re-render every time the user presses a key or changes the selection.
+This may cause performance issues for large documents, or when re-rendering is particularly expensive.
+Outside Plate
+To access the editor outside the Plate component or work with multiple editors, use the PlateController component:
+
+import { PlateController } from '@udecode/plate-common/react';
+ 
+const App = () => (
+  <PlateController>
+    <Toolbar />
+    <MyEditor />
+  </PlateController>
+);
+ 
+const Toolbar = () => {
+  const editor = useEditorState();
+  const isMounted = useEditorMounted();
+  // Use editor methods here
+};
+Copy
+PlateController manages active editors:
+
+The first mounted editor is active by default (override with primary={false} on Plate).
+Focus changes the active editor.
+An editor remains active until another is focused or it unmounts.
+Hooks like useEditorRef and useEditorSelector work with the active editor inside PlateController. If no editor is active, they return a fallback editor, which:
+
+Provides default values for queries.
+Cannot be mutated.
+Throws errors on state-changing operations.
+Fallback editor scenarios:
+
+No mounted Plate components.
+All Plate components are non-primary.
+During PlateContent mounting.
+You can check if any editor is mounted using useEditorMounted:
+
+const Toolbar = () => {
+  const editor = useEditorState();
+  const isMounted = useEditorMounted();
+  
+  if (!isMounted) {
+    return <div>Editor not ready</div>;
+  }
+  
+  return <div>{/* Toolbar content */}</div>;
+};
+Copy
+You can also use editor.isFallback to check if the editor is a fallback instance.
+
+API Methods
+getApi
+Retrieve the typed API for the editor:
+
+const api = editor.getApi(TablePlugin);
+api.api.create.cell(); // Type-safe API method
+Copy
+getTransforms
+Get the typed transforms for the editor:
+
+const tf = editor.getTransforms(TablePlugin);
+tf.insert.tableRow(); // Type-safe transform method
+Copy
+Plugin Methods
+getPlugin
+Retrieve the editor plugin instance by its key or base plugin:
+
+const paragraphPlugin = editor.getPlugin(ParagraphPlugin);
+const headingPlugin = editor.getPlugin({ key: 'heading' });
+Copy
+getType
+Get the node type associated with a plugin:
+
+const paragraphType = editor.getType(ParagraphPlugin);
+Copy
+Option Methods
+getOption
+Get a specific option value for a plugin:
+
+const search = editor.getOption(FindReplacePlugin, 'search');
+Copy
+getOptions
+Get all options for a plugin:
+
+const linkOptions = editor.getOptions(LinkPlugin);
+Copy
+setOption
+Set a specific option value for a plugin:
+
+editor.setOption(FindReplacePlugin, 'search', 'hello');
+Copy
+setOptions
+Set multiple options for a plugin:
+
+editor.setOptions(FindReplacePlugin, {
+  search: 'hello',
+  caseSensitive: true,
+});
+Copy
+You can also use a function to update options using Immer:
+
+editor.setOptions(FindReplacePlugin, (draft) => {
+  draft.search = 'hello';
+  draft.caseSensitive = true;
+});
+Copy
+getOptionsStore
+Get the zustand-x options store for a plugin:
+
+const store = editor.getOptionsStore(FindReplacePlugin);
+Copy
+React Hooks
+useOption
+Subscribe to a specific option value in a React component:
+
+const MyComponent = () => {
+  const search = editor.useOption(FindReplacePlugin, 'search');
+  return <div>Current search: {search}</div>;
+};
+Copy
+useOptions
+You can also use a selector function to subscribe to specific parts of the options:
+
+const MyComponent = () => {
+  const search = editor.useOptions(FindReplacePlugin, (options) => options.search);
+  return <div>Current search: {search}</div>;
+};
+Copy
+useOptionsStore
+Get the zustand-x store hook for a plugin:
+
+const store = editor.useOptionsStore(FindReplacePlugin);
+Copy
+Plate Store
+setPlateState
+Update the global Plate state:
+
+editor.setPlateState('readOnly', true);
+
+
+Controlled Editor Value
+How to control the editor value.
+
+Implementing a fully controlled editor value in Plate (and Slate) is complex due to several factors:
+
+The editor state includes more than just the content (editor.children). It also includes editor.selection and editor.history.
+
+Directly replacing editor.children can break the selection and history, leading to unexpected behavior or crashes.
+
+All changes to the editor's value should ideally happen through Transforms to maintain consistency with selection and history.
+
+Given these challenges, it's generally recommended to use Plate as an uncontrolled input. However, if you need to make external changes to the editor's content, you can use editor.tf.setValue(value) function.
+
+Using editor.tf.setValue will re-render all nodes on each call, so it should be used carefully and sparingly. It may impact performance if used frequently or with large documents.
+
+Alternatively, you can use editor.tf.reset() to reset the editor state, which will reset the selection and history.
+
+function App() {
+  const editor = usePlateEditor({
+    value: 'Initial Value',
+    // Disable the editor if initial value is not yet ready
+    // enabled: !!value,
+  });
+ 
+  return (
+    <div>
+      <Plate editor={editor}>
+        <PlateContent />
+      </Plate>
+ 
+      <button
+        onClick={() => {
+          // Replace with HTML string
+          editor.tf.setValue('Replaced Value');
+ 
+          // Replace with JSON value
+          editor.tf.setValue([
+            {
+              type: 'p',
+              children: [{ text: 'Replaced Value' }],
+            },
+          ]);
+ 
+          // Replace with empty va
+
+HTML -> Slate
+Usage
+The editor.api.html.deserialize function allows you to convert HTML content into Slate value:
+
+import { createPlateEditor } from '@udecode/plate-common/react';
+ 
+const editor = createPlateEditor({
+  plugins: [
+    // all plugins that you want to deserialize
+  ]
+})
+editor.children = editor.api.html.deserialize('<p>Hello, world!</p>')
+Copy
+Plugin Deserialization Rules
+Here's a comprehensive list of plugins that support HTML deserialization, along with their corresponding HTML elements and styles:
+
+Text Formatting
+BoldPlugin: <strong>, <b>, or style="font-weight: 600|700|bold"
+ItalicPlugin: <em>, <i>, or style="font-style: italic"
+UnderlinePlugin: <u> or style="text-decoration: underline"
+StrikethroughPlugin: <s>, <del>, <strike>, or style="text-decoration: line-through"
+SubscriptPlugin: <sub> or style="vertical-align: sub"
+SuperscriptPlugin: <sup> or style="vertical-align: super"
+CodePlugin: <code> or style="font-family: Consolas" (not within a <pre> tag)
+KbdPlugin: <kbd>
+Paragraphs and Headings
+ParagraphPlugin: <p>
+HeadingPlugin: <h1>, <h2>, <h3>, <h4>, <h5>, <h6>
+Lists
+ListPlugin:
+Unordered List: <ul>
+Ordered List: <ol>
+List Item: <li>
+IndentListPlugin:
+List Item: <li>
+Parses aria-level attribute for indentation
+Blocks
+BlockquotePlugin: <blockquote>
+CodeBlockPlugin:
+Deserializes <pre> elements
+Deserializes <p> elements with fontFamily: 'Consolas' style
+Splits content into code lines
+Preserves language information if available
+HorizontalRulePlugin: <hr>
+Links and Media
+LinkPlugin: <a>
+ImagePlugin: <img>
+MediaEmbedPlugin: <iframe>
+Tables
+TablePlugin:
+Table: <table>
+Table Row: <tr>
+Table Cell: <td>
+Table Header Cell: <th>
+Text Styling
+FontBackgroundColorPlugin: style="background-color: *"
+FontColorPlugin: style="color: *"
+FontFamilyPlugin: style="font-family: *"
+FontSizePlugin: style="font-size: *"
+FontWeightPlugin: style="font-weight: *"
+HighlightPlugin: <mark>
+Layout and Formatting
+AlignPlugin: style="text-align: *"
+LineHeightPlugin: style="line-height: *"
+Deserialization Properties
+Plugins can define various properties to control HTML deserialization:
+
+parse: A function to parse an HTML element into a Plate node
+query: A function that determines if the deserializer should be applied
+rules: An array of rule objects that define valid HTML elements and attributes
+isElement: Indicates if the plugin deserializes elements
+isLeaf: Indicates if the plugin deserializes leaf nodes
+attributeNames: List of HTML attribute names to store in node.attributes
+withoutChildren: Excludes child nodes from deserialization
+rules: Array of rule objects for element matching
+validAttribute: Valid element attributes
+validClassName: Valid CSS class name
+validNodeName: Valid HTML tag names
+validStyle: Valid CSS styles
+Extending Deserialization
+You can extend or customize the deserialization behavior of any plugin. Here's an example of how you might extend the CodeBlockPlugin:
+
+import { CodeBlockPlugin } from '@udecode/plate-code-block/react';
+ 
+const CustomCodeBlockPlugin = CodeBlockPlugin.extend({
+  parsers: {
+    html: {
+      deserializer: {
+        parse: ({ element }) => {
+          const language = element.getAttribute('data-language');
+          const textContent = element.textContent || '';
+          const lines = textContent.split('\n');
+          
+          return {
+            type: CodeBlockPlugin.key,
+            language,
+            children: lines.map((line) => ({
+              type: CodeLinePlugin.key,
+              children: [{ text: line }],
+            })),
+          };
+        },
+        rules: [
+          ...CodeBlockPlugin.parsers.html.deserializer.rules,
+          { validAttribute: 'data-language' },
+        ],
+      },
+    },
+  },
+});
+Copy
+This customization adds support for a data-language attribute in code block deserialization and preserves the language information.
+
+Advanced Deserialization Example
+The IndentListPlugin provides a more complex deserialization process:
+
+It transforms HTML list structures into indented paragraphs.
+It handles nested lists by preserving the indentation level.
+It uses the aria-level attribute to determine the indentation level.
+Here's a simplified version of its deserialization logic:
+
+export const IndentListPlugin = createTSlatePlugin<IndentListConfig>({
+  // ... other configurations ...
+  parsers: {
+    html: {
+      deserializer: {
+        isElement: true,
+        parse: ({ editor, element, getOptions }) => ({
+          indent: Number(element.getAttribute('aria-level')),
+          listStyleType: element.style.listStyleType,
+          type: editor.getType(ParagraphPlugin),
+        }),
+        rules: [
+          {
+            validNodeName: 'LI',
+          },
+        ],
+      },
+    },
+  },
+});
+Copy
+API
+editor.api.html.deserialize
+Deserialize HTML string into Slate value.
+
+Parameters
+options.element HTMLElement | string
+The HTML element or string to deserialize.
+
+options.collapseWhiteSpace optional boolean
+Flag to enable or disable the removal of whitespace from the serialized HTML.
+
+Default: true (Whitespace will be removed.)
+Returns
+
+TDescendant[]
+The deserialized Slate value.
+
+Slate -> React -> HTML
+Installation
+npm install @udecode/plate-html
+Copy
+Usage
+// ...
+import { HtmlReactPlugin } from '@udecode/plate-html/react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+ 
+const editor = createPlateEditor({ 
+  plugins: [
+    HtmlReactPlugin
+    // all plugins that you want to serialize
+  ],
+  override: {
+    // do not forget to add your custom components, otherwise it won't work
+    components: createPlateUI(),
+  },
+});
+ 
+const html = editor.api.htmlReact.serialize({
+  nodes: editor.children,
+  // if you use @udecode/plate-dnd
+  dndWrapper: (props) => <DndProvider backend={HTML5Backend} {...props} />,
+});
+Copy
+Note: Round-tripping is not yet supported: the HTML serializer will not preserve all information from the Slate value when converting to HTML and back.

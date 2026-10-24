@@ -1,0 +1,20 @@
+@font-face {
+  font-family: 黑体;
+  src: url("/font/SIMHEI.TTF") format("truetype");
+}
+@font-face {
+  font-family: 楷体;
+  src: url("/font/SIMKAI.TTF") format("truetype");
+}
+@font-face {
+  font-family: 仿宋;
+  src: url("/font/SIMFANG.TTF") format("truetype");
+}
+@font-face {
+  font-family: 方正小标宋简体;
+  src: url("/font/方正小标宋简.TTF") format("truetype");
+}
+@font-face {
+  font-family: 方正小标宋GBK;
+  src: url("/font/方正小标宋_GBK.TTF") format("truetype");
+}

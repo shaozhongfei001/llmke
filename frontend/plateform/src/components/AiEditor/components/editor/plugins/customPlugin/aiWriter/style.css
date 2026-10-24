@@ -1,0 +1,17 @@
+.ai-writer .ant-menu-item,
+.ai-writer .ant-menu-submenu-title {
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  justify-items: between;
+  align-items: center;
+}
+.ai-writer .ant-menu-item,
+.ai-writer .ant-menu-submenu-title {
+  width: 100% !important;
+}
+.ai-writer .ant-menu-submenu-arrow {
+  position: relative;
+  left: 50px;
+  top: -2px;
+}

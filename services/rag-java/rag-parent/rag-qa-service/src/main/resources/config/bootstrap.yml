@@ -1,0 +1,20 @@
+server:
+  port: 2888
+  servlet:
+    context-path: /qa
+auth:
+  no-verify-urls:
+    - /usr/login
+    - /usr/verify
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    url: ${dm.url}
+    username: ${dm.username}
+    password: ${dm.password}
+    driver-class-name: ${dm.driver-class-name}
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10

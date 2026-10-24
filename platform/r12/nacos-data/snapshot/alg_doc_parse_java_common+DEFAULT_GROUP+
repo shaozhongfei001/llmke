@@ -1,0 +1,114 @@
+server:
+  host-ip: 127.0.0.1
+mysql:
+  url: jdbc:mysql://${server.host-ip}:13306/gienrag?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+  username: root
+  password: "${R12_MYSQL_PASSWORD}"
+  table_name: parse_task
+  schema:
+    column_schema:
+      - task_id VARCHAR(64) NOT NULL,
+      - pid INT,
+      - param LONGTEXT,
+      - status VARCHAR(8),
+      - process_info LONGTEXT,
+      - minio_paths LONGTEXT,
+      - result LONGTEXT,
+      - create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      - update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      - PRIMARY KEY (task_id)
+    table_schema: ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  consolidated_balance:
+    schema:
+      column_schema:
+      - id BIGINT NOT NULL AUTO_INCREMENT,
+      - file_id BIGINT,
+      - file_name VARCHAR(512),
+      - file_path VARCHAR(1024),
+      - parsed_file_path VARCHAR(1024),
+      - company_full_name VARCHAR(255),
+      - company_short_name VARCHAR(255),
+      - year VARCHAR(16),
+      - period_type VARCHAR(32),
+      - date_type INT,
+      - indicator_name VARCHAR(255),
+      - indicator_raw VARCHAR(512),
+      - indicator_value VARCHAR(255),
+      - fixed_value VARCHAR(255),
+      - indicator_unit VARCHAR(64),
+      - indicator_value_position TEXT,
+      - indicator_value_page_size TEXT,
+      - indicator_value_offset TEXT,
+      - indicator_value_page_number TEXT,
+      - knowledge_base_name VARCHAR(255),
+      - knowledge_base_id BIGINT,
+      - status INT DEFAULT 0,
+      - adopt INT DEFAULT 0,
+      - modified_by VARCHAR(64),
+      - PRIMARY KEY (id),
+      - KEY idx_kb (knowledge_base_id)
+      table_schema: ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  consolidated_income:
+    schema:
+      column_schema:
+      - id BIGINT NOT NULL AUTO_INCREMENT,
+      - file_id BIGINT,
+      - file_name VARCHAR(512),
+      - file_path VARCHAR(1024),
+      - parsed_file_path VARCHAR(1024),
+      - company_full_name VARCHAR(255),
+      - company_short_name VARCHAR(255),
+      - year VARCHAR(16),
+      - period_type VARCHAR(32),
+      - date_type INT,
+      - indicator_name VARCHAR(255),
+      - indicator_raw VARCHAR(512),
+      - indicator_value VARCHAR(255),
+      - fixed_value VARCHAR(255),
+      - indicator_unit VARCHAR(64),
+      - indicator_value_position TEXT,
+      - indicator_value_page_size TEXT,
+      - indicator_value_offset TEXT,
+      - indicator_value_page_number TEXT,
+      - knowledge_base_name VARCHAR(255),
+      - knowledge_base_id BIGINT,
+      - status INT DEFAULT 0,
+      - adopt INT DEFAULT 0,
+      - modified_by VARCHAR(64),
+      - PRIMARY KEY (id),
+      - KEY idx_kb (knowledge_base_id)
+      table_schema: ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  consolidated_cash_flow:
+    schema:
+      column_schema:
+      - id BIGINT NOT NULL AUTO_INCREMENT,
+      - file_id BIGINT,
+      - file_name VARCHAR(512),
+      - file_path VARCHAR(1024),
+      - parsed_file_path VARCHAR(1024),
+      - company_full_name VARCHAR(255),
+      - company_short_name VARCHAR(255),
+      - year VARCHAR(16),
+      - period_type VARCHAR(32),
+      - date_type INT,
+      - indicator_name VARCHAR(255),
+      - indicator_raw VARCHAR(512),
+      - indicator_value VARCHAR(255),
+      - fixed_value VARCHAR(255),
+      - indicator_unit VARCHAR(64),
+      - indicator_value_position TEXT,
+      - indicator_value_page_size TEXT,
+      - indicator_value_offset TEXT,
+      - indicator_value_page_number TEXT,
+      - knowledge_base_name VARCHAR(255),
+      - knowledge_base_id BIGINT,
+      - status INT DEFAULT 0,
+      - adopt INT DEFAULT 0,
+      - modified_by VARCHAR(64),
+      - PRIMARY KEY (id),
+      - KEY idx_kb (knowledge_base_id)
+      table_schema: ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+minio:
+  uri: http://${server.host-ip}:19000
+  access-key: "r12minio"
+  secret-key: "${R12_MINIO_SECRET_KEY}"

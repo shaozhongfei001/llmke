@@ -1,0 +1,6 @@
+fastapi==0.109.1
+pydantic==2.10.4
+SQLAlchemy==2.0.29
+uvicorn==0.30.1
+pymysql
+loguru==0.7.3

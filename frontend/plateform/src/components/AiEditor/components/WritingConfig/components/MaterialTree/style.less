@@ -1,0 +1,45 @@
+.material-tree {
+  .ant-tree-list-scrollbar-thumb {
+    background-color: #c5c2c2 !important;
+    width: 4px !important;
+  }
+  .ant-tree-list-holder-inner {
+    .ant-tree-treenode {
+      width: 100%;
+      padding: 4px 16px;
+      margin-bottom: 0;
+      overflow: hidden;
+      .del-btn-wrap {
+        visibility: hidden;
+      }
+      &:hover {
+        background-color: #f0f3fa;
+        .del-btn-wrap {
+          visibility: visible;
+        }
+      }
+      .ant-tree-switcher {
+        &:hover {
+          &::before {
+            background-color: transparent;
+          }
+        }
+        .ant-tree-switcher-icon {
+          cursor: pointer;
+          position: relative;
+          top: 6px;
+          color: #888;
+          font-size: 16px;
+        }
+      }
+      .ant-tree-node-content-wrapper {
+        cursor: default;
+        padding: 0 0 0 4px;
+        width: 100%;
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+  }
+}

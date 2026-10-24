@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>权限配置管理</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #eee;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab.active {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-bottom: none;
+        }
+
+        .tab-content {
+            border: 1px solid #ccc;
+            padding: 15px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .dropdown-tree {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 999;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            width: 100%;;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropdown-tree.hidden {
+            display: none;
+        }
+
+        .dropdown-tree div {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-tree div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .resource-tree-box {
+            height: 400px; /* 和左边角色区一致的高度 */
+            overflow-y: auto; /* 超出自动出现纵向滚动条 */
+            border: 1px solid #ccc; /* 可选，美观边框 */
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .role-item {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .role-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .selected-role {
+            background-color: #d0ebff;
+            font-weight: bold;
+            border-left: 4px solid #3399ff;
+        }
+
+        .search-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+            margin-right: 5%
+        }
+
+        #search-input {
+            width: 300px;
+            padding: 3px;
+            font-size: 14px;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: #409EFF; /* 高亮边框色 */
+        }
+    </style>
+</head>
+<body>
+
+<h2>权限配置管理</h2>
+
+<div class="tabs">
+    <div class="tab active" data-tab="interface-resource">接口与资源分组</div>
+    <div class="tab" data-tab="role-resource">角色与资源权限</div>
+</div>
+
+<!-- Tab 1: 接口 ↔️ 资源 -->
+<div id="interface-resource" class="tab-content active">
+    <h3>接口 ↔️ 资源权限</h3>
+    <div class="search-wrapper">
+        <label for="search-input">🔍</label>
+        <input type="text" id="search-input" oninput="handleSearchInput(this.value)" placeholder="请输入接口路径"
+        /></div>
+    <table>
+        <thead>
+        <tr>
+            <th>接口id</th>
+            <th>接口路径</th>
+            <th>请求方式</th>
+            <th>应用名称</th>
+            <th>资源分组</th>
+        </tr>
+        </thead>
+        <tbody id="interface-table-body">
+        <!-- 动态生成 -->
+        </tbody>
+    </table>
+
+    <div style="margin-top:10px;">
+        <button onclick="prevPage()">上一页</button>
+        <span id="page-info" style="margin: 0 10px;"></span>
+        <button onclick="nextPage()">下一页</button>
+    </div>
+</div>
+
+
+<!-- Tab 2: 角色与资源配置 -->
+<div id="role-resource" class="tab-content">
+    <h3>角色 ↔️ 资源权限</h3>
+    <table>
+        <thead>
+        <tr>
+            <div style="display: flex;">
+                <div style="width: 200px;">
+                    <ul id="role-list">
+                        <!-- 动态加载角色列表 -->
+                    </ul>
+                </div>
+
+                <!-- 右边资源树 -->
+                <div class="resource-tree-box" style="width: 100%; margin-left: 20px;">
+                    <div id="resource-tree"></div>
+                </div>
+            </div>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<script>
+    // 示例数据
+    let resourceTree = [];
+    let currentRoleId = undefined;
+    let checkedSet = [];
+    let currentPage = 1;
+    const pageSize = 20;
+    let totalPages = 0;
+    let total = 0;
+    let lastSearchParams = {};
+
+
+    // Tab 切换逻辑
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            loadInterfacesAndResources(lastSearchParams);
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadInterfacesAndResources(lastSearchParams);
+        }
+    }
+
+    function renderTreeDropdown(container, treeData, inputEl) {
+        container.innerHTML = '';
+
+        // 改为接收子容器参数
+        function renderNode(node, level = 0, parentEl = container) {
+            const wrapper = document.createElement('div');
+            wrapper.style.paddingLeft = `${level * 16}px`;
+            wrapper.style.cursor = 'pointer';
+
+            let expanded = false;
+            const hasChildren = node.children && node.children.length > 0;
+
+            const toggleIcon = document.createElement('span');
+            toggleIcon.textContent = hasChildren ? '[+]' : '   ';
+            toggleIcon.style.marginRight = '4px';
+
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = node.label;
+
+            wrapper.appendChild(toggleIcon);
+            wrapper.appendChild(labelSpan);
+            parentEl.appendChild(wrapper);
+
+            const childContainer = document.createElement('div');
+            childContainer.style.display = 'none';
+            parentEl.appendChild(childContainer);
+
+            wrapper.onclick = (e) => {
+                e.stopPropagation();
+                if (hasChildren) {
+                    expanded = !expanded;
+                    childContainer.style.display = expanded ? 'block' : 'none';
+                    toggleIcon.textContent = expanded ? '[-]' : '[+]';
+                } else {
+                    inputEl.value = node.label;
+                    node.interfaceId = inputEl.dataset.interfaceId;
+                    container.style.display = 'none';
+
+                    // ✅ 每次选中一个子节点就调用你的保存逻辑
+                    if (typeof onResourceSelected === 'function') {
+                        onResourceSelected(node); // 👈 你可以传 id、label、resourceType 等
+                    }
+                }
+            };
+
+            if (hasChildren) {
+                node.children.forEach(child => renderNode(child, level + 1, childContainer));
+            }
+        }
+
+        treeData.forEach(node => renderNode(node));
+    }
+
+    function onResourceSelected(node) {
+        const resourceId = node.id;
+        const interfaceId = node.interfaceId
+        saveResourceMapping(resourceId, interfaceId)
+    }
+
+    function toggleDropdown(input) {
+        const dropdown = input.parentElement.querySelector('.dropdown-tree');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function renderInterfaceResourceTable(interfaces, resourceTree) {
+        const tbody = document.getElementById('interface-table-body');
+        tbody.innerHTML = '';
+
+        interfaces.forEach(api => {
+            api.resourceType = undefined;
+            const tr = document.createElement('tr');
+            const emoji = api.resourceId ? (api.resourceType === 1 ? '📁 ' : '⚙️ ') : '';
+            const inputHtml = `
+        <div class="dropdown">
+          <input type="text" class="resource-input" data-interface-id="${api.id}" readonly placeholder="未配置" data-resource-id="${api.resourceId}" value="${emoji}${api.resourceName || ''}" onclick="toggleDropdown(this)" />
+          <div class="dropdown-tree hidden"></div>
+        </div>
+      `;
+
+            tr.innerHTML = `
+        <td>${api.id}</td>
+        <td>${api.url}</td>
+        <td>${api.method}</td>
+        <td>${api.appName}</td>
+        <td>${inputHtml}</td>
+      `;
+
+            tbody.appendChild(tr);
+
+            // 初始化树
+            setTimeout(() => {
+                const input = tr.querySelector('input[data-resource-id]');
+                const tree = tr.querySelector('.dropdown-tree');
+                renderTreeDropdown(tree, resourceTree, input);
+            }, 0);
+        });
+
+        document.getElementById('page-info').textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页, ${total} 条`;
+    }
+
+    function get(url, params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return fetch(url + (query ? '?' + query : ''), {
+            method: 'GET'
+        }).then(res => res.json());
+    }
+
+    function post(url, body = {}) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        }).then(res => res.json());
+    }
+
+    function update(url, body = {}) {
+        return fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        }).then(res => res.json());
+    }
+
+    async function saveResourceMapping(resourceId, interfaceId) {
+        try {
+            const response = await post('/auth/resourceInterface', {
+                interfaceId: interfaceId,
+                resourceId: resourceId
+            });
+
+            if (response.success) {
+                alert('保存成功');
+            } else {
+                alert('保存失败: ' + response.message);
+            }
+        } catch (error) {
+            console.error('请求出错', error);
+            alert('请求出错，请检查网络或接口');
+        }
+    }
+
+    async function pageInterfaces(extraParams = {}) {
+        const params = {
+            pageNo: currentPage,
+            pageSize: pageSize,
+            ...extraParams
+        };
+        const data = await get('/auth/interface/listExtInterfaces', params);
+        if (data.success) {
+            const interfaces = data.data.records;
+            totalPages = data.data.pages;
+            total = data.data.total;
+            currentPage = data.data.current;
+            return interfaces;
+        } else {
+            throw new Error('获取接口列表失败');
+        }
+    }
+
+    async function getMenus() {
+        const data = await get('/auth/resource/getAllMenus', {});
+        if (data.success) {
+            const resources = data.data;
+            return convertTree(resources)
+        } else {
+            throw new Error('获取资源列表失败');
+        }
+    }
+
+    async function loadRoles(resourceTree) {
+        const res = await get('/auth/roleInfo/listAll');
+        const ul = document.getElementById('role-list');
+        res.data.forEach(role => {
+            const tr = document.createElement('tr');
+            tr.classList.add('role-item'); // ✅ 加上类名
+            tr.textContent = '🙊 ' + role.name;
+            tr.onclick = () => {
+                // 移除旧的选中样式
+                document.querySelectorAll('.role-item').forEach(item => {
+                    item.classList.remove('selected-role');
+                });
+
+                // 设置新的选中样式
+                tr.classList.add('selected-role');
+                selectRole(role.id)
+            };
+            ul.appendChild(tr);
+        });
+        currentRoleId = res.data[0].id
+        const firstTr = document.querySelector('tr.role-item');
+        if (firstTr) {
+            firstTr.classList.add('selected-role');
+        }
+        await loadRoleResources(resourceTree)
+    }
+
+    async function selectRole(roleId) {
+        currentRoleId = roleId;
+        checkedSet.clear();
+        await fetchCheckedResourceIds(roleId);
+        renderCheckboxTree(document.getElementById('resource-tree'), resourceTree, checkedSet); // 需要带已选状态
+    }
+
+    function convertTree(resources) {
+
+        return resources.map(resource => {
+            const emoji = resource.resourceType === 1 ? '📁 ' : '⚙️ ';
+            const item = {label: emoji + resource.name, id: resource.id, children: []};
+            if (resource.subMenuDTOList && resource.subMenuDTOList.length > 0) {
+                item.children = convertTree(resource.subMenuDTOList);
+            }
+            return item;
+        });
+    }
+
+    function renderCheckboxTree(container, resourceTree, checkedSet) {
+        container.innerHTML = ''; // 清空旧内容
+
+        function renderNode(node, parentEl, level = 0) {
+            const wrapper = document.createElement('div');
+            wrapper.style.paddingLeft = `${level * 16}px`;
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = node.id;
+            checkbox.checked = checkedSet.has(String(node.id));
+
+            // 勾选/取消时更新 selectedResourceIds
+            checkbox.onchange = () => {
+                if (checkbox.checked) {
+                    checkedSet.add(String(node.id));
+                    addRoleResources(node.id);
+                } else {
+                    checkedSet.delete(String(node.id));
+                    removeRoleResources(node.id);
+                }
+            };
+
+            const label = document.createElement('label');
+            label.textContent = node.label;
+            label.style.marginLeft = '4px';
+
+            wrapper.appendChild(checkbox);
+            wrapper.appendChild(label);
+            parentEl.appendChild(wrapper);
+
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => renderNode(child, parentEl, level + 1));
+            }
+        }
+
+        resourceTree.forEach(rootNode => renderNode(rootNode, container));
+    }
+
+    async function loadRoleResources(resourceTree) {
+        const container = document.getElementById('resource-tree');
+        await fetchCheckedResourceIds(currentRoleId); // 角色已有的资源 ID 列表
+        renderCheckboxTree(container, resourceTree, checkedSet);
+    }
+
+    async function fetchCheckedResourceIds(roleId) {
+        const response = await get('/auth/roleResource', {roleId: roleId});
+        if (response.success) {
+            checkedSet = new Set(response.data.map(String)); // 确保是字符串 Set
+        } else {
+            console.error("获取资源失败");
+            checkedSet = new Set();
+        }
+    }
+
+    async function loadInterfacesAndResources(extraParams = {}) {
+        const interfaces = await pageInterfaces(extraParams);
+        renderInterfaceResourceTable(interfaces, resourceTree); // 你传入了接口
+    }
+
+    async function addRoleResources(selectedResourceId) {
+        const response = await post("/auth/roleResource", {
+            roleId: currentRoleId,
+            resourceIds: [selectedResourceId]
+        })
+        response.errorMsg = undefined;
+        if (response.success) {
+            alert('保存成功');
+        } else {
+            alert('保存失败: ' + response.errorMsg);
+        }
+    }
+
+    async function removeRoleResources(selectedResourceId) {
+        const response = await update("/auth/roleResource", {
+            roleId: currentRoleId,
+            resourceIds: [selectedResourceId]
+        })
+        response.errorMsg = undefined;
+        if (response.success) {
+            alert('保存成功');
+        } else {
+            alert('保存失败: ' + response.errorMsg);
+        }
+    }
+
+
+    function handleSearchInput(searchText) {
+        lastSearchParams = { fuzzy: searchText };
+        loadInterfacesAndResources({fuzzy: searchText})
+    }
+
+    // 页面加载时调用后端接口
+    window.onload = async function () {
+        try {
+            resourceTree = await getMenus();
+            await loadInterfacesAndResources();
+            await loadRoles(resourceTree);
+        } catch (e) {
+            console.error("加载接口失败", e);
+            alert("加载接口失败，请检查接口是否可用");
+        }
+    };
+</script>
+
+</body>
+</html>

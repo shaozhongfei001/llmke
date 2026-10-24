@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.FolderInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.FolderInfoDO">
+        <id column="id" property="id"/>
+        <id column="name" property="name"/>
+        <id column="kb_id" property="kbId"/>
+        <id column="type" property="type"/>
+        <id column="parent_id" property="parentId"/>
+        <id column="folder_label" property="folderLabel"/>
+        <id column="status" property="status"/>
+        <id column="gmt_create" property="gmtCreate"/>
+        <id column="gmt_modified" property="gmtModified"/>
+        <id column="create_by" property="createBy"/>
+        <id column="update_by" property="updateBy"/>
+        <id column="full_path" property="fullPath"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,name,kb_id,type,parent_id,folder_label,status,gmt_create,gmt_modified,create_by,update_by,full_path
+    </sql>
+    <select id="findParentIdsById" resultType="com.gientech.ragindexservice.domain.model.FolderInfoDO"
+            parameterType="java.lang.Long">
+        WITH RECURSIVE folders AS (SELECT id, parent_id, kb_id
+                                   FROM folder_info
+                                   WHERE id = #{folderId}
+
+                                   UNION
+                                   SELECT t1.id, t1.parent_id, t1.kb_id
+                                   FROM folder_info t1
+                                            inner join folders t2 on t1.id = t2.parent_id)
+        select id, kb_id
+        from folders;
+    </select>
+
+    <select id="findSubFolderById" resultType="com.gientech.ragindexservice.domain.model.FolderInfoDO"
+            parameterType="java.lang.Long">
+        WITH RECURSIVE folders AS (SELECT id, parent_id, kb_id
+                                   FROM folder_info
+                                   WHERE id = #{folderId}
+
+                                   UNION
+                                   SELECT t1.id, t1.parent_id, t1.kb_id
+                                   FROM folder_info t1
+                                            INNER JOIN folders t2 on t1.parent_id = t2.id),
+                       default_folder AS (
+                           select id, folder_id as parent_id, kb_id
+                           from knowledge_base_list
+                           where id = #{folderId} and status > 0
+                             AND parse_type = 5
+                       )
+        SELECT id, parent_id, kb_id
+        FROM folders
+        UNION
+        SELECT id, parent_id, kb_id
+        FROM default_folder
+        UNION
+        SELECT t1.id, t1.folder_id AS parent_id, t1.kb_id
+        FROM knowledge_base_list t1
+                 RIGHT JOIN folders t2 ON t2.id = t1.folder_id
+        WHERE status > 0
+          AND parse_type = 5
+          AND t1.folder_id IS NOT NULL
+    </select>
+    <select id="recursiveFolderByKb" resultType="com.gientech.ragindexservice.domain.model.FolderInfoDO">
+        WITH RECURSIVE folder_cte AS (SELECT id, parent_id, name
+        FROM folder_info
+        WHERE kb_id = #{kbId}
+        AND type = #{type}
+        AND status = 1
+        AND parent_id IS NULL
+
+        UNION
+
+        SELECT f.id, f.parent_id, f.name
+        FROM folder_info f
+        RIGHT JOIN folder_cte cte ON f.parent_id = cte.id
+        WHERE type = #{type}
+        AND status = 1
+        <if test="currentIds!=null and currentIds.size() > 0">
+            AND f.parent_id not in
+            <foreach collection="currentIds" item="cid" separator="," open="(" close=")">
+                #{cid}
+            </foreach>
+        </if>
+        )
+        SELECT DISTINCT id, parent_id, name
+        FROM folder_cte t1
+        <where>
+            <if test="currentIds != null and currentIds.size() > 0">
+                AND t1.id not in
+                <foreach collection="currentIds" item="ci" separator="," open="(" close=")">
+                    #{ci}
+                </foreach>
+            </if>
+
+        </where>
+        <if test="type==4">
+            UNION
+            SELECT DISTINCT id, folder_id, file_name as name
+            FROM knowledge_base_list
+            <where>
+                parse_type = 5 and kb_id = #{kbId} and status > 0
+                <if test="currentFileIds != null and currentFileIds.size() > 0">
+                    AND id not in
+                    <foreach collection="currentFileIds" item="currentFileId" separator="," open="(" close=")">
+                        #{currentFileId}
+                    </foreach>
+                </if>
+
+            </where>
+        </if>
+
+    </select>
+    <select id="findParentIdsByIds" resultType="com.gientech.ragindexservice.domain.model.FolderInfoDO">
+        WITH RECURSIVE folders AS (SELECT id, parent_id, kb_id
+        FROM folder_info
+        WHERE id in
+        <foreach collection="folderIds" item="folderId" separator="," open="(" close=")">
+            #{folderId}
+        </foreach>
+        UNION
+        SELECT t1.id, t1.parent_id, t1.kb_id
+        FROM folder_info t1
+        inner join folders t2 on t1.id = t2.parent_id )
+        select distinct id, kb_id
+        from folders
+        UNION
+        select folder_id ,kb_id
+        FROM knowledge_base_list
+        where folder_id is not null and id in
+        <foreach collection="folderIds" item="folderId" separator="," open="(" close=")">
+            #{folderId}
+        </foreach>
+    </select>
+
+    <update id="transferFolder">
+        UPDATE folder_info
+        SET parent_id=#{parentId}
+        WHERE id = #{id}
+    </update>
+    <update id="transferFolderBatch">
+        UPDATE folder_info
+        SET parent_id=#{parentId}
+        WHERE id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

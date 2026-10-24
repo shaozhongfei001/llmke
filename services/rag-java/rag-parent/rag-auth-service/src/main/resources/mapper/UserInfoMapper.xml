@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragauthservice.domain.mapper.UserInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragauthservice.domain.model.UserInfoDO">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="is_dtl" property="isDtl"/>
+        <result column="user_password" property="userPassword"/>
+        <result column="user_realname" property="userRealname"/>
+        <result column="user_email" property="userEmail"/>
+        <result column="url" property="url"/>
+        <result column="user_phone" property="userPhone"/>
+        <result column="status" property="status"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="miss_num" property="missNum"/>
+        <result column="password_updated" property="passwordUpdated"/>
+        <result column="ip" property="ip"/>
+        <result column="online_time" property="onlineTime"/>
+        <result column="organization_id" property="organizationId"/>
+        <result column="emp_no" property="empNo"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="app_key" property="appKey"/>
+        <result column="resign_date" property="resignDate"/>
+        <result column="feature" property="feature"/>
+        <result column="system_source" property="systemSource"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , user_name, gmt_create, gmt_modified, create_by, update_by, is_dtl, user_password, user_realname, user_email, url, user_phone, status, expire_time, miss_num, password_updated, ip, online_time, organization_id, emp_no, app_key, resign_date
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO user_info (
+        user_name,gmt_create,gmt_modified,create_by,update_by,user_password,
+        user_realname,user_email,url,user_phone,expire_time,miss_num,password_updated,
+        ip,online_time,organization_id,emp_no,dept_id,dept_name,app_key,resign_date,system_source
+        ) VALUES
+        <foreach collection="list" item="it" separator=",">(
+            #{it.userName},#{it.gmtCreate},#{it.gmtModified},#{it.createBy},#{it.updateBy},#{it.userPassword},
+            #{it.userRealname},#{it.userEmail},#{it.url},#{it.userPhone},#{it.expireTime},#{it.missNum},#{it.passwordUpdated},
+            #{it.ip},#{it.onlineTime},#{it.organizationId},#{it.empNo},#{it.deptId},#{it.deptName},#{it.appKey},#{it.resignDate},#{it.systemSource}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateBatch">
+        UPDATE user_info
+        <set>
+            <if test="deptId!=null">
+                dept_id = #{deptId},
+            </if>
+            <if test="deptName !=null and deptName != ''">
+                dept_name = #{deptName},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            resign_date = NOW()
+        </set>
+        WHERE id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+    <update id="updateBatchUserFeature">
+        UPDATE user_info
+        SET feature = #{feature}
+        WHERE id in
+        <foreach collection="userIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <select id="searchUserList" resultType="com.gientech.ragauthservice.domain.entity.UserInfoExt">
+        SELECT
+        user_id user_id,
+        any_value(user_name) user_name,
+        any_value(user_realname) user_realname,
+        any_value(dept_name) dept_name,
+        any_value(gmt_create) gmt_create,
+        any_value(status) status,
+        any_value(user_email) user_email,
+        GROUP_CONCAT(role_name) role_names
+        FROM (
+        SELECT
+        ui.id as user_id,
+        ui.user_name as user_name,
+        ui.user_realname as user_realname,
+        dept.name as dept_name,
+        ui.gmt_create as gmt_create,
+        CASE ui.status when 0 then '禁用' when 1 then '启用' when -2 then '离职' else '' end as status,
+        ui.user_email as user_email,
+        ur.role_id as role_id,
+        ri.name as role_name
+        FROM
+        user_info ui
+        left join user_role ur on ui.id = ur.user_id and ui.is_dtl=0
+        left join role_info ri on ri.id = ur.role_id and ri.is_dtl=0
+        left join department_info dept on dept.id = CAST(ui.dept_id AS SIGNED) and dept.status=1
+        WHERE
+        ui.is_dtl = 0 AND ui.status = 1
+        <!--        <if test="status!=null">-->
+        <!--            and ui.status IN-->
+        <!--            <foreach collection="status" item="it" open="(" close=")" separator=",">-->
+        <!--                #{it}-->
+        <!--            </foreach>-->
+        <!--        </if>-->
+        <!--        <if test="roleIds!=null">-->
+        <!--            and ri.id IN-->
+        <!--            <foreach collection="roleIds" item="it" open="(" close=")" separator=",">-->
+        <!--                #{it}-->
+        <!--            </foreach>-->
+        <!--        </if>-->
+        <if test="deptIds!=null">
+            AND dept.id IN
+            <foreach collection="deptIds" item="it" open="(" close=")" separator=",">
+                #{it}
+            </foreach>
+        </if>
+        ) t GROUP BY t.user_id
+    </select>
+
+    <select id="listByDeptIds" resultType="com.gientech.ragauthservice.domain.entity.UserInfo">
+        SELECT id,user_name,emp_no,dept_id,dept_name,user_email
+        FROM user_info
+        WHERE status != -1 AND dept_id IN
+        <foreach collection="deptIds" item="deptId" open="(" close=")" separator=",">
+            #{deptId}
+        </foreach>
+    </select>
+
+</mapper>

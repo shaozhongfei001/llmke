@@ -1,0 +1,35 @@
+# R12 运行剖面（A-03）
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  application:
+    name: rag-gateway
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 16379
+      password: '${R12_REDIS_PASSWORD}'
+      database: 0
+      timeout: 5000
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:18848
+        namespace: public
+        group: DEFAULT_GROUP
+        register-enabled: true
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+    gateway:
+      routes: []
+server:
+  port: 8088
+auth-filter:
+  admin-expire: '0'
+  no-verify-token: ''
+logging:
+  level:
+    root: INFO

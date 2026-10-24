@@ -1,0 +1,72 @@
+@keyframes fadeOut {
+  from {
+    background: #014ddf;
+  }
+  to {
+    background: #014fdf85;
+  }
+}
+.high-light-text {
+  animation: fadeOut 2s ease forwards;
+}
+
+.selfTimeLine {
+  .ant-timeline-label {
+    .ant-timeline-item-head {
+      inset-inline-start: 59.5px;
+      width: 8px;
+      height: 8px;
+      border: 4px solid transparent;
+      inset-block-start: 30px;
+    }
+    .ant-timeline-item-label {
+      width: 50px;
+      text-align: start;
+      inset-block-start: 23px;
+    }
+    .ant-timeline-item-tail {
+      inset-inline-start: 55px;
+      border-inline-start: 1px dashed #bbbbbb;
+      height: calc(100% - 30px);
+      inset-block-start: 45px;
+    }
+    .ant-timeline-item {
+      padding-bottom: 16px;
+      .ant-timeline-item-content {
+        inset-inline-start: 50px;
+        inset-block-start: 0;
+        width: auto;
+      }
+    }
+  }
+}
+
+.knowledgeBlock {
+  *,
+  :after,
+  :before,
+  ::backdrop {
+    border: none !important;
+  }
+}
+
+#pdfBox {
+  th,
+  td {
+    border: 1px solid #e5e7eb !important;
+    tbody tr:first-child {
+      background-color: #f0f0f0;
+    }
+  }
+  thead tr:first-child {
+    background-color: #f0f0f0;
+  }
+}
+
+#pdfBox {
+  .tableMd {
+    th {
+      min-width: 80px;
+    }
+  }
+}

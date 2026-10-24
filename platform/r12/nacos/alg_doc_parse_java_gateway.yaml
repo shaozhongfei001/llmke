@@ -1,0 +1,4 @@
+# R12 解析服务私有 java-gateway 副本：save_to_minio / 异步回调用
+server:
+  host: 127.0.0.1
+  port: 8088

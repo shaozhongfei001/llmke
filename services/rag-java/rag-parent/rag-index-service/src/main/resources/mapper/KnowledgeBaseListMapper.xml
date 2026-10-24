@@ -1,0 +1,1221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragindexservice.domain.mapper.KnowledgeBaseListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">
+        <id column="id" property="id"/>
+        <result column="kb_id" property="kbId"/>
+        <result column="file_id" property="fileId"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_path" property="filePath"/>
+        <result column="full_text_path" property="fullTextPath"/>
+        <result column="status" property="status"/>
+        <result column="is_enable" property="isEnable"/>
+        <result column="create_by" property="createBy"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="modify_by" property="modifyBy"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="parsed_file_path" property="parsedFilePath"/>
+        <result column="parse_type" property="parseType"/>
+        <result column="aq_count" property="aqCount"/>
+        <result column="faq_extract_status" property="faqExtractStatus"/>
+        <result column="graph_parse_status" property="graphParseStatus"/>
+        <result column="revise_date" property="reviseDate"/>
+        <result column="parent_file_name" property="parentFileName"/>
+        <result column="version" property="version"/>
+        <result column="converted_file_path" property="convertedFilePath"/>
+        <result column="folder_id" property="folderId"/>
+        <result column="source_url" property="sourceUrl"/>
+        <result column="uid" property="uid"/>
+        <result column="temp_status" property="tempStatus"/>
+        <result column="chunking" property="chunking"/>
+        <result column="group_id" property="groupId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, kb_id, file_id, file_name, file_size, file_path,full_text_path, status, chunking, is_enable, create_by, gmt_create, modify_by, gmt_modified, parsed_file_path,parse_type,aq_count,revise_date,parent_file_name,version,converted_file_path,folder_id,source_url,uid,temp_status,chunking,group_id,chunk_type
+    </sql>
+
+
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into knowledge_base_list(kb_id, file_id, file_name, file_size, file_path,full_text_path,
+        status,create_by,gmt_create,modify_by,gmt_modified,parsed_file_path,parse_type,faq_extract_status,revise_date
+        ,parent_file_name,version,converted_file_path,folder_id,source_url,uid,temp_status,chunking,group_id,chunk_type)
+        values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.kbId}, #{it.fileId}, #{it.fileName}, #{it.fileSize}, #{it.filePath}, #{it.fullTextPath},
+            #{it.status},#{it.createBy},#{it.gmtCreate},#{it.modifyBy},#{it.gmtModified},#{it.parsedFilePath},
+            #{it.parseType},#{it.faqExtractStatus},#{it.reviseDate},#{it.parentFileName},#{it.version},#{it.convertedFilePath},
+            #{it.folderId},#{it.sourceUrl},#{it.uid},#{it.tempStatus},#{it.chunking},#{it.groupId},#{it.chunkType})
+        </foreach>
+    </insert>
+
+    <update id="updateStatusByFilePaths">
+        update knowledge_base_list
+        <set>
+            status=#{status}
+        </set>
+        <where>
+            status !=0
+            and file_path in
+            <foreach collection="filePaths" open="(" close=")" item="filePath">
+                #{filePath}
+            </foreach>
+        </where>
+    </update>
+    <update id="updateStatusByIds">
+        update knowledge_base_list
+        <set>
+            status=#{status}
+            <if test="pathSetNull">
+                ,converted_file_path=null, parsed_file_path=null
+            </if>
+        </set>
+        <where>
+            status !=0
+            and id in
+            <foreach collection="ids" open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+
+
+    <update id="updateExtractStatusByFilePaths">
+        update knowledge_base_list
+        set faq_extract_status=#{extractStatus}
+        where status !=0
+        and file_path in
+        <foreach collection="filePaths" open="(" close=")" item="filePath">
+            #{filePath}
+        </foreach>
+    </update>
+
+    <update id="updateExtractStatusByIds">
+        update knowledge_base_list
+        set faq_extract_status=#{extractStatus}
+        where status !=0
+        and id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateTempStatusByUid">
+        update knowledge_base_list
+        set temp_status=#{temStatus}
+        where status !=0
+        and uid in
+        <foreach collection="uids" open="(" close=")" item="uid" separator=",">
+            #{uid}
+        </foreach>
+    </update>
+
+    <select id="selectFiles" resultType="java.util.Map">
+        SELECT
+        kb_id kbId,
+        COUNT(1) fileCount,
+        SUM(file_size) fileTotalSize
+        FROM
+        knowledge_base_list
+        WHERE
+        status!=0
+        AND parse_type!=5
+        AND kb_id IN
+        <foreach collection="kbIds" open="(" close=")" item="kbId" separator=",">
+            #{kbId}
+        </foreach>
+        GROUP BY
+        kb_id
+    </select>
+    <select id="findFileMaxVersion" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">
+        SELECT
+        any_value(id) id,
+        any_value(kb_id) kb_id,
+        any_value(file_name) file_name,
+        parent_file_name,
+        any_value (version) version
+        FROM
+        ( SELECT
+        id, kb_id, parent_file_name, file_name, version,REPLACE(version,"V","") v
+        FROM knowledge_base_list
+        WHERE kb_id = #{kbId} and status!=0
+        <if test="fileListType!=null">
+            and parse_type in
+            <if test="fileListType == 1">
+                (1,10)
+            </if>
+            <if test="fileListType == 2">
+                (2,10)
+            </if>
+            <if test="fileListType == 3">
+                (3)
+            </if>
+            <if test="fileListType == 4">
+                (4)
+            </if>
+        </if>
+        <if test="fileListType==null">
+            and parse_type in (1,2,10)
+        </if>
+        ORDER BY v DESC limit 10000
+        ) kbl
+        GROUP BY
+        kbl.parent_file_name
+    </select>
+
+    <select id="parentListCount" resultType="long">
+        SELECT
+        count(1)
+        FROM
+        (
+        SELECT
+        count(1) as t
+        FROM
+        knowledge_base_list
+        WHERE
+        (
+        STATUS != 0
+        <if test="kbId != null">
+            and kb_id = #{kbId}
+        </if>
+        <if test="kbIds != null">
+            and kb_id in
+            <foreach collection="kbIds" item="kbId" close=")" open="(" separator=",">
+                #{kbId}
+            </foreach>
+        </if>
+        <if test="fuzzy!=null and fuzzy!=''">
+            AND (id like concat('%',#{fuzzy},'%') or parent_file_name like concat('%',#{fuzzy},'%') or file_name like
+            concat('%',#{fuzzy},'%') )
+        </if>
+        <if test="status!=null">
+            AND status = #{status}
+        </if>
+        <if test="faqExtractStatus!=null">
+            AND faq_extract_status = #{faqExtractStatus}
+        </if>
+        <if test="fileListType!=null and fileListType==1">
+            AND parse_type IN (1,10)
+        </if>
+        <if test="fileListType!=null and fileListType==2">
+            AND parse_type IN (2,10)
+        </if>
+        <if test="fileListType!=null and fileListType==3">
+            AND parse_type IN (3)
+        </if>
+        )
+        GROUP BY
+        parent_file_name
+        <if test="showType!=null and showType==2">
+            HAVING count(1) > 1
+        </if>
+        <if test="showType!=null and showType==3">
+            HAVING count(1) == 1
+        </if>
+        ) t
+    </select>
+    <select id="parentList" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        any_value ( id ) id,
+        any_value ( kb_id ) kb_id,
+        any_value ( group_id ) group_id,
+        parent_file_name,
+        0 as is_folder,
+        count(1) as count
+        FROM
+        knowledge_base_list
+        WHERE
+        (
+        STATUS != 0
+        <if test="kbId != null">
+            and kb_id = #{kbId}
+        </if>
+        <if test="kbIds != null">
+            and kb_id in
+            <foreach collection="kbIds" item="kbId" close=")" open="(" separator=",">
+                #{kbId}
+            </foreach>
+        </if>
+        <if test="fuzzy!=null and fuzzy!=''">
+            AND (id like concat('%',#{fuzzy},'%') or parent_file_name like concat('%',#{fuzzy},'%') or file_name like
+            concat('%',#{fuzzy},'%') )
+        </if>
+        <if test="status!=null">
+            AND status = #{status}
+        </if>
+        <if test="faqExtractStatus!=null">
+            AND faq_extract_status = #{faqExtractStatus}
+        </if>
+        <if test="fileListType!=null and fileListType==1">
+            AND parse_type IN (1,10)
+        </if>
+        <if test="fileListType!=null and fileListType==2">
+            AND parse_type IN (2,10)
+        </if>
+        <if test="fileListType!=null and fileListType==3">
+            AND parse_type = 3
+        </if>
+        )
+        GROUP BY
+        parent_file_name
+        <if test="showType!=null and showType==2">
+            HAVING count(1) > 1
+        </if>
+        <if test="showType!=null and showType==3">
+            HAVING count(1) = 1
+        </if>
+        ) t
+        ORDER BY t.count desc
+        limit #{offSet},#{pageSize}
+    </select>
+
+    <sql id="Folder_Column_List">
+        null AS id,
+      kb_id,
+      null AS file_name,
+      null AS file_size,
+      null AS file_path,
+      null AS status,
+      null AS parsed_file_path,
+      null AS parse_type,
+      null AS faq_extract_status,
+      null AS graph_parse_status,
+      null AS revise_date,
+      null AS parent_file_name,
+      null AS version,
+      null AS converted_file_path,
+      id AS folder_id,
+      name AS folder_name,
+      null AS source_url,
+      gmt_create,
+      1 AS is_folder,
+      null AS chunking,
+      null AS table_file_paths,
+      null AS image_paths,
+      null AS chunk_type
+    </sql>
+
+
+    <sql id="File_Column_List">
+        id,
+      kb_id,
+      file_name,
+      file_size,
+      file_path,
+      status,
+      parsed_file_path,
+      parse_type,
+      faq_extract_status,
+      graph_parse_status,
+      revise_date,
+      parent_file_name,
+      version,
+      converted_file_path,
+      folder_id,
+      null AS folder_name,
+      source_url,
+      gmt_create,
+      false as is_folder,
+      chunking
+    </sql>
+
+    <sql id="File_Column_List_t1">
+        t1.id,
+      t1.kb_id,
+      file_name,
+      file_size,
+      file_path,
+      t1.status,
+      parsed_file_path,
+      parse_type,
+      faq_extract_status,
+      graph_parse_status,
+      revise_date,
+      parent_file_name,
+      version,
+      converted_file_path,
+      folder_id,
+      null AS folder_name,
+      source_url,
+      t1.gmt_create,
+      0 as is_folder,
+      chunking,
+      table_file_paths AS table_file_paths,
+      image_paths,
+      chunk_type
+    </sql>
+
+    <select id="folderListCount" resultType="java.lang.Integer" parameterType="hashmap">
+        SELECT count(1) FROM (
+        SELECT
+        <include refid="Folder_Column_List"></include>
+        FROM folder_info t4 LEFT JOIN (SELECT id AS privilege_id,target_id FROM user_privilege WHERE is_del =1 AND
+        user_id = #{params.userId} AND
+        biz_type=6 AND permission=0 ) t3 ON t4.id = t3.target_id
+        WHERE
+        t4.status!=-1 AND t3.privilege_id IS NULL
+        <if test="params.folderId==null">
+            AND kb_id=#{params.kbId}
+            AND parent_id IS NULL
+        </if>
+        <if test="params.folderId!=null">
+            AND parent_id=#{params.folderId}
+        </if>
+        <if test="params.parsetypeList!=null">
+            AND type IN
+            <foreach collection="params.parsetypeList" item="parsetype" separator="," close=")" open="(">
+                #{parsetype}
+            </foreach>
+        </if>
+        <if test="params.fuzzy!=null and params.fuzzy!=''">
+            AND name LIKE concat('%',#{params.fuzzy},'%')
+        </if>
+        UNION ALL
+        SELECT
+        <include refid="File_Column_List_t1"></include>
+        FROM
+        knowledge_base_list t1 LEFT JOIN (SELECT id,target_id FROM user_privilege WHERE is_del =1 AND user_id =
+        #{params.userId} AND
+        biz_type = 4 AND permission = 0 ) t2 ON t1.id = t2.target_id
+        WHERE
+        t1.status!=0 AND
+        t2.id IS NULL
+        <choose>
+            <when test="params.fuzzy!=null and params.fuzzy!=''">
+                <if test="params.folderId==null">
+                    AND kb_id = #{params.kbId}
+                </if>
+            </when>
+            <otherwise>
+                <if test="params.folderId==null">
+                    AND kb_id = #{params.kbId}
+                    AND folder_id IS null
+                </if>
+            </otherwise>
+        </choose>
+        <if test="params.folderId!=null">
+            AND folder_id=#{params.folderId}
+        </if>
+        <if test="params.fuzzy!=null and params.fuzzy!=''">
+            AND file_name LIKE concat('%',#{params.fuzzy},'%')
+        </if>
+        <if test="params.parsetypeList!=null">
+            AND parse_type IN
+            <foreach collection="params.parsetypeList" item="parsetype" separator="," close=")" open="(">
+                #{parsetype}
+            </foreach>
+        </if>
+        <if test="params.statusList!=null">
+            AND status in
+            <foreach collection="params.statusList" item="status" separator="," close=")" open="(">
+                #{status}
+            </foreach>
+        </if>
+        <if test="params.faqExtractStatus!=null">
+            AND faq_extract_status = #{params.faqExtractStatus}
+        </if>
+        ) t
+    </select>
+
+    <select id="folderList" resultType="com.gientech.ragindexservice.domain.entity.KbFileExt" parameterType="hashmap">
+        SELECT * FROM (
+        SELECT
+        <include refid="Folder_Column_List"/>
+        FROM folder_info t4 LEFT JOIN (SELECT id as privilege_id,target_id FROM user_privilege WHERE is_del =1 AND
+        user_id
+        = #{params.userId} AND
+        biz_type=6 AND permission=0 ) t3 ON t4.id = t3.target_id
+        WHERE t4.status!=-1 AND t3.privilege_id IS NULL
+        <if test="params.folderId==null">
+            AND kb_id=#{params.kbId}
+            AND parent_id IS NULL
+        </if>
+        <if test="params.folderId!=null">
+            AND parent_id=#{params.folderId}
+        </if>
+        <if test="params.parsetypeList!=null">
+            AND type IN
+            <foreach collection="params.parsetypeList" item="parsetype" separator="," close=")" open="(">
+                #{parsetype}
+            </foreach>
+        </if>
+        <if test="params.fuzzy!=null and params.fuzzy!=''">
+            AND name LIKE concat('%',#{params.fuzzy},'%')
+        </if>
+        UNION ALL
+        SELECT
+        <include refid="File_Column_List_t1"></include>
+        FROM
+        knowledge_base_list t1 LEFT JOIN (SELECT id,target_id FROM user_privilege WHERE is_del =1 AND user_id =
+        #{params.userId} AND
+        biz_type=4 AND permission=0 ) t2 ON t1.id = t2.target_id
+        WHERE
+        t1.status!=0 AND
+        t2.id IS NULL
+        <choose>
+            <when test="params.fuzzy!=null and params.fuzzy!=''">
+                <if test="params.folderId==null">
+                    AND kb_id = #{params.kbId}
+                </if>
+            </when>
+            <otherwise>
+                <if test="params.folderId==null">
+                    AND kb_id = #{params.kbId}
+                    AND folder_id IS null
+                </if>
+            </otherwise>
+        </choose>
+        <if test="params.folderId!=null">
+            AND folder_id=#{params.folderId}
+        </if>
+        <if test="params.fuzzy!=null and params.fuzzy!=''">
+            AND file_name LIKE concat('%',#{params.fuzzy},'%')
+        </if>
+        <if test="params.parsetypeList!=null">
+            AND parse_type IN
+            <foreach collection="params.parsetypeList" item="parsetype" separator="," close=")" open="(">
+                #{parsetype}
+            </foreach>
+        </if>
+        <if test="params.statusList!=null">
+            AND status in
+            <foreach collection="params.statusList" item="status" separator="," close=")" open="(">
+                #{status}
+            </foreach>
+        </if>
+        <if test="params.faqExtractStatus!=null">
+            AND faq_extract_status = #{params.faqExtractStatus}
+        </if>
+        ) t ORDER BY t.gmt_create DESC, COALESCE(t.id, t.folder_id) DESC limit #{params.offset},#{params.pageSize}
+    </select>
+
+
+    <select id="folderAndFileList" resultType="com.gientech.ragindexservice.domain.entity.KbFileExt"
+            parameterType="com.gientech.ragcommon.index.request.FolderAndFilerReq">
+        (
+        SELECT
+        <include refid="Folder_Column_List"/>
+        FROM folder_info
+        WHERE status=1
+        <!-- 1:文档解析；2:FAQ抽取; 3;知识图谱 4:FAQ管理创建的文件夹或者从FAQ抽取复制的文件夹 -->
+        and type in(4)
+        <if test="params.kbId!=null">
+            AND kb_id=#{params.kbId}
+        </if>
+        <if test="params.folderId==null">
+            AND parent_id IS NULL
+        </if>
+        <if test="params.folderId!=null">
+            AND parent_id=#{params.folderId}
+        </if>
+        <if test="params.fuzzy!=null and params.fuzzy!=''">
+            AND name LIKE concat('%',#{params.fuzzy},'%')
+        </if>
+        order by gmt_create desc
+        )
+        UNION ALL
+        (
+        SELECT
+        <include refid="File_Column_List_t1"></include>
+        FROM
+        knowledge_base_list t1
+        WHERE
+        status!=0
+        and temp_status=2
+        AND faq_extract_status=3
+        <!-- 1 文件解析；2 FAQ解析 3 图解析；4 文档上传问答; 5 从文件解析复制的文件或者FAQ导入的问答对文件; 10 文件解析&faq抽取 -->
+        AND parse_type in(5)
+        <if test="params.folderId!=null">
+            AND folder_id = #{params.folderId}
+        </if>
+        <if test="params.folderId==null">
+            AND folder_id IS null
+        </if>
+        <if test="params.kbId!=null">
+            AND kb_id = #{params.kbId}
+        </if>
+        <if test="params.fuzzy!=null and params.fuzzy!=''">
+            AND file_name LIKE concat('%',#{params.fuzzy},'%')
+        </if>
+        order by gmt_create desc
+        )
+    </select>
+
+    <sql id="folder_info_column">
+        t1.id,
+      kb_id,
+      NULL AS kb_name,
+      NULL AS file_name,
+      0 AS file_size,
+      NULL AS file_path,
+      NULL AS full_text_path,
+      NULL AS status,
+      NULL AS parsed_file_path,
+      NULL AS parse_type,
+      NULL AS revise_date,
+      NULL AS parent_file_name,
+      NULL AS version,
+      NULL AS converted_file_path,
+      NULL AS folder_id,
+      `name` AS folder_name,
+      NULL AS source_url,
+      gmt_create,
+      true AS is_folder,
+      parent_id,
+      NULL AS chunking,
+      2 AS element_type
+    </sql>
+
+    <sql id="file_info_column">
+        t1.id,
+      kb_id,
+      t2.kb_name,
+      file_name,
+      file_size,
+      file_path,
+      full_text_path,
+      t1.status,
+      parsed_file_path,
+      parse_type,
+      revise_date,
+      parent_file_name,
+      version,
+      converted_file_path,
+      folder_id,
+      NULL AS folder_name,
+      t1.source_url,
+      t1.gmt_create,
+      false AS is_folder,
+      NULL AS parent_id,
+      chunking,
+      3 AS element_type
+    </sql>
+    <sql id="knowledge_base_column">
+        t1.id AS id,
+      t1.id AS kb_id,
+      kb_name,
+      NULL AS file_name,
+      0 AS file_size,
+      NULL AS file_path,
+      NULL AS full_text_path,
+      NULL AS status,
+      NULL AS parsed_file_path,
+      NULL AS parse_type,
+      NULL AS revise_date,
+      NULL AS parent_file_name,
+      NULL AS version,
+      NULL AS converted_file_path,
+      NULL AS folder_id,
+      NULL AS folder_name,
+      NULL AS source_url,
+      gmt_create,
+      false AS is_folder,
+      NULL AS parent_id,
+      NULL AS chunking,
+      1 AS element_type
+    </sql>
+
+    <insert id="insertTmpIds">
+        INSERT INTO tmp_ids VALUES
+        <foreach collection="kbIds" item="kbId" separator=",">(#{kbId})</foreach>
+    </insert>
+
+    <sql id="selectKbFilesByCondition">
+        SELECT
+        <include refid="file_info_column"/>
+        FROM
+        knowledge_base_list t1 LEFT JOIN knowledge_base t2 ON t1.kb_id = t2.id
+        <where>
+            <if test="userName!= null and userName!= ''">
+                t1.create_by = #{userName}
+            </if>
+            <choose>
+                <when test="status == null">
+                    AND t1.`status` > 0
+                </when>
+                <otherwise>
+                    AND t1.`status` = #{status}
+                </otherwise>
+            </choose>
+
+            <choose>
+                <when test="folderIds != null and folderIds.size() > 0">
+                    <if test="folderIds != null and folderIds.size() > 0">
+                        AND t1.folder_id IN
+                        <foreach collection="folderIds" item="folderId" open="(" close=")" separator=",">
+                            #{folderId}
+                        </foreach>
+
+                        <if test="kbName!=null and kbName!=''">
+                            OR t2.kb_name = #{kbName}
+                        </if>
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="kbName!=null and kbName!=''">
+                        AND t2.kb_name = #{kbName}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+    </sql>
+
+    <sql id="selectKbFilesByConditionByTimeAndStatus">
+        SELECT
+        <include refid="file_info_column"/>
+        FROM
+        knowledge_base_list t1 LEFT JOIN knowledge_base t2 ON t1.kb_id = t2.id
+        <where>
+            <if test="userName!= null and userName!= ''">
+                t1.create_by = #{userName}
+            </if>
+            <choose>
+                <when test="statusArray == null or statusArray.length == 0">
+                    AND t1.`status` > 0
+                </when>
+                <otherwise>
+                    AND t1.`status` in
+                    <foreach collection="statusArray" item="status" open="(" close=")" separator=",">
+                        #{status}
+                    </foreach>
+                </otherwise>
+            </choose>
+            <if test="startTime!=null and endTime!=null">
+                <![CDATA[ t1.gmt_create >= #{startTime} AND t1.gmt_create < #{endTime} ]]>
+            </if>
+
+            <choose>
+                <when test="folderIds != null and folderIds.size() > 0">
+                    <if test="folderIds != null and folderIds.size() > 0">
+                        AND t1.folder_id IN
+                        <foreach collection="folderIds" item="folderId" open="(" close=")" separator=",">
+                            #{folderId}
+                        </foreach>
+
+                        <if test="kbName!=null and kbName!=''">
+                            OR t2.kb_name = #{kbName}
+                        </if>
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="kbName!=null and kbName!=''">
+                        AND t2.kb_name = #{kbName}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+    </sql>
+
+    <select id="fileList" resultType="com.gientech.ragindexservice.domain.entity.KbFileExt">
+        <choose>
+            <when test="kbIds !=null and kbIds.size() > 0">
+                WITH tmp_ids AS (
+                SELECT #{kbIds[0]} AS id
+                <foreach collection="kbIds" item="id" index="index" open=" UNION ALL SELECT "
+                         separator=" UNION ALL SELECT ">
+                    #{id}
+                </foreach>
+                )
+                SELECT
+                <include refid="file_info_column"/>
+                FROM tmp_ids t3 LEFT JOIN knowledge_base t2 ON t3.id = t2.id
+                INNER JOIN knowledge_base_list t1 ON t3.id = t1.kb_id
+                <where>
+                    <if test="userName!= null and userName!= ''">
+                        t1.create_by = #{userName}
+                    </if>
+                    <choose>
+                        <when test="status == null">
+                            AND t1.`status` > 0
+                        </when>
+                        <otherwise>
+                            AND t1.`status` = #{status}
+                        </otherwise>
+                    </choose>
+                </where>
+                <if test="(folderIds != null and folderIds.size() > 0) or (kbName!=null and kbName!='')">
+                    UNION
+                    <include refid="selectKbFilesByCondition"/>
+                </if>
+                UNION
+                SELECT
+                <include refid="folder_info_column"/>
+                FROM
+                tmp_ids t2 INNER JOIN folder_info t1
+                ON t1.kb_id = t2.id AND t1.status!=0
+                UNION
+                SELECT
+                <include refid="knowledge_base_column"/>
+                FROM
+                tmp_ids t2 INNER JOIN knowledge_base t1
+                ON t2.id = t1.id AND t1.status!=0
+            </when>
+            <otherwise>
+                <include refid="selectKbFilesByCondition"/>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="onlyFileList" resultType="com.gientech.ragindexservice.domain.entity.KbFileExt">
+        <choose>
+            <when test="kbIds !=null and kbIds.size() > 0">
+                WITH tmp_ids AS (
+                SELECT #{kbIds[0]} AS id
+                <foreach collection="kbIds" item="id" index="index" open=" UNION ALL SELECT "
+                         separator=" UNION ALL SELECT ">
+                    #{id}
+                </foreach>
+                )
+                SELECT DISTINCT
+                <include refid="file_info_column"/>
+                FROM tmp_ids t3 LEFT JOIN knowledge_base t2 ON t3.id = t2.id
+                INNER JOIN knowledge_base_list t1 ON t3.id = t1.kb_id
+                <where>
+                    <if test="userName!= null and userName!= ''">
+                        t1.create_by = #{userName}
+                    </if>
+                    <choose>
+                        <when test="statusArray == null or statusArray.length == 0">
+                            AND t1.`status` > 0
+                        </when>
+                        <otherwise>
+                            AND t1.`status` in
+                            <foreach collection="statusArray" item="status" open="(" close=")" separator=",">
+                                #{status}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </where>
+                <if test="(folderIds != null and folderIds.size() > 0) or (kbName!=null and kbName!='')">
+                    UNION
+                    <include refid="selectKbFilesByConditionByTimeAndStatus"/>
+                </if>
+            </when>
+            <otherwise>
+                <include refid="selectKbFilesByConditionByTimeAndStatus"/>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="onlyFileListByTime" resultType="com.gientech.ragindexservice.domain.entity.KbFileExt">
+        <choose>
+            <when test="kbIds !=null and kbIds.size() > 0">
+                WITH tmp_ids AS (
+                SELECT #{kbIds[0]} AS id
+                <foreach collection="kbIds" item="id" index="index" open=" UNION ALL SELECT "
+                         separator=" UNION ALL SELECT ">
+                    #{id}
+                </foreach>
+                )
+                SELECT DISTINCT
+                <include refid="file_info_column"/>
+                FROM tmp_ids t3 LEFT JOIN knowledge_base t2 ON t3.id = t2.id
+                INNER JOIN knowledge_base_list t1 ON t3.id = t1.kb_id
+                <where>
+                    <if test="userName!= null and userName!= ''">
+                        t1.create_by = #{userName}
+                    </if>
+                    <choose>
+                        <when test="statusArray == null or statusArray.length == 0">
+                            AND t1.`status` > 0
+                        </when>
+                        <otherwise>
+                            AND t1.`status` in
+                            <foreach collection="statusArray" item="status" open="(" close=")" separator=",">
+                                #{status}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                    <if test="startTime!=null and endTime!=null">
+                        <![CDATA[ AND t1.gmt_create >= #{startTime} AND t1.gmt_create < #{endTime} ]]>
+                    </if>
+                </where>
+                <if test="(folderIds != null and folderIds.size() > 0) or (kbName!=null and kbName!='')">
+                    UNION
+                    <include refid="selectKbFilesByConditionByTimeAndStatus"/>
+                </if>
+            </when>
+            <otherwise>
+                <include refid="selectKbFilesByConditionByTimeAndStatus"/>
+            </otherwise>
+        </choose>
+    </select>
+    <sql id="selectPermissionByDeptIdInGroup">
+        (WITH RECURSIVE cte AS (SELECT c.id,
+                                       c.parent_id
+                                FROM department_info AS c
+                                WHERE c.id = #{deptId}
+
+                                UNION ALL
+
+                                SELECT p.id,
+                                       p.parent_id
+                                FROM department_info AS p
+                                         INNER JOIN cte
+                                                    ON p.id = cte.parent_id)
+         SELECT gp.target_id as target_id, gp.permission AS permission
+         FROM cte
+                  LEFT JOIN user_group ug ON cte.id = ug.dept_id
+                  LEFT JOIN group_privilege gp ON ug.group_id = gp.group_id
+         WHERE gp.biz_type = 4
+           AND permission > 0)
+    </sql>
+    <sql id="selectFolderPermissionByDeptIdInGroup">
+        (WITH RECURSIVE cte AS (SELECT c.id,
+                                       c.parent_id
+                                FROM department_info AS c
+                                WHERE c.id = #{deptId}
+
+                                UNION ALL
+
+                                SELECT p.id,
+                                       p.parent_id
+                                FROM department_info AS p
+                                         INNER JOIN cte
+                                                    ON p.id = cte.parent_id)
+         SELECT gp.target_id as target_id, gp.permission AS permission
+         FROM cte
+                  LEFT JOIN user_group ug ON cte.id = ug.dept_id
+                  LEFT JOIN group_privilege gp ON ug.group_id = gp.group_id
+         WHERE gp.biz_type = 6
+           AND permission > 0)
+    </sql>
+    <sql id="selectNoPermissionByDeptIdInGroup">
+        (WITH RECURSIVE cte AS (SELECT c.id,
+                                       c.parent_id
+                                FROM department_info AS c
+                                WHERE c.id = #{deptId}
+
+                                UNION ALL
+
+                                SELECT p.id,
+                                       p.parent_id
+                                FROM department_info AS p
+                                         INNER JOIN cte
+                                                    ON p.id = cte.parent_id)
+         SELECT gp.target_id as target_id, gp.permission AS permission
+         FROM cte
+                  LEFT JOIN user_group ug ON cte.id = ug.dept_id
+                  LEFT JOIN group_privilege gp ON ug.group_id = gp.group_id
+         WHERE gp.biz_type = 4
+           AND permission = 0)
+    </sql>
+    <!--    <select id="queryListWithPermission" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">-->
+    <!--        SELECT t3.id, t3.kb_id, t3.file_name, t3.folder_id, NULL AS folder_name, FALSE AS is_folder, t2.permission-->
+    <!--        FROM (SELECT target_id, MAX(permission) as permission-->
+    <!--        FROM (-->
+    <!--        <if test="deptId!=null and deptId!=''">-->
+    <!--            SELECT dept_privilege.target_id, permission-->
+    <!--            FROM dept_privilege-->
+    <!--            WHERE dept_id = #{deptId}-->
+    <!--            AND biz_type = 4-->
+    <!--            AND permission > 0-->
+    <!--            UNION-->
+    <!--        </if>-->
+    <!--        SELECT gp.target_id, permission-->
+    <!--        FROM group_privilege gp-->
+    <!--        LEFT JOIN user_group ug ON gp.group_id = ug.group_id-->
+    <!--        WHERE ug.user_id = #{userId}-->
+    <!--        AND biz_type = 4-->
+    <!--        AND permission > 0-->
+    <!--        UNION-->
+    <!--        <include refid="selectPermissionByDeptIdInGroup"/>-->
+    <!--        UNION-->
+    <!--        SELECT user_privilege.target_id, permission-->
+    <!--        FROM user_privilege-->
+    <!--        WHERE user_id = #{userId}-->
+    <!--        AND biz_type = 4-->
+    <!--        AND permission > 0-->
+    <!--        UNION-->
+    <!--        SELECT user_privilege.target_id,permission-->
+    <!--        FROM user_privilege-->
+    <!--        WHERE user_id = -1 AND biz_type = 4-->
+    <!--        AND permission > 0 ) t1-->
+    <!--        GROUP BY target_id) t2-->
+    <!--        LEFT JOIN knowledge_base_list t3 ON t2.target_id = t3.id-->
+
+    <!--        UNION-->
+
+    <!--        SELECT NULL AS id, t3.kb_id, NULL AS file_name, id AS folder_id, name AS folder_name, TRUE AS is_folder, t2.permission-->
+    <!--        FROM (SELECT target_id, MAX(permission) as permission-->
+    <!--        FROM (-->
+    <!--        <if test="deptId!=null and deptId!=''">-->
+    <!--            SELECT dept_privilege.target_id, permission-->
+    <!--            FROM dept_privilege-->
+    <!--            WHERE dept_id = #{deptId}-->
+    <!--            AND biz_type = 5-->
+    <!--            AND permission > 0-->
+    <!--            UNION-->
+    <!--        </if>-->
+    <!--        SELECT gp.target_id, permission-->
+    <!--        FROM group_privilege gp-->
+    <!--        LEFT JOIN user_group ug ON gp.group_id = ug.group_id-->
+    <!--        WHERE ug.user_id = #{userId}-->
+    <!--        AND biz_type = 5-->
+    <!--        AND permission > 0-->
+    <!--        UNION-->
+    <!--        <include refid="selectFolderPermissionByDeptIdInGroup"/>-->
+    <!--        UNION-->
+    <!--        SELECT user_privilege.target_id, permission-->
+    <!--        FROM user_privilege-->
+    <!--        WHERE user_id = #{userId}-->
+    <!--        AND biz_type = 5-->
+    <!--        AND permission > 0-->
+    <!--        UNION-->
+    <!--        SELECT user_privilege.target_id,permission-->
+    <!--        FROM user_privilege-->
+    <!--        WHERE user_id = -1 AND biz_type = 5-->
+    <!--        AND permission > 0 ) t1-->
+    <!--        GROUP BY target_id) t2-->
+    <!--        LEFT JOIN folder_info t3 ON t2.target_id = t3.id-->
+
+    <!--    </select>-->
+    <select id="queryListWithPermission" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">
+        WITH RECURSIVE
+        dept_tree AS (SELECT id, parent_id
+        FROM department_info
+        WHERE id = #{deptId}
+
+        UNION ALL
+
+        SELECT d.id, d.parent_id
+        FROM department_info d
+        JOIN dept_tree dt ON d.id = dt.parent_id),
+        all_permissions AS (SELECT target_id, permission, biz_type
+        FROM dept_privilege
+        <where>
+            is_del = 1
+            AND dept_id = #{deptId}
+            AND permission > 0
+        </where>
+
+        UNION
+
+        SELECT gp.target_id, gp.permission, gp.biz_type
+        FROM group_privilege gp
+        JOIN user_group ug ON gp.group_id = ug.group_id
+        WHERE gp.is_del = 1
+        AND ug.user_id = #{userId}
+        AND gp.permission > 0
+
+        UNION
+
+        SELECT gp.target_id, gp.permission, gp.biz_type
+        FROM group_privilege gp
+        JOIN user_group ug ON gp.group_id = ug.group_id
+        JOIN dept_tree dt ON dt.id = ug.dept_id
+        WHERE gp.is_del = 1
+        AND gp.permission > 0
+
+        UNION
+
+        SELECT target_id, permission, biz_type
+        FROM user_privilege
+        WHERE is_del = 1
+        AND user_id = #{userId}
+        AND permission > 0
+        UNION
+
+        SELECT target_id, permission, biz_type
+        FROM user_privilege
+        WHERE is_del = 1
+        AND user_id = -1
+        AND permission > 0
+        )
+        ,
+        max_permissions AS (SELECT target_id, biz_type, MAX(permission) AS permission
+        FROM all_permissions
+        <where>
+            <if test="bizTypes!=null and bizTypes.size()>0">
+                AND biz_type in
+                <foreach collection="bizTypes" item="bizType" open="(" close=")" separator=",">
+                    #{bizType}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY target_id, biz_type)
+        SELECT kb.id,
+        kb.kb_id,
+        kb.file_name,
+        kb.folder_id,
+        NULL AS folder_name,
+        0 AS is_folder,
+        mp.permission
+        FROM max_permissions mp
+        JOIN knowledge_base_list kb ON mp.target_id = kb.id
+        WHERE
+        <if test="bizTypes==null">
+            mp.biz_type = 4 AND
+        </if>
+        kb.kb_id = #{kbId} AND kb.parse_type = #{parseType}
+        AND kb.status > 0
+
+        UNION
+
+        SELECT NULL AS id,
+        f.kb_id,
+        NULL AS file_name,
+        f.id AS folder_id,
+        f.name AS folder_name,
+        1 AS is_folder,
+        mp.permission
+        FROM max_permissions mp
+        JOIN folder_info f ON mp.target_id = f.id
+        WHERE
+        <if test="bizTypes==null">
+            mp.biz_type = 6 AND
+        </if>
+        f.kb_id = #{kbId} AND f.type = #{folderType}
+        AND f.status = 1
+
+    </select>
+
+    <select id="findFileGroup" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">
+        SELECT
+        any_value ( id ) id,
+        any_value ( kb_id ) kb_id,
+        any_value ( group_id ) group_id,
+        parent_file_name
+        FROM
+        (
+        SELECT DISTINCT
+        *
+        FROM
+        knowledge_base_list
+        WHERE
+        (
+        kb_id = #{kbId}
+        and group_id=#{groupId}
+        AND STATUS != 0
+        AND parse_type IN
+        <foreach collection="parseTypes" separator="," open="(" close=")" item="parseType">
+            #{parseType}
+        </foreach>
+        )
+        ORDER BY
+        gmt_create DESC
+        ) t
+        GROUP BY
+        t.parent_file_name
+        HAVING
+        count( 1 ) > 1
+        LIMIT 1
+    </select>
+    <select id="queryNoPermissionFiles" resultType="com.gientech.ragindexservice.domain.model.KnowledgeBaseListDO">
+        select t3.*, t2.permission
+        from (SELECT target_id, MAX(permission) as permission
+        FROM (
+        <if test="deptId!=null and deptId!=''">
+            SELECT dept_privilege.target_id, permission
+            FROM dept_privilege
+            WHERE is_del =1 AND dept_id = #{deptId}
+            AND biz_type = 4
+            AND permission =0
+            UNION
+        </if>
+        SELECT gp.target_id, permission
+        FROM group_privilege gp
+        LEFT JOIN user_group ug ON gp.group_id = ug.group_id
+        WHERE gp.is_del = 1 AND ug.user_id = #{userId}
+        AND biz_type = 4
+        AND permission = 0
+        UNION
+        <include refid="selectNoPermissionByDeptIdInGroup"/>
+        UNION
+        SELECT user_privilege.target_id, permission
+        FROM user_privilege
+        WHERE is_del = 1 AND user_id = #{userId}
+        AND biz_type = 4
+        AND permission = 0) t1
+        GROUP BY target_id) t2
+        left join knowledge_base_list t3 on t2.target_id = t3.id
+    </select>
+    <select id="recursiveByFolderId" resultType="com.gientech.ragindexservice.domain.entity.KnowledgeBaseList"
+            parameterType="java.lang.Long">
+        WITH RECURSIVE folder_cte AS (SELECT id, parent_id
+                                      FROM folder_info
+                                      WHERE id = #{folderId}
+
+                                      UNION
+
+                                      SELECT f.id, f.parent_id
+                                      FROM folder_info f
+                                               INNER JOIN folder_cte cte ON f.parent_id = cte.id
+                                      WHERE f.status = 1)
+        SELECT target_id as id, GROUP_CONCAT(DISTINCT label) AS label, is_folder
+        FROM (SELECT t1.id AS target_id, t2.label, 1 AS is_folder
+              FROM folder_cte t1
+                       LEFT JOIN biz_label t2 ON t1.id = t2.target_id
+              WHERE t2.is_del = 1
+
+              UNION
+
+              SELECT t2.id AS target_id, t3.label, 0 AS is_folder
+              FROM folder_cte t1
+                       LEFT JOIN gienrag.knowledge_base_list t2 ON t1.id = t2.folder_id
+                       LEFT JOIN biz_label t3 ON t2.id = t3.target_id AND t3.is_del = 1
+              WHERE t2.status > 0) label_union
+        GROUP BY target_id, is_folder;
+    </select>
+    <select id="getSequenceCodeByFileId" resultType="java.lang.Long">
+        SELECT if(count(1) = 0, 1, count(1))
+        FROM knowledge_base_list
+        WHERE status IN (99, 2)
+          AND parse_type IN (1, 2, 3, 10)
+          and gmt_modified <![CDATA[<]]> (SELECT gmt_modified from knowledge_base_list where id = #{fileId})
+    </select>
+
+    <update id="updateGraphExtractByIds">
+        update knowledge_base_list
+        set graph_parse_status=#{graphExtractStatus}
+        where status !=0
+        and id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="transferFile">
+        UPDATE gienrag.knowledge_base_list
+        SET folder_id = #{folderId}
+        WHERE id = #{fileId}
+    </update>
+
+    <update id="transferFileBatch">
+        UPDATE gienrag.knowledge_base_list
+        SET folder_id = #{folderId}
+        WHERE id in
+        <foreach collection="fileIds" item="fileId" separator="," open="(" close=")">
+            #{fileId}
+        </foreach>
+    </update>
+
+    <update id="updateParseStatusByIds">
+        UPDATE knowledge_base_list
+        SET
+        <if test="needUpdateTime">
+            gmt_modified = CASE id
+            <foreach collection="ids" item="id" separator=" " index="idx">
+                WHEN #{id} THEN date_add(NOW(),interval (${idx} + 1) SECOND)
+            </foreach>
+            END,
+        </if>
+        status = CASE id
+        <foreach collection="ids" item="id" separator=" ">
+            WHEN #{id} THEN #{status}
+        </foreach>
+        END
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

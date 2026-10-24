@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragqaservice.domain.mapper.QuestionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragqaservice.domain.model.QuestionDO">
+        <result column="id" property="id" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="dialogue_id" property="dialogueId" />
+        <result column="content" property="content" />
+        <result column="type" property="type" />
+        <result column="front_uuid" property="frontUuid" />
+        <result column="alg_model" property="algModel" />
+        <result column="alg_params" property="algParams" />
+        <result column="knowledge_base_name" property="knowledgeBaseName" />
+        <result column="knowledge_params" property="knowledgeParams" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, gmt_create, gmt_modified, dialogue_id, content, type, front_uuid, alg_model, alg_params,knowledge_base_name,knowledge_params
+    </sql>
+
+    <select id="getHistoryListByDialogueId" resultType="com.gientech.ragqaservice.domain.model.HistoryDO">
+        select a.id answerId,a.content answerContent,q.content queryContent
+        from answer a LEFT JOIN question q on a.question_id=q.id
+        <where>
+            a.dialogue_id= #{dialogueId}
+            <if test="answerId !=null and '' != answerId">
+                and a.id <![CDATA[ <= ]]> #{answerId}
+            </if>
+            <if test="orderByName =='gmtCreate'">
+                ORDER BY q.gmt_create DESC
+            </if>
+            <if test="orderByName =='answerId'">
+                ORDER BY a.id
+            </if>
+            LIMIT #{count};
+        </where>
+    </select>
+
+<!--    <select id="getHistoryListByDialogueId" resultType="com.gientech.ragqaservice.domain.model.HistoryDO">-->
+<!--        select a.content answerContent,q.content queryContent-->
+<!--        from answer a LEFT JOIN question q on a.question_id=q.id-->
+<!--        <where>-->
+<!--            a.dialogue_id= #{dialogueId} and a.id <= #{answerId} ORDER BY a.answerId DESC LIMIT #{count};-->
+<!--        </where>-->
+<!--    </select>-->
+
+</mapper>

@@ -1,0 +1,10 @@
+fastapi==0.109.1
+langchain==0.3.27
+pydantic==2.10.4
+pymilvus==2.6.2
+uvicorn==0.30.1
+nacos-sdk-python==2.0.9
+pyyaml==5.3
+tiktoken==0.11.0
+loguru==0.7.3
+httpx==0.23.0

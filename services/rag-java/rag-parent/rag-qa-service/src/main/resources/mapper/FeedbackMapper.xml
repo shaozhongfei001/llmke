@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gientech.ragqaservice.domain.mapper.FeedbackMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gientech.ragqaservice.domain.model.FeedbackDO">
+        <id column="id" property="id"/>
+        <result column="answer_id" property="answerId"/>
+        <result column="restult" property="restult"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_realname" property="userRealname"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="user_phone" property="userPhone"/>
+        <result column="que_error" property="queError"/>
+        <result column="ans_poor" property="ansPoor"/>
+        <result column="format_error" property="formatError"/>
+        <result column="harmful_info" property="harmfulInfo"/>
+        <result column="othres" property="othres"/>
+        <result column="supplement_explain" property="supplementExplain"/>
+        <result column="ideal_answer" property="idealAnswer"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , answer_id, restult, user_name,user_realname, dept_name, user_phone, que_error, ans_poor, format_error,harmful_info, othres, supplement_explain, ideal_answer, gmt_create, gmt_modified, create_by, update_by
+    </sql>
+
+
+    <update id="updateInfoById" parameterType="com.gientech.ragqaservice.domain.model.FeedbackDO">
+        update feedback set
+            answer_id=#{item.answerId},
+            restult=#{item.restult},
+            user_name=#{item.userName},
+            user_realname=#{item.userRealname},
+            dept_name=#{item.deptName},
+            user_phone=#{item.userPhone},
+            que_error=#{item.queError},
+            ans_poor=#{item.ansPoor},
+            format_error=#{item.formatError},
+            harmful_info=#{item.harmfulInfo},
+            othres=#{item.othres},
+            supplement_explain=#{item.supplementExplain},
+            ideal_answer=#{item.idealAnswer},
+            gmt_modified=#{item.gmtModified},
+            update_by=#{item.updateBy}
+        where id=#{item.id}
+    </update>
+
+
+    <select id="inAnswerIdsBySearchConfigNames" resultType="com.gientech.ragqaservice.domain.model.ConfigNameAndAnswerIdDO">
+        SELECT se.name configName,se.config_json configJson,an.id answerId,an.dialogue_id dialogueId,di.config dialogueConfig
+        FROM answer an LEFT JOIN dialogue di ON an.dialogue_id=di.id
+            LEFT JOIN search_config se ON di.config_id = se.id
+        <where>
+           <if test="answerIds!=null and answerIds.size()>0">
+               an.id IN
+               <foreach collection="answerIds" item="answerId" open="("
+                        separator="," close=")">
+                   #{answerId}
+               </foreach>
+           </if>
+        </where>
+    </select>
+
+    <select id="selectPageCustom" resultType="com.gientech.ragqaservice.domain.model.FeedbackDO">
+        SELECT t1.*
+        FROM feedback t1 LEFT JOIN answer t2 ON t1.answer_id = t2.id LEFT JOIN question t3 on t2.question_id = t3.id
+        ${ew.customSqlSegment}
+    </select>
+
+</mapper>

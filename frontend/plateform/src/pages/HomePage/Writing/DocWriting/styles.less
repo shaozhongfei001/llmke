@@ -1,0 +1,22 @@
+.docs-card {
+  overflow: hidden; /* 隐藏超出部分 */
+  display: -webkit-box; /* 创建一个盒子模型 */
+  -webkit-box-orient: vertical; /* 垂直方向排列 */
+  -webkit-line-clamp: 6; /* 设置显示的行数，这里是2行 */
+  text-overflow: ellipsis; /* 超出部分显示为省略号 */
+}
+
+.newIndex {
+  .cardBox {
+    background: url("../../../../assets/img/cardBg.png") no-repeat;
+    background-color: transparent;
+    background-size: contain;
+  }
+  .cardBox:hover,
+  .cardBox2:hover {
+    box-shadow: 0px 8px 5px rgba(0, 0, 0, 0.1);
+  }
+  .cardBox2 {
+    background: url("../../../../assets/img/cardBg2.png") no-repeat;
+  }
+}

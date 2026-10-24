@@ -1,0 +1,181 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  application:
+    name: rag-index-service
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13306/gienrag?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    username: root
+    password: '${R12_MYSQL_PASSWORD}'
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 20
+      minimum-idle: 2
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 16379
+      password: '${R12_REDIS_PASSWORD}'
+      database: 0
+      timeout: 5000
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:18848
+        namespace: public
+        group: DEFAULT_GROUP
+        register-enabled: true
+      config:
+        enabled: false
+        import-check:
+          enabled: false
+server:
+  port: 18082
+  servlet:
+    context-path: /index
+  host-ip: 127.0.0.1
+mybatis:
+  table:
+    auto: update
+  model:
+    pack: com.gientech.ragindexservice.domain.model
+  database:
+    type: mysql
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml,classpath*:com/gitee/sunchenbin/mybatis/actable/mapping/*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+aes:
+  key: '1234567890123456'
+  iv: '1234567890123456'
+thread-pool:
+  core-pool-size: 16
+  max-pool-size: 64
+  queue-capacity: 512
+storage:
+  default-platform: rag-qa
+  default-storage-properties:
+    end-point: http://127.0.0.1:19000
+    domain: http://127.0.0.1:19000
+    bucket-name: r12-rag
+    access-key: r12minio
+    secret-key: '${R12_MINIO_SECRET_KEY}'
+logging:
+  level:
+    root: INFO
+remote:
+  py-milvus-url: http://127.0.0.1:19526
+  py-es-url: http://127.0.0.1:19527
+  file-parse:
+    url: http://127.0.0.1:12340/parse
+  file-parse-sync:
+    url: http://127.0.0.1:12340/parse_sync
+  del-index-file:
+    url: http://127.0.0.1:19527/del_doc_by_col
+  del-index:
+    url: http://127.0.0.1:19527/del_index
+  del-vector:
+    url: http://127.0.0.1:19526/del_doc_by_col
+  del-graph-space:
+    url: http://127.0.0.1:19529/del_space
+  del-graph-entity:
+    url: http://127.0.0.1:19529/del_doc_entity
+  generate-graph:
+    url: http://127.0.0.1:19529/generate_triple_data
+  faq-extract:
+    url: http://127.0.0.1:19996/llm_faq_generate
+  faq-polish:
+    url: http://127.0.0.1:19996/polish_answer_llm
+  faq-simi-question:
+    url: http://127.0.0.1:19996/llm_simi_question
+  faq-sava:
+    url: http://127.0.0.1:19527/insert_fulltext_documents
+  faq-update:
+    url: http://127.0.0.1:19527/update_doc
+  faq-list:
+    url: http://127.0.0.1:19527/search_by_page
+  faq-page-list:
+    url: http://127.0.0.1:19527/search_by_page
+  faq-count:
+    url: http://127.0.0.1:19527/static_count
+  faq-sava-es:
+    url: http://127.0.0.1:19527/insert_fulltext_documents
+  faq-update-es:
+    url: http://127.0.0.1:19527/update_doc
+  faq-delete-es:
+    url: http://127.0.0.1:19527/del_by_id
+  faq-page-list-es:
+    url: http://127.0.0.1:19527/search_by_page
+  faq-update-field:
+    url: http://127.0.0.1:19527/update_by_id
+  faq-update-field-es:
+    url: http://127.0.0.1:19527/update_by_id
+  model-check:
+    url: http://127.0.0.1:19996/llm_check_model
+  file-revise_date:
+    url: http://127.0.0.1:12340/parse/revise_date
+  file-multi-version:
+    url: http://127.0.0.1:12340/parse/multi_version
+  database-table-description:
+    model: qwen2.5-7b-instruct
+  tl-database-table-description:
+    url: http://127.0.0.1:12340/parse/database_desc
+retry:
+  max-retries: 3
+  timeout: 30
+  max-concurrent: 8
+  worker-threads: 16
+rest-template:
+  connect-timeout: 1800000
+  read-timeout: 1800000
+milvus:
+  host: 127.0.0.1
+  port: 19630
+model:
+  types: '[{"value": "1", "label": "LLM大语言模型"}, {"value": "2", "label": "Embedding嵌入"}, {"value": "3", "label": "rerank排序"}, {"value": "4", "label": "MultiModel图片解析"}]'
+  protocols: '[{"value": "1", "label": "Baichuan"}, {"value": "2", "label": "Qwen"}, {"value": "3", "label": "GLM"}, {"value": "4", "label": "openAI"}]'
+kb:
+  file-parse:
+    task-nums: 5
+    task-timeout: 3600
+    retry-limit: 3
+  faq-extract-model: ''
+  faq-polish-model: ''
+  faq-simiquestion-model: ''
+  generate-graph-model: ''
+file-convert:
+  error-msg:
+    word: Word 转换失败，请检查文件或联系管理员
+    ppt: PPT 转换失败，请检查文件或联系管理员
+    others: 文件转换失败，请检查文件或联系管理员
+re-embedding:
+  chunk:
+    page-size: 50
+  file:
+    page-size: 50
+  max-retry-times: 3
+  migrate-size: 2000
+  thread-pool:
+    core-pool-size: 8
+    maximum-pool-size: 32
+    queue-capacity: 100
+rocketmq:
+  name-server: 127.0.0.1:19876
+  producer:
+    group: r12-producer
+    send-message-timeout: 60000
+jodconverter:
+  local:
+    office-home: /usr/lib/libreoffice
+    port-numbers: 2002
+file-parse:
+  types: pdf,docx,xlsx,pptx,txt,md
+  embedding-models: bge-m3
+database:
+  pw:
+    enc-key: C7OT8Ty8ghEFRZF1

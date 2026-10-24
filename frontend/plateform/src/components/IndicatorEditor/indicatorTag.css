@@ -1,0 +1,12 @@
+.indicator-tag {
+  background: #f1f5ff;
+  color: #055aff;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 4px;
+  padding: 0 8px;
+  line-height: 24px;
+  box-sizing: border-box;
+  font-size: 14px;
+  cursor: pointer;
+}

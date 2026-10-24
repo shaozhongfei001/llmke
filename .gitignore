@@ -64,3 +64,20 @@ loops/*/memory/.baton-backup-*/
 
 # 评审打包产物
 LLMKE-项目框架评审包-*.zip
+
+# --- R12 restored stack: build outputs & runtime artifacts -------------------
+# 只提交源码与可复现构建配置；二进制/权重/依赖目录一律不入库。
+services/rag-java/**/target/
+services/rag-java/**/*.jar
+frontend/plateform/node_modules/
+frontend/plateform/dist/
+frontend/plateform/.vite/
+platform/r12/venvs/
+platform/r12/models/
+platform/r12/logs/
+platform/r12/run/
+platform/r12/conf/.env
+platform/r12/.env
+*.jar
+*.class
+*.war

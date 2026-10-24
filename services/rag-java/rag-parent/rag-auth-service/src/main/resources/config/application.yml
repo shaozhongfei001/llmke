@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: @profiles.active@
+  data:
+    redis:
+      enabled: true

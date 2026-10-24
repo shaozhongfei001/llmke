@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* 
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+ */
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-y: hidden;
+}
+
+/* 修改整个滚动条的宽度 */
+::-webkit-scrollbar {
+  width: 4px; /* 或者使用 'thin', 'medium', 'thick' */
+  height: 4px;
+}
+
+/* 修改滚动条滑块（thumb）的背景颜色 */
+::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 4px; /* 滑块圆角 */
+  width: 4px;
+}
+
+/* 修改滚动条轨道的样式 */
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  width: 4px;
+}
+
+.ant-modal-root {
+  .ant-modal-footer {
+    text-align: center;
+  }
+  /* .ant-modal-title {
+    display: flex;
+    justify-content: center;
+  }
+  .ant-modal-header {
+    margin: 0 0 40px;
+  }
+  .ant-modal-header:after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background-color: #d9d9d9;
+    left: 0;
+    top: 60px;
+  } */
+}
+.delete-modal {
+  .ant-modal-title {
+    font-family: Source Han Sans CN;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .btn-group {
+    text-align: center;
+    .cancle-btn {
+      margin-right: 16px;
+    }
+  }
+}
+
+.ant-modal .ant-modal-content {
+  border-radius: 8px;
+}
+
+.ant-select-item-option-content {
+  display: flex;
+  align-items: center;
+}
+.decoration-dashed:hover {
+  text-decoration-style: dashed;
+  text-decoration-color: #555;
+}
+.icon-search:before {
+  content: none !important;
+}

@@ -1,0 +1,87 @@
+version: '3'
+services:
+  index_data_service:
+    restart: always
+    image: harbor.gientech.com/rag-alg-service-api/index_data_service:dev_20250925_3c6b114
+    #network_mode: host
+    container_name: rag_index_service_py
+    deploy:
+      resources:
+        limits:
+          cpus: '8'  # 限制最多使用
+          memory: 32G # 内存上限为
+#    volumes:
+#      - /mnt/4917bc85-2af2-4737-9557-f2e2b600ba7f/ai_project/code/runCode/index_data_service:/app
+    ports:
+      - "19526:19526"
+      - "19527:19527"
+      - "19529:19529"
+    environment:
+      NACOS_SERVER_ADDRESS: "http://10.15.12.13:8848"
+  alg_llm_inference_service:
+    restart: always
+    image: harbor.gientech.com/rag-alg-service-api/alg_llm_inference_service:dev_20250925_3c6b114
+    #network_mode: host
+    container_name: rag_llm_service_py
+    deploy:
+      resources:
+        limits:
+          cpus: '8'  # 限制最多使用
+          memory: 32G # 内存上限为
+#    volumes:
+#      - /mnt/4917bc85-2af2-4737-9557-f2e2b600ba7f/ai_project/code/runCode/alg_llm_inference_service:/app
+    ports:
+      - "19996:19996"
+    environment:
+      NACOS_SERVER_ADDRESS: "http://10.15.12.13:8848"
+    entrypoint: python3
+    command:
+      - llm_api_start.py
+  alg_retrieval_service:
+    restart: always
+    image: harbor.gientech.com/rag-alg-service-api/alg_retrieval_service:dev_20250925_3c6b114
+    #network_mode: host
+    container_name: rag_retrieval_service_py
+    deploy:
+      resources:
+        limits:
+          cpus: '8'  # 限制最多使用
+          memory: 32G # 内存上限为
+#    volumes:
+#      - /mnt/4917bc85-2af2-4737-9557-f2e2b600ba7f/ai_project/code/runCode/alg_retrieval_service:/app
+    ports:
+      - "19995:19995"
+    environment:
+      NACOS_SERVER_ADDRESS: "http://10.15.12.13:8848"
+    entrypoint: python3
+    command:
+      - retrieval_api_start.py
+  alg_doc_parse_service:
+    restart: always
+    image: rag-alg-doc-parse-service:gpu
+    #image: rag_doc_parse:release_20250725_1d48286
+    #network_mode: host
+    container_name: rag-alg-doc-parse-service
+#    volumes:
+#      -  /mnt/4917bc85-2af2-4737-9557-f2e2b600ba7f/ai_project/code/runCode/alg_doc_parse_service:/workdir
+    ports:
+      - "12340:12340"
+    environment:
+      NACOS_SERVER_ADDRESS: "http://10.15.12.13:8848"
+      NACOS_NAMESPACE: "rag-ai-dev"
+      NACOS_DATA_ID: "alg_doc_config_py"
+      NACOS_GROUP: "DEFAULT_GROUP"
+      NLTK_DATA: "/root/nltk_data"
+      JAVA_HOME: "/root/jdk-22.0.2"
+      PATH: "/root/jdk-22.0.2/bin:${PATH}"
+      OCR_PATH: "/root/ocr_models"
+      CUDA_VISIBLE_DEVICES: "0"
+    entrypoint: ["python3", "-u", "alg_doc_parse_service_start.py"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              count: "all"
+              driver: "nvidia"
+    shm_size: "1024g"
