@@ -47,3 +47,12 @@
   `R10-T10` 窗口，与"移入 scripts/"一起做。
 - 残留局限（不掩饰）：`record-check` 依赖人主动登记；漏登记的命令仍不被绑定。
   彻底解法是把验证脚本移入控制面，而不是靠自觉。
+
+## D-R10-07 应用 record-check：第二次（也是最后一次）冻结
+- 判断：r13 无签名路径，留着已知缺口（人工验证命令不绑定）比多一次冻结更糟；
+  内容已稳定（补丁在隔离树 320 passed、apply --check OK），符合"内容稳定后一次冻结"的条件。
+- 动作：应用补丁 → 冻 `revision 15` → 建 r14（9 条门禁）→ `record-check` 登记
+  `bash docs/baseline/validation/schema-verify.sh`（exit 0，命令闭包 `868af275`）→ qa-run 留 QA_PENDING。
+- 验证（主树实测）：改 `schema-verify.sh` 一行 → `manual check schema-verify: command changed;
+  evidence STALE`（rc=1）；`git checkout` 还原 → PASS（rc=0）。**T09-C 的缺口已闭合。**
+- 代价：r13 转 SUPERSEDED（证据保留）；本轮共两次冻结，均因触及控制面，不属反复试错。

@@ -1,0 +1,166 @@
+schema_version: 2
+baseline_version: 1.1.1
+loop_id: L0-contract-baseline-r14
+kind: contract
+objective:
+- 第十轮最终候选：HTTP 入口 + record-check（人工验证命令绑定）；QA 留 QA_PENDING
+scope:
+  write_paths:
+  - contracts
+  - scripts
+  - docs
+  - tests
+  - loops
+  forbidden:
+  - 手改 generated
+  - 直接修改验收状态
+  - 无批准的生产数据变更
+required_blockers: []
+reuse_assets: []
+implementation_principals:
+- integration-agent
+tech_lead_principal: tech-lead
+allowed_holders:
+- integration-agent
+- legacy-owner
+- backend-engineer
+- python-engineer
+- algorithm-owner
+- tech-lead
+- qa-external
+- qa-external-02
+gates:
+- id: contract_generate_gate
+  catalog_id: contracts.generate
+  type: dev_self_check
+  argv:
+  - make
+  - generate
+  required_checks:
+  - clean_generation
+  - declared_output_set
+  depends_on: []
+  timeout_seconds: 600
+- id: contract_check_gate
+  catalog_id: contracts.check
+  type: dev_self_check
+  argv:
+  - make
+  - check
+  required_checks:
+  - openapi_jsonschema_semantics
+  - exact_output_hashes
+  - cross_contract_invariants
+  depends_on:
+  - contract_generate_gate
+  timeout_seconds: 600
+- id: mutation_probe_gate
+  catalog_id: framework.regressions
+  type: dev_self_check
+  argv:
+  - python3
+  - -m
+  - pytest
+  - tests/test_review_regressions.py
+  - -q
+  required_checks:
+  - P01
+  - P02
+  - P03
+  - P04
+  - P05
+  - P06
+  - P07
+  - P08
+  - P09
+  - P10
+  - P11
+  - P12
+  - P13
+  depends_on:
+  - contract_check_gate
+  timeout_seconds: 1200
+- id: traceability_gate
+  catalog_id: framework.trace
+  type: dev_self_check
+  argv:
+  - python3
+  - scripts/trace_check.py
+  required_checks:
+  - upstream_hashes
+  - all_contracts_and_loops
+  - rule_mirrors
+  depends_on:
+  - mutation_probe_gate
+  timeout_seconds: 600
+- id: p0_register_gate
+  catalog_id: p0.integrity
+  type: dev_self_check
+  argv:
+  - make
+  - p0-check
+  required_checks:
+  - required_blocker_set
+  - honest_status
+  - evidence_structure
+  depends_on:
+  - traceability_gate
+  timeout_seconds: 600
+- id: security_scan_gate
+  catalog_id: security.scan
+  type: dev_self_check
+  argv:
+  - make
+  - security-check
+  required_checks:
+  - credential_patterns
+  - safe_redacted_logs
+  depends_on:
+  - p0_register_gate
+  timeout_seconds: 600
+- id: baseline_gate
+  catalog_id: baseline.check
+  type: dev_self_check
+  argv:
+  - make
+  - baseline-check
+  required_checks:
+  - frozen_control_hashes
+  depends_on:
+  - security_scan_gate
+  timeout_seconds: 600
+- id: module_test_gate
+  catalog_id: framework.modules
+  type: dev_self_check
+  argv:
+  - make
+  - module-test
+  required_checks:
+  - module_tests
+  depends_on:
+  - contract_check_gate
+  timeout_seconds: 600
+- id: independent_qa_gate
+  catalog_id: qa.framework
+  type: qa_gate
+  argv:
+  - make
+  - framework-verify
+  required_checks:
+  - all_framework_tests
+  - semantic_check
+  - rule_mirror
+  - trace
+  - p0_integrity
+  - baseline_hashes
+  depends_on:
+  - baseline_gate
+  timeout_seconds: 1200
+repair_policy:
+  max_iterations_per_gate: 3
+  on_exhausted: STOP; retain failures, TL approves revised wave/new loop; never manually
+    reset attempts
+exit_criteria:
+- all declared gates pass for same snapshot
+- independent QA externally signed
+- business implementation also needs all declared P0 and reuse decisions

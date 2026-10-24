@@ -70,6 +70,15 @@ change_list:
     approved_by: project-owner (2026-10-24, in-session：第十轮任务书授权自主执行)
     rationale: >-
       此前该链路只能被测试调用，真实请求进不来（全仓无 http.server/框架入口）。
+  - id: W-11
+    summary: >-
+      应用 record-check 补丁：loop_guard 新增 record-check 子命令，人工验证命令的
+      argv 闭包摘要/退出码/日志哈希写入批次 manifest 并在 evidence-check 中比较；
+      建 L0-contract-baseline-r14 作为第十轮最终候选（9 条门禁，QA 留 QA_PENDING）。
+    approved_by: project-owner (2026-10-24, in-session：第十轮任务书授权自主执行)
+    rationale: >-
+      实测缺口：改 docs/baseline/validation/schema-verify.sh 后 evidence-check 仍 PASS
+      （T09-C）。补丁在隔离树验证 320 passed、apply --check OK。
 not_included:
   - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
   - requirements.lock 去重——待 baseline-owner 批准

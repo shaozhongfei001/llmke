@@ -69,3 +69,15 @@ changes:
   - 超大请求体 413
   - 审计行不含查询原文
   - 真库只见授权文件
+- id: BL-1.1.1-06
+  title: 人工验证命令登记（record-check）
+  status: ADOPTED
+  owner: tech-lead
+  carrier: scripts/loop_guard.py:record_check + tests/test_manual_check.py
+  problem: 人工执行的验证脚本位于冻结排除前缀，改它不改任何摘要，旧证据仍判有效（T09-C 实测）。
+  proposal: record-check 记录 argv、命令闭包摘要、退出码、日志哈希到 manifest；evidence-check 逐项比较。
+  compat: 不改门禁语义；未登记的命令不受影响（局限已在文档中说明）。
+  acceptance:
+  - 改脚本 -> manual check command changed
+  - 非 0 退出 -> 失效
+  - 日志被篡改 -> hash mismatch

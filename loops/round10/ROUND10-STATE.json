@@ -1,8 +1,8 @@
 {
   "round": 10,
   "status": "CLOSED",
-  "head_at_report": "eec8b7ac2a42875db8e688f61204293f6aa9b374",
-  "tree_sha": "49b01d7137882c296774db6c950524add9534d49",
+  "head_at_report": "ac8374eeb64932a70c0062064fd5c955e06f06e9",
+  "tree_sha": "bf8111b11f290909f0ccabb607eb96c88ae10206",
   "tasks": {
     "R10-T01": {
       "status": "VERIFIED",
@@ -56,24 +56,24 @@
       "result": "干净树与主树三摘要一致；A/B 失效、C 未失效（已知局限）"
     },
     "R10-T10": {
-      "status": "BLOCKED_WINDOW",
-      "owner": "project-owner",
-      "desc": "人工验证命令绑定（移入 scripts/ 或新增 record-check）",
-      "blocker": "属控制面变更，需窗口；会使 r13 失效"
+      "status": "VERIFIED",
+      "owner": "tech-lead",
+      "desc": "record-check 应用 + 人工验证命令绑定（schema-verify 已登记）",
+      "evidence": "loops/round10/evidence/T10-record-check.log",
+      "result": "改 schema-verify.sh → manual check command changed；还原 → PASS"
     },
     "R10-T11": {
-      "status": "VERIFIED_DRYRUN",
+      "status": "VERIFIED",
       "owner": "gate-evidence-agent",
-      "desc": "record-check：绑定人工验证命令（命令闭包 + 退出码 + 日志哈希）",
-      "evidence": "loops/round10/evidence/T11-manual-check-patch.txt",
-      "result": "隔离树 3 passed；framework-verify 320 passed（baseline 未冻结预期红）；apply --check OK"
+      "desc": "record-check 补丁（隔离树验证后应用）",
+      "evidence": "loops/round10/evidence/T11-manual-check-patch.txt"
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 317 passed / 0 skipped",
-    "evidence_r13": "PASS",
+    "framework_verify": "rc=0 / 320 passed / 0 skipped",
+    "evidence_r14": "PASS（8 pass + QA_PENDING + manual_checks=[schema-verify]）",
     "p0_gate": "rc=2",
-    "freeze": "revision 14 / 220 文件 / 1.1.1"
+    "freeze": "revision 15"
   },
-  "conclusion": "HTTP 入口交付完成；四项 P0 全 OPEN，业务不可开工；r13 为 QA_PENDING，无独立签署"
+  "conclusion": "HTTP 入口 + record-check 交付；四项 P0 全 OPEN，业务不可开工；r14 为 QA_PENDING，无独立签署"
 }

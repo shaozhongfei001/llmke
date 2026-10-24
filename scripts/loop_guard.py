@@ -138,6 +138,15 @@ def evidence_errors(root,loop_id,require_done=False):
     if not envelope:raise ContractViolation('independent QA signature required')
     verify_qa(root,loop,g,rec,envelope)
   except Exception as e:errors.append(gid+': '+str(e))
+ for name,mc in (m.get('manual_checks') or {}).items():
+  if mc.get('digest_scheme',0)>=4 and mc.get('command_sha256')!=command_digest(mc.get('argv') or [],root):
+   errors.append('manual check '+name+': command changed; evidence STALE')
+  try:
+   p=inside(root,mc.get('evidence',''))
+   if not p.is_file():raise ContractViolation('MISSING evidence')
+   if filehash(p)!=mc.get('sha256'):raise ContractViolation('evidence hash mismatch')
+  except Exception as e:errors.append('manual check '+name+': '+str(e))
+  if mc.get('exit_code')!=0:errors.append('manual check '+name+': exit '+str(mc.get('exit_code')))
  if state['status']=='DONE' or require_done:
   if loop['kind']=='implementation':errors+=p0_errors(root,'strict',loop['required_blockers'])
   for g in gates:
@@ -260,18 +269,55 @@ def transfer(root,loop_id,to,executor,expected_revision,arm=False):
   print('baton committed in STATE; derived views regenerated')
  return 0
 
+def record_check(root,loop_id,name,argv,executor):
+ """登记一次**人工验证命令**的结果，并把命令闭包绑定进证据。
+
+ 为什么需要它：
+   门禁 argv 通常形如 `make <target>`，命令闭包为空；而 `schema-verify.sh` 这类
+   验证脚本位于冻结排除前缀、由人手工执行。改它不会改变任何摘要 —— 证据仍判 PASS
+   （已在干净树实测，见 loops/round10/evidence/T09-clean-repro.txt 的 C 项）。
+   本命令把"执行的命令 + 脚本闭包 + 输出日志"落成可复算凭据。
+ """
+ if not re.fullmatch(r'[a-z0-9-]{1,40}',name):raise ContractViolation('invalid check name')
+ d,loop,gates=spec(root,loop_id);state=read_state(d)
+ if state['status'] in TERMINAL_STATES:raise ContractViolation('terminal loop cannot record checks')
+ from freeze_baseline import run as frozen_errors
+ if frozen_errors(Path(root)):raise ContractViolation('controlled baseline files changed')
+ with exclusive(d/'evidence/.runner.lock'):
+  cmd=list(argv)
+  if cmd and cmd[0]=='python3':cmd[0]=sys.executable
+  try:
+   p=subprocess.run(cmd,cwd=root,capture_output=True,text=True,timeout=900)
+   code=p.returncode;output=(p.stdout or '')+(p.stderr or '')
+  except subprocess.TimeoutExpired:
+   code=124;output='manual check timeout\n'
+  # 与门禁记录一致：存相对**仓库根**的路径，否则 evidence_errors 里 inside(root, rel) 找不到
+  rel='loops/'+loop_id+'/evidence/manual-'+name+'.log'
+  log=Path(root)/rel
+  log.write_text(output,encoding='utf-8')
+  m=manifest(d)
+  m.setdefault('manual_checks',{})[name]={'argv':cmd,'exit_code':code,'evidence':rel,
+   'sha256':filehash(log),'command_sha256':command_digest(cmd,root),'ran_at':now(),
+   'executor':executor,'digest_scheme':DIGEST_SCHEME}
+  atomic_json(d/'evidence/manifest.json',m)
+  print(('pass' if code==0 else 'fail')+': manual check '+name)
+  return 0 if code==0 else 1
+
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--root',type=Path,default=ROOT);subs=p.add_subparsers(dest='sub',required=True)
  for name in ['memory-check','evidence-check','finish','render-views']:
   q=subs.add_parser(name);q.add_argument('--loop',required=True)
  for name in ['run-gate','qa-run']:
   q=subs.add_parser(name);q.add_argument('--loop',required=True);q.add_argument('--gate',required=True);q.add_argument('--executor',required=True);q.add_argument('--role',default='dev')
+ q=subs.add_parser('record-check');q.add_argument('--loop',required=True);q.add_argument('--name',required=True);q.add_argument('--executor',required=True);q.add_argument('--argv',nargs=argparse.REMAINDER,required=True)
  q=subs.add_parser('accept-qa');q.add_argument('--loop',required=True);q.add_argument('--gate',required=True);q.add_argument('--attestation',type=Path,required=True)
  for name in ['baton-transfer','arm']:
   q=subs.add_parser(name);q.add_argument('--loop',required=True);q.add_argument('--to',required=True);q.add_argument('--executor',required=True);q.add_argument('--expected-revision',type=int,required=True)
  a=p.parse_args();root=a.root.resolve()
  try:
   if a.sub in ['run-gate','qa-run']:return run_gate(root,a.loop,a.gate,a.executor,a.role,a.sub=='qa-run')
+  if a.sub=='record-check':return record_check(root,a.loop,a.name,a.argv,a.executor)
   if a.sub=='accept-qa':return accept_qa(root,a.loop,a.gate,a.attestation)
   if a.sub in ['arm','baton-transfer']:return transfer(root,a.loop,a.to,a.executor,a.expected_revision,a.sub=='arm')
   d=ldir(root,a.loop)
