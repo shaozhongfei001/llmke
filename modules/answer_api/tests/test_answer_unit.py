@@ -212,3 +212,59 @@ def test_cli_ok_and_refusal(tmp_path):
                          cwd=str(ROOT), capture_output=True, text=True)
     assert bad.returncode == 2, bad.stdout + bad.stderr
     assert json.loads(bad.stdout)["error"]["code"] == "NO_EVIDENCE"
+
+
+# ---------- HTTP 状态映射 ----------
+def test_handler_200_on_success():
+    from modules.answer_api.handler import handle
+    status, body = handle({"query": "第一段", "ctx": ctx(), "kb_id": "kb-1",
+                           "chunks": two_chunks(), "document_texts": {"f-1": DOC}})
+    assert status == 200 and body["ok"] is True
+    assert body["data"]["policy_state"] == POLICY_STATE
+
+
+def test_handler_400_on_missing_field():
+    from modules.answer_api.handler import handle
+    status, body = handle({"query": "x"})
+    assert status == 400 and body["error"]["code"] == "FIELD_MISSING"
+
+
+def test_handler_403_on_expired_context():
+    from modules.answer_api.handler import handle
+    c = ctx()
+    c["expires_at"] = (datetime.now(timezone.utc) - timedelta(minutes=1)).isoformat()
+    status, body = handle({"query": "第一段", "ctx": c, "kb_id": "kb-1",
+                           "chunks": two_chunks(), "document_texts": {"f-1": DOC}})
+    assert status == 403 and body["error"]["code"] == "CONTEXT_EXPIRED"
+
+
+def test_handler_403_on_cross_scope_chunk():
+    from modules.answer_api.handler import handle
+    cs = two_chunks() + [chunk("k9", file_id="f-2", start=0, end=6, idx=2)]
+    status, body = handle({"query": "第一段", "ctx": ctx(files=["f-1"]), "kb_id": "kb-1",
+                           "chunks": cs, "document_texts": {"f-1": DOC}})
+    assert status == 403
+    assert "f-2" not in json.dumps(body, ensure_ascii=False)
+
+
+def test_handler_422_on_no_evidence():
+    from modules.answer_api.handler import handle
+    status, body = handle({"query": "第一段", "ctx": ctx(), "kb_id": "kb-1",
+                           "chunks": [], "document_texts": {"f-1": DOC}})
+    assert status == 422 and body["error"]["code"] == "NO_EVIDENCE"
+
+
+def test_handler_409_on_overlap():
+    from modules.answer_api.handler import handle
+    cs = [chunk("k1", start=0, end=6, idx=0), chunk("k2", start=4, end=10, idx=1)]
+    status, body = handle({"query": "第一段", "ctx": ctx(), "kb_id": "kb-1",
+                           "chunks": cs, "document_texts": {"f-1": DOC}})
+    assert status == 409
+
+
+def test_handler_500_never_leaks_internals():
+    from modules.answer_api.handler import handle
+    status, body = handle({"query": "x", "ctx": ctx(), "kb_id": "kb-1",
+                           "chunks": "不是列表", "document_texts": {}})
+    assert status in {400, 409, 422, 500}
+    assert "Traceback" not in json.dumps(body) and ".py" not in json.dumps(body)

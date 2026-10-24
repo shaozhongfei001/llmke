@@ -1,9 +1,6 @@
 task_id,agent,dependency,source_files,acceptance_command,state,evidence_path,commit_sha,blocker_owner
 R9-T01,tech-lead,,git/loops,"git rev-parse HEAD; git status",VERIFIED,loops/round9/evidence/T01-env-verify.txt,,
-R9-T02,python-rag-agent,R9-T01,"modules/answer_api/**, modules/citation_flow/**","python -m pytest modules/answer_api/tests -q",READY,loops/round9/evidence/T02-answer-unit.txt,,
-R9-T03,python-rag-agent,R9-T02,"modules/answer_api/tests/test_answer_db.py","python -m pytest modules/answer_api/tests -q",READY,loops/round9/evidence/T03-answer-db.txt,,
-R9-T04,gate-evidence-agent,R9-T01,"loops/round9/**, loops/ROUND8/**","python scripts/round_index.py --check",READY,loops/round9/evidence/T04-index.txt,,
+R9-T02,python-rag-agent,R9-T01,"modules/answer_api/{service,sql_adapter,cli}.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"18+7 passed（含 12 条负例与 HTTP 映射）"
+R9-T03,python-rag-agent,R9-T02,"modules/answer_api/tests/test_answer_db.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"5 passed 真库；chunk_ids 不能放宽"
+R9-T04,gate-evidence-agent,R9-T02,"loops/round9/**（工具在仓外）","coordination/round9-index.py --out ...",VERIFIED,loops/round9/evidence/T04-index.json,,"缺号 D47；批次 10 个；r8 任务 25/1/1"
 R9-T05,data-owner,,docs/registers/P0-CLOSURE.yaml,"n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
-R9-T02,python-rag-agent,R9-T01,"modules/answer_api/{service,sql_adapter,cli}.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"18 passed；含越权拒绝且不回显 file_id、空证据拒绝、重叠/混版本拒绝"
-R9-T03,python-rag-agent,R9-T02,"modules/answer_api/tests/test_answer_db.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"5 passed 真库；chunk_ids 不能放宽；逐文件原文缺失即拒绝"
-R9-T04,tech-lead,R9-T02,"Makefile（既有）","make framework-verify",VERIFIED,loops/round9/evidence/T04-framework-verify.log,,"275 passed / 0 skipped（252+23），新模块被 framework-test 自动收集"

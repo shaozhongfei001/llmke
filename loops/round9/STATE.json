@@ -25,9 +25,11 @@
       "tests": "5 passed（真库：过滤/收窄不可放宽/逐文件原文/正常回答）"
     },
     "R9-T04": {
-      "status": "READY",
-      "desc": "证据链口径统一索引：D1–D54 缺号、批次作废计数、任务/测试统计单一来源",
-      "owner": "gate-evidence-agent"
+      "status": "VERIFIED",
+      "desc": "证据链口径统一索引（决策缺号/批次计数/任务统计）",
+      "evidence": "loops/round9/evidence/T04-index.json",
+      "owner": "gate-evidence-agent",
+      "tool": "~/data/dev/coordination/round9-index.py（仓外，避免改控制面）"
     },
     "R9-T05": {
       "status": "BLOCKED_EXTERNAL",
@@ -37,7 +39,7 @@
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 275 passed / 0 skipped（含新增 23 条）",
+    "framework_verify": "rc=0 / 275 passed / 0 skipped（含 answer_api 23 条）",
     "schema_verify": "本轮未跑（UNKNOWN）",
     "p0_gate": "本轮未跑（UNKNOWN）",
     "answer_api_tests": "23 passed（18 单测 + 5 真库）"

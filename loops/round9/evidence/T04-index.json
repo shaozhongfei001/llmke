@@ -1,0 +1,120 @@
+{
+  "batches": {
+    "by_status": {
+      "DONE": 1,
+      "QA_PENDING": 1,
+      "SUPERSEDED": 8
+    },
+    "count": 10,
+    "rows": [
+      {
+        "loop": "L0-contract-baseline-r10",
+        "revision": 19,
+        "status": "DONE"
+      },
+      {
+        "loop": "L0-contract-baseline-r11",
+        "revision": 17,
+        "status": "QA_PENDING"
+      },
+      {
+        "loop": "L0-contract-baseline-r2",
+        "revision": 13,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r3",
+        "revision": 6,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r4",
+        "revision": 9,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r5",
+        "revision": 12,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r6",
+        "revision": 13,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r7",
+        "revision": 12,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r8",
+        "revision": 13,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r9",
+        "revision": 13,
+        "status": "SUPERSEDED"
+      }
+    ]
+  },
+  "repo_head_source": "loops/*/STATE.json 与 ledger 文件本身",
+  "round8": {
+    "decisions": {
+      "count": 53,
+      "max": 54,
+      "missing": [
+        47
+      ],
+      "present": true
+    },
+    "ledger": {
+      "by_state": {},
+      "columns": 9,
+      "malformed_rows": 0,
+      "note": "state 列是自由文本而非枚举，计数请用 round8.tasks",
+      "present": true,
+      "rows": 27,
+      "unrecognized_rows": {
+        "<empty>": 27
+      }
+    },
+    "tasks": {
+      "by_status": {
+        "BLOCKED_EXTERNAL": 1,
+        "CLOSED_WITHOUT_ENDORSEMENT": 1,
+        "VERIFIED": 25
+      },
+      "count": 27,
+      "present": true
+    }
+  },
+  "round9": {
+    "decisions": {
+      "count": 0,
+      "max": null,
+      "missing": [],
+      "present": true
+    },
+    "ledger": {
+      "by_state": {
+        "BLOCKED_EXTERNAL": 1,
+        "VERIFIED": 4
+      },
+      "columns": 9,
+      "malformed_rows": 0,
+      "present": true,
+      "rows": 5,
+      "unrecognized_rows": {}
+    },
+    "tasks": {
+      "by_status": {
+        "BLOCKED_EXTERNAL": 1,
+        "VERIFIED": 4
+      },
+      "count": 5,
+      "present": true
+    }
+  }
+}
