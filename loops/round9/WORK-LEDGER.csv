@@ -10,3 +10,5 @@ R9-T08,python-rag-agent,R9-T07,"modules/answer_api/sql_adapter.py","python -m py
 R9-T09,index-owner,R9-T08,"docs/baseline/validation/artifacts/schema-v1.3.sql","n/a（需 schema 决策）",BLOCKED_EXTERNAL,,,index-owner
 R9-T05,tech-lead,R9-T01,"coordination/p0-02-diff.py（仓外）","p0-02-diff.py --out ... --md ...",VERIFIED_DRYRUN,loops/round9/evidence/T05-p0-02-diff.json,,"37/478 -> 43/538；6 新表 60 列；映射 480 行=478 列+2 注释"
 R9-T10,data-owner,R9-T05,"docs/baseline/validation/artifacts/**","n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
+R9-T11,python-rag-agent,R9-T08,"modules/index_generation/{generation,__init__}.py","python -m pytest modules/index_generation/tests -q",VERIFIED,loops/round9/evidence/T11-outbox-pytest.log,,"3 passed 真库；重投/去重/到限/回收"
+R9-T12,index-owner,R9-T11,"docs/baseline/validation/artifacts/schema-v1.3.sql","n/a（需 schema 决策）",BLOCKED_EXTERNAL,,,index-owner

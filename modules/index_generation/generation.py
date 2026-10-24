@@ -197,9 +197,67 @@ def outbox_enqueue_sql(aggregate: str, aggregate_id: str, event_type: str, paylo
     )
 
 
-def outbox_claim_sql(limit: int = 1) -> str:
-    """领取待发事件：CAS 到 SENDING，避免重复投递。"""
+def outbox_claim_sql(limit: int = 1, *, lease_seconds: int = 60,
+                     max_attempts: int = 5) -> str:
+    """领取待发事件：CAS 到 SENDING，并把 `next_attempt_at` 当作**可见性超时**。
+
+    为什么借用 `next_attempt_at` 而不是新增 `claimed_at`：
+        表里没有 `claimed_at`（schema 现状）。如果只在内存里记"谁领了"，
+        消费者崩溃后这条事件会永远停在 SENDING——没人能证明它过期。
+        把它写成 `NOW()+lease` 后，"卡住的 SENDING"就变成可判定的：
+        `next_attempt_at < NOW()` 即为租约到期，可被回收。
+        这是在不改 schema 的前提下能给出的最接近正确的语义，局限见 `outbox_reclaim_sql`。
+
+    `attempts < max_attempts` 防止无限重投：超过上限的事件不再被领取，
+    必须走 `outbox_fail_sql` 落到 FAILED（人工介入）。
+    """
     return (
-        "UPDATE index_outbox SET state='SENDING', attempts=attempts+1 "
-        f"WHERE state='PENDING' AND next_attempt_at <= NOW(3) ORDER BY id LIMIT {int(limit)}"
+        "UPDATE index_outbox SET state='SENDING', attempts=attempts+1, "
+        f"next_attempt_at = DATE_ADD(NOW(3), INTERVAL {int(lease_seconds)} SECOND) "
+        f"WHERE state='PENDING' AND next_attempt_at <= NOW(3) "
+        f"AND attempts < {int(max_attempts)} ORDER BY id LIMIT {int(limit)}"
     )
+
+
+def outbox_reclaim_sql(limit: int = 10, *, max_attempts: int = 5) -> str:
+    """回收租约到期的 SENDING：视为投递失败，放回 PENDING 待重试。
+
+    局限（如实）：没有 `claimed_at`，无法区分"消费者正在慢速处理"与"消费者已崩溃"；
+    只能靠租约时长近似。租约太短会重复投递（至少一次语义），太长会让崩溃恢复变慢。
+    正确修法是加 `claimed_at`/`lease_expires_at`，属 index-owner 裁定。
+    """
+    return (
+        "UPDATE index_outbox SET state='PENDING', next_attempt_at=NOW(3) "
+        f"WHERE state='SENDING' AND next_attempt_at < NOW(3) "
+        f"AND attempts < {int(max_attempts)} ORDER BY id LIMIT {int(limit)}"
+    )
+
+
+def outbox_mark_sent_sql(event_id: int) -> str:
+    """投递成功后落 SENT；带 state 条件，避免把已 FAILED 的事件改回 SENT。"""
+    return (f"UPDATE index_outbox SET state='SENT' "
+            f"WHERE id={int(event_id)} AND state='SENDING'")
+
+
+def outbox_fail_sql(event_id: int, *, backoff_seconds: int = 30,
+                    max_attempts: int = 5) -> list[str]:
+    """投递失败：未到上限则退避重试，到上限则落 FAILED（终态，需人工）。
+
+    返回两条语句，必须按顺序执行，且都以 state='SENDING' 为条件：
+      - 第一条把 attempts<max 的放回 PENDING 并退避；
+      - 第二条把 attempts>=max 的落 FAILED。
+    两条互斥，谁生效取决于当前 attempts，不会同时改同一行。
+    """
+    return [
+        "UPDATE index_outbox SET state='PENDING', "
+        f"next_attempt_at = DATE_ADD(NOW(3), INTERVAL {int(backoff_seconds)} SECOND) "
+        f"WHERE id={int(event_id)} AND state='SENDING' AND attempts < {int(max_attempts)}",
+        f"UPDATE index_outbox SET state='FAILED' "
+        f"WHERE id={int(event_id)} AND state='SENDING' AND attempts >= {int(max_attempts)}",
+    ]
+
+
+def outbox_dead_letter_sql(*, max_attempts: int = 5) -> str:
+    """把超过重试上限但仍在 PENDING/SENDING 的事件落 FAILED（对账用，幂等）。"""
+    return ("UPDATE index_outbox SET state='FAILED' "
+            f"WHERE state IN ('PENDING','SENDING') AND attempts >= {int(max_attempts)}")

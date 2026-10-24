@@ -70,10 +70,23 @@
       "desc": "P0-02 真实 DDL 校验与迁移 dry-run（需生产快照/恢复副本）",
       "blocker": "无真实 DDL 与恢复副本；不得对生产库执行迁移",
       "blocker_owner": "data-owner"
+    },
+    "R9-T11": {
+      "status": "VERIFIED",
+      "desc": "outbox 投递语义：领取/成功/失败退避/到限 FAILED/租约到期回收（真库）",
+      "evidence": "loops/round9/evidence/T11-outbox-pytest.log",
+      "owner": "python-rag-agent",
+      "tests": "3 passed 真库；借用 next_attempt_at 作可见性超时"
+    },
+    "R9-T12": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "index_outbox 缺 claimed_at / lease_expires_at，且 schema 注释未列 SENDING",
+      "blocker": "需 index-owner 裁定加列与状态枚举（P0-04 设计仍 PROPOSED）",
+      "blocker_owner": "index-owner"
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 296 passed / 0 skipped（252 基线 + 44）",
+    "framework_verify": "rc=0 / 299 passed / 0 skipped（252 基线 + 47）",
     "p0_gate": "rc=2（P0-01~04 全 OPEN，预期）",
     "schema_verify": "本轮未跑（UNKNOWN）",
     "r11_evidence_check": "FAIL：independent_qa_gate: implementation code changed（新增 modules 代码导致 code_digest 变化，属设计内失效）"

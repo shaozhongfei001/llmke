@@ -82,3 +82,15 @@
 - **仍未回答**（故 P0-02 保持 OPEN，登记 `R9-T10 BLOCKED_EXTERNAL`）：
   真实生产 DDL 是否等于 `target-schema-v1.sql`；37 表遗留库与 ORM 推导是否一致；
   迁移能否在恢复副本上执行；新增对象是否有业务需求或 owner 决策支撑。
+
+## D-R9-11 outbox：用 `next_attempt_at` 兼任可见性超时（不改 schema 的近似解）
+- 现状缺口（实测）：`index_outbox` 只有 `state/attempts/next_attempt_at`，
+  **没有 `claimed_at`/`lease_expires_at`**；schema 注释写的状态是 `PENDING/SENT/FAILED`，
+  而代码一直在用 `SENDING` —— 注释与实现不一致。
+- 本轮实现：领取时写 `next_attempt_at = NOW()+lease`，回收时判 `state='SENDING' AND next_attempt_at < NOW()`。
+  这样"消费者崩溃后卡住的 SENDING"变成**可判定**的，而不是永远卡住。
+- 语义代价（如实）：无法区分"慢消费者"与"已崩溃"，只能靠租约时长近似；
+  回收后可能重复投递（至少一次），下游必须幂等。
+- 已测（真库 3 条）：领取后不可重复领取；`mark_sent` 后为 SENT 且不可再领；
+  失败退避 4 次后第 5 次落 FAILED（attempts=5）；租约到期可回收并重新领取（attempts 递增）。
+- 登记 `R9-T12 BLOCKED_EXTERNAL`（index-owner）：加 `claimed_at`/`lease_expires_at` 与统一状态枚举。
