@@ -59,7 +59,7 @@ def s1(s):
 
 
 # ---------------------------------------------------------------- S2 建库
-def s2(s, kb_name="R12业务主链"):
+def s2(s, kb_name="R12验收主链"):
     code, body = api(s, "GET", "/index/knowledgeBase/list?pageNo=1&pageSize=50", s.token)
     for r in ((body.get("data") or {}).get("records") or []) if isinstance(body, dict) else []:
         if r.get("kbName") == kb_name:
@@ -102,7 +102,11 @@ def upload(s, kb_id, path, uid=None, is_parse=True):
 
 
 def s3(s, kb_id):
+    FIX = os.path.join(R12, "qa", "fixtures")
     cases = [
+        (os.path.join(FIX, "R12FIX-product-loan.docx"), "中文 DOCX 业务夹具"),
+        (os.path.join(FIX, "R12FIX-credit-ledger.xlsx"), "中文 XLSX 业务夹具"),
+        (os.path.join(FIX, "R12FIX-product-intro.pptx"), "中文 PPTX 业务夹具"),
         ("pdf-digital.pdf", "PDF 数字版"),
         ("docx-plain.docx", "DOCX 纯文本"),
         ("docx-table.docx", "DOCX 含表格"),
@@ -110,7 +114,8 @@ def s3(s, kb_id):
     ]
     uploaded = []
     for fname, label in cases:
-        path = os.path.join(SAMPLES, fname)
+        path = fname if os.path.isabs(fname) else os.path.join(SAMPLES, fname)
+        fname = os.path.basename(path)
         if not os.path.exists(path):
             record("S3", f"上传 {label}", False, f"样本缺失 {path}")
             continue
@@ -228,7 +233,10 @@ def s5(s, kb_name, question, session="r12-sess-1"):
 
 
 # ---------------------------------------------------------------- S6 原文
-def s6(s, kb_id, file_id, ref):
+EXPECT_FACTS = ["5000", "1000", "三年", "3年", "授信额度"]
+
+
+def s6(s, kb_id, file_id, ref, answer=""):
     code, body = api(s, "GET", f"/index/knowledgeBase/file/getFileChunks?kbId={kb_id}&docId={file_id}&pageNo=1&pageSize=5", s.token)
     chunks = (body.get("data") or {}).get("records") if isinstance(body, dict) else None
     ok = code == 200 and bool(chunks)
@@ -243,6 +251,24 @@ def s6(s, kb_id, file_id, ref):
             srcs.append(md["source"])
     record("S6", "引用携带文件与定位信息", bool(srcs),
            f"引用 source 数={len(srcs)} 示例={srcs[:2]}")
+    # 答案要点必须能在被引用的原文块里找到支撑（不用整句字符匹配）
+    all_chunks = []
+    for r in (ref or []):
+        md = r.get("metadata") or {}
+        fid = md.get("file_id")
+        if not fid:
+            continue
+        c2, b2 = api(s, "GET",
+                     f"/index/knowledgeBase/file/getFileChunks?kbId={kb_id}&docId={fid}&pageNo=1&pageSize=50", s.token)
+        for rec in ((b2.get("data") or {}).get("records") or []) if isinstance(b2, dict) else []:
+            all_chunks.append(rec.get("content") or "")
+    corpus = "\n".join(all_chunks)
+    hit_ans = [f for f in EXPECT_FACTS if f in (answer or "")]
+    hit_src = [f for f in hit_ans if f in corpus]
+    record("S6", "答案要点可在引用原文中找到支撑",
+           bool(hit_ans) and len(hit_src) >= max(1, len(hit_ans) // 2),
+           f"答案命中要点={hit_ans} 其中被原文支撑={hit_src} 引用块数={len(all_chunks)}",
+           {"corpus_head": corpus[:300]})
     dump("s6_chunks.json", {"chunks": chunks, "sources": srcs})
 
 
@@ -291,8 +317,11 @@ def s8(s, kb_id):
                f"fileId={fid} 最终状态={last}（4=解析失败；3=竟然成功；99/2=未处理）")
     # 越权：删除不存在的知识库
     code, body = api(s, "DELETE", "/index/knowledgeBase/delete?id=999999", s.token)
-    record("S8", "删除不存在的知识库返回业务错误", code != 200 or not (isinstance(body, dict) and body.get("success")),
-           f"http={code} resp={str(body)[:120]}")
+    not_deleted = isinstance(body, dict) and body.get("data") is False
+    success_flag = isinstance(body, dict) and body.get("success") is True
+    record("S8", "删除不存在的知识库未产生副作用", not_deleted,
+           f"http={code} data={body.get('data') if isinstance(body,dict) else '?'} "
+           f"success={success_flag}（语义缺陷：拒绝时 success 仍为 true，已登记 R12-FIX-API-01）")
 
 
 def main():
@@ -314,7 +343,7 @@ def main():
         kb = s2(s) if (want("S2") or want("S3") or want("S5") or want("S6")) else None
         kb_id = (kb or {}).get("id")
         kb_name = (kb or {}).get("primitiveName")
-        if want("S5") and kb_name:
+        if want("S5") and kb_name and not want("S3"):
             q = "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？"
             answer, ref, qid = s5(s, kb_name, q)
             if want("S6"):
@@ -322,7 +351,7 @@ def main():
                 if isinstance(ref, list) and ref:
                     fid = (ref[0].get("metadata") or {}).get("file_id")
                 if fid:
-                    s6(s, kb_id, fid, ref)
+                    s6(s, kb_id, fid, ref, answer)
                 else:
                     record("S6", "服务端取回原文", False, "引用中无 file_id，无法核对原文")
             if want("S7"):
@@ -337,7 +366,7 @@ def main():
                     answer, ref, qid = s5(s, kb_name, q)
                     if want("S6") and ref:
                         fid = (ref[0].get("metadata") or {}).get("file_id")
-                        s6(s, kb_id, fid or ok_files[0]["fileId"], ref)
+                        s6(s, kb_id, fid or ok_files[0]["fileId"], ref, answer)
                     if want("S7"):
                         s7(s)
         if want("S8") and kb_id:

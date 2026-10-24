@@ -694,7 +694,11 @@ model-ops 给出的约束模型（18093：`n_ctx_slot=8192 + kv_unified=true`，
 
 **1) 用响应体 `timings` 判断测量是否干净（已采集进 metadata）**
 `llama-server` 非流式响应自带 `timings.prompt_n / cache_n / prompt_per_second / predicted_per_second`。我已在 `chat(return_meta=True)` 里带上 `timings`，并写入图片块 `vlm_prompt_n` / `vlm_cache_n`。
-判据（model-ops 口径）：**`cache_n ≤ 5% × prompt` 才算干净测量**；`cache_n` 接近 `prompt_n` 说明整段命中 prompt cache，耗时不能代表首次开销。
+判据（model-ops 口径）：**`cache_n ≤ 5% × 总 prompt` 才算干净测量**。
+
+⚠ **口径订正（2026-10-25 C14 实测暴露）**：llama.cpp 的 `timings` 里 **`prompt_n` = 本次实际评估的 token 数**、**`cache_n` = 从 KV cache 复用的 token 数**，两者**相加**才是总 prompt。
+所以正确的干净度比值是 **`cache_n / (prompt_n + cache_n) ≤ 5%`**，而不是 `cache_n / prompt_n`。
+**反例（我今天差点误读）**：C14 第 1 张图报 `prompt_n=1 / cache_n=2962` —— 按旧写法算成 "296200%" 像数据错了，按新写法是 `2962/2963 = 99.97%`，**含义明确：该图整段 prompt 命中缓存，这次不是冷测**。
 
 **我方实测印证（同一张图重复解析，我们自己也踩了缓存）**：
 | 次 | 耗时 | `prompt_n` | `cache_n` | 结论 |
@@ -844,8 +848,66 @@ boxes                 : （无此字段，已按 R12-FIX-PARSE-08 剔除）
 [C08] PASS http=200 56.23s chunks=2  DOCX 内嵌图片（需VLM）
 PASS=12 FAIL=0 BLOCKED=0
 ```
-→ **C08 首次在"load1 11→20"的忙机器上跑通**（此前一直被 load 闸门 SKIP）；同时也再次验证 R12-FIX-PARSE-06（截断不并入正文）与 07（回调跳过）未破坏图片块产出（chunks=2：text + image）。
+→ **C08 首次在"load1 11.2→19.9"的忙机器上跑通**（此前一直被 load 闸门 SKIP）；同时也再次验证 R12-FIX-PARSE-06（截断不并入正文）与 07（回调跳过）未破坏图片块产出（chunks=2：text + image）。
+
+> ⚠ **口径限定（model-ops 复核）**：56.23s 是**功能通过证据（functional 模式，load1 11.2→19.9，属 10–15 / >15 档）**，**不是容量数据**，不得与 105.72s（低负载）或 348s（高负载）横向比较。
+> 容量数字仍以 C14/C15 的 `capacity` 测量为准（当前无窗口）。
 
 **证据补强：这不是"我和邻居"的问题，是多角色共享 20 核**
 model-ops 采样到 **`rerank cpu=17.73 核`（瞬时大 batch，2 秒后回 0）**、`embedding 曾 1.5 核`、`VLM 8.49 核（kb_5 在飞）`、`MemAvailable 5.9G`。
 ⇒ 向 TL 申请窗口的证据已扩为三行：**VLM 8.49 核（kb_5 在飞）/ rerank 17.73 核（瞬时大 batch）/ MemAvailable 5.9G**。**只有 TL 能排期**，不由角色间互等。
+### 16.12 中文 DOCX 直读完整性验证（TL 的 CONV-03 修复，配对照与回归用例）
+
+**背景（TL 发现的事故）**：Java 侧 docx→PDF 预处理用 XWPF 兜底，生成**不嵌中文字体**的 PDF，文本层汉字全丢：
+`kb_8` 里 `R12FIX-product-loan.docx` 的 `text` 只剩 `“”PRD-CORP-LOAN-2026-01R1250001000AAA30AA60A100`（47 字、**0 汉字**）。
+TL 已修（`R12-FIX-CONV-03`：转换不可用时**回落原始 docx 直读**）。**我负责验证解析侧直读是否本来就完整。**
+
+**实测对照（同一份文件、同一解析服务、同一参数）**
+| 输入 | chunks | 总字数 | 汉字数 | 关键串 | offset |
+|---|---|---|---|---|---|
+| `.../R12FIX-product-loan.pdf`（转换产物，事故现场） | 1 | **47** | **0** | 全不命中 | `[[0,47]]` |
+| `.../R12FIX-product-loan.docx`（**直读**，CONV-03 后） | 1 | **459** | **376** | 智造贷/授信额度/5000/三年/汽车零部件/利率 **全命中** | `[[0,459]]` |
+
+- docx 真值（python-docx 直读同一文件）：**470 字 / 376 汉字**；
+- 解析输出 **376 汉字 = 真值的 100%**；差 11 字符 = **段落分隔符（12 段之间 11 个换行）被合并**，正文内容一字未丢。
+
+**结论（回答 TL 的问题）**：deepdoc `DOCXParser` 对中文 docx **本来就完整**（汉字 376/376）。事故 100% 来自上游"docx→无中文字体 PDF"的预处理，解析侧无需改动。
+**附带发现（低危，R13 记）**：直读后**段落边界丢失**（段落直接拼接，标题与正文粘连）。短文档无影响（本文件 449 字单块），但**长文档的切分粒度会变粗**；若后续要求"按段落切"，需在 DOCXParser 输出保留 `\n`。
+
+**新增回归用例 C16（已固化进 `run-parse-cases.sh`）**
+`C16 中文DOCX直读 汉字完整性（防CONV-03回归）`，三条断言专门防这次事故复现：
+1. `min_chars=380`、2. **`min_chinese=350`**（若上游再次退回无字体 PDF，该值会直接掉到 0 → FAIL）、3. `text_kw=智造贷/授信额度/5000/三年/汽车零部件` + `locator_present`。
+自包含夹具（脚本内用 python-docx 生成 ~450 字中文《智造贷产品说明书》，不依赖 TL 的样本文件）。
+
+**回归结果**：`[C16] PASS chunks=1 chars=449 chinese=367 offset=[[0,449]]`，全套 **PASS=13 FAIL=0**。
+
+**两条给 QA 的操作提示**
+1. **验证正文必须用 `/parse_without_indexing`**：`/parse_sync` 返回的是 `ParseResponse{success,msg,task_statuses}`，**不含 chunks**（我第一次用 parse_sync 取正文拿到 0 块，属接口语义差异，不是解析失败）。
+2. 顺带修了回归脚本一个隐患：`upload()` 原来只上传 `SAMPLES` 白名单，**新增夹具会漏传并报 `NoSuchKey`**；已改为目录全量上传（本次 23 个）。
+### 16.13 环境侧结构性原因：68 线程跑在 20 核上（model-ops 上报 TL）
+
+实测配额：`VLM --threads 20`（当前被 `kb_5` 占用约 11.6 核）、`EMB_THREADS=20`、`RR_THREADS=20`、LLM 8 ⇒ **合计 68 线程 / 20 核**，这是"互相踩"的**结构性原因**（不是某一次负载尖峰）。
+model-ops 已向 TL 提 A（只排期独占窗口）/ B（配额降到 34：EMB 6 / RR 6 / VL 14），建议 A+B。
+
+**对我方的影响（已登记，不需改代码）**
+1. 若 TL 批 **B**，embedding / rerank / VLM 将各重启 **5–15s**（model-ops 会提前通知）→ 届时**暂停跑用例**，避免把"重启窗口"记成解析失败。
+2. 重启后**两个维度都要重设基线**（不只 embedding 侧）：
+   - **embedding**：单条查询约 **100ms → 250–300ms（估算）** ⇒ 含 embedding 的链路（`link_images_text` 图片关联、落库向量化）耗时变化；
+   - **VLM**：`--threads 20 → 14`，**prompt eval 预计慢 1.2–1.4×（估算）** ⇒ **`vlm_prompt_n` / 单图耗时那一列同样要重设基线**。
+   ⚠ **B 之前的所有 VLM 耗时（105.72s / 348s / 56.23s）与 B 之后的数据不可横向比较**；R13 若引用容量数字，必须先确认数据是 B 前还是 B 后，否则会把"线程配额变更"误读成"模型/机器性能变化"。
+   （正确性判定不受影响：PASS/FAIL 只看内容与状态字段，不看耗时。）
+3. 回归脚本已按此把"功能"与"容量"分开（§16.11 双模式），**配额变更只影响容量档数字，不影响 PASS/FAIL 判定**。
+### 16.14 一条可复用的取数判据（今天三次踩坑的共同抽象）
+
+> **看到"空 / 零 / 通过"时，先证明那个数字是被谁算出来的，再相信它。**
+
+今天三个实例，形态不同、本质相同（都是**中间层投影冒充真实结果**）：
+
+| 表象 | 真实原因 | 已固化的防线 |
+|---|---|---|
+| "解析出 0 块" | 调的是 `/parse_sync`，其返回**不含 chunks**（`ParseResponse{success,msg,task_statuses}`） | §16.12-2：**验证正文必须用 `/parse_without_indexing`** |
+| "PASS=12 / `capacity exit=0`" | 退出码被管道 `\| tail` 吃掉，读到的是 `tail` 的状态 | §16.11：**用 `subprocess` 返回值或 `$?` 直取，不隔着管道判** |
+| "512 够用 / 转录完整" | 427 token 已顶到上限，是**截断前的数字** | `R12-FIX-PARSE-05`：**`finish_reason=='length'` ⇒ 不得视为完整转录**；`R12-FIX-PARSE-06`：**截断残句不并入正文** |
+| （model-ops 侧同型）"Milvus 有 `meta_json` 可复用" | 未查 schema 就假设通用字段存在（实测 33 字段里没有） | §16.10：**字段形状以 `_mapping` / `describe_collection` 实测为准** |
+
+**为什么值得单列**：这四条的失败模式都是"**测试自己给自己发了合格证**"——比功能 bug 更难发现，因为报错不发生。R13 新增断言时应先问一句：这个断言读的是**真实输出**，还是**某个中间层的投影**？

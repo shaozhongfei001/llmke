@@ -175,7 +175,16 @@ public class AuthFilter implements GatewayFilter, Ordered {
                 if (!StringUtils.isNotBlank(token)) {
                     return response(response, HttpStatus.UNAUTHORIZED, ErrCodeEnum.NO_TOKEN);
                 }
-                String cacheToken = redissonUtils.get(RedisKeyEnums.USER_TOKEN_PREFIX + JWTUtils.getUsername(token));
+                // R12-FIX-AUTH-01：非 JWT 格式的 Authorization（如 "Bearer forged.token"）会让
+                // JWTUtils.getUsername 抛异常并返回 500。鉴权失败必须是 401，不能把"拒绝"变成 5xx。
+                String tokenUser;
+                try {
+                    tokenUser = JWTUtils.getUsername(token);
+                } catch (Exception ex) {
+                    log.warn("invalid token rejected: {}", ex.getMessage());
+                    return response(response, HttpStatus.UNAUTHORIZED, ErrCodeEnum.NO_TOKEN);
+                }
+                String cacheToken = redissonUtils.get(RedisKeyEnums.USER_TOKEN_PREFIX + tokenUser);
                 if (StringUtils.isEmpty(cacheToken)) {
                     return response(response, HttpStatus.UNAUTHORIZED, ErrCodeEnum.LOGIN_EXPIRE);
                 } else if (!token.equals(cacheToken)) {

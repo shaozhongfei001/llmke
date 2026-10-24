@@ -360,3 +360,25 @@ transformers 以 `local_files_only=True` 加载，LLM/VLM 使用本地 GGUF；�
 - 关键参数：18092 `--ctx-size 8192`；18093 `--parallel 2 --ctx-size 32768`（每槽私有 16384）、`--n-gpu-layers 0`
 - 验证：`verify.py` ALL PASS（27 断言）、`verify_vl.py` ALL PASS、`bench_vl.py` 带负载哨兵与 `cache_n` 校验
 - 复跑一键：`platform/r12/models/start-all.sh {up|down|status|restart}`
+
+## 10. 线程预算（结构性瓶颈，待 TL 裁定 A/B）
+
+20 核机器上四个模型服务的**线程配额合计 68**，本身就过配；java index-service / gateway / parse 还要抢同一批核。
+
+| 服务 | 当前配额 | 实测占用 | B 方案建议值 |
+|---|---|---|---|
+| VLM 18093 | `--threads 20` | **8.5–11.6 核**（有请求时） | 14 |
+| embedding 18090 | `EMB_THREADS=20` | 0.5–1.5 核 | **6** |
+| rerank 18091 | `RR_THREADS=20` | 0.4 核（**峰值 17.7 核**） | **6** |
+| LLM 18092 | `--threads 8` | ≈0（GPU 全量 offload） | 8 |
+| 合计 | **68** | — | **34** |
+
+**后果（已实测）**：VLM 2 槽中一个做长 prefill 时，另一槽生成被饿到 **0.73 tok/s**（同请求 prefill 21.1 tok/s 正常）⇒ 容量测量必须等独占窗口，或先调配额。
+
+**一键应用 B（已在 `start-all.sh` 中参数化，无需改代码）**：
+```bash
+cd platform/r12/models
+EMB_THREADS=6 RR_THREADS=6 VL_THREADS=14 ./start-all.sh restart
+```
+**代价（估算，非实测）**：单条 embedding 查询 ~100ms → 250–300ms；VLM prompt eval 慢 ~1.2–1.4×。
+**注意**：重启各服务 5–15s 不可用；**含 embedding 的链路（图片关联、落库向量化）耗时不可跨此变更横向比较**；功能正确性不受影响。

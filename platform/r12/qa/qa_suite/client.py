@@ -197,19 +197,22 @@ class Client:
             return Resp("POST", "/qa/ai/question_re", -1, {"transport_error": repr(e)})
 
         text, frames = [], []
-        # 注意：不能 decode_unicode=True —— requests 按 chunk 解码会把跨块的多字节 UTF-8 撕开，
-        # 中文会变成 mojibake，后面的"要点支撑"比对就全错。改为按行取 bytes 再逐行 utf-8 解码。
+        # 注意两点（均来自实测踩坑）：
+        # 1) 不能 decode_unicode=True —— requests 按 chunk 解码会把跨块多字节 UTF-8 撕开，中文变 mojibake；
+        #    改为按行取 bytes 再逐行 utf-8 解码。
+        # 2) 只认 `data:` 开头的行 —— 其余是 SSE 协议文本（event:/id:/注释），混进答案会污染"要点比对"。
         for raw in r.iter_lines(decode_unicode=False):
             if not raw:
                 continue
-            raw = raw.decode("utf-8", errors="replace")
-            line = raw[5:].strip() if raw.startswith("data:") else raw.strip()
+            line = raw.decode("utf-8", errors="replace")
+            if not line.startswith("data:"):
+                continue
+            line = line[5:].strip()
             if not line:
                 continue
             try:
                 obj = json.loads(line)
             except Exception:
-                text.append(line)
                 continue
             frames.append(obj)
             rep = obj.get("reply") or {}
@@ -218,12 +221,22 @@ class Client:
 
         refs = []
         for fr in frames:
-            if fr.get("reference"):
+            v = fr.get("reference")
+            if not v:
+                continue
+            try:
+                parsed = json.loads(v) if isinstance(v, str) else v
+            except Exception:
+                continue
+            # 后端有两种形状：裸数组，或 filterDocs 产出的 {documents:[...], webDocumentsList:[...]}
+            if isinstance(parsed, dict):
+                inner = parsed.get("documents")
                 try:
-                    v = fr["reference"]
-                    refs = json.loads(v) if isinstance(v, str) else v
+                    parsed = json.loads(inner) if isinstance(inner, str) else (inner or [])
                 except Exception:
-                    pass
+                    parsed = []
+            if isinstance(parsed, list) and parsed:
+                refs = parsed
         body = {"reply": "".join(text), "frames": frames, "refs": refs,
                 "http": r.status_code, "n_frames": len(frames)}
         self.trace.append({"label": self.label, "method": "POST",

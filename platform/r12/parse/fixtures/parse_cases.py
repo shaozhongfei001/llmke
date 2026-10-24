@@ -70,9 +70,9 @@ CASES = [
          chinese=True, types=["table"], loc=False, table_md=True, needs_llm=True, stress=True,
          min_chunks=5, table_kw=["客户编号", "五级分类"]),
     # 多图用例（需 --with-vlm-heavy；单次 500-700s，VLM 侧 7.7G RSS，必须串行）
-    dict(id="C14", file="docx-2images.docx", desc="2 张整页扫描图（多图）", chinese=False,
+    dict(id="C14", file="docx-2images-v2.docx", desc="2 张整页扫描图（v2 物理去重，防 prompt cache 污染）", chinese=False,
          types=["image"], loc=False, needs_llm=True, needs_mm=True, vlm_heavy=True, expect_image_chunks=2),
-    dict(id="C15", file="docx-3images.docx", desc="3 张整页扫描图（多图）", chinese=False,
+    dict(id="C15", file="docx-3images-v2.docx", desc="3 张整页扫描图（v2 物理去重，防 prompt cache 污染）", chinese=False,
          types=["image"], loc=False, needs_llm=True, needs_mm=True, vlm_heavy=True, expect_image_chunks=3),
 ]
 
@@ -367,6 +367,7 @@ def main():
     ap.add_argument("--skip-upload", action="store_true")
     ap.add_argument("--with-stress", action="store_true", help="额外跑 C13 大表压力用例")
     ap.add_argument("--with-vlm-heavy", action="store_true", help="额外跑 C14/C15 多图用例（单次 500-700s，串行）")
+    ap.add_argument("--only", default=None, help="只跑指定用例 id（逗号分隔，如 C14）")
     ap.add_argument("--max-load", type=float, default=float(os.environ.get("R12_MAX_LOAD", 15)),
                     help="load1 超过该值时跳过所有 VLM 用例（model-ops 实测 load≈30 时 VLM 只有 0.18 tok/s，会得到假超时）")
     args = ap.parse_args()
@@ -389,6 +390,8 @@ def main():
 
     rows, npass, nfail, nblock = [], 0, 0, 0
     for case in CASES:
+        if args.only and case['id'] not in [x.strip() for x in args.only.split(',')]:
+            continue
         keys = case.get("files") or [case["file"]]
         cid = case["id"]
         if case.get("stress") and not args.with_stress:
