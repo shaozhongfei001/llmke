@@ -3,9 +3,9 @@
     "by_status": {
       "DONE": 1,
       "QA_PENDING": 1,
-      "SUPERSEDED": 11
+      "SUPERSEDED": 13
     },
-    "count": 13,
+    "count": 15,
     "rows": [
       {
         "loop": "L0-contract-baseline-r10",
@@ -29,6 +29,16 @@
       },
       {
         "loop": "L0-contract-baseline-r14",
+        "revision": 13,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r15",
+        "revision": 10,
+        "status": "SUPERSEDED"
+      },
+      {
+        "loop": "L0-contract-baseline-r16",
         "revision": 13,
         "status": "QA_PENDING"
       },
@@ -93,10 +103,10 @@
     "tasks": {
       "by_status": {
         "BLOCKED_EXTERNAL": 5,
-        "VERIFIED": 7,
+        "VERIFIED": 10,
         "VERIFIED_DRYRUN": 1
       },
-      "count": 13,
+      "count": 16,
       "present": true
     }
   },
