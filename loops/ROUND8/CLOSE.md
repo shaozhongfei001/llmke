@@ -8,6 +8,8 @@
 
 **技术完成、无独立背书。** 代码/数据/证据无待修项；业务不可开工。
 
+补一句边界（外部评审指出）：本轮关闭**不等于该批次满足正常 QA 收口条件**。`independent_qa_gate` 从未取得有效独立签名，r11 仍为 `QA_PENDING`；`CLOSED_WITHOUT_ENDORSEMENT` 只是账本备注，**不是门禁规范中的合法终态**（规范只有 `DONE / SUPERSEDED / RETIRED`）。
+
 ## 判定口径（避免后人误读）
 
 "结束"有两种，本文件按第二种：
@@ -42,6 +44,25 @@
 - P0-01 / P0-02 / P0-03 / P0-04 **全部 OPEN**
 - L1–L4 **BLOCKED**，业务**不可开工**
 
+## 计数口径（外部评审指出原文有混淆，已更正）
+
+| 项 | 正确值 | 说明 |
+|---|---|---|
+| `SUPERSEDED` 批次 | **6 个**（r3、r5、r6、r7、r8、r9） | 其中**本轮内作废 5 个**（r5–r9）；r3 属本轮回溯前的历史遗留 |
+| 决策记录 | **53 条**，编号 D1–D54 | **缺 D47**（未使用），不是 54 条 |
+| r9 → r10 替代原因 | **未记录** | 决策记录无对应条目，仅存提交信息；属流程缺陷，不推断原因 |
+| 本轮任务 | 27 | 25 VERIFIED / 1 `CLOSED_WITHOUT_ENDORSEMENT` / 1 `BLOCKED_EXTERNAL` |
+
+## r10 必须分三列（合并表述会误读）
+
+| 维度 | 值 |
+|---|---|
+| 历史执行状态 | `DONE`（曾被接受并合并） |
+| 当前证据有效性 | **九条全 STALE**（建 r11 后 `control_digest` 变化） |
+| 独立签署状态 | **无**（实现方持钥自签，且签名已于 `2026-10-22T06:47:14Z` 过期） |
+
+结论：只有第一列表示"曾经发生过"；后两列均为否，**不得合并写成"r10 已完成"**。
+
 ## 结转与后续
 
 1. `R8-T05` → 下一轮首要输入，依赖四位 owner 的材料。
@@ -56,5 +77,6 @@ export PATH=$PWD/.venv/bin:$PATH LLMKE_TRUST_ROOT=$HOME/data/qa-keys/trust-root.
 ~/data/dev/coordination/mysql-probe.sh start
 make framework-verify > /tmp/fv.log 2>&1; echo "rc=$?"; tail -3 /tmp/fv.log
 ~/data/dev/coordination/evidence-check.sh L0-contract-baseline-r11
+# 最近一次 252/0 的完整日志：docs/baseline/validation/ROUND8-FRAMEWORK-VERIFY-252.txt
 make p0-gate > /tmp/p0.log 2>&1; echo "rc=$?（期望 2）"
 ```

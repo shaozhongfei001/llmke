@@ -1,0 +1,21 @@
+# framework-verify 运行日志（252 passed / 0 skipped）
+#
+# 运行时间：2026-10-24（重跑）
+# 说明：QA 在 2026-10-22 的那次运行日志原存于 /tmp，已被系统清理，不可追溯；
+#       本文件为 2026-10-24 重跑的可入库副本，**不冒充 10-22 那次**。
+# 环境：MySQL 8.0.41-0ubuntu0.22.04.1（mysql-probe.sh，仅 socket）
+# 命令：make framework-verify
+# 退出码：0
+
+generate: PASS (18 contracts, clean staged outputs)
+check: PASS (18 contracts, semantic + exact linkage)
+rule-mirror: PASS
+trace-check: PASS
+p0-check: PASS (integrity)
+security-check: PASS (780 file(s) scanned; evidence_logs_personal_path_skipped=0)
+........................................................................ [ 28%]
+........................................................................ [ 57%]
+........................................................................ [ 85%]
+....................................                                     [100%]
+252 passed in 71.82s (0:01:11)
+baseline: PASS (technical artifact only; independent QA/business readiness separate)
