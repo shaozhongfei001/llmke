@@ -12,8 +12,9 @@ R9-T10,data-owner,R9-T05,docs/baseline/validation/artifacts/**,n/a（缺真实 D
 R9-T11,python-rag-agent,R9-T08,"modules/index_generation/{generation,__init__}.py",python -m pytest modules/index_generation/tests -q,VERIFIED,loops/round9/evidence/T11-outbox-pytest.log,524cd69,3 passed 真库；重投/去重/到限/回收
 R9-T12,index-owner,R9-T11,docs/baseline/validation/artifacts/schema-v1.3.sql,n/a（需 schema 决策）,BLOCKED_EXTERNAL,,,index-owner
 R9-T13,redteam-agent,R9-T01,coordination/r9-digest-gap-probe.py（仓外）,python3 r9-digest-gap-probe.py,VERIFIED,loops/round9/evidence/T13-digest-gap.json,"8924a02,6a6c13f",改 schema-verify.sh 三摘要不变；未跟踪文件亦不可见
-R9-T14,tech-lead,R9-T13,"scripts/{loop_guard,baseline_support}.py",n/a（需窗口）,BLOCKED_WINDOW,,,project-owner
+R9-T14,tech-lead,R9-T13,"scripts/{loop_guard,baseline_support}.py",pytest tests/test_command_digest.py,VERIFIED,,eedf705,project-owner
 R9-T15,gate-evidence-agent,R9-T13,coordination/command-digest-probe.py（仓外）,python3 command-digest-probe.py,VERIFIED_DRYRUN,loops/round9/evidence/T15-command-digest.json,59ad392,command_digest 变、三旧摘要不变；还原一致
 R9-T16,python-rag-agent,R9-T08,"modules/answer_api/{sql_adapter,handler}.py",python -m pytest modules/answer_api/tests -q,VERIFIED,loops/round9/evidence/T16-pytest.log,59ad392,INDEX_NOT_READY(503) 与 NO_EVIDENCE(422) 分离
 R9-T17,tech-lead,R9-T01,coordination/p0-01-inventory-audit.py（仓外）,p0-01-inventory-audit.py --out ... --md ...,VERIFIED_DRYRUN,loops/round9/evidence/T17-p0-01-audit.json,ab6694e,506 全未验证；三项证据 0；哈希不可复算
 R9-T18,interface-owner,R9-T17,docs/reuse/INTERFACE-ASSETS.yaml,n/a（需运行时/调用方输入）,BLOCKED_EXTERNAL,,,interface-owner
+R9-T19,gate-evidence-agent,R9-T15,"scripts/{baseline_support,loop_guard}.py, tests/test_command_digest.py, loops/L0-contract-baseline-r12/**",pytest tests/test_command_digest.py -q,VERIFIED,loops/round9/evidence/T19-scheme4.txt,eedf705,

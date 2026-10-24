@@ -5,7 +5,7 @@ import _pin  # noqa: F401  W-05b 必须在重型导入之前
 import argparse,json,os,re,subprocess,sys
 from pathlib import Path
 from contract_runtime import load,inside,digest,filehash,ContractViolation
-from baseline_support import (ROOT,now,atomic_json,exclusive,snapshot,baseline_hash,
+from baseline_support import (ROOT,now,atomic_json,exclusive,snapshot,baseline_hash,command_digest,
  verify_envelope,control_digest,doc_digest,code_digest,DIGEST_SCHEME,
  DOC_DEPENDENT_GATES,CODE_DEPENDENT_GATES)
 from p0_closure_check import check as p0_errors
@@ -28,6 +28,10 @@ def stale_reasons(root,rec,g):
   # W-01：只有声明依赖代码的门禁才看 code_digest；scheme<=2 的旧记录不回溯改写
   if scheme>=3 and g['id'] in CODE_DEPENDENT_GATES and rec.get('code_sha256')!=code_digest(root):
    errors.append(g['id']+': implementation code changed; evidence STALE')
+  # scheme>=4：门禁命令闭包（脚本内容）必须未变。闭包为空表示该门禁没有仓内脚本，
+  # 不做判断（不是通过，只是没有可绑定的对象）。
+  if scheme>=4 and rec.get('command_sha256') and rec['command_sha256']!=command_digest(g['argv'],root):
+   errors.append(g['id']+': gate command changed; evidence STALE')
  else:
   # 旧记录没有 digest_scheme：保持原整树语义，不回溯改写历史证据
   if rec.get('source_sha256')!=snapshot(root):
@@ -181,7 +185,7 @@ def run_gate(root,loop_id,gate_id,executor,role,qa_candidate=False):
    prerequisites(root,loop,state,g,m,executor)
    stale=evidence_errors(root,loop_id)
    if stale:raise ContractViolation('prior evidence invalid: '+'; '.join(stale))
-   before=snapshot(root);bh=baseline_hash(root)
+   before=snapshot(root);bh=baseline_hash(root);before_cmd=command_digest(g['argv'],root)
    before_control=control_digest(root);before_doc=doc_digest(root)
    before_code=code_digest(root)
    state.setdefault('attempts',{})[gate_id]=state.get('attempts',{}).get(gate_id,0)+1
@@ -196,7 +200,7 @@ def run_gate(root,loop_id,gate_id,executor,role,qa_candidate=False):
    if after!=before:code=125;output+='\nsource changed during gate; result invalid\n'
    rel=f'loops/{loop_id}/evidence/{gate_id}.log';log=inside(root,rel)
    log.write_text(json.dumps({'argv':g['argv'],'exit_code':code,'executor':executor,'at':now()},ensure_ascii=False)+'\n'+output)
-   record={'status':'fail' if code else('QA_PENDING' if qa_candidate else 'pass'),'type':g['type'],'executor':executor,'role':'LOCAL_QA_CANDIDATE' if qa_candidate else 'DEV_SELF_CHECK','evidence':rel,'sha256':filehash(log),'digest_scheme':DIGEST_SCHEME,'control_sha256':before_control,'doc_sha256':before_doc,'code_sha256':before_code,'source_sha256':before,'baseline_sha256':bh,'gate_spec_sha256':gate_digest(root,g),'ran_at':now(),'exit_code':code,'executed_checks':g['required_checks']}
+   record={'status':'fail' if code else('QA_PENDING' if qa_candidate else 'pass'),'type':g['type'],'executor':executor,'role':'LOCAL_QA_CANDIDATE' if qa_candidate else 'DEV_SELF_CHECK','evidence':rel,'sha256':filehash(log),'digest_scheme':DIGEST_SCHEME,'control_sha256':before_control,'doc_sha256':before_doc,'code_sha256':before_code,'command_sha256':before_cmd,'source_sha256':before,'baseline_sha256':bh,'gate_spec_sha256':gate_digest(root,g),'ran_at':now(),'exit_code':code,'executed_checks':g['required_checks']}
    if code:failure(d,gate_id,f'command exited {code}; evidence {rel}')
    m['gates'][gate_id]=record;atomic_json(d/'evidence/manifest.json',m)
    if not code and qa_candidate:state['status']='QA_PENDING';save_state(d,state)

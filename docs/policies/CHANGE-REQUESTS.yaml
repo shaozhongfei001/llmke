@@ -1,63 +1,55 @@
-# 变更申请登记（框架 / 门禁类）
-#
-# 编号沿用 docs/baseline/TRACE.yaml 的 `BL-<baseline_version>` 约定，追加两位序号，
-# 不使用裸号（如 "CR-01"）—— 裸号无编号体系会使将来编号冲突。
-#
-# 规则：
-#   1. 未在此登记 = 不得实施；实施前必须有 proposal / compat / acceptance 三段。
-#   2. 涉及接口契约的，入口是 contracts/registry.yaml，并须写明兼容去向（compat）。
-#   3. status: PROPOSED（待窗口） / ADOPTED（已生效，有载体文件） / REJECTED（附否决理由）
 register_version: 1
-baseline_version: "1.1.1"
+baseline_version: 1.1.1
 changes:
-  - id: BL-1.1.1-01
-    title: 签名消费回执（审计只认回执）
-    status: PROPOSED
-    owner: tech-lead
-    problem: >-
-      accept_qa 消费签名后不落任何可审计凭据。已定格批次在签名窗口（qa_payload 固定 1 小时）
-      结束后被永久判红，把"签名当时有效"误报成"签名无效"。W-07 曾试图用 STATE.json / ran_at
-      做审计时钟，两者均未被签名覆盖，被独立 QA 否决（仅改一行 status 即可放行过期签名）。
-    proposal: >-
-      accept_qa 在消费签名的同时写一份纳入 control_digest 的回执（envelope 摘要、subject_sha256、
-      loop_id / gate_id、consumed_at），审计只认回执，不再读 STATE.json 或 ran_at。
-      envelope 结构与既有签名格式不变。
-    compat: >-
-      旧批次（无回执）审计结论降级为"不可审计"，不得报成"签名无效"；
-      新批次一律要求回执，缺回执即 FAIL（fail-closed）。
-    acceptance:
-      - 仅修改 STATE.json 的 status 不得放行过期签名
-      - 仅修改 manifest.json 的 ran_at 不得放行
-      - 回执被改动一个字节 → 审计 FAIL
-      - 活批次仍用墙钟（重放旧签名批准新合并必须被拒）
-      - 终态批次在窗口外仍可审计通过（回执证明当时有效）
-    rejected_alternative: >-
-      W-07（docs/baseline/validation/patches/w07-audit-clock.diff）已被否决并移出仓库，
-      见 coordination/rejected/w07-audit-clock.REJECTED-by-QA.diff
-
-  - id: BL-1.1.1-02
-    title: STALE 清单稳定排序
-    status: PROPOSED
-    owner: tech-lead
-    problem: >-
-      evidence_errors 的 STALE 清单来自 set / dict 遍历，顺序不稳定；
-      将来做 golden-file 断言会随机 flake，且人工比对时顺序每次不同。
-    proposal: 输出前按 (gate_id, reason) 排序，不改变判定集合。
-    compat: 仅影响输出顺序，不影响通过/失败结论。
-    acceptance:
-      - 同一树连续跑 20 次，输出逐字节一致
-      - 判定集合（排序后）与改动前一致
-
-  - id: BL-1.1.1-03
-    title: 门禁判定禁止接管道
-    status: ADOPTED
-    owner: tech-lead
-    carrier: docs/policies/GATE-EXECUTION-RULES.md
-    problem: >-
-      管道让退出码变成最后一个命令的退出码。本项目已实际发生：evidence-check 打印 FAIL
-      但 exit=0（2026-10-22），若据此判定即会把失效签名当有效证据。
-    proposal: 规则落盘（R1–R4），判定只认退出码，必须管道时用 PIPESTATUS[0] 或 set -o pipefail。
-    compat: 不涉及代码与契约；对既有脚本无破坏性。
-    acceptance:
-      - docs/policies/GATE-EXECUTION-RULES.md 存在且含 R1–R4
-      - 规范内的所有示例命令均为"退出码可保留"写法
+- id: BL-1.1.1-01
+  title: 签名消费回执（审计只认回执）
+  status: PROPOSED
+  owner: tech-lead
+  problem: accept_qa 消费签名后不落任何可审计凭据。已定格批次在签名窗口（qa_payload 固定 1 小时） 结束后被永久判红，把"签名当时有效"误报成"签名无效"。W-07
+    曾试图用 STATE.json / ran_at 做审计时钟，两者均未被签名覆盖，被独立 QA 否决（仅改一行 status 即可放行过期签名）。
+  proposal: accept_qa 在消费签名的同时写一份纳入 control_digest 的回执（envelope 摘要、subject_sha256、
+    loop_id / gate_id、consumed_at），审计只认回执，不再读 STATE.json 或 ran_at。 envelope 结构与既有签名格式不变。
+  compat: 旧批次（无回执）审计结论降级为"不可审计"，不得报成"签名无效"； 新批次一律要求回执，缺回执即 FAIL（fail-closed）。
+  acceptance:
+  - 仅修改 STATE.json 的 status 不得放行过期签名
+  - 仅修改 manifest.json 的 ran_at 不得放行
+  - 回执被改动一个字节 → 审计 FAIL
+  - 活批次仍用墙钟（重放旧签名批准新合并必须被拒）
+  - 终态批次在窗口外仍可审计通过（回执证明当时有效）
+  rejected_alternative: W-07（docs/baseline/validation/patches/w07-audit-clock.diff）已被否决并移出仓库，
+    见 coordination/rejected/w07-audit-clock.REJECTED-by-QA.diff
+- id: BL-1.1.1-02
+  title: STALE 清单稳定排序
+  status: PROPOSED
+  owner: tech-lead
+  problem: evidence_errors 的 STALE 清单来自 set / dict 遍历，顺序不稳定； 将来做 golden-file 断言会随机
+    flake，且人工比对时顺序每次不同。
+  proposal: 输出前按 (gate_id, reason) 排序，不改变判定集合。
+  compat: 仅影响输出顺序，不影响通过/失败结论。
+  acceptance:
+  - 同一树连续跑 20 次，输出逐字节一致
+  - 判定集合（排序后）与改动前一致
+- id: BL-1.1.1-03
+  title: 门禁判定禁止接管道
+  status: ADOPTED
+  owner: tech-lead
+  carrier: docs/policies/GATE-EXECUTION-RULES.md
+  problem: 管道让退出码变成最后一个命令的退出码。本项目已实际发生：evidence-check 打印 FAIL 但 exit=0（2026-10-22），若据此判定即会把失效签名当有效证据。
+  proposal: 规则落盘（R1–R4），判定只认退出码，必须管道时用 PIPESTATUS[0] 或 set -o pipefail。
+  compat: 不涉及代码与契约；对既有脚本无破坏性。
+  acceptance:
+  - docs/policies/GATE-EXECUTION-RULES.md 存在且含 R1–R4
+  - 规范内的所有示例命令均为"退出码可保留"写法
+- id: BL-1.1.1-04
+  title: 门禁命令闭包摘要（command_digest）
+  status: ADOPTED
+  owner: tech-lead
+  carrier: scripts/baseline_support.py:command_digest + scripts/loop_guard.py
+  problem: docs/baseline/validation/ 内的验证脚本被当门禁命令执行，但该前缀排除在摘要外；改它不影响任何摘要。
+  proposal: run_gate 记录 argv 命令闭包（仓内脚本 + 一层 source/python/bash 引用）的 sha256；scheme>=4
+    时比较。
+  compat: 闭包为空（argv 无仓内脚本）时不判断，不误伤 make 目标；旧记录 scheme<=3 不回溯改写。
+  acceptance:
+  - 改排除前缀内的门禁脚本 -> evidence-check FAIL（gate command changed）
+  - 闭包为空 -> 不产生误报
+  - 旧批次 scheme<=3 记录仍可读

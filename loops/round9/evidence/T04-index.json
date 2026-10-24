@@ -2,10 +2,10 @@
   "batches": {
     "by_status": {
       "DONE": 1,
-      "QA_PENDING": 1,
+      "QA_PENDING": 2,
       "SUPERSEDED": 8
     },
-    "count": 10,
+    "count": 11,
     "rows": [
       {
         "loop": "L0-contract-baseline-r10",
@@ -15,6 +15,11 @@
       {
         "loop": "L0-contract-baseline-r11",
         "revision": 17,
+        "status": "QA_PENDING"
+      },
+      {
+        "loop": "L0-contract-baseline-r12",
+        "revision": 13,
         "status": "QA_PENDING"
       },
       {
@@ -101,25 +106,23 @@
     "ledger": {
       "by_state": {
         "BLOCKED_EXTERNAL": 4,
-        "BLOCKED_WINDOW": 1,
-        "VERIFIED": 10,
+        "VERIFIED": 12,
         "VERIFIED_DRYRUN": 3
       },
       "columns": 9,
       "malformed_rows": 0,
       "present": true,
-      "rows": 18,
-      "unique_tasks": 18,
+      "rows": 19,
+      "unique_tasks": 19,
       "unrecognized_rows": {}
     },
     "tasks": {
       "by_status": {
         "BLOCKED_EXTERNAL": 4,
-        "BLOCKED_WINDOW": 1,
-        "VERIFIED": 10,
+        "VERIFIED": 12,
         "VERIFIED_DRYRUN": 3
       },
-      "count": 18,
+      "count": 19,
       "present": true
     }
   }

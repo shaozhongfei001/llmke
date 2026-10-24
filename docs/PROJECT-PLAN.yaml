@@ -118,6 +118,13 @@ loops:
     state: READY
     objective: 独立复签批次（外部主体 qa-external-02）
     replaces: L0-contract-baseline-r10
+  L0-contract-baseline-r12:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: 第九轮收口候选（command_digest + 答案层）
+    replaces: L0-contract-baseline-r11
 retired_loop_aliases:
   L1-implementation: L1
 unplanned:

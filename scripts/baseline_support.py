@@ -1,6 +1,6 @@
 """Stable source fingerprints, atomic JSON, exclusive locks and signed approvals."""
 from __future__ import annotations
-import base64,contextlib,json,os,subprocess,tempfile
+import base64,contextlib,json,os,re,subprocess,tempfile
 from pathlib import Path
 from datetime import datetime,timezone,timedelta
 from contract_runtime import canonical,digest,filehash,inside,load,ContractViolation
@@ -52,7 +52,7 @@ def snapshot(root):return digest({rel:filehash(Path(root)/rel) for rel in source
 # 新行为：拆成两个摘要，判定 STALE 用 control_digest；
 # 只有显式声明「依赖文档」的门禁（读 docs/baseline/TRACE.yaml 的 traceability_gate）
 # 才额外比较 doc_digest。旧记录没有 digest_scheme，按 legacy 语义继续比较整树哈希。
-DIGEST_SCHEME=3
+DIGEST_SCHEME=4
 DOC_EXCLUDED=('contracts/build/','docs/reviews/','docs/registers/closures/',
               'docs/approvals/','docs/baseline/validation/')
 DOC_DEPENDENT_GATES=frozenset({'traceability_gate'})
@@ -64,6 +64,40 @@ DOC_DEPENDENT_GATES=frozenset({'traceability_gate'})
 # 刻意**不**把业务代码并入 control_digest：那会让每次改代码作废全部门禁，等于重演 P-03 前的返工。
 CODE_ROOTS=('modules','apps','services','lib','frontend')
 CODE_DEPENDENT_GATES=frozenset({'independent_qa_gate'})
+
+# --- 命令闭包：把"实际执行的脚本"也算进证据 ---------------------------------
+# 实测缺口（R9-T13）：`docs/baseline/validation/` 是冻结排除前缀，但其中的
+# `schema-verify.sh` 被当成验证命令执行。改它时 control/code/doc 三个摘要全不变，
+# 旧证据仍判有效 —— 证据能证明"树没变"，证明不了"验证脚本没变"。
+# 因此对门禁 argv 里出现的仓内脚本（含一层 source/bash/python 引用）单独算摘要。
+COMMAND_REF_RE=re.compile(r'(?:^|\s)(?:source|\.)\s+([\w./-]+\.sh)|python3?\s+([\w./-]+\.py)|bash\s+([\w./-]+\.sh)')
+
+def command_files(argv,root):
+ """命令闭包里的仓内脚本（一层引用）。只认 argv 中显式出现的 `.sh`/`.py`。"""
+ root=Path(root).resolve();out=[]
+ for tok in argv or []:
+  if not str(tok).endswith(('.sh','.py')):continue
+  p=Path(tok)
+  p=p if p.is_absolute() else root/p
+  try:p=p.resolve()
+  except OSError:continue
+  if not p.is_file() or not p.is_relative_to(root):continue
+  out.append(p.relative_to(root).as_posix())
+  try:body=p.read_text(encoding='utf-8',errors='replace')
+  except OSError:continue
+  for m in COMMAND_REF_RE.finditer(body):
+   ref=next((x for x in m.groups() if x),None)
+   if not ref:continue
+   rp=(p.parent/ref).resolve()
+   if rp.is_file() and rp.is_relative_to(root):
+    out.append(rp.relative_to(root).as_posix())
+ return sorted(set(out))
+
+def command_digest(argv,root):
+ """命令闭包摘要；闭包为空时返回空串（表示"无可绑定的脚本"，不是"通过"）。"""
+ files=command_files(argv,root)
+ if not files:return ''
+ return digest({r:filehash(Path(root)/r) for r in files})
 
 def code_files(root):
  """业务实现代码集：CODE_ROOTS 下 *.py，排除 tests 目录与 __pycache__（测试强度由控制面绑定）。"""

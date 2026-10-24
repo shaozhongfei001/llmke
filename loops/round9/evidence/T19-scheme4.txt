@@ -1,0 +1,6 @@
+# R9-T19 command_digest 落地（scheme=4）
+date=2026-10-24T18:34:00+08:00
+gate_records_with_command_sha256=9/9
+r12: 8 pass + independent_qa_gate=QA_PENDING
+evidence-kcheck: PASS
+cmd: tests/test_command_digest.py -> 3 passed

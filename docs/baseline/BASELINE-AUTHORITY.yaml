@@ -52,6 +52,16 @@ change_list:
     rationale: >-
       r10 的 QA 签名由实现方持有私钥执行（业主授权自签），且窗口已于 06:47:14Z 过期，
       不可作为独立背书；独立 QA 要求可签目标就绪后方可签名。
+  - id: W-09
+    summary: >-
+      digest_scheme 3 -> 4：门禁记录新增 command_sha256（命令闭包摘要），用于绑定
+      "被执行的脚本"本身；证据校验在 scheme>=4 时比较该值。补上 R9-T13 实测缺口：
+      docs/baseline/validation/ 内的验证脚本被改时，control/code/doc 三摘要均不变。
+      同时建 L0-contract-baseline-r12 作为第九轮收口候选（9 条门禁，QA 留 QA_PENDING）。
+    approved_by: project-owner (2026-10-24, in-session："完成了就关闭，没完成就继续")
+    rationale: >-
+      证据能证明"树没变"，不能证明"当初用来验证的脚本没变"。实测 schema-verify.sh 追加一行注释后
+      三摘要全不变、旧证据仍 PASS（loops/round9/evidence/T13-digest-gap.json）。
 not_included:
   - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
   - requirements.lock 去重——待 baseline-owner 批准
