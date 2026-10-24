@@ -28,3 +28,17 @@
 - 答案文本由证据确定性拼装，目的是可复现与可断言；接模型会引入不可复现与非确定性，
   且"未授权内容是否进上下文"不该外包给提示词。
 - 契约不变，将来替换为模型时只换 `answer.text` 的生成方式，`claims/citations/audit` 不动。
+
+## D-R9-05 r11 因新增代码转 STALE（设计内，不是缺陷）
+- 现象：`evidence-check --loop r11` → `FAIL: independent_qa_gate: implementation code changed; evidence STALE`。
+- 原因：r11 的 QA 门禁记录含 `code_sha256`（W-01 引入的窄绑定），本轮新增 `modules/answer_api` 改变 `code_digest`。
+- 判定：**符合设计**——改业务代码就该让"声称审计过那版代码"的证据失效。8 条开发门禁仍 pass。
+- 影响：r11 不能再作为发布候选（它本来也无私钥可签，无额外损失）。新批次留到本轮阶段 D 一次性建立，
+  避免"每改一处就重冻结"（这是 r6/r8 的返工来源）。
+- 口径：不得因为本轮代码已过 282 条测试就宣称 r11 有效。
+
+## D-R9-06 口径索引首次运行即暴露自身缺陷
+- 首版用 `str.split(',')` 解析 `WORK-LEDGER.csv`，带引号的字段被拆开，ROUND8 的 27 行全被判"格式错"。
+- 改为 `csv` 模块后正确；同时发现 ROUND8 ledger 的 `state` 列是**自由文本而非枚举**，
+  因此任务计数改以 `STATE.json` 为权威，不再从 ledger 推断。
+- 结论：统计口径必须只有一处实现（`coordination/round9-index.py`），否则每处都会算出不同的数。

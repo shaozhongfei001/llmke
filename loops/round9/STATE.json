@@ -39,9 +39,13 @@
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 275 passed / 0 skipped（含 answer_api 23 条）",
+    "framework_verify": "rc=0 / 282 passed / 0 skipped（252 基线 + 30 新增）",
+    "p0_gate": "rc=2（P0-01~04 全 OPEN，预期）",
     "schema_verify": "本轮未跑（UNKNOWN）",
-    "p0_gate": "本轮未跑（UNKNOWN）",
-    "answer_api_tests": "23 passed（18 单测 + 5 真库）"
-  }
+    "r11_evidence_check": "FAIL：independent_qa_gate: implementation code changed（新增 modules 代码导致 code_digest 变化，属设计内失效）"
+  },
+  "notes": [
+    "r11 的 8 条开发门禁仍 pass，只有 QA 门禁因代码变动 STALE；r11 本已无法签名，故无额外损失",
+    "本轮未改控制面；新增代码只影响 code_digest，不影响 control_digest"
+  ]
 }
