@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Callable
 
 from modules.citation_flow.service import fetch_chunks_sql, rows_to_chunks
+from modules.answer_api.service import AnswerError
 from modules.authz.context import compile_chunk_predicate
 
 Runner = Callable[[str], list[list[str]]]
@@ -21,6 +22,21 @@ def fetch_chunks(runner: Runner, ctx: dict, kb_id: str, *,
     sql = fetch_chunks_sql(ctx, kb_id, chunk_ids, limit)
     rows = runner(sql)
     return rows_to_chunks(rows), sql
+
+
+def probe_active_generation(runner: Runner, kb_id: str) -> str | None:
+    """返回该 KB 当前激活代次对应的 document_version；无激活/状态不对 → None。
+
+    单独暴露出来，是为了让"索引还没就绪"与"查询没命中"能给出不同错误：
+    前者是运维/发布问题（503），后者是业务结果（404/422）。
+    """
+    sql = ("SELECT g.document_version FROM index_generation_activation a "
+           "JOIN index_generation g ON g.generation_id = a.generation_id "
+           f"WHERE a.kb_id = '{kb_id.replace(chr(39), chr(39)*2)}' AND g.state = 'ACTIVE'")
+    rows = runner(sql)
+    if not rows or not rows[0]:
+        return None
+    return rows[0][0] or None
 
 
 def fetch_chunks_active(runner: Runner, ctx: dict, kb_id: str, *,
@@ -60,4 +76,10 @@ def fetch_chunks_active(runner: Runner, ctx: dict, kb_id: str, *,
            f"FROM document_chunk WHERE ({pred}){extra} "
            f"AND document_version = ({active_version}) "
            f"ORDER BY chunk_index LIMIT {int(limit)}")
-    return rows_to_chunks(runner(sql)), sql
+    rows = runner(sql)
+    if not rows:
+        # 0 行有两种原因，必须分开报：代次未就绪 vs 范围内确实没有命中。
+        # 混成一个 NO_EVIDENCE，会让运维在"索引没激活"时去查业务数据。
+        if probe_active_generation(runner, kb_id) is None:
+            raise AnswerError("INDEX_NOT_READY", "该知识库没有处于 ACTIVE 的代次，索引未就绪")
+    return rows_to_chunks(rows), sql

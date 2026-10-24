@@ -1,0 +1,42 @@
+{
+  "after_mutation": {
+    "command_digest_changed": true,
+    "digests": {
+      "code": "fbfc50bdbc6b26925c0cd0b556944722e6ddbea6fde0ee19ea612922f7497cac",
+      "control": "39f4b8393ce6dee1d27b59a9a3ddcaeba1681eeeeda44c3c7f8db61c2ec89203",
+      "doc": "419508441da8fd3a5d65d0c34aa975839ac4c9e38615312a6a5436dbd49d0989"
+    },
+    "digests_changed": {
+      "code": false,
+      "control": false,
+      "doc": false
+    }
+  },
+  "argv": [
+    "bash",
+    "docs/baseline/validation/schema-verify.sh"
+  ],
+  "before": {
+    "command_digest": "023400468df7e9f913aa442252289c8ed37fac89018d5c45d81a5a13edbbdfe9",
+    "count": 1,
+    "digests": {
+      "code": "fbfc50bdbc6b26925c0cd0b556944722e6ddbea6fde0ee19ea612922f7497cac",
+      "control": "39f4b8393ce6dee1d27b59a9a3ddcaeba1681eeeeda44c3c7f8db61c2ec89203",
+      "doc": "419508441da8fd3a5d65d0c34aa975839ac4c9e38615312a6a5436dbd49d0989"
+    },
+    "files": [
+      {
+        "depth": 0,
+        "path": "docs/baseline/validation/schema-verify.sh",
+        "sha256": "3ec7953579b783c1b30a8558e0028b6e237171b660c73b38de173a3c963cd518"
+      }
+    ]
+  },
+  "repo": "llmke",
+  "restored": {
+    "command_digest_equal_before": true,
+    "digests_equal_before": true
+  },
+  "status": "FEASIBILITY_PROBE",
+  "verdict": "command_digest 能捕捉旧摘要漏掉的改动"
+}

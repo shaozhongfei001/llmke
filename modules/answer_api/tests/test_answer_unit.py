@@ -351,3 +351,10 @@ def test_cli_rank_flag_can_refuse(tmp_path):
                        cwd=str(ROOT), capture_output=True, text=True)
     assert r.returncode == 2, r.stdout + r.stderr
     assert json.loads(r.stdout)["error"]["code"] == "INSUFFICIENT_RELEVANCE"
+
+
+def test_status_map_marks_index_not_ready_as_503():
+    """索引未就绪是运维问题，不能与"查无结果"(422) 共用一个状态码。"""
+    from modules.answer_api.handler import STATUS_BY_CODE
+    assert STATUS_BY_CODE["INDEX_NOT_READY"] == 503
+    assert STATUS_BY_CODE["NO_EVIDENCE"] == 422

@@ -106,3 +106,20 @@
   都在控制面内，改它们会让摘要变化；本缺口针对"被当门禁执行的排除前缀脚本"与"运行环境"。
 - 建议修法：门禁记录增加 `command_digest`（B），并把脚本移入 `scripts/`（A）；两者同窗口做。
   已登记 `R9-T14 BLOCKED_WINDOW`，本轮只测不改。
+
+## D-R9-13 command_digest 可行性已验证（仍未实施）
+- 探针 `coordination/command-digest-probe.py`：取门禁 argv → 解析解释器与脚本 → 对命令闭包
+  （脚本 + 脚本内一层引用的本地文件）算 sha256 → 一次可控改动后复算。
+- 实测：改 `schema-verify.sh` 时 `command_digest` **变化**，而 `control/code/doc` 三个摘要**全不变**；
+  `git checkout` 还原后两者都回到原值。这正好补上 R9-T13 暴露的洞。
+- 局限（写进探针文档）：只覆盖 argv 里显式出现的脚本；不解析动态 import 与环境变量展开；
+  解释器只取版本号不取二进制哈希（跨机可复现更好，但弱于内容哈希）。
+- 状态：`VERIFIED_DRYRUN`。落地需改 `loop_guard`/`baseline_support`（控制面），
+  与 R9-T14 同窗口做；本轮不动，避免作废候选。
+
+## D-R9-14 "索引未就绪"必须与"查无结果"分开
+- 现状：`fetch_chunks_active` 在无激活代次/状态不符时返回 0 行，上层一律报 `NO_EVIDENCE`（422）。
+- 问题：切换中断时运维会去查业务数据，而真正原因是索引没激活。
+- 处置：新增 `probe_active_generation`；取数为 0 行时区分两种原因 → `INDEX_NOT_READY`（503），
+  其余仍是 `NO_EVIDENCE`（422）。真库测试同步改判（原用例期待 0 行，现期待 503 语义）。
+- 注意：这不是放宽——两种情况仍然都是拒绝，只是错误码与排查方向不同。

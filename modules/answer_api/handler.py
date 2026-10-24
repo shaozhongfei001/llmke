@@ -38,6 +38,7 @@ STATUS_BY_CODE: dict[str, int] = {
     "KB_SCOPE_MISSING": 403,
     "CHUNK_OUT_OF_SCOPE": 403,
 
+    "INDEX_NOT_READY": 503,
     "NO_EVIDENCE": 422,
     "DOCUMENT_TEXT_MISSING": 422,
 

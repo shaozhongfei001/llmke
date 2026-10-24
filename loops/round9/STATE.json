@@ -96,10 +96,24 @@
       "owner": "tech-lead",
       "desc": "修复缺口：门禁记录增加 command_digest + 脚本移入控制面",
       "blocker": "属控制面变更，需受控窗口与业主批准；会使当前候选失效"
+    },
+    "R9-T15": {
+      "status": "VERIFIED_DRYRUN",
+      "owner": "gate-evidence-agent",
+      "desc": "command_digest 可行性验证：命令闭包摘要能捕捉旧摘要漏掉的脚本改动",
+      "evidence": "loops/round9/evidence/T15-command-digest.json",
+      "result": "改 schema-verify.sh 时 command_digest 变化、三个旧摘要不变；还原后一致"
+    },
+    "R9-T16": {
+      "status": "VERIFIED",
+      "owner": "python-rag-agent",
+      "desc": "检索失败语义：索引未就绪(503/INDEX_NOT_READY) 与查无结果(422/NO_EVIDENCE) 分离",
+      "evidence": "loops/round9/evidence/T16-pytest.log",
+      "tests": "44 passed（含真库 5 条）"
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 299 passed / 0 skipped（252 基线 + 47）",
+    "framework_verify": "rc=0 / 300 passed / 0 skipped（252 基线 + 48）",
     "p0_gate": "rc=2（P0-01~04 全 OPEN，预期）",
     "schema_verify": "本轮未跑（UNKNOWN）",
     "r11_evidence_check": "FAIL：independent_qa_gate: implementation code changed（新增 modules 代码导致 code_digest 变化，属设计内失效）"

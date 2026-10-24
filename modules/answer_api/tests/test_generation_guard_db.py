@@ -128,22 +128,26 @@ def test_only_active_generation_chunks_visible(db):
     assert "g.state = 'ACTIVE'" in sql
 
 
-def test_inconsistent_state_yields_nothing(db):
-    """指针还在但代次状态不是 ACTIVE（切换中断）→ 取不到，而不是照旧返回旧数据。"""
+def test_inconsistent_state_is_index_not_ready(db):
+    """指针还在但代次状态不是 ACTIVE（切换中断）→ 报"索引未就绪"，而不是照旧返回旧数据。
+
+    语义说明：这不是"查无结果"（422），而是"索引状态不对"（503）；
+    两者混用会让运维在切换中断时去查业务数据，排查方向从一开始就错了。
+    """
     run(f"UPDATE index_generation SET state='READY' WHERE generation_id={db['g3']}")
-    chunks, _ = fetch_chunks_active(runner, ctx(), "kb-1")
-    assert chunks == []
+    with pytest.raises(AnswerError) as e:
+        fetch_chunks_active(runner, ctx(), "kb-1")
+    assert e.value.code == "INDEX_NOT_READY"
     run(f"UPDATE index_generation SET state='ACTIVE' WHERE generation_id={db['g3']}")
 
 
 def test_missing_activation_refuses_instead_of_fallback(db):
     """激活行被删 → 0 行 → build_answer 拒绝；不得降级成"用最后一版"。"""
     run("DELETE FROM index_generation_activation WHERE kb_id='kb-1'")
-    chunks, _ = fetch_chunks_active(runner, ctx(), "kb-1")
-    assert chunks == []
+    # 取数阶段就要区分"索引未就绪"与"没有命中"：前者是运维问题（503），后者是业务结果
     with pytest.raises(AnswerError) as e:
-        build_answer("第一段讲什么", ctx(), "kb-1", chunks, {"f-1": DOC})
-    assert e.value.code == "NO_EVIDENCE"
+        fetch_chunks_active(runner, ctx(), "kb-1")
+    assert e.value.code == "INDEX_NOT_READY"
     run(activate_seed_sql("kb-1", db["g3"], "ci"))
 
 
