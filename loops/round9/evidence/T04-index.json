@@ -100,20 +100,20 @@
     "ledger": {
       "by_state": {
         "BLOCKED_EXTERNAL": 1,
-        "VERIFIED": 4
+        "VERIFIED": 6
       },
       "columns": 9,
       "malformed_rows": 0,
       "present": true,
-      "rows": 5,
+      "rows": 7,
       "unrecognized_rows": {}
     },
     "tasks": {
       "by_status": {
         "BLOCKED_EXTERNAL": 1,
-        "VERIFIED": 4
+        "VERIFIED": 6
       },
-      "count": 5,
+      "count": 7,
       "present": true
     }
   }
