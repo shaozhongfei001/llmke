@@ -134,5 +134,17 @@
   "notes": [
     "r11 的 8 条开发门禁仍 pass，只有 QA 门禁因代码变动 STALE；r11 本已无法签名，故无额外损失",
     "本轮未改控制面；新增代码只影响 code_digest，不影响 control_digest"
-  ]
+  ],
+  "head_at_report": "06e3b7ca71d26e70a98eef39d5b50f7174dbec9e",
+  "tree_sha": "7dc20819ae37a4887772aded8faf1ab4bdc690ff",
+  "deliverables": {
+    "running_slice": "modules/answer_api（service/sql_adapter/handler/cli）+ 真库 e2e",
+    "test_logs": "loops/round9/evidence/*.log / *-pytest.log",
+    "tree_sha": "7dc20819ae37a4887772aded8faf1ab4bdc690ff",
+    "p0_inputs": "loops/round9/P0-INPUTS.md",
+    "digest_gap_tests": "T13（缺口实测）+ T15（command_digest 可行性）",
+    "owner_overdue_data": "P0-CLOSURE.baseline_version=1.1.0 vs VERSION=1.1.1：保留原值并登记原因（见 P0-INPUTS.md）",
+    "index_unified": "T04 + coordination/round9-index.py",
+    "round10_dag": "loops/round9/ROUND10-INPUTS.md"
+  }
 }

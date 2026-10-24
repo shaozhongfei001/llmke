@@ -137,3 +137,15 @@
   登记 `R9-T18 BLOCKED_EXTERNAL`（interface-owner）。
 - 方法论：把"506"这类宣称变成可复算字段（数量、状态分布、证据非空计数、哈希可复算性），
   比再写一份说明文档更能防止数字漂移。
+
+## D-R9-16 补齐 §7 的四项交付物（本轮收口）
+1. **提交 SHA 与树指纹**：账本 18 任务中 13 个回填 `commit_sha`（其余 5 个是 BLOCKED，无代码提交）；
+   `STATE.json` 记录 `head_at_report` 与 `tree_sha`。
+2. **P0 输入表**：`P0-INPUTS.md` —— 每项写"判据 / 已验证输入 / 缺失输入 / 责任人 / 判定"，全部 OPEN。
+3. **owner 包过期数据**：`P0-CLOSURE.baseline_version=1.1.0` 与 `VERSION=1.1.1` 不一致。
+   **决定保留不修**：该字段表示"登记适用的基线"，属 baseline-owner 语义；实现方改成 1.1.1
+   等于替 owner 宣称"新基线下判据不变"。已在 `P0-INPUTS.md` 写明原因与副作用
+   （该文件在 `doc_digest` 内，改动会让 `traceability_gate` STALE，应与建批同批处理）。
+4. **第十轮 DAG**：`ROUND10-INPUTS.md` —— 8 个节点、每节点可执行命令、7 项 owner 输入清单。
+- 结论：第九轮的**工程交付物**齐了；`p0-gate` 仍 rc=2，四项 P0 全 OPEN，业务不可开工。
+  是否宣布轮次关闭，属业主裁定（与第八轮同样口径，不自我宣布）。
