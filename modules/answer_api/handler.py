@@ -65,9 +65,17 @@ def handle(payload: dict) -> tuple[int, dict]:
     if missing:
         return 400, {"ok": False, "error": {"code": "FIELD_MISSING", "message": ",".join(missing)}}
 
+    opts = {}
+    if "rank" in payload:
+        opts["rank"] = bool(payload["rank"])
+    if "min_relevance" in payload:
+        opts["min_relevance"] = payload["min_relevance"]
+    if "top_k" in payload:
+        opts["top_k"] = payload["top_k"]
+
     try:
         result = build_answer(payload["query"], payload["ctx"], payload["kb_id"],
-                              payload["chunks"], payload["document_texts"])
+                              payload["chunks"], payload["document_texts"], **opts)
     except AnswerError as e:
         return STATUS_BY_CODE.get(e.code, 500), to_api_error(e)
     except Exception:                      # noqa: BLE001 —— 兜底：绝不把内部细节回给调用方

@@ -4,3 +4,5 @@ R9-T02,python-rag-agent,R9-T01,"modules/answer_api/{service,sql_adapter,cli}.py"
 R9-T03,python-rag-agent,R9-T02,"modules/answer_api/tests/test_answer_db.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T02-T03-pytest.log,,"5 passed 真库；chunk_ids 不能放宽"
 R9-T04,gate-evidence-agent,R9-T02,"loops/round9/**（工具在仓外）","coordination/round9-index.py --out ...",VERIFIED,loops/round9/evidence/T04-index.json,,"缺号 D47；批次 10 个；r8 任务 25/1/1"
 R9-T05,data-owner,,docs/registers/P0-CLOSURE.yaml,"n/a（缺真实 DDL）",BLOCKED_EXTERNAL,,,data-owner
+R9-T06,python-rag-agent,R9-T03,"modules/answer_api/ranking.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"8 passed；确定性打分，丢弃项进审计"
+R9-T07,python-rag-agent,R9-T06,"modules/answer_api/service.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T06-T07-pytest.log,,"同文件多版本 -> MIXED_DOCUMENT_VERSION"

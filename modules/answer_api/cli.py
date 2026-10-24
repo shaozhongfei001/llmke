@@ -25,6 +25,9 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="answer_api")
     ap.add_argument("--input", type=Path, required=True, help="请求 JSON")
     ap.add_argument("--out", type=Path)
+    ap.add_argument("--rank", action="store_true", help="启用相关性筛选（默认关闭）")
+    ap.add_argument("--min-relevance", type=float, default=0.0)
+    ap.add_argument("--top-k", type=int)
     a = ap.parse_args(argv)
 
     try:
@@ -35,7 +38,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         result = build_answer(req["query"], req["ctx"], req["kb_id"],
-                              req["chunks"], req["document_texts"])
+                              req["chunks"], req["document_texts"],
+                              rank=a.rank, min_relevance=a.min_relevance, top_k=a.top_k)
     except AnswerError as e:
         _emit(to_api_error(e), a.out)
         return 2

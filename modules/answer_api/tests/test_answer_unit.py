@@ -268,3 +268,86 @@ def test_handler_500_never_leaks_internals():
                            "chunks": "不是列表", "document_texts": {}})
     assert status in {400, 409, 422, 500}
     assert "Traceback" not in json.dumps(body) and ".py" not in json.dumps(body)
+
+
+# ---------- 相关性筛选 ----------
+def test_tokenize_cjk_bigram_and_latin_lower():
+    from modules.answer_api.ranking import tokenize
+    f = tokenize("第一段 Contains")
+    assert "第一" in f and "一段" in f and "contains" in f
+
+
+def test_score_bounds():
+    from modules.answer_api.ranking import score
+    assert score("第一段", "第一段内容。") == 1.0
+    assert score("完全不相关", "第二段内容。") < 0.5
+    assert score("", "任何文本") == 0.0
+
+
+def test_rank_drops_zero_overlap_and_reports_why():
+    from modules.answer_api.ranking import rank_chunks
+    kept, dropped = rank_chunks("第一段讲什么", two_chunks())
+    assert [c["chunk_id"] for c in kept] == ["k1"]
+    assert dropped and dropped[0]["reason"] in {"no_overlap", "below_min_score"}
+    assert dropped[0]["chunk_id"] == "k2"
+
+
+def test_rank_min_score_and_top_k():
+    from modules.answer_api.ranking import rank_chunks
+    kept, _ = rank_chunks("第一段", two_chunks(), min_score=0.99)
+    assert [c["chunk_id"] for c in kept] == ["k1"]
+    kept2, dropped2 = rank_chunks("第一段 第二段", two_chunks(), top_k=1)
+    assert len(kept2) == 1
+    assert any(d["reason"] == "top_k_cut" for d in dropped2)
+
+
+def test_rank_rejects_bad_params():
+    from modules.answer_api.ranking import rank_chunks
+    with pytest.raises(ValueError):
+        rank_chunks("x", two_chunks(), min_score=1.5)
+    with pytest.raises(ValueError):
+        rank_chunks("x", two_chunks(), top_k=0)
+
+
+def test_answer_with_rank_cites_only_relevant():
+    """开启排序后，无关块不得进答案，且丢弃原因要能被审计看到。"""
+    r = call(rank=True)
+    assert [c["chunk_id"] for c in r["citations"]] == ["k1"]
+    assert r["audit"]["ranked"] is True
+    assert r["audit"]["dropped_chunks"][0]["chunk_id"] == "k2"
+
+
+def test_answer_rank_all_irrelevant_is_refusal():
+    with pytest.raises(AnswerError) as e:
+        call(query="完全无关的问题", rank=True)
+    assert e.value.code == "INSUFFICIENT_RELEVANCE"
+
+
+def test_mixed_document_versions_refused():
+    """同一文件的两个版本同时引用 = 重复计数，且重叠检测看不出来（集合键含版本）。"""
+    cs = [chunk("k1", start=0, end=6, idx=0), chunk("k2", start=6, end=12, idx=1)]
+    cs[1]["document_version"] = "v2"
+    with pytest.raises(AnswerError) as e:
+        call(chunks=cs)
+    assert e.value.code == "MIXED_DOCUMENT_VERSION"
+
+
+def test_handler_forwards_rank_options():
+    from modules.answer_api.handler import handle
+    status, body = handle({"query": "第一段", "ctx": ctx(), "kb_id": "kb-1",
+                           "chunks": two_chunks(), "document_texts": {"f-1": DOC},
+                           "rank": True, "min_relevance": 0.5})
+    assert status == 200
+    assert [c["chunk_id"] for c in body["data"]["citations"]] == ["k1"]
+    assert body["data"]["audit"]["ranked"] is True
+
+
+def test_cli_rank_flag_can_refuse(tmp_path):
+    req = {"query": "完全无关", "ctx": ctx(), "kb_id": "kb-1",
+           "chunks": two_chunks(), "document_texts": {"f-1": DOC}}
+    p = tmp_path / "req.json"
+    p.write_text(json.dumps(req, ensure_ascii=False), encoding="utf-8")
+    r = subprocess.run([sys.executable, "-m", "modules.answer_api.cli", "--input", str(p), "--rank"],
+                       cwd=str(ROOT), capture_output=True, text=True)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert json.loads(r.stdout)["error"]["code"] == "INSUFFICIENT_RELEVANCE"

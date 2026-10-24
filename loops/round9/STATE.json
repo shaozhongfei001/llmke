@@ -36,10 +36,24 @@
       "desc": "P0-02 37 表与 43 表逐表映射与 DDL 差异报告",
       "blocker": "缺真实 DDL 与恢复副本；仅能 dry-run",
       "blocker_owner": "data-owner"
+    },
+    "R9-T06": {
+      "status": "VERIFIED",
+      "desc": "相关性筛选（CJK bigram 覆盖度）与审计丢弃项",
+      "evidence": "loops/round9/evidence/T06-T07-pytest.log",
+      "owner": "python-rag-agent",
+      "tests": "8 passed（含阈值/ top_k / 全无关拒绝）"
+    },
+    "R9-T07": {
+      "status": "VERIFIED",
+      "desc": "同一文件多版本同时引用的守卫（重复计数）",
+      "evidence": "loops/round9/evidence/T06-T07-pytest.log",
+      "owner": "python-rag-agent",
+      "tests": "1 passed（MIXED_DOCUMENT_VERSION）"
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 282 passed / 0 skipped（252 基线 + 30 新增）",
+    "framework_verify": "rc=0 / 292 passed / 0 skipped（252 基线 + 40 新增）",
     "p0_gate": "rc=2（P0-01~04 全 OPEN，预期）",
     "schema_verify": "本轮未跑（UNKNOWN）",
     "r11_evidence_check": "FAIL：independent_qa_gate: implementation code changed（新增 modules 代码导致 code_digest 变化，属设计内失效）"

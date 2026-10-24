@@ -25,6 +25,7 @@ from modules.authz.context import AuthZError, validate_context
 from modules.chunk_store.chunk_store import ChunkError, build_chunk, to_evidence_source
 from modules.citation_evidence.assembler import (EvidenceError, build_document_evidence,
                                                  check_evidence_set)
+from modules.answer_api.ranking import rank_chunks, score
 from modules.citation_flow.service import assert_chunks_in_scope
 
 MAX_QUERY_LEN = 500
@@ -46,7 +47,8 @@ def _as_answer_error(exc: Exception) -> AnswerError:
 
 def build_answer(query: str, ctx: dict, kb_id: str, chunks: list[dict],
                  document_texts: dict[str, str], *, evidence_prefix: str = "ev",
-                 now=None) -> dict:
+                 rank: bool = False, min_relevance: float = 0.0,
+                 top_k: int | None = None, now=None) -> dict:
     """把已授权的分块变成答案；任何不确定都抛 `AnswerError`，绝不返回半成品。
 
     `document_texts` 按 file_id 提供原文：跨文件检索时，不同文件的码点坐标系互不相干，
@@ -77,6 +79,15 @@ def build_answer(query: str, ctx: dict, kb_id: str, chunks: list[dict],
             raise AnswerError("CHUNK_OUT_OF_SCOPE",
                               "存在不在授权范围内的分块，已拒绝（明细不回显）") from e
         raise _as_answer_error(e) from e
+
+    # 4b) 相关性筛选（可选）：检索给的是候选，不是证据。丢弃项必须进审计，不能静默。
+    dropped: list[dict] = []
+    if rank:
+        best = max((score(q, c.get("text", "")) for c in chunks), default=0.0)
+        chunks, dropped = rank_chunks(q, chunks, min_score=min_relevance, top_k=top_k)
+        if not chunks:
+            raise AnswerError("INSUFFICIENT_RELEVANCE",
+                              f"最高相关度 {best:.3f} 低于阈值或全部无重合")
 
     # 5) 逐块重建（用库里的 text 与原文交叉校验），再产出证据
     built: list[dict] = []
@@ -114,6 +125,16 @@ def build_answer(query: str, ctx: dict, kb_id: str, chunks: list[dict],
     except EvidenceError as e:
         raise _as_answer_error(e) from e
 
+    # 6b) 同一文件的多版本不得同时引用：不同 document_version 在集合校验里算"不同文档"，
+    #     重叠检测看不出来，但读者会看到同一份文件的旧版与新版被并列引用（重复计数）。
+    versions: dict[tuple, set] = {}
+    for ev in built:
+        r = ev["source_ref"]
+        versions.setdefault((r["kb_id"], r["file_id"]), set()).add(r["document_version"])
+    mixed = sorted(f"{k[1]}={sorted(v)}" for k, v in versions.items() if len(v) > 1)
+    if mixed:
+        raise AnswerError("MIXED_DOCUMENT_VERSION", ",".join(mixed))
+
     # 7) 断言必须有引用；由本层构造，但显式再查一次（防将来改坏）
     claims.sort(key=lambda x: (x["chunk_index"], x["claim_id"]))
     cited = [c for c in claims if c.get("evidence_id")]
@@ -145,6 +166,9 @@ def build_answer(query: str, ctx: dict, kb_id: str, chunks: list[dict],
             "claim_count": len(claims),
             "cited_claim_count": len(cited),
             "support_ratio": len(cited) / len(claims),
+            "ranked": rank,
+            "min_relevance": min_relevance if rank else None,
+            "dropped_chunks": dropped,
         },
         # 规则未获 security-owner 批准：状态必须一直挂在结果上，防止被当成生产策略
         "policy_state": POLICY_STATE,
