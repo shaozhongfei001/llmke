@@ -78,14 +78,15 @@
   "round10": {
     "ledger": {
       "by_state": {
-        "BLOCKED_EXTERNAL": 4,
-        "VERIFIED": 7
+        "BLOCKED_EXTERNAL": 5,
+        "VERIFIED": 7,
+        "VERIFIED_DRYRUN": 1
       },
       "columns": 9,
       "malformed_rows": 0,
       "present": true,
-      "rows": 11,
-      "unique_tasks": 11,
+      "rows": 13,
+      "unique_tasks": 13,
       "unrecognized_rows": {}
     },
     "state_md": true,

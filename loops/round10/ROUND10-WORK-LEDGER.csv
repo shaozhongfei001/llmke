@@ -1,12 +1,14 @@
 task_id,agent,dependency,source_files,acceptance_command,state,evidence_path,commit_sha,blocker_owner
-R10-T01,tech-lead,,"git/loops","git rev-parse HEAD",VERIFIED,loops/round10/ROUND10-STATE.md,,
-R10-T02,python-rag-agent,R10-T01,"modules/answer_api/server.py; tests/test_answer_server.py","python -m pytest tests/test_answer_server.py -q",VERIFIED,loops/round10/evidence/T02-http-tests.log,,"11 passed"
-R10-T03,python-rag-agent,R10-T02,"tests/test_answer_server_db.py","python -m pytest tests/test_answer_server_db.py -q",VERIFIED,loops/round10/evidence/T03-http-db.log,,"3 passed 真库"
-R10-T04,tech-lead,R10-T02,"scripts/, docs/policies/","make framework-verify",VERIFIED,loops/round10/evidence/T02-framework-verify.log,,"317->320 passed"
-R10-T09,redteam-agent,R10-T04,"/tmp 干净树","evidence-check + 三类改动",VERIFIED,loops/round10/evidence/T09-clean-repro.txt,,"干净树摘要一致；A/B 失效、C 未失效"
-R10-T10,tech-lead,R10-T09,"scripts/loop_guard.py; tests/test_manual_check.py","loop_guard record-check + evidence-check",VERIFIED,loops/round10/evidence/T10-record-check.log,,"改 schema-verify -> STALE；还原 PASS"
-R10-T11,gate-evidence-agent,R10-T09,"coordination/patches/r10-manual-check.diff","git apply --check",VERIFIED,loops/round10/evidence/T11-manual-check-patch.txt,,"隔离树 3 passed/320 passed"
-R10-T05,interface-owner,R10-T02,"docs/reuse/INTERFACE-ASSETS.yaml","n/a（需 route export）",BLOCKED_EXTERNAL,,,interface-owner
-R10-T06,data-owner,R10-T04,"docs/registers/P0-CLOSURE.yaml","n/a（需生产 DDL）",BLOCKED_EXTERNAL,,,data-owner
-R10-T07,security-owner,R10-T04,"modules/authz/**","n/a（需 E1 批准）",BLOCKED_EXTERNAL,,,security-owner
-R10-T08,index-owner,R10-T04,"artifacts/schema-v1.3.sql","n/a（需加列）",BLOCKED_EXTERNAL,,,index-owner
+R10-T01,tech-lead,,git/loops,git rev-parse HEAD,VERIFIED,loops/round10/ROUND10-STATE.md,,
+R10-T02,python-rag-agent,R10-T01,modules/answer_api/server.py; tests/test_answer_server.py,python -m pytest tests/test_answer_server.py -q,VERIFIED,loops/round10/evidence/T02-http-tests.log,,11 passed
+R10-T03,python-rag-agent,R10-T02,tests/test_answer_server_db.py,python -m pytest tests/test_answer_server_db.py -q,VERIFIED,loops/round10/evidence/T03-http-db.log,,3 passed 真库
+R10-T04,tech-lead,R10-T02,"scripts/, docs/policies/",make framework-verify,VERIFIED,loops/round10/evidence/T02-framework-verify.log,,317->320 passed
+R10-T09,redteam-agent,R10-T04,/tmp 干净树,evidence-check + 三类改动,VERIFIED,loops/round10/evidence/T09-clean-repro.txt,,干净树摘要一致；A/B 失效、C 未失效
+R10-T10,tech-lead,R10-T09,scripts/loop_guard.py; tests/test_manual_check.py,loop_guard record-check + evidence-check,VERIFIED,loops/round10/evidence/T10-record-check.log,,改 schema-verify -> STALE；还原 PASS
+R10-T11,gate-evidence-agent,R10-T09,coordination/patches/r10-manual-check.diff,git apply --check,VERIFIED,loops/round10/evidence/T11-manual-check-patch.txt,,隔离树 3 passed/320 passed
+R10-T05,interface-owner,R10-T02,docs/reuse/INTERFACE-ASSETS.yaml,n/a（需 route export）,BLOCKED_EXTERNAL,,,interface-owner
+R10-T06,data-owner,R10-T04,docs/registers/P0-CLOSURE.yaml,n/a（需生产 DDL）,BLOCKED_EXTERNAL,,,data-owner
+R10-T07,security-owner,R10-T04,modules/authz/**,n/a（需 E1 批准）,BLOCKED_EXTERNAL,,,security-owner
+R10-T08,index-owner,R10-T04,artifacts/schema-v1.3.sql,n/a（需加列）,BLOCKED_EXTERNAL,,,index-owner
+R10-T12,redteam-agent,R10-T04,coordination/verify-command-coverage.py（仓外）,verify-command-coverage.py --out ...,VERIFIED_DRYRUN,loops/round10/evidence/T12-command-coverage.txt,bab611b,
+R10-T13,interface-owner,R10-T12,docs/baseline/validation/p0-01-route-extract.py,n/a（缺 --src/--csv）,BLOCKED_EXTERNAL,loops/round10/evidence/T12-command-coverage.txt,,interface-owner

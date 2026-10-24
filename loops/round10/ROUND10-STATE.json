@@ -1,8 +1,8 @@
 {
   "round": 10,
   "status": "CLOSED",
-  "head_at_report": "ac8374eeb64932a70c0062064fd5c955e06f06e9",
-  "tree_sha": "bf8111b11f290909f0ccabb607eb96c88ae10206",
+  "head_at_report": "bab611b129143587b7be98c3b7a918920395bdfd",
+  "tree_sha": "473c548cabf4cf358547d78625ec25e015a10dab",
   "tasks": {
     "R10-T01": {
       "status": "VERIFIED",
