@@ -1,0 +1,52 @@
+{
+  "actual": {
+    "by_stack": {
+      "Java": 440,
+      "Python": 66
+    },
+    "by_status": {
+      "INVENTORY_UNVERIFIED": 506
+    },
+    "items": 506
+  },
+  "consistency": {
+    "duplicate_asset_ids": [],
+    "duplicate_within_service": [],
+    "duplicate_within_service_count": 0,
+    "shared_path_across_services": [
+      "POST /del_doc_by_col",
+      "POST /update_by_id",
+      "POST /update_doc"
+    ],
+    "shared_path_count": 3,
+    "stack_matches": true,
+    "total_matches": true
+  },
+  "declared_counts": {
+    "Java": 440,
+    "Python": 66,
+    "total": 506
+  },
+  "declared_source": "previous review inventory, not runtime routes",
+  "declared_version": "1.1.0",
+  "evidence_coverage": {
+    "compatibility_decision": 0,
+    "runtime_evidence": 0,
+    "target_contract": 0,
+    "total": 506
+  },
+  "file": "INTERFACE-ASSETS.yaml",
+  "inventory_hash": {
+    "declared": "770eff0506e84ebf2cdfabbb9c3603c0951de26421b32a99bd47bde9310b9206",
+    "matched_convention": null,
+    "recomputed": {
+      "canonical_json_items": "9de1171bb1a767ce452fa1fac7e90455a56badfcbc8421993966907d97620768",
+      "canonical_json_min": "8fa9f118f77821973e878586e0dad2a30147c05f779381874c2e6ad301e32c46",
+      "file_bytes": "b2ac139cc8a07d868c300d3e7e0f8e835166f380d4bd0a15e51a73100b906e8f",
+      "yaml_dump_items": "fdcdcf23c6c9b266e7fea4db9f3668d53760985e5ce0413439d4976fcbfb7067"
+    },
+    "verdict": "UNVERIFIABLE"
+  },
+  "p0_01_state": "OPEN",
+  "status": "DRY_RUN"
+}

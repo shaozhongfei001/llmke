@@ -110,6 +110,19 @@
       "desc": "检索失败语义：索引未就绪(503/INDEX_NOT_READY) 与查无结果(422/NO_EVIDENCE) 分离",
       "evidence": "loops/round9/evidence/T16-pytest.log",
       "tests": "44 passed（含真库 5 条）"
+    },
+    "R9-T17": {
+      "status": "VERIFIED_DRYRUN",
+      "owner": "tech-lead",
+      "desc": "P0-01 清单审计：506 条全部 INVENTORY_UNVERIFIED，运行时/契约/决策三项证据均为 0",
+      "evidence": "loops/round9/evidence/T17-p0-01-audit.json",
+      "result": "counts 自洽；同服务内重复 0；跨服务同路径 3；inventory_sha256 不可复算"
+    },
+    "R9-T18": {
+      "status": "BLOCKED_EXTERNAL",
+      "owner": "interface-owner",
+      "desc": "P0-01 运行时路由证据与调用方确认（逐项判定 IN_USE）",
+      "blocker": "需 route export 与调用方确认；清单本身无运行时证据，route export 只证明注册"
     }
   },
   "gates": {

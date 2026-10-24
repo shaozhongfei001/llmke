@@ -123,3 +123,17 @@
 - 处置：新增 `probe_active_generation`；取数为 0 行时区分两种原因 → `INDEX_NOT_READY`（503），
   其余仍是 `NO_EVIDENCE`（422）。真库测试同步改判（原用例期待 0 行，现期待 503 语义）。
 - 注意：这不是放宽——两种情况仍然都是拒绝，只是错误码与排查方向不同。
+
+## D-R9-15 P0-01：506 条是"候选清单"，不是"在用接口"
+- 实测（`coordination/p0-01-inventory-audit.py`）：
+  - 条目 506，`counts` 自洽（Java 440 / Python 66）；
+  - **状态 100% 为 `INVENTORY_UNVERIFIED`**；
+  - `runtime_evidence`、`target_contract`、`compatibility_decision` **三项均为 0**；
+  - 同服务内 method+path 重复 **0** 组；跨服务同路径 3 组（`index_fulltext_service` 与
+    `index_vector_service` 各自注册 `/del_doc_by_col`、`/update_by_id`、`/update_doc`），
+    属正常现象，不能算冲突——判据必须按服务分组，否则会误报。
+  - `inventory_sha256` 用四种常见归一化均无法复算 ⇒ **来源不可验证**。
+- 结论：`route export` 只能证明"注册"，不能证明 `IN_USE`；清单当前不支撑任何 P0-01 关闭判断。
+  登记 `R9-T18 BLOCKED_EXTERNAL`（interface-owner）。
+- 方法论：把"506"这类宣称变成可复算字段（数量、状态分布、证据非空计数、哈希可复算性），
+  比再写一份说明文档更能防止数字漂移。

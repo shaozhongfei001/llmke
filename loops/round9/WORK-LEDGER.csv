@@ -15,3 +15,5 @@ R9-T13,redteam-agent,R9-T01,coordination/r9-digest-gap-probe.py（仓外）,pyth
 R9-T14,tech-lead,R9-T13,"scripts/{loop_guard,baseline_support}.py",n/a（需窗口）,BLOCKED_WINDOW,,,project-owner
 R9-T15,gate-evidence-agent,R9-T13,"coordination/command-digest-probe.py（仓外）","python3 command-digest-probe.py",VERIFIED_DRYRUN,loops/round9/evidence/T15-command-digest.json,,"command_digest 变、三旧摘要不变；还原一致"
 R9-T16,python-rag-agent,R9-T08,"modules/answer_api/{sql_adapter,handler}.py","python -m pytest modules/answer_api/tests -q",VERIFIED,loops/round9/evidence/T16-pytest.log,,"INDEX_NOT_READY(503) 与 NO_EVIDENCE(422) 分离"
+R9-T17,tech-lead,R9-T01,"coordination/p0-01-inventory-audit.py（仓外）","p0-01-inventory-audit.py --out ... --md ...",VERIFIED_DRYRUN,loops/round9/evidence/T17-p0-01-audit.json,,"506 全未验证；三项证据 0；哈希不可复算"
+R9-T18,interface-owner,R9-T17,"docs/reuse/INTERFACE-ASSETS.yaml","n/a（需运行时/调用方输入）",BLOCKED_EXTERNAL,,,interface-owner
