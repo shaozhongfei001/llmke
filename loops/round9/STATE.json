@@ -1,0 +1,45 @@
+{
+  "round": 9,
+  "branch": "main",
+  "base_commit": "05d4e39",
+  "status": "IN_PROGRESS",
+  "tasks": {
+    "R9-T01": {
+      "status": "VERIFIED",
+      "desc": "环境核验与任务账本建立",
+      "evidence": "loops/round9/evidence/T01-env-verify.txt",
+      "owner": "tech-lead"
+    },
+    "R9-T02": {
+      "status": "VERIFIED",
+      "desc": "答案接口纵向切片：query→授权检索→证据→答案+引用（无 DB 依赖的纯逻辑与负例）",
+      "owner": "python-rag-agent",
+      "evidence": "loops/round9/evidence/T02-T03-pytest.log",
+      "tests": "18 passed（含 12 条负例）+ CLI 演示 T02-demo-answer.json"
+    },
+    "R9-T03": {
+      "status": "VERIFIED",
+      "desc": "真库端到端：代次→写块→授权取块→证据→答案响应（MySQL）",
+      "owner": "python-rag-agent",
+      "evidence": "loops/round9/evidence/T02-T03-pytest.log",
+      "tests": "5 passed（真库：过滤/收窄不可放宽/逐文件原文/正常回答）"
+    },
+    "R9-T04": {
+      "status": "READY",
+      "desc": "证据链口径统一索引：D1–D54 缺号、批次作废计数、任务/测试统计单一来源",
+      "owner": "gate-evidence-agent"
+    },
+    "R9-T05": {
+      "status": "BLOCKED_EXTERNAL",
+      "desc": "P0-02 37 表与 43 表逐表映射与 DDL 差异报告",
+      "blocker": "缺真实 DDL 与恢复副本；仅能 dry-run",
+      "blocker_owner": "data-owner"
+    }
+  },
+  "gates": {
+    "framework_verify": "rc=0 / 275 passed / 0 skipped（含新增 23 条）",
+    "schema_verify": "本轮未跑（UNKNOWN）",
+    "p0_gate": "本轮未跑（UNKNOWN）",
+    "answer_api_tests": "23 passed（18 单测 + 5 真库）"
+  }
+}

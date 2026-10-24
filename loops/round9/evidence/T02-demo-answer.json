@@ -1,0 +1,64 @@
+{
+  "data": {
+    "answer": {
+      "claims": [
+        {
+          "chunk_index": 0,
+          "claim_id": "c-1",
+          "evidence_id": "ev-k1",
+          "text": "第一段内容。"
+        },
+        {
+          "chunk_index": 1,
+          "claim_id": "c-2",
+          "evidence_id": "ev-k2",
+          "text": "第二段内容。"
+        }
+      ],
+      "text": "[ev-k1] 第一段内容。\n[ev-k2] 第二段内容。"
+    },
+    "audit": {
+      "authz_version": 1,
+      "chunk_count": 2,
+      "cited_claim_count": 2,
+      "claim_count": 2,
+      "evidence_count": 2,
+      "principal_id": "user-1",
+      "request_id": "demo-1",
+      "support_ratio": 1.0
+    },
+    "citations": [
+      {
+        "chunk_id": "k1",
+        "document_version": "v1",
+        "evidence_id": "ev-k1",
+        "file_id": "f-1",
+        "offset": {
+          "end": 6,
+          "parser_version": "p-1",
+          "start": 0,
+          "text_hash": "49dc20253907782dd9f6e5347aa16b06325cfeda2c521d6f400eac855e3e767a",
+          "unit": "unicode_codepoint"
+        }
+      },
+      {
+        "chunk_id": "k2",
+        "document_version": "v1",
+        "evidence_id": "ev-k2",
+        "file_id": "f-1",
+        "offset": {
+          "end": 12,
+          "parser_version": "p-1",
+          "start": 6,
+          "text_hash": "dafaeb4befbf747f9d21b84af56ccc0c895727c724a8fec46c365848efda39d8",
+          "unit": "unicode_codepoint"
+        }
+      }
+    ],
+    "kb_id": "kb-1",
+    "policy_state": "CANDIDATE_NOT_RELEASEABLE",
+    "query": "第一段讲什么",
+    "status": "OK"
+  },
+  "ok": true
+}

@@ -1,0 +1,8 @@
+# R9-T01 环境核验（2026-10-24T14:23:53+08:00）
+branch=main
+HEAD=05d4e39aecf437841f3badf51416471d0d1de25e
+worktree=clean
+modules=authz,chunk_store,citation_evidence,citation_flow,index_generation,answer_api(新)
+py_files_before=26
+mysql=8.0.41
+framework_verify_before=252 passed / 0 skipped
