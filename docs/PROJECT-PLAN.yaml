@@ -139,6 +139,20 @@ loops:
     state: READY
     objective: 第十轮最终候选（HTTP + record-check）
     replaces: L0-contract-baseline-r13
+  L0-contract-baseline-r15:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: 第十轮修复候选（状态映射）
+    replaces: L0-contract-baseline-r14
+  L0-contract-baseline-r16:
+    kind: contract
+    required_blockers: []
+    goal: 在原批次预算耗尽后，于当前快照重跑同一组门禁（不放宽任何条件）
+    state: READY
+    objective: 第十轮修复候选（状态映射）
+    replaces: L0-contract-baseline-r15
 retired_loop_aliases:
   L1-implementation: L1
 unplanned:

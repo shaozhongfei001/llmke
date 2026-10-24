@@ -1,0 +1,33 @@
+# 演示记录（2026-10-24，真库 + 真 HTTP）
+
+服务：`python3 -m modules.answer_api.server --port 18099 --database llmke_demo`
+数据：kb-1 / f-1(k1, "第一段内容。") / f-2(k2, "第二段内容。") / ACTIVE generation
+
+| # | 请求 | 期望 | 实际 |
+|---|---|---|---|
+| ① | 授权 f-1，问"第一段" | 200，只引用 k1 | **200**，citations=[k1]，text="[ev-k1] 第一段内容。" |
+| ② | 缺 `X-Authz-Version` | 403 CONTEXT_MISSING | **403**，`缺少 X-Authz-Version` |
+| ③ | `X-Kb-Scope: kb-2` | 403 KB_NOT_AUTHORIZED | **403** |
+| ④ | 换授权到 f-2 | 200，引用 k2，不含"第一段" | **200**，citations=[k2] |
+| ⑤ | 无关查询 + rank | **422** INSUFFICIENT_RELEVANCE | **500** ← 缺陷 |
+| ⑥ | 删除激活行后请求 | 503 INDEX_NOT_READY | **503** |
+
+审计行样例（不含查询原文）：
+```json
+{"at":"2026-10-24T23:13:18+0800","code":null,"elapsed_ms":6.41,"evidence_count":1,
+ "kb_id":"kb-1","path":"/answer","principal_id":"alice","request_id":"demo-1","status":200}
+```
+
+## 演示中发现的两个真实缺陷
+
+1. **状态映射缺 3 个码**：`INSUFFICIENT_RELEVANCE`(→422)、`MIXED_DOCUMENT_VERSION`(→409)、
+   `UNCITED_CLAIM`(→500) 未登记，全部落到默认 500。已修，并加静态守卫
+   `tests/test_error_code_map.py`（扫描源码里抛出的码，必须在映射表中）。
+2. **审计行与响应的竞态**：审计写在响应之后，客户端可能先返回 → 测试偶发失败
+   （冻结时 `framework-verify` 出现 `1 failed`）。已改为**审计先落盘再响应**，
+   测试也改为轮询（不把实现顺序当作测试前提）。
+
+## 代价（如实）
+
+- r14 因代码修复转 STALE；r15 因在红门下冻结而作废；最终候选为 **r16**。
+- 三次冻结（rev15/16/17）都发生在"内容已变"之后，不是反复试错，但确实是返工。

@@ -169,17 +169,21 @@ def make_server(runner: Runner, host: str = '127.0.0.1', port: int = 0,
                                                                'message': '请求体必须是对象'}})
 
             status, body = answer_request(runner, payload, self.headers)
-            self._send(status, body)
 
+            # 审计**先于**响应落盘：否则客户端可能在审计行写出前就返回，
+            # 既让测试出现竞态，也可能在崩溃时留下"有响应、无审计"的空洞。
+            # 代价：若随后发送失败（客户端断开），审计记的是"已生成响应"而非"已送达"，
+            # 这一点在字段语义上按 status 表示"服务端判定结果"，不宣称送达。
             data = body.get('data') or {}
             audit({'at': time.strftime('%Y-%m-%dT%H:%M:%S%z'), 'path': '/answer',
                    'status': status,
                    'code': (body.get('error') or {}).get('code'),
-                   'request_id': getattr(self, '_rid', None) or (self.headers.get('X-Request-Id')),
+                   'request_id': self.headers.get('X-Request-Id'),
                    'principal_id': self.headers.get('X-Principal-Id'),
                    'kb_id': payload.get('kb_id'),
                    'evidence_count': len(data.get('citations') or []),
                    'elapsed_ms': round((time.monotonic() - started) * 1000, 2)})
+            self._send(status, body)
 
     return ThreadingHTTPServer((host, port), Handler)
 

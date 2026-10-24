@@ -1,0 +1,25 @@
+[schema-verify] 启动/复用本机 MySQL 独立实例
+[schema-verify] 重建数据库 llmke_verify
+[schema-verify] 应用 schema（43 张表）
+[schema-verify] 表=43（预期 43）  列=538
+[schema-verify] 契约 ↔ 表列一致性
+契约必填=3  SourceRef 必填=6  Offset 必填=5
+表 document_evidence 列=13；契约未定义但表里有的列（需说明用途）：无
+
+结论: PASS（契约必填字段均有列，offset_unit 常量一致）
+[schema-verify] 模块集成测试（真库读写）
+........................................................................ [ 49%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+145 passed in 47.10s
+[schema-verify] 跨表一致性体检（孤儿数据/半成品代次/租约过期/积压事件）
+PASS: C1 证据指向不存在的分块
+PASS: C2 分块 text 与 text_hash 不一致
+PASS: C3 激活指针指向的代次不是 ACTIVE
+PASS: C4 ACTIVE 代次的租约已过期
+PASS: C5 outbox PENDING 积压超过 10 分钟
+PASS: C6 同文档版本分块区间重叠
+
+结论: PASS（发现 0 处不一致）
+[schema-verify] 已清理数据库 llmke_verify
+[schema-verify] PASS：schema 可落地、模块可与真库协同

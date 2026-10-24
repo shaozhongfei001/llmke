@@ -79,6 +79,17 @@ change_list:
     rationale: >-
       实测缺口：改 docs/baseline/validation/schema-verify.sh 后 evidence-check 仍 PASS
       （T09-C）。补丁在隔离树验证 320 passed、apply --check OK。
+  - id: W-12
+    summary: >-
+      修复 HTTP 状态映射缺失（INSUFFICIENT_RELEVANCE/MIXED_DOCUMENT_VERSION/UNCITED_CLAIM），
+      新增静态守卫 tests/test_error_code_map.py；建 L0-contract-baseline-r15（9 条门禁，QA 留 QA_PENDING）。
+      起因：演示时发现相关性不足返回 500 而非 422（源码抛出的码未登记到状态表）。
+    approved_by: project-owner (2026-10-24, in-session：演示中发现缺陷，按流程修复)
+  - id: W-13
+    summary: >-
+      审计行改为"响应前落盘"，测试改为轮询以消除竞态；建 L0-contract-baseline-r16
+      （9 条门禁，QA 留 QA_PENDING）。r15 因冻结时 framework-verify 为红（1 failed）作废。
+    approved_by: project-owner (2026-10-24, in-session：演示/联调中发现不稳定，按流程修复)
 not_included:
   - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
   - requirements.lock 去重——待 baseline-owner 批准

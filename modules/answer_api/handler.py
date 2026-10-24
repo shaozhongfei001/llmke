@@ -40,18 +40,23 @@ STATUS_BY_CODE: dict[str, int] = {
 
     "INDEX_NOT_READY": 503,
     "NO_EVIDENCE": 422,
+    # 相关性筛选后无可用证据：请求合法但无法给出有引用的答案（不是服务端故障）
+    "INSUFFICIENT_RELEVANCE": 422,
     "DOCUMENT_TEXT_MISSING": 422,
 
     "DUPLICATE_EVIDENCE_ID": 409,
     "SAME_CHUNK_OVERLAP": 409,
     "CROSS_CHUNK_OVERLAP": 409,
     "PARSER_VERSION_MIXED": 409,
+    "MIXED_DOCUMENT_VERSION": 409,
     "CHUNK_TEXT_MISMATCH": 409,
     "TEXT_HASH_MISMATCH": 409,
     "OFFSET_UNIT": 409,
     "OFFSET_RANGE": 409,
     "OFFSET_OUT_OF_BOUNDS": 409,
     "OFFSET_TYPE": 409,
+    # 本层自己的不变式被破坏（断言无引用）：属实现缺陷，按 500 暴露
+    "UNCITED_CLAIM": 500,
 }
 
 REQUIRED_FIELDS = ("query", "ctx", "kb_id", "chunks", "document_texts")

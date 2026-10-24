@@ -1,8 +1,8 @@
 {
   "round": 10,
   "status": "CLOSED",
-  "head_at_report": "bab611b129143587b7be98c3b7a918920395bdfd",
-  "tree_sha": "473c548cabf4cf358547d78625ec25e015a10dab",
+  "head_at_report": "99f374fcda1dc66be58f36dbf4396a9ef8e6d8f7",
+  "tree_sha": "2a4be7f9811e512cf9664275d8f81c548a62a0c6",
   "tasks": {
     "R10-T01": {
       "status": "VERIFIED",
@@ -80,13 +80,34 @@
       "owner": "interface-owner",
       "desc": "P0-01 路由提取器的命令绑定（需 Java 源码与清单 CSV）",
       "blocker": "无 --src/--csv 时脚本 rc=2，record-check 无法登记（非 0 即证据失效）"
+    },
+    "R10-T14": {
+      "status": "VERIFIED",
+      "owner": "tech-lead",
+      "desc": "HTTP 演示（5 类响应）并发现状态映射缺失",
+      "evidence": "loops/round10/evidence/T14-demo.txt",
+      "result": "演示中 ⑤ 返回 500 而非 422"
+    },
+    "R10-T15": {
+      "status": "VERIFIED",
+      "owner": "python-rag-agent",
+      "desc": "状态映射补齐 + 错误码漂移静态守卫",
+      "evidence": "loops/round10/evidence/T15-framework-verify.log",
+      "result": "47 passed；新增 tests/test_error_code_map.py"
+    },
+    "R10-T16": {
+      "status": "VERIFIED",
+      "owner": "tech-lead",
+      "desc": "审计行前移（响应前落盘）+ 竞态测试修复 + r16 候选",
+      "evidence": "loops/round10/evidence/T15-framework-verify.log",
+      "result": "322 passed；r16 = 8 pass + QA_PENDING"
     }
   },
   "gates": {
-    "framework_verify": "rc=0 / 320 passed / 0 skipped",
-    "evidence_r14": "PASS（8 pass + QA_PENDING + manual_checks=[schema-verify]）",
+    "framework_verify": "rc=0 / 322 passed / 0 skipped",
+    "evidence_r16": "PASS（8 pass + QA_PENDING + manual_checks）",
     "p0_gate": "rc=2",
-    "freeze": "revision 15"
+    "freeze": "revision 17"
   },
-  "conclusion": "HTTP 入口 + record-check 交付；四项 P0 全 OPEN，业务不可开工；r14 为 QA_PENDING，无独立签署"
+  "conclusion": "演示驱动修复：状态映射与审计顺序；r16 为 QA_PENDING；四项 P0 全 OPEN，业务不可开工"
 }

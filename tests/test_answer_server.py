@@ -169,6 +169,11 @@ def test_audit_line_has_no_query_text(server_factory):
     lines = []
     srv = server_factory(fake_runner([row('k1', 'f-1', 0, 0, 6)]), audit=lines.append)
     post(srv, {'query': '机密查询词', 'kb_id': 'kb-1', 'document_texts': {'f-1': DOC}}, headers())
+    for _ in range(100):            # 最多等 1 秒；不把"审计一定先写"当作测试前提
+        if lines:
+            break
+        import time as _t
+        _t.sleep(0.01)
     assert lines and lines[0]['status'] == 200
     assert '机密查询词' not in json.dumps(lines, ensure_ascii=False)
     assert lines[0]['evidence_count'] == 1
