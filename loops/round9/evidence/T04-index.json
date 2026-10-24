@@ -100,26 +100,26 @@
     },
     "ledger": {
       "by_state": {
-        "BLOCKED_EXTERNAL": 3,
+        "BLOCKED_EXTERNAL": 4,
         "BLOCKED_WINDOW": 1,
-        "VERIFIED": 9,
-        "VERIFIED_DRYRUN": 1
+        "VERIFIED": 10,
+        "VERIFIED_DRYRUN": 3
       },
       "columns": 9,
       "malformed_rows": 0,
       "present": true,
-      "rows": 14,
-      "unique_tasks": 14,
+      "rows": 18,
+      "unique_tasks": 18,
       "unrecognized_rows": {}
     },
     "tasks": {
       "by_status": {
-        "BLOCKED_EXTERNAL": 3,
+        "BLOCKED_EXTERNAL": 4,
         "BLOCKED_WINDOW": 1,
-        "VERIFIED": 9,
-        "VERIFIED_DRYRUN": 1
+        "VERIFIED": 10,
+        "VERIFIED_DRYRUN": 3
       },
-      "count": 14,
+      "count": 18,
       "present": true
     }
   }
