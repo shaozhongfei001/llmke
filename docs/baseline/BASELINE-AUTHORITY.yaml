@@ -62,6 +62,14 @@ change_list:
     rationale: >-
       证据能证明"树没变"，不能证明"当初用来验证的脚本没变"。实测 schema-verify.sh 追加一行注释后
       三摘要全不变、旧证据仍 PASS（loops/round9/evidence/T13-digest-gap.json）。
+  - id: W-10
+    summary: >-
+      第十轮：新增 HTTP 入口 modules/answer_api/server.py（仅标准库）+ 14 条测试
+      （11 条 HTTP 语义、3 条真库），把"请求→授权上下文→ACTIVE 代次取块→证据→答案→状态码"
+      贯通；建 L0-contract-baseline-r13 作为第十轮收口候选（9 条门禁，QA 留 QA_PENDING）。
+    approved_by: project-owner (2026-10-24, in-session：第十轮任务书授权自主执行)
+    rationale: >-
+      此前该链路只能被测试调用，真实请求进不来（全仓无 http.server/框架入口）。
 not_included:
   - P-02 语义变更（QA 接受时点与复核分离）——待 qa-owner 书面确认
   - requirements.lock 去重——待 baseline-owner 批准

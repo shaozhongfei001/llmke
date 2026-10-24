@@ -53,3 +53,19 @@ changes:
   - 改排除前缀内的门禁脚本 -> evidence-check FAIL（gate command changed）
   - 闭包为空 -> 不产生误报
   - 旧批次 scheme<=3 记录仍可读
+- id: BL-1.1.1-05
+  title: 答案链 HTTP 入口（标准库）
+  status: ADOPTED
+  owner: tech-lead
+  carrier: modules/answer_api/server.py
+  problem: query→证据→答案只能被测试调用，无真实请求入口。
+  proposal: ThreadingHTTPServer；授权上下文来自网关注入头（X-Authz-*），缺失即 403；取数走 ACTIVE 代次 + 授权谓词；审计行不含查询原文。
+  compat: 不改契约与既有模块函数；新路径 /answer 与 /healthz 独立。
+  acceptance:
+  - 缺上下文 403
+  - kb 越权 403
+  - 无证据 422
+  - 索引未就绪 503
+  - 超大请求体 413
+  - 审计行不含查询原文
+  - 真库只见授权文件
