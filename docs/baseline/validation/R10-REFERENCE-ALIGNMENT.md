@@ -147,7 +147,7 @@
 # 参考源码规模
 python3 - <<'PY'
 import pathlib
-for root in ('/home/szf/data/repo/RAG-SRC/_src/gien-rag','/home/szf/data/repo/RAG-SRC/_src/rag-alg-service-api'):
+for root in ('<RAG-SRC>/_src/gien-rag','<RAG-SRC>/_src/rag-alg-service-api'):
     fs=[f for f in pathlib.Path(root).rglob('*.java')+pathlib.Path(root).rglob('*.py')]
     print(root, len(fs), sum(sum(1 for _ in f.open(errors='ignore')) for f in fs))
 PY

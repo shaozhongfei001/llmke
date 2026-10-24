@@ -57,7 +57,7 @@ Embedding、Milvus 向量库、ES 全文、rerank、LLM 生成、图谱检索、
 
 ```bash
 # 参考规模
-python3 -c "import pathlib;fs=list(pathlib.Path('/home/szf/data/repo/RAG-SRC/_src/gien-rag').rglob('*.java'));print(len(fs),sum(sum(1 for _ in f.open(errors='ignore')) for f in fs))"
+python3 -c "import pathlib;fs=list(pathlib.Path('<RAG-SRC>/_src/gien-rag').rglob('*.java'));print(len(fs),sum(sum(1 for _ in f.open(errors='ignore')) for f in fs))"
 # 本系统门禁与反证
 cd ~/data/dev/llmke && make framework-verify > /tmp/fv.log 2>&1; echo "rc=$?"
 ~/data/dev/coordination/verify-kit.sh --repo ~/data/dev/llmke --loop L0-contract-baseline-r16
