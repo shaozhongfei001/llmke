@@ -39,7 +39,11 @@
 - `r12-graphsvc.service` + `r12-java@rag-graph-service` 已由 systemd 托管。
 
 未完成（下一步）：
-- **Java 侧图解析入口未接通**：`POST /index/knowledgeBase/file/graphParse` 用 snake_case
+- ~~**Java 侧图解析入口未接通**~~ → **已接通（2026-10-25 16:45）**：`POST /index/knowledgeBase/file/graphParse`
+  用 `knowledge_base_id` + `file_ids` 触发，`graphParseStatus` 由 1→2→**3(成功)**，Nebula `g_kb_9` 累计 15 实体 / 8 关系。
+  修复链：GRAPH-04（file_ids 未被消费→文件列表为空）、GRAPH-05（缺 knowledge_base_name 导致 doc-parse 422）、
+  GRAPH-06（只抽到实体无三元组时被误判失败）。
+- 历史记录（修复前）：**Java 侧图解析入口未接通**：`POST /index/knowledgeBase/file/graphParse` 用 snake_case
   `knowledge_base_id` + `file_ids` 调用返回 200，但 `file_parse_task` 不产生任务、`graphParseStatus` 恒为 1。
   注意 `FilesParseReq` 用 `@JsonProperty("knowledge_base_id"/"file_ids"/"chunk_size")`，camelCase 会被忽略（曾误判为"知识库不存在"）。
   下一步在 `KnowledgeBaseListAppServiceImpl.graphParse:2352-2406` 断点跟踪 `getFilePathByFolder` 是否把 fileIds 映射进 `files`。

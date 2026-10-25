@@ -491,10 +491,14 @@ def generate_triple_data(query_docu: QueryDocChunk):
             "collection_name": collection_name_entity,
             "document_list": entity_insert_data
         }
-        res_m = query_milvus_api(server_config, 'insert_vector_documents_custom', entity_milvus_data)
-        if res_m.json()["code"] == 500:
-            logger.error(f'添加实体向量库失败，请重试，实体表错误：{res_m.json()["msg"]}')
-            return BaseResponse(code=500, msg=f'添加实体向量库失败，请重试，实体表错误：{res_m.json()["msg"]}')
+        # R13-FIX-GRAPH-06：空批次不调用向量库（否则向量服务返回"待向量化的文本列表为空"被当成失败）
+        if entity_insert_data:
+            res_m = query_milvus_api(server_config, 'insert_vector_documents_custom', entity_milvus_data)
+            if res_m.json()["code"] == 500:
+                logger.error(f'添加实体向量库失败，请重试，实体表错误：{res_m.json()["msg"]}')
+                return BaseResponse(code=500, msg=f'添加实体向量库失败，请重试，实体表错误：{res_m.json()["msg"]}')
+        else:
+            logger.info('本次无可写入的实体向量，跳过实体向量库写入')
     triples_insert_data = []
     for name in milvus_triples_list:
         tris = name.split(',')
@@ -515,10 +519,14 @@ def generate_triple_data(query_docu: QueryDocChunk):
         "collection_name": collection_name_triples,
         "document_list": triples_insert_data
     }
-    res_t = query_milvus_api(server_config, 'insert_vector_documents_custom', triples_milvus_data)
-    if res_t.json()["code"] == 500:
-        logger.error(f'添加三元组向量库失败，请重试，实体表错误：{res_t.json()["msg"]}')
-        return BaseResponse(code=500, msg=f'添加三元组向量库失败，请重试，实体表错误：{res_t.json()["msg"]}')
+    if triples_insert_data:
+        res_t = query_milvus_api(server_config, 'insert_vector_documents_custom', triples_milvus_data)
+        if res_t.json()["code"] == 500:
+            logger.error(f'添加三元组向量库失败，请重试，三元组表错误：{res_t.json()["msg"]}')
+            return BaseResponse(code=500, msg=f'添加三元组向量库失败，请重试，三元组表错误：{res_t.json()["msg"]}')
+    else:
+        # 只抽到实体、没有三元组属于正常情况（例如表格/短文本块），不应判失败
+        logger.info('本次无可写入的三元组向量，跳过三元组向量库写入')
     logger.info(f"插入向量数据库所需时间是：{time.time() - t5}")
     return BaseResponse(code=200, msg=f'添加成功，新增和更新{len(full_triples_list)}条图数据,新增{len(entity_list)}条实体',
                         data={"error_edge_data_list": res_v.data["error_edge_data_list"], "error_tag_data_list": res_v.data["error_tag_data_list"]})

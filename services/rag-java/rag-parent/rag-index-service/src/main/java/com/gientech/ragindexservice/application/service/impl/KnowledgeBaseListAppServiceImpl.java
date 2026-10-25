@@ -619,6 +619,40 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
         }
     }
 
+    /**
+     * R13-FIX-GRAPH-04：把 fileIds 展开成 files（file_ids 在原实现里没有被消费）。
+     */
+    private void fillFilesByIds(FilesParseReq filesParseReq) {
+        if (!CollectionUtils.isEmpty(filesParseReq.getFiles()) || CollectionUtils.isEmpty(filesParseReq.getFileIds())) {
+            return;
+        }
+        List<Long> ids = filesParseReq.getFileIds().stream()
+                .filter(StringUtils::isNotBlank)
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        List<KnowledgeBaseList> kbFiles = knowledgeBaseListDomainService.findByIds(ids);
+        if (CollectionUtils.isEmpty(kbFiles)) {
+            return;
+        }
+        String endPoint = storageProperties.getDefaultStorageProperties().getEndPoint();
+        kbFiles.forEach(kbFile -> {
+            FilesParseReq.File file = new FilesParseReq.File();
+            file.setFileId(kbFile.getId());
+            file.setFileName(kbFile.getFileName());
+            if (StringUtils.isNotBlank(kbFile.getFilePath())) {
+                file.setFilePath(kbFile.getFilePath().replace(endPoint + "/", ""));
+            }
+            file.setFileSize(kbFile.getFileSize() + "MB");
+            file.setParentFileName(kbFile.getParentFileName());
+            // parse_type 是算法侧必填；此处沿用文件库里已有的解析类型，避免 422
+            file.setParseType(Objects.isNull(kbFile.getParseType()) ? 1 : kbFile.getParseType());
+            filesParseReq.getFiles().add(file);
+        });
+    }
+
     private void getFilePathByFolder(FilesParseReq filesParseReq, List<Integer> parseStatus, List<Integer> faqExtractStatus, List<Integer> graphParseStatus) {
         List<FilesParseReq.File> files = filesParseReq.getFiles();
         List<Long> resultFolderIds = filesParseReq.getFolderIds();
@@ -2354,6 +2388,16 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
         KnowledgeBase knowledgeBase = knowledgeBaseDomainService.findByKbId(kbId);
         if (Objects.isNull(knowledgeBase))
             throw new ApplicationException(ErrCodeEnum.KB_NOT_EXISTS_ERROR);
+        // R13-FIX-GRAPH-04：接口文档声明支持 file_ids，但原实现只处理 folderIds / files，
+        // 传 file_ids 时 files 恒为空 → taskList 为空 → saveBatch 空集合返回 true，
+        // 前端看到"成功"但 graphParseStatus 永远是 1。这里补齐 id 列表到 files 的映射。
+        fillFilesByIds(filesParseReq);
+        // R13-FIX-GRAPH-05：算法侧 ParseParams.knowledge_base_name 是必填（无默认值），
+        // 而图解析入口不经过前端上传流程，请求里常为空 → doc-parse 直接 422，
+        // 表现为"任务建了但必然失败、graphParseStatus 卡在 2"。这里用知识库的 primitiveName 兜底。
+        if (StringUtils.isBlank(filesParseReq.getKnowledgeBaseName())) {
+            filesParseReq.setKnowledgeBaseName(knowledgeBase.getPrimitiveName());
+        }
         getFilePathByFolder(filesParseReq, null, null, Arrays.asList(GraphParseStatusEnums.NORMAL.getValue(), GraphParseStatusEnums.PARSE_SUCCESS.getValue(), GraphParseStatusEnums.PARSE_FAIL.getValue()));
 
         //解析任务
