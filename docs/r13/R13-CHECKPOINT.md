@@ -164,3 +164,26 @@ python3 /home/szf/data/dev/llmke-r12/platform/r12/qa/acceptance.py
   TRUNCATE / CREATE / GRANT / REVOKE / CALL / LOAD DATA / SET GLOBAL / SHUTDOWN），无 LIMIT 时强制 `LIMIT 500`。
 - 实测：`select count(*) from user_info` → 200 `[{"c":5}]`；`select sleep(3)` → 拒绝；`select ... into outfile` → 拒绝。
 - 仍缺：只读账号机制（连接级）、语句级 `queryTimeout`（当前只有行数与关键字层面）、LLM 生成 SQL 的 EXPLAIN 校验。
+
+### S3 GraphRAG（2026-10-25 22:20，已完成最小闭环）
+新增：
+- `graph_community.py`：Nebula 全图读取 → networkx `louvain_communities` → level0 + level1 超节点社区；
+  另有 `community_file_ids()` 从顶点 `file_id` 属性取来源文件（血缘）。
+- `graph_summary.py`：社区事实 → 真实 LLM（18092）生成中文摘要；ES+Milvus 双写 `community_summary_<kb>`；
+  `query_community(mode=global|local)`；`del_community` 清理索引（补 del_space_data 不联动 Milvus 的缺口）。
+- 端点（19529）：`/generate_community`、`/query_community`、`/del_community`。
+- 检索侧（19995）：`/retrieval_documents_global`（新文件 `app/view/api/retrieval_global_view.py` + urls 注册），
+  返回 `{global_answer, community_summary_list, documents_list}`，documents 带 `search_type=["graph_community"]`。
+
+实测（kb_9，47 实体/54 边）：
+- `/generate_community` → `社区 5 个，摘要 5 条，失败 0 条`，es_ok=true、milvus_ok=true；
+  社区规模 L0:14 / L0:3 / L0:4 / L0:6 / L1:24。
+- 摘要内容为真实模型输出（例：围绕"智造贷"、列出 `智造贷 -面向-> 制造业中小微企业`）。
+- `/query_community` global：「智造贷面向哪些企业，期限和还款方式是什么」→ 回答引用 `[L0-...][L1-...]`，
+  给出"三年/按季付息分期还本/按月付息到期还本"；对无依据的问题会**明确拒答**"现有社区摘要不足以回答"。
+- 摘要 metadata 已带 `file_ids=['119','120']` → 可回溯到授权原文文件。
+
+未完成：
+- global 结果尚未接进 Java 问答主链（目前是独立端点），引用卡片未渲染 `graph_community` 类型；
+- 社区摘要未做增量更新（文档更新/删除不重建社区）；
+- global 采用"全量摘要 reduce"（SUMMARY_SCAN_LIMIT=200），未做摘要向量的近似召回。

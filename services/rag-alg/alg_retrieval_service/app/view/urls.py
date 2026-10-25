@@ -8,7 +8,7 @@ Time: 2025/9/18 14:40
 from fastapi import FastAPI
 
 from app.view.api import RetrievalDocumentsView, RetrievalDocumentsCecView, RetrievalTableCecView, \
-    RetrievalDocumentsTableView
+    RetrievalDocumentsTableView, RetrievalGlobalView
 
 # [Retrieval]
 RetrievalDocumentsView(path="/retrieval_documents", tags=["retrieval_documents"], summary="多路召回，返回查询结果")
@@ -20,3 +20,6 @@ RetrievalDocumentsTableView(path="/retrieval_documents_table", tags=["retrieval_
 def register_routes(app: FastAPI):
     from app.view.core.base_view import base_router
     app.include_router(router=base_router)
+
+RetrievalGlobalView(path="/retrieval_documents_global", tags=["retrieval_documents_global"],
+                    summary="GraphRAG：社区摘要 global/local 查询")

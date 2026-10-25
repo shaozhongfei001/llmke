@@ -11,6 +11,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from base import BaseResponse
+from graph_summary import generate_community, query_community, del_community
 from graph_service import create_space, generate_triple_data, create_attribute, batch_insert_vertex, query_graph_data, del_space_data, create_space_attribute
 from middleware import register_middlewares
 from utils import get_config, return_nacos_model
@@ -100,3 +101,22 @@ def api_start():
 
 if __name__ == '__main__':
     api_start()
+
+# ===== R13 GraphRAG：社区检测 / 分级摘要 / global-local 查询 =====
+graph_app.post('/generate_community',
+               tags=['GraphRAG'],
+               response_model=BaseResponse,
+               summary='社区检测并生成社区摘要（LLM），双写 ES/Milvus community_summary_<kb>'
+               )(generate_community)
+
+graph_app.post('/query_community',
+               tags=['GraphRAG'],
+               response_model=BaseResponse,
+               summary='global：社区摘要 reduce 汇总；local：按实体命中社区'
+               )(query_community)
+
+graph_app.post('/del_community',
+               tags=['GraphRAG'],
+               response_model=BaseResponse,
+               summary='删除社区摘要索引（ES+Milvus）'
+               )(del_community)
