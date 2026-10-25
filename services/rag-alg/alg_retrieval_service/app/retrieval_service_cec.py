@@ -169,8 +169,17 @@ async def retrieval_documents_table(cec_model: CECTableRetrieveConfig):
         cec_model.model_name = model_name
         cec_model.model_info = {"key": "", "model_id": model_name, "model_name": model_name,
                         "url": server_config[model_name]['url']}
-    url = server_config["mysql-indicator-query"]["url"]
-    url_table_indicator = server_config["url_table_indicator"]["url"]
+    # R13-FIX-IND-01：原实现直接下标取 ["url"]，而 nacos 里 url_table_indicator 是空字符串、
+    # mysql-indicator-query 整个键都不存在 -> TypeError/KeyError，把一次配置缺失变成 500。
+    # 这里改为"取不到就明确降级"，并在响应里标注未启用。
+    _miq = server_config.get("mysql-indicator-query") or {}
+    _uti = server_config.get("url_table_indicator") or {}
+    url = _miq.get("url") if isinstance(_miq, dict) else None
+    url_table_indicator = _uti.get("url") if isinstance(_uti, dict) else None
+    if not url or not url_table_indicator:
+        logger.warning("指标查询未启用：mysql-indicator-query/url_table_indicator 未配置，跳过指标检索")
+        return BaseResponse(code=200, msg="指标查询未启用（缺少 mysql-indicator-query / url_table_indicator 配置）",
+                            data={"indicators": [], "indicator_enabled": False})
     query = cec_model.query
     query_list = cec_model.query_list
     query_indicators = cec_model.query_indicators

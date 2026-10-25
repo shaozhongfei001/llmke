@@ -2223,6 +2223,8 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
     @Override
     public Boolean reExtractFQA(FilesParseReq filesParseReq) {
         Long kbId = filesParseReq.getKnowledgeBaseId();
+        // R13-FIX-FAQ-02：file_ids 原实现完全不消费，files 为空时直接 return true（"点了没反应"）。
+        fillFilesByIds(filesParseReq);
         List<FilesParseReq.File> files = filesParseReq.getFiles();
         KnowledgeBase knowledgeBase = knowledgeBaseDomainService.findByKbId(kbId);
         if (Objects.isNull(knowledgeBase))
@@ -2233,8 +2235,11 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
         else
             getFilePathByFolder(filesParseReq, null, Arrays.asList(FaqExtractStatusEnums.NO_EXTRACT.getValue(), FaqExtractStatusEnums.EXTRACT_SUCCESS.getValue(), FaqExtractStatusEnums.EXTRACT_FAIL.getValue()), null);
 
-        if (CollectionUtils.isEmpty(files))
-            return true;
+        if (CollectionUtils.isEmpty(files)) {
+            log.warn("FAQ 重新抽取未收到任何文件：file_ids={} folder_ids={} isAll={}",
+                    filesParseReq.getFileIds(), filesParseReq.getFolderIds(), filesParseReq.getIsAll());
+            return false;
+        }
 
         //删除faq数据
         String primitiveName = knowledgeBase.getPrimitiveName();
@@ -2281,8 +2286,13 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
     }
 
     private Boolean doExtractFQA(FilesParseReq filesParseReq, Boolean reExtract) {
+        // R13-FIX-FAQ-02：与 graphParse 同因——接口支持 file_ids，但这里只看 files，
+        // 传 file_ids 时 files 为空直接 return false（接口仍回 200），表现为"抽取点了没反应"。
+        fillFilesByIds(filesParseReq);
         List<FilesParseReq.File> files = filesParseReq.getFiles();
         if (CollectionUtils.isEmpty(files)) {
+            log.warn("FAQ 抽取未收到任何文件：file_ids={} folder_ids={}",
+                    filesParseReq.getFileIds(), filesParseReq.getFolderIds());
             return false;
         }
 

@@ -563,7 +563,10 @@ def requests_faq_llm(faq_model: FAQChatConfig, server_config):
                 new_dict["metadata"]["file_id"] = int(file_id)
                 new_dict["metadata"]["folder_id"] = int(folder_id)
                 new_dict["metadata"]["order_num"] = new_dict["metadata"]["pk"]
-                new_dict["metadata"]["status"] = 0
+                # R13-FIX-FAQ-01：原值 0（未启用），而检索侧要求 status==1 才召回，
+                # 结果是"抽取成功但永远问不到"。改为默认启用；需要人工审核的场景可由
+                # /faq/changeStatus 再关闭。
+                new_dict["metadata"]["status"] = 1
                 new_dict["metadata"]["faq_type"] = 1
                 pred_dict_list.append(new_dict)
             # 文本超过数量则跳出

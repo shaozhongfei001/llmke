@@ -151,7 +151,7 @@ kb:
     task-nums: 5
     task-timeout: 3600
     retry-limit: 3
-  faq-extract-model: ''
+  faq-extract-model: 'qwen2.5-7b-instruct'
   faq-polish-model: ''
   faq-simiquestion-model: ''
   generate-graph-model: ''
