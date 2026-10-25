@@ -206,7 +206,11 @@ def llm_faq_generate(faq_model: FAQChatConfig):
 
     """
     try:
-        config_manager = return_nacos_model().get_config()
+        # R13-FIX-FAQ-07：原本用 return_nacos_model().get_config()，取的是单例里**启动时**的缓存，
+        # 新增配置键（milvus_config/es_config）不会生效，写库阶段直接 KeyError -> 整个 FAQ 抽取失败。
+        # 这里改为实时拉取 Nacos（common + 本服务），保证新键可用。
+        from app.utils import get_config as _live_get_config
+        config_manager = _live_get_config() or return_nacos_model().get_config()
         count, msg = requests_faq_llm(faq_model, config_manager)
         if msg:
             return BaseResponse(code=500, msg=f'生成FAQ问答对失败,{msg}')

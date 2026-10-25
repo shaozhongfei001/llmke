@@ -423,6 +423,10 @@ def process_return_results(documents_list):
                         "pic_children_id_list": x["metadata"].get("pic_children_id_list", None),
                         "text_parent_id_list": x["metadata"].get("text_parent_id_list", None),
                         "chunk_type": x["metadata"].get("type", None),
+                        # R13-FIX-VER-02：引用可标注版本，前端据此显示"V2 / 2025-xx-xx"
+                        "parent_file_name": x["metadata"].get("parent_file_name", None),
+                        "revise_date": x["metadata"].get("revise_date", None),
+                        "version": x["metadata"].get("version", None),
                         "position": x["metadata"].get("position", None),
                         "file_id": int(x["metadata"].get("file_id", None)),
                         "image_path": x["metadata"].get("image_path", None),
@@ -607,7 +611,10 @@ sheet名：表4-即期及衍生品交易信息表填报示例5.1
 
 
 async def get_multi_version_dict(kb_names, server_config):
-    multi_version_url = server_config['multi_version']['url']
+    # R13-FIX-VER-01：url 未配置时直接跳过，避免每次检索都打一次 404
+    multi_version_url = (server_config.get('multi_version') or {}).get('url') or ""
+    if not multi_version_url:
+        return {}
     params = {
         "pageSize": 10,
         "pageNo": 1,
