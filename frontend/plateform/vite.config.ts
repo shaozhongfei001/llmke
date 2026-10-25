@@ -125,6 +125,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/minio/, "")
         },
+        "/preview": {
+          // R13：Office -> PDF 转换服务（容器 r12-preview，host 网络 18095），与 /minio 同构
+          target: `http://127.0.0.1:18095/`,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/preview/, "")
+        },
         "/cecProxy": {
           // 后端根（与 /proxy 等价，保留历史前缀）
           target: `${CURRENT_SERVER}:${PORT}/`,

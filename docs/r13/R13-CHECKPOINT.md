@@ -153,3 +153,14 @@ python3 /home/szf/data/dev/llmke-r12/platform/r12/qa/acceptance.py
 - 首次运行：Nebula 47 / Milvus 67，**20 条悬空向量**（正是迁移时从图里删掉的噪声实体，仍会被实体链接命中）。
 - `--fix` 后复核：Nebula 47 / Milvus 47，**0 差异**。
 - 未做：`graph_triples_<kb>` 与 Nebula 边的比对；`del_space_data` 删除时不联动 Milvus（源码缺口，需改 Python）。
+
+### S5 进展（结构化查询）
+- 环境缺陷：`tools_database` / `tools_table` / `tools_table_column` / `tools_table_file` 四张表**从未创建**
+  （tools 模块不在 actable 的 model 扫描包内），导致 `/index/database/*` 全部 500。已补 DDL：`platform/r12/sql/tools_ddl.sql`。
+- **R13-SEC-D1**：`queryData` 增加对象级授权（超管 / 库创建人 / user|dept|group_privilege bizType=12 读权限），
+  实测 `r13_noauth` 调用 → **403 + 30016**。
+- **R13-SEC-D2**：SQL 校验收紧——SELECT/WITH 开头、禁止 `;`、危险关键字黑名单
+  （INTO OUTFILE / INTO DUMPFILE / LOAD_FILE / SLEEP( / BENCHMARK( / INSERT / UPDATE / DELETE / DROP / ALTER /
+  TRUNCATE / CREATE / GRANT / REVOKE / CALL / LOAD DATA / SET GLOBAL / SHUTDOWN），无 LIMIT 时强制 `LIMIT 500`。
+- 实测：`select count(*) from user_info` → 200 `[{"c":5}]`；`select sleep(3)` → 拒绝；`select ... into outfile` → 拒绝。
+- 仍缺：只读账号机制（连接级）、语句级 `queryTimeout`（当前只有行数与关键字层面）、LLM 生成 SQL 的 EXPLAIN 校验。

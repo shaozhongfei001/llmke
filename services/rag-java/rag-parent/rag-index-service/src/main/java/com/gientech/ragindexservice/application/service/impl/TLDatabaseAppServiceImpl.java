@@ -172,6 +172,35 @@ public class TLDatabaseAppServiceImpl implements TLDatabaseAppService {
         return Objects.isNull(tlDatabase) ? null : tlDatabase.getCreateBy();
     }
 
+    /** R13：单次结构化查询的最大返回行数（防大表全扫） */
+    private static final int MAX_QUERY_ROWS = 500;
+
+    /**
+     * R13-SEC-D1：数据库对象级授权。
+     * 允许：超级管理员、库创建人、在 user/dept/group_privilege 中具备该库读权限（bizType=12）。
+     */
+    private void assertDatabaseReadable(TLDatabase tlDatabase) {
+        Integer userType = userClient.getUserType();
+        if (com.gientech.ragcommon.auth.enums.RoleTypeEnums.SUPER_ADMIN.getCode().equals(userType)) {
+            return;
+        }
+        String currentUser = com.gientech.ragcommon.context.user.UserContext.getUser() == null
+                ? null : com.gientech.ragcommon.context.user.UserContext.getUser().getUserName();
+        if (currentUser != null && currentUser.equals(tlDatabase.getCreateBy())) {
+            return;
+        }
+        java.util.Map<Long, com.gientech.ragcommon.auth.dto.PrivilegeDTO> permissionMap =
+                privilegeClient.getPermission(com.gientech.ragcommon.auth.enums.PrivilegeTypeEnums.DATABASE.getCode(), null);
+        com.gientech.ragcommon.auth.dto.PrivilegeDTO dto =
+                permissionMap == null ? null : permissionMap.get(tlDatabase.getId());
+        int permission = dto == null || dto.getPermission() == null ? 0 : dto.getPermission();
+        if (permission < 1) {
+            log.warn("R13-SEC-D1 deny database query: databaseId={} user={}", tlDatabase.getId(), currentUser);
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
+    }
+
     @Override
     public List<Entity> queryData(QueryDataReq executeSqlReq) {
         Long databaseId = executeSqlReq.getDatabaseId();
@@ -179,13 +208,30 @@ public class TLDatabaseAppServiceImpl implements TLDatabaseAppService {
 
         Assert.notBlank(sql, "SQL语句为空");
 
-        Assert.isTrue(sql.toUpperCase().startsWith("SELECT"), "仅支持SQL查询语句");
+        Assert.isTrue(sql.trim().toUpperCase().startsWith("SELECT") || sql.trim().toUpperCase().startsWith("WITH"),
+                "仅支持SQL查询语句");
 
         Assert.isFalse(sql.contains(";"), "SQL语句中不允许出现终止符;");
 
         TLDatabase tlDatabase = tlDatabaseDomainService.findById(databaseId);
 
         Assert.notNull(tlDatabase, "数据库配置不存在");
+
+        // R13-SEC-D1：结构化查询的对象级授权。原来只要登录就能对任意 databaseId 执行 SQL。
+        assertDatabaseReadable(tlDatabase);
+
+        // R13-SEC-D2：SELECT 前缀校验可被 `SELECT ... INTO OUTFILE`、`SELECT SLEEP(1000)`、
+        // CTE 内 DML 等绕过，这里加危险关键字黑名单 + 强制行数上限。
+        String normalized = sql.replaceAll("\\s+", " ").toUpperCase();
+        String[] banned = {"INTO OUTFILE", "INTO DUMPFILE", "LOAD_FILE", "SLEEP(", "BENCHMARK(",
+                "INSERT ", "UPDATE ", "DELETE ", "DROP ", "ALTER ", "TRUNCATE ", "CREATE ",
+                "GRANT ", "REVOKE ", "CALL ", "LOAD DATA", "SET GLOBAL", "SHUTDOWN"};
+        for (String kw : banned) {
+            Assert.isFalse(normalized.contains(kw), "SQL语句包含不允许的关键字：" + kw.trim());
+        }
+        if (!normalized.matches(".*\\bLIMIT\\b.*")) {
+            sql = sql + " LIMIT " + MAX_QUERY_ROWS;
+        }
 
         List<Entity> entityList = new ArrayList<>();
 

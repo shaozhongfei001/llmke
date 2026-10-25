@@ -61,10 +61,15 @@ const FileViewCom = ({ data, showPreviewModal, setShowPreviewModal }: any) => {
         }
       };
       const filePath = dealMinioUrl(getFilePath(content));
+      const fileType = getFileType(content, filePath);
+      // R13：getFilePath 对 office 返回 /preview/convert?key=...，reader 会把它 POST 回来，
+      // 因此 stream 端也要切到预览服务（Java /stream 只支持 pdf/html/md）
+      const usePreviewStream = filePath.includes("/preview/convert");
       return {
         filePath,
         fileName: getFileName(content),
-        fileType: getFileType(content, filePath),
+        fileType,
+        usePreviewStream,
         totalPages: content.pdfPages || 0,
         token
       };
@@ -85,7 +90,11 @@ const FileViewCom = ({ data, showPreviewModal, setShowPreviewModal }: any) => {
         initialPage={1}
         totalPages={curData.totalPages}
         authorization={curData.token}
-        streamApiUrl="/proxy/index/knowledgeBase/file/stream"
+        streamApiUrl={
+          curData.usePreviewStream
+            ? "/preview/stream"
+            : "/proxy/index/knowledgeBase/file/stream"
+        }
         eventsEmit={(name: string) => {
           switch (name) {
             case "viewer:close":

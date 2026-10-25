@@ -43,6 +43,49 @@ export const uniqArr2By = (array1: any[], array2: any[], key: string) => {
   );
 };
 
+/**
+ * R13：Office 文档预览走独立转换服务（容器内 LibreOffice，18095）。
+ * 原因：宿主 LibreOffice 缺 writer/impress 过滤器，Java 侧 PdfConvertorUtils 回落到原始
+ * docx/pptx，而 `/index/knowledgeBase/file/stream` 只支持 pdf/html/md，前端按 pdf 渲染必然打不开。
+ * dev 由 vite proxy 转发，prod 由 nginx `location /preview/` 转发到 127.0.0.1:18095。
+ */
+export const PREVIEW_PREFIX = import.meta.env.VITE_PREVIEW_PREFIX || "/preview";
+
+/** 需要服务端转 PDF 的格式（前端一律按 pdf 渲染） */
+export const officePreviewTypes = [
+  "docx",
+  "doc",
+  "pptx",
+  "ppt",
+  "odt",
+  "rtf",
+  "odp",
+  "ods"
+];
+
+export const isOfficePreviewType = (type?: string) =>
+  !!type && officePreviewTypes.includes(type.toLowerCase());
+
+/** 从 MinIO 绝对地址/相对路径/对象键里取出对象键（去掉协议、主机、/minio 前缀、查询串） */
+export const getObjectKeyFromSource = (source?: string) => {
+  if (!source) return "";
+  let s = String(source).trim();
+  if (/^https?:\/\//i.test(s)) {
+    s = s.replace(/^https?:\/\/[^/]+\/?/i, "");
+  }
+  s = s.replace(/^\/+/, "");
+  if (s.startsWith("minio/")) s = s.slice("minio/".length);
+  return s.split("?")[0].split("#")[0];
+};
+
+/** 生成转换服务地址：/preview/convert?key=<objectKey> */
+export const getPreviewConvertUrl = (source?: string) => {
+  const raw = String(source || "");
+  if (raw.includes(`${PREVIEW_PREFIX}/convert`)) return raw;
+  const key = getObjectKeyFromSource(raw);
+  return `${PREVIEW_PREFIX}/convert?key=${encodeURIComponent(key)}`;
+};
+
 export const fileViewTypes = [
   "txt",
   "pdf",
@@ -188,6 +231,10 @@ export const getFilePath = (content: {
   } else {
     return content?.file_source || "";
   }
+  // R13：Office 文档统一转成服务端 PDF 流（宿主 LibreOffice 缺过滤器，网关 stream 不支持 docx/pptx）
+  if (isOfficePreviewType(fileType)) {
+    return getPreviewConvertUrl(source);
+  }
   if (fileViewTypes.includes(fileType)) {
     if (source.includes("http")) {
       return source;
@@ -254,10 +301,17 @@ export const getFileType = (
     if (!_arr.length) return "";
     const _type = _arr[_arr.length - 1];
     switch (type.toLocaleLowerCase()) {
+      // R13：office 一律按服务端转出的 pdf 渲染（原 ppt/pptx 返回 pdf_slides，但网关只出文档流）
       case "ppt":
       case "pub":
       case "pptx":
-        return "pdf_slides";
+      case "doc":
+      case "docx":
+      case "odt":
+      case "rtf":
+      case "odp":
+      case "ods":
+        return "pdf";
       case "xls":
       case "xlsx":
       case "csv":
@@ -275,8 +329,6 @@ export const getFileType = (
       case "txt":
         return "text";
       default:
-        if (_type === "ppt" || _type === "pub" || _type === "pptx")
-          return "pdf_slides";
         return "pdf";
     }
   } else {

@@ -1,7 +1,11 @@
 import { useFileViewer, registerPDFWorker } from "@mxmweb/fv";
 import "@mxmweb/fv/style.css";
 import React, { useMemo } from "react";
-import { dealMinioUrl } from "@root/src/core/helps";
+import {
+  dealMinioUrl,
+  getPreviewConvertUrl,
+  isOfficePreviewType
+} from "@root/src/core/helps";
 registerPDFWorker("/worker/pdf.worker.min.js");
 export interface ICurFileInfo {
   fileSuffix: string;
@@ -21,9 +25,11 @@ const FilePreview = ({ curFileInfo, handleEvent }: IFile) => {
   // };
   // 勿删 end
 
-  const form = ["pdf", "txt", "html", "csv", "img"].includes(
-    curFileInfo?.fileSuffix
-  )
+  // R13：office 由 /preview/convert 转出 PDF，按 pdf 渲染
+  const isOffice = isOfficePreviewType(curFileInfo?.fileSuffix);
+  const form = isOffice
+    ? "pdf"
+    : ["pdf", "txt", "html", "csv", "img"].includes(curFileInfo?.fileSuffix)
     ? curFileInfo?.fileSuffix
     : "html";
 
@@ -33,10 +39,11 @@ const FilePreview = ({ curFileInfo, handleEvent }: IFile) => {
     }
   };
   const { Element } = useFileViewer({
-    fileUrl: dealMinioUrl(curFileInfo?.file_source),
+    fileUrl: isOffice
+      ? getPreviewConvertUrl(curFileInfo?.file_source)
+      : dealMinioUrl(curFileInfo?.file_source),
     form: form,
-    display_file_type:
-      curFileInfo?.fileSuffix == "pptx" ? "ppt" : curFileInfo?.fileSuffix,
+    display_file_type: isOffice ? "pdf" : curFileInfo?.fileSuffix,
     actionOnEmmit: handlethat
   });
 

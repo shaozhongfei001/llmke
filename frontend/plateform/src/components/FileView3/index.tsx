@@ -3,7 +3,11 @@ import { useMemo, useEffect } from "react";
 registerPDFWorker("/worker/pdf.worker.min.js");
 import "./style.less";
 import "@mxmweb/fv/style.css";
-import { dealMinioUrl } from "@root/src/core/helps";
+import {
+  dealMinioUrl,
+  getPreviewConvertUrl,
+  isOfficePreviewType
+} from "@root/src/core/helps";
 export interface ICurFileInfo {
   display_file_type?: string;
   hide_toolbar?: boolean;
@@ -23,19 +27,29 @@ const types = ["txt", "xlsx", "jpeg", "jpg", "png", "pdf", "docx", "xls"];
 const FilePreview = ({ curFileInfo, handleEvent }: IFile) => {
   console.log("FilePreview updated:", curFileInfo);
 
+  // R13：office 一律走 /preview/convert 转出的 PDF
+  const isOffice = isOfficePreviewType(curFileInfo?.display_file_type);
+
   const viewerOptions = useMemo(
     () => ({
-      fileUrl:
-        !curFileInfo?.display_file_type ||
-        types.includes(curFileInfo.display_file_type)
-          ? dealMinioUrl(curFileInfo?.file_source)
-          : dealMinioUrl(curFileInfo?.file_convert_source),
+      fileUrl: isOffice
+        ? getPreviewConvertUrl(curFileInfo?.file_source)
+        : !curFileInfo?.display_file_type ||
+          types.includes(curFileInfo.display_file_type)
+        ? dealMinioUrl(curFileInfo?.file_source)
+        : dealMinioUrl(curFileInfo?.file_convert_source),
       actionOnEmmit: handleEvent,
       bgColor: "#ffffff",
       hide_toolbar: curFileInfo?.hide_toolbar,
-      display_file_type: curFileInfo?.display_file_type
+      display_file_type: isOffice ? "pdf" : curFileInfo?.display_file_type
     }),
-    [curFileInfo?.file_source, curFileInfo?.hide_toolbar, handleEvent]
+    [
+      curFileInfo?.file_source,
+      curFileInfo?.file_convert_source,
+      curFileInfo?.display_file_type,
+      curFileInfo?.hide_toolbar,
+      handleEvent
+    ]
   );
 
   const { Element } = useFileViewer(viewerOptions);
