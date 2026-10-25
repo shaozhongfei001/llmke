@@ -361,6 +361,10 @@ public class FileAppServiceImpl implements FileAppService {
                     tableName = FAQ_EXTRACT_CHUNK_PREFIX + kbName;
                 }
                 List<FileChunkDTO> chunks = getAndRemoveFileChunks(tableName, fileId, parseType, null, null);
+                // R13-FIX-FAQ-05：无 chunk 时原实现继续调用模型并标记成功（0 产出也算成功）。
+                if (chunks.isEmpty()) {
+                    throw new ApplicationException(ErrCodeEnum.DOC_CHUNK_ERROR);
+                }
                 JSONObject faqReq = new JSONObject();
                 JSONArray documentList = new JSONArray();
                 chunks.forEach(chunk -> {
@@ -483,17 +487,39 @@ public class FileAppServiceImpl implements FileAppService {
         searchCondtions.add(condtion);
         query.put("condition_json", searchCondtions);
 
+        // R13-FIX-FAQ-04：非 FILE_TYPE_LIST(xlsx/xls/csv) 的扩展名会被改写成 .pdf 去匹配
+        // ES 的 metadata.title，而实际 title 是原名（如 docx-plain.docx）→ 查不到 chunk，
+        // 上游仍把 FAQ 标记成功（"假成功，0 产出"）。这里先按改写名查，查不到再用原名兜底。
         String resp = remoteFileUtils.pageListEs(JSONObject.toJSONString(query));
         respJson = JSONObject.parseObject(resp);
         if (!Objects.equals(respJson.getInteger("code"), 200))
             throw new ApplicationException(ErrCodeEnum.DOC_CHUNK_ERROR);
         JSONObject data = respJson.getJSONObject("data");
         List<FileChunkDTO> chunks = Lists.newArrayList();
-        if (Objects.isNull(data)) {
-            return chunks;
+        JSONArray resultData = data == null ? null : data.getJSONArray("result_data");
+        if (resultData == null || resultData.isEmpty()) {
+            String originalName = knowledgeBaseFile.getFileName();
+            if (!originalName.equals(fileName)) {
+                JSONObject retryQuery = JSONObject.parseObject(JSONObject.toJSONString(query));
+                List<JSONObject> retryConds = new ArrayList<>();
+                JSONObject retryCond = new JSONObject();
+                retryCond.put("title", Arrays.asList(originalName));
+                retryConds.add(retryCond);
+                retryQuery.put("condition_json", retryConds);
+                String retryResp = remoteFileUtils.pageListEs(JSONObject.toJSONString(retryQuery));
+                JSONObject retryJson = JSONObject.parseObject(retryResp);
+                if (retryJson != null && Objects.equals(retryJson.getInteger("code"), 200)) {
+                    JSONObject retryData = retryJson.getJSONObject("data");
+                    if (retryData != null) {
+                        resultData = retryData.getJSONArray("result_data");
+                        log.warn("chunk 查询按改写名未命中，已按原始文件名{}重试，命中{}条", originalName,
+                                resultData == null ? 0 : resultData.size());
+                    }
+                }
+            }
         }
-        JSONArray resultData = data.getJSONArray("result_data");
-        if (resultData == null || Objects.isNull(resultData)) {
+        if (resultData == null || resultData.isEmpty()) {
+            log.warn("文件{}在索引中没有任何 chunk（索引名={}），返回空列表由调用方判定失败", fileName, tableName);
             return chunks;
         }
         resultData.forEach(result -> {

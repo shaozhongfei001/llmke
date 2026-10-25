@@ -545,12 +545,14 @@ def requests_faq_llm(faq_model: FAQChatConfig, server_config):
                             break
             for num in range(0, len(js_res_list)):
                 new_dict = {}
-                error_msg = ['未知', '无答案', '本题无答案', '']
-                if not js_res_list[num]["answer"]:
+                # R13-FIX-FAQ-03：原过滤把空串放进 error_msg，`any(em in answer ...)` 恒为真，
+                # 三个分支全部失效（既不能正确拦截"无答案"，也无法保证有效答案通过）。
+                # 改为明确的空值/占位答案判定。
+                _ans = (js_res_list[num].get("answer") or "").strip()
+                _q = (js_res_list[num].get("question") or "").strip()
+                if not _ans or _ans in ("未知", "无答案", "本题无答案", "无", "N/A", "null"):
                     continue
-                if js_res_list[num]["answer"] in error_msg:
-                    continue
-                if not any(em in js_res_list[num]["answer"] for em in error_msg):
+                if not _q:
                     continue
                 new_dict["page_content"] = js_res_list[num]["question"] + "@@" + js_res_list[num]["answer"]
                 new_dict["metadata"] = meta_data.copy()
