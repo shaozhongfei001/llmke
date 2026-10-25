@@ -23,6 +23,31 @@
   已生成 `platform/r12/systemd/doc-parse.env`（无 export）。
 - **僵死任务恢复脚本**：`platform/r12/bin/recover-stuck-tasks.sh`（清理 status=5 占槽、status=99 复位）。
 
+## 2.5 图谱链路进展（2026-10-25 15:55）
+
+已完成：
+- Nebula 3.8 三件套可用：固定 IP(172.28.0.2/3/4) + `ADD HOSTS 172.28.0.3:9779` → storage ONLINE；
+  原 hostname 注册会被 metad 判 `Machine not existed`（这是三天套"Up 但无 space"的真因）。
+- 空间与 schema：`rag_graph` 与 `g_rag_graph`（Java 端点强制 `g_` 前缀），TAG `entity`、
+  EDGE `relationship`/`relationship_similar`，全字段 (200) 索引，写读探针 OK。
+- `rag-graph-service`（18084）可读真实图：cypherSearch 返回顶点，instances 返回 {3000:{nodeCount:2,edgeCount:1}}。
+- `index_graph_service`（19529）启动并完成真实抽取：`{"code":200,"msg":"添加成功，新增和更新3条图数据,新增6条实体"}`，
+  数据落 `g_kb_9`，实体如 T-CORE-001/单证、日均存款、用电量。
+- `query_graph_data` 打通 NER→实体链接→子图→PPR→原文回填，返回带 source/file_id/pk 的真实块。
+- 修复：GRAPH-01（requests_llm 改 OpenAI 协议）、GRAPH-02（Nebula 口令误写 user）、
+  GRAPH-03（绕开 nebula3 `dict_for_vis()` KeyError）。
+- `r12-graphsvc.service` + `r12-java@rag-graph-service` 已由 systemd 托管。
+
+未完成（下一步）：
+- **Java 侧图解析入口未接通**：`POST /index/knowledgeBase/file/graphParse` 用 snake_case
+  `knowledge_base_id` + `file_ids` 调用返回 200，但 `file_parse_task` 不产生任务、`graphParseStatus` 恒为 1。
+  注意 `FilesParseReq` 用 `@JsonProperty("knowledge_base_id"/"file_ids"/"chunk_size")`，camelCase 会被忽略（曾误判为"知识库不存在"）。
+  下一步在 `KnowledgeBaseListAppServiceImpl.graphParse:2352-2406` 断点跟踪 `getFilePathByFolder` 是否把 fileIds 映射进 `files`。
+- 多文件抽取（授信/票据那批业务文档）尚未批量跑。
+- 图检索尚未并入 `/qa/ai/question` 主链与引用结构。
+- GraphRAG 本体（社区检测/分级摘要/摘要索引/global map-reduce）未开始。
+- 类型体系及版本、canonical 归一、合并审计与回滚、三元组重指向未实现。
+
 ## 3. 已解除的阻塞（2026-10-25 15:06 复验 31/31 PASS）
 
 **根因：任务队列被"已删除文件的历史任务"永久占位（R13-FIX-QUEUE-01）**
