@@ -4,7 +4,7 @@ After=network-online.target docker.service r12-models.service
 
 [Service]
 Type=simple
-EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/run/doc-parse.env
+EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/systemd/doc-parse.env
 WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-alg/alg_doc_parse_service
 ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/venvs/parse/bin/python -u alg_doc_parse_service_start.py
 Restart=always
