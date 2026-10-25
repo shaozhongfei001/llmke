@@ -428,7 +428,9 @@ async def retrieval_graph(question, knowledge_base_name, top_k, model_info, serv
     graph_documents = []
     for k_name in knowledge_base_name:
         data = {
-            "space_name": "g_" + k_name,
+            # R13-FIX-GRAPH-09：图服务内部会自行拼 "g_" 前缀（graph_service.query_graph_data:557），
+            # 这里再拼一次会变成 g_g_<kb>，导致"空间不存在"、图检索永远返回空。
+            "space_name": k_name,
             "query": question,
             "model_info": model_info,
             "depth": 3,
