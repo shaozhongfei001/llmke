@@ -47,7 +47,11 @@
   `knowledge_base_id` + `file_ids` 调用返回 200，但 `file_parse_task` 不产生任务、`graphParseStatus` 恒为 1。
   注意 `FilesParseReq` 用 `@JsonProperty("knowledge_base_id"/"file_ids"/"chunk_size")`，camelCase 会被忽略（曾误判为"知识库不存在"）。
   下一步在 `KnowledgeBaseListAppServiceImpl.graphParse:2352-2406` 断点跟踪 `getFilePathByFolder` 是否把 fileIds 映射进 `files`。
-- 多文件抽取（授信/票据那批业务文档）尚未批量跑。
+- **多文件抽取已跑通（2026-10-25 17:20）**：docx-plain / product-loan / credit-ledger(xlsx) 三份真实业务文档
+  经产品入口 `graphParse` 抽取成功，Nebula `g_kb_9` 累计 **64 实体 / 80 关系**。
+  修掉两处真实缺陷：GRAPH-07（ES refresh 延迟导致"未查询到相关文本"→ 有限重试）、
+  GRAPH-08（Java 用 convertedFilePath 的 `xxx.xlsx.md` 去匹配 ES `metadata.title` 的 `xxx.xlsx`，必然匹配不到 → 改用原始文件名）。
+  仍待解决：抽出的实体含 `2000/3000/0/正常/下表/天数/table` 等噪声 → 类型体系与过滤规则未做。
 - 图检索尚未并入 `/qa/ai/question` 主链与引用结构。
 - GraphRAG 本体（社区检测/分级摘要/摘要索引/global map-reduce）未开始。
 - 类型体系及版本、canonical 归一、合并审计与回滚、三元组重指向未实现。

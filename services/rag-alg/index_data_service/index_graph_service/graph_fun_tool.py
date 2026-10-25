@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial
 
 import numpy as np
+import time
 import requests
 
 from base import BaseResponse, QueryDocChunk
@@ -884,7 +885,18 @@ def get_document_chunk(query_docu: QueryDocChunk, server_config):
             "index_name": index_name
         }
     es_url = 'http://' + server_config["es_config"]["host"] + ':' + str(server_config["es_config"]["port"]) + '/'
-    response = requests.post(es_url + 'search_by_custom_param', json=data)
+    # R13-FIX-GRAPH-07：图抽取紧跟解析执行，ES 写入有 refresh 延迟，
+    # 首次查询常见"未查询到相关文本"（尤其 xlsx 表格块）。这里做有限重试，避免把时序问题判成抽取失败。
+    response = None
+    for attempt in range(4):
+        response = requests.post(es_url + 'search_by_custom_param', json=data)
+        try:
+            if response.status_code == 200 and response.json().get('data', {}).get('total_count', 0) > 0:
+                break
+        except Exception:
+            pass
+        if attempt < 3:
+            time.sleep(5)
     try:
         if response.status_code == 200:
             try:

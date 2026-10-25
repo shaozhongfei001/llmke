@@ -544,7 +544,17 @@ public class FileAppServiceImpl implements FileAppService {
             graphReq.put("embedding_model_name", param.getEmbeddingModelName());
             graphReq.put("model_info", modelInfo);
             graphReq.put("col_name", "title");
-            graphReq.put("col_values", Arrays.asList(filePath.substring(filePath.lastIndexOf("/") + 1)));
+            // R13-FIX-GRAPH-08：原实现取 convertedFilePath 的文件名（如 xxx.xlsx.md）去匹配 ES 的
+            // metadata.title（原始文件名 xxx.xlsx），一定匹配不到 -> 图抽取报"未查询到相关文本"。
+            // 这里优先用文件表里的原始文件名，取不到时再退回 converted 名并剥掉 .md 后缀。
+            String matchTitle = knowledgeBaseFile.getFileName();
+            if (StringUtils.isBlank(matchTitle)) {
+                matchTitle = filePath.substring(filePath.lastIndexOf("/") + 1);
+                if (matchTitle.endsWith(".md")) {
+                    matchTitle = matchTitle.substring(0, matchTitle.length() - 3);
+                }
+            }
+            graphReq.put("col_values", Arrays.asList(matchTitle));
             String graphPrompt = knowledgeBase.getGraphPrompt();
             if (StringUtils.isNotBlank(graphPrompt))
                 graphReq.put("entity_types", Arrays.asList(graphPrompt.split(",")));
