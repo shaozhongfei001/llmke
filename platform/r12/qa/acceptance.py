@@ -316,12 +316,15 @@ def s8(s, kb_id):
         record("S8", "坏文件解析阶段明确失败", last == 4,
                f"fileId={fid} 最终状态={last}（4=解析失败；3=竟然成功；99/2=未处理）")
     # 越权：删除不存在的知识库
+    # R13 语义升级（R13-FIX-API-02）：不存在现在明确返回 404 + success=false，且无任何副作用。
+    # 断言从"success 为 true 但 data 为 false"（R12-FIX-API-01 记录的历史缺陷）改为"被明确拒绝 + 无副作用"，
+    # 这是把缺陷修好后的正确断言，不是放宽标准。
     code, body = api(s, "DELETE", "/index/knowledgeBase/delete?id=999999", s.token)
-    not_deleted = isinstance(body, dict) and body.get("data") is False
-    success_flag = isinstance(body, dict) and body.get("success") is True
-    record("S8", "删除不存在的知识库未产生副作用", not_deleted,
-           f"http={code} data={body.get('data') if isinstance(body,dict) else '?'} "
-           f"success={success_flag}（语义缺陷：拒绝时 success 仍为 true，已登记 R12-FIX-API-01）")
+    no_side_effect = not (isinstance(body, dict) and body.get("data") is True)
+    explicit_reject = code == 404 or (isinstance(body, dict) and body.get("success") is False)
+    record("S8", "删除不存在的知识库被明确拒绝且无副作用", no_side_effect and explicit_reject,
+           f"http={code} errorCode={body.get('errorCode') if isinstance(body,dict) else '?'} "
+           f"data={body.get('data') if isinstance(body,dict) else '?'}")
 
 
 def main():

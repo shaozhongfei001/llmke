@@ -106,7 +106,17 @@ public class GlobalHandler implements ResponseBodyAdvice<Object> {
         // R13-SEC-A1：权限不足是"拒绝"，不是"服务端故障"。
         // 原实现统一返回 500，导致前端/监控把越权拒绝误判为系统异常，也让负例断言失真。
         boolean denied = ErrCodeEnum.INSUFFICIENT_PERMISSIONS.getErrCode().equals(e.getErrCode());
-        response.setStatus(denied ? HttpStatus.FORBIDDEN.value() : HttpStatus.INTERNAL_SERVER_ERROR.value());
+        // R13-FIX-API-02：目标不存在属于客户端错误（404），不要伪装成 5xx；
+        // 否则监控/前端无法区分"资源没了"和"服务端炸了"。
+        boolean notFound = ErrCodeEnum.KB_NOT_EXISTS_ERROR.getErrCode().equals(e.getErrCode())
+                || ErrCodeEnum.KB_FILE_NOT_EXISTS_ERROR.getErrCode().equals(e.getErrCode());
+        if (denied) {
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+        } else if (notFound) {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+        } else {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
         log.error("application exception occur:{}", e);
         return CommonResponse.fail(e.getMessage(), e.getErrCode());
     }

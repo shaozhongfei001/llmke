@@ -23,7 +23,22 @@
   已生成 `platform/r12/systemd/doc-parse.env`（无 export）。
 - **僵死任务恢复脚本**：`platform/r12/bin/recover-stuck-tasks.sh`（清理 status=5 占槽、status=99 复位）。
 
-## 3. 当前阻塞（下一步第一优先）
+## 3. 已解除的阻塞（2026-10-25 15:06 复验 31/31 PASS）
+
+**根因：任务队列被"已删除文件的历史任务"永久占位（R13-FIX-QUEUE-01）**
+
+`FileParseTaskMapper.getTaskList` 原 SQL 只按 `status in (1,3) and retry_limit > retry_times order by id asc`
+取任务，**不判断文件是否已删除**。历次验收结束会删除文件，但对应任务仍停在 1/3，
+于是每次调度都优先取到最老的、指向已删文件的任务 → 解析必然失败 → 永久占用并发槽（`kb.file-parse.task-nums=5`），
+新上传文件永远排不上队，表现为"文件恒为 99、`/parse` 从不被调用"。
+
+修复：SQL 增加 `and file_id in (select id from knowledge_base_list where status <> 0)`。
+清理存量：`update file_parse_task set status=-1 where status in (1,3) and file_id in (select id from knowledge_base_list where status=0)`。
+
+同时新增 **R13-FIX-API-02**：`KB_NOT_EXISTS_ERROR` / `KB_FILE_NOT_EXISTS_ERROR` 由 500 改为 **404**；
+验收断言由"success=true 且 data=false"（R12-FIX-API-01 记录的历史缺陷）改为"明确拒绝 + 无副作用"。
+
+### 历史记录：修复前的卡点分析（保留备查）
 
 **文档解析停在 99，`/parse` 未被调用。**
 
