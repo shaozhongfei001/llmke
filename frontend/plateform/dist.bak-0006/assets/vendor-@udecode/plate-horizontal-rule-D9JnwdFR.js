@@ -1,0 +1,1 @@
+import{c as e,t as r}from"./plate-core-xqGyNzg6.js";var i=e({key:"hr",node:{isElement:!0,isVoid:!0},parsers:{html:{deserializer:{rules:[{validNodeName:"HR"}]}}}}),l=e({key:"hr",node:{isElement:!0,isVoid:!0},parsers:{html:{deserializer:{rules:[{validNodeName:"HR"}]}}}}),t=r(l);export{t as H,i as a};

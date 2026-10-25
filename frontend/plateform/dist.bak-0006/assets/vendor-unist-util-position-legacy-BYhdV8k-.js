@@ -1,0 +1,1 @@
+System.register([],function(n,t){"use strict";return{execute:function(){n("b",function(n){return{start:t(n),end:e(n)}});const t=n("p",o("start")),e=n("a",o("end"));function o(n){return function(t){const e=t&&t.position&&t.position[n]||{};return{line:e.line||null,column:e.column||null,offset:e.offset>-1?e.offset:null}}}}}});

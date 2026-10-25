@@ -1,0 +1,1 @@
+System.register(["./vendor-get-intrinsic-legacy-DaM5cSB7.js","./vendor-call-bind-apply-helpers-legacy-C2r5AORS.js"],function(e,t){"use strict";var r,n;return{setters:[e=>{r=e.g},e=>{n=e.c}],execute:function(){var t=r,c=n,i=c([t("%String.prototype.indexOf%")]);e("c",function(e,r){var n=t(e,!!r);return"function"==typeof n&&i(e,".prototype.")>-1?c([n]):n})}}});

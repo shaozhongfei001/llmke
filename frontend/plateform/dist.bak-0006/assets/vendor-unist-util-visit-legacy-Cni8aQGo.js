@@ -1,0 +1,1 @@
+System.register(["./vendor-unist-util-visit-parents-legacy-BvBfY_MJ.js"],function(n,t){"use strict";var e;return{setters:[n=>{e=n.v}],execute:function(){n("v",function(n,t,i,u){"function"==typeof t&&"function"!=typeof i&&(u=i,i=t,t=null),e(n,t,function(n,t){const e=t[t.length-1];return i(n,e?e.children.indexOf(n):null,e)},u)})}}});

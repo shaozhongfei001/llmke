@@ -1,0 +1,1 @@
+import{t as r,a}from"./plate-core-xqGyNzg6.js";import{K as e}from"./react-hotkeys-D6PoquOm.js";var l=a({key:"highlight",node:{isLeaf:!0},parsers:{html:{deserializer:{rules:[{validNodeName:["MARK"]}]}}}}),o=r(l,({editor:t,type:i})=>({shortcuts:{toggleHighlight:{handler:()=>{t.tf.toggle.mark({key:i})},keys:[[e.Mod,e.Shift,"h"]],preventDefault:!0}}}));export{o as H};

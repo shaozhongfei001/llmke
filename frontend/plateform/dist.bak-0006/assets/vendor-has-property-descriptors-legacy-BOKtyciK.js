@@ -1,0 +1,1 @@
+System.register(["./vendor-es-define-property-legacy-1ZHHkvW_.js"],function(e,r){"use strict";var t;return{setters:[e=>{t=e.e}],execute:function(){var r,n;e("r",function(){if(n)return r;n=1;var e=t,u=function(){return!!e};return u.hasArrayLengthDefineBug=function(){if(!e)return null;try{return 1!==e([],"length",{value:1}).length}catch(r){return!0}},r=u})}}});

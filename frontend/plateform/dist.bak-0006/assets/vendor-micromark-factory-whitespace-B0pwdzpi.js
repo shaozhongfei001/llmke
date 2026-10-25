@@ -1,0 +1,1 @@
+import{f as a}from"./vendor-micromark-factory-space-BLX5PWg0.js";import{m as u,e as m}from"./vendor-micromark-util-character-Bcm1tP9o.js";function p(r,e){let t;return i;function i(n){return u(n)?(r.enter("lineEnding"),r.consume(n),r.exit("lineEnding"),t=!0,i):m(n)?a(r,i,t?"linePrefix":"lineSuffix")(n):e(n)}}export{p as f};

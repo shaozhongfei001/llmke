@@ -1,0 +1,1 @@
+System.register(["./plate-core-legacy-DNg2GWHL.js"],function(e,r){"use strict";var s,i;return{setters:[e=>{s=e.c,i=e.t}],execute:function(){e("a",s({key:"hr",node:{isElement:!0,isVoid:!0},parsers:{html:{deserializer:{rules:[{validNodeName:"HR"}]}}}}));var r=s({key:"hr",node:{isElement:!0,isVoid:!0},parsers:{html:{deserializer:{rules:[{validNodeName:"HR"}]}}}});e("H",i(r))}}});

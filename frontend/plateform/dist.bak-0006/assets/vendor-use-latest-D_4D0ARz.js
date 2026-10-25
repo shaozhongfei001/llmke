@@ -1,0 +1,1 @@
+import{t as e}from"./vendor-react-Bfz093Ih.js";import{i as s}from"./vendor-use-isomorphic-layout-effect-BIwmawVR.js";var a=function(t){var r=e.useRef(t);return s(function(){r.current=t}),r};export{a as u};

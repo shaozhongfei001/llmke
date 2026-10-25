@@ -156,7 +156,12 @@ public class GlobalHandler implements ResponseBodyAdvice<Object> {
                                   @NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response) {
         boolean isFeignCall = request.getHeaders().containsKey("X-Feign-Client");
         boolean isStream = Objects.equals(response.getHeaders().getContentType(), MediaType.APPLICATION_OCTET_STREAM);
-        if (isFeignCall || isStream) {
+        // R13-PV-03：二进制响应（PDF 预览、文件下载）不能被包装成 CommonResponse，
+        // 否则 Spring 会把 CommonResponse 强转成 byte[] 抛 ClassCastException（500）。
+        boolean isBinary = body instanceof byte[]
+                || MediaType.APPLICATION_PDF.equals(selectedContentType)
+                || MediaType.APPLICATION_OCTET_STREAM.equals(selectedContentType);
+        if (isFeignCall || isStream || isBinary) {
             return body;
         }
 

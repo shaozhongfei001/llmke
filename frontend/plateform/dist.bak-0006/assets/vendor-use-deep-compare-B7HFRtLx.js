@@ -1,0 +1,1 @@
+import{t as u}from"./vendor-react-Bfz093Ih.js";import{a as o}from"./vendor-dequal-Wows3SfR.js";function n(e){const r=u.useRef(e),t=u.useRef(0);return o(e,r.current)||(r.current=e,t.current+=1),u.useMemo(()=>r.current,[t.current])}function f(e,r){return u.useMemo(e,n(r))}export{f as u};

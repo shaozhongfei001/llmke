@@ -1,0 +1,1 @@
+System.register(["./vendor-react-is-legacy-BIz1dg9U.js"],function(e,r){"use strict";var t;return{setters:[e=>{t=e.r}],execute:function(){var e=t,r={};r[e.ForwardRef]={$$typeof:!0,render:!0,defaultProps:!0,displayName:!0,propTypes:!0},r[e.Memo]={$$typeof:!0,compare:!0,defaultProps:!0,displayName:!0,propTypes:!0,type:!0}}}});

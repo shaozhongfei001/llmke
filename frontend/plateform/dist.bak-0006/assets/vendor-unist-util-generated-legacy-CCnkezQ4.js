@@ -1,0 +1,1 @@
+System.register([],function(t,n){"use strict";return{execute:function(){t("g",function(t){return!(t&&t.position&&t.position.start&&t.position.start.line&&t.position.start.column&&t.position.end&&t.position.end.line&&t.position.end.column)})}}});

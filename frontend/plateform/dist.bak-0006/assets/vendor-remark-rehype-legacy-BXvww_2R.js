@@ -1,0 +1,1 @@
+System.register(["./vendor-mdast-util-to-hast-legacy-CebpHk0g.js"],function(t,n){"use strict";var r;return{setters:[t=>{r=t.t}],execute:function(){t("r",function(t,n){return t&&"run"in t?function(t,n){return(e,u,i)=>{t.run(r(e,n),u,t=>{i(t)})}}(t,n):function(t){return n=>r(n,t)}(t||n)})}}});

@@ -1,0 +1,1 @@
+import{_ as g,a as o,b as c}from"../vendor-core-js-pure-B4tYmysU.js";import{c as l}from"../vendor-@ant-design/colors-CwZCmT9p.js";function s(){var e;return s=o?g(e=o).call(e):function(n){for(var r=1;r<arguments.length;r++){var a=arguments[r];for(var t in a)({}).hasOwnProperty.call(a,t)&&(n[t]=a[t])}return n},s.apply(null,arguments)}var u=c;const f=l(u);export{f as _,s as a};

@@ -24,9 +24,10 @@ import subprocess
 import sys
 import time
 import uuid
+import requests
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from r12_client import GATEWAY, api, login, aes_zero_pad  # noqa: E402
+from r12_client import GATEWAY, UA, api, login, aes_zero_pad  # noqa: E402
 
 import bcrypt  # noqa: E402
 
@@ -170,6 +171,43 @@ def main():
     hashes = sql("select user_name,left(user_password,4) from gienrag.user_info where user_name in ('admin','r13_noauth','r13_reader')")
     ok10 = all("$2a$" in line or "$2b$" in line for line in hashes.splitlines() if line.strip())
     record("SEC-10 库内口令为 BCrypt 而非 MD5", ok10, hashes.replace("\n", "; "))
+
+    # ===== 原文访问收口（预览/下载/匿名存储）=====
+    key9 = "kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+
+    # SEC-11 属主预览成功（鉴权后转 PDF）
+    c, b = api(admin_s, "POST", "/index/knowledgeBase/file/previewStream", admin_t,
+               json={"convertedFilePath": key9})
+    ok11 = c == 200 and isinstance(b, str) and b.startswith("%PDF")
+    record("SEC-11 属主可预览（返回真实 PDF）", ok11,
+           f"http={c} head={str(b)[:8] if isinstance(b, str) else type(b).__name__}")
+
+    # SEC-12 无对象权限账号预览被拒
+    c, b = api(noauth_s, "POST", "/index/knowledgeBase/file/previewStream", noauth_t,
+               json={"convertedFilePath": key9})
+    record("SEC-12 无授权账号预览被拒", denied(c, b), f"http={c} body={str(b)[:120]}")
+
+    # SEC-13 匿名（无 token）预览被拒
+    r = requests.post(GATEWAY + "/index/knowledgeBase/file/previewStream",
+                      json={"convertedFilePath": key9},
+                      headers={"Content-Type": "application/json", "User-Agent": UA}, timeout=30)
+    record("SEC-13 匿名预览被拒", r.status_code in (401, 403), f"http={r.status_code}")
+
+    # SEC-14 预览服务不再对浏览器直开放（nginx /preview/）
+    r = requests.get("http://127.0.0.1:18088/preview/convert?key=" + key9, timeout=20)
+    record("SEC-14 前端 /preview/ 匿名直连已关闭", r.status_code in (403, 404), f"http={r.status_code}")
+
+    # SEC-15 MinIO 匿名 GetObject 已撤销（直连 + /minio 反代）
+    r1 = requests.get("http://127.0.0.1:19000/r12-rag/" + key9, timeout=20)
+    r2 = requests.get("http://127.0.0.1:18088/minio/r12-rag/" + key9, timeout=20)
+    record("SEC-15 存储匿名直取被拒（直连+反代）",
+           r1.status_code in (401, 403) and r2.status_code in (401, 403),
+           f"minio={r1.status_code} nginx={r2.status_code}")
+
+    # SEC-16 认不出归属的对象键默认拒绝
+    c, b = api(admin_s, "POST", "/index/knowledgeBase/file/previewStream", admin_t,
+               json={"convertedFilePath": "public/whatever.docx"})
+    record("SEC-16 无法归属知识库的对象键被拒", denied(c, b), f"http={c} body={str(b)[:120]}")
 
     os.makedirs(EVID, exist_ok=True)
     passed = sum(1 for r in RESULTS if r["ok"])

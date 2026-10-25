@@ -1,0 +1,1 @@
+System.register(["./vendor-react-legacy-Co-T2RJM.js"],function(e,r){"use strict";var t;return{setters:[e=>{t=e.t}],execute:function(){var r=function(e,r){"function"!=typeof e?e.current=r:e(r)};e("u",function(e,n){var u=t.useRef();return t.useCallback(function(t){e.current=t,u.current&&r(u.current,null),u.current=n,n&&r(n,t)},[n])})}}});

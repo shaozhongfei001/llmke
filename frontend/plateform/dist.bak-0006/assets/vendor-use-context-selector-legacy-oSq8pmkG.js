@@ -1,0 +1,1 @@
+System.register(["./vendor-react-legacy-Co-T2RJM.js","./vendor-scheduler-legacy-eWq3z9nq.js","./vendor-react-dom-legacy-D3hIQ6uY.js"],function(e,r){"use strict";return{setters:[null,null,null],execute:function(){}}});

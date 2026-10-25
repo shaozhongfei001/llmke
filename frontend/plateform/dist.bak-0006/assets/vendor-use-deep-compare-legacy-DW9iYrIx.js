@@ -1,0 +1,1 @@
+System.register(["./vendor-react-legacy-Co-T2RJM.js","./vendor-dequal-legacy-Dzbv8gm_.js"],function(e,r){"use strict";var t,u;return{setters:[e=>{t=e.t},e=>{u=e.a}],execute:function(){e("u",function(e,r){return t.useMemo(e,function(e){const r=t.useRef(e),n=t.useRef(0);return u(e,r.current)||(r.current=e,n.current+=1),t.useMemo(()=>r.current,[n.current])}(r))})}}});

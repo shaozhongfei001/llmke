@@ -1,0 +1,1 @@
+import{f as i}from"./vendor-@ant-design/colors-CwZCmT9p.js";import{r as n}from"./vendor-possible-typed-array-names-Crc7_Gg1.js";var o,l;function p(){if(l)return o;l=1;var a=n(),s=typeof globalThis>"u"?i:globalThis;return o=function(){for(var e=[],r=0;r<a.length;r++)typeof s[a[r]]=="function"&&(e[e.length]=a[r]);return e},o}export{p as r};

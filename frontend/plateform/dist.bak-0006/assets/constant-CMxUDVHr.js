@@ -1,0 +1,1 @@
+const e=/\[(\d+)\]/g,t=/\[retrive-tag id="(\d+)" image_urls="([^"]*)" fromType="([^"]*)"\]\[(\d+)\]\[\/retrive-tag\]/g,r=/\[retrive-tag (.*?)\](.*?)\[(.*?)\]\[\/retrive-tag\]/g,a="<retrive-tag $1>$2[$3]</retrive-tag>",g="[retrive-tag";export{g as R,a,e as c,t as m,r};

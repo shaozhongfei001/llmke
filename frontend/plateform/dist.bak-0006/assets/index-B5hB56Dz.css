@@ -1,0 +1,1 @@
+@keyframes fadeOut{0%{background:#014ddf}to{background:rgba(1,79,223,.52)}}.high-light-text{animation:fadeOut 2s ease forwards}#pdfBox td,#pdfBox th{border:1px solid #e5e7eb!important}#pdfBox td tbody tr:first-child,#pdfBox th tbody tr:first-child,#pdfBox thead tr:first-child{background-color:#f0f0f0}#pdfBox .tableMd th{min-width:80px}

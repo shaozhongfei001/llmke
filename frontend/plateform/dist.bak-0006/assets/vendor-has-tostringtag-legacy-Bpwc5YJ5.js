@@ -1,0 +1,1 @@
+System.register(["./vendor-has-symbols-legacy-Ts6hLXTb.js"],function(r,t){"use strict";var e;return{setters:[r=>{e=r.a}],execute:function(){var t,n;r("r",function(){if(n)return t;n=1;var r=e();return t=function(){return r()&&!!Symbol.toStringTag}})}}});

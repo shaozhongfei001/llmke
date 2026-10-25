@@ -1,0 +1,1 @@
+System.register(["./vendor-which-typed-array-legacy-DQiNdH_y.js"],function(r,e){"use strict";var t;return{setters:[r=>{t=r.r}],execute:function(){var e,n;r("r",function(){if(n)return e;n=1;var r=t();return e=function(e){return!!r(e)}})}}});

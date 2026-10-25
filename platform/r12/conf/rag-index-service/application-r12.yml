@@ -76,6 +76,8 @@ logging:
   level:
     root: INFO
 remote:
+  preview-stream:
+    url: http://127.0.0.1:18095/stream
   py-milvus-url: http://127.0.0.1:19526
   py-es-url: http://127.0.0.1:19527
   file-parse:

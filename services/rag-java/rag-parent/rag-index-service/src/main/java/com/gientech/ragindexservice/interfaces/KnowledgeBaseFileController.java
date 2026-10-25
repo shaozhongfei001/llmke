@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Tag(name = "知识库文件")
 @RestController
 @RequestMapping("/knowledgeBase/file")
@@ -48,6 +50,10 @@ public class KnowledgeBaseFileController {
 
     @Autowired
     private com.gientech.ragindexservice.application.service.KnowledgeBaseAppService knowledgeBaseAppService;
+
+    /** R13-PV-01：Office→PDF 预览服务（容器 r12-preview）。只允许经本接口访问，不再对浏览器直暴露 */
+    @org.springframework.beans.factory.annotation.Value("${remote.preview-stream.url:http://127.0.0.1:18095/stream}")
+    private String previewStreamUrl;
 
     /**
      * R13-SEC-A2：/stream 的入参是 MinIO 对象键（convertedFilePath），本身不含主体信息，
@@ -427,6 +433,39 @@ public class KnowledgeBaseFileController {
     @PostMapping("/addLabel")
     public Boolean addLabel(@RequestParam("fileId") Long fileId, @RequestParam("label") String label) {
         return knowledgeBaseListAppService.addLabel(fileId, label);
+    }
+
+    @Operation(summary = "Office 预览（先对象级鉴权，再转 PDF 流）")
+    @PostMapping("/previewStream")
+    public ResponseEntity<byte[]> previewStream(@RequestBody @Valid PageFileStreamReq req) {
+        // 与 /stream 同一套授权口径：从对象键反查知识库，认不出归属的一律拒绝；
+        // 预览服务在 127.0.0.1:18095 内部端口不做鉴权，这里是唯一收口点。
+        assertStreamAllowed(req);
+        org.springframework.http.client.SimpleClientHttpRequestFactory f =
+                new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        f.setConnectTimeout(15000);
+        f.setReadTimeout(90000);
+        org.springframework.web.client.RestTemplate rt = new org.springframework.web.client.RestTemplate(f);
+        org.springframework.http.HttpHeaders in = new org.springframework.http.HttpHeaders();
+        in.setContentType(MediaType.APPLICATION_JSON);
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("convertedFilePath", req.getConvertedFilePath());
+        ResponseEntity<byte[]> resp;
+        try {
+            resp = rt.postForEntity(previewStreamUrl,
+                    new org.springframework.http.HttpEntity<>(body, in), byte[].class);
+        } catch (Exception ex) {
+            log.error("preview convert failed for key {}", req.getConvertedFilePath(), ex);
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.CONVERT_FILE_ERROR);
+        }
+        org.springframework.http.HttpHeaders out = new org.springframework.http.HttpHeaders();
+        out.setContentType(MediaType.APPLICATION_PDF);
+        out.set(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"preview.pdf\"");
+        out.setCacheControl("no-store");
+        return new ResponseEntity<>(resp.getBody(), out,
+                resp.getStatusCode().is2xxSuccessful() ? org.springframework.http.HttpStatus.OK
+                        : org.springframework.http.HttpStatus.BAD_GATEWAY);
     }
 
     @Operation(summary = "返回文件流")

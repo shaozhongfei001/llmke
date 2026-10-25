@@ -1,0 +1,1 @@
+System.register(["../vendor-react-legacy-Co-T2RJM.js","../vendor-classnames-legacy-C_hmCuV8.js","../vendor-resize-observer-polyfill-legacy-Bm1vtELt.js"],function(e,s){"use strict";return{setters:[null,null,null],execute:function(){}}});

@@ -1,0 +1,1 @@
+System.register([],function(t,e){"use strict";return{execute:function(){t("d",function(t){const n="&"+t+";";e.innerHTML=n;const c=e.textContent;return(59!==c.charCodeAt(c.length-1)||"semi"===t)&&(c!==n&&c)});const e=document.createElement("i")}}});

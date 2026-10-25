@@ -1,0 +1,1 @@
+System.register(["./vendor-@ant-design/colors-legacy-0SnhBBzC.js"],function(e,t){"use strict";var r;return{setters:[e=>{r=e.c}],execute:function(){var t=function(e){return e=String(e||""),c.test(e)?"rtl":u.test(e)?"ltr":"neutral"},n="֑-߿יִ-﷽ﹰ-ﻼ",s="A-Za-zÀ-ÖØ-öø-ʸ̀-֐ࠀ-῿‎Ⰰ-﬜︀-﹯﻽-￿",c=new RegExp("^[^"+s+"]*["+n+"]"),u=new RegExp("^[^"+n+"]*["+s+"]");e("g",r(t))}}});

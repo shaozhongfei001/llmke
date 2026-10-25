@@ -1,0 +1,1 @@
+System.register([],function(r,t){"use strict";return{execute:function(){r("u",function(r){var i=0,s=r||11;if(!t||n+s>2*e)for(t="",n=0;i<e;i++)t+=u[256*Math.random()|0];return t.substring(n,n+++s)});for(var t,n=256,u=[],e=256;n--;)u[n]=(n+256).toString(16).substring(1)}}});

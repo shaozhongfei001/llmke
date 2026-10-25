@@ -1,0 +1,1 @@
+import{t as e}from"./vendor-es-errors-CFxpeikN.js";import{c as a}from"./vendor-call-bound-C3R39ezE.js";import{r as t}from"./vendor-is-typed-array-CgaA1xyk.js";var y=e,f=a,o=f("TypedArray.prototype.buffer",!0),p=t(),m=o||function(r){if(!p(r))throw new y("Not a Typed Array");return r.buffer};export{m as t};

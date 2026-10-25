@@ -1,0 +1,9 @@
+import{t as y}from"./vendor-react-Bfz093Ih.js";import{b as h,O as w}from"./vendor-react-router-DZj_5xeJ.js";var x=Object.defineProperty,f=Object.getOwnPropertySymbols,_=Object.prototype.hasOwnProperty,p=Object.prototype.propertyIsEnumerable,u=(r,e,n)=>e in r?x(r,e,{enumerable:!0,configurable:!0,writable:!0,value:n}):r[e]=n,P=(r,e)=>{for(var n in e||(e={}))_.call(e,n)&&u(r,n,e[n]);if(f)for(var n of f(e))p.call(e,n)&&u(r,n,e[n]);return r},R=(r,e)=>{var n={};for(var t in r)_.call(r,t)&&e.indexOf(t)<0&&(n[t]=r[t]);if(r!=null&&f)for(var t of f(r))e.indexOf(t)<0&&p.call(r,t)&&(n[t]=r[t]);return n},c={exports:{}},a={};/**
+ * @license React
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */var b=y,E=Symbol.for("react.element"),j=Symbol.for("react.fragment"),g=Object.prototype.hasOwnProperty,S=b.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,I={key:!0,ref:!0,__self:!0,__source:!0};function d(r,e,n){var t,o={},l=null,i=null;n!==void 0&&(l=""+n),e.key!==void 0&&(l=""+e.key),e.ref!==void 0&&(i=e.ref);for(t in e)g.call(e,t)&&!I.hasOwnProperty(t)&&(o[t]=e[t]);if(r&&r.defaultProps)for(t in e=r.defaultProps,e)o[t]===void 0&&(o[t]=e[t]);return{$$typeof:E,type:r,key:l,ref:i,props:o,_owner:S.current}}a.Fragment=j;a.jsx=d;a.jsxs=d;c.exports=a;const m=c.exports.jsx,N=(r,e)=>{e=[...e].reverse();let n=r;return e.forEach(t=>{n=m(t,{children:n})}),n},v=r=>{const e=[];return r.forEach(n=>{const t=n,{children:o,middleware:l}=t,i=R(t,["children","middleware"]),s=P({},i);if(l!=null&&l.length){const O=s.element||m(w,{});s.element=N(O,l)}o!=null&&o.length&&(s.children=v(o)),e.push(s)}),e},T=(r,e)=>h(v(r));export{T as u};

@@ -1,0 +1,1 @@
+System.register(["../vendor-juice-legacy-IG7b_l99.js","./plate-core-legacy-DNg2GWHL.js"],function(e,t){"use strict";var r,s,c;return{setters:[e=>{r=e.j},e=>{s=e.c,c=e.e}],execute:function(){e("J",s({inject:{plugins:{[c.key]:{parser:{transformData:({data:e})=>{let t=e.replaceAll(/<style>\s*<!--/g,"<style>");return t=r(t),t}}}}},key:"juice"}))}}});

@@ -1,0 +1,1 @@
+System.register(["./vendor-micromark-util-character-legacy-CPES4hmA.js"],function(e,t){"use strict";var r;return{setters:[e=>{r=e.e}],execute:function(){e("f",function(e,t,n,u){const c=u?u-1:Number.POSITIVE_INFINITY;let i=0;return function(u){return r(u)?(e.enter(n),o(u)):t(u)};function o(u){return r(u)&&i++<c?(e.consume(u),o):(e.exit(n),t(u))}})}}});

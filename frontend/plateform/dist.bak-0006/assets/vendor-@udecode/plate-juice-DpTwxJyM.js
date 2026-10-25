@@ -1,0 +1,1 @@
+import{j as r}from"../vendor-juice-CyjdyX0m.js";import{c as t,e as l}from"./plate-core-xqGyNzg6.js";var n=t({inject:{plugins:{[l.key]:{parser:{transformData:({data:a})=>{let e=a.replaceAll(/<style>\s*<!--/g,"<style>");return e=r(e),e}}}}},key:"juice"});export{n as J};

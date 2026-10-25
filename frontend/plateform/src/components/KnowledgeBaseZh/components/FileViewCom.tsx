@@ -62,8 +62,9 @@ const FileViewCom = ({ data, showPreviewModal, setShowPreviewModal }: any) => {
       };
       const filePath = dealMinioUrl(getFilePath(content));
       const fileType = getFileType(content, filePath);
-      // R13：getFilePath 对 office 返回 /preview/convert?key=...，reader 会把它 POST 回来，
-      // 因此 stream 端也要切到预览服务（Java /stream 只支持 pdf/html/md）
+      // R13：getFilePath 对 office 返回 /preview/convert?key=... 作为"需要转 PDF"的标记，
+      // 真正的字节流走 Java /previewStream（先对象级鉴权再转发预览服务），
+      // 不再让浏览器直连 18095 —— 否则拿到对象键就能匿名取走原文。
       const usePreviewStream = filePath.includes("/preview/convert");
       return {
         filePath,
@@ -92,7 +93,7 @@ const FileViewCom = ({ data, showPreviewModal, setShowPreviewModal }: any) => {
         authorization={curData.token}
         streamApiUrl={
           curData.usePreviewStream
-            ? "/preview/stream"
+            ? "/proxy/index/knowledgeBase/file/previewStream"
             : "/proxy/index/knowledgeBase/file/stream"
         }
         eventsEmit={(name: string) => {

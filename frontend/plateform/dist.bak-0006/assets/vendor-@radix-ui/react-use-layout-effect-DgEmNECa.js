@@ -1,0 +1,1 @@
+import{r as o}from"../vendor-react-Bfz093Ih.js";const e=globalThis!=null&&globalThis.document?o.useLayoutEffect:()=>{};var t=globalThis!=null&&globalThis.document?o.useLayoutEffect:()=>{},s=globalThis!=null&&globalThis.document?o.useLayoutEffect:()=>{},u=globalThis!=null&&globalThis.document?o.useLayoutEffect:()=>{};export{e as $,t as a,s as b,u};

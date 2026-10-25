@@ -1,0 +1,1 @@
+System.register(["./vendor-react-legacy-Co-T2RJM.js","./vendor-use-isomorphic-layout-effect-legacy-BjPFjeQE.js"],function(e,t){"use strict";var r,n;return{setters:[e=>{r=e.t},e=>{n=e.i}],execute:function(){e("u",function(e){var t=r.useRef(e);return n(function(){t.current=e}),t})}}});

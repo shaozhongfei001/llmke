@@ -1,0 +1,1 @@
+import{c as F}from"./vendor-@ant-design/colors-CwZCmT9p.js";var e=o,r="֑-߿יִ-﷽ﹰ-ﻼ",t="A-Za-zÀ-ÖØ-öø-ʸ̀-֐ࠀ-῿‎Ⰰ-﬜︀-﹯﻽-￿",n=new RegExp("^[^"+t+"]*["+r+"]"),i=new RegExp("^[^"+r+"]*["+t+"]");function o(u){return u=String(u||""),n.test(u)?"rtl":i.test(u)?"ltr":"neutral"}const D=F(e);export{D as g};

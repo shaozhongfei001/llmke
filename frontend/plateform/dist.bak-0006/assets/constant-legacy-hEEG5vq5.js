@@ -1,0 +1,1 @@
+System.register([],function(e,r){"use strict";return{execute:function(){e("c",/\[(\d+)\]/g),e("m",/\[retrive-tag id="(\d+)" image_urls="([^"]*)" fromType="([^"]*)"\]\[(\d+)\]\[\/retrive-tag\]/g),e("r",/\[retrive-tag (.*?)\](.*?)\[(.*?)\]\[\/retrive-tag\]/g),e("a","<retrive-tag $1>$2[$3]</retrive-tag>"),e("R","[retrive-tag")}}});

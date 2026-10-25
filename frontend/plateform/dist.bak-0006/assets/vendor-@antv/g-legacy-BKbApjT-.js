@@ -1,0 +1,1 @@
+System.register(["./g-camera-api-legacy-CEbte25X.js","./g-lite-legacy-Cudk1Nz2.js","./g-web-animations-api-legacy-C0ULZeQ5.js"],function(e,t){"use strict";return{setters:[null,null,null],execute:function(){}}});

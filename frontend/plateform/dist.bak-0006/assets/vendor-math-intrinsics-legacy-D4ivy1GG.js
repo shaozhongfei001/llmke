@@ -1,0 +1,1 @@
+System.register([],function(t,r){"use strict";return{execute:function(){t("b",Math.abs),t("f",Math.floor),t("a",Math.max),t("m",Math.min),t("p",Math.pow),t("r",Math.round);var r=Number.isNaN||function(t){return t!=t};t("s",function(t){return r(t)||0===t?t:t<0?-1:1})}}});
