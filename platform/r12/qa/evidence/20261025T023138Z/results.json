@@ -1,0 +1,219 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录并取菜单",
+    "ok": true,
+    "detail": "http=200 menus=7",
+    "extra": {
+      "menus": [
+        {
+          "id": "1",
+          "name": "智能对话",
+          "url": "/chats/main",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "chat",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "2",
+          "name": "知识库",
+          "url": "/chats/knowledgeBase",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "book",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "3",
+          "name": "知识检索",
+          "url": "/chats/knowledgeSearch",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "search",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "4",
+          "name": "助手配置",
+          "url": "/chats/setting",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "setting",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "5",
+          "name": "用户反馈",
+          "url": "/chats/feedback",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "feedback",
+          "subMenuDTOList": []
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户信息",
+    "ok": true,
+    "detail": "http=200 user=admin"
+  },
+  {
+    "scene": "S2",
+    "case": "知识库已存在（复用）",
+    "ok": true,
+    "detail": "kbId=9 primitive=kb_9"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": false,
+    "detail": "http=500 fileId=None name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": false,
+    "detail": "http=500 fileId=None name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": false,
+    "detail": "http=500 fileId=None name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": false,
+    "detail": "http=500 fileId=None name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": false,
+    "detail": "http=500 fileId=None name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": false,
+    "detail": "http=500 fileId=None name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": false,
+    "detail": "http=500 fileId=None name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "success": false,
+        "errorMsg": "I/O error on POST request for \"http://127.0.0.1:19527/del_doc_by_col\": 连接被拒绝",
+        "errorCode": "999",
+        "data": null
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=70"
+  },
+  {
+    "scene": "S4",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "detail": "fileId=70 最终状态=4(4=失败) 耗时=6s"
+  },
+  {
+    "scene": "S8",
+    "case": "无 token 被拒绝",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "伪造 token 被拒绝(Bearer forge…)",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "伪造 token 被拒绝(eyJhbGciOiJu…)",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "坏文件被网关/服务直接拒绝",
+    "ok": true,
+    "detail": "http=200 resp={'success': True, 'errorMsg': None, 'errorCode': None, 'data': []}"
+  },
+  {
+    "scene": "S8",
+    "case": "删除不存在的知识库未产生副作用",
+    "ok": true,
+    "detail": "http=200 data=False success=True（语义缺陷：拒绝时 success 仍为 true，已登记 R12-FIX-API-01）"
+  }
+]

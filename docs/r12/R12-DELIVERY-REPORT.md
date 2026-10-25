@@ -21,7 +21,7 @@
 
 | 入口 | 地址 | 说明 |
 |---|---|---|
-| 用户前端（生产形态） | http://127.0.0.1:18088 | nginx 容器 `r12-fe`，静态产物 + `/proxy` `/auth` `/index` `/qa` `/minio` 反代 |
+| 用户前端（生产形态） | http://127.0.0.1:18088 | nginx 容器 `r12-fe`（host 网络），`dist` 只读挂载 + `/proxy` `/auth` `/index` `/qa` `/minio` 反代；`curl -I /` = 200 |
 | 用户前端（开发形态） | http://127.0.0.1:15174 | vite dev server |
 | 业务网关（唯一 API 入口） | http://127.0.0.1:8088 | `/auth/**` `/index/**` `/qa/**` `/sensitive/**`（`/graph/**` 见 §5 缺口） |
 | 账号 | `admin` / 口令经安全渠道单独交付 | 库内仅存 md5（AES 解密后再 MD5），本轮新建初始化数据 |
@@ -66,6 +66,8 @@
 - 初始化：`platform/r12/seed/seed_auth.py`（角色/账号/菜单/接口权限，幂等）、`seed_models.py`（4 个模型登记，含真实连通性校验）
 - 打包：`platform/r12/bin/build-bundle.sh` → `platform/r12/dist/r12-bundle-<ts>.tar.gz` + `MANIFEST.sha256`
 - 安装/健康检查/备份恢复：`platform/r12/README.md`
+- **全栈一键启停（按依赖顺序、幂等）**：`platform/r12/bin/up.sh {up|down|status|verify}`
+  —— 机器/会话重启后用它恢复（实测：5 个 Java 服务 + 4 个模型 + 4 个算法 + 解析 + 前端全部恢复，主链复跑 31/31 PASS）
 
 ## 4. 验收结果（逐场景）
 

@@ -1,0 +1,8 @@
+[
+  {
+    "fileId": "70",
+    "name": "pdf-encrypted.pdf",
+    "label": "加密 PDF(应解析失败)",
+    "expect": "fail"
+  }
+]
