@@ -1,0 +1,174 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录并取菜单",
+    "ok": true,
+    "detail": "http=200 menus=7",
+    "extra": {
+      "menus": [
+        {
+          "id": "1",
+          "name": "智能对话",
+          "url": "/chats/main",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "chat",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "2",
+          "name": "知识库",
+          "url": "/chats/knowledgeBase",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "book",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "3",
+          "name": "知识检索",
+          "url": "/chats/knowledgeSearch",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "search",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "4",
+          "name": "助手配置",
+          "url": "/chats/setting",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "setting",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "5",
+          "name": "用户反馈",
+          "url": "/chats/feedback",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "feedback",
+          "subMenuDTOList": []
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户信息",
+    "ok": true,
+    "detail": "http=200 user=admin"
+  },
+  {
+    "scene": "S2",
+    "case": "知识库已存在（复用）",
+    "ok": true,
+    "detail": "kbId=9 primitive=kb_9"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=79 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "79"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=80 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "80"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=81 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "81"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=82 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "82"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=83 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "83"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=84 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "84"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=85 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "85"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=86"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": false,
+    "detail": "fileId=79 最终状态=98 耗时=601s"
+  },
+  {
+    "scene": "ERR",
+    "case": "执行异常",
+    "ok": false,
+    "detail": "HTTPConnectionPool(host='127.0.0.1', port=8088): Max retries exceeded with url: /index/knowledgeBase/file/getFileStatusById?fileId=80 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x73f5b61212a0>: Failed to establish a new connection: [Errno 111] Connection refused'))\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/urllib3/connection.py\", line 169, in _new_conn\n    conn = connection.create_connection(\n  File \"/usr/lib/python3/dist-packages/urllib3/util/connection.py\", line 96, in create_connection\n    raise err\n  File \"/usr/lib/python3/dist-packages/urllib3/util/connection.py\", line 86, in create_connection\n    sock.connect(sa)\nConnectionRefusedError: [Errno 111] Connection refused\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/urllib3/connectionpool.py\", line 700, in urlopen\n    httplib_response = self._make_request(\n  File \"/usr/lib/python3/dist-packages/urllib3/connectionpool.py\", line 395, in _make_request\n    conn.request(metho"
+  }
+]

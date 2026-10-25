@@ -10,6 +10,7 @@ import com.gientech.ragcommon.index.dto.KnowledgeBaseFileDTO;
 import com.gientech.ragcommon.index.request.*;
 import com.gientech.ragcommon.index.utils.JSONPagination;
 import com.gientech.ragcommon.operation.annotation.OperationLog;
+import com.gientech.ragindexservice.application.authz.KbAuthzService;
 import com.gientech.ragindexservice.application.service.KnowledgeBaseListAppService;
 import com.gientech.ragcommon.index.request.PageFileStreamReq;
 import com.gientech.start.storage.exception.FileStorageException;
@@ -40,6 +41,52 @@ public class KnowledgeBaseFileController {
 
     @Autowired
     private KnowledgeBaseListAppService knowledgeBaseListAppService;
+
+    /** R13-SEC-A1：文件级授权统一折算到所属知识库，避免"按文件 id 直读/直删"绕过 */
+    @Autowired
+    private KbAuthzService kbAuthzService;
+
+    @Autowired
+    private com.gientech.ragindexservice.application.service.KnowledgeBaseAppService knowledgeBaseAppService;
+
+    /**
+     * R13-SEC-A2：/stream 的入参是 MinIO 对象键（convertedFilePath），本身不含主体信息，
+     * 是最容易被"拿到已知地址即下载"的入口。此处从对象键首段（kb_xxx）反查知识库并做对象级授权，
+     * 无法归属到知识库的键一律拒绝（默认拒绝，不做"认不出就放行"）。
+     */
+    private void assertStreamAllowed(PageFileStreamReq req) {
+        String objectKey = req == null ? null : req.getConvertedFilePath();
+        if (objectKey == null || objectKey.isBlank()) {
+            return;
+        }
+        String primitive = null;
+        for (String seg : objectKey.split("/")) {
+            if (seg.startsWith("kb_")) {
+                primitive = seg;
+                break;
+            }
+        }
+        if (primitive == null) {
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
+        com.gientech.ragcommon.index.dto.KnowledgeBaseDTO kb =
+                knowledgeBaseAppService.getKbByPrimitiveName(primitive);
+        if (kb == null) {
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.KB_NOT_EXISTS_ERROR);
+        }
+        kbAuthzService.assertRead(kb.getId());
+    }
+
+    private Long kbIdOfFile(Long fileId) {
+        KnowledgeBaseFileDTO file = knowledgeBaseListAppService.getById(fileId);
+        if (file == null) {
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.KB_FILE_NOT_EXISTS_ERROR);
+        }
+        return file.getKbId();
+    }
 
     @Operation(summary = "批量上传文件(包含文件重复性校验、父文件、多版本)")
     @PostMapping("/uploadFileList")
@@ -75,7 +122,11 @@ public class KnowledgeBaseFileController {
     @GetMapping("/getById")
     @OperationLog(operateType = "查看文档详情")
     public KnowledgeBaseFileDTO getById(@RequestParam("id") Long id) {
-        return knowledgeBaseListAppService.getById(id);
+        KnowledgeBaseFileDTO file = knowledgeBaseListAppService.getById(id);
+        if (file != null) {
+            kbAuthzService.assertRead(file.getKbId());
+        }
+        return file;
     }
 
     @Operation(summary = "知识库文件列表(包含文件夹)")
@@ -123,6 +174,7 @@ public class KnowledgeBaseFileController {
     @DeleteMapping("/delete")
     @OperationLog(operateType = "删除文档")
     public Boolean delete(@Parameter(name = "id", description = "id", required = true) @RequestParam("id") Long id) {
+        kbAuthzService.assertWrite(kbIdOfFile(id));
         return knowledgeBaseListAppService.deleteById(id);
     }
 
@@ -130,6 +182,9 @@ public class KnowledgeBaseFileController {
     @DeleteMapping("/deleteByIds")
     @OperationLog(operateType = "批量删除文档")
     public Boolean deleteByIds(@RequestParam("fileIds") List<Long> fileIds) {
+        for (Long fileId : fileIds) {
+            kbAuthzService.assertWrite(kbIdOfFile(fileId));
+        }
         return knowledgeBaseListAppService.deleteByIds(fileIds);
     }
 
@@ -137,6 +192,9 @@ public class KnowledgeBaseFileController {
     @GetMapping("/getByIds")
     @OperationLog(operateType = "批量查询文件")
     public List<KnowledgeBaseFileDTO> getByIds(@RequestParam("fileIds") Long[] fileIds) {
+        for (Long fileId : fileIds) {
+            kbAuthzService.assertRead(kbIdOfFile(fileId));
+        }
         return knowledgeBaseListAppService.getByIds(fileIds);
     }
 
@@ -144,6 +202,11 @@ public class KnowledgeBaseFileController {
     @PostMapping("/filesParse")
     @OperationLog(operateType = "文档解析")
     public Boolean filesParse(@RequestBody FilesParseReq filesParseReq) {
+        if (filesParseReq.getFileIds() != null) {
+            for (String fileIdStr : filesParseReq.getFileIds()) {
+                kbAuthzService.assertWrite(kbIdOfFile(Long.valueOf(fileIdStr)));
+            }
+        }
         return knowledgeBaseListAppService.filesParseNew(filesParseReq);
     }
 
@@ -151,12 +214,18 @@ public class KnowledgeBaseFileController {
     @PostMapping("/graphParse")
     @OperationLog(operateType = "图解析")
     public Boolean graphParse(@RequestBody FilesParseReq filesParseReq) {
+        if (filesParseReq.getFileIds() != null) {
+            for (String fileIdStr : filesParseReq.getFileIds()) {
+                kbAuthzService.assertWrite(kbIdOfFile(Long.valueOf(fileIdStr)));
+            }
+        }
         return knowledgeBaseListAppService.graphParse(filesParseReq);
     }
 
     @Operation(summary = "一键解析")
     @PostMapping("/filesAllParse")
     public Boolean filesAllParse(@RequestParam("kbId") Long kbId) {
+        kbAuthzService.assertWrite(kbId);
         return knowledgeBaseListAppService.filesAllParse(kbId);
     }
 
@@ -363,6 +432,7 @@ public class KnowledgeBaseFileController {
     @Operation(summary = "返回文件流")
     @PostMapping("/stream")
     public ResponseEntity<?> pageFileStream(@RequestBody @Valid PageFileStreamReq pageFileStreamReq) throws IOException, FileStorageException {
+        assertStreamAllowed(pageFileStreamReq);
         HttpHeaders headers = new HttpHeaders();
         if (pageFileStreamReq.isStream()) {
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

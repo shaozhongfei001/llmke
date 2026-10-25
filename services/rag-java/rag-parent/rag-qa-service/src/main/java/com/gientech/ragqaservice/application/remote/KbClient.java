@@ -88,6 +88,9 @@ public interface KbClient {
     @GetMapping("/knowledgeBase/file/getKbFileChunks")
     List<FileChunkDTO> getKbFileChunks(@RequestParam("kbName") String kbName, @RequestParam("fileName") String fileName, @RequestParam("pageNo") Integer pageNo, @RequestParam("pageSize") Integer pageSize);
 
+    @GetMapping("/knowledgeBase/myPermissionByPrimitive")
+    Integer myPermissionByPrimitive(@RequestParam("primitiveName") String primitiveName);
+
     @GetMapping("/knowledgeBase/file/getByIds")
     List<KnowledgeBaseFileDTO> getByIds(@RequestParam("fileIds") List<Long> ids);
 

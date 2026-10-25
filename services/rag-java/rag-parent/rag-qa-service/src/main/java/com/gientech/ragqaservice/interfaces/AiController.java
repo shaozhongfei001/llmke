@@ -49,6 +49,7 @@ public class AiController {
     @PostMapping(value = "/question", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @OperationLog(operateType = "用户问答")
     public Flux<ReplyDTO> question(@Validated @RequestBody AiRequest aiRequest) {
+        aiService.assertAccessible(aiRequest);
         return aiService.question(aiRequest);
     }
 
@@ -75,6 +76,7 @@ public class AiController {
     @PostMapping(value = "/question_re", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @OperationLog(operateType = "用户问答")
     public Flux<ReplyDTO> questionRe(@Validated @RequestBody AiRequest aiRequest) {
+        aiService.assertAccessible(aiRequest);
         return aiService.questionRe(aiRequest);
     }
 

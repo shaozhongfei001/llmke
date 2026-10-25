@@ -11,6 +11,7 @@ import com.gientech.ragcommon.index.request.KnowledgeBaseCreateReq;
 import com.gientech.ragcommon.index.request.KnowledgeBaseQueryReq;
 import com.gientech.ragcommon.index.request.KnowledgeBaseUpdateReq;
 import com.gientech.ragcommon.operation.annotation.OperationLog;
+import com.gientech.ragindexservice.application.authz.KbAuthzService;
 import com.gientech.ragindexservice.application.service.KnowledgeBaseAppService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,6 +41,10 @@ public class KnowledgeBaseController {
     @Autowired
     private KnowledgeBaseAppService knowledgeBaseAppService;
 
+    /** R13-SEC-A1：对象级授权（读/写/管理三档，口径=create_by + user/dept/group_privilege） */
+    @Autowired
+    private KbAuthzService kbAuthzService;
+
     @Operation(summary = "创建知识库")
     @PostMapping("/create")
     @OperationLog(operateType = "创建知识库")
@@ -52,6 +57,7 @@ public class KnowledgeBaseController {
     @DeleteMapping("/delete")
     @OperationLog(operateType = "删除知识库")
     public Boolean deleteById(@Parameter(name = "id", description = "知识库id", required = true) @RequestParam("id") Long id) {
+        kbAuthzService.assertManage(id);
         return knowledgeBaseAppService.deleteById(id);
     }
 
@@ -84,43 +90,53 @@ public class KnowledgeBaseController {
     @PutMapping("/update")
     @OperationLog(operateType = "编辑知识库")
     public Boolean update(@RequestBody KnowledgeBaseUpdateReq knowledgeBaseUpdateReq) {
+        kbAuthzService.assertWrite(knowledgeBaseUpdateReq.getId());
         return knowledgeBaseAppService.update(knowledgeBaseUpdateReq);
     }
 
     @Operation(summary = "通过id查询知识库信息")
     @GetMapping("/getKbById")
     public KnowledgeBaseDTO getKbById(@Parameter(name = "id", description = "知识库id", required = true) @RequestParam(value = "id") Long id) {
+        kbAuthzService.assertRead(id);
         return knowledgeBaseAppService.getKbById(id);
     }
 
     @Operation(summary = "通过知识库名查询知识库信息")
     @GetMapping("/getKbByPrimitiveName")
     public KnowledgeBaseDTO getKbByPrimitiveName(@RequestParam("primitiveName") String primitiveName) {
-        return knowledgeBaseAppService.getKbByPrimitiveName(primitiveName);
+        KnowledgeBaseDTO kb = knowledgeBaseAppService.getKbByPrimitiveName(primitiveName);
+        if (kb != null) {
+            kbAuthzService.assertRead(kb.getId());
+        }
+        return kb;
     }
 
     @Operation(summary = "更新知识库解析配置")
     @PutMapping("/updateConf")
     @OperationLog(operateType = "编辑知识库配置")
     public Boolean updateConf(@RequestBody KbConfUpdateReq updateConf) {
+        kbAuthzService.assertWrite(updateConf.getId());
         return knowledgeBaseAppService.updateConf(updateConf);
     }
 
     @Operation(summary = "知识库解析配置是否可编辑")
     @GetMapping("/canUpdateConf")
     public Boolean canUpdateConf(@RequestParam(value = "id") Long id) {
+        kbAuthzService.assertRead(id);
         return knowledgeBaseAppService.canUpdateConf(id);
     }
 
     @Operation(summary = "根据旧知识库重建新知识库并解析所有原知识库文档")
     @PostMapping("/rebuildNew")
     public KnowledgeBaseDTO rebuildNew(@RequestParam(value = "id") Long id) {
+        kbAuthzService.assertWrite(id);
         return knowledgeBaseAppService.rebuildNew(id);
     }
 
     @Operation(summary = "重新解析所有知识库文档")
     @PostMapping("/reParse")
     public Boolean reParse(@RequestParam(value = "id") Long id) {
+        kbAuthzService.assertWrite(id);
         return knowledgeBaseAppService.reParse(id);
     }
 
@@ -128,12 +144,27 @@ public class KnowledgeBaseController {
     @PostMapping("/downloadKbFiles")
     @OperationLog(operateType = "下载知识库文档")
     public Boolean downloadKbFiles(@RequestParam(value = "id", required = true) Long id) {
+        kbAuthzService.assertRead(id);
         return knowledgeBaseAppService.downloadKbFiles(id);
+    }
+
+    @Operation(summary = "当前用户对知识库的有效权限（0/1/2/3，不抛异常）")
+    @GetMapping("/myPermission")
+    public Integer myPermission(@RequestParam(value = "id") Long id) {
+        return kbAuthzService.effectivePermission(id);
+    }
+
+    @Operation(summary = "按知识库原始名查询当前用户有效权限（供问答侧鉴权）")
+    @GetMapping("/myPermissionByPrimitive")
+    public Integer myPermissionByPrimitive(@RequestParam("primitiveName") String primitiveName) {
+        KnowledgeBaseDTO kb = knowledgeBaseAppService.getKbByPrimitiveName(primitiveName);
+        return kb == null ? 0 : kbAuthzService.effectivePermission(kb.getId());
     }
 
     @Operation(summary = "转移知识库")
     @GetMapping("/transferProperty")
     public Boolean transferKbProperty(@RequestParam("owner") String owner, @RequestParam("receiver") String receiver) {
+        kbAuthzService.assertSuperAdmin();
         return knowledgeBaseAppService.transferProperty(owner, receiver);
     }
 }

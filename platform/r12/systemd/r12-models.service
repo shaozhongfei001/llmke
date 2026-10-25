@@ -1,0 +1,15 @@
+[Unit]
+Description=R12 model services (embedding 18090 / rerank 18091 / llm 18092 / vlm 18093)
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/szf/data/dev/llmke-r12
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/models/start-all.sh up
+ExecStop=/home/szf/data/dev/llmke-r12/platform/r12/models/start-all.sh down
+TimeoutStartSec=600
+Restart=no
+
+[Install]
+WantedBy=default.target

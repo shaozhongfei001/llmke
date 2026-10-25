@@ -1,0 +1,62 @@
+[
+  {
+    "case": "SEC-1 无授权读知识库详情被拒",
+    "ok": true,
+    "detail": "http=403 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  },
+  {
+    "case": "SEC-2 无授权删知识库被拒且数据未变",
+    "ok": true,
+    "detail": "http=403 before=1/R12???? after=1/R12????",
+    "extra": null
+  },
+  {
+    "case": "SEC-3 无授权按已知对象键取原文被拒",
+    "ok": true,
+    "detail": "http=403 key=r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "extra": null
+  },
+  {
+    "case": "SEC-4 无授权提问被对象级授权拒绝",
+    "ok": false,
+    "detail": "http=200 errorCode= configId=1 body=data:{\"sessionId\":\"sec-noauth-1792901858\",\"queryId\":\"sq-1792901858949\",\"lastDate\":1792901859224,\"status\":1,\"reply\":{\"content\":\"\",\"type\":\"markdown\"},\"reference\":",
+    "extra": null
+  },
+  {
+    "case": "SEC-5 只读授权账号可读详情",
+    "ok": true,
+    "detail": "http=200 kbName=R12验收主链",
+    "extra": null
+  },
+  {
+    "case": "SEC-6 只读账号删知识库被拒",
+    "ok": true,
+    "detail": "http=403 after=1/R12????",
+    "extra": null
+  },
+  {
+    "case": "SEC-7 只读账号触发重解析被拒",
+    "ok": true,
+    "detail": "http=403",
+    "extra": null
+  },
+  {
+    "case": "SEC-8 超级管理员可读",
+    "ok": true,
+    "detail": "http=200",
+    "extra": null
+  },
+  {
+    "case": "SEC-9 撤权后读详情立即被拒",
+    "ok": true,
+    "detail": "http=403 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  },
+  {
+    "case": "SEC-10 库内口令为 BCrypt 而非 MD5",
+    "ok": true,
+    "detail": "admin\t$2a$; r13_noauth\t$2b$; r13_reader\t$2b$",
+    "extra": null
+  }
+]

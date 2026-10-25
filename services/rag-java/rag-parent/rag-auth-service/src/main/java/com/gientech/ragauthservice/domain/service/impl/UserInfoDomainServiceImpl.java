@@ -1,5 +1,7 @@
 package com.gientech.ragauthservice.domain.service.impl;
 
+import com.gientech.ragauthservice.infrastructure.security.PasswordHasher;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gientech.ragauthservice.application.service.UserSecurityQuestionAppService;
 import com.gientech.ragauthservice.domain.entity.UserInfo;
@@ -93,8 +95,8 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
 
     @Override
     public UserInfo login(LoginReq loginReq) {
-        // 对前台传来的密码先解密得到真实密码，再对其进行md5加密，返回加密后的密码
-        String password = secondaryEncryption(loginReq.getPassword());
+        // R13-SEC-A3：AES 解密得到明文，直接做 BCrypt 校验；历史 MD5 账号校验通过后原地升级为 BCrypt
+        String rawPassword = rawPassword(loginReq.getPassword());
         Date loginTime = new Date(System.currentTimeMillis());
         //从数据库查询账户密码是否存在
         UserInfo user = userInfoRepository.getByUserName(loginReq.getUserName());
@@ -103,8 +105,14 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
         }
 
         // 先校验验证码是否正确，在校验账号信息
-        if (!user.getUserPassword().equals(password)) {
+        if (!PasswordHasher.matches(rawPassword, user.getUserPassword())) {
             throw new DomainException(ErrCodeEnum.USER_LOGIN_PARAM_ERROR);
+        }
+        if (PasswordHasher.needsUpgrade(user.getUserPassword())) {
+            // 透明迁移：不改用户口令，只把存储形式换成 BCrypt
+            user.setUserPassword(PasswordHasher.encode(rawPassword));
+            userInfoRepository.updateByPrimaryKey(user);
+            log.info("password hash upgraded to bcrypt for user {}", user.getUserName());
         }
         //用户状态被设置为禁用 账户状态为禁用
         if (UserStatusEnum.DISENABLED.getCode().equals(user.getStatus())) {
@@ -158,21 +166,20 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
         UserInfo userInfo = userInfoRepository.getUserInfoById(userId);
 
         if (Objects.nonNull(userInfo)) {
-            //对前台传来的老的密码先解密得到真实密码，再对其进行md5加密，返回加密后的密码
-            oldPassword = secondaryEncryption(oldPassword);
-            //对前台传来的要修改的密码先解密得到真实密码，再对其进行md5加密，返回加密后的密码
-            newPassword = secondaryEncryption(newPassword);
+            // R13-SEC-A3：明文比较（旧口令兼容 MD5），新口令一律 BCrypt 存储
+            oldPassword = rawPassword(oldPassword);
+            newPassword = rawPassword(newPassword);
             if (StringUtils.equals(oldPassword, newPassword)) {
                 throw new DomainException(ErrCodeEnum.NEW_OLD_PASSWD_SAME_ERROR);
             }
             //先判断原来的密码是否正确
-            if (!StringUtils.equals(oldPassword, userInfo.getUserPassword())) {
+            if (!PasswordHasher.matches(oldPassword, userInfo.getUserPassword())) {
                 throw new DomainException(ErrCodeEnum.OLD_PASSWD_WRONG_ERROR);
             }
 
             userInfoRepository.clearAdminResetPassword(userId);
             userInfo.setAdminResetPassword(null);
-            userInfo.setUserPassword(newPassword);
+            userInfo.setUserPassword(PasswordHasher.encode(newPassword));
             userInfoRepository.updateByPrimaryKey(userInfo);
             return true;
         }
@@ -192,8 +199,8 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
         } else {
             userInfo.setAdminResetPassword(null);
         }
-        newPassword = secondaryEncryption(newPassword);
-        userInfo.setUserPassword(newPassword);
+        // R13-SEC-A3：重置口令同样只做 AES 解密 + BCrypt 存储
+        userInfo.setUserPassword(PasswordHasher.encode(rawPassword(newPassword)));
         userInfoRepository.updateByPrimaryKey(userInfo);
         return true;
     }
@@ -252,26 +259,17 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
     }
 
     /**
-     * 先AES解密密文，再用MD5加密成新的密文
-     *
-     * @param oldPwd
-     * @return
+     * R13-SEC-A3：只做 AES 解密，不做哈希（哈希交由 PasswordHasher）。
      */
-    private String secondaryEncryption(String oldPwd) {
+    private String rawPassword(String cipherText) {
         try {
-            // AES 解密
-            String decodePassword = encryptUtils.decryptAES(oldPwd);
-            // MD5加密
-            byte[] decodePassword1 = decodePassword.getBytes();
-            byte[] bytes = EncryptUtils.encryptMD5(decodePassword1);
-            // 将byte数组转换成字符串
-            String password = new BigInteger(1, bytes).toString(16);
-            return password;
-        } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage(), e);
+            return encryptUtils.decryptAES(cipherText);
+        } catch (Exception e) {
+            log.error("decrypt password failed", e);
+            throw new DomainException(ErrCodeEnum.USER_LOGIN_PARAM_ERROR);
         }
-        return null;
     }
+
 
     @Override
     public UserInfo addUser(UserInfo userInfo) {
@@ -279,8 +277,7 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
             // 管理员新增用户密码为8位随机密码
 //            String randomPwd = generateRandomPassword();
             String randomPwd = PasswordGenerator.generatePassword(8);
-            String password = new BigInteger(1,
-                    EncryptUtils.encryptMD5(randomPwd.getBytes())).toString(16);
+            String password = PasswordHasher.encodeChecked(randomPwd);
             userInfo.setUserPassword(password);
             // 管理员新增用户头像为缺省头像
             String bucketName = storageProperties.getDefaultStorageProperties().getBucketName();
@@ -302,8 +299,7 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
 
     private void setUserPassAndAvatar(UserInfo userInfo) throws NoSuchAlgorithmException {
         String randomPwd = userInfo.getUserPassword();
-        String password = new BigInteger(1,
-                EncryptUtils.encryptMD5(randomPwd.getBytes())).toString(16);
+        String password = PasswordHasher.encodeChecked(randomPwd);
         userInfo.setUserPassword(password);
         // 管理员新增用户头像为缺省头像
         String bucketName = storageProperties.getDefaultStorageProperties().getBucketName();
@@ -366,8 +362,7 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
     @Override
     public Long regist(UserInfo userInfo) {
         try {
-            String password = new BigInteger(1,
-                    EncryptUtils.encryptMD5(encryptUtils.decryptAES(userInfo.getUserPassword()).getBytes())).toString(16);
+            String password = PasswordHasher.encodeChecked(encryptUtils.decryptAES(userInfo.getUserPassword()));
             userInfo.setUserPassword(password);
             userInfo.setStatus(UserStatusEnum.ENABLED.getCode());
             String bucketName = storageProperties.getDefaultStorageProperties().getBucketName();
@@ -398,8 +393,7 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
                 UserInfo userInfo = userInfoRepository.getUserInfoById(userId);
                 if (Objects.nonNull(userInfo)) {
                     // 管理员重置用户密码为缺省密码
-                    String password = new BigInteger(1,
-                            EncryptUtils.encryptMD5(defaultPassword.getBytes())).toString(16);
+                    String password = PasswordHasher.encodeChecked(defaultPassword);
                     userInfo.setUserPassword(password);
                     userInfoRepository.updateByPrimaryKey(userInfo);
                 }
@@ -428,7 +422,7 @@ public class UserInfoDomainServiceImpl implements UserInfoDomainService {
         try {
             String randomPwd = userInfo.getUserPassword();
             if (StringUtils.isNotBlank(randomPwd)) {
-                String password = new BigInteger(1, EncryptUtils.encryptMD5(randomPwd.getBytes())).toString(16);
+                String password = PasswordHasher.encodeChecked(randomPwd);
                 userInfo.setUserPassword(password);
             }
             userInfoRepository.updateByPrimaryKey(userInfo);

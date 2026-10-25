@@ -27,6 +27,12 @@ public interface AiService {
      * @param aiRequest
      * @return
      */
+    /**
+     * R13-SEC-A1：问答入口的同步鉴权（在建立 SSE 流之前完成），
+     * 保证越权请求得到明确的 403/30016，而不是被包成"模型暂时无法返回"。
+     */
+    void assertAccessible(AiRequest aiRequest);
+
     Flux<ReplyDTO> question(AiRequest aiRequest);
 
     /**

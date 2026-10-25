@@ -190,6 +190,39 @@ services:
       - rocketmq-namesrv
     restart: unless-stopped
 
+  # ===== R13 Nebula Graph 3.8（图谱基础设施）=====
+  nebula-metad:
+    image: docker.1ms.run/vesoft/nebula-metad:v3.8.0
+    container_name: r12-nebula-metad
+    command: ["--meta_server_addrs=nebula-metad:9559","--local_ip=nebula-metad","--ws_ip=nebula-metad","--port=9559","--ws_http_port=19559","--data_path=/data/meta","--log_dir=/logs","--v=0","--minloglevel=0"]
+    environment: {TZ: Asia/Shanghai}
+    ports: ["19559:19559"]
+    volumes: ["r12-nebula-meta-data:/data/meta","r12-nebula-meta-logs:/logs"]
+    healthcheck: {test: ["CMD","curl","-fsS","http://127.0.0.1:19559/status"], interval: 10s, timeout: 5s, retries: 40}
+    restart: unless-stopped
+
+  nebula-storaged:
+    image: docker.1ms.run/vesoft/nebula-storaged:v3.8.0
+    container_name: r12-nebula-storaged
+    command: ["--meta_server_addrs=nebula-metad:9559","--local_ip=nebula-storaged","--ws_ip=nebula-storaged","--port=9779","--ws_http_port=19779","--data_path=/data/storage","--log_dir=/logs","--v=0","--minloglevel=0"]
+    environment: {TZ: Asia/Shanghai}
+    ports: ["19779:19779"]
+    volumes: ["r12-nebula-storage-data:/data/storage","r12-nebula-storage-logs:/logs"]
+    depends_on: [nebula-metad]
+    healthcheck: {test: ["CMD","curl","-fsS","http://127.0.0.1:19779/status"], interval: 10s, timeout: 5s, retries: 40}
+    restart: unless-stopped
+
+  nebula-graphd:
+    image: docker.1ms.run/vesoft/nebula-graphd:v3.8.0
+    container_name: r12-nebula-graphd
+    command: ["--meta_server_addrs=nebula-metad:9559","--local_ip=nebula-graphd","--ws_ip=nebula-graphd","--port=9669","--ws_http_port=19669","--log_dir=/logs","--v=0","--minloglevel=0"]
+    environment: {TZ: Asia/Shanghai}
+    ports: ["19669:9669"]
+    volumes: ["r12-nebula-graph-data:/data/graph","r12-nebula-graph-logs:/logs"]
+    depends_on: [nebula-storaged]
+    healthcheck: {test: ["CMD","curl","-fsS","http://127.0.0.1:19669/status"], interval: 10s, timeout: 5s, retries: 40}
+    restart: unless-stopped
+
 volumes:
   r12-mysql-data:
   r12-redis-data:
@@ -201,3 +234,9 @@ volumes:
   r12-rocketmq-namesrv-logs:
   r12-rocketmq-broker-logs:
   r12-rocketmq-store:
+  r12-nebula-meta-data:
+  r12-nebula-meta-logs:
+  r12-nebula-storage-data:
+  r12-nebula-storage-logs:
+  r12-nebula-graph-data:
+  r12-nebula-graph-logs:

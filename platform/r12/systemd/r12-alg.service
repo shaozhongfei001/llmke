@@ -1,0 +1,15 @@
+[Unit]
+Description=R12 algorithm services (vector 19526 / fulltext 19527 / retrieval 19995 / llm-infer 19996)
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/szf/data/dev/llmke-r12
+ExecStart=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/run/algctl.sh start all'
+ExecStop=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/run/algctl.sh stop all'
+TimeoutStartSec=300
+Restart=no
+
+[Install]
+WantedBy=default.target

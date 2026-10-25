@@ -1,0 +1,18 @@
+[Unit]
+Description=R12 java service %i
+After=network-online.target docker.service r12-alg.service
+Wants=r12-alg.service
+
+[Service]
+Type=forking
+PIDFile=/home/szf/data/dev/llmke-r12/platform/r12/run/%i.pid
+WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-java/rag-parent/%i
+ExecStart=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/bin/r12ctl.sh start %i'
+ExecStop=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/bin/r12ctl.sh stop %i'
+RemainAfterExit=no
+Restart=no
+TimeoutStartSec=180
+TimeoutStopSec=60
+
+[Install]
+WantedBy=default.target

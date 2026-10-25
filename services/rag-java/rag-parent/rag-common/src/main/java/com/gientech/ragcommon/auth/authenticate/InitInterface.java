@@ -86,8 +86,28 @@ public class InitInterface {
             }
         }
         //将接口数据保存到数据库中(如果接口存在,则不处理)
+        // R13-RUN-01：启动期自调用（feign 经注册中心回打本机 /auth/interface/saveBatch）在 Tomcat 尚未
+        // 完成监听时会必然失败，原实现让异常冒泡到 main，导致整个服务启动失败（表现为"进程莫名消失"）。
+        // 这里改为有限重试 + 降级：注册接口元数据失败不应阻断服务可用性。
         if (!CollectionUtils.isEmpty(infoReqs)) {
-            interfaceClient.saveBatch(infoReqs);
+            boolean saved = false;
+            for (int attempt = 1; attempt <= 3 && !saved; attempt++) {
+                try {
+                    interfaceClient.saveBatch(infoReqs);
+                    saved = true;
+                } catch (Exception ex) {
+                    log.warn("register interface metadata failed (attempt {}/3): {}", attempt, ex.getMessage());
+                    try {
+                        Thread.sleep(2000L);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
+            if (!saved) {
+                log.error("interface metadata registration skipped after 3 attempts; service continues to start");
+            }
         }
     }
 

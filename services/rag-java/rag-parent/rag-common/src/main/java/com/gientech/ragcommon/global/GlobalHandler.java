@@ -103,7 +103,10 @@ public class GlobalHandler implements ResponseBodyAdvice<Object> {
 
     @ExceptionHandler(ApplicationException.class)
     public CommonResponse applicationExceptionHandle(ApplicationException e, HttpServletResponse response) {
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        // R13-SEC-A1：权限不足是"拒绝"，不是"服务端故障"。
+        // 原实现统一返回 500，导致前端/监控把越权拒绝误判为系统异常，也让负例断言失真。
+        boolean denied = ErrCodeEnum.INSUFFICIENT_PERMISSIONS.getErrCode().equals(e.getErrCode());
+        response.setStatus(denied ? HttpStatus.FORBIDDEN.value() : HttpStatus.INTERNAL_SERVER_ERROR.value());
         log.error("application exception occur:{}", e);
         return CommonResponse.fail(e.getMessage(), e.getErrCode());
     }

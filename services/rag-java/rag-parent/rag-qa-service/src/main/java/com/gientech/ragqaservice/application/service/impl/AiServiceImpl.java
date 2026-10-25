@@ -206,6 +206,23 @@ public class AiServiceImpl implements AiService {
     }
 
     @Override
+    public void assertAccessible(AiRequest aiRequest) {
+        Config config = null;
+        try {
+            if (StringUtils.isNotBlank(aiRequest.getSessionId())) {
+                Dialogue dialogue = dialogueDomainService.getDialogueBySessionId(aiRequest.getSessionId());
+                config = dialogue == null ? null : dialogue.getConfig();
+            }
+            if (config == null && aiRequest.getConfigId() != null) {
+                config = searchConfigDomainService.getConfigById(aiRequest.getConfigId());
+            }
+        } catch (Exception ex) {
+            log.warn("resolve config for access check failed: {}", ex.getMessage());
+        }
+        assertKnowledgeBaseReadable(config);
+    }
+
+    @Override
     public Flux<ReplyDTO> question(AiRequest aiRequest) {
         log.info("questionRequest:" + aiRequest.toString());
         return publicQuestion(aiRequest, InputType.MONTAGE);
@@ -232,6 +249,8 @@ public class AiServiceImpl implements AiService {
 
             Dialogue dialogue = dialogueDomainService.getDialogueById(dialogueId);
             Config config = dialogue.getConfig();
+            // R13-SEC-A1（问答主链）：配置有权限 ≠ 配置指向的知识库有权限；此处做对象级校验
+            assertKnowledgeBaseReadable(config);
 
             String query = aiRequest.getContent();
             //问题改写
@@ -569,6 +588,8 @@ public class AiServiceImpl implements AiService {
 
         Dialogue dialogue = dialogueDomainService.getDialogueById(dialogueId);
         Config config = dialogue.getConfig();
+        // R13-SEC-A1（问答主链 /question）：配置指向的知识库必须在本主体授权范围内
+        assertKnowledgeBaseReadable(config);
 
         // 检索召回+推理（解决流式问题）
         // 判断是否配置默认配置文件
@@ -861,7 +882,41 @@ public class AiServiceImpl implements AiService {
             reqDialogue.setConfigId(configId);
         }
 
+        // R13-SEC-A1（问答侧）：助手配置本身有权限，不代表配置指向的知识库可用；
+        // 这里对配置里的 knowledge_base_name 再做一次对象级授权，避免"能问 = 能读任意库"。
+        assertKnowledgeBaseReadable(reqDialogue.getConfig());
         return dialogueDomainService.addOrUpdateBySessionId(reqDialogue);
+    }
+
+    /**
+     * 校验当前主体对配置指向的知识库至少具备读权限。
+     * 取不到知识库名（例如直连数据库问答的配置）时不做拦截；取到但无权限一律拒绝。
+     */
+    private void assertKnowledgeBaseReadable(Config config) {
+        if (config == null || StringUtils.isBlank(config.getConfigJson())) {
+            return;
+        }
+        String kbName;
+        try {
+            kbName = JSONObject.parse(config.getConfigJson()).getString("knowledge_base_name");
+        } catch (Exception ex) {
+            log.warn("parse config json failed when checking kb permission: {}", ex.getMessage());
+            return;
+        }
+        if (StringUtils.isBlank(kbName)) {
+            return;
+        }
+        Integer permission;
+        try {
+            permission = kbClient.myPermissionByPrimitive(kbName);
+        } catch (Exception ex) {
+            log.error("query kb permission failed for {}: {}", kbName, ex.getMessage());
+            throw new ApplicationException(ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
+        if (permission == null || permission < 1) {
+            log.warn("R13-SEC-A1 deny qa: kb={} permission={}", kbName, permission);
+            throw new ApplicationException(ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
     }
 
     private void buildConfig(Config config, Boolean enableThinking, Boolean enableWebsearch) {

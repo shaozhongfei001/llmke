@@ -28,6 +28,7 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:18848
+        ip: 127.0.0.1
         namespace: public
         group: DEFAULT_GROUP
         register-enabled: true
@@ -37,6 +38,7 @@ spring:
           enabled: false
 server:
   port: 18084
+  address: 127.0.0.1
   servlet:
     context-path: /graph
   host-ip: 127.0.0.1
