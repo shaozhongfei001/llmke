@@ -1,0 +1,21 @@
+[Unit]
+Description=R13 graph extraction service (index_graph_service, 19529)
+After=network-online.target docker.service r12-models.service
+Wants=r12-models.service
+
+[Service]
+Type=simple
+Environment=PYTHONPATH=/home/szf/data/dev/llmke-r12/services/rag-alg/index_data_service/index_graph_service
+Environment=NACOS_SERVER_ADDRESS=127.0.0.1:18848
+Environment=NAMESPACE=
+Environment=DATA_ID=index_graph_config_py
+Environment=GROUP=DEFAULT_GROUP
+WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-alg/index_data_service/index_graph_service
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/venvs/graph/bin/python -m uvicorn graph_api_start:graph_app --host 0.0.0.0 --port 19529
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/index_graph_service.log
+StandardError=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/index_graph_service.log
+
+[Install]
+WantedBy=default.target

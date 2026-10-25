@@ -119,7 +119,8 @@ class ConfigManager:
 
     def open_session(self, pool, config_data):
         # 用户名和密码，使用自己配置的 NebulaGraph 用户信息
-        session = pool.get_session(config_data["user"], config_data["user"])
+        # R13-FIX-GRAPH-02：原先口令位置误写成 user，Nebula 默认 root/nebula 必然登录失败
+        session = pool.get_session(config_data.get("user", "root"), config_data.get("password", "nebula"))
         if session is None:
             raise Exception("Failed to create session")
         return session

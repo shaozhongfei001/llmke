@@ -75,7 +75,7 @@ graph:
   type: nebula
 nebula:
   host: 127.0.0.1
-  port: 9669
+  port: 19669
   user: root
   password: nebula
   spaceName: rag_graph

@@ -88,6 +88,33 @@ def requests_llm(mes, model_info, server_config, prompt_flag=True, max_tokens=No
 
     headers = {'Content-Type': 'application/json'}
     llm_url = 'http://' + server_config["llm_server"]["host"] + ':' + str(server_config["llm_server"]["port"]) + '/' + server_config["llm_server"]["api_name"]
+
+    # R13-FIX-GRAPH-01：本文件原实现是"自研 LLM 编排协议"（prompt_msg/query + answer），
+    # 与当前部署的 OpenAI 兼容服务（18092 /v1/chat/completions）不兼容，会永远拿到空串。
+    # 当 api_name 指向 chat/completions 时改走 OpenAI 协议；否则保持原协议，兼容旧环境。
+    if "chat/completions" in server_config["llm_server"].get("api_name", ""):
+        if isinstance(mes, list):
+            messages = mes
+        else:
+            messages = [{"role": "user", "content": str(mes)}]
+        model_name = (model_info or {}).get("model_id") or (model_info or {}).get("model_name") \
+            or server_config["llm_server"].get("model") or "qwen2.5-7b-instruct"
+        oa_payload = {"model": model_name, "messages": messages, "stream": False, "temperature": 0.1}
+        if max_tokens:
+            oa_payload["max_tokens"] = int(max_tokens)
+        try:
+            resp = requests.post(llm_url, json=oa_payload, headers=headers, timeout=600)
+            if resp.status_code != 200:
+                logger.error(f"OpenAI 协议模型请求失败:{resp.status_code} {resp.text[:300]}")
+                return ""
+            content = resp.json()["choices"][0]["message"]["content"] or ""
+            if "</think>" in content:
+                content = content.split("</think>")[-1]
+            return content
+        except Exception as e:
+            logger.error(f"OpenAI 协议模型请求报错:{e}")
+            return ""
+
     try:
         base_response = requests.post(llm_url, json=payload, headers=headers)
     except Exception as e:
@@ -652,24 +679,41 @@ def execute_query(session, entity_set, query_type):
     triples_set = set()
     relationship_set = set()
     triples_entity_dict = {}
+    # R13-FIX-GRAPH-03：原实现用 result.dict_for_vis()["edges"]，nebula3 客户端在
+    # "边属性存在但不整齐"时会抛 KeyError（add_to_nodes_or_edges），导致整个图检索 500。
+    # 这里改为直接取 id + properties(e)，绕开该客户端缺陷，语义等价且更可控。
     if query_type == 'hippo':
         query = f'''
-                    MATCH (v)-[e]-(v2)
-                    RETURN v.entity.name, e, v2.entity.name;
+                    MATCH (v)-[e:relationship]-(v2)
+                    RETURN id(v) AS src, properties(e) AS props, id(v2) AS dst;
             '''
     else:
         query = f'''
-                    MATCH (v)-[e*1..{1}]-(v2)
+                    MATCH (v)-[e:relationship]-(v2)
                     WHERE v.entity.name IN {entity_set}
-                    RETURN v.entity.name, e, v2.entity.name;
+                    RETURN id(v) AS src, properties(e) AS props, id(v2) AS dst;
                 '''
         logger.info(f"查询语句:{query}")
     result = session.execute(query)
-    res_dict_list = result.dict_for_vis()["edges"]
+    if not result.is_succeeded():
+        logger.error(f"图查询失败:{result.error_msg()}")
+        return triples_set, relationship_set, triples_entity_dict
+    res_dict_list = []
+    for i in range(result.row_size()):
+        vals = result.row_values(i)
+        src = vals[0].as_string() if vals[0].is_string() else str(vals[0])
+        dst = vals[2].as_string() if vals[2].is_string() else str(vals[2])
+        props = {}
+        try:
+            if vals[1].is_map():
+                props = {k: (v.as_string() if v.is_string() else str(v)) for k, v in vals[1].as_map().items()}
+        except Exception:
+            props = {}
+        res_dict_list.append({"src": src, "dst": dst, "props": props})
     if res_dict_list:
         for rd in res_dict_list:
             src = rd["src"].split("_")[-1]
-            rep = rd["props"]["name"]
+            rep = rd["props"].get("name", "") if isinstance(rd.get("props"), dict) else ""
             dst = rd["dst"].split("_")[-1]
             triples_set.add((src, rep, dst))
             if src not in triples_entity_dict:
