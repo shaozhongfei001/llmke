@@ -381,14 +381,35 @@ def process_return_results(documents_list):
     """
     documents_list_new = []
     remove_duplicates = []
+    seen_by_content = {}
     for x in documents_list:
+        md = x.setdefault("metadata", {})
+        # R13-FIX-GRAPH-10：图检索结果把来源写在 metadata.search.type=["graph"]，
+        # 而这里只读 metadata.search_type；且同 pk 去重会把后到的图结果直接丢掉，
+        # 导致"图检索确实执行了但引用上看不出来"。这里统一把图来源并入 search_type。
+        st = md.get("search_type")
+        st = list(st) if isinstance(st, (list, tuple, set)) else ([st] if st else [])
+        search_info = md.get("search")
+        if isinstance(search_info, dict):
+            for t in (search_info.get("type") or []):
+                if t not in st:
+                    st.append(t)
+        md["search_type"] = st
+
         if x["page_content"] in remove_duplicates:
+            # 去重：保留先到的文档，但把后到文档的来源标记合并进去
+            kept = seen_by_content.get(x["page_content"])
+            if kept is not None:
+                kept_st = kept["metadata"].get("search_type") or []
+                for t in st:
+                    if t not in kept_st:
+                        kept_st.append(t)
+                kept["metadata"]["search_type"] = kept_st
             continue
         remove_duplicates.append(x["page_content"])
+        seen_by_content[x["page_content"]] = x
         if "document_id" not in x["metadata"].keys():
             x["metadata"]["document_id"] = ""
-        if "search_type" in x["metadata"].keys():
-            x["metadata"]["search_type"] = list(set(x["metadata"]["search_type"]))
         chunk_index = x["metadata"].get("chunk_index", None)
         title_path = x["metadata"].get("title_path", None)
         dict_new = {"page_content": x["page_content"],

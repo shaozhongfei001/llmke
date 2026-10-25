@@ -129,7 +129,7 @@ python3 /home/szf/data/dev/llmke-r12/platform/r12/qa/acceptance.py
 | 阶段 | 目标 | 判定标准 | 状态 |
 |---|---|---|---|
 | S1 类型与归一 | unclassified 收敛、合并可回滚 | unclassified=0；回滚脚本实测通过 | ✅ 完成 |
-| S2 图检索入主链 | `/qa` 走 `enabled_graph`，图块参与引用 | 检索服务调用 19529 返回 200 且 docs 含 graph 标记 | 🔄 进行中（GRAPH-09 已修，待引用保留 graph 标记） |
+| S2 图检索入主链 | `/qa` 走 `enabled_graph`，图块参与引用 | 检索服务调用 19529 返回 200 且 docs 含 graph 标记 | ✅ 完成（GRAPH-09/10；rerank 关闭时 search_type 含 graph） |
 | S3 GraphRAG 本体 | 社区检测+分级摘要+摘要索引+global | 跨文档问题走社区摘要且引用可开原文 | ⬜ 未开始 |
 | S4 一致性 | Nebula↔Milvus 实体/三元组对齐；删除同步 | 一致性检查输出 0 差异 | ⬜ 未开始 |
 | S5 业务能力 | FAQ/表格/多版本/Text2SQL/VLM/Office 预览 | 每项至少一个真实场景通过 | ⬜ 未开始 |
@@ -142,4 +142,14 @@ python3 /home/szf/data/dev/llmke-r12/platform/r12/qa/acceptance.py
 - **R13-FIX-GRAPH-09**：检索服务在 `multiple_retrieval.py:431` 把 space 拼成 `"g_"+kb`，而图服务内部 `query_graph_data` 又拼一次 `"g_"`（graph_service.py:557）→ 实际查 `g_g_kb_9`，恒报"空间不存在"，图检索永远空。已改为传原始名。
 - 已补 `alg_retrieval_config_py.graph_config`（127.0.0.1:19529），否则 `retrieval_graph` 取不到地址。
 - 实测：检索服务日志出现 `POST http://127.0.0.1:19529/query_graph_data 200`（0.54s），图召回已触发。
-- 待解决：图结果与 ES 结果同 pk 时，rerank 后保留的是 ES 那份，`metadata.search.type` 未合并出 `graph`，引用上不足以证明"来自图"。
+- **R13-FIX-GRAPH-10**：`process_return_results` 只读 `metadata.search_type`，而图结果写的是 `metadata.search.type`；
+  且同 pk 去重把后到的图结果整条丢弃 → "图检索执行了但引用看不出"。已改为：统一把 `search.type` 并入 `search_type`，
+  去重时把来源标记合并到保留项。
+- 实测（rerank 关闭）：docs[0].metadata.search_type = `['milvus','es','es','graph']` → 图来源可辨识。
+- 实测（rerank 开启）：该块 rerank 分数低于 threshold 被过滤，属排序策略而非链路故障；S3 用更大图语料复验。
+
+### S4 一致性
+- 新增 `platform/r12/graph/consistency_check.py`：Nebula `g_<kb>` 实体 ↔ Milvus `graph_entity_<kb>` 比对，`--fix` 清理悬空向量。
+- 首次运行：Nebula 47 / Milvus 67，**20 条悬空向量**（正是迁移时从图里删掉的噪声实体，仍会被实体链接命中）。
+- `--fix` 后复核：Nebula 47 / Milvus 47，**0 差异**。
+- 未做：`graph_triples_<kb>` 与 Nebula 边的比对；`del_space_data` 删除时不联动 Milvus（源码缺口，需改 Python）。
