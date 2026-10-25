@@ -7,6 +7,7 @@ import time
 
 from base import GraphModel, GraphAttributeModel, InsertModel, QueryDocChunk, BaseResponse, QueryGraphData, DelModel
 from graph_extract import generate_graph_relations, generate_query_entities
+from graph_types import normalize_graph_data
 from graph_fun_tool import clean_entity, generate_entity_data, get_document_chunk, \
     vectorization_data_similarity, query_like_entity, query_milvus_api, pool_query_milvus, execute_query, \
     query_milvus_by_condition, remove_duplicates_by_pk, attribute_assignment, update_triples_data, split_array, \
@@ -431,6 +432,12 @@ def generate_triple_data(query_docu: QueryDocChunk):
     model_info = query_docu.model_info
     triples_data_list, entity_source_dict, triples_source_dict = llm_generate_triple(json_data, query_docu.entity_types, model_info, server_config)
     logger.info(f"生成数据所需时间是：{time.time() - t1}")
+    # R13 类型体系 / 实体过滤 / canonical 归一（落库前统一收敛）
+    triples_data_list, entity_source_dict, triples_source_dict, type_report = normalize_graph_data(
+        triples_data_list, entity_source_dict, triples_source_dict)
+    logger.info(f"归一后：实体{type_report['kept_entities']}个，过滤{len(type_report['filtered'])}个，"
+                f"合并{len(type_report['merged'])}个，未分类{len(type_report['unclassified'])}个，"
+                f"丢弃三元组{type_report['dropped_triples']}条 (schema={type_report['schema_version']})")
     logger.info(f"共生成{len(triples_data_list)}条图数据")
     if not triples_data_list:
         logger.error(f'数据未生成三元组数据，请检查数据或重试')
@@ -529,7 +536,9 @@ def generate_triple_data(query_docu: QueryDocChunk):
         logger.info('本次无可写入的三元组向量，跳过三元组向量库写入')
     logger.info(f"插入向量数据库所需时间是：{time.time() - t5}")
     return BaseResponse(code=200, msg=f'添加成功，新增和更新{len(full_triples_list)}条图数据,新增{len(entity_list)}条实体',
-                        data={"error_edge_data_list": res_v.data["error_edge_data_list"], "error_tag_data_list": res_v.data["error_tag_data_list"]})
+                        data={"error_edge_data_list": res_v.data["error_edge_data_list"],
+                              "error_tag_data_list": res_v.data["error_tag_data_list"],
+                              "type_report": type_report})
 
 
 def query_graph_data(query_data: QueryGraphData):
