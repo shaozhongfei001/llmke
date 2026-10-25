@@ -1,0 +1,2 @@
+{"batch_id": "g_kb_9-20261025T211050Z-33face", "space": "g_kb_9", "action": "delete_vertex", "ts": 1792933850, "vid": "99999", "props": {"file_id": "1", "type": "其他", "name": "99999", "title": "t"}, "edges": [{"other": "华东精密制造有限公司", "props": {"name": "测试关系", "file_id": "124", "show_flag": "1", "page_num": "124_1"}, "is_out": false}]}
+{"batch_id": "g_kb_9-20261025T211050Z-33face", "space": "g_kb_9", "action": "summary", "ts": 1792933850, "entities": 47, "edges": 54}
