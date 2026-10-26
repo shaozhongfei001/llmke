@@ -944,6 +944,21 @@ public class AiServiceImpl implements AiService {
      */
     @Trace
     private Flux<ReplyDTO> modelBasedInference(List<Map<String, Object>> docs, AiRequest aiRequest, JSONObject alParams, Long dialogueId, InputType inputType, List<SensitiveWordsDTO> sensWordList, Config config) {
+        // R13-FIX-QA-08：历史会话的 config_json 里可能已经丢了 model_info（上一轮取不到时被写回并持久化），
+        // 之后每次提问都会把缺失的 model_info 原样发给推理服务 -> 422 -> 用户看到"模型暂时无法返回"。
+        // 这里在调用前做一次幂等补齐，避免"一次偶发失败永久污染会话"。
+        if (StringUtils.isNotBlank(alParams.getString(MODEL_NAME))
+                && (alParams.getJSONObject(MODEL_INFO) == null || alParams.getJSONObject(MODEL_INFO).isEmpty())) {
+            try {
+                Object simp = modelClient.getSimpByModeName(alParams.getString(MODEL_NAME));
+                if (simp != null) {
+                    alParams.put(MODEL_INFO, simp);
+                    log.warn("model_info missing in config, refilled for model {}", alParams.getString(MODEL_NAME));
+                }
+            } catch (Exception ex) {
+                log.error("refill model_info failed for {}: {}", alParams.getString(MODEL_NAME), ex.getMessage());
+            }
+        }
         log.info("modelBasedInference--模型推理请求参数:" + alParams);
         Question question = BeanUtil.copyProperties(alParams, Question.class);
         question.setAlgModel(String.valueOf(alParams.get(MODEL_NAME)));

@@ -183,6 +183,11 @@ class AttributeParameter:
     def split_documents(self):
         """对参考进行分句"""
         for i, item in enumerate(self.reference_chunks):
+            # R13-FIX-QA-09：[R12] 语义简化模式下 QA 只下发 page_content/order_num（SimpleDocumentFilter），
+            # 这里直接 item["metadata"] 会 KeyError，整个 SSE 流中断 -> 用户只看到"模型暂时无法返回"。
+            # 缺失时补空元数据：仍可切句，只是没有精确 offset（引用落到 chunk 级）。
+            if not isinstance(item.get("metadata"), dict):
+                item["metadata"] = {}
             if "type" in item and item["type"] == "web_search":
                 doc = item["page_content"]
                 order_num = item.get("order_num")

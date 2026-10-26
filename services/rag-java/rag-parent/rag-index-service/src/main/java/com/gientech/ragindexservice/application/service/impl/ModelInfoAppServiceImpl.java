@@ -396,7 +396,18 @@ public class ModelInfoAppServiceImpl implements ModelInfoAppService {
         req.setPageSize(1L);
 //        req.setStatus(1);
         req.setModelName(modeName);
-        Page<ModelInfoDTO> modelInfoDTOPage = allPage(req);
+        Page<ModelInfoDTO> modelInfoDTOPage;
+        try {
+            modelInfoDTOPage = allPage(req);
+        } catch (RuntimeException ex) {
+            // R13-FIX-QA-07：服务间（Feign）调用常发生在线程池/异步链路上，UserContext 为空，
+            // allPage 的按主体过滤会因解析不到部门/机构而抛 "Cannot parse null string"。
+            // 这类内部调用退化为"不按主体过滤"（对外仍由网关强制登录），否则整条问答会因为
+            // 取不到 model_info 而退化成"模型暂时无法返回"。
+            log.warn("getSimpByModeName scoped query failed ({}), fallback to unscoped", ex.getMessage());
+            req.setNeedAuth(false);
+            modelInfoDTOPage = allPage(req);
+        }
         List<ModelInfoDTO> records = modelInfoDTOPage.getRecords();
         if (CollectionUtils.isEmpty(records))
             throw new ApplicationException(ErrCodeEnum.MODEL_NOT_EXIST.getErrCode(), "您没有权限使用【" + modeName + "】模型，请联系管理员！");

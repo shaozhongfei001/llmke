@@ -1,0 +1,79 @@
+# R12 解析服务主配置（doc-parse）。维护：parse-ops；权威发布：TL
+server:
+  host: 0.0.0.0
+  port: 12340
+  workers: 1
+log_path: /home/szf/data/dev/llmke-r12/platform/r12/logs/parse
+layout_garbage_path: /home/szf/data/dev/llmke-r12/platform/r12/logs/parse/layout_garbage
+table_split_max_worker: 1
+chunk_size: 512
+overlap_size: 100
+use_ali: false
+use_fudan: false
+use_text_in: false
+use-mineru: false
+use_multi_modal: false
+bypass: true
+garbage_filter: false
+image_boxes_batch_size: 2
+excel_parse_max_worker: 1
+# 本服务不直连业务库；mysql 段由 other-nacos.java-common 提供（此处必须留空 map）
+mysql: {}
+
+# ---- [R12-FIX-PARSE-03] 多模态并发与超时（D-2 / D-3）----
+# 默认 1：实测并发无吞吐收益（1.08x），且 CPU 上 N 图并发会打穿 VLM 的 KV 水位（mtmd 硬失败）
+multi_modal_max_workers: 1
+multi_modal_timeout: 600      # [R12-FIX-PARSE-04] VLM 客户端超时（原代码未传 timeout）
+llm_timeout: 300              # [R12-FIX-PARSE-04] 表格摘要等 LLM 调用超时
+embedding_timeout: 60         # [R12-FIX-PARSE-04] 图片关联用 embedding 超时
+
+# ---- 索引写入模板（B 项；口径由 TL 2026-10-25 裁定：走代理，不走本体）----
+es-insert: "http://{ip}:{port}/insert_fulltext_documents"
+milvus-insert: "http://{ip}:{port}/insert_vector_documents_custom"
+es_insert_batch_size: 500
+es_insert_concurrency: 5
+es_insert_timeout: 300
+es_insert_retries: 2
+es_insert_retry_backoff: 0.5
+milvus_insert_batch_size: 500
+milvus_insert_concurrency: 5
+milvus_insert_timeout: 300
+milvus_insert_retries: 2
+milvus_insert_retry_backoff: 0.5
+
+# ---- [R12-FIX-PARSE-04] 多模态输出上限 ----
+online_multi_modal_model:
+  qwen2.5-vl-3b-instruct:
+    output_max_tokens: 768   # [R12-FIX-PARSE-05] 密排中文A4逐字实测 427/512=83%（余量仅1.2x）→ 提至768；仍 100% 依赖 finish_reason=length→truncated 判定
+
+other-nacos:
+  java-common:
+    namespace: ""
+    data-id: alg_doc_parse_java_common
+    group: DEFAULT_GROUP
+  java-gateway:
+    namespace: ""
+    data-id: alg_doc_parse_java_gateway
+    group: DEFAULT_GROUP
+  index:
+    namespace: ""
+    # TL 2026-10-25 裁定：index 配置由 alg-ops 统一发布，解析侧只引用、不重复发布同名 data_id
+    data-id: index_data_config_py
+    group: DEFAULT_GROUP
+
+# ---- [R12-TL] 异步解析回写 Java 的两个端点（代码 .format(ip,port) 后直接 requests.post）
+# ip 取 other-nacos.java-common.server.host-ip，port 取 other-nacos.java-gateway.server.port
+async-callback: "http://{ip}:{port}/index/parseTask/callback"
+minio-upload: "http://{ip}:{port}/index/knowledgeBase/file/uploadParsedFile"
+
+# ---- [R12-TL] 多版本/表格指标路径需要的检索侧只读配置（缺则 KeyError: 'es_config'，非致命但会污染日志）
+# R13-FIX-CFG-01：多版本/表格指标走的是 ES 代理（19527），不是 ES 本体（19200）。
+# 原值指向本体，导致 POST /search_by_custom_param 被 ES 以 405 拒绝，版本比对失败、解析任务停在 99。
+es_config:
+  host: 127.0.0.1
+  port: 19527
+retrieval_top_k: 10
+multi_version:
+  url: ""            # Java 侧无该端点，多版本能力 R13 再评估（保留空串表示未启用）
+url_table_indicator:
+  url: ""
