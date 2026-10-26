@@ -1,0 +1,216 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录并取菜单",
+    "ok": true,
+    "detail": "http=200 menus=7",
+    "extra": {
+      "menus": [
+        {
+          "id": "1",
+          "name": "智能对话",
+          "url": "/chats/main",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "chat",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "2",
+          "name": "知识库",
+          "url": "/chats/knowledgeBase",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "book",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "3",
+          "name": "知识检索",
+          "url": "/chats/knowledgeSearch",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "search",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "4",
+          "name": "助手配置",
+          "url": "/chats/setting",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "setting",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "5",
+          "name": "用户反馈",
+          "url": "/chats/feedback",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "feedback",
+          "subMenuDTOList": []
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户信息",
+    "ok": true,
+    "detail": "http=200 user=admin"
+  },
+  {
+    "scene": "S2",
+    "case": "知识库已存在（复用）",
+    "ok": true,
+    "detail": "kbId=9 primitive=kb_9"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=193 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "193"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=194 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "194"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=195 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "195"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=196 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "196"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=197 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "197"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=198 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "198"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=199 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "199"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=200"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "fileId=193 最终状态=3 耗时=582s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "fileId=194 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "fileId=195 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 数字版",
+    "ok": true,
+    "detail": "fileId=196 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 纯文本",
+    "ok": true,
+    "detail": "fileId=197 最终状态=3 耗时=18s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 含表格",
+    "ok": true,
+    "detail": "fileId=198 最终状态=3 耗时=18s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "fileId=199 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "detail": "fileId=200 最终状态=4(4=失败) 耗时=24s"
+  },
+  {
+    "scene": "ERR",
+    "case": "执行异常",
+    "ok": false,
+    "detail": "HTTPConnectionPool(host='127.0.0.1', port=8088): Read timed out.\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/urllib3/response.py\", line 438, in _error_catcher\n    yield\n  File \"/usr/lib/python3/dist-packages/urllib3/response.py\", line 764, in read_chunked\n    self._update_chunk_length()\n  File \"/usr/lib/python3/dist-packages/urllib3/response.py\", line 694, in _update_chunk_length\n    line = self._fp.fp.readline()\n  File \"/usr/lib/python3.10/socket.py\", line 705, in readinto\n    return self._sock.recv_into(b)\nTimeoutError: timed out\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/requests/models.py\", line 753, in generate\n    for chunk in self.raw.stream(chunk_size, decode_content=True):\n  File \"/usr/lib/python3/dist-packages/urll"
+  }
+]

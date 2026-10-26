@@ -96,6 +96,32 @@ public class FileParseTaskAppServiceImpl implements FileParseTaskAppService {
         return fileParseTaskDomainService.deleteById(id);
     }
 
+    /**
+     * R13-RUN-05：进程重启后，上一轮"处理中(2)"的任务永远不会再有人推进，
+     * 而调度器按 DB 中 DEAL_ING/RETRY_ING 数量限流，会导致**队列永久卡死**
+     * （表现为上传后一直排队、状态停在 98/99）。
+     * 启动时把残留的处理中/重试中任务打回待处理，保证重启可自愈（任务本身幂等）。
+     */
+    @jakarta.annotation.PostConstruct
+    public void recoverStaleTasksOnStartup() {
+        try {
+            List<FileParseTask> stale = fileParseTaskDomainService.getTaskByStatus(
+                    Arrays.asList(ParseTaskStatusEnums.DEAL_ING.getCode(), ParseTaskStatusEnums.RETRY_ING.getCode()));
+            if (CollectionUtils.isEmpty(stale)) {
+                return;
+            }
+            for (FileParseTask t : stale) {
+                UpdateFileParseTaskReq req = new UpdateFileParseTaskReq();
+                req.setId(t.getId());
+                req.setStatus(ParseTaskStatusEnums.PENDING.getCode());
+                fileParseTaskDomainService.updateById(BeanUtil.copyProperties(req, FileParseTask.class));
+            }
+            log.warn("recovered {} stale parse tasks on startup", stale.size());
+        } catch (Exception ex) {
+            log.error("recover stale parse tasks failed: {}", ex.getMessage());
+        }
+    }
+
     @Override
     public Boolean execTask() {
         //查询执行中和重试中的任务

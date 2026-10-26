@@ -57,8 +57,8 @@
 | VLM 多模态解析 | ✅ 实测 | `use_multi_modal=true`，双图 DOCX 产出图像描述 chunk |
 | 版本标识 | ⚠️ 部分 | 引用带 `parent_file_name`；`revise_date/version` 为空（未跑版本抽取） |
 | GraphRAG local（实体链接+邻域/PPR+原文回填） | ⚠️ 部分 | 图服务 19529 + Nebula 3.8 已起，schema/写入链路可用；召回质量受抽取覆盖度限制 |
-| GraphRAG global（社区摘要 + map-reduce） | ⚠️ 部分 | `POST 19995/retrieval_documents_global` 实测返回社区摘要与汇总结论；**未接入 Java `/qa` 主链与前端** |
-| 多版本历史查询 | ❌ 未做 | 仅消除了 404 噪音与引用版本字段 |
+| GraphRAG global（社区摘要 + map-reduce） | ✅ 已接入（引用待补） | 助手配置 `query_mode=global` 时，`/qa/ai/question` 改走 `19995/retrieval_documents_global`，实测 5.9s 返回基于社区摘要的回答；社区摘要已带 `file_id` 可回溯来源文件；**逐句引用仍为空**（社区摘要无分句 offset 语义） |
+| 多版本历史查询 | ⚠️ 部分 | 已消除 404 噪音、引用带 `parent_file_name`；`revise_date/version` 仍需跑版本抽取 |
 | FAQ 前端管理界面 | ❌ 未做 | 仅后端与召回 |
 | 表格问答（数值+引用） | ⚠️ 部分 | 表格解析与全文召回可用，结构化数值问答未端到端验收 |
 
@@ -75,7 +75,7 @@
 
 ## 5. 明确未完成（不静默缩范围）
 
-1. GraphRAG global 未接入 `/qa` 与前端（当前是独立接口，可实测但用户界面不可达）。
+1. GraphRAG global 已接入 `/qa`（配置驱动），但前端尚无"全局/局部"切换控件；global 的逐句引用为空（只有回答与社区摘要）。
 2. 多版本历史查询、FAQ 前端管理、表格数值问答未端到端。
 3. 离线制品仍为 `r12-bundle-202610250617.tar.gz`（914M），**未包含**本轮 jar/dist/preview/systemd/Nebula 变更；干净环境离线安装未验证。
 4. 图抽取覆盖度低（社区数少），跨文档 global 问题的答案质量不足以作为效果验收。

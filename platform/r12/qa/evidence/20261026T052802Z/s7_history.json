@@ -1,0 +1,143 @@
+{
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": {
+    "records": [
+      {
+        "label": null,
+        "sessionId": "kb_9",
+        "gmtCreate": "2026-10-25 06:02:25",
+        "gmtModified": "2026-10-26 13:29:33",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": null,
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "g7-1792989748",
+        "gmtCreate": "2026-10-26 12:42:29",
+        "gmtModified": "2026-10-26 12:42:29",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "g6-1792989526",
+        "gmtCreate": "2026-10-26 12:38:46",
+        "gmtModified": "2026-10-26 12:38:46",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "g5-1792989508",
+        "gmtCreate": "2026-10-26 12:38:29",
+        "gmtModified": "2026-10-26 12:38:29",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "g4-1792989272",
+        "gmtCreate": "2026-10-26 12:34:33",
+        "gmtModified": "2026-10-26 12:34:33",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "g3-1792988913",
+        "gmtCreate": "2026-10-26 12:28:34",
+        "gmtModified": "2026-10-26 12:28:34",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "glob2-1792988518",
+        "gmtCreate": "2026-10-26 12:21:58",
+        "gmtModified": "2026-10-26 12:21:58",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "glob-1792988424",
+        "gmtCreate": "2026-10-26 12:20:25",
+        "gmtModified": "2026-10-26 12:20:25",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "8",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "r12-sess-dbg666",
+        "gmtCreate": "2026-10-26 09:54:26",
+        "gmtModified": "2026-10-26 09:54:26",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": null,
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      },
+      {
+        "label": null,
+        "sessionId": "dbg6-1792978621",
+        "gmtCreate": "2026-10-26 09:37:01",
+        "gmtModified": "2026-10-26 09:37:01",
+        "createBy": "admin",
+        "updateBy": "admin",
+        "filePath": null,
+        "configId": "1",
+        "kbId": null,
+        "queryReplyPairList": null,
+        "searchConfigDTO": null
+      }
+    ],
+    "total": 53,
+    "size": 10,
+    "current": 1,
+    "pages": 6
+  }
+}
