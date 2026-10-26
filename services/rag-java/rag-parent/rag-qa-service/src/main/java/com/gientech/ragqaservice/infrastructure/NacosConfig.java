@@ -20,6 +20,13 @@ public class NacosConfig {
     @Value("${spring.ai.gt.search-docs-url}")
     private String searchDocsUrl;
 
+    /**
+     * R13-GRAPH-01：GraphRAG 全局问答入口（社区摘要 map-reduce）。
+     * 默认走本地算法服务的 /retrieval_documents_global，可按环境覆盖。
+     */
+    @Value("${spring.ai.gt.search-docs-global-url:http://127.0.0.1:19995/retrieval_documents_global}")
+    private String searchDocsGlobalUrl;
+
     @Value("${spring.ai.gt.llm-faq-select-url}")
     private String faqSelectUrl;
 

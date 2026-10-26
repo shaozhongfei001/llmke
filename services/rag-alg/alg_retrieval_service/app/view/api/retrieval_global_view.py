@@ -36,6 +36,10 @@ class RetrievalGlobalView(BaseView):
             docs.append({
                 "page_content": c.get("summary") or "",
                 "metadata": {
+                    # R13-GRAPH-03：社区摘要本身没有单文件定位，取社区成员的首个来源文件作为可打开的原文，
+                    # 这样 Java 侧能沿用既有"引用->原文"链路（点击可打开对应文档）。
+                    "file_id": (c.get("file_ids") or [None])[0],
+                    "title": c.get("title") or f"社区摘要 L{c.get('level')}-{c.get('community_id')}",
                     "community_id": c.get("community_id"),
                     "level": c.get("level"),
                     "member_entities": c.get("members") or [],

@@ -2003,6 +2003,12 @@ public class AiServiceImpl implements AiService {
             isQuery) {
         try {
             JSONObject config = BeanUtil.copyProperties(alParams.getConfig(), JSONObject.class);
+            // R13-GRAPH-06：query_mode 不是 ExtendedConfig 的已知字段，BeanUtil 拷贝可能丢失，
+            // 因此直接从原始配置 JSON 读取，并在拷贝结果上补齐，保证两条召回分支都能看到。
+            String queryModeRaw = alParams.getConfig() == null ? null : alParams.getConfig().getString("query_mode");
+            if (StringUtils.isNotBlank(queryModeRaw)) {
+                config.put("query_mode", queryModeRaw);
+            }
             if (config.containsKey(DATABASE_NAME) && !config.getJSONArray(DATABASE_NAME).isEmpty()) {
                 config.put(ENABLE_DATABASE, true);
                 String[] databaseName = config.getJSONArray(DATABASE_NAME).stream()
@@ -2011,13 +2017,28 @@ public class AiServiceImpl implements AiService {
                 config.put(DATABASE_NAME, databaseName);
             }
             if (config.containsKey(SELECTED_KNOWLEDGE_BASE) && !config.getJSONArray(SELECTED_KNOWLEDGE_BASE).isEmpty()) {
-                return combineRetrieveDataList(buildRetrieveDataList(alParams.getConfig()));
+                return combineRetrieveDataList(buildRetrieveDataList(alParams.getConfig(),
+                        aiRequest == null ? null : aiRequest.getContent()));
             } else {
-                log.info("retrieveRecall-检索召回请求参数:{}", JSON.toJSONString(config));
+                // R13-GRAPH-05：单知识库分支同样支持 global（社区摘要），否则 query_mode=global 会被静默忽略，
+                // 用户以为走了 GraphRAG，实际仍是普通向量召回。
+                boolean globalMode = "global".equalsIgnoreCase(config.getString("query_mode"));
+                String url = nacosConfig.getSearchDocsUrl();
+                JSONObject recallPayload = config;
+                if (globalMode) {
+                    url = nacosConfig.getSearchDocsGlobalUrl();
+                    recallPayload = JSONObject.parseObject(config.toJSONString());
+                    recallPayload.put("query", aiRequest == null ? config.getString("query") : aiRequest.getContent());
+                    recallPayload.put("query_mode", "global");
+                    recallPayload.put("summary_top_k", 5);
+                    log.info("retrieveRecall-全局模式（社区摘要）kb:{}, query:{}",
+                            recallPayload.getJSONArray(KNOWLEDGE_BASE_NAME), recallPayload.getString("query"));
+                }
+                log.info("retrieveRecall-检索召回请求参数:{}", JSON.toJSONString(recallPayload));
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<String> httpEntity = new HttpEntity<>(JSON.toJSONString(config), headers);
-                String rs = restTemplate.postForObject(nacosConfig.getSearchDocsUrl(), httpEntity, String.class);
+                HttpEntity<String> httpEntity = new HttpEntity<>(JSON.toJSONString(recallPayload), headers);
+                String rs = restTemplate.postForObject(url, httpEntity, String.class);
                 log.info("knowledge---getBody:" + rs);
                 RetrievedData retrievedData = RetrievedData.getDefault(rs);
                 return retrievedData;
@@ -2097,7 +2118,17 @@ public class AiServiceImpl implements AiService {
 
 
     private List<RetrievedData> buildRetrieveDataList(JSONObject config) {
+        return buildRetrieveDataList(config, null);
+    }
+
+    private List<RetrievedData> buildRetrieveDataList(JSONObject config, String content) {
         JSONObject configCopy = JSONObject.parseObject(config.toJSONString());
+        // R13-GRAPH-01：配置里 query_mode=global 时改走社区摘要接口，其余不变
+        boolean globalMode = "global".equalsIgnoreCase(configCopy.getString("query_mode"));
+        if (globalMode) {
+            configCopy.put("query", content);
+            configCopy.put("query_mode", "global");
+        }
         JSONArray selectedKnowledgeBase = configCopy.getJSONArray(SELECTED_KNOWLEDGE_BASE);
         CountDownLatch latch = new CountDownLatch(selectedKnowledgeBase.size());
         List<RetrievedData> retrievedDataList = Lists.newArrayList();
@@ -2114,7 +2145,9 @@ public class AiServiceImpl implements AiService {
                 try {
                     log.info("retrieveRecall-检索召回请求参数:{}", JSON.toJSONString(config));
                     HttpEntity httpEntity = new HttpEntity(configCopy);
-                    String rs = restTemplate.postForObject(nacosConfig.getSearchDocsUrl(), httpEntity, String.class);
+                    String url = globalMode ? nacosConfig.getSearchDocsGlobalUrl() : nacosConfig.getSearchDocsUrl();
+                    log.info("retrieveRecall-url:{}, globalMode:{}", url, globalMode);
+                    String rs = restTemplate.postForObject(url, httpEntity, String.class);
                     log.info("knowledge---getBody:" + rs);
                     RetrievedData retrievedData = RetrievedData.getDefault(rs);
                     retrievedDataList.add(retrievedData);
@@ -2137,12 +2170,13 @@ public class AiServiceImpl implements AiService {
         JSONArray faqStringList = new JSONArray();
         JSONArray logStringList = new JSONArray();
         retrievedDataList.forEach(retrievedData -> {
+            // R13-GRAPH-02：全局（社区摘要）响应里没有 faq_result_list / log_list，直接 addAll(null) 会 NPE
             JSONArray documentsList = retrievedData.getData().getJSONArray(DOCUMENTS_LIST);
-            documentStringList.addAll(documentsList);
+            if (documentsList != null) documentStringList.addAll(documentsList);
             JSONArray faqResultList = retrievedData.getData().getJSONArray(FAQ_RESULT_LIST);
-            faqStringList.addAll(faqResultList);
+            if (faqResultList != null) faqStringList.addAll(faqResultList);
             JSONArray logList = retrievedData.getData().getJSONArray(LOG_LIST);
-            logStringList.addAll(logList);
+            if (logList != null) logStringList.addAll(logList);
         });
         RetrievedData retrievedData = new RetrievedData();
         JSONObject data = new JSONObject();
@@ -2580,7 +2614,12 @@ public class AiServiceImpl implements AiService {
     }
 
     private void addConvertedFilePath(List<RetrieveDoc> retrieveDocs) {
-        List<Long> fileIds = retrieveDocs.stream().map(doc -> doc.getMetadata().getFileId()).toList();
+        List<Long> fileIds = retrieveDocs.stream()
+                .map(doc -> doc.getMetadata() == null ? null : doc.getMetadata().getFileId())
+                .filter(Objects::nonNull).distinct().toList();
+        if (fileIds.isEmpty()) {
+            return;   // 社区摘要类结果没有 file_id，不需要补文件路径
+        }
         Map<Long, String> filePathMap = kbClient.getByIds(fileIds).stream().collect(Collectors.toMap(KnowledgeBaseFileDTO::getId, KnowledgeBaseFileDTO::getConvertedFilePath, (v1, v2) -> v1));
         retrieveDocs.forEach(doc -> {
             doc.setConvertedFilePath(filePathMap.get(doc.getMetadata().getFileId()));

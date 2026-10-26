@@ -145,9 +145,13 @@ def _load_summaries(kb):
         r = _post(ES_PORT, "search_by_custom_param",
                   {"index_name": [f"community_summary_{kb}"], "page_no": 1, "page_size": SUMMARY_SCAN_LIMIT})
         rows = (r.json().get("data") or {}).get("result_data") or []
+        # R13-GRAPH-04：原实现只回 community_id/level/members/summary，把 file_ids 丢了，
+        # 导致 global 检索返回的社区摘要无法落到"可打开的原文"，引用为空。
         return [{"community_id": (row.get("_source", {}).get("metadata") or {}).get("community_id"),
                  "level": (row.get("_source", {}).get("metadata") or {}).get("level"),
                  "members": (row.get("_source", {}).get("metadata") or {}).get("member_entities"),
+                 "file_ids": (row.get("_source", {}).get("metadata") or {}).get("file_ids") or [],
+                 "edge_count": (row.get("_source", {}).get("metadata") or {}).get("edge_count"),
                  "summary": row.get("_source", {}).get("page_content")}
                 for row in rows]
     except Exception as e:
