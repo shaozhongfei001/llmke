@@ -130,10 +130,13 @@ def save_to_minio(
     doc_parse_config = DocParseConfig()
     gateway_ip = doc_parse_config.configs['java-common']['server']['host-ip']
     gateway_port = doc_parse_config.configs['java-gateway']['server']['port']
+    # R13-SEC-05：网关已不再无条件放行内部回写入口，必须带共享令牌
+    internal_token = doc_parse_config.config.get('internal-token') or ''
     with requests.post(
             doc_parse_config.config['minio-upload'].format(ip=gateway_ip, port=gateway_port),
             data={'kbId': knowledge_base_id, 'fileId': file_id, 'userId': user_id},
-            files=[('file', (file_name + '.md', file_stream))] + image_streams + table_streams
+            files=[('file', (file_name + '.md', file_stream))] + image_streams + table_streams,
+            headers={'X-Internal-Token': internal_token} if internal_token else {}
     ) as response:
         status_code = response.status_code
         if status_code != 200:

@@ -78,10 +78,7 @@ public class AuthFilter implements GatewayFilter, Ordered {
             "/auth/user/kaptcha",
             "/auth/user/registerKaptcha",
             "/auth/user/regist",
-            // R12-SEC-01：以下两个是解析服务的内部回写入口，必须保持可达（Python 侧无 token）。
-            // 已知缺口：当前仅靠网络边界，未做共享密钥；R13 需补内部令牌校验（见 R12 验收报告"已知安全缺口"）。
-            "/index/knowledgeBase/file/uploadParsedFile",
-            "/index/parseTask/callback",
+            // R13-SEC-05：这两个内部回写入口不再无条件放行，改为校验共享令牌（见 INTERNAL_PATHS）
             "/graph/search/ping",
             "/auth/user/simpleLogin",
             "/auth/authenticate/callback",
@@ -91,6 +88,21 @@ public class AuthFilter implements GatewayFilter, Ordered {
             "/auth/userSecurityQuestion/validateSecurityQuestion",
             "/auth/userSecurityQuestion/updatePasswordByQuestion"
     );
+
+    /**
+     * R13-SEC-05：解析服务（Python）回写入口。原先放在 noTokenPaths 里等于"网关绕过"——
+     * 任何能访问网关的人都可以给任意知识库写 chunk、伪造解析回调。
+     * 现在要求携带 X-Internal-Token，且配置为空时一律拒绝（fail-closed）。
+     */
+    private static final Set<String> INTERNAL_PATHS = Sets.newHashSet(
+            "/index/knowledgeBase/file/uploadParsedFile",
+            "/index/parseTask/callback"
+    );
+
+    @Value("${auth-filter.internal-token:}")
+    private String internalToken;
+
+    private static final String INTERNAL_TOKEN_HEADER = "X-Internal-Token";
 
     //需要登录才能访问,不需要鉴权
     private final Set<String> noAuthPaths = Sets.newHashSet(
@@ -165,6 +177,18 @@ public class AuthFilter implements GatewayFilter, Ordered {
                 refreshUserInfoToRedis(user.getUserName());
                 exchange = addUserInfoToHeader(exchange, request, user, token);
             }
+        } else if (INTERNAL_PATHS.contains(path)) {
+            String provided = request.getHeaders().getFirst(INTERNAL_TOKEN_HEADER);
+            if (StringUtils.isBlank(internalToken) || !internalToken.equals(provided)) {
+                log.warn("internal callback rejected: path={}, hasToken={}", path, StringUtils.isNotBlank(provided));
+                return response(response, HttpStatus.UNAUTHORIZED, ErrCodeEnum.UNAUTHORIZED);
+            }
+            // 内部调用不携带 JWT（否则下游 JWTUtils.decode 会抛异常），只透传服务标识
+            ServerHttpRequest mutated = request.mutate()
+                    .header("X-UserID", "-1")
+                    .header("X-UserName", "internal-service")
+                    .build();
+            return chain.filter(exchange.mutate().request(mutated).build());
         } else {
             if (StringUtils.isNotBlank(noVerifyToken) && noVerifyToken.equals(token)) {
                 User user = new User();

@@ -730,7 +730,10 @@ def parse_task(parse_params: ParseParams):
             return
 
         # [R12-FIX-PARSE-07] 补超时：原实现无 timeout，网关挂住会把后台线程占死
+        # R13-SEC-05：网关对该端点已改为校验共享令牌
+        _itk = DocParseConfig().config.get('internal-token') or ''
         response = requests.post(async_callback, json=payload,
+                                 headers={'X-Internal-Token': _itk} if _itk else {},
                                  timeout=DocParseConfig().config.get('gateway_timeout', 60))
 
         if response.status_code != 200:
