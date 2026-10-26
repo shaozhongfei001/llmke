@@ -1,0 +1,122 @@
+{
+  "ts": "20261026T155653Z",
+  "user": "r13_reader",
+  "kbId": 9,
+  "results": [
+    {
+      "case": "R1 授权时知识库详情可读",
+      "ok": true,
+      "detail": "GET /index/knowledgeBase/getKbById?id=9 http=200 kbName=R12验收主链"
+    },
+    {
+      "case": "R2 授权时普通问答返回完整回答",
+      "ok": true,
+      "detail": "POST /qa/ai/question http=200 status=2 resultType=1 内容长度=69 引用数=2 帧数=43 尝试=1"
+    },
+    {
+      "case": "R3 授权时 global 问答返回完整回答",
+      "ok": true,
+      "detail": "POST /qa/ai/question(globalMode=true) http=200 status=2 内容长度=121 引用数=2 帧数=66 尝试=1"
+    },
+    {
+      "case": "R4 授权时 FAQ 直答命中（resultType=2）",
+      "ok": true,
+      "detail": "POST /qa/ai/question(FAQ) http=200 status=2 resultType=2 内容长度=27 尝试=1"
+    },
+    {
+      "case": "R5 引用可构造出可访问的对象键",
+      "ok": true,
+      "detail": "对象键=r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+    },
+    {
+      "case": "R6 授权时可取回引用原文流",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/stream http=200 ctype=application/octet-stream 字节=37544 head=b'PK\\x03\\x04'"
+    },
+    {
+      "case": "R7 授权时可预览（返回真实 PDF）",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/previewStream http=200 ctype=application/pdf 字节=100329 head=b'%PDF-1.7'"
+    },
+    {
+      "case": "R8 撤权后知识库详情被拒",
+      "ok": true,
+      "detail": "GET /index/knowledgeBase/getKbById?id=9 http=403 resp={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}"
+    },
+    {
+      "case": "R9 撤权后问答被拒且未返回知识库内容",
+      "ok": true,
+      "detail": "POST /qa/ai/question http=403 status=None 内容长度=0 引用数=0 errorCode=30016 body={\"success\":false,\"errorMsg\":\"没有足够权限\",\"errorCode\":\"30016\",\"data\":null}"
+    },
+    {
+      "case": "R10 撤权后 global 问答被拒且未返回内容",
+      "ok": true,
+      "detail": "POST /qa/ai/question(globalMode=true) http=403 status=None 内容长度=0 引用数=0"
+    },
+    {
+      "case": "R11 撤权后 FAQ 直答被拒且未返回内容",
+      "ok": true,
+      "detail": "POST /qa/ai/question(FAQ) http=403 status=None resultType=None 内容长度=0 引用数=0"
+    },
+    {
+      "case": "R12 撤权后按已知对象键取原文被拒",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/stream http=403 ctype=application/json resp={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}"
+    },
+    {
+      "case": "R13 撤权后预览被拒",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/previewStream http=403 resp={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}"
+    },
+    {
+      "case": "R14 撤权后连续两次问答均被拒（无缓存旁路）",
+      "ok": true,
+      "detail": "复用旧会话 http=403 status=None 内容=0 引用=0; 新会话 http=403 status=None 内容=0 引用=0"
+    },
+    {
+      "case": "R15 撤权后经非回环地址无法无凭据取回 kb_9 内容",
+      "ok": true,
+      "detail": "POST http://192.168.71.16:19995/retrieval_documents 不可达（ConnectionError）"
+    },
+    {
+      "case": "R16 撤权后经非回环地址无法无凭据取回原文",
+      "ok": true,
+      "detail": "POST http://192.168.71.16:18095/stream 不可达（ConnectionError）"
+    },
+    {
+      "case": "R17 内部服务端口仅监听回环地址（含写入面 12340/19526/19527）",
+      "ok": true,
+      "detail": "全部仅监听回环"
+    },
+    {
+      "case": "R18 撤权后经非回环地址无法取回图谱检索结果",
+      "ok": true,
+      "detail": "POST http://192.168.71.16:19529/query_graph_data 不可达（ConnectionError）"
+    },
+    {
+      "case": "R19 恢复授权后知识库详情恢复可读",
+      "ok": true,
+      "detail": "GET /index/knowledgeBase/getKbById?id=9 http=200"
+    },
+    {
+      "case": "R20 恢复授权后问答恢复可用",
+      "ok": true,
+      "detail": "POST /qa/ai/question http=200 status=2 内容长度=50 引用数=2 尝试=1"
+    },
+    {
+      "case": "R21 全过程知识库本体未被改动",
+      "ok": true,
+      "detail": "before=1/15 after=1/15 撤权期间授权表=3\t1\t1\t1;3\t3\t1\t1"
+    }
+  ],
+  "info": [
+    "回环内无凭据可读（既定边界，不计分）：POST 127.0.0.1:19995/retrieval_documents → documents=1；POST 127.0.0.1:18095/stream → http=200 字节=100329。含义：内部服务不做对象级授权，安全性完全依赖'只绑回环 + 仅 Java 调用'；本机任意进程/用户仍可绕过 user_privilege 取数据，若该边界不被接受需另行立项。"
+  ],
+  "fixture": [
+    "r13_reader user_id=5",
+    "助手配置 fixture configId=10（create_by=r13_reader, is_default=1, is_del=1, kb_9）",
+    "阶段A 起：已授予 biz_type=1 target_id=9 permission=1",
+    "阶段B 起：已撤权（删除 user_privilege biz_type=1 target_id=9 行）",
+    "阶段D 起：已恢复授权（重新写入 biz_type=1 target_id=9 permission=1）"
+  ]
+}

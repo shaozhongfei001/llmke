@@ -1,0 +1,12 @@
+[
+ {
+  "cap": "GLOBAL",
+  "ok": true,
+  "detail": "http=200 status=2 cost=5.2s refs=5 ref_src示例=ct-loan.docx/V0/R12FIX-product-loan.docx"
+ },
+ {
+  "cap": "GRAPH_LOCAL",
+  "ok": true,
+  "detail": "http=200 docs=2 graph_docs=2"
+ }
+]

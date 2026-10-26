@@ -1,0 +1,12 @@
+[
+ {
+  "cap": "GLOBAL",
+  "ok": false,
+  "detail": "http=200 status=2 cost=3.3s refs=5 ref_src示例="
+ },
+ {
+  "cap": "NORMAL",
+  "ok": true,
+  "detail": "http=200 status=2 answer_len=22 refs=3 rt=1"
+ }
+]

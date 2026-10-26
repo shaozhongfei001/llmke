@@ -1,0 +1,10 @@
+{
+ "answer": "根据现有参考资料，未能直接找到关于授信额度与票据贴现的具体关系描述。这些资料主要关注于不同企业的信用评级、贷款利率基准等信息，但未涉及授信额度与票据贴现的相关内容。\n\n为了更准确地回答您的问题，建议您提供更多信息或参考相关金融知识库。一般而言，授信额度是指银行或其他金融机构根据企业的信用状况和经营情况给予企业的最高贷款限额，而票据贴现则是企业将其持有的商业票据转让给银行，以获取资金的一种方式。两者之间可能存在一定的联系，但具体关系需要结合企业的实际情况和金融机构的政策来确定。",
+ "sources": [
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"
+ ]
+}

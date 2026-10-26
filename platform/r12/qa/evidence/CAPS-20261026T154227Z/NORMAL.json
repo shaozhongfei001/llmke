@@ -1,0 +1,47 @@
+{
+ "answer": "智造贷单户最高授信额度为人民币5000万元。",
+ "ref0": {
+  "metadata": {
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+   "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+   "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjAvUjEyRklYLXByb2R1Y3QtaW50cm8ucHB0eA==",
+   "search_type": [
+    "milvus",
+    "es",
+    "es"
+   ],
+   "offset": [
+    [
+     0,
+     123
+    ]
+   ],
+   "pic_offset_list": [],
+   "pic_children_id_list": [],
+   "text_parent_id_list": [],
+   "chunk_type": "text",
+   "parent_file_name": "R12FIX-product-intro.pptx",
+   "revise_date": "",
+   "version": "V0",
+   "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+   "file_id": 268,
+   "image_path": "",
+   "page_size": "[[0, 0]]",
+   "page_number": [
+    0
+   ],
+   "table_name": "",
+   "labels": [],
+   "chunk_index": 0,
+   "score": 0.9862170219421387,
+   "rerank_score_rank": 1,
+   "rrf_score": 0.2,
+   "rrf_score_rank": 1
+  },
+  "order_num": "2516211409080520449",
+  "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+  "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/parsed/R12FIX-product-intro.pptx.txt",
+  "score": "0.9862170219421387",
+  "type": "text"
+ }
+}

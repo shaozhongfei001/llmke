@@ -1,0 +1,119 @@
+{
+  "ts": "20261026T151844Z",
+  "user": "r13_reader",
+  "kbId": 9,
+  "results": [
+    {
+      "case": "R1 授权时知识库详情可读",
+      "ok": true,
+      "detail": "GET /index/knowledgeBase/getKbById?id=9 http=200 kbName=R12验收主链"
+    },
+    {
+      "case": "R2 授权时普通问答返回完整回答",
+      "ok": true,
+      "detail": "POST /qa/ai/question http=200 status=2 resultType=1 内容长度=122 引用数=3 帧数=76"
+    },
+    {
+      "case": "R3 授权时 global 问答返回完整回答",
+      "ok": true,
+      "detail": "POST /qa/ai/question(globalMode=true) http=200 status=2 内容长度=148 引用数=1 帧数=84"
+    },
+    {
+      "case": "R4 授权时 FAQ 直答命中（resultType=2）",
+      "ok": true,
+      "detail": "POST /qa/ai/question(FAQ) http=200 status=2 resultType=2 内容长度=27"
+    },
+    {
+      "case": "R5 引用可构造出可访问的对象键",
+      "ok": true,
+      "detail": "对象键=r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+    },
+    {
+      "case": "R6 授权时可取回引用原文流",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/stream http=200 ctype=application/octet-stream 字节=37544 head=b'PK\\x03\\x04'"
+    },
+    {
+      "case": "R7 授权时可预览（返回真实 PDF）",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/previewStream http=200 ctype=application/pdf 字节=100329 head=b'%PDF-1.7'"
+    },
+    {
+      "case": "R8 撤权后知识库详情被拒",
+      "ok": true,
+      "detail": "GET /index/knowledgeBase/getKbById?id=9 http=403 resp={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}"
+    },
+    {
+      "case": "R9 撤权后问答被拒且未返回知识库内容",
+      "ok": true,
+      "detail": "POST /qa/ai/question http=403 status=None 内容长度=0 引用数=0 errorCode=30016 body={\"success\":false,\"errorMsg\":\"没有足够权限\",\"errorCode\":\"30016\",\"data\":null}"
+    },
+    {
+      "case": "R10 撤权后 global 问答被拒且未返回内容",
+      "ok": true,
+      "detail": "POST /qa/ai/question(globalMode=true) http=403 status=None 内容长度=0 引用数=0"
+    },
+    {
+      "case": "R11 撤权后 FAQ 直答被拒且未返回内容",
+      "ok": true,
+      "detail": "POST /qa/ai/question(FAQ) http=403 status=None resultType=None 内容长度=0 引用数=0"
+    },
+    {
+      "case": "R12 撤权后按已知对象键取原文被拒",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/stream http=403 ctype=application/json resp={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}"
+    },
+    {
+      "case": "R13 撤权后预览被拒",
+      "ok": true,
+      "detail": "POST /index/knowledgeBase/file/previewStream http=403 resp={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}"
+    },
+    {
+      "case": "R14 撤权后连续两次问答均被拒（无缓存旁路）",
+      "ok": true,
+      "detail": "复用旧会话 http=403 status=None 内容=0 引用=0; 新会话 http=403 status=None 内容=0 引用=0"
+    },
+    {
+      "case": "R15 撤权后内部检索服务无凭据不可取回 kb_9 内容",
+      "ok": false,
+      "detail": "POST http://127.0.0.1:19995/retrieval_documents（无 Authorization） http=200 documents=1 首块='“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业'"
+    },
+    {
+      "case": "R16 撤权后内部预览服务无凭据不可取回原文",
+      "ok": false,
+      "detail": "POST http://127.0.0.1:18095/stream（无 Authorization） http=200 ctype=application/pdf 字节=100329 head=b'%PDF-1.7'"
+    },
+    {
+      "case": "R17 内部服务端口仅监听回环地址（含写入面 12340/19526/19527）",
+      "ok": false,
+      "detail": "以下内部端口监听 0.0.0.0（局域网可直达）: 19995(算法检索 alg_retrieval_service(读/召回))=['0.0.0.0']; 18095(Office 预览 r12-preview(读))=['0.0.0.0']; 12340(文档解析 doc-parse(写入面))=['0.0.0.0']; 19526(向量检索 index_vector_service(写面))=['0.0.0.0']; 19527(全文检索 index_fulltext_service(写面))=['0.0.0.0']; 19529(图谱检索 graph(读))=['0.0.0.0']; 19996(模型推理 llm_open_chat(读/推理))=['0.0.0.0']；12340/19526/19527 属写入面，本脚本只做绑定盘点、未发写入请求（避免副作用）"
+    },
+    {
+      "case": "R18 内网其他主机无法绕过网关取原文",
+      "ok": false,
+      "detail": "POST http://192.168.71.16:18095/stream（无 Authorization） http=200 字节=100329"
+    },
+    {
+      "case": "R19 恢复授权后知识库详情恢复可读",
+      "ok": true,
+      "detail": "GET /index/knowledgeBase/getKbById?id=9 http=200"
+    },
+    {
+      "case": "R20 恢复授权后问答恢复可用",
+      "ok": true,
+      "detail": "POST /qa/ai/question http=200 status=2 内容长度=152 引用数=3"
+    },
+    {
+      "case": "R21 全过程知识库本体未被改动",
+      "ok": true,
+      "detail": "before=1/15 after=1/15 撤权期间授权表=3\t1\t1\t1;3\t3\t1\t1"
+    }
+  ],
+  "fixture": [
+    "r13_reader user_id=5",
+    "助手配置 fixture configId=10（create_by=r13_reader, is_default=1, is_del=1, kb_9）",
+    "阶段A 起：已授予 biz_type=1 target_id=9 permission=1",
+    "阶段B 起：已撤权（删除 user_privilege biz_type=1 target_id=9 行）",
+    "阶段D 起：已恢复授权（重新写入 biz_type=1 target_id=9 permission=1）"
+  ]
+}

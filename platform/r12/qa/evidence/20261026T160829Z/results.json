@@ -1,0 +1,384 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录并取菜单",
+    "ok": true,
+    "detail": "http=200 menus=7",
+    "extra": {
+      "menus": [
+        {
+          "id": "1",
+          "name": "智能对话",
+          "url": "/chats/main",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "chat",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "2",
+          "name": "知识库",
+          "url": "/chats/knowledgeBase",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "book",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "3",
+          "name": "知识检索",
+          "url": "/chats/knowledgeSearch",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "search",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "4",
+          "name": "助手配置",
+          "url": "/chats/setting",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "setting",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "5",
+          "name": "用户反馈",
+          "url": "/chats/feedback",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "feedback",
+          "subMenuDTOList": []
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户信息",
+    "ok": true,
+    "detail": "http=200 user=admin"
+  },
+  {
+    "scene": "S2",
+    "case": "知识库已存在（复用）",
+    "ok": true,
+    "detail": "kbId=9 primitive=kb_9"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=274 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "274"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=275 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "275"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=276 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "276"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=277 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "277"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=278 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "278"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=279 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "279"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=280 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "280"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=281"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "fileId=274 最终状态=3 耗时=18s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "fileId=275 最终状态=3 耗时=3s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "fileId=276 最终状态=3 耗时=12s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 数字版",
+    "ok": true,
+    "detail": "fileId=277 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 纯文本",
+    "ok": true,
+    "detail": "fileId=278 最终状态=3 耗时=15s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 含表格",
+    "ok": true,
+    "detail": "fileId=279 最终状态=3 耗时=6s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "fileId=280 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "detail": "fileId=281 最终状态=4(4=失败) 耗时=36s"
+  },
+  {
+    "scene": "S5",
+    "case": "真实模型回答（29字问题）",
+    "ok": true,
+    "detail": "http=200 帧数=75 答案长度=205",
+    "extra": {
+      "answer_head": "您们这种做汽车零部件的中型企业，最多可以申请的授信额度为人民币5000万元。其中信用方式部分不超过1000万元，其余部分可以通过应收账款质押、设备抵押或核心企业保证等方式增信。[retrive-tag id=\"1991144624583232195\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]贷款期限最长为三年。\n\n希望这能帮助到您！如果有更多问题，请",
+      "frames_head": [
+        {
+          "sessionId": "kb_9",
+          "queryId": "q-1793031001802",
+          "lastDate": 1793031011411,
+          "status": 1,
+          "reply": {
+            "content": "",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": null,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        },
+        {
+          "sessionId": "kb_9",
+          "queryId": "q-1793031001802",
+          "lastDate": 1793031012978,
+          "status": 1,
+          "reply": {
+            "content": "您",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": 1,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S5",
+    "case": "回答带引用",
+    "ok": true,
+    "detail": "引用条数=1",
+    "extra": {
+      "reference_head": [
+        {
+          "metadata": {
+            "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+            "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+            "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3g=",
+            "search_type": [
+              "milvus",
+              "milvus",
+              "es",
+              "es",
+              "es",
+              "es"
+            ],
+            "offset": [
+              [
+                0,
+                459
+              ]
+            ],
+            "pic_offset_list": [],
+            "chunk_type": "text",
+            "parent_file_name": "R12FIX-product-loan.docx",
+            "revise_date": "",
+            "version": "V0",
+            "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+            "file_id": 274,
+            "image_path": "",
+            "page_size": "[[0, 0]]",
+            "page_number": [
+              0
+            ],
+            "table_name": "",
+            "chunk_index": 0,
+            "score": 0.586466908454895,
+            "rerank_score_rank": 1,
+            "rrf_score": 0.5416666666666666,
+            "rrf_score_rank": 1
+          },
+          "order_num": "1991144624583232195",
+          "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+          "rerank_score_rank": "1",
+          "rrf_score": "0.5416666666666666",
+          "rrf_score_rank": "1",
+          "score": "0.586466908454895",
+          "sourceFileName": "R12FIX-product-loan.docx",
+          "type": "text"
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "服务端可独立取回原文（不随请求传正文）",
+    "ok": true,
+    "detail": "http=200 chunk数=1 首块长度=0",
+    "extra": {
+      "chunk_head": ""
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "引用携带文件与定位信息",
+    "ok": true,
+    "detail": "引用 source 数=1 示例=['r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx']"
+  },
+  {
+    "scene": "S6",
+    "case": "答案要点可在引用原文中找到支撑",
+    "ok": true,
+    "detail": "答案命中要点=['5000', '1000', '三年', '授信额度'] 其中被原文支撑=['5000', '1000', '三年', '授信额度'] 引用块数=1",
+    "extra": {
+      "corpus_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加"
+    }
+  },
+  {
+    "scene": "S7",
+    "case": "历史对话可恢复",
+    "ok": true,
+    "detail": "http=200 resp={'success': True, 'errorMsg': None, 'errorCode': None, 'data': None}"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "ok": true,
+    "detail": "http=200"
+  },
+  {
+    "scene": "S8",
+    "case": "无 token 被拒绝",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "伪造 token 被拒绝(Bearer forge…)",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "伪造 token 被拒绝(eyJhbGciOiJu…)",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "坏文件被网关/服务直接拒绝",
+    "ok": true,
+    "detail": "http=200 resp={'success': True, 'errorMsg': None, 'errorCode': None, 'data': []}"
+  },
+  {
+    "scene": "S8",
+    "case": "删除不存在的知识库被明确拒绝且无副作用",
+    "ok": true,
+    "detail": "http=404 errorCode=10001 data=None"
+  }
+]

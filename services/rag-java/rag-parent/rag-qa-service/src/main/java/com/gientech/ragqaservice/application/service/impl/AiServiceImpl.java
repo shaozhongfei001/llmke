@@ -673,6 +673,7 @@ public class AiServiceImpl implements AiService {
                     // R13-GRAPH-18：id 全部失效（文档重传后 id 变新）时，用社区携带的 file_names
                     // 回落到当前同名文件，否则 global 引用只能显示"社区摘要"，点不开原文。
                     if (StringUtils.isBlank(source)) {
+                        log.info("R13-GRAPH-18 name fallback enter, title={}", metadata.getString("title"));
                         List<String> nameCandidates = new java.util.ArrayList<>();
                         Object fnames = metadata.get("file_names");
                         if (fnames instanceof JSONArray) {
@@ -688,16 +689,27 @@ public class AiServiceImpl implements AiService {
                             // alParams 里的 knowledge_base_name 是数组（["kb_9"]），
                             // 直接 getString 会拿到 '["kb_9"]' 这种串，按名查文件必然查不到。
                             Object kbRaw = alParams.get(KNOWLEDGE_BASE_NAME);
+                            // 注意：这里可能是 JSONArray，也可能已被转换成 String[]（Convertor 处理过），
+                            // 仅判断 JSONArray 会把数组对象 toString 成 "[Ljava.lang.String;@xxx"。
                             if (kbRaw instanceof JSONArray) {
                                 JSONArray kbArr = (JSONArray) kbRaw;
                                 kbNameForLookup = kbArr.isEmpty() ? null : kbArr.getString(0);
+                            } else if (kbRaw instanceof String[] && ((String[]) kbRaw).length > 0) {
+                                kbNameForLookup = ((String[]) kbRaw)[0];
+                            } else if (kbRaw instanceof java.util.Collection && !((java.util.Collection<?>) kbRaw).isEmpty()) {
+                                kbNameForLookup = String.valueOf(((java.util.Collection<?>) kbRaw).iterator().next());
                             } else if (kbRaw != null) {
                                 kbNameForLookup = String.valueOf(kbRaw);
                             }
                         }
                         if (!nameCandidates.isEmpty() && StringUtils.isNotBlank(kbNameForLookup)) {
                             try {
-                                List<KnowledgeBaseFileDTO> all = kbClient.getByKbNameAndUid(kbNameForLookup, null);
+                                // getByKbNameAndUid 需要 fileUids，传 null 会返回空；
+                                // 这里先用库名取知识库 id，再拉该库文件列表建"文件名->文件"索引。
+                                com.gientech.ragcommon.index.dto.KnowledgeBaseDTO kbDTO =
+                                        kbClient.getKbByPrimitiveName(kbNameForLookup);
+                                List<KnowledgeBaseFileDTO> all = (kbDTO == null) ? null
+                                        : kbClient.queryList(kbDTO.getId(), java.util.Arrays.asList(1, 2, 3, 4));
                                 Map<String, KnowledgeBaseFileDTO> byName = new java.util.HashMap<>();
                                 if (all != null) {
                                     for (KnowledgeBaseFileDTO f : all) {
@@ -706,6 +718,8 @@ public class AiServiceImpl implements AiService {
                                         }
                                     }
                                 }
+                                log.info("R13-GRAPH-18 lookup kb={} files={} candidates={}",
+                                        kbNameForLookup, byName.size(), nameCandidates);
                                 for (String nm : nameCandidates) {
                                     KnowledgeBaseFileDTO hit = byName.get(nm);
                                     if (hit != null && StringUtils.isNotBlank(hit.getConvertedFilePath())) {

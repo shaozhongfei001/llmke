@@ -1,6 +1,6 @@
 # R13 状态与能力矩阵（真实核对版）
 
-更新时间：2026-10-26（末次回归 20261026T083716Z / SEC-20261026T084621Z）
+更新时间：2026-10-27（末次全量回归 主链 20261026T163339Z / 安全 SEC-20261026T163542Z / 撤权 REVOKE-20261026T163545Z / 能力矩阵 CAPS-20261026T163311Z）
 分支：`feature/R12-real-rag`
 证据目录：`platform/r12/qa/evidence/`
 
@@ -8,8 +8,10 @@
 
 | 套件 | 结果 | 证据 |
 |---|---|---|
-| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS**（连续四轮） | `20261026T131546Z` |
-| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T131759Z` |
+| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS** | `20261026T163339Z` |
+| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T163542Z` |
+| 撤权后全链路失效（21 项，含内网旁路探测） | **21/21 PASS** | `REVOKE-20261026T163545Z` |
+| 能力矩阵自检（普通/FAQ/global/多版本/表格/图局部/内部口收口） | **7/7 PASS** | `CAPS-20261026T163311Z` |
 
 主链覆盖：中文 DOCX / XLSX / PPTX / 数字 PDF / 扫描 PDF(OCR) / 纯文本 / 含表格；
 加密 PDF 按预期解析失败；坏文件、伪造 token、越权删除均被拒。
@@ -63,7 +65,7 @@
 | 多版本：当前有效版本 | ✅ 实测 | kb_9 同时存在 V0(5000万)/V1(8000万)，检索只返回 V1；问答答"8000万元"，不再自相矛盾 |
 | 多版本：历史列表 | ✅ 实测 | `GET /index/knowledgeBase/file/multiple/version?kbNames=kb_9` 返回父子版本组（V0/V1） |
 | 版本标识（引用） | ✅ 实测 | 引用 metadata 带 `parent_file_name/version` |
-| GraphRAG local（实体链接+邻域/PPR+原文回填） | ❌ 实测不可用 | `enabled_graph=true` 会调用 19529/query_graph_data 且返回 200，但 `entity_list` 与 `result_data` 恒为空（连"智造贷""授信额度"这类确定存在的实体也查不到）；根因之一：Milvus 中**不存在** `graph_entity_kb_9` 集合，实体向量索引从未写入 |
+| GraphRAG local（实体链接+邻域/PPR+原文回填） | ✅ 实测 | `query_graph_data` entity_list/result_data 均有值；Milvus `graph_entity_kb_9`=39 行、`graph_triples_kb_9`=31 行；Nebula 56→83 顶点、70→120 边；4 路并发不再出现 session released |
 | GraphRAG global（社区摘要 + map-reduce） | ✅ 独立接口实测 | `POST 19995/retrieval_documents_global` 对 kb_9 真实图数据返回 5 条社区摘要与汇总结论，摘要带 `file_id/file_ids` 可回溯来源文件 |
 | GraphRAG global 经 `/qa` 主链 | ✅ 实测 | 请求级 `globalMode=true` → 实际调用 `/retrieval_documents_global`（日志 GRAPH-GLOBAL），返回 5 条社区摘要回答；引用 5 条，逐条解析到真实文件（`.../kb_9/R12FIX-product-loan.docx/V0/...`）可打开 |
 
@@ -90,3 +92,24 @@
    **未完成**：在真实干净机器上整栈安装（需目标机 Docker + 端口 + 数据盘，属 R14）。
 4. 图抽取覆盖度低（5 个社区），跨文档 global 问题的答案质量不足以作为效果验收。
 5. 生产验证（容量/安全复核/备份恢复/升级回滚/发布）属 R14，未关闭。
+
+## 团队并行交付（2026-10-26 夜）
+
+四个角色并行，`git commit 4e24ffb` 合并：
+
+| 角色 | 交付 | 关键结论 |
+|---|---|---|
+| graph-vector | 图局部检索修复 + 回填 + `LOCAL-RETRIEVAL.md` | 根因是 `chunk_pk_list` 存的是抽取时刻 ES `_id`，文档重解析后全失效；叠加 `entity_list` 从未赋值、共享 Nebula Session 被每请求 release、悬空实体 KeyError |
+| qa-authz | `revoke_acceptance.py`（21 项） | 网关侧撤权后 403/30016、无缓存旁路；**发现 4 处内网旁路**（见下） |
+| fe-global | AIChat「全局(GraphRAG)」开关 + 回答标识 | 路由确认唯一生效入口 `AIChat/index.tsx`；FAQ 管理页已存在，仅修错误提示 |
+| ops-offline | `INSTALL-FINDINGS.md`（16 项，10 阻断）+ 脚本重写 | 原离线包**装不起来**：缺 run/、log4j2/、venvs/models、services/rag-alg、.env；systemd 20 处写死构建机路径 |
+
+### 内网暴露面（已收口）
+`19995/19996/19529/12340/19526/19527/18095` 原全部绑 `0.0.0.0`，同网段可绕开网关直接取原文/写索引。已改为仅回环：
+- 6 处 Nacos `server.host` + 本地快照同步（快照回退会"静默恢复" 0.0.0.0，必须一起改）
+- `preview/app.py` 与镜像 CMD 改读 `PREVIEW_HOST`（默认 127.0.0.1）；`systemd/r12-graphsvc` 启动参数改回环
+- 实测：`192.168.71.16:18095/stream`、`:19529/query_graph_data` 均不可达；撤权验收 17/21 → **21/21**
+
+### 离线包（重建后 24G）
+补齐 10 类阻断资产（run/log4j2/venvs·models/services·rag-alg/.env.template/install-paths.sh 等），`verify` 改为 8 段真实校验：构建机 PASS、缺资产沙箱 FAIL（旧 verify 是假绿）。
+DB 沙箱导入 41 表与生产逐项一致（user_info 5 / role_info 3 / search_config 9 / interface_info 442）。

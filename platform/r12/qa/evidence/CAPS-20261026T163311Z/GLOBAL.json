@@ -1,0 +1,10 @@
+{
+ "answer": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。资料主要集中在制造业中小企业的贷款利率、信用评级以及相关企业的信用情况等方面。\n\n建议您可以提供更多信息，例如具体的企业类型或是需要参考的特定企业，这样我们可以更准确地回答您的问题。",
+ "sources": [
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"
+ ]
+}
