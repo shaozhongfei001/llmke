@@ -63,7 +63,7 @@
 | 多版本：当前有效版本 | ✅ 实测 | kb_9 同时存在 V0(5000万)/V1(8000万)，检索只返回 V1；问答答"8000万元"，不再自相矛盾 |
 | 多版本：历史列表 | ✅ 实测 | `GET /index/knowledgeBase/file/multiple/version?kbNames=kb_9` 返回父子版本组（V0/V1） |
 | 版本标识（引用） | ✅ 实测 | 引用 metadata 带 `parent_file_name/version` |
-| GraphRAG local（实体链接+邻域/PPR+原文回填） | ⚠️ 部分 | 图服务 19529 + Nebula 3.8 已起，schema/写入链路可用；召回质量受抽取覆盖度限制 |
+| GraphRAG local（实体链接+邻域/PPR+原文回填） | ❌ 实测不可用 | `enabled_graph=true` 会调用 19529/query_graph_data 且返回 200，但 `entity_list` 与 `result_data` 恒为空（连"智造贷""授信额度"这类确定存在的实体也查不到）；根因之一：Milvus 中**不存在** `graph_entity_kb_9` 集合，实体向量索引从未写入 |
 | GraphRAG global（社区摘要 + map-reduce） | ✅ 独立接口实测 | `POST 19995/retrieval_documents_global` 对 kb_9 真实图数据返回 5 条社区摘要与汇总结论，摘要带 `file_id/file_ids` 可回溯来源文件 |
 | GraphRAG global 经 `/qa` 主链 | ✅ 实测 | 请求级 `globalMode=true` → 实际调用 `/retrieval_documents_global`（日志 GRAPH-GLOBAL），返回 5 条社区摘要回答；引用 5 条，逐条解析到真实文件（`.../kb_9/R12FIX-product-loan.docx/V0/...`）可打开 |
 
