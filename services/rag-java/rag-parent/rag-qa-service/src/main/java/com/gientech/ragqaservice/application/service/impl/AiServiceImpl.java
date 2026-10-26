@@ -992,6 +992,10 @@ public class AiServiceImpl implements AiService {
                 .retrieve()
                 .bodyToFlux(String.class) //输出格式
                 .map(s -> doRunRs(s, contentStrBuffer, answerObj, aiRequest, isErrFlag, inputType, sensWordList, webRsDocuments, null, null))
+                // R13-FIX-QA-10：上游（LLM 推理服务）中途断开但没发终止帧时，
+                // Flux 永远等不到 onComplete，SSE 连接一直挂着 -> 前端/脚本读到 Read timeout。
+                // 这里加空闲上限，超时转为错误帧，保证连接一定会结束。
+                .timeout(java.time.Duration.ofSeconds(180))
                 .onErrorResume(Exception.class, ex -> doErrorResume(aiRequest, ex, contentStrBuffer, isErrFlag, config)) //请求失败
                 .doFinally(signalType -> doFinally(isErrFlag, aiRequest, dialogueId, contentStrBuffer, answerObj)); //请求完成后
         return sendHeartBeat(sessionId, queryId, null).concatWith(thirdPartyStream);

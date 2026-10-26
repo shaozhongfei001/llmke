@@ -28,6 +28,7 @@ class ParsedTextMetadata(BaseModel):
     offset: list[list[int]] = Field(default=[], description='对应原文的字符串角标范围')
     revise_date: str | None = Field(default=None, description='修订日期')
     parent_file_name: str | None = Field(default=None, description='传入的父文件名称')
+    version: str | None = Field(default=None, description='文件版本号（V0/V1…），检索按当前有效版本去重')
     pk: int | None = Field(default=None, description='存到索引数据库中的主键')
     pic_url_list: list[str] = Field(default=[], description='关联图片的minio路径')
     pic_offset_list: list[int] = Field(default=[], description='关联图片的坐标和pic_url_list一一对应')
