@@ -225,11 +225,11 @@ export const useFAQTableController = ({
         });
         fetchFaqFileList();
       } else {
-        message.success("文件删除失败！", 2);
+        message.error("文件删除失败！", 2);
       }
     } catch (e) {
       setFaqTableLoading(false);
-      message.success("文件删除失败！", 2);
+      message.error("文件删除失败！", 2);
     }
   };
 

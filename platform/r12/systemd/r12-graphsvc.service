@@ -11,7 +11,7 @@ Environment=NAMESPACE=
 Environment=DATA_ID=index_graph_config_py
 Environment=GROUP=DEFAULT_GROUP
 WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-alg/index_data_service/index_graph_service
-ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/venvs/graph/bin/python -m uvicorn graph_api_start:graph_app --host 0.0.0.0 --port 19529
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/venvs/graph/bin/python -m uvicorn graph_api_start:graph_app --host 127.0.0.1 --port 19529
 Restart=always
 RestartSec=5
 StandardOutput=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/index_graph_service.log

@@ -26,9 +26,14 @@ import { api_getFileStatusByUid } from "@root/src/components/AiInputer/common/se
 import DrawerGraphPreview from "./components/DrawerGraphPreview";
 import { registerPreviewViewer } from "@mxmweb/nodegraph";
 import "@gientech/modual/style.css";
-import { Brain, Paperclip, Search } from "lucide-react";
+import { Brain, Globe, Paperclip, Search } from "lucide-react";
 import { ReactComponent as Net } from "./assets/net.svg";
 import { ReactComponent as Mind } from "./assets/mind.svg";
+import {
+  installGlobalModeFetchPatch,
+  readGlobalMode,
+  setGlobalMode
+} from "./graphGlobal";
 const showVideo = import.meta.env.VITE_CONFIG_SHOW_VIDEO === "true";
 
 registerPreviewViewer();
@@ -95,6 +100,17 @@ const mockSenderConfig = {
       icon: <Net className="w-[16px] h-[16px] " />
     },
     {
+      // R13：普通检索 / 全局(GraphRAG) 切换。
+      // type 必须是 switch，库内部才会用 defaultValue 初始化开关状态
+      // 并通过 onSenderConfigChange / sender:configChange 回传 all[name]。
+      label: "全局(GraphRAG)",
+      name: "globalMode",
+      type: "switch",
+      defaultValue: readGlobalMode(),
+      enabled: true,
+      icon: <Globe className="w-[16px] h-[16px]" />
+    },
+    {
       label: "推理思考",
       name: "reasoning",
       type: "checkbox",
@@ -111,6 +127,16 @@ const ChatPage = () => {
   const AI_CHAT = useMemo(() => {
     return GientechChat();
   }, []);
+  // R13：普通检索 / 全局(GraphRAG)，状态持久化在 localStorage（r13_global_mode）
+  const [globalMode, setGlobalModeState] = useState<boolean>(() =>
+    readGlobalMode()
+  );
+  // 注意：该函数会被 renderAIChat 的 useMemo 闭包捕获，不要在这里读 globalMode
+  // 做「值相同就跳过」的判断，否则会读到首帧旧值导致状态不再更新。
+  const handleGlobalModeChange = (enabled: boolean) => {
+    setGlobalMode(enabled);
+    setGlobalModeState(enabled);
+  };
   const [isRenameModalOpen, setisRenameModalOpen] = useState(false);
   const [isRemoveModalOpen, setisRemoveModalOpen] = useState(false);
   const [curEditData, setCurEditData] = useState<any>(null);
@@ -165,6 +191,13 @@ const ChatPage = () => {
   useEffect(() => {
     console.log("contentcontent", content);
   }, [content]);
+
+  // R13：聊天页挂载期间才劫持 fetch，离开页面立即还原，避免影响其它请求
+  useEffect(() => {
+    setGlobalMode(readGlobalMode());
+    const release = installGlobalModeFetchPatch();
+    return release;
+  }, []);
 
   const handleSd = (type: string, data?: any) => {
     switch (type) {
@@ -248,9 +281,22 @@ const ChatPage = () => {
         }}
         senderConfig={mockSenderConfig}
         styles={defaultStyles}
+        onSenderConfigChange={(cfg: any) => {
+          // R13：输入区开关变化（含 globalMode）
+          if (cfg?.name === "globalMode") {
+            handleGlobalModeChange(!!cfg.checked);
+          }
+        }}
         eventsEmit={(event: any, data: any) => {
           console.log("事件触发:", event, data);
           switch (event) {
+            // R13：发送器开关汇总（{all:{globalMode:boolean,...}}），与
+            // onSenderConfigChange 双通道兜底，二者都只是写同一份状态
+            case "sender:configChange":
+              if (typeof data?.all?.globalMode === "boolean") {
+                handleGlobalModeChange(data.all.globalMode);
+              }
+              break;
             // 点击title
             case "knowledge_referenceFile_title:click":
               const d3 = data?.data;
@@ -418,7 +464,18 @@ const ChatPage = () => {
 
   return (
     <>
-      <div className="h-full">{renderAIChat}</div>
+      <div className="h-full relative">
+        {/* R13：全局模式可见标识（叠加在回答区上方，不改动回答渲染逻辑） */}
+        {globalMode && (
+          <div
+            className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600 shadow-sm"
+            title="当前使用 GraphRAG 全局模式：回答由社区摘要 map-reduce 聚合生成，引用为社区→来源文件级"
+          >
+            GraphRAG 全局
+          </div>
+        )}
+        <div className="h-full">{renderAIChat}</div>
+      </div>
       <RenameModal
         isModalOpen={isRenameModalOpen}
         handleOk={handleEvent}

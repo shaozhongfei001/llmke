@@ -44,6 +44,17 @@ import static com.gientech.ragcommon.qa.constant.AIConstant.DB_PREFIX;
 @Slf4j
 @Service
 public class DatabaseDirectDBServiceImpl implements DatabaseDirectDBService {
+
+    /** R13-SEC-D3：共享超时执行器（不要每次调用新建线程池，否则泄漏线程）。 */
+    private static final java.util.concurrent.Executor NETWORK_TIMEOUT_EXECUTOR =
+            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "sql-timeout");
+                t.setDaemon(true);
+                return t;
+            });
+
+    /** 单条结构化查询的秒级上限。 */
+    private static final int QUERY_TIMEOUT_SECONDS = 30;
     @Autowired
     private TLDatabaseDomainService tlDatabaseDomainService;
 
@@ -181,6 +192,18 @@ public class DatabaseDirectDBServiceImpl implements DatabaseDirectDBService {
         List<Entity> entityList = new ArrayList<>();
         try {
             connection = dataSource.getConnection();
+            // R13-SEC-D3：结构化查询默认只读，并加网络级超时。
+            // 原实现只有 SELECT 前缀 + 关键字黑名单 + 强制 LIMIT，没有超时：
+            // 一条 `SELECT SLEEP(...)`/大表笛卡尔积就能把请求线程钉死（DoS）。
+            try {
+                connection.setReadOnly(true);
+            } catch (Exception ignore) {
+                // 部分驱动/代理不支持只读会话，降级不阻断
+            }
+            try {
+                connection.setNetworkTimeout(NETWORK_TIMEOUT_EXECUTOR, QUERY_TIMEOUT_SECONDS * 1000);
+            } catch (Exception ignore) {
+            }
             entityList = SqlExecutor.query(connection, sql, new EntityListHandler());
         } catch (SQLException e) {
             throw new RuntimeException("SQL执行出错", e);

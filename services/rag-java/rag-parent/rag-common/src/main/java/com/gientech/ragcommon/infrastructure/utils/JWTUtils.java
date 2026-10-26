@@ -15,7 +15,12 @@ public class JWTUtils {
 
     private static final long GRACE_TIME = 24 * 60 * 60 * 1000;
 
-    private static final String signature = "signature-gien-rag";
+    /**
+     * R13-SEC-06：密钥支持环境变量覆盖，便于轮换；未设置时保持历史默认值（不使现有会话失效）。
+     * 注意：网关当前用"Redis 中保存的 token 必须完全相等"来兜底，因此单靠密钥无法伪造会话；
+     * 但硬编码密钥仍是隐患，R14 应改为强制配置并在启动时校验非默认值。
+     */
+    private static final String signature = System.getenv().getOrDefault("R12_JWT_SECRET", "signature-gien-rag");
 
     public static String generateToken(Long userId, String userName) {
         try {

@@ -29,6 +29,7 @@ do_up() {
   docker rm -f "$CONTAINER" >/dev/null 2>&1
   docker run -d --name "$CONTAINER" \
     --network host \
+    -e PREVIEW_HOST="${PREVIEW_HOST:-127.0.0.1}" \
     --restart unless-stopped \
     -e MINIO_ENDPOINT="${PREVIEW_MINIO_ENDPOINT:-127.0.0.1:19000}" \
     -e MINIO_ACCESS_KEY="${R12_MINIO_ACCESS_KEY:-r12minio}" \

@@ -396,4 +396,7 @@ def root() -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "18095")), log_level="info")
+    # R13-SEC-NET-01：默认只绑回环。预览服务不做鉴权（收口在 Java /previewStream），
+    # 原来写死 0.0.0.0 等于同网段任意主机可直连取原文。
+    uvicorn.run(app, host=os.getenv("PREVIEW_HOST", "127.0.0.1"),
+                port=int(os.getenv("PORT", "18095")), log_level="info")

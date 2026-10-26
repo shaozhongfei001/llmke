@@ -124,7 +124,9 @@ def cal_ppr_fun(triples_list, entity_info_list, entity_list, query_ner_list, ent
     entity_type_dict = high_entity_triples(high_entity_list, entity_triples_dict, collection_name_entity, server_config, entity_info_list)
     chunk_elements = get_chunk_by_ppr_score(entity_type_dict, entity_list, ppr_phrase_prob)  # [(chunk_pk, score)]
     pk_list = [int(datap[0]) for datap in chunk_elements]
-    return pk_list
+    # R13-FIX-GRAPH-13：调用方（query_graph_data）需要把高分实体回给前端/检索侧，
+    # 原实现只返回 chunk pk，导致接口 data.entity_list 恒为空数组。这里一并返回。
+    return pk_list, high_entity_list
 
 
 def cal_ppr_score(triples_list, milvus_dict, entity_list, start_entities):

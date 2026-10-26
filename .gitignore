@@ -82,3 +82,8 @@ platform/r12/.env
 *.class
 *.war
 platform/r12/dist/
+
+# 构建产物与临时目录
+frontend/plateform/dist-r13*/
+frontend/plateform/dist.bak-*/
+platform/r12/dist/offline/

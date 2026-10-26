@@ -48,6 +48,8 @@ class RetrievalGlobalView(BaseView):
                     "level": c.get("level"),
                     "member_entities": c.get("members") or [],
                     "file_ids": c.get("file_ids") or [],
+                    # R13-GRAPH-18：file_id 会随文档重传失效，带上文件名供 Java 侧按名回落
+                    "file_names": c.get("file_names") or [],
                     # 让溯源分句可处理：社区摘要视作整块文本（offset 覆盖全文）
                     "offset": [[0, len(c.get("summary") or "")]],
                     "chunk_type": "text",

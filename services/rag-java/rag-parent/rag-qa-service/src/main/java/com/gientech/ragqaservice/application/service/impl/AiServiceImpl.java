@@ -670,6 +670,56 @@ public class AiServiceImpl implements AiService {
                             }
                         }
                     }
+                    // R13-GRAPH-18：id 全部失效（文档重传后 id 变新）时，用社区携带的 file_names
+                    // 回落到当前同名文件，否则 global 引用只能显示"社区摘要"，点不开原文。
+                    if (StringUtils.isBlank(source)) {
+                        List<String> nameCandidates = new java.util.ArrayList<>();
+                        Object fnames = metadata.get("file_names");
+                        if (fnames instanceof JSONArray) {
+                            for (Object o : (JSONArray) fnames) {
+                                if (o != null) nameCandidates.add(String.valueOf(o));
+                            }
+                        }
+                        if (StringUtils.isNotBlank(metadata.getString("title"))) {
+                            nameCandidates.add(metadata.getString("title"));
+                        }
+                        String kbNameForLookup = metadata.getString("knowledge_base_name");
+                        if (StringUtils.isBlank(kbNameForLookup)) {
+                            // alParams 里的 knowledge_base_name 是数组（["kb_9"]），
+                            // 直接 getString 会拿到 '["kb_9"]' 这种串，按名查文件必然查不到。
+                            Object kbRaw = alParams.get(KNOWLEDGE_BASE_NAME);
+                            if (kbRaw instanceof JSONArray) {
+                                JSONArray kbArr = (JSONArray) kbRaw;
+                                kbNameForLookup = kbArr.isEmpty() ? null : kbArr.getString(0);
+                            } else if (kbRaw != null) {
+                                kbNameForLookup = String.valueOf(kbRaw);
+                            }
+                        }
+                        if (!nameCandidates.isEmpty() && StringUtils.isNotBlank(kbNameForLookup)) {
+                            try {
+                                List<KnowledgeBaseFileDTO> all = kbClient.getByKbNameAndUid(kbNameForLookup, null);
+                                Map<String, KnowledgeBaseFileDTO> byName = new java.util.HashMap<>();
+                                if (all != null) {
+                                    for (KnowledgeBaseFileDTO f : all) {
+                                        if (f != null && StringUtils.isNotBlank(f.getFileName())) {
+                                            byName.putIfAbsent(f.getFileName(), f);
+                                        }
+                                    }
+                                }
+                                for (String nm : nameCandidates) {
+                                    KnowledgeBaseFileDTO hit = byName.get(nm);
+                                    if (hit != null && StringUtils.isNotBlank(hit.getConvertedFilePath())) {
+                                        source = hit.getConvertedFilePath();
+                                        metadata.put("file_id", hit.getId());
+                                        metadata.put("title", hit.getFileName());
+                                        break;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                log.warn("resolve source by file name failed: {}", ex.getMessage());
+                            }
+                        }
+                    }
                     // R13-GRAPH-16：解析不到来源时不要拼出 ".../null"（前端会当成可点链接但打不开）
                     if (StringUtils.isNotBlank(source)) {
                         metadata.put(SOURCE, storageProperties.getDefaultStorageProperties().getEndPoint() + "/" + source);
@@ -938,15 +988,25 @@ public class AiServiceImpl implements AiService {
      * 取不到知识库名（例如直连数据库问答的配置）时不做拦截；取到但无权限一律拒绝。
      */
     private void assertKnowledgeBaseReadable(Config config) {
+        // R13-SEC-A2：原实现"取不到配置/取不到知识库名"直接 return（fail-open），
+        // 校验可被前置条件绕过。改为：无法判定来源就拒绝；只有配置里确实没有知识库才放行。
         if (config == null || StringUtils.isBlank(config.getConfigJson())) {
-            return;
+            log.warn("R13-SEC-A2 deny qa: empty config");
+            throw new ApplicationException(ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
         }
         String kbName;
         try {
-            kbName = JSONObject.parse(config.getConfigJson()).getString("knowledge_base_name");
+            JSONObject cfgJson = JSONObject.parse(config.getConfigJson());
+            kbName = cfgJson.getString("knowledge_base_name");
+            if (StringUtils.isBlank(kbName)) {
+                JSONArray selected = cfgJson.getJSONArray(SELECTED_KNOWLEDGE_BASE);
+                if (selected != null && !selected.isEmpty()) {
+                    kbName = selected.getString(0);
+                }
+            }
         } catch (Exception ex) {
             log.warn("parse config json failed when checking kb permission: {}", ex.getMessage());
-            return;
+            throw new ApplicationException(ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
         }
         if (StringUtils.isBlank(kbName)) {
             return;

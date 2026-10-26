@@ -49,4 +49,6 @@ EXPOSE 18095
 HEALTHCHECK --interval=30s --timeout=8s --start-period=60s --retries=3 \
   CMD python -c "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:18095/healthz',timeout=5).status==200 else 1)"
 
-CMD ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "18095", "--no-access-log"]
+# R13-SEC-NET-01：容器内进程只绑回环（host 网络下等价于仅本机可达）。
+# 若要对外提供，必须显式 -e PREVIEW_HOST=0.0.0.0 并自行加前置鉴权。
+CMD ["sh", "-c", "python -m uvicorn app:app --host ${PREVIEW_HOST:-127.0.0.1} --port ${PORT:-18095} --no-access-log"]

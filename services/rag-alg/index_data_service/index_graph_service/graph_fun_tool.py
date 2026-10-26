@@ -1020,21 +1020,29 @@ def get_chunk_by_ppr_score(entity_type_dict, entity_list, ppr_phrase_prob):
     for he, entity_info in entity_type_dict.items():
         hi = {}
         for ei in entity_info:
-            if he == ei["page_content"]:
+            if he == ei.get("page_content"):
                 hi = ei
                 entity_info.remove(ei)
                 break
+        # R13-FIX-GRAPH-16：高分红实体在实体向量表里查不到自身行时（悬空实体/实体被类型过滤、
+        # 或刚写入尚未可见），原实现会在 hi["metadata"] 抛 KeyError，把整个图检索打成 500。
+        # 这里跳过该实体并告警，不影响其它高分实体的召回。
+        if not hi or "metadata" not in hi:
+            logger.warning(f"高分实体{he}在实体向量表中无对应行，跳过其chunk聚合")
+            continue
         for ei in entity_info:
             index_src = np.where(np.array(entity_list) == he)[0]
-            index_dest = np.where(np.array(entity_list) == ei["page_content"])[0]
+            index_dest = np.where(np.array(entity_list) == ei.get("page_content"))[0]
+            if index_src.size == 0 or index_dest.size == 0 or "metadata" not in ei:
+                continue
             ppr_score = float((ppr_phrase_prob[0, index_src] + ppr_phrase_prob[0, index_dest])[0])
             if ppr_score > 0.1:
-                for eck in ei["metadata"]["chunk_pk_list"]:
+                for eck in ei["metadata"].get("chunk_pk_list") or []:
                     if eck not in entity_to_score:
                         entity_to_score[eck] = ppr_score
                     else:
                         entity_to_score[eck] = entity_to_score[eck] + ppr_score
-                for hck in hi["metadata"]["chunk_pk_list"]:
+                for hck in hi["metadata"].get("chunk_pk_list") or []:
                     if hck not in entity_to_score:
                         entity_to_score[hck] = ppr_score
                     else:

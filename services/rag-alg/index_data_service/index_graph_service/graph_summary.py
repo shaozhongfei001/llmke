@@ -86,6 +86,37 @@ def write_summary_indexes(kb, records, server_config):
     return es_ok, mv_ok, err.strip()
 
 
+def file_id_to_names(kb, file_ids):
+    """file_id → 文件名（ES `metadata.title`）。
+
+    R13-FIX-GRAPH-17：社区摘要原来只存 file_ids，而文档重传后旧 file_id 指向已删文件，
+    global 引用会出现"摘要能显示、source 点不开"。这里额外把文件名落到 `file_names`，
+    让下游（Java）在 file_id 失效时按文件名回落到当前文件。
+    """
+    ids = []
+    for fid in file_ids or []:
+        try:
+            ids.append(int(fid))
+        except (TypeError, ValueError):
+            continue
+    if not ids:
+        return []
+    try:
+        r = _post(ES_PORT, "search_by_custom_param",
+                  {"index_name": [kb],
+                   "query_body": {"query": {"terms": {"metadata.file_id": ids}}, "size": 200}})
+        rows = (r.json().get("data") or {}).get("result_data") or []
+    except Exception as e:
+        logger.error(f"按 file_id 查文件名失败: {e}")
+        return []
+    names = []
+    for row in rows:
+        title = ((row.get("_source") or {}).get("metadata") or {}).get("title")
+        if title and title not in names:
+            names.append(title)
+    return names
+
+
 def generate_community(payload: dict) -> BaseResponse:
     """检测社区 → 生成摘要 → 双写索引。"""
     from utils import return_nacos_model
@@ -111,6 +142,7 @@ def generate_community(payload: dict) -> BaseResponse:
         text, info = summarize_community(space_name, c, model_info, server_config)
         _triples, _edge_file_ids = community_triples(space_name, c["members"])
         _file_ids = sorted(set(_edge_file_ids) | set(community_file_ids(space_name, c["members"])))
+        _file_names = file_id_to_names(space_name, _file_ids)
         if text is None:
             failures.append({"community_id": c["community_id"], "reason": info})
             continue
@@ -125,6 +157,8 @@ def generate_community(payload: dict) -> BaseResponse:
                 "kb": space_name,
                 # 溯源：社区涉及的文件 id（来自关系属性 file_id），供引用回落到授权原文
                 "file_ids": _file_ids,
+                # R13-FIX-GRAPH-17：文件重传后 file_ids 会失效，同时存文件名，供下游按名回落
+                "file_names": _file_names,
                 "create_time": time.strftime("%Y-%m-%d %H:%M:%S"),
             },
         })
@@ -151,6 +185,8 @@ def _load_summaries(kb):
                  "level": (row.get("_source", {}).get("metadata") or {}).get("level"),
                  "members": (row.get("_source", {}).get("metadata") or {}).get("member_entities"),
                  "file_ids": (row.get("_source", {}).get("metadata") or {}).get("file_ids") or [],
+                 # R13-FIX-GRAPH-17：一并向调用方返回文件名（旧摘要没有该字段时为 []）
+                 "file_names": (row.get("_source", {}).get("metadata") or {}).get("file_names") or [],
                  "edge_count": (row.get("_source", {}).get("metadata") or {}).get("edge_count"),
                  "summary": row.get("_source", {}).get("page_content")}
                 for row in rows]

@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 import time
 import uuid
 from typing import Dict, Any
@@ -102,6 +103,9 @@ class ConfigManager:
             cls._instance._last_check_time = None
             cls._instance.pool = None
             cls._instance.session = None
+            # R13-FIX-GRAPH-15：共享 Session 必须串行访问（nebula3 Session 非线程安全），
+            # 否则并发图检索会互相打断并报 "The session has been released"。
+            cls._instance._lock = threading.RLock()
             cls._instance._init_watcher()
         return cls._instance
 
@@ -186,6 +190,10 @@ class ConfigManager:
         Returns:
 
         """
+        with self._lock:
+            return self._session_client(release_flag)
+
+    def _session_client(self, release_flag=False):
         current_time = time.time()
         if release_flag:
             self.session.release()  # 释放旧 Session
@@ -211,11 +219,44 @@ class ConfigManager:
 
         return self.session
 
+    def acquire_session(self, space_name=None):
+        """从连接池取一个"本请求专用" Session（R13-FIX-GRAPH-15）。
+
+        原实现全局共享单个 Session，并且在每个请求结束时 release() 它；两个请求同时走图检索时，
+        先结束的那个会把另一个正在执行的 Session 释放掉，抛
+        `RuntimeError: The session has been released`（实测可稳定复现）。
+        改为从 ConnectionPool 取会话，调用方用完必须 release_session。
+        """
+        with self._lock:
+            if not self.pool:
+                self.load_initial_config()
+            pool = self.pool
+            conn = dict((self.config_cache or {}).get("graph_connect") or {})
+        if not pool:
+            raise RuntimeError("Nebula 连接池未初始化")
+        session = pool.get_session(conn.get("user", "root"), conn.get("password", "nebula"))
+        if session is None:
+            raise RuntimeError("无法创建 Nebula Session")
+        if space_name:
+            result = session.execute(f"USE `{space_name}`;")
+            if not result.is_succeeded():
+                session.release()
+                raise RuntimeError(f"USE space {space_name} 失败: {result.error_msg()}")
+        return session
+
+    @staticmethod
+    def release_session(session):
+        try:
+            if session:
+                session.release()
+        except Exception as e:
+            print(f"释放 Nebula Session 失败: {e}")
+
     def close_session(self, session=None):
-        if session:
+        # R13-FIX-GRAPH-15：共享 Session 不再随请求释放（释放会让并发请求踩到
+        # "The session has been released"）。只有显式传入的"非共享"会话才在这里回收。
+        if session is not None and session is not self.session:
             session.release()
-        else:
-            self.session.release()  # 释放旧 Session
 
     def close_pool(self):
         if self.pool:

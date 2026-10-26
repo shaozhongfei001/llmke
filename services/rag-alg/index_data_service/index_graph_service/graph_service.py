@@ -5,6 +5,8 @@
 # @File    : fulltext_es_api_start.py
 import time
 
+import requests
+
 from base import GraphModel, GraphAttributeModel, InsertModel, QueryDocChunk, BaseResponse, QueryGraphData, DelModel
 from graph_extract import generate_graph_relations, generate_query_entities
 from graph_types import normalize_graph_data
@@ -541,24 +543,106 @@ def generate_triple_data(query_docu: QueryDocChunk):
                               "type_report": type_report})
 
 
+def fetch_chunk_documents(space_name, chunk_pk_list, server_config):
+    """按 chunk pk 回取正文块（Milvus 优先，ES 按 _id 补齐）。
+
+    R13-FIX-GRAPH-14 背景（源码事实 + 实测）：
+      - 图实体/三元组里的 `chunk_pk_list` 语义是"抽取时刻 ES 文档 `_id`"
+        （graph_fun_tool.get_document_chunk 用 `ed["_id"]` 当 pk）；
+      - 文本块入库 Milvus 时 pk 与 ES `_id` 同源（ES `_source.metadata.pk` == Milvus `pk`），
+        所以正常情况下可以直接用 Milvus pk 回取正文；
+      - 但"重新解析"会生成新的 `_id`，而 ES 索引与 Milvus 集合可能停留在**不同的解析代次**
+        （R12/R13 实测 kb_9：ES 8 篇是旧 id、Milvus `_kb_9` 8 行是新 id，只有 1 个 id 重合），
+        图数据里的旧 id 于是变成悬空引用。原实现直接查 Milvus pk，查不到就返回空列表，
+        对外表现为"图检索 200、entity_list/result_data 全空"。
+    处理：先按 Milvus pk 查；对"未命中的 id"再用 ES `ids` 查询补齐（ES `_id` 就是 chunk pk），
+    两者都不存在的才算真悬空并打错误日志（提示重建图）。
+    """
+    documents = []
+    pk_int_list = []
+    seen = set()
+    for pk in chunk_pk_list or []:
+        try:
+            pk_value = int(pk)
+        except (TypeError, ValueError):
+            continue
+        if pk_value in seen:
+            continue
+        seen.add(pk_value)
+        pk_int_list.append(pk_value)
+    if not pk_int_list:
+        logger.error('图检索未产出任何 chunk 候选（PPR/light 打分为空），无正文可回取')
+        return documents
+    milvus_docs = query_milvus_by_condition(db_name="rag_knowledge_base",
+                                            knowledge_base_name=space_name,
+                                            col_name="pk",
+                                            col_values=pk_int_list,
+                                            server_config=server_config)
+    documents.extend(milvus_docs)
+    hit_pks = set()
+    for doc in milvus_docs:
+        try:
+            hit_pks.add(int((doc.get("metadata") or {}).get("pk")))
+        except (TypeError, ValueError):
+            continue
+    missing_pks = [pk for pk in pk_int_list if pk not in hit_pks]
+    if not missing_pks:
+        return documents
+    # ES 补齐：chunk_pk_list 即 ES 文档 _id
+    es_payload = {
+        "index_name": [space_name, "table_chunks_" + space_name],
+        "query_body": {"query": {"ids": {"values": [str(pk) for pk in missing_pks]}},
+                       "size": len(missing_pks)},
+    }
+    es_url = 'http://' + server_config["es_config"]["host"] + ':' + str(server_config["es_config"]["port"]) + '/'
+    try:
+        resp = requests.post(es_url + 'search_by_custom_param', json=es_payload, timeout=30)
+        es_data = resp.json()['data']['result_data']
+    except Exception as e:
+        logger.error(f'ES 补齐图检索正文失败:{e}')
+        return documents
+    for ed in es_data:
+        source = ed.get("_source") or {}
+        documents.append({"page_content": source.get("page_content", ""),
+                          "metadata": source.get("metadata") or {}})
+    unresolved = [pk for pk in missing_pks
+                  if str(pk) not in {str(ed.get("_id")) for ed in es_data}]
+    logger.warning(f'chunk 候选{len(pk_int_list)}条：Milvus 命中{len(milvus_docs)}条，'
+                   f'ES 补齐{len(es_data)}条，仍悬空{len(unresolved)}条'
+                   + (f'（{unresolved[:5]}，图数据与文本块不同步，可重建图修复）' if unresolved else ''))
+    # 按 PPR/light 给出的候选顺序返回（检索侧会用 metadata.search.rank 记录顺序）
+    order = {pk: i for i, pk in enumerate(pk_int_list)}
+    documents.sort(key=lambda d: order.get(int((d.get("metadata") or {}).get("pk") or 0), len(order)))
+    return documents
+
+
 def query_graph_data(query_data: QueryGraphData):
+    """数据查询入口。
+
+    R13-FIX-GRAPH-15：每个请求从连接池取独立 Session，用完即还；
+    原先共用全局单 Session 且请求结束时 release()，并发图检索会互相踩成
+    `RuntimeError: The session has been released`（检索服务多知识库并行时必现）。
     """
-    数据查询
-    Args:
-        query_data:
-
-    Returns:
-
-    """
-    # logger.info(f"参数：{str(query_data.json())}")
-    chunk_document_list = []
-    high_entity_list = []  # 高分实体
-
     space_name = "g_" + query_data.space_name
     if not check_space_exists(space_name):
         logger.error(f'该空间：{query_data.space_name}不存在， 请检查后再次查询')
         return BaseResponse(code=500, msg=f'该空间：{query_data.space_name}不存在，请检查后再次查询')
-    session = user_connect_space(space_name)
+    session = None
+    try:
+        session = return_nacos_model().acquire_session(space_name)
+        return _query_graph_data(query_data, session)
+    except Exception as e:
+        logger.exception(f'图检索异常:{e}')
+        return BaseResponse(code=500, msg=f'图检索异常:{e}', data={"result_data": [], "entity_list": []})
+    finally:
+        return_nacos_model().release_session(session)
+
+
+def _query_graph_data(query_data: QueryGraphData, session):
+    # logger.info(f"参数：{str(query_data.json())}")
+    chunk_document_list = []
+    high_entity_list = []  # 高分实体
+
     server_config = return_nacos_model().get_config()
     t1 = time.time()
     res_result = generate_query_entities(query_data.query, query_data.model_info, server_config)
@@ -595,14 +679,10 @@ def query_graph_data(query_data: QueryGraphData):
         logger.error(f'图数据库中无法查询提取到到实体{res_result}，请重试或检查数据库')
         return BaseResponse(code=500, msg=f'查询失败，图服务并无问题中相关的顶点数据', data={"result_data": chunk_document_list})
     if query_data.query_type == 'hippo':
-        document_chunk_pk_list = cal_ppr_fun(triples_list, entity_info_list, entity_list, query_ner_list, entity_triples_dict, collection_name_entity,
-                                             server_config)
+        document_chunk_pk_list, high_entity_list = cal_ppr_fun(triples_list, entity_info_list, entity_list, query_ner_list,
+                                                              entity_triples_dict, collection_name_entity, server_config)
     else:
         document_chunk_pk_list = query_light_fun(start_judge_list, relationship_set, server_config, collection_name_triples, entity_info_list)
-    chunk_document_list = query_milvus_by_condition(db_name="rag_knowledge_base",
-                                                    knowledge_base_name=query_data.space_name,
-                                                    col_name="pk",
-                                                    col_values=document_chunk_pk_list,
-                                                    server_config=server_config)
-    return_nacos_model().close_session(session)
+        high_entity_list = [en for en in query_ner_list if en in start_judge_list]
+    chunk_document_list = fetch_chunk_documents(query_data.space_name, document_chunk_pk_list, server_config)
     return BaseResponse(code=200, msg=f'查询成功，共{len(chunk_document_list)}条文本数据', data={"result_data": chunk_document_list, "entity_list": high_entity_list})

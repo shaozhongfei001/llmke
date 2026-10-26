@@ -441,11 +441,14 @@ export const useFaqController = ({
         setTotal(total);
         cb && cb(res);
       } else {
+        // 接口不可用时如实提示，不静默当空列表（R13 FAQ 最小可用要求）
         setFaqData([]);
         setTotal(0);
+        message.error("FAQ 列表加载失败，请检查服务是否可用");
       }
     } catch (e) {
       setShowSpin(false);
+      message.error("FAQ 列表加载异常，请检查服务是否可用");
     }
   };
 
