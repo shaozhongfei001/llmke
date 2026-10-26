@@ -85,6 +85,8 @@
 
 1. GraphRAG global 已可经 `/qa` 调用（`globalMode=true`），但前端还没有"全局/局部"切换控件；global 的引用是"社区→来源文件"级别，没有逐句引用。
 2. 多版本历史查询、FAQ 前端管理、表格数值问答未端到端。
-3. 离线制品仍为 `r12-bundle-202610250617.tar.gz`（914M），**未包含**本轮 jar/dist/preview/systemd/Nebula 变更；干净环境离线安装未验证。
-4. 图抽取覆盖度低（社区数少），跨文档 global 问题的答案质量不足以作为效果验收。
+3. 离线制品：已产出 `platform/r12/dist/offline/`（**23G**，images.tar 13 镜像 + payload：jar/dist/conf/systemd/preview/graph/venvs 3.5G/models 13G/db 导出/nacos 9 条配置 + SHA256SUMS 55476 行 + INSTALL-OFFLINE.md）。
+   已完成：依赖清单核对、整包校验和、`--network none` 容器冒烟（前端 18088→200、预览 healthz→200）、DB 导出在临时库还原 41 张表、Nacos 配置 9/9 回灌。
+   **未完成**：在真实干净机器上整栈安装（需目标机 Docker + 端口 + 数据盘，属 R14）。
+4. 图抽取覆盖度低（5 个社区），跨文档 global 问题的答案质量不足以作为效果验收。
 5. 生产验证（容量/安全复核/备份恢复/升级回滚/发布）属 R14，未关闭。

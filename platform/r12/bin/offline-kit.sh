@@ -72,6 +72,8 @@ cmd_manifest() {
   local jars=0
   for f in "$REPO"/services/rag-java/rag-parent/*/target/*.jar; do [ -f "$f" ] && jars=$((jars+1)); done
   [ "$jars" -ge 6 ] && ok "业务 jar: $jars 个" || warn "业务 jar 只有 $jars 个（应 ≥6）"
+  [ -f "$OUT/payload/db/gienrag.sql" ] && ok "业务库导出: $(du -sh "$OUT/payload/db/gienrag.sql" | cut -f1)" || warn "业务库导出缺失（pack 后才有）"
+  [ -f "$OUT/payload/nacos/configs.json" ] && ok "Nacos 配置导出: $(grep -c dataId "$OUT/payload/nacos/configs.json" 2>/dev/null) 条" || warn "Nacos 配置未导出（pack 后才有）"
   [ -f "$REPO/frontend/plateform/dist/index.html" ] && ok "前端 dist: $(du -sh "$REPO/frontend/plateform/dist" | cut -f1)" || warn "前端 dist 缺失"
   [ -f "$R12/preview/app.py" ] && ok "Office 预览服务（源码 + 镜像定义）" || warn "Office 预览目录缺失"
   echo
@@ -99,6 +101,29 @@ cmd_pack() {
   cp -r "$REPO/frontend/plateform/dist" "$P/frontend/dist" 2>/dev/null
   cp "$REPO/docs/r12/R13-STATUS.md" "$P/docs/" 2>/dev/null
   ok "payload 代码/配置已就绪"
+
+  echo "== 2.1 导出数据库与 Nacos 配置（离线重建的关键）=="
+  mkdir -p "$P/db" "$P/nacos"
+  if docker ps --format '{{.Names}}' | grep -qx 'r12-mysql'; then
+    docker exec r12-mysql mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD:-R12r00t#2026local}" \
+      --single-transaction --routines --triggers --databases gienrag 2>/dev/null > "$P/db/gienrag.sql" \
+      && ok "db/gienrag.sql $(du -sh "$P/db/gienrag.sql" | cut -f1)"
+  else warn "r12-mysql 未运行，跳过业务库导出"; fi
+  "$PY" - "$P/nacos/configs.json" <<'PYEOF' && ok "nacos/configs.json 已导出"
+import json, sys, urllib.request, urllib.parse
+base="http://127.0.0.1:18848"; out=[]
+for page in range(1,6):
+    q=urllib.parse.urlencode({"search":"accurate","pageNo":page,"pageSize":100,"tenant":"","group":"","dataId":""})
+    r=json.load(urllib.request.urlopen(f"{base}/nacos/v1/cs/configs?{q}", timeout=20))
+    items=r.get("pageItems") or []
+    for it in items:
+        out.append({"dataId":it["dataId"],"group":it.get("group") or "DEFAULT_GROUP",
+                    "type":it.get("type") or "yaml","content":it.get("content")})
+    if len(items)<100: break
+json.dump(out, open(sys.argv[1],"w",encoding="utf-8"), ensure_ascii=False, indent=1)
+print(f"  [ok] Nacos 配置 {len(out)} 条")
+PYEOF
+  cp "$R12/bin/init-db.sh" "$R12/bin/init-nacos.sh" "$P/bin/" 2>/dev/null
 
   echo "== 3. 拷贝 venv 与模型 =="
   for d in "${VENV_DIRS[@]}"; do
@@ -136,17 +161,21 @@ cmd_pack() {
      python3 -m venv --upgrade <venv>
    或直接用同版本解释器重装 requirements（venv 内 site-packages 已随包拷贝）
 
-5) 起容器（基础设施）
+5) 初始化数据库与配置（离线重建的关键）
+   /opt/r12/bin/init-db.sh /opt/r12/db/gienrag.sql
+   /opt/r12/bin/init-nacos.sh /opt/r12/nacos/configs.json
+
+6) 起容器（基础设施）
    cd /opt/r12/docker && docker compose -f docker-compose.infra.yml --env-file /opt/r12/.env up -d
 
-6) 起业务与算法（按依赖顺序）
+7) 起业务与算法（按依赖顺序）
    /opt/r12/bin/up.sh up
 
-7) 自检
+8) 自检
    /opt/r12/bin/up.sh verify
    预期：18088/8088/18095/19200 全 200，MinIO 匿名 GET 403
 
-8) 无外网冒烟（可选）
+9) 无外网冒烟（可选）
    /opt/r12/bin/offline-kit.sh smoke
 EOF
   ok "INSTALL-OFFLINE.md"
