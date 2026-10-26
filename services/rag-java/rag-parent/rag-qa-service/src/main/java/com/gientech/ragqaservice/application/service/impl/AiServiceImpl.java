@@ -628,7 +628,12 @@ public class AiServiceImpl implements AiService {
                     documents.add(itemMap);
 
                     Map<String, Object> webRsMap = new HashMap<>();
+                    // R13-FAQ-11：FAQ 直答等合成条目没有 metadata，原实现直接强转后取值会 NPE（整个问答 500）
                     JSONObject metadata = (JSONObject) item.get(METADATA);
+                    if (metadata == null) {
+                        metadata = new JSONObject();
+                        item.put(METADATA, metadata);
+                    }
                     String type = String.valueOf(item.get(TYPE));
                     String score = String.valueOf(item.get(SCORE));
                     webRsMap.put(PAGE_CONTENT, pageContent);
@@ -686,7 +691,12 @@ public class AiServiceImpl implements AiService {
                             webRsDocuments = null;
                         }
                         addQuestionAndAnswer(alParams, dialogueId, aiRequest, answer, webRsDocuments);
-                        return ReplyDTO.fastReply(sessionId, queryId, answer, webRsDocuments);
+                        // R13-FAQ-12：FAQ 直答要标注 resultType=2，前端据此显示"FAQ 命中"，否则前端只能当普通回答
+                        return ReplyDTO.fastReply(sessionId, queryId, answer, webRsDocuments)
+                                .map(r -> {
+                                    r.setResultType(AIResultTypeEnum.FAQ.getCode());
+                                    return r;
+                                });
                     }
                 }
             }
@@ -2024,6 +2034,17 @@ public class AiServiceImpl implements AiService {
         }
         String rs;
         try {
+            // R13-FAQ-09：enabled_faq 在不同环境里可能只落在 search_config 的**列**上、
+            // 而 config_json 里是旧值(false)，导致 FAQ 永远召不回。这里以列为准补齐。
+            try {
+                Dialogue curDialogue = dialogueDomainService.getDialogueById(dialogueId);
+                Config curConfig = curDialogue == null ? null : curDialogue.getConfig();
+                if (curConfig != null && curConfig.getEnabledFaq() != null && curConfig.getEnabledFaq() == 1) {
+                    alParams.put(ENABLED_FAQ, true);
+                }
+            } catch (Exception ex) {
+                log.warn("resolve enabled_faq from config failed: {}", ex.getMessage());
+            }
             JSONObject config = BeanUtil.copyProperties(alParams, JSONObject.class);
             config.remove(SCORE_THRESHOLD);
             // R13-GRAPH-14：这是 /qa/ai/question 真正走的召回方法（另一重载未被使用）。
@@ -2234,6 +2255,19 @@ public class AiServiceImpl implements AiService {
     private List<RetrievedData> buildRetrieveDataList(JSONObject config, String content) {
         JSONObject configCopy = JSONObject.parseObject(config.toJSONString());
         // R13-GRAPH-01：配置里 query_mode=global 时改走社区摘要接口，其余不变
+        // R13-FAQ-10：enabled_faq 以 search_config 列为准（JSON 里常是旧值）
+        try {
+            Long cfgId = configCopy.getLong("id");
+            if (cfgId == null && configCopy.get("config_id") != null) {
+                cfgId = configCopy.getLong("config_id");
+            }
+            Config cfg = cfgId == null ? null : searchConfigDomainService.getConfigById(cfgId);
+            if (cfg != null && cfg.getEnabledFaq() != null && cfg.getEnabledFaq() == 1) {
+                configCopy.put(ENABLED_FAQ, true);
+            }
+        } catch (Exception ex) {
+            log.warn("resolve enabled_faq in buildRetrieveDataList failed: {}", ex.getMessage());
+        }
         boolean globalMode = "global".equalsIgnoreCase(configCopy.getString("query_mode"));
         if (globalMode) {
             configCopy.put("query", content);
@@ -2294,7 +2328,31 @@ public class AiServiceImpl implements AiService {
         data.put(FAQ_RESULT_LIST, faqStringList);
         data.put(LOG_LIST, logStringList);
         retrievedData.setData(data);
-        return retrievedData;
+                // R13-FAQ-10：高分 FAQ 升为首条参考，命中后由问答主链走 FAQ 直答（resultType=2）
+        JSONObject bestFaq = null;
+        for (int i = 0; i < faqStringList.size(); i++) {
+            JSONObject f = faqStringList.getJSONObject(i);
+            if (f == null) continue;
+            if (bestFaq == null || f.getDoubleValue(SCORE) > bestFaq.getDoubleValue(SCORE)) {
+                bestFaq = f;
+            }
+        }
+        if (bestFaq != null && bestFaq.getDoubleValue(SCORE) >= 0.85
+                && StringUtils.isNotBlank(bestFaq.getString(FAQ_ANSWER))) {
+            JSONObject faqDoc = new JSONObject();
+            faqDoc.put(PAGE_CONTENT, bestFaq.getString(FAQ_ANSWER));
+            faqDoc.put(FAQ_ANSWER, bestFaq.getString(FAQ_ANSWER));
+            faqDoc.put("faq_question", bestFaq.getString("faq_question"));
+            faqDoc.put(ORDER_NUM, "faq-" + System.currentTimeMillis());
+            faqDoc.put(SCORE, bestFaq.getDoubleValue(SCORE));
+            JSONObject faqMeta = new JSONObject();
+            faqMeta.put(SOURCE, "");
+            faqMeta.put("faq", true);
+            faqDoc.put(METADATA, faqMeta);
+            documentStringList.add(0, faqDoc);
+            log.info("FAQ 命中 score={}, 提升为首条参考", bestFaq.getDoubleValue(SCORE));
+        }
+return retrievedData;
     }
 
 

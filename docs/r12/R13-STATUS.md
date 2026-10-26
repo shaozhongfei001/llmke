@@ -8,8 +8,8 @@
 
 | 套件 | 结果 | 证据 |
 |---|---|---|
-| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS**（连续三轮） | `20261026T103006Z` |
-| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T103202Z` |
+| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS**（连续四轮） | `20261026T131546Z` |
+| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T131759Z` |
 
 主链覆盖：中文 DOCX / XLSX / PPTX / 数字 PDF / 扫描 PDF(OCR) / 纯文本 / 含表格；
 加密 PDF 按预期解析失败；坏文件、伪造 token、越权删除均被拒。
@@ -42,6 +42,7 @@
 | QA-08 | 上述失败被写回 `config_json` 并持久化，后续会话永久缺 `model_info` | 推理服务 422 |
 | QA-09 | 简化文档模式只下发 `page_content/order_num`，`attribute.split_documents` 取 `item["metadata"]` 抛 `KeyError` | SSE 流中断，前端只显示"模型暂时无法返回" |
 | S6-01 | 非 pdf 文件标题被改写成 `.pdf` 去匹配 ES `title`（实际存原始名） | 引用→原文取回 0 chunk |
+| FAQ-08..12 | `faq_result_list` 在 Java 侧被整段丢弃；FAQ 开关只落在 `search_config` 列上而 JSON 是旧值；合成 FAQ 条目无 `metadata` 导致 NPE(500)；FAQ 直答未标 `resultType` | FAQ 命中 0.99 仍走大模型，用户看不到"FAQ 命中" | 
 | FAQ-04/06/07 | chunk 标题同样被改写；`alg_llm_config_py` 缺 `milvus_config/es_config`；`llm_service` 读启动期配置缓存 | FAQ 抽取"成功但 0 产出" |
 | VER-10..15 | 版本号未贯通解析链路；`ParsedTextMetadata` 无 `version` 字段导致 pydantic 抛错整批解析失败；`document_version` 只看 `revise_date` 且缺 metadata/file_id 时 KeyError、`int(None)`、排序 NPE | V0/V1 同时进上下文、回答前后矛盾；解析队列积压 |
 | QA-10 | 上游 LLM 断开但无终止帧，Flux 等不到 onComplete | SSE 常驻，客户端/脚本 Read timeout（验收偶发 19/20） |
@@ -57,7 +58,7 @@
 | 口令 BCrypt + 迁移 | ✅ 实测 | 库内已无 MD5 |
 | Office 预览 DOCX/PPTX/XLSX | ✅ 实测 | 容器 `r12-preview:18095`，LibreOffice 25.2.3.2，中文与表格正确 |
 | FAQ 抽取/入库/召回 | ✅ 实测 | 20 条 `status=1`；`faq_result_list` 命中 0.9997；问答链需助手配置 `enabled_faq=true` 才启用 |
-| FAQ 直接以答案作答（resultType=2） | ⚠️ 代码已通、链路未触发 | FAQ-08 已把 `faq_result_list`（score≥0.85）回灌为首条参考，命中即走既有 FAQ 直答分支；实测问答层仍拿到 `enabled_faq=false`（对话配置快照），未触发 |
+| FAQ 直接以答案作答（resultType=2） | ✅ 实测 | 命中 0.9997 时单帧直答：`status=2`、`resultType=2`、答案即 FAQ 答案、引用首条第 score=0.9997；1.4s（不调大模型）|
 | VLM 多模态解析 | ✅ 实测 | `use_multi_modal=true`，双图 DOCX 产出图像描述 chunk |
 | 多版本：当前有效版本 | ✅ 实测 | kb_9 同时存在 V0(5000万)/V1(8000万)，检索只返回 V1；问答答"8000万元"，不再自相矛盾 |
 | 多版本：历史列表 | ✅ 实测 | `GET /index/knowledgeBase/file/multiple/version?kbNames=kb_9` 返回父子版本组（V0/V1） |
