@@ -557,12 +557,19 @@ public class ChunnkDomainServiceImpl implements ChunnkDomainService {
 
         List<JSONObject> searchCondtions = new ArrayList<>();
         JSONObject condtion = new JSONObject();
+        String originFileName = fileName;
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (!FILE_TYPE_LIST.contains(fileType)) {
             String fileNamePrefix = fileName.substring(0, fileName.lastIndexOf("."));
             fileName = fileNamePrefix + ".pdf";
         }
-        condtion.put("title", Arrays.asList(fileName));
+        // R13-FIX-S6-01：非 pdf 类型曾经一律改写成 .pdf 去匹配 title，但实际 chunk 的 title 是原始文件名
+        // （docx/pptx/xlsx 直读解析），导致"引用->原文"按文件 id 取回 0 个 chunk。这里同时匹配两种写法。
+        if (!originFileName.equals(fileName)) {
+            condtion.put("title", Arrays.asList(fileName, originFileName));
+        } else {
+            condtion.put("title", Arrays.asList(fileName));
+        }
         searchCondtions.add(condtion);
         query.put("condition_json", searchCondtions);
 
