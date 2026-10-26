@@ -56,7 +56,8 @@
 | 原文访问收口（下载/预览/存储直连） | ✅ 实测 | 匿名、越权、无法归属的对象键全部拒绝 |
 | 口令 BCrypt + 迁移 | ✅ 实测 | 库内已无 MD5 |
 | Office 预览 DOCX/PPTX/XLSX | ✅ 实测 | 容器 `r12-preview:18095`，LibreOffice 25.2.3.2，中文与表格正确 |
-| FAQ 抽取/入库/召回 | ✅ 实测 | 20 条 `status=1`；`faq_result_list` 命中 0.9997 |
+| FAQ 抽取/入库/召回 | ✅ 实测 | 20 条 `status=1`；`faq_result_list` 命中 0.9997；问答链需助手配置 `enabled_faq=true` 才启用 |
+| FAQ 直接以答案作答（resultType=2） | ⚠️ 未确认 | 开启后回答与 FAQ 语义一致，但响应 `resultType` 仍为 1（走文档）|
 | VLM 多模态解析 | ✅ 实测 | `use_multi_modal=true`，双图 DOCX 产出图像描述 chunk |
 | 多版本：当前有效版本 | ✅ 实测 | kb_9 同时存在 V0(5000万)/V1(8000万)，检索只返回 V1；问答答"8000万元"，不再自相矛盾 |
 | 多版本：历史列表 | ✅ 实测 | `GET /index/knowledgeBase/file/multiple/version?kbNames=kb_9` 返回父子版本组（V0/V1） |
@@ -65,7 +66,7 @@
 | GraphRAG global（社区摘要 + map-reduce） | ✅ 已接入（引用待补） | 助手配置 `query_mode=global` 时，`/qa/ai/question` 改走 `19995/retrieval_documents_global`，实测 5.9s 返回基于社区摘要的回答；社区摘要已带 `file_id` 可回溯来源文件；**逐句引用仍为空**（社区摘要无分句 offset 语义） |
 
 | FAQ 前端管理界面 | ❌ 未做 | 仅后端与召回 |
-| 表格问答（数值+引用） | ⚠️ 部分 | 表格解析与全文召回可用，结构化数值问答未端到端验收 |
+| 表格问答（数值+引用） | ✅ 实测 | 台账数字问答："华东精密制造授信额度"→3000万元；"五级分类为正常的客户"→枚举 3 家，与原文一致 |
 
 ## 4. 交付入口
 
