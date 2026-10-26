@@ -8,8 +8,8 @@
 
 | 套件 | 结果 | 证据 |
 |---|---|---|
-| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS**（连续两轮） | `20261026T095908Z` |
-| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T084621Z` |
+| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS**（连续三轮） | `20261026T103006Z` |
+| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T103202Z` |
 
 主链覆盖：中文 DOCX / XLSX / PPTX / 数字 PDF / 扫描 PDF(OCR) / 纯文本 / 含表格；
 加密 PDF 按预期解析失败；坏文件、伪造 token、越权删除均被拒。
@@ -64,7 +64,7 @@
 | 版本标识（引用） | ✅ 实测 | 引用 metadata 带 `parent_file_name/version` |
 | GraphRAG local（实体链接+邻域/PPR+原文回填） | ⚠️ 部分 | 图服务 19529 + Nebula 3.8 已起，schema/写入链路可用；召回质量受抽取覆盖度限制 |
 | GraphRAG global（社区摘要 + map-reduce） | ✅ 独立接口实测 | `POST 19995/retrieval_documents_global` 对 kb_9 真实图数据返回 5 条社区摘要与汇总结论，摘要带 `file_id/file_ids` 可回溯来源文件 |
-| GraphRAG global 经 `/qa` 主链 | ❌ 未验证生效 | 已加请求级 `globalMode` 与 `query_mode` 路由、社区摘要 `order_num/source` 补齐、引用过滤回退，但日志显示**未真正调用 global URL**，仍走普通召回；本轮不声称已接入 |
+| GraphRAG global 经 `/qa` 主链 | ✅ 实测 | 请求级 `globalMode=true` → 实际调用 `/retrieval_documents_global`（日志 GRAPH-GLOBAL），返回 5 条社区摘要回答；引用 5 条，逐条解析到真实文件（`.../kb_9/R12FIX-product-loan.docx/V0/...`）可打开 |
 
 | FAQ 前端管理界面 | ❌ 未做 | 仅后端与召回 |
 | 表格问答（数值+引用） | ✅ 实测 | 台账数字问答："华东精密制造授信额度"→3000万元；"五级分类为正常的客户"→枚举 3 家，与原文一致 |
@@ -82,7 +82,7 @@
 
 ## 5. 明确未完成（不静默缩范围）
 
-1. GraphRAG global 仅在独立接口可用：`/qa` 的 `globalMode` 路由未验证生效（同一问题走的仍是普通召回），前端也无切换控件。这是产品化最后一块硬缺口。
+1. GraphRAG global 已可经 `/qa` 调用（`globalMode=true`），但前端还没有"全局/局部"切换控件；global 的引用是"社区→来源文件"级别，没有逐句引用。
 2. 多版本历史查询、FAQ 前端管理、表格数值问答未端到端。
 3. 离线制品仍为 `r12-bundle-202610250617.tar.gz`（914M），**未包含**本轮 jar/dist/preview/systemd/Nebula 变更；干净环境离线安装未验证。
 4. 图抽取覆盖度低（社区数少），跨文档 global 问题的答案质量不足以作为效果验收。

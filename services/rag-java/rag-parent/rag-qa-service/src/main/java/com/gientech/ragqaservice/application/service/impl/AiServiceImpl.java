@@ -638,23 +638,39 @@ public class AiServiceImpl implements AiService {
                     // R13-GRAPH-11：社区摘要类结果没有 source（只有 file_id），
                     // 原实现会拼出 ".../null" 导致引用无法打开原文。这里按 file_id 反查文件路径补齐。
                     if (StringUtils.isBlank(source)) {
+                        // 社区摘要可能挂多个来源文件，且旧文件可能已删除/未解析：
+                        // 依次尝试，取第一个能解析出真实路径的。
+                        java.util.List<Long> candidates = new java.util.ArrayList<>();
                         Object fid = metadata.get("file_id");
-                        if (fid != null) {
+                        if (fid != null) candidates.add(Long.valueOf(String.valueOf(fid)));
+                        Object fids = metadata.get("file_ids");
+                        if (fids instanceof JSONArray) {
+                            for (Object o : (JSONArray) fids) {
+                                try { candidates.add(Long.valueOf(String.valueOf(o))); } catch (Exception ignore) { }
+                            }
+                        }
+                        for (Long candidate : candidates) {
                             try {
                                 List<KnowledgeBaseFileDTO> files = kbClient.getByIds(
-                                        java.util.Collections.singletonList(Long.valueOf(String.valueOf(fid))));
+                                        java.util.Collections.singletonList(candidate));
                                 KnowledgeBaseFileDTO kbFile = (files == null || files.isEmpty()) ? null : files.get(0);
                                 if (kbFile != null && StringUtils.isNotBlank(kbFile.getConvertedFilePath())) {
                                     source = kbFile.getConvertedFilePath();
                                     metadata.put("file_id", kbFile.getId());
                                     metadata.put("title", kbFile.getFileName());
+                                    break;
                                 }
                             } catch (Exception ex) {
-                                log.warn("resolve source by file_id {} failed: {}", fid, ex.getMessage());
+                                log.warn("resolve source by file_id {} failed: {}", candidate, ex.getMessage());
                             }
                         }
                     }
-                    metadata.put(SOURCE, storageProperties.getDefaultStorageProperties().getEndPoint() + "/" + source);
+                    // R13-GRAPH-16：解析不到来源时不要拼出 ".../null"（前端会当成可点链接但打不开）
+                    if (StringUtils.isNotBlank(source)) {
+                        metadata.put(SOURCE, storageProperties.getDefaultStorageProperties().getEndPoint() + "/" + source);
+                    } else {
+                        metadata.put(SOURCE, "");
+                    }
                     webRsMap.put(METADATA, metadata);
                     webRsMap.put(TYPE, type);
                     webRsMap.put(SCORE, score);
@@ -2010,10 +2026,27 @@ public class AiServiceImpl implements AiService {
         try {
             JSONObject config = BeanUtil.copyProperties(alParams, JSONObject.class);
             config.remove(SCORE_THRESHOLD);
+            // R13-GRAPH-14：这是 /qa/ai/question 真正走的召回方法（另一重载未被使用）。
+            // 以前无论怎么配置都固定打普通召回地址，所以"global 模式"看似配置了却从不生效。
+            boolean globalMode = aiRequest != null && Boolean.TRUE.equals(aiRequest.getGlobalMode());
+            String recallUrl = nacosConfig.getSearchDocsUrl();
+            Object payload = alParams;
+            if (globalMode) {
+                JSONObject globalPayload = new JSONObject();
+                globalPayload.put(KNOWLEDGE_BASE_NAME, alParams.getJSONArray(KNOWLEDGE_BASE_NAME));
+                globalPayload.put(QUERY, aiRequest.getContent());
+                globalPayload.put("query_mode", "global");
+                globalPayload.put("summary_top_k", 5);
+                globalPayload.put(MODEL_INFO, alParams.get(MODEL_INFO));
+                payload = globalPayload;
+                recallUrl = nacosConfig.getSearchDocsGlobalUrl();
+                log.info("retrieveRecall-GRAPH-GLOBAL kb:{}, query:{}",
+                        alParams.getJSONArray(KNOWLEDGE_BASE_NAME), aiRequest.getContent());
+            }
             log.info("retrieveRecall-检索召回请求参数:" + JSON.toJSONString(config));
-            HttpEntity httpEntity = new HttpEntity(alParams);
+            HttpEntity httpEntity = new HttpEntity(payload);
             long startTime = System.currentTimeMillis();
-            rs = restTemplate.postForObject(nacosConfig.getSearchDocsUrl(), httpEntity, String.class);
+            rs = restTemplate.postForObject(recallUrl, httpEntity, String.class);
             log.info("knowledge---getBody:" + rs);
             long endTime = System.currentTimeMillis();
 
@@ -2279,6 +2312,11 @@ public class AiServiceImpl implements AiService {
             return null;
         }
         String source = metadata.getString(SOURCE);
+        // R13-GRAPH-15：社区摘要等结果没有 source，原实现直接 substring/lastIndexOf 会 NPE，
+        // 整个问答变成 500（用户看到"模型暂时无法返回"）。
+        if (StringUtils.isBlank(source)) {
+            return null;
+        }
         String fileName = source.substring(source.lastIndexOf("/") + 1);
         String filePath = "";
         try {
