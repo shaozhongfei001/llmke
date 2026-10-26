@@ -11,6 +11,7 @@ class FileParams(BaseModel):
     file_id: int = Field(description='文件id', examples=[3421, 353333])
     file_size: str = Field(description='文件大小，以MB为单位', examples=['10'], default=None)
     parent_file_name: str = Field(description='父文件名称', default=None)
+    version: str = Field(description='文件版本号(V0/V1...)', default=None)
     labels: list[str] = Field(default=[], description='用户自定义文件标签')
     folder_id: int | None = Field(default=None, description='文件夹id')
 

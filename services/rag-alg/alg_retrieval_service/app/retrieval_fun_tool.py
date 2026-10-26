@@ -101,6 +101,13 @@ async def query_es_table_data(question, table_summary_ids: list, knowledge_base_
     return es_documents
 
 
+def _safe_int(v):
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
 def document_version(documents_list):
     """
     版本控制
@@ -119,9 +126,44 @@ def document_version(documents_list):
             # 如果没有空值，返回 revise_date 最新的数据
             return group.loc[[group['revise_date'].idxmax()]]
 
-    meta_dict_list = [{**{'page_content': dict(x)['page_content']}, **dict(x)['metadata'], 't_type': dict(x)['type']}
+    # R13-VER-12：部分结果（表格/图片/FAQ 混入）没有 metadata，直接取键会 KeyError。
+    meta_dict_list = [{**{'page_content': dict(x).get('page_content')}, **(dict(x).get('metadata') or {}),
+                       't_type': dict(x).get('type')}
                       for x in documents_list]
     df = pd.DataFrame(meta_dict_list)
+    # R13-VER-11：优先按版本号取"当前有效版本"。原实现只看 revise_date，
+    # 而 revise_date 在多数文档上为空 → 直接跳过去重，导致同一文件的 V0/V1 同时进上下文，
+    # 回答里出现"5000 万/8000 万"互相矛盾。
+    # 版本号兜底：老数据的 chunk metadata 没有 version，但对象路径形如 .../<name>/V1/<file>
+    if 'version' not in df.columns or df['version'].isnull().all():
+        def _ver_from_source(src):
+            m = re.search(r'/(V\d+)/', str(src or ''))
+            return m.group(1) if m else None
+        if 'source' in df.columns:
+            df['version'] = df['source'].map(_ver_from_source)
+    if 'version' in df.columns and df['version'].notnull().any():
+        def _vnum(v):
+            try:
+                return int(str(v).lstrip('Vv') or 0)
+            except Exception:
+                return 0
+        df['_vnum'] = df['version'].map(_vnum)
+        # 归一键：有 parent_file_name 用它（新版），否则用自身 title（V0）；
+        # 不能只 groupby parent_file_name —— 那样没有父名的普通文档会被整批丢掉。
+        parent = df['parent_file_name'] if 'parent_file_name' in df.columns else pd.Series([None] * len(df))
+        title = df['title'] if 'title' in df.columns else pd.Series([None] * len(df))
+        df['_vkey'] = [p if isinstance(p, str) and p.strip() else t for p, t in zip(parent, title)]
+        df = df[df['_vkey'].notnull()]
+        if not df.empty:
+            idx = df.groupby('_vkey')['_vnum'].idxmax()
+            keep = df.loc[idx].drop(columns=['_vnum', '_vkey'])
+            if 'score' in keep.columns:
+                keep = keep.sort_values('score', ascending=False)
+            # 必须还原成 {page_content, type, metadata:{...}} 结构：
+            # 直接返回扁平化行会让下游取不到 metadata.file_id/source（引用、原文、权限全断）
+            rows = keep.to_dict(orient='records')
+            return [{"page_content": r.pop("page_content"), "type": r.pop("t_type"), "metadata": r}
+                    for r in rows]
     if 'parent_file_name' not in df.columns or 'revise_date' not in df.columns:
         documents_list = [dict(x) for x in documents_list]
         return documents_list
@@ -428,7 +470,8 @@ def process_return_results(documents_list):
                         "revise_date": x["metadata"].get("revise_date", None),
                         "version": x["metadata"].get("version", None),
                         "position": x["metadata"].get("position", None),
-                        "file_id": int(x["metadata"].get("file_id", None)),
+                        # R13-VER-14：file_id 缺失（表格/图片/社区摘要）时 int(None) 会抛 TypeError
+                        "file_id": _safe_int((x.get("metadata") or {}).get("file_id")),
                         "image_path": x["metadata"].get("image_path", None),
                         "page_size": x["metadata"].get("page_size", None),
                         "page_number": x["metadata"].get("page_number", None),
@@ -465,20 +508,23 @@ def process_return_results(documents_list):
 
 def sorted_result(data):
     # 1. 按file_id分组
+    # R13-VER-13：缺 metadata 的结果（表格/图片/社区摘要等混入）直接取键会 KeyError，
+    # 统一走安全取值，缺失字段用默认值参与排序而不是抛出。
     groups = defaultdict(list)
     for item in data:
-        groups[item["metadata"]['file_id']].append(item)
+        meta = item.get("metadata") or {}
+        groups[meta.get('file_id')].append(item)
 
     # 2. 组内按score降序排序
     sorted_groups = {}
     for file_id, items in groups.items():
-        sorted_items = sorted(items, key=lambda x: x["metadata"]['score'], reverse=True)
+        sorted_items = sorted(items, key=lambda x: (x.get("metadata") or {}).get('score') or 0, reverse=True)
         sorted_groups[file_id] = sorted_items
 
     # 3. 按组的最高分降序排序
     sorted_group_list = sorted(
         sorted_groups.values(),
-        key=lambda group: group[0]["metadata"]['score'],
+        key=lambda group: (group[0].get("metadata") or {}).get('score') or 0,
         reverse=True
     )
     sorted_groups_index_list = []

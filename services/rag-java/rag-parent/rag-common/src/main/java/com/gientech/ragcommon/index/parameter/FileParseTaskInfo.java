@@ -200,6 +200,13 @@ public class FileParseTaskInfo {
         private String parentFileName;
 
         /**
+         * R13-VER-10：文件版本号（V0/V1…），随解析请求下发，落进 chunk metadata，
+         * 供检索按"当前有效版本"去重与引用标注。
+         */
+        @JsonProperty("version")
+        private String version;
+
+        /**
          * 解析类型
          */
         @JSONField(serialize = false)

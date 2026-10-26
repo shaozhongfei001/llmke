@@ -426,6 +426,8 @@ def load_files(
                 metadata.file_size = _file.file_size
                 metadata.revise_date = revise_date
                 metadata.parent_file_name = _file.parent_file_name
+                # R13-VER-10：版本号落进 chunk metadata，检索侧据此取"当前有效版本"
+                metadata.version = getattr(_file, "version", None)
                 metadata.labels = _file.labels
                 metadata.folder_id = _file.folder_id
 

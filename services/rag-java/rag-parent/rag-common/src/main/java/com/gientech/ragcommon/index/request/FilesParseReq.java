@@ -121,6 +121,13 @@ public class FilesParseReq {
         @JsonProperty("parent_file_name")
         private String parentFileName;
 
+        /**
+         * R13-VER-10：文件版本号（V0/V1…），随解析请求下发，落进 chunk metadata，
+         * 供检索按"当前有效版本"去重与引用标注。
+         */
+        @JsonProperty("version")
+        private String version;
+
         @Schema(name = "文件夹id", description = "文件夹id")
         @JsonProperty("folder_id")
         private Long folderId;

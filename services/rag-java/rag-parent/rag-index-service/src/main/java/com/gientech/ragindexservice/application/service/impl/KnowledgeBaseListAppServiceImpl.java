@@ -613,6 +613,8 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
                 }
                 file.setFileSize(kbFile.getFileSize() + "MB");
                 file.setParentFileName(kbFile.getParentFileName());
+                // R13-VER-10：把版本号带到解析侧，最终写进 chunk metadata
+                file.setVersion(kbFile.getVersion());
                 files.add(file);
 
             });
