@@ -57,7 +57,7 @@
 | 口令 BCrypt + 迁移 | ✅ 实测 | 库内已无 MD5 |
 | Office 预览 DOCX/PPTX/XLSX | ✅ 实测 | 容器 `r12-preview:18095`，LibreOffice 25.2.3.2，中文与表格正确 |
 | FAQ 抽取/入库/召回 | ✅ 实测 | 20 条 `status=1`；`faq_result_list` 命中 0.9997；问答链需助手配置 `enabled_faq=true` 才启用 |
-| FAQ 直接以答案作答（resultType=2） | ⚠️ 未确认 | 开启后回答与 FAQ 语义一致，但响应 `resultType` 仍为 1（走文档）|
+| FAQ 直接以答案作答（resultType=2） | ⚠️ 代码已通、链路未触发 | FAQ-08 已把 `faq_result_list`（score≥0.85）回灌为首条参考，命中即走既有 FAQ 直答分支；实测问答层仍拿到 `enabled_faq=false`（对话配置快照），未触发 |
 | VLM 多模态解析 | ✅ 实测 | `use_multi_modal=true`，双图 DOCX 产出图像描述 chunk |
 | 多版本：当前有效版本 | ✅ 实测 | kb_9 同时存在 V0(5000万)/V1(8000万)，检索只返回 V1；问答答"8000万元"，不再自相矛盾 |
 | 多版本：历史列表 | ✅ 实测 | `GET /index/knowledgeBase/file/multiple/version?kbNames=kb_9` 返回父子版本组（V0/V1） |
