@@ -1,6 +1,6 @@
 # R13 状态与能力矩阵（真实核对版）
 
-更新时间：2026-10-26
+更新时间：2026-10-26（末次回归 20261026T083716Z / SEC-20261026T084621Z）
 分支：`feature/R12-real-rag`
 证据目录：`platform/r12/qa/evidence/`
 
@@ -8,8 +8,8 @@
 
 | 套件 | 结果 | 证据 |
 |---|---|---|
-| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS** | `20261026T020517Z` |
-| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261025T160634Z` |
+| 主链 S1–S8（登录/建库/上传/解析/问答/引用/原文/负例） | **31/31 PASS** | `20261026T083716Z` |
+| 安全负例与授权（16 条） | **16/16 PASS** | `SEC-20261026T084621Z` |
 
 主链覆盖：中文 DOCX / XLSX / PPTX / 数字 PDF / 扫描 PDF(OCR) / 纯文本 / 含表格；
 加密 PDF 按预期解析失败；坏文件、伪造 token、越权删除均被拒。
@@ -43,6 +43,9 @@
 | QA-09 | 简化文档模式只下发 `page_content/order_num`，`attribute.split_documents` 取 `item["metadata"]` 抛 `KeyError` | SSE 流中断，前端只显示"模型暂时无法返回" |
 | S6-01 | 非 pdf 文件标题被改写成 `.pdf` 去匹配 ES `title`（实际存原始名） | 引用→原文取回 0 chunk |
 | FAQ-04/06/07 | chunk 标题同样被改写；`alg_llm_config_py` 缺 `milvus_config/es_config`；`llm_service` 读启动期配置缓存 | FAQ 抽取"成功但 0 产出" |
+| VER-10..15 | 版本号未贯通解析链路；`ParsedTextMetadata` 无 `version` 字段导致 pydantic 抛错整批解析失败；`document_version` 只看 `revise_date` 且缺 metadata/file_id 时 KeyError、`int(None)`、排序 NPE | V0/V1 同时进上下文、回答前后矛盾；解析队列积压 |
+| QA-10 | 上游 LLM 断开但无终止帧，Flux 等不到 onComplete | SSE 常驻，客户端/脚本 Read timeout（验收偶发 19/20） |
+| RUN-05 | 进程重启残留 status=2/3 任务，调度器按 DB 计数限流 | 队列永久卡死，上传后一直排队 |
 
 ## 3. 能力矩阵（真实状态）
 
@@ -55,10 +58,12 @@
 | Office 预览 DOCX/PPTX/XLSX | ✅ 实测 | 容器 `r12-preview:18095`，LibreOffice 25.2.3.2，中文与表格正确 |
 | FAQ 抽取/入库/召回 | ✅ 实测 | 20 条 `status=1`；`faq_result_list` 命中 0.9997 |
 | VLM 多模态解析 | ✅ 实测 | `use_multi_modal=true`，双图 DOCX 产出图像描述 chunk |
-| 版本标识 | ⚠️ 部分 | 引用带 `parent_file_name`；`revise_date/version` 为空（未跑版本抽取） |
+| 多版本：当前有效版本 | ✅ 实测 | kb_9 同时存在 V0(5000万)/V1(8000万)，检索只返回 V1；问答答"8000万元"，不再自相矛盾 |
+| 多版本：历史列表 | ✅ 实测 | `GET /index/knowledgeBase/file/multiple/version?kbNames=kb_9` 返回父子版本组（V0/V1） |
+| 版本标识（引用） | ✅ 实测 | 引用 metadata 带 `parent_file_name/version` |
 | GraphRAG local（实体链接+邻域/PPR+原文回填） | ⚠️ 部分 | 图服务 19529 + Nebula 3.8 已起，schema/写入链路可用；召回质量受抽取覆盖度限制 |
 | GraphRAG global（社区摘要 + map-reduce） | ✅ 已接入（引用待补） | 助手配置 `query_mode=global` 时，`/qa/ai/question` 改走 `19995/retrieval_documents_global`，实测 5.9s 返回基于社区摘要的回答；社区摘要已带 `file_id` 可回溯来源文件；**逐句引用仍为空**（社区摘要无分句 offset 语义） |
-| 多版本历史查询 | ⚠️ 部分 | 已消除 404 噪音、引用带 `parent_file_name`；`revise_date/version` 仍需跑版本抽取 |
+
 | FAQ 前端管理界面 | ❌ 未做 | 仅后端与召回 |
 | 表格问答（数值+引用） | ⚠️ 部分 | 表格解析与全文召回可用，结构化数值问答未端到端验收 |
 
