@@ -69,7 +69,7 @@
 | GraphRAG global（社区摘要 + map-reduce） | ✅ 独立接口实测 | `POST 19995/retrieval_documents_global` 对 kb_9 真实图数据返回 5 条社区摘要与汇总结论，摘要带 `file_id/file_ids` 可回溯来源文件 |
 | GraphRAG global 经 `/qa` 主链 | ✅ 实测 | 请求级 `globalMode=true` → 实际调用 `/retrieval_documents_global`（日志 GRAPH-GLOBAL），返回 5 条社区摘要回答；引用 5 条，逐条解析到真实文件（`.../kb_9/R12FIX-product-loan.docx/V0/...`）可打开 |
 
-| FAQ 前端管理界面 | ❌ 未做 | 仅后端与召回 |
+| FAQ 前端管理界面 | ✅ 已存在 | `/chats/knowledgeBase/:id` → Tab「FAQ」→ 子 Tab「FAQ管理」（`FAQ/indexAll.tsx`），按 kbId 分页展示 Q/A/status，含启停/编辑/删除/抽取/重复检测；本轮只修「接口失败静默当空列表」与「删除失败误报 success」 |
 | 表格问答（数值+引用） | ✅ 实测 | 台账数字问答："华东精密制造授信额度"→3000万元；"五级分类为正常的客户"→枚举 3 家，与原文一致 |
 
 ## 4. 交付入口
@@ -85,13 +85,15 @@
 
 ## 5. 明确未完成（不静默缩范围）
 
-1. GraphRAG global 已可经 `/qa` 调用（`globalMode=true`），但前端还没有"全局/局部"切换控件；global 的引用是"社区→来源文件"级别，没有逐句引用。
-2. 多版本历史查询、FAQ 前端管理、表格数值问答未端到端。
-3. 离线制品：已产出 `platform/r12/dist/offline/`（**23G**，images.tar 13 镜像 + payload：jar/dist/conf/systemd/preview/graph/venvs 3.5G/models 13G/db 导出/nacos 9 条配置 + SHA256SUMS 55476 行 + INSTALL-OFFLINE.md）。
+1. GraphRAG global 已可经 `/qa` 调用（`globalMode=true`），前端也已加「全局(GraphRAG)」开关（`AIChat` senderConfig，`localStorage r13_global_mode` 持久化，请求体注入 `globalMode:true`）；但 global 的引用是"社区→来源文件"级别，没有逐句引用。
+2. 多版本历史查询、FAQ 前端管理、表格数值问答、Office 预览：后端与前端各自可用，但"从页面点一遍"的端到端点验未逐个留证（验收以接口级为主）。
+3. 离线制品：已产出 `platform/r12/dist/offline/`（**24G**，images.tar + payload：jar/dist/conf/systemd/preview/graph/venvs/models 13G/services 源码/db 导出/nacos 配置 + SHA256SUMS + INSTALL-OFFLINE.md）。
    已完成：依赖清单核对、整包校验和、`--network none` 容器冒烟（前端 18088→200、预览 healthz→200）、DB 导出在临时库还原 41 张表、Nacos 配置 9/9 回灌。
    **未完成**：在真实干净机器上整栈安装（需目标机 Docker + 端口 + 数据盘，属 R14）。
-4. 图抽取覆盖度低（5 个社区），跨文档 global 问题的答案质量不足以作为效果验收。
+4. 图抽取覆盖度受限于 LLM（kb_9 当前 7 个社区 / 39 实体 / 31 三元组），跨文档 global 问题的答案质量不足以作为效果验收；实体归并质量差（如"授信额度"被并入"5000万元"）。
 5. 生产验证（容量/安全复核/备份恢复/升级回滚/发布）属 R14，未关闭。
+6. Nebula 边上的 `file_id/page_num` 仍是旧代次（Milvus 已重建），彻底一致需停机 `POST /del_space g_kb_9` 后全量回填。
+7. `community_summary_kb_9` 存在重复：Milvus 30 行 vs ES 7 条（只 insert 未按 `community_id` 去重）。
 
 ## 团队并行交付（2026-10-26 夜）
 
