@@ -635,6 +635,25 @@ public class AiServiceImpl implements AiService {
                     webRsMap.put(ORDER_NUM, orderNum);
                     webRsMap.put(PARSED_FILE_PATH, getParsedFilePath(metadata));
                     String source = metadata.getString(SOURCE);
+                    // R13-GRAPH-11：社区摘要类结果没有 source（只有 file_id），
+                    // 原实现会拼出 ".../null" 导致引用无法打开原文。这里按 file_id 反查文件路径补齐。
+                    if (StringUtils.isBlank(source)) {
+                        Object fid = metadata.get("file_id");
+                        if (fid != null) {
+                            try {
+                                List<KnowledgeBaseFileDTO> files = kbClient.getByIds(
+                                        java.util.Collections.singletonList(Long.valueOf(String.valueOf(fid))));
+                                KnowledgeBaseFileDTO kbFile = (files == null || files.isEmpty()) ? null : files.get(0);
+                                if (kbFile != null && StringUtils.isNotBlank(kbFile.getConvertedFilePath())) {
+                                    source = kbFile.getConvertedFilePath();
+                                    metadata.put("file_id", kbFile.getId());
+                                    metadata.put("title", kbFile.getFileName());
+                                }
+                            } catch (Exception ex) {
+                                log.warn("resolve source by file_id {} failed: {}", fid, ex.getMessage());
+                            }
+                        }
+                    }
                     metadata.put(SOURCE, storageProperties.getDefaultStorageProperties().getEndPoint() + "/" + source);
                     webRsMap.put(METADATA, metadata);
                     webRsMap.put(TYPE, type);
@@ -1628,12 +1647,21 @@ public class AiServiceImpl implements AiService {
         Map<String, String> docs = com.alibaba.nacos.shaded.com.google.common.collect.Maps.newHashMap();
         docs.put(DOCUMENTS, "[]");
         docs.put(WEB_DOCUMENTS_LIST, "[]");
-        if (reference.contains(WEB_DOCUMENTS_LIST) || reference.contains(DOCUMENTS)) {
+        boolean hasRef = StringUtils.isNotBlank(reference) && !"[]".equals(reference.trim())
+                && !"null".equals(reference.trim());
+        if (hasRef && (reference.contains(WEB_DOCUMENTS_LIST) || reference.contains(DOCUMENTS))) {
             JSONObject refJson = JSONObject.parseObject(reference);
             docs.put(DOCUMENTS, JSON.toJSONString(filterDocuments(content, refJson.getString(DOCUMENTS))));
             docs.put(WEB_DOCUMENTS_LIST, JSON.toJSONString(filterWebDocuments(content, refJson.getString(WEB_DOCUMENTS_LIST))));
-        } else
+        } else if (hasRef) {
             docs.put(DOCUMENTS, JSON.toJSONString(filterDocuments(content, reference)));
+        }
+        // R13-GRAPH-10：过滤后两条都空了就退回原始引用。
+        // 过滤只是"按溯源标签收缩"，没命中标签时把来源全丢掉会让用户完全看不到出处
+        // （社区摘要/长答案很容易不产出标签）。
+        if ("[]".equals(docs.get(DOCUMENTS)) && "[]".equals(docs.get(WEB_DOCUMENTS_LIST))) {
+            return reference;
+        }
         return JSON.toJSONString(docs);
     }
 
@@ -1662,6 +1690,14 @@ public class AiServiceImpl implements AiService {
                     if (ids.contains(document.getOrderNum()))
                         newDocs.add(document);
                 });
+                // R13-GRAPH-09：模型这次没产出溯源标签时（社区摘要/长答案常见），
+                // 原来的"过滤后为空"会直接把引用清空，用户看不到任何来源。
+                // 只要有召回就把来源还给前端，宁多勿缺。
+                if (newDocs.isEmpty()) {
+                    newDocs.addAll(documents);
+                }
+            } else {
+                newDocs.addAll(documents);
             }
         }
         return newDocs;
@@ -2013,6 +2049,10 @@ public class AiServiceImpl implements AiService {
             if (StringUtils.isNotBlank(queryModeRaw)) {
                 config.put("query_mode", queryModeRaw);
             }
+            // R13-GRAPH-12：请求级开关优先（前端切换/脚本可显式指定）
+            if (aiRequest != null && Boolean.TRUE.equals(aiRequest.getGlobalMode())) {
+                config.put("query_mode", "global");
+            }
             if (config.containsKey(DATABASE_NAME) && !config.getJSONArray(DATABASE_NAME).isEmpty()) {
                 config.put(ENABLE_DATABASE, true);
                 String[] databaseName = config.getJSONArray(DATABASE_NAME).stream()
@@ -2021,7 +2061,9 @@ public class AiServiceImpl implements AiService {
                 config.put(DATABASE_NAME, databaseName);
             }
             if (config.containsKey(SELECTED_KNOWLEDGE_BASE) && !config.getJSONArray(SELECTED_KNOWLEDGE_BASE).isEmpty()) {
-                return combineRetrieveDataList(buildRetrieveDataList(alParams.getConfig(),
+                // R13-GRAPH-13：这里必须传**补过开关**的 config，原来直接传 alParams.getConfig()，
+                // 导致 request/配置里的 query_mode、globalMode 全部被丢弃（"以为走了 GraphRAG"）。
+                return combineRetrieveDataList(buildRetrieveDataList(config,
                         aiRequest == null ? null : aiRequest.getContent()));
             } else {
                 // R13-GRAPH-05：单知识库分支同样支持 global（社区摘要），否则 query_mode=global 会被静默忽略，

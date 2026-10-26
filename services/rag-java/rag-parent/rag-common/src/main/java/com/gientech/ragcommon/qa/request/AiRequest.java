@@ -63,5 +63,13 @@ public class AiRequest {
     @Schema(name = "enableWebsearch",description = "是否启用联网检索，默认值false")
     private Boolean enableWebsearch = Boolean.FALSE;
 
+    /**
+     * R13-GRAPH-12：GraphRAG 全局模式开关（社区摘要 map-reduce）。
+     * 放在请求上而不是只靠助手配置 JSON —— 配置在写入对话时会被规范化，
+     * 自定义字段（query_mode）会被丢掉，导致"以为走了 GraphRAG，实际还是普通召回"。
+     */
+    @com.fasterxml.jackson.annotation.JsonProperty("globalMode")
+    private Boolean globalMode = Boolean.FALSE;
+
     private Long dialogueId;
 }

@@ -35,6 +35,10 @@ class RetrievalGlobalView(BaseView):
         for c in communities:
             docs.append({
                 "page_content": c.get("summary") or "",
+                # R13-GRAPH-08：order_num 是 Java 侧引用/溯源的关联键，缺失会被 filterDocs 过滤成空引用
+                "order_num": f"gc-{c.get('community_id')}",
+                "type": "text",
+                "score": c.get("score") if isinstance(c.get("score"), (int, float)) else 1.0,
                 "metadata": {
                     # R13-GRAPH-03：社区摘要本身没有单文件定位，取社区成员的首个来源文件作为可打开的原文，
                     # 这样 Java 侧能沿用既有"引用->原文"链路（点击可打开对应文档）。
