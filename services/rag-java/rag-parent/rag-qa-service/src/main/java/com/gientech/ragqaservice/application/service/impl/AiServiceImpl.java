@@ -2056,6 +2056,37 @@ public class AiServiceImpl implements AiService {
 //            List<JSONObject> documentsList = dataJson.getList(DOCUMENTS_LIST, JSONObject.class);
 //            String logList = dataJson.getString(LOG_LIST);
             rs = dataJson.getString(DOCUMENTS_LIST);
+            // R13-FAQ-08：检索侧返回的 faq_result_list 在这里被整段丢掉，
+            // 导致"FAQ 已命中 0.99"仍然去走大模型生成，answer 的 resultType 永远是 1（文档）。
+            // 命中足够高时把 FAQ 作为首条参考塞回列表，命中后续既有的 FAQ 直答分支。
+            JSONArray faqList = dataJson.getJSONArray(FAQ_RESULT_LIST);
+            if (faqList != null && !faqList.isEmpty()) {
+                JSONObject best = null;
+                for (int i = 0; i < faqList.size(); i++) {
+                    JSONObject f = faqList.getJSONObject(i);
+                    if (f == null) continue;
+                    if (best == null || f.getDoubleValue(SCORE) > best.getDoubleValue(SCORE)) {
+                        best = f;
+                    }
+                }
+                if (best != null && best.getDoubleValue(SCORE) >= 0.85
+                        && StringUtils.isNotBlank(best.getString("faq_answer"))) {
+                    JSONArray merged = new JSONArray();
+                    JSONObject faqDoc = new JSONObject();
+                    faqDoc.put(PAGE_CONTENT, best.getString("faq_answer"));
+                    faqDoc.put(FAQ_ANSWER, best.getString("faq_answer"));
+                    faqDoc.put("faq_question", best.getString("faq_question"));
+                    faqDoc.put(ORDER_NUM, "faq-" + aiRequest.getQueryId());
+                    faqDoc.put(SCORE, best.getDoubleValue(SCORE));
+                    merged.add(faqDoc);
+                    JSONArray docsArr = JSON.parseArray(rs);
+                    if (docsArr != null) {
+                        merged.addAll(docsArr);
+                    }
+                    rs = merged.toJSONString();
+                    log.info("FAQ 命中 score={}, 走 FAQ 直答", best.getDoubleValue(SCORE));
+                }
+            }
 
 //            Answer answer = new Answer();
 //            answer.setLogResult(logList);
