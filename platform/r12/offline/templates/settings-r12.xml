@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- R14-F06：Maven 内网镜像 settings 模板。
+     用法: mvn -s settings-r12.xml ... 或 resolve-maven-offline.sh 自动套用。
+     把 <url> 换成内网仓库地址；不换则等同直连外网中央仓（离线目标机不可用）。 -->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <mirrors>
+    <mirror>
+      <id>internal-nexus</id>
+      <name>Internal Maven Mirror</name>
+      <url>https://nexus.internal/repository/maven-public/</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>r12</id>
+      <repositories>
+        <repository>
+          <id>internal-nexus</id>
+          <url>https://nexus.internal/repository/maven-public/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>internal-nexus</id>
+          <url>https://nexus.internal/repository/maven-public/</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles><activeProfile>r12</activeProfile></activeProfiles>
+</settings>

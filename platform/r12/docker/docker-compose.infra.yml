@@ -1,5 +1,16 @@
 # R12 基础设施编排（与既有 WeKnora 等演示容器端口隔离）
 # 用法：docker compose -f platform/r12/docker/docker-compose.infra.yml --env-file platform/r12/.env up -d
+#
+# 端口绑定策略（R14 F02 收口）：
+#   基础设施全部是数据面/管理面，不面向客户端。宿主机侧的 Java/Python 服务一律用
+#   127.0.0.1 连接（见 conf/*/application-r12.yml），因此 published 端口必须显式写
+#   `127.0.0.1:宿主端口:容器端口`。只写 `宿主端口:容器端口` 时 Docker 默认绑
+#   0.0.0.0 + [::]，等于把 MySQL/ES/MinIO/Redis/Nacos/RocketMQ/Nebula 的管理面
+#   直接放到所有网卡上。
+#   容器之间走 docker 网络的服务名（如 mysql:3306、etcd:2379），不经过 HostIp，
+#   所以收紧 HostIp 不影响容器间通信。
+#   唯一对外入口是 r12-fe（host 网络，18088）与 r12-gateway（宿主机 8088），
+#   两者不在本编排文件里。
 name: r12rag
 
 services:
@@ -17,7 +28,7 @@ services:
       MYSQL_DATABASE: gienrag
       TZ: Asia/Shanghai
     ports:
-      - "13306:3306"
+      - "127.0.0.1:13306:3306"
     volumes:
       - r12-mysql-data:/var/lib/mysql
     healthcheck:
@@ -32,7 +43,7 @@ services:
     container_name: r12-redis
     command: ["redis-server", "--appendonly", "yes", "--requirepass", "${R12_REDIS_PASSWORD}"]
     ports:
-      - "16379:6379"
+      - "127.0.0.1:16379:6379"
     volumes:
       - r12-redis-data:/data
     healthcheck:
@@ -43,7 +54,12 @@ services:
     restart: unless-stopped
 
   elasticsearch:
-    image: elasticsearch:8.13.4
+    # 不能用官方裸镜像：业务侧 es_kb_config.py 的 4 套 mapping 硬写
+    # analyzer=ik_max_word / search_analyzer=ik_smart，缺 analysis-ik 时建索引必 400、
+    # 已有索引的分片加载失败导致 _cluster/health=red。
+    # R13 是把 IK 装进容器可写层的（不随镜像/离线包走），重建即丢，故固化为派生镜像。
+    # 构建：docker build -f elasticsearch-ik.Dockerfile -t r12/elasticsearch-ik:8.13.4 .
+    image: r12/elasticsearch-ik:8.13.4
     container_name: r12-es
     environment:
       - discovery.type=single-node
@@ -56,14 +72,18 @@ services:
       memlock: { soft: -1, hard: -1 }
       nofile: { soft: 65536, hard: 65536 }
     ports:
-      - "19200:9200"
-      - "19300:9300"
+      - "127.0.0.1:19200:9200"
+      - "127.0.0.1:19300:9300"
     volumes:
       - r12-es-data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/_cluster/health || exit 1"]
+      # 旧探针只判断 /_cluster/health 的 HTTP 200 —— 集群 red 时同样返回 200，
+      # 所以 19 个索引 active_primary_shards=0 的情况下容器仍显示 healthy（假绿）。
+      # 这里必须判 body 里的 status：单节点带 1 副本时 yellow 是正常的（副本无处分配），
+      # 只有 red（有主分片未分配 = 数据读不到）才算不健康。
+      test: ["CMD-SHELL", "curl -fsS -m 8 'http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=5s' | grep -qE '\"status\":\"(yellow|green)\"' || exit 1"]
       interval: 15s
-      timeout: 10s
+      timeout: 12s
       retries: 40
     restart: unless-stopped
 
@@ -76,8 +96,8 @@ services:
       MINIO_ROOT_PASSWORD: ${R12_MINIO_SECRET_KEY}
       TZ: Asia/Shanghai
     ports:
-      - "19000:9000"
-      - "19001:9001"
+      - "127.0.0.1:19000:9000"
+      - "127.0.0.1:19001:9001"
     volumes:
       - r12-minio-data:/data
     healthcheck:
@@ -120,8 +140,8 @@ services:
     volumes:
       - r12-milvus-data:/var/lib/milvus
     ports:
-      - "19630:19530"
-      - "19191:9091"
+      - "127.0.0.1:19630:19530"
+      - "127.0.0.1:19191:9091"
     depends_on:
       etcd:
         condition: service_started
@@ -145,8 +165,8 @@ services:
       JVM_XMN: 256m
       TZ: Asia/Shanghai
     ports:
-      - "18848:8848"
-      - "19848:9848"
+      - "127.0.0.1:18848:8848"
+      - "127.0.0.1:19848:9848"
     volumes:
       - r12-nacos-data:/home/nacos/data
     healthcheck:
@@ -164,7 +184,7 @@ services:
       JAVA_OPT_EXT: "-Xms256m -Xmx256m -Xmn128m"
       TZ: Asia/Shanghai
     ports:
-      - "19876:9876"
+      - "127.0.0.1:19876:9876"
     volumes:
       - r12-rocketmq-namesrv-logs:/home/rocketmq/logs
     restart: unless-stopped
@@ -180,8 +200,8 @@ services:
       JAVA_OPT_EXT: "-Xms512m -Xmx512m -Xmn256m"
       TZ: Asia/Shanghai
     ports:
-      - "10911:10911"
-      - "10909:10909"
+      - "127.0.0.1:10911:10911"
+      - "127.0.0.1:10909:10909"
     volumes:
       - ./rocketmq/broker.conf:/home/rocketmq/rocketmq-4.9.7/conf/broker.conf:ro
       - r12-rocketmq-broker-logs:/home/rocketmq/logs
@@ -199,9 +219,19 @@ services:
         ipv4_address: 172.28.0.2
     command: ["--meta_server_addrs=172.28.0.2:9559","--local_ip=172.28.0.2","--ws_ip=172.28.0.2","--port=9559","--ws_http_port=19559","--data_path=/data/meta","--log_dir=/logs","--v=0","--minloglevel=0"]
     environment: {TZ: Asia/Shanghai}
-    ports: ["19559:19559"]
+    ports: ["127.0.0.1:19559:19559"]
     volumes: ["r12-nebula-meta-data:/data/meta","r12-nebula-meta-logs:/logs"]
-    healthcheck: {test: ["CMD","curl","-fsS","http://127.0.0.1:19559/status"], interval: 10s, timeout: 5s, retries: 40}
+    # 探针根因（R14 F07）：nebula 的 --ws_ip 是容器自身 IP（172.28.0.2），WS 管理口
+    # 只监听该地址，127.0.0.1 上没有监听 —— 旧探针 curl 127.0.0.1:19559 恒 exit 7，
+    # 三个容器因此长期 unhealthy，但引擎本身是好的（172.28.0.2:19559/status 返回 200）。
+    # 这里改成：真实 service 口 TCP 可连（9559/9779/9669）+ WS /status 200。
+    # 查询级就绪（能开会话、能查 space）由 bin/up.sh verify 用 nebula3 客户端做 must 检查，
+    # 因为镜像内没有 nebula-console，无法在容器内部跑查询探针。
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/172.28.0.2/9559' || exit 1; curl -fsS -m 3 -o /dev/null http://172.28.0.2:19559/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
     restart: unless-stopped
 
   nebula-storaged:
@@ -212,10 +242,14 @@ services:
         ipv4_address: 172.28.0.3
     command: ["--meta_server_addrs=172.28.0.2:9559","--local_ip=172.28.0.3","--ws_ip=172.28.0.3","--port=9779","--ws_http_port=19779","--data_path=/data/storage","--log_dir=/logs","--v=0","--minloglevel=0"]
     environment: {TZ: Asia/Shanghai}
-    ports: ["19779:19779"]
+    ports: ["127.0.0.1:19779:19779"]
     volumes: ["r12-nebula-storage-data:/data/storage","r12-nebula-storage-logs:/logs"]
     depends_on: [nebula-metad]
-    healthcheck: {test: ["CMD","curl","-fsS","http://127.0.0.1:19779/status"], interval: 10s, timeout: 5s, retries: 40}
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/172.28.0.3/9779' || exit 1; curl -fsS -m 3 -o /dev/null http://172.28.0.3:19779/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
     restart: unless-stopped
 
   nebula-graphd:
@@ -226,10 +260,14 @@ services:
         ipv4_address: 172.28.0.4
     command: ["--meta_server_addrs=172.28.0.2:9559","--local_ip=172.28.0.4","--ws_ip=172.28.0.4","--port=9669","--ws_http_port=19669","--log_dir=/logs","--v=0","--minloglevel=0"]
     environment: {TZ: Asia/Shanghai}
-    ports: ["19669:9669"]
+    ports: ["127.0.0.1:19669:9669"]
     volumes: ["r12-nebula-graph-data:/data/graph","r12-nebula-graph-logs:/logs"]
     depends_on: [nebula-storaged]
-    healthcheck: {test: ["CMD","curl","-fsS","http://127.0.0.1:19669/status"], interval: 10s, timeout: 5s, retries: 40}
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/172.28.0.4/9669' || exit 1; curl -fsS -m 3 -o /dev/null http://172.28.0.4:19669/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
     restart: unless-stopped
 
 volumes:

@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# R14-F02 全栈暴露面盘点（只读）：不是只数 7 个算法端口，而是把 r12-* 的
+# 容器端口映射、host 网络容器、宿主机进程监听一起归类，并区分"本项目"与"同机无关项目"。
+#
+# 用法：
+#   check-exposure.sh                 # 人类可读表格 + 判定
+#   check-exposure.sh --expect-closed # CI 门禁：任何数据面/管理面非回环即退出 1
+#   check-exposure.sh --json          # 机读
+#
+# 判定口径：
+#   ALLOWED  = 明确批准对外：8088(gateway) / 18088(fe)
+#   DATA     = 本项目数据面/管理面（DB/ES/MinIO/Redis/Nacos/Nebula/MQ/算法/预览），必须仅回环
+#   HOST     = 本机其它软件占用的同名端口（经归属核实不属于 r12）：单独成行，**显式打印"需 root 处置"**，
+#              不参与本项目判定，也绝不静默忽略（R14-F02 裁决：门禁只看 r12 数据面，但宿主口必须可见）
+#   OTHER    = 同机无关项目（hadoop/WeKnora/yuxi 等），只报告不改动
+#
+# R14-E 归属核实（2026-10-27）：
+#   * 3306/33060 = 宿主 /usr/sbin/mysqld（/etc/mysql/mysql.conf.d/mysqld.cnf bind-address=0.0.0.0，
+#     systemd mysql enabled）。r12 自己的 MySQL 是容器 r12-mysql -> 127.0.0.1:13306，
+#     全部 conf/*/application-r12.yml 均指向 13306；宿主 3306 无任何本机已建立连接。
+#   * 2379@172.17.0.1 = 本机 k8s 控制面 etcd（/opt/kube/bin/etcd --initial-cluster-token=etcd-cluster-0）；
+#     r12 的 etcd 容器无宿主端口映射（docker ps: r12-etcd 2379-2380/tcp 无 ->）。
+#   * [::ffff:127.0.0.1] / [::ffff:7f00:1] 是 IPv4-mapped 回环（Java 双栈绑定），旧正则只认
+#     127.0.0.1:* 与 [::1]:*，会把它误判成对外。
+set -uo pipefail
+
+MODE="${1:-}"
+ALLOWED_PORTS="8088 18088"
+# 本项目数据面/管理面端口（含容器映射到宿主机的）
+DATA_PORTS="18081 18082 18083 18084 18085 12340 19995 19996 19526 19527 19529 18095 \
+13306 19200 19300 19000 19001 19191 18848 19848 16379 19669 19559 19630 \
+19876 10909 10911 19530 19531"
+# 本机其它软件占用、经核实不属于 r12 的同名端口：单独成行 + 打印"需 root 处置"，不静默忽略
+HOST_PORTS="3306 33060 2379 9092"
+
+read -r -a ALLOWED <<< "$ALLOWED_PORTS"
+read -r -a DATA <<< "$DATA_PORTS"
+read -r -a HOSTP <<< "$HOST_PORTS"
+
+in_list() { local x="$1"; shift; for i in "$@"; do [ "$i" = "$x" ] && return 0; done; return 1; }
+
+# 采集：仅 TCP LISTEN，取地址与端口
+mapfile -t LINES < <(ss -lntH 2>/dev/null | awk '{print $4}')
+
+declare -a rows_data=() rows_other=() rows_allowed=() rows_host=()
+for addr in "${LINES[@]}"; do
+  port="${addr##*:}"
+  case "$addr" in
+    # IPv4 回环三种写法都要认：127.0.0.1:*、[::ffff:127.0.0.1]:*（点分映射）、[::ffff:7f00:1]:*（十六进制映射）
+    127.0.0.1:*|\[::1\]:*|\[::ffff:127.0.0.1\]:*|\[::ffff:7f00:1\]:*) loop=1 ;;
+    *) loop=0 ;;
+  esac
+  if in_list "$port" "${ALLOWED[@]}"; then
+    rows_allowed+=("$port|$addr|$loop")
+  elif in_list "$port" "${DATA[@]}"; then
+    rows_data+=("$port|$addr|$loop")
+  elif in_list "$port" "${HOSTP[@]}"; then
+    rows_host+=("$port|$addr|$loop")
+  else
+    rows_other+=("$port|$addr|$loop")
+  fi
+done
+
+emit() {
+  local kind="$1"; shift
+  for r in "$@"; do
+    IFS='|' read -r p a l <<< "$r"
+    local state; [ "$l" = "1" ] && state="回环" || state="对外"
+    printf "  %-6s %-22s %-12s %s\n" "$p" "$a" "$kind" "$state"
+  done
+}
+
+echo "== R14 全栈暴露面（$(date '+%F %T')）=="
+echo "  PORT   监听地址               分类         状态"
+emit "批准" "${rows_allowed[@]:-}"
+emit "数据面" "${rows_data[@]:-}"
+emit "宿主" "${rows_host[@]:-}"
+emit "其他" "${rows_other[@]:-}"
+
+leaked=0
+for r in "${rows_data[@]:-}"; do
+  [ -z "$r" ] && continue
+  IFS='|' read -r p a l <<< "$r"
+  [ "$l" = "0" ] && leaked=$((leaked+1))
+done
+host_leak=0
+for r in "${rows_host[@]:-}"; do
+  [ -z "$r" ] && continue
+  IFS='|' read -r p a l <<< "$r"
+  [ "$l" = "0" ] && host_leak=$((host_leak+1))
+done
+other_n=${#rows_other[@]}
+echo
+echo "  数据面非回环=$leaked  宿主其它软件非回环=$host_leak  其他项目监听=${other_n}（后两项不计入本项目判定）"
+if [ "$host_leak" -gt 0 ]; then
+  echo "  [!!] 宿主其它软件非回环端口 $host_leak 个：需 root 处置（本项目不可改，见文件头归属核实）"
+  echo "       处置命令示例（目标机运维执行）:"
+  echo "       sudo sed -i 's/^bind-address.*/bind-address = 127.0.0.1/; s/^mysqlx-bind-address.*/mysqlx-bind-address = 127.0.0.1/' /etc/mysql/mysql.conf.d/mysqld.cnf && sudo systemctl restart mysql"
+else
+  echo "  [ok] 无宿主类端口对外"
+fi
+
+if [ "$MODE" = "--json" ]; then
+  printf '{"leaked":%d,"data":%d,"host":%d,"other":%d}\n' "$leaked" "${#rows_data[@]}" "$host_leak" "$other_n"
+elif [ "$MODE" = "--expect-closed" ]; then
+  if [ "$leaked" -gt 0 ]; then
+    echo "  [FAIL] $leaked 个本项目数据面/管理面端口仍对外可达"
+    exit 1
+  fi
+  echo "  [ok] 本项目数据面/管理面全部仅回环"
+  exit 0
+else
+  [ "$leaked" -gt 0 ] && echo "  [!!] 有 $leaked 个数据面端口对外（R14 收口中）" || echo "  [ok] 数据面全部回环"
+fi

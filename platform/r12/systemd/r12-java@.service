@@ -2,15 +2,30 @@
 Description=R12 java service %i
 After=network-online.target docker.service r12-alg.service
 Wants=r12-alg.service
+StartLimitIntervalSec=300
+StartLimitBurst=15
 
 [Service]
-Type=forking
-PIDFile=/home/szf/data/dev/llmke-r12/platform/r12/run/%i.pid
+# R14 实测（2026-10-27 11:00）：原 Type=forking + PIDFile 与 r12ctl 的启动方式冲突——
+# r12ctl start 先 sleep 3 再按 pgrep 写 pidfile，而 systemd 在 ExecStart 退出后立刻读 PIDFile，
+# 读不到就判 "Result: protocol"，再配合 Restart=on-failure 变成 30s 一次的自动重启，
+# 每轮 ExecStop 都真的把 JVM 杀掉。改为 oneshot + RemainAfterExit（与 r12-alg 一致）：
+# 起停仍走 r12ctl，运行期由 r12-watchdog 按端口判活。
+Type=oneshot
+RemainAfterExit=yes
+# R14 事故教训：conf 里已改成 ${R12_*} 占位符（不再写明文口令），
+# 单元必须加载 .env 才能解析，否则 Java 启动直接 IllegalArgument("Could not resolve placeholder")。
+# 前缀 - 表示文件缺失不致命，但 up.sh verify 有 must 断言"所有占位符都能在 .env 找到"。
+EnvironmentFile=-/home/szf/data/dev/llmke-r12/platform/r12/.env
 WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-java/rag-parent/%i
+# R14-F07：业务服务启动前等 Nacos 配置中心、MySQL 与 Redis 就绪，
+# 避免 Nacos 抖动时 Spring 上下文直接起不来（R14 事故的同类路径）。
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh nacos 300
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh tcp 13306 16379 -- 180
 ExecStart=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/bin/r12ctl.sh start %i'
 ExecStop=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/bin/r12ctl.sh stop %i'
-RemainAfterExit=no
-Restart=no
+Restart=on-failure
+RestartSec=30
 TimeoutStartSec=180
 TimeoutStopSec=60
 

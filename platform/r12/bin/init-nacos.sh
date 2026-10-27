@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # 离线初始化 Nacos 配置：把 nacos/configs.json 里的配置逐条发布回去
-# 用法: init-nacos.sh [configs.json] [nacos地址] [--dry-run]
+# 用法: init-nacos.sh [configs.json] [nacos地址] [--namespace <租户/命名空间id>] [--dry-run]
+#
+# R14：新增 --namespace（Nacos 的 tenant 参数）。实装演练必须发布到**独立命名空间**，
+#      否则会覆盖现网 public 命名空间的配置（共享宿主上的致命冲突）。
+# R14：回读校验从"只比长度"升级为"比 sha256 摘要 + 长度"，长度相同但内容不同必须判失败。
 #
 # 前置：本机 Nacos 已就绪（compose 起 r12-nacos）。脚本会先等端口可用再发布。
 # 注意：配置内容里可能含绝对路径（如 log_path），必须先用 install-paths.sh 改写成目标前缀，
@@ -10,11 +14,13 @@ R12="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JSON=""
 BASE=""
 DRY=0
-for a in "$@"; do
-  case "$a" in
-    --dry-run) DRY=1 ;;
-    -*) echo "未知参数: $a"; exit 2 ;;
-    *) if [ -z "$JSON" ]; then JSON="$a"; elif [ -z "$BASE" ]; then BASE="$a"; fi ;;
+NS="${R12_NACOS_NAMESPACE:-}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY=1; shift ;;
+    --namespace) NS="${2:-}"; shift 2 ;;
+    -*) echo "未知参数: $1"; exit 2 ;;
+    *) if [ -z "$JSON" ]; then JSON="$1"; elif [ -z "$BASE" ]; then BASE="$1"; else echo "多余参数: $1"; exit 2; fi; shift ;;
   esac
 done
 JSON="${JSON:-$R12/nacos/configs.json}"
@@ -28,7 +34,7 @@ die()  { printf '  [FAIL] %s\n' "$1"; exit 1; }
 command -v python3 >/dev/null || die "需要 python3（只用标准库）"
 
 echo "== init-nacos =="
-printf '  [..] configs=%s  nacos=%s\n' "$JSON" "$BASE"
+printf '  [..] configs=%s  nacos=%s  namespace=%s\n' "$JSON" "$BASE" "${NS:-<public>}"
 
 # 1) 等待 Nacos 就绪（离线机上 compose 刚起时容器内还在初始化）
 printf '  [..] 等待 Nacos 就绪'
@@ -48,6 +54,9 @@ items = json.load(open(sys.argv[1], encoding="utf-8"))
 bad = []
 for it in items:
     for p in re.findall(r"/(?:home|Users)/[A-Za-z0-9._/-]+", it.get("content") or ""):
+        # /logs/ 下的路径是运行期才会创建的产物（日志、garbage 目录），不存在属正常
+        if "/logs/" in p or p.endswith("/logs"):
+            continue
         if not os.path.exists(p):
             bad.append((it["dataId"], p))
 for d, p in bad:
@@ -67,31 +76,39 @@ PY
 fi
 
 # 3) 逐条发布 + 回读校验
-"${PYTHON3:-python3}" - "$JSON" "$BASE" <<'PY' || die "Nacos 配置发布未全部成功"
-import json, sys, urllib.parse, urllib.request
-path, base = sys.argv[1], sys.argv[2]
+"${PYTHON3:-python3}" - "$JSON" "$BASE" "$NS" <<'PY' || die "Nacos 配置发布未全部成功"
+import hashlib, json, sys, time, urllib.parse, urllib.request
+path, base, ns = sys.argv[1], sys.argv[2], sys.argv[3]
 items = json.load(open(path, encoding="utf-8"))
 okc = 0
+def h(s): return hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
 for it in items:
-    data = urllib.parse.urlencode({
-        "dataId": it["dataId"], "group": it.get("group") or "DEFAULT_GROUP",
-        "content": it.get("content") or "", "type": it.get("type") or "yaml",
-    }).encode()
+    did = it["dataId"]; grp = it.get("group") or "DEFAULT_GROUP"; content = it.get("content") or ""
+    payload = {"dataId": did, "group": grp, "content": content, "type": it.get("type") or "yaml"}
+    if ns: payload["tenant"] = ns
+    data = urllib.parse.urlencode(payload).encode()
     try:
         r = urllib.request.urlopen(base + "/nacos/v1/cs/configs", data=data, timeout=20).read().decode().strip()
         if r != "true":
-            print(f"  [!!] {it['dataId']} -> {r[:60]}"); continue
+            print(f"  [!!] {did} -> {r[:60]}"); continue
     except Exception as e:
-        print(f"  [!!] {it['dataId']} 发布失败: {e}"); continue
-    # 回读校验：内容长度一致才算真发布（防止存在但内容为空）
-    try:
-        q = urllib.parse.urlencode({"dataId": it["dataId"], "group": it.get("group") or "DEFAULT_GROUP"})
-        got = urllib.request.urlopen(f"{base}/nacos/v1/cs/configs?{q}", timeout=20).read().decode()
-        if len(got) != len(it.get("content") or ""):
-            print(f"  [!!] {it['dataId']} 回读长度不一致: {len(got)} != {len(it.get('content') or '')}"); continue
-    except Exception as e:
-        print(f"  [!!] {it['dataId']} 回读失败: {e}"); continue
+        print(f"  [!!] {did} 发布失败: {e}"); continue
+    # 回读校验：长度 + sha256 摘要都要一致（只比长度会放过内容被改写的情形）
+    # R14 实测：Nacos 发布后**立即**回读可能瞬时 404（9 条全部 404，1s 后全部 200），故加重试。
+    got = None; last_err = None
+    for attempt in range(1, 5):
+        try:
+            q = {"dataId": did, "group": grp}
+            if ns: q["tenant"] = ns
+            got = urllib.request.urlopen(f"{base}/nacos/v1/cs/configs?{urllib.parse.urlencode(q)}", timeout=20).read().decode()
+            break
+        except Exception as e:
+            last_err = e; time.sleep(attempt)
+    if got is None:
+        print(f"  [!!] {did} 回读失败（重试 4 次）: {last_err}"); continue
+    if len(got) != len(content) or h(got) != h(content):
+        print(f"  [!!] {did} 回读内容不一致: len {len(got)} vs {len(content)}, sha {h(got)} vs {h(content)}"); continue
     okc += 1
-print(f"  [ok] Nacos 配置发布并回读校验 {okc}/{len(items)}")
+print(f"  [ok] Nacos 配置发布并回读校验（长度+sha256）{okc}/{len(items)}  namespace={ns or '<public>'}")
 sys.exit(0 if okc == len(items) else 1)
 PY

@@ -1,0 +1,28 @@
+[Unit]
+# R14-F07：r12 服务自愈看门狗（单次巡检，由 r12-watchdog.timer 每 45s 触发）
+# 存在理由：r12-alg / r12-models 为 Type=oneshot + RemainAfterExit=yes + Restart=no，
+# 启动器退出后子进程无守护；R14 事故中 Nacos 抖动导致 4 个算法服务全灭、unit 仍显示
+# active(exited)，死了 7 小时无人拉起。本看门狗以真实监听口/HTTP 探针判定存活并有界自愈。
+Description=R14 r12 service watchdog (one tick)
+After=r12-alg.service r12-models.service
+# 绝不因"发现问题"让本单元失败：oneshot 退出非零会被记 failed，连续几次后
+# systemd 会连带停掉 OnUnitActiveSec 的 timer（R14 实测 10:44:34 timer 被 Stop，
+# 之后 11 分钟没有任何巡检，看门狗自己变成了"死了没人知道"）。
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/szf/data/dev/llmke-r12
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-watchdog.sh
+TimeoutStartSec=300
+# 自愈动作会拉起常驻服务进程（algctl -> nohup setsid python）。默认 KillMode=control-group
+# 会把这些子进程一起 SIGKILL —— R14 实测 10:45:21 把刚自愈起来的 retrieval 又杀了一次，
+# 正是"watchdog 杀掉健康服务"的最坏形态。KillMode=process 只杀巡检脚本本身。
+KillMode=process
+TimeoutStopSec=15
+Nice=10
+# 巡检脚本自身不让 systemd 反复重启（由 timer 驱动）
+Restart=no
+
+[Install]
+WantedBy=default.target

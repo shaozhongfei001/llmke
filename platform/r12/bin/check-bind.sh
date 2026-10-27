@@ -311,9 +311,107 @@ if [ -n "$LEFTOVER" ]; then
 fi
 
 echo
+# ===== 2c) 基础设施面与容器监听面（R14 F02）=====
+# 为什么必须有这一节：R13 的 check-bind 只覆盖 7 个应用端口（12340/18095/1952x/1999x），
+# 于是"七个端口已回环"被当成"整栈只有两个对外入口"，而 ss 快照里
+# 19200 ES / 18848 Nacos / 19000 MinIO / 16379 Redis / 13306 MySQL / 19669 Nebula /
+# 19876 RocketMQ 全是 0.0.0.0（IPv4 与 IPv6 双通配）。数据面/管理面同样是被绕过的入口。
+#
+# 判定依据取"实际"的两层证据：
+#   ① docker 侧：容器 PortBindings 的 HostIp（配置意图）
+#   ② 宿主 ss：该端口真实监听地址（含 [::] 与 *:）
+# 两者只要有一处不是 127.0.0.1，且该端口不在批准对外清单里，就算外露。
+#
+# 批准对外清单（唯一客户端入口）：18088 前端 nginx、8088 Java 网关。
+# 这两个必须对外，其余一律回环。
+ALLOW_EXTERNAL="18088 8088"
+
+echo "== 基础设施 / 容器监听面（数据面与管理面）=="
+printf '  %-6s %-22s %-24s %-14s %s\n' PORT 容器 容器HostIp 实际监听 判定
+INFRA_EXT=0
+if command -v docker >/dev/null 2>&1; then
+  # name|networkmode|container_port=hostip:hostport;...
+  infra_rows="$(docker inspect --format '{{.Name}}|{{.HostConfig.NetworkMode}}|{{range $p, $b := .HostConfig.PortBindings}}{{$p}}={{range $b}}{{.HostIp}}:{{.HostPort}}{{end}};{{end}}' \
+      $(docker ps --format '{{.Names}}' | grep -E '^r12-' | tr '\n' ' ') 2>/dev/null)"
+  while IFS='|' read -r name netmode binds; do
+    [ -n "${name:-}" ] || continue
+    name="${name#/}"
+    if [ "$netmode" = "host" ]; then
+      # host 网络容器无法用 HostIp 约束：端口直接由容器内进程绑定。
+      # 只能按其真实监听地址判定（r12-fe 的 nginx `listen 18088` 是批准的对外入口；
+      # r12-preview 由 PREVIEW_HOST 默认 127.0.0.1 约束）。
+      printf '  %-6s %-22s %-24s %-14s %s\n' "(host)" "$name" "(host网络-无HostIp)" "见下" "按进程绑定判定"
+      continue
+    fi
+    [ -n "${binds:-}" ] || continue
+    echo "  $binds" | tr ';' '\n' | while IFS='=' read -r cport hp; do
+      [ -n "${cport:-}" ] || continue
+      hostip="${hp%%:*}"; hostport="${hp##*:}"
+      [ -n "$hostip" ] || hostip="(空=0.0.0.0)"
+      act="$(actual_of "$hostport")"
+      [ -n "$act" ] || act="(未监听)"
+      allowed=0
+      for a in $ALLOW_EXTERNAL; do [ "$a" = "$hostport" ] && allowed=1; done
+      if [ "$allowed" = 1 ]; then
+        # 批准入口：确认它确实对外（否则客户端不可用），不算违规
+        case "$act" in
+          *0.0.0.0*|*\**) printf '  %-6s %-22s %-24s %-14s %s\n' "$hostport" "$name" "$hostip" "$act" "批准对外入口（预期）" ;;
+          *)              printf '  %-6s %-22s %-24s %-14s %s\n' "$hostport" "$name" "$hostip" "$act" "警告：批准入口未对外" ;;
+        esac
+        continue
+      fi
+      case "$hostip$act" in
+        *0.0.0.0*|*\**)
+          printf '  %-6s %-22s %-24s %-14s %s\n' "$hostport" "$name" "$hostip" "$act" "外露（数据面/管理面不该对外）"
+          echo "$hostport" >> "${TMPDIR:-/tmp}/r12-bind-external.$$" ;;
+        *127.0.0.1*未监听*)
+          printf '  %-6s %-22s %-24s %-14s %s\n' "$hostport" "$name" "$hostip" "$act" "未监听（容器在但端口没起）" ;;
+        *127.0.0.1*127.0.0.1*)
+          printf '  %-6s %-22s %-24s %-14s %s\n' "$hostport" "$name" "$hostip" "$act" "仅回环" ;;
+        *)
+          printf '  %-6s %-22s %-24s %-14s %s\n' "$hostport" "$name" "$hostip" "$act" "未知，需人工判定" ;;
+      esac
+    done
+  done <<< "$infra_rows"
+
+  # host 网络容器的真实绑定地址（它们的端口不出现在 PortBindings 里）
+  for hp in "18088:r12-fe(nginx)" "18095:r12-preview"; do
+    port="${hp%%:*}"; who="${hp#*:}"
+    act="$(actual_of "$port")"
+    [ -n "$act" ] || act="(未监听)"
+    allowed=0
+    for a in $ALLOW_EXTERNAL; do [ "$a" = "$port" ] && allowed=1; done
+    if [ "$allowed" = 1 ]; then
+      case "$act" in *0.0.0.0*|*\**) verdict="批准对外入口（预期）" ;;
+        *) verdict="批准入口未对外（客户端不可达）" ;; esac
+    else
+      case "$act" in
+        *0.0.0.0*|*\**) verdict="外露（host 网络：需改容器内进程绑定地址）"
+                        echo "$port" >> "${TMPDIR:-/tmp}/r12-bind-external.$$" ;;
+        *127.0.0.1*) verdict="仅回环" ;;
+        *) verdict="未知，需人工判定" ;;
+      esac
+    fi
+    printf '  %-6s %-22s %-24s %-14s %s\n' "$port" "$who" "(host网络)" "$act" "$verdict"
+  done
+else
+  warn "无 docker 命令，跳过容器监听面盘点"
+fi
+
+if [ -f "${TMPDIR:-/tmp}/r12-bind-external.$$" ]; then
+  INFRA_EXT=$(sort -u "${TMPDIR:-/tmp}/r12-bind-external.$$" | wc -l | tr -d ' ')
+  EXTLIST=$(sort -u "${TMPDIR:-/tmp}/r12-bind-external.$$" | paste -sd, -)
+  rm -f "${TMPDIR:-/tmp}/r12-bind-external.$$"
+  warn "基础设施/容器面有 $INFRA_EXT 个端口对外可达: $EXTLIST"
+  external=$((external + INFRA_EXT))
+else
+  ok "基础设施/容器面未发现外露端口（批准对外: $ALLOW_EXTERNAL）"
+fi
+
+echo
 if [ "$mismatch" -gt 0 ]; then warn "有 $mismatch 处“配置说回环、实际仍外露”——先确认服务是否重启/快照是否同步"; fi
 if [ "$EXPECT" = 1 ]; then
-  if [ "$external" -eq 0 ]; then ok "全部内部端口仅监听回环"; exit 0
+  if [ "$external" -eq 0 ]; then ok "全部内部端口（应用面+基础设施面）仅监听回环"; exit 0
   else warn "仍有 $external 个端口对外可达（--expect-loopback 未满足）"; exit 1; fi
 fi
 [ "$external" -gt 0 ] && info "当前有 $external 个端口对外可达（未要求收紧，仅提示）"

@@ -151,7 +151,11 @@ model:
 kb:
   file-parse:
     task-nums: 5
-    task-timeout: 3600
+    # R14-C-FIX-31（A 定位的真实病灶）：单位是**分钟**（代码 DateUtil.offsetMinute）。
+    # 原值 3600 = 60 小时，而代码注释写的是"一个小时"，注释与配置差 60 倍 ——
+    # 结果 status=3(RETRY_ING) 的任务要等到两天半后才判失败，并发槽被永久占满，
+    # 新任务永远不被派发（表现为"本次执行 0 个"、文件停在 99）。
+    task-timeout: 60
     retry-limit: 3
   faq-extract-model: 'qwen2.5-7b-instruct'
   faq-polish-model: ''

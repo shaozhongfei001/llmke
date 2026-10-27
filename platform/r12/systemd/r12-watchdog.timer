@@ -1,0 +1,21 @@
+[Unit]
+# R14-F07：45s 巡检一次。选 45s 而不是 60s 的原因：
+# 看门狗本身需要连续 2 次判失才动手（防抖，避免把滚动重启当故障），
+# 45s × 2 = 90s 确认窗口 + 约 10s 拉起，故障恢复落在 60–120s 目标区间内；
+# 若用 60s 间隔，最坏确认到拉起约 130s，会超出目标。
+Description=R14 r12 service watchdog timer (45s)
+
+[Timer]
+# R14 实测两次教训：
+#  1) OnUnitActiveSec 依赖"上次单元激活"来排下一次，一旦触发单元异常/长时间处于
+#     activating，或者命中 StartLimit，timer 会直接停摆（10:44、11:13 各发生一次）。
+#  2) 用 OnCalendar 由时间驱动，与单元结果无关，稳得多。
+# 30s 一拍 + 连续 2 拍判失 = 30~60s 确认窗口，加 8s 拉起，仍落在 60–120s 目标内（通常更快）。
+OnBootSec=120
+OnCalendar=*-*-* *:*:00,30
+AccuracySec=1s
+Unit=r12-watchdog.service
+Persistent=false
+
+[Install]
+WantedBy=timers.target

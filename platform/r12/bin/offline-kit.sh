@@ -12,6 +12,8 @@ set -uo pipefail
 R12="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="$(cd "$R12/../.." && pwd)"
 OUT="${OUT:-$R12/dist/offline}"
+# PACK_SCOPE=full（默认，运行包+源码）/ src（只出源码与离线构建材料，用于快速验证与源码交付）
+PACK_SCOPE="${PACK_SCOPE:-full}"
 # 源码落地根：构建机上就是仓库根；目标机上由 install-paths.sh 放到 <前缀>/src
 SRC_ROOT="${R12_SRC_ROOT:-}"
 if [ -z "$SRC_ROOT" ]; then
@@ -49,6 +51,10 @@ ALG_SRC_DIRS=(alg_doc_parse_service index_data_service alg_retrieval_service alg
 # 打包/校验共用的"必需文件"清单（相对安装前缀）
 REQUIRED_FILES=(
   "bin/up.sh" "bin/r12ctl.sh" "bin/offline-kit.sh" "bin/init-db.sh" "bin/init-nacos.sh" "bin/install-paths.sh" "bin/check-bind.sh"
+  # R14-F07：自愈与暴露面门禁脚本必须随包（否则目标机装完没有自愈）
+  "bin/r12-watchdog.sh" "bin/r12-wait-ready.sh" "bin/es-single-node.sh"
+  "bin/check-exposure.sh" "bin/offline-build-manifest.py"
+  "bin/init-endpoints.sh" "bin/check-units.sh" "bin/gates-selftest.sh" "bin/boot-timing.sh"
   "run/algctl.sh" "run/doc-parse.env"
   "models/start-all.sh"
   "systemd/r12-alg.service" "systemd/r12-docparse.service" "systemd/r12-graphsvc.service"
@@ -58,10 +64,21 @@ REQUIRED_FILES=(
   "frontend/dist/index.html"
   "db/gienrag.sql" "nacos/configs.json"
   ".env.template"
+  # R14-F06：源码与离线构建材料（运行包与源码复建是两件事，都要在包里点名）
+  "src-build/services/rag-java/rag-parent/pom.xml"
+  "src-build/frontend/plateform/package.json"
+  "src-build/frontend/plateform/package-lock.json"
+  "src-build/build/BUILD-OFFLINE.md"
+  "src-build/build/OFFLINE-BUILD-MANIFEST.tsv"
+  "src-build/build/settings-r12.xml"
 )
 REQUIRED_DIRS=(
   "conf" "graph" "preview" "jars" "log4j2" "models" "venvs"
   "src/services/rag-alg/alg_doc_parse_service"
+  # R14-F06：Java 与前端**源码**（不是只有 jar/dist）
+  "src-build/services/rag-java/rag-parent/rag-gateway/src"
+  "src-build/services/rag-java/rag-parent/rag-index-service/src"
+  "src-build/frontend/plateform/src"
 )
 
 collect_payload() {
@@ -107,6 +124,20 @@ cmd_manifest() {
   for d in "${VENV_DIRS[@]}"; do
     [ -x "$R12/venvs/$d/bin/python" ] && printf '  [ok]   venvs/%-52s %s\n' "$d" "$(du -sh "$R12/venvs/$d" 2>/dev/null | cut -f1)" || printf '  [warn] venvs/%s 缺失（该侧服务无法启动）\n' "$d"
   done
+  echo "== 源码与离线构建材料（F06）=="
+  local sb_ok=0 sb_miss=0
+  for p in "src-build/services/rag-java/rag-parent/pom.xml" "src-build/frontend/plateform/package.json" \
+           "src-build/frontend/plateform/package-lock.json" "src-build/frontend/plateform/src" \
+           "src-build/build/BUILD-OFFLINE.md" "src-build/build/OFFLINE-BUILD-MANIFEST.tsv" \
+           "src-build/build/settings-r12.xml"; do
+    if have "$p"; then printf '  [ok]   %s\n' "$p"; sb_ok=$((sb_ok+1))
+    else printf '  [MISS] %s\n' "$p"; sb_miss=$((sb_miss+1)); fi
+  done
+  local fe_n; fe_n=$(ls "$SRC_ROOT/frontend/plateform/src" 2>/dev/null | wc -l)
+  local jv_n; jv_n=$(find "$SRC_ROOT/services/rag-java" -name '*.java' 2>/dev/null | wc -l)
+  printf '  [..]   前端 src 顶层 %s 项；Java 源文件 %s 个；node_modules 与 ~/.m2 按要求不入包\n' "$fe_n" "$jv_n"
+  [ "$sb_miss" -eq 0 ] && ok "源码/构建材料齐备（$sb_ok 项）" || warn "源码/构建材料缺 $sb_miss 项（pack 时补齐）"
+
   echo "== 代码/配置 =="
   local jars=0
   for f in "$REPO"/services/rag-java/rag-parent/*/target/*.jar; do [ -f "$f" ] && jars=$((jars+1)); done
@@ -122,8 +153,13 @@ cmd_manifest() {
 
 cmd_pack() {
   mkdir -p "$OUT" || die "无法创建 $OUT"
+  if [ "$PACK_SCOPE" = "src" ]; then
+    echo "== PACK_SCOPE=src：只出源码与离线构建材料（跳过镜像/venv/模型/DB 导出）=="
+  fi
   echo "== 1. 导出镜像（体积较大，耐心等）=="
-  if [ ! -f "$OUT/images.tar" ]; then
+  if [ "$PACK_SCOPE" = "src" ]; then
+    warn "PACK_SCOPE=src：跳过 docker save"
+  elif [ ! -f "$OUT/images.tar" ]; then
     docker save -o "$OUT/images.tar" "${IMAGES[@]}" || die "docker save 失败"
     ok "images.tar $(du -sh "$OUT/images.tar" | cut -f1)"
   else ok "images.tar 已存在，跳过"; fi
@@ -138,16 +174,25 @@ cmd_pack() {
     rm -rf "$d"
     cp -a "$s" "$d" || warn "拷贝失败: $s -> $d"
   }
-  mkdir -p "$P/jars" "$P/bin" "$P/systemd" "$P/frontend" "$P/docker" "$P/docs" "$P/run" "$P/log4j2"
-  cp "$REPO"/services/rag-java/rag-parent/*/target/*.jar "$P/jars/" 2>/dev/null
+  mkdir -p "$P/jars" "$P/bin" "$P/systemd" "$P/frontend" "$P/docker" "$P/docs" "$P/run" "$P/log4j2" "$P/models"
+  if [ "$PACK_SCOPE" = "src" ]; then
+    warn "PACK_SCOPE=src：跳过 jar 拷贝（jar 属运行包）"
+  else
+    cp "$REPO"/services/rag-java/rag-parent/*/target/*.jar "$P/jars/" 2>/dev/null
+  fi
   put "$R12/conf" "conf"
-  for f in up.sh r12ctl.sh offline-kit.sh init-db.sh init-nacos.sh install-paths.sh check-bind.sh; do
+  for f in up.sh r12ctl.sh offline-kit.sh init-db.sh init-nacos.sh install-paths.sh check-bind.sh \
+           r12-watchdog.sh r12-wait-ready.sh es-single-node.sh check-exposure.sh offline-build-manifest.py \
+           init-endpoints.sh check-units.sh gates-selftest.sh boot-timing.sh \
+           recover-stuck-tasks.sh r12-change.sh r12-kill-port.sh pack-verify.sh; do
     [ -f "$R12/bin/$f" ] && cp "$R12/bin/$f" "$P/bin/" || warn "bin/$f 不存在"
   done
+  chmod +x "$P/bin/"*.sh "$P/bin/"*.py 2>/dev/null
   for f in algctl.sh doc-parse.env; do
     [ -f "$R12/run/$f" ] && cp "$R12/run/$f" "$P/run/" || warn "run/$f 不存在（up.sh 第 3/4 步会失败）"
   done
-  [ -f "$R12/models/start-all.sh" ] && cp "$R12/models/start-all.sh" "$P/models/" || warn "models/start-all.sh 不存在（up.sh 第 2 步会失败）"
+  if [ -f "$R12/models/start-all.sh" ]; then cp "$R12/models/start-all.sh" "$P/models/"
+  else warn "models/start-all.sh 不存在（up.sh 第 2 步会失败）"; fi
   put "$R12/log4j2" "log4j2"
   put "$R12/systemd" "systemd"
   put "$R12/preview" "preview"
@@ -164,14 +209,32 @@ cmd_pack() {
     else warn "缺源码 services/rag-alg/$d"; fi
   done
   cp "$SRC_ROOT/docs/r12/R13-STATUS.md" "$P/docs/" 2>/dev/null || true
+  # 附加 SQL（如 r14_group_audit.sql）：随包但不自动执行——本轮 group 审计只留日志、不建表
+  if [ -d "$R12/sql" ] && ls "$R12/sql"/*.sql >/dev/null 2>&1; then
+    mkdir -p "$P/sql"; cp "$R12/sql"/*.sql "$P/sql/" && ok "附加 SQL: $(ls "$R12/sql"/*.sql | xargs -n1 basename | paste -sd, -)（不自动执行）"
+  fi
   ok "payload 代码/配置已就绪"
 
+  if [ "$PACK_SCOPE" != "src" ]; then
   echo "== 2.1 导出数据库与 Nacos 配置（离线重建的关键）=="
   mkdir -p "$P/db" "$P/nacos"
-  if docker ps --format '{{.Names}}' | grep -qx 'r12-mysql'; then
+  # R14：db/gienrag.sql 已被 C 打过补丁（search_config 默认助手唯一函数索引 uk_search_config_default
+  # + id=10 is_default 归一），**默认沿用已有文件，不重新导出覆盖**；需要重导时必须显式 FORCE_DB_DUMP=1。
+  if [ -s "$P/db/gienrag.sql" ] && [ "${FORCE_DB_DUMP:-0}" != "1" ]; then
+    if grep -q 'uk_search_config_default' "$P/db/gienrag.sql"; then
+      ok "沿用已有 db/gienrag.sql（含 uk_search_config_default 补丁，$(du -sh "$P/db/gienrag.sql" | cut -f1)）"
+    else
+      warn "沿用已有 db/gienrag.sql，但**缺少** uk_search_config_default 补丁（C 的默认助手唯一性修复会丢）"
+    fi
+  elif docker ps --format '{{.Names}}' | grep -qx 'r12-mysql'; then
     docker exec r12-mysql mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD:-${R12_MYSQL_ROOT_PASSWORD:-R12r00t#2026local}}" \
       --single-transaction --routines --triggers --databases gienrag 2>/dev/null > "$P/db/gienrag.sql" \
       && ok "db/gienrag.sql $(du -sh "$P/db/gienrag.sql" | cut -f1)"
+    if grep -q 'uk_search_config_default' "$P/db/gienrag.sql"; then
+      ok "重导出结果含 uk_search_config_default"
+    else
+      warn "重导出的 dump 缺少 uk_search_config_default：线上库可能没打 C 的补丁，离线包会退化成无唯一约束"
+    fi
   else warn "r12-mysql 未运行，跳过业务库导出"; fi
   if [ -n "$PY" ] && [ -x "$PY" ]; then
     "$PY" - "$P/nacos/configs.json" <<'PYEOF' && ok "nacos/configs.json 已导出"
@@ -189,6 +252,7 @@ json.dump(out, open(sys.argv[1],"w",encoding="utf-8"), ensure_ascii=False, inden
 print(f"  [ok] Nacos 配置 {len(out)} 条")
 PYEOF
   else warn "无可用 python，跳过 Nacos 配置导出"; fi
+  else warn "PACK_SCOPE=src：跳过 DB / Nacos 数据导出"; fi
 
   echo "== 2.2 环境变量模板（不入包真实口令）=="
   local tpl="$R12/offline/templates/env.template"
@@ -197,7 +261,56 @@ PYEOF
   else warn "缺 .env.template 与 .env.example —— 目标机 compose --env-file 会直接失败"; fi
   [ -f "$P/.env" ] && { warn "payload 里存在 .env，已删除（口令不得入包）"; rm -f "$P/.env"; }
 
+  echo "== 2.3 源码与离线构建材料（F06）=="
+  local SB="$P/src-build"
+  mkdir -p "$SB/build"
+  # Java 源码：剔除 target/ 与 *.class（体积从 ~1G 降到 ~16M）
+  if [ -d "$SRC_ROOT/services/rag-java" ]; then
+    mkdir -p "$SB/services"; rm -rf "$SB/services/rag-java"
+    ( cd "$SRC_ROOT/services" && tar -cf - --exclude='target' --exclude='*.class' rag-java )       | ( cd "$SB/services" && tar -xf - ) \
+      && ok "src-build/services/rag-java $(du -sh "$SB/services/rag-java" | cut -f1)（已排除 target/ 与 *.class）" \
+      || warn "Java 源码拷贝失败"
+  else warn "缺 $SRC_ROOT/services/rag-java（Java 源码不入包）"; fi
+  # 前端源码与构建配置（不含 node_modules，1.4G）
+  local FE="$SRC_ROOT/frontend/plateform" fe_ok=0
+  mkdir -p "$SB/frontend/plateform"
+  for item in src public package.json package-lock.json pnpm-lock.yaml yarn.lock index.html \
+              custom.d.ts postcss.config.js tailwind.config.cjs vite.config.ts vite.config.js \
+              tsconfig.json tsconfig.node.json .env.production .env.development; do
+    [ -e "$FE/$item" ] && { cp -a "$FE/$item" "$SB/frontend/plateform/"; fe_ok=$((fe_ok+1)); }
+  done
+  [ "$fe_ok" -gt 0 ] && ok "src-build/frontend/plateform $(du -sh "$SB/frontend/plateform" | cut -f1)（$fe_ok 项，不含 node_modules）" \
+    || warn "前端源码未纳入（检查 $FE）"
+  # 构建说明 + 依赖获取脚本 + 镜像 settings
+  for f in BUILD-OFFLINE.md resolve-maven-offline.sh resolve-npm-offline.sh resolve-python-offline.sh settings-r12.xml; do
+    if [ -f "$R12/offline/templates/$f" ]; then cp "$R12/offline/templates/$f" "$SB/build/"; else warn "缺 offline/templates/$f"; fi
+  done
+  chmod +x "$SB/build/"*.sh 2>/dev/null
+  # 离线构建清单（Java 运行时坐标+sha256 / lock / requirements）
+  if [ -n "$PY" ] && [ -x "$PY" ] && [ -f "$R12/bin/offline-build-manifest.py" ]; then
+    "$PY" "$R12/bin/offline-build-manifest.py" "$SRC_ROOT" "$SB/build/OFFLINE-BUILD-MANIFEST.tsv" \
+      && ok "build/OFFLINE-BUILD-MANIFEST.tsv $(wc -l < "$SB/build/OFFLINE-BUILD-MANIFEST.tsv") 行" \
+      || warn "离线构建清单生成失败"
+  else warn "无可用 python，跳过 OFFLINE-BUILD-MANIFEST.tsv"; fi
+  # 明确声明什么都没塞进去（避免"以为包里带了 node_modules / .m2"）
+  cat > "$SB/README-NOT-INCLUDED.md" <<'NOTINC'
+# 本目录**不含**以下内容（体积原因）
+
+| 未包含 | 体积 | 复现方式 |
+|---|---|---|
+| `frontend/plateform/node_modules/` | ~1.4G | `build/resolve-npm-offline.sh` + `package-lock.json` |
+| `~/.m2/repository/` | 视环境 | `build/resolve-maven-offline.sh` + `OFFLINE-BUILD-MANIFEST.tsv` 坐标 |
+| Python wheel 缓存 | 视环境 | `build/resolve-python-offline.sh` + `requirements.txt` |
+
+每一项都给了**清单 / 校验和 / 获取脚本**，不是"缺了就装不了"。
+详见 `build/BUILD-OFFLINE.md`。
+NOTINC
+  ok "src-build/README-NOT-INCLUDED.md"
+
   echo "== 3. 拷贝 venv 与模型 =="
+  if [ "$PACK_SCOPE" = "src" ]; then
+    warn "PACK_SCOPE=src：跳过 venv 与模型"
+  else
   for d in "${VENV_DIRS[@]}"; do
     if [ -d "$R12/venvs/$d" ]; then
       mkdir -p "$P/venvs"; rm -rf "$P/venvs/$d"
@@ -209,30 +322,37 @@ PYEOF
       mkdir -p "$P/models"; cp -a "$R12/models/$d" "$P/models/" && ok "model $d $(du -sh "$P/models/$d" | cut -f1)"
     else warn "model $d 跳过"; fi
   done
+  fi
 
   echo "== 4. 生成校验和 =="
-  ( cd "$OUT" && find payload -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS 2>/dev/null; sha256sum images.tar >> SHA256SUMS )
+  ( cd "$OUT" && find payload -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS 2>/dev/null
+    [ -f images.tar ] && sha256sum images.tar >> SHA256SUMS )
   ok "SHA256SUMS $(wc -l < "$OUT/SHA256SUMS") 行"
 
   echo "== 5. 写安装说明 =="
   cat > "$OUT/INSTALL-OFFLINE.md" <<'EOF'
-# R13 离线安装（禁外网）
+# R14 离线安装（禁外网）
 
 前提：目标机已有 Docker（含 compose 插件）、bash、curl、python3(3.10/3.11)、可选 systemd --user。
 说明：本文件由 `bin/offline-kit.sh pack` 生成；示例前缀 /opt/r12，按目标机调整。
 
-0) 放置安装包（约 23G）
+**顺序口径（R14 修正）**：校验 → 镜像 → 环境变量 → 路径适配 → **先起基础设施并等就绪** →
+再初始化 DB / 发布 Nacos 配置 → ES 副本治理 → 模型 → 算法 → 业务 → 前端 → 验收。
+R13 文档把"初始化 DB/Nacos"写在"起容器"之前，而 `init-db.sh` 明确要求 `r12-mysql` 容器已在运行，
+顺序倒置会让装机在第一步就失败 —— 本版已改正。
+
+0) 放置安装包
    mkdir -p /opt/r12 && cp -a payload/. /opt/r12/
-   chmod +x /opt/r12/bin/*.sh /opt/r12/run/*.sh /opt/r12/models/*.sh
+   chmod +x /opt/r12/bin/*.sh /opt/r12/run/*.sh /opt/r12/models/*.sh /opt/r12/src-build/build/*.sh
 
 1) 导入镜像
    docker load -i images.tar
 
-2) 校验完整性（务必在“解压出来的 offline 目录”里执行；不在 payload 里执行）
-   cd <offline 目录> && sha256sum -c SHA256SUMS --ignore-missing
-   注意：SHA256SUMS 里的路径带 payload/ 前缀，在 payload/ 内部执行会“未验证任何文件”。
+2) 校验完整性（在"解压出来的 offline 目录"里执行，不是 payload/ 内部）
+   cd <offline 目录> && sha256sum -c SHA256SUMS
+   注意：禁止 `--ignore-missing`。SHA256SUMS 的路径带 payload/ 前缀，在 payload/ 内部执行会"未验证任何文件"。
 
-3) 环境变量（必需，缺 .env 时 compose --env-file 直接失败）
+3) 环境变量（缺 .env 时 compose --env-file 直接失败）
    cp /opt/r12/.env.template /opt/r12/.env && 编辑 4 项口令
    chmod 600 /opt/r12/.env
 
@@ -240,51 +360,92 @@ PYEOF
    /opt/r12/bin/install-paths.sh --prefix /opt/r12 --dry-run   # 先看要改什么
    /opt/r12/bin/install-paths.sh --prefix /opt/r12             # 正式改
    /opt/r12/bin/install-paths.sh --prefix /opt/r12 --check     # 期望：无残留
-   该脚本同时补 logs/ run/ 等目录、修 venv 解释器软链、生成 r12ctl 需要的 jar 布局。
 
-5) 初始化数据库与 Nacos 配置
+5) 起基础设施并**等就绪**（不是"起完就算"）
+   cd /opt/r12/docker && docker compose -f docker-compose.infra.yml --env-file /opt/r12/.env up -d
+   # 就绪判据（三条都要 200/成功，任一失败就停在这里排查，别继续往下装）
+   curl -fsS http://127.0.0.1:18848/nacos/v1/console/health/readiness      # 期望 200
+   docker exec r12-mysql mysqladmin ping -uroot -p"$R12_MYSQL_ROOT_PASSWORD"  # 期望 mysqld is alive
+   curl -fsS http://127.0.0.1:19200/_cluster/health                        # 期望有 status 字段
+   /opt/r12/bin/r12-wait-ready.sh nacos 300                                # 可选：脚本化等待
+
+6) 初始化数据库（必须在第 5 步之后：init-db.sh 要求 r12-mysql 已在运行）
    /opt/r12/bin/init-db.sh /opt/r12/db/gienrag.sql
+   幂等：库内已有业务表会跳过；如需重建先手工 drop database gienrag
+   校验（失败即非零退出）：
+     - 默认助手不变量：`select count(*) from search_config where is_default=1 and is_del=1` 必须 ≤1
+     - 唯一索引 `uk_search_config_default` 必须存在（否则以后还能插出第二个默认助手）
+     - 接口注册表补齐（init-endpoints.sh）在导入前后都会执行
+
+7) 发布 Nacos 配置并**回读比对内容**（不能只比长度）
    /opt/r12/bin/init-nacos.sh /opt/r12/nacos/configs.json
 
-6) 起容器（基础设施）
-   cd /opt/r12/docker && docker compose -f docker-compose.infra.yml --env-file /opt/r12/.env up -d
+7.1) 接口注册表补齐（网关按 interface_info 做接口级鉴权；缺行即 401/30021）
+   /opt/r12/bin/init-endpoints.sh
+   幂等；第 6 步 init-db.sh 末尾也会自动执行一次。新增 Java 端点时在脚本 ENDPOINTS 里加一行即可。
 
-7) 起业务与算法（按依赖顺序）
+8) ES 单节点副本治理（幂等，必做）
+   /opt/r12/bin/es-single-node.sh
+   背景：单 data node 上 number_of_replicas=1 的副本永远无法分配 → 集群长期 yellow。
+   该脚本把既有索引副本置 0 并注册新索引默认 0 副本模板，最后断言 green 且 unassigned=0。
+
+9) 起模型 / 算法 / 业务（按依赖顺序，脚本内已串好）
    /opt/r12/bin/up.sh up
+   # 依赖闸门已内置：算法等 Nacos readiness、图服务等 Nacos+Nebula、业务等 Nacos+MySQL+Redis
 
-8) 前端（r12-fe 使用 host 网络，nginx 直接监听 18088）
+10) 前端（生产入口：nginx 容器 + 已构建 dist；**不要**在生产用 npm dev）
    docker run -d --name r12-fe --network host --restart unless-stopped \
      -v /opt/r12/frontend/dist:/usr/share/nginx/html/rag:ro \
      -v /opt/r12/frontend/nginx/r12-18088.conf:/etc/nginx/conf.d/default.conf:ro \
      nginx:alpine
+   # 重要（R14 实测陷阱）：bind mount 钉的是**目录 inode**。若用"建新目录再 mv/rsync --delete"替换 dist，
+   # 容器仍持有旧 inode，nginx 继续服务旧文件（表现为"构建了但页面没变"）。替换 dist 后必须：
+   #   docker restart r12-fe
+   # `up.sh verify` 有 must 断言比对"宿主 index.html 的入口 chunk 名 vs 18088 返回的"，
+   # 不一致会直接失败并提示 restart。
 
-9) 自检
-   /opt/r12/bin/up.sh verify
-   预期：18088/8088/18095/19200 全部 200，MinIO 匿名 GET 返回 403
-   /opt/r12/bin/check-bind.sh --prefix /opt/r12
-   只读列出每个内部端口的“配置声明值 vs 实际绑定”；判定出现“静默抵消/配置自相矛盾”
-   说明改动没生效（常见原因：Nacos 本地快照 nacos-data/snapshot 未同步，或服务没重启）。
+11) 自检（**必需项失败即非零退出**；不允许"打印了一堆状态但退出 0"）
+   /opt/r12/bin/up.sh verify ; echo "rc=$?"     # rc 必须为 0
+   /opt/r12/bin/check-bind.sh --prefix /opt/r12 --expect-loopback ; echo "rc=$?"
+   /opt/r12/bin/check-exposure.sh --expect-closed ; echo "rc=$?"
+   说明：verify 分 must / warn 两级，must 项（前端 200、网关 200、ES 可读、MinIO 匿名 403、
+   各算法端口在监听、模型端口在监听）任一失败即退出 1。
 
-10) 无外网冒烟（可选）
-   /opt/r12/bin/offline-kit.sh smoke
-
-11) 可选：systemd --user 托管
-   mkdir -p ~/.config/systemd/user && cp /opt/r12/systemd/*.service ~/.config/systemd/user/
+12) systemd --user 托管（含自愈看门狗）
+   mkdir -p ~/.config/systemd/user && cp /opt/r12/systemd/*.service /opt/r12/systemd/*.timer ~/.config/systemd/user/
    systemctl --user daemon-reload
+   for u in r12-models r12-alg r12-docparse r12-graphsvc; do systemctl --user enable --now $u; done
+   for s in rag-auth-service rag-index-service rag-qa-service sensitive-words-service rag-gateway; do
+     systemctl --user enable --now r12-java@$s.service; done
+   systemctl --user enable --now r12-watchdog.timer
+   # 看门狗 45s 巡检、连续 2 次判失才动作；维护停机时 touch /opt/r12/run/.maintenance
 
-已知前置（不满足则第 7 步会失败）：
+13) 源码复建（与运行包分开验证，见 /opt/r12/src-build/build/BUILD-OFFLINE.md）
+   包内不含 node_modules / ~/.m2 / wheel 缓存，但含：Java 与前端源码、三种 lock、
+   Maven 内网 settings 模板、三个依赖获取脚本、OFFLINE-BUILD-MANIFEST.tsv（含 sha256）。
+
+交付前置（需目标机运维配合，不阻塞门禁）：
+  - 宿主若自带 MySQL（`/etc/mysql/mysql.conf.d/mysqld.cnf` 的 `bind-address=0.0.0.0`），
+    请让运维把它绑回 `127.0.0.1` 并重启 mysql。本项目自己的 MySQL 是容器 r12-mysql -> 127.0.0.1:13306，
+    不依赖宿主 3306；`check-exposure.sh` 会把宿主这类端口单列成"宿主其它软件（需 root 处置）"。
+
+已知前置（不满足则第 9 步会失败）：
   - /opt/r12/src/services/rag-alg/* 必须存在（Python 服务直接跑源码）
   - /opt/r12/venvs/{parse,alg,graph,models} 的解释器需与包内 pyvenv.cfg 版本一致（3.11 / 3.10）
+    venv 通常不可搬移（https://docs.python.org/3.11/library/venv.html ）：异构目标机请按
+    src-build/build/BUILD-OFFLINE.md 用 wheel 重建，不要只改软链
   - docker/docker-compose.infra.yml 依赖 ./rocketmq/broker.conf 的 bind mount
 
 安全前提（务必确认，否则等于不设防）：
   - 算法/解析/预览/图检索等内部服务（12340/18095/19526/19527/19529/19995/19996）**自身不做鉴权**，
     唯一收口在 Java 网关/控制器。它们应只绑 127.0.0.1：
     `/opt/r12/bin/check-bind.sh --prefix /opt/r12 --expect-loopback` 必须退出 0。
+  - 对外只允许 8088（网关）/ 18088（前端）；数据面/管理面（MySQL 13306、ES 19200、MinIO 19000/19001、
+    Nacos 18848、Redis 16379、Nebula 19669/19559/19779、RocketMQ 19876/10909/10911）必须仅回环，
+    `check-exposure.sh --expect-closed` 必须退出 0。
   - 前提一：**单租户主机**。同机其他用户/租户进程可直接读到原文（回环不等于不可读）。
   - 前提二：**仅本机调用**。跨机访问必须加内网凭据或网络隔离，本包不提供该能力。
-  - 若包内配置仍是 0.0.0.0（可用 check-bind 的“声明来源”列确认），装机后会重新放开，
-    须先重打同步或装机后按上一条收紧再验收。
+
 EOF
   ok "INSTALL-OFFLINE.md"
   echo
@@ -311,6 +472,12 @@ have() {  # have <相对路径>
       [ -e "$SRC_ROOT/frontend/plateform/${p#frontend/}" ] && return 0 ;;
     src/services/*)
       [ -e "$SRC_ROOT/${p#src/}" ] && return 0 ;;
+    src-build/services/*)
+      [ -e "$SRC_ROOT/${p#src-build/}" ] && return 0 ;;
+    src-build/frontend/plateform/*)
+      [ -e "$SRC_ROOT/frontend/plateform/${p#src-build/frontend/plateform/}" ] && return 0 ;;
+    src-build/build/*)
+      [ -f "$R12/offline/templates/$(basename "$p")" ] && return 0 ;;
   esac
   return 1
 }
@@ -548,10 +715,18 @@ cmd_smoke() {
   docker rm -f r12-smoke-pv >/dev/null 2>&1
 }
 
+cmd_doc() {  # cmd_doc [输出路径]：只生成安装文档，不打包（演练与评审用）
+  local out="${1:-$OUT/INSTALL-OFFLINE.md}"
+  mkdir -p "$(dirname "$out")"
+  awk '/^[[:space:]]*cat > "\$OUT\/INSTALL-OFFLINE\.md" <<.EOF.[[:space:]]*$/{f=1;next} f&&/^EOF$/{exit} f' "${BASH_SOURCE[0]}" > "$out"
+  [ -s "$out" ] && { ok "INSTALL-OFFLINE.md -> $out（$(wc -l < "$out") 行）"; } || die "生成失败（heredoc 标记没找到）"
+}
+
 case "${1:-manifest}" in
+  doc)      shift; cmd_doc "${1:-}" ;;
   manifest) cmd_manifest ;;
   pack)     cmd_pack ;;
   verify)   cmd_verify ;;
   smoke)    cmd_smoke ;;
-  *) echo "用法: $0 {manifest|pack|verify|smoke}"; exit 2 ;;
+  *) echo "用法: $0 {manifest|pack|verify|smoke|doc [输出路径]}"; exit 2 ;;
 esac
