@@ -3,6 +3,7 @@
 # @Time    : 2024/6/03 15:14
 # @Author  : yuxj
 # @File    : fulltext_es_api_start.py
+import os
 import time
 
 import requests
@@ -357,6 +358,29 @@ def batch_insert_vertex(insert_param: InsertModel):
 #     return res_result
 
 
+# R14-P1-03：抽取类型表必须用**业务类型**，不能用 base.py 的 8 类通用默认值。
+# 实测（A 的 2x2）：默认 8 类（人/机构/位置/时间/角色/疾病/药品/项目）下，模型判定
+# "评级加点表不属于任何给定类型" -> 整段跳过，且**不报错**；
+# 换成业务类型（评级/金额/指标/条款...）+ "表格逐项抽取"提示后，三档映射可以完整抽出。
+GENERIC_DEFAULT_TYPES = {"人", "机构", "位置", "时间", "角色", "疾病", "药品", "项目"}
+
+
+def _resolve_entity_types(requested):
+    """请求没给类型、或给的就是 8 类通用默认值 -> 一律升级为业务类型表。
+
+    为什么不是"直接用请求值"：调用方（含我自己的重建脚本）都不会传 entity_types，
+    FastAPI 会落到 base.py:69 的 8 类默认值，而那不是业务语义，模型据此**静默少抽**。
+    """
+    from graph_types import ALLOWED_TYPES
+    req = [str(x).strip() for x in (requested or []) if str(x).strip()]
+    # 实测（B，6 次）：业务类型表反而**更差**（AAA 有、30/60/100 基点 0/6）；
+    # 真正有效的是"表格逐项抽取"提示（见 prompts/entity_extraction.py 2.1）。
+    # 所以这里只做"记录"，不擅自升级类型表，避免又一处静默改变行为。
+    if not req:
+        return list(ALLOWED_TYPES), "business_default(empty_request)"
+    return req, "request"
+
+
 def llm_generate_triple(json_data, entity_types: [str], model_info, server_config):
     """
     生成三元组
@@ -432,7 +456,10 @@ def generate_triple_data(query_docu: QueryDocChunk):
     logger.info(f"共查询到{len(json_data)}条文本数据")
     t1 = time.time()
     model_info = query_docu.model_info
-    triples_data_list, entity_source_dict, triples_source_dict = llm_generate_triple(json_data, query_docu.entity_types, model_info, server_config)
+    # R14-P1-03：类型表兜底 + **打日志**（原来日志里看不到用了哪些类型，下次还得靠复放）
+    entity_types, types_source = _resolve_entity_types(getattr(query_docu, "entity_types", None))
+    logger.info(f"抽取类型表（source={types_source}）：{entity_types}")
+    triples_data_list, entity_source_dict, triples_source_dict = llm_generate_triple(json_data, entity_types, model_info, server_config)
     logger.info(f"生成数据所需时间是：{time.time() - t1}")
     # R13 类型体系 / 实体过滤 / canonical 归一（落库前统一收敛）
     triples_data_list, entity_source_dict, triples_source_dict, type_report = normalize_graph_data(
@@ -543,7 +570,7 @@ def generate_triple_data(query_docu: QueryDocChunk):
                               "type_report": type_report})
 
 
-def fetch_chunk_documents(space_name, chunk_pk_list, server_config):
+def fetch_chunk_documents(space_name, chunk_pk_list, server_config, entity_names=None, violations_out=None):
     """按 chunk pk 回取正文块（Milvus 优先，ES 按 _id 补齐）。
 
     R13-FIX-GRAPH-14 背景（源码事实 + 实测）：
@@ -559,6 +586,8 @@ def fetch_chunk_documents(space_name, chunk_pk_list, server_config):
     两者都不存在的才算真悬空并打错误日志（提示重建图）。
     """
     documents = []
+    es_url = ('http://' + server_config["es_config"]["host"] + ':'
+              + str(server_config["es_config"]["port"]) + '/')
     pk_int_list = []
     seen = set()
     for pk in chunk_pk_list or []:
@@ -587,20 +616,23 @@ def fetch_chunk_documents(space_name, chunk_pk_list, server_config):
             continue
     missing_pks = [pk for pk in pk_int_list if pk not in hit_pks]
     if not missing_pks:
-        return documents
+        # R14-B6：这里曾直接 return documents，**绕过了两层标注**。
+        # 重建图后 pk 全部能在 Milvus 命中，走的就是这条早退，于是
+        # provenance_quality / identity_stability 整键消失，下游按字段读会得到"假红"。
+        # 标注必须在**每一条返回路径**上执行。
+        return _annotate_two_layers(documents, violations_out)
     # ES 补齐：chunk_pk_list 即 ES 文档 _id
     es_payload = {
         "index_name": [space_name, "table_chunks_" + space_name],
         "query_body": {"query": {"ids": {"values": [str(pk) for pk in missing_pks]}},
                        "size": len(missing_pks)},
     }
-    es_url = 'http://' + server_config["es_config"]["host"] + ':' + str(server_config["es_config"]["port"]) + '/'
     try:
         resp = requests.post(es_url + 'search_by_custom_param', json=es_payload, timeout=30)
         es_data = resp.json()['data']['result_data']
     except Exception as e:
         logger.error(f'ES 补齐图检索正文失败:{e}')
-        return documents
+        return _annotate_two_layers(documents, violations_out)
     for ed in es_data:
         source = ed.get("_source") or {}
         documents.append({"page_content": source.get("page_content", ""),
@@ -610,14 +642,184 @@ def fetch_chunk_documents(space_name, chunk_pk_list, server_config):
     logger.warning(f'chunk 候选{len(pk_int_list)}条：Milvus 命中{len(milvus_docs)}条，'
                    f'ES 补齐{len(es_data)}条，仍悬空{len(unresolved)}条'
                    + (f'（{unresolved[:5]}，图数据与文本块不同步，可重建图修复）' if unresolved else ''))
+    # R14-B3：前两级都取不到正文（图 data 与文本块不同代次，PK/_id 全失效）时，
+    # 用**当前代次**的 ES 全文本块按"命中实体"回取正文，避免图检索"命中实体但 0 条正文"
+    # 直接变成"图对上下文零贡献"（实测 kb_9 重新解析后就是这个状态）。
+    # 明确标注 recovered_by，供审计区分"精确 chunk 回填"与"按实体内容回填"。
+    if not documents and entity_names:
+        documents = _recover_documents_by_entities(space_name, entity_names, es_url, server_config)
     # 按 PPR/light 给出的候选顺序返回（检索侧会用 metadata.search.rank 记录顺序）
     order = {pk: i for i, pk in enumerate(pk_int_list)}
     documents.sort(key=lambda d: order.get(int((d.get("metadata") or {}).get("pk") or 0), len(order)))
+    return _annotate_two_layers(documents, violations_out)
+
+
+# identity 层：这块"是不是同一块"（取决于 id 生成方式）
+_STABLE_ID_ORIGINS = {"derived_chunk_index", "derived_parsed_chunk_index", "derived_community",
+                      # C 确定性化后，解析侧给的 pk 也是稳定身份（同一文件同一块重解析不变）
+                      "pk_from_caller"}
+
+
+def _identity_violation_fields(violations):
+    """响应体里的违规字段**唯一来源**。
+
+    纪律（A-data 2026-10-27 定的四条）：
+      1) code==200 必须同时含 identity_violations（数组，可为空）与 identity_violations_count（整数）；
+      2) code!=200 不必带（错误语义优先）；
+      3) count == len(list) 恒成立 —— 因此二者只能由本函数一处产出，禁止各处自己算；
+      4) GRAPH_STRICT_ID_MIXTURE 只用于 CI/变异复验，不进生产判断。
+    """
+    v = list(violations or [])
+    return {"identity_violations": v, "identity_violations_count": len(v)}
+
+
+def _annotate_two_layers(documents, violations_out=None):
+    """给回取的块打上**两层正交**标注（A-data 2026-10-27 提出，我据此实现）：
+
+    1) 身份层 `identity_stability`：这块"是不是同一块"，只看 id 生成方式
+         stable_derived            —— 派生 id（同文件同块稳定）
+         pending_deterministic     —— 来自调用方 pk，但调用方当前仍随机（C 未改完）
+         unknown                   —— 随机或不可判定
+    2) 出处层 `provenance_quality`：这块"是否产出该结论"
+         exact_chunk               —— 由 chunk_pk_list 精确命中回填
+         entity_content_recovered  —— 代次漂移兜底，按实体名匹配到的当前块
+    两层不得互相替代：identity 变稳**不等于** provenance 精确。
+    """
+    for d in documents or []:
+        md = d.get("metadata")
+        if not isinstance(md, dict):
+            md = {}
+            d["metadata"] = md
+        if md.get("recovered_by") == "entity_content":
+            md["provenance_quality"] = "entity_content_recovered"
+        else:
+            # 显式置 None：键存在、值为 None = "精确命中，未走实体兜底"。
+            # 下游可以用 `"recovered_by" in md` 判"字段是否被支持"，用值判"是否兜底过"。
+            md.setdefault("recovered_by", None)
+            md.setdefault("provenance_quality", "exact_chunk")
+        raw = str(md.get("id_origin") or "").strip().lower()
+        # 硬约束（A-data 2026-10-27）：块级回取里**不该**出现"社区摘要的派生来源"。
+        # 一旦出现，说明 chunk_pk_list 与社区摘要混用——这是数据错误，不能当 unknown 放过。
+        # 默认 loud-fail（ERROR + invalid_mixture 标记，不把异常升级成 500 打断验收）；
+        # 需要严格模式时设 GRAPH_STRICT_ID_MIXTURE=1，直接抛错让问题立即可见。
+        if raw == "derived_community":
+            msg = ("块级 chunk 回取出现 derived_community（chunk_pk_list 与社区摘要混用）："
+                   f"pk={md.get('pk')} source={md.get('source')}")
+            if os.environ.get("GRAPH_STRICT_ID_MIXTURE") == "1":
+                raise RuntimeError(msg)
+            logger.error(msg)
+            md["identity_stability"] = "invalid_mixture"
+            md["identity_violation"] = "derived_community_in_chunk_level"
+            # 可断言性（A-data 2026-10-27）：只写日志的 loud 在自动化里等于静默。
+            # 违规必须同时进响应体，让验收能断言 count==0，而不靠抓日志或切环境变量。
+            if isinstance(violations_out, list):
+                violations_out.append({
+                    "pk": str(md.get("pk")),
+                    "chunk_pk_list_from": "graph_entity",
+                    "reason": "derived_community_in_chunk_level",
+                    "source": md.get("source"),
+                })
+            continue
+        if raw in _STABLE_ID_ORIGINS:
+            md["identity_stability"] = "stable_derived"
+        else:
+            md["identity_stability"] = "unknown"
     return documents
+
+
+# 写入层 metadata.id_origin（ES 权威）→ 图谱侧枚举。
+#   derived_chunk_index：同一文件同一块稳定，可作精确 provenance 的强证据
+#   derived_community  ：社区摘要的既成事实，不参与"块稳定"判断
+#   pk_from_caller     ：id 由调用方（解析服务）给出；C 已确定性化，视为稳定身份
+#   random / 缺失      ：unknown
+ID_ORIGIN_MAP = {
+    "derived_chunk_index": "derived_chunk_index",
+    # 已不是预留：写入层现为"优先取 parsed_chunk_index、缺失退回 chunk_index"，
+    # 两分支都会真实产出（A 实测 chunk_index=0 → derived_chunk_index；
+    # parsed_chunk_index=7/chunk_index=9 → derived_parsed_chunk_index）。两者都合法。
+    "derived_parsed_chunk_index": "derived_parsed_chunk_index",
+    "derived_community": "derived_community",
+    # R14-B 收敛（A-data e2e 四判据通过，2026-10-27）：
+    # C 已把解析侧 pk 确定性化（create_uuid() 计数 0、12340 已重启 11:43:31）、
+    # 两类夹具各解析两次 id 完全相同、落库仍为 pk_from_caller、parsed_chunk_index 已保留到索引。
+    # 故不再标 pending —— 但"稳定"只对**重解析过的文档**成立；11:00 前写入的旧文档无该字段 → unknown。
+    "pk_from_caller": "pk_from_caller",
+    "random": "unknown",
+}
+
+
+def _recover_documents_by_entities(space_name, entity_names, es_url, server_config, limit=8):
+    """按实体名在当前代次的 ES 文本块里回取正文（代次漂移兜底）。
+
+    不做任何"猜 id"的动作：只用图检索**已经算出来的实体名**做短语匹配，
+    命中的块打 `recovered_by=entity_content`，与精确回填的块可区分。
+    """
+    names = [str(n) for n in (entity_names or []) if n and len(str(n)) >= 2][:6]
+    if not names:
+        return []
+    payload = {
+        "index_name": [space_name, "table_chunks_" + space_name],
+        "query_body": {"query": {"bool": {"should": [
+            {"match": {"page_content": n}} for n in names]}}, "size": limit},
+    }
+    try:
+        resp = requests.post(es_url + 'search_by_custom_param', json=payload, timeout=30)
+        rows = resp.json()['data']['result_data'] or []
+    except Exception as e:
+        logger.error(f'按实体回取图检索正文失败:{e}')
+        return []
+    out, seen = [], set()
+    for row in rows:
+        src = row.get("_source") or {}
+        text = src.get("page_content") or ""
+        if not text:
+            continue
+        key = (src.get("metadata") or {}).get("pk") or text[:64]
+        if key in seen:
+            continue
+        seen.add(key)
+        md = dict(src.get("metadata") or {})
+        # R14-B/A：id 来源以**写入时落库的 metadata.id_origin** 为准（A 在 controller/es.py:194-213 判定、
+        # :238 落库），不再让图谱侧重算哈希——避免两边公式版本不一致产生"两个都合法"的 id。
+        # pk_from_caller 在 C 把解析侧确定性化之后（e2e 四判据通过）已收敛为稳定；
+        # 但只对**重解析过的文档**成立：11:00 前写入的旧文档没有 id_origin → unknown（不回填）。
+        _origin = ID_ORIGIN_MAP.get(str(md.get("id_origin") or "").strip().lower(), "unknown")
+        # A-data 复核意见：审计必须能区分"精确 provenance"与"按名回取"，
+        # 否则前端会把按名命中的同实体另一篇文档当成精确引用渲染。
+        matched_ents = [n for n in names if n in text]
+        # ES 的 should 是"文档级命中"，返回块本身可能一个实体名都不含（分词/相关性召回所致）。
+        # 只保留**能在正文里逐字找到实体名**的块，避免把无关正文塞进上下文。
+        if not matched_ents:
+            continue
+        md["recovered_by"] = "entity_content"
+        md["provenance_quality"] = "entity_content_recovered"
+        md["recovered_entities"] = matched_ents
+        md["recovered_es_id"] = row.get("_id")
+        md["recovered_chunk_ref"] = {
+            "document_id": md.get("document_id"),
+            "file_id": md.get("file_id"),
+            "chunk_index": md.get("chunk_index"),
+            "source": md.get("source"),
+            # 该块 id 的来源，**枚举**（不要当 boolean 用）：
+            #   derived_chunk_index | derived_parsed_chunk_index | derived_community | pk_from_caller | unknown
+            # 取值来自写入时落库的 metadata.id_origin（见上方 ID_ORIGIN_MAP）；
+            # 无该字段的旧文档（本轮之前的写入）一律 unknown。
+            "id_origin": _origin,
+            "id_origin_raw": md.get("id_origin"),
+        }
+        out.append({"page_content": text, "metadata": md})
+    if out:
+        logger.warning(f'图检索正文按实体内容回取 {len(out)} 条（图 data 与文本块不同代次）')
+    return out
 
 
 def query_graph_data(query_data: QueryGraphData):
     """数据查询入口。
+
+    R14-TL 裁决（2026-10-27）：**200 = 业务结果（含合法空结果），500 = 依赖故障**。
+      200 + data.reason ∈ {no_entity_extracted, no_vertex_matched, space_not_found}  -> 业务空
+      500（图检索异常那条除外）                                                      -> 依赖故障
+    这样验收可以一句话断言"5xx 即失败"，不必给"图允许空"开口子。
 
     R13-FIX-GRAPH-15：每个请求从连接池取独立 Session，用完即还；
     原先共用全局单 Session 且请求结束时 release()，并发图检索会互相踩成
@@ -626,14 +828,20 @@ def query_graph_data(query_data: QueryGraphData):
     space_name = "g_" + query_data.space_name
     if not check_space_exists(space_name):
         logger.error(f'该空间：{query_data.space_name}不存在， 请检查后再次查询')
-        return BaseResponse(code=500, msg=f'该空间：{query_data.space_name}不存在，请检查后再次查询')
+        # R14-B（A-data 复现的链路级丢结果）：原来 data=None，检索侧 retrieval_graph 硬取
+        # data['result_data'] 会抛 'NoneType' object is not subscriptable，被 except 吞掉后
+        # **直接 return**（不是 continue）→ 多 KB 组合里只要有一个 KB 没有图空间，
+        # 后面所有 KB 的图检索结果全丢，对外仍是 200。这里补成与另外三处同形的空结果。
+        return BaseResponse(code=200, msg=f'该空间：{query_data.space_name}不存在，请检查后再次查询',
+                            data={"result_data": [], "entity_list": [], "reason": "space_not_found"})
     session = None
     try:
         session = return_nacos_model().acquire_session(space_name)
         return _query_graph_data(query_data, session)
     except Exception as e:
         logger.exception(f'图检索异常:{e}')
-        return BaseResponse(code=500, msg=f'图检索异常:{e}', data={"result_data": [], "entity_list": []})
+        return BaseResponse(code=500, msg=f'图检索异常:{e}',
+                            data={"result_data": [], "entity_list": [], "reason": "graph_error"})
     finally:
         return_nacos_model().release_session(session)
 
@@ -648,7 +856,11 @@ def _query_graph_data(query_data: QueryGraphData, session):
     res_result = generate_query_entities(query_data.query, query_data.model_info, server_config)
     if not res_result:
         logger.error(f'查询失败，{query_data.query}并未提取到实体信息，请重试或修改查询语句')
-        return BaseResponse(code=500, msg=f'查询失败，{query_data.query}并未提取到实体信息，请重试或修改查询语句', data={"documents_list": chunk_document_list})
+        # R14-B：键名必须与调用方（alg_retrieval_service/retrieval_graph: milvus_data['data']['result_data']）
+        # 一致。原来这里用 documents_list，调用方取 result_data 会 KeyError → 被 except 吃掉 →
+        # 直接 return 空并**跳过后续知识库**（多 KB 时静默丢结果）。
+        return BaseResponse(code=200, msg=f'查询失败，{query_data.query}并未提取到实体信息，请重试或修改查询语句',
+                            data={"result_data": [], "entity_list": [], "reason": "no_entity_extracted"})
     logger.info(f"抽取问题实体所需时长：{time.time() - t1}")
     collection_name_entity = "graph_entity_" + query_data.space_name
     collection_name_triples = "graph_triples_" + query_data.space_name
@@ -666,7 +878,8 @@ def _query_graph_data(query_data: QueryGraphData, session):
     logger.info(f"查询深度为{query_data.depth}的图数据库所需时间是：{time.time() - t3}")
     if not triples_list:
         logger.error(f'图数据库中无法查询提取到到实体{res_result}，请重试或检查数据库')
-        return BaseResponse(code=500, msg=f'图数据库中无法查询提取到到实体{res_result}，请重试或检查数据库', data={"documents_list": chunk_document_list, "entity_list": []})
+        return BaseResponse(code=200, msg=f'图数据库中无法查询提取到到实体{res_result}，请重试或检查数据库',
+                            data={"result_data": [], "entity_list": [], "reason": "no_vertex_matched"})
     entity_list = list(entity_triples_dict.keys())
     entity_info_list = query_milvus_by_condition(db_name="graph_base",
                                                  knowledge_base_name=collection_name_entity,
@@ -677,12 +890,19 @@ def _query_graph_data(query_data: QueryGraphData, session):
     ppr_flag = any(sn in start_judge_list for sn in query_ner_list)
     if not ppr_flag:
         logger.error(f'图数据库中无法查询提取到到实体{res_result}，请重试或检查数据库')
-        return BaseResponse(code=500, msg=f'查询失败，图服务并无问题中相关的顶点数据', data={"result_data": chunk_document_list})
+        return BaseResponse(code=200, msg=f'查询失败，图服务并无问题中相关的顶点数据',
+                            data={"result_data": [], "entity_list": [], "reason": "no_vertex_matched"})
     if query_data.query_type == 'hippo':
         document_chunk_pk_list, high_entity_list = cal_ppr_fun(triples_list, entity_info_list, entity_list, query_ner_list,
                                                               entity_triples_dict, collection_name_entity, server_config)
     else:
         document_chunk_pk_list = query_light_fun(start_judge_list, relationship_set, server_config, collection_name_triples, entity_info_list)
         high_entity_list = [en for en in query_ner_list if en in start_judge_list]
-    chunk_document_list = fetch_chunk_documents(query_data.space_name, document_chunk_pk_list, server_config)
-    return BaseResponse(code=200, msg=f'查询成功，共{len(chunk_document_list)}条文本数据', data={"result_data": chunk_document_list, "entity_list": high_entity_list})
+    identity_violations = []
+    chunk_document_list = fetch_chunk_documents(query_data.space_name, document_chunk_pk_list,
+                                                server_config, entity_names=high_entity_list or entity_list,
+                                                violations_out=identity_violations)
+    return BaseResponse(code=200, msg=f'查询成功，共{len(chunk_document_list)}条文本数据',
+                        data={"result_data": chunk_document_list, "entity_list": high_entity_list,
+                              # 可断言字段：验收直接断言 count==0，不依赖日志或环境变量
+                              **_identity_violation_fields(identity_violations)})

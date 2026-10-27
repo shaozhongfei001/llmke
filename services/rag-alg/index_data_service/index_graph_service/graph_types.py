@@ -48,6 +48,9 @@ STOPWORDS = {
     "文本", "内容", "数据", "天数", "业务日", "序号", "备注", "合计", "小计", "单位",
     "正常", "无", "其他", "如下", "上述", "以上", "以下", "说明",
     "客户", "用户", "供应商", "公司", "企业", "项目", "产品", "申请人", "借款人",
+    # R14-M1-R1（TL 2026-10-27 批准）：单位词与泛指标词不该成为实体。
+    # 实测 g_kb_9 里 `万元`、`额度`、`已用额度` 都成了节点，`万元` 更是纯单位。
+    "万元", "亿元", "元", "个基点", "基点", "BP", "额度", "额度上限", "已用额度",
 }
 
 RULE_DATE = re.compile(r"^\d{4}[-/年]\d{1,2}([-/月]\d{1,2})?日?$")
@@ -128,6 +131,23 @@ def infer_type(name, llm_type):
     return "unclassified", "none"
 
 
+NUMERIC_PREFIX = re.compile(r"^(人民币|加|减)\s*")
+
+
+def numeric_canon(name):
+    """R2（收窄版，TL 2026-10-27 批准）：只去 `人民币/加/减` 前缀，**不吃掉语义限定**。
+
+    例：`人民币5000万元 -> 5000万元`、`加30个基点 -> 30个基点`。
+    刻意**不**处理 `信用部分不超过1000万元` 这类带语义限定的写法（R3 的事）。
+    返回 (canonical, 是否发生归一)。
+    """
+    s0 = clean_name(name)
+    if not RULE_AMOUNT.search(s0) and not re.search(r"(个基点|基点|BP|bp)$", s0):
+        return s0, False
+    s1 = NUMERIC_PREFIX.sub("", s0)
+    return (s1, True) if s1 and s1 != s0 else (s0, False)
+
+
 def canonical_of(name, all_names, alias_map=None):
     """
     canonical 归一（确定性规则）：
@@ -162,19 +182,28 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
 
     kept, filtered, merged, unclassified = {}, [], {}, []
     name_map = {}
+    norm_rule_of = {}
 
     for name in raw_names:
         ok, reason = is_valid_entity(name)
         if not ok:
             filtered.append({"name": clean_name(name), "reason": reason})
             continue
+        raw_clean = clean_name(name)
         canon = canonical_of(name, raw_names, alias_map)
+        rule = "alias_or_company_prefix" if canon != raw_clean else ""
+        # R2（收窄版）：只去 人民币/加/减 前缀
+        num_canon, changed = numeric_canon(canon)
+        if changed:
+            canon, rule = num_canon, "numeric_prefix"
         name_map[name] = canon
-        if clean_name(name) != canon:
-            merged[clean_name(name)] = canon
+        norm_rule_of[name] = rule
+        if raw_clean != canon:
+            merged[raw_clean] = canon
 
     # 合并实体属性（title / file_id / e_type 取并集），类型冲突时保留首个已判定类型
     for name, canon in name_map.items():
+        raw_clean = clean_name(name)   # 每轮重算，不能用上一个循环的残留值
         src = entity_source_dict[name]
         if canon not in kept:
             # 保留原字典的**全部**字段（chunk_pk_list / e_type / title / file_id ...），
@@ -182,6 +211,13 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
             bucket = {k: (list(v) if isinstance(v, list) else v) for k, v in src.items()}
             bucket["entity_type"] = "1"
             kept[canon] = bucket
+            # R14-M1-R4（TL 批准）：保留原始 mention 与归一痕迹，可审计、可回滚。
+            bucket["norm_rule"] = norm_rule_of.get(name, "")
+            bucket["norm_from"] = raw_clean if raw_clean != canon else ""
+            bucket["mentions"] = [{"text": raw_clean,
+                                   "chunk_pk": list(src.get("chunk_pk_list") or []),
+                                   "file_id": src.get("file_id", ""),
+                                   "title": src.get("title", "")}]
         else:
             bucket = kept[canon]
             for key, val in src.items():
@@ -194,6 +230,19 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
                             bucket[key].append(v)
                 else:
                     bucket.setdefault(key, val)
+            # 归一痕迹要落在 canonical 顶点上（R4 可审计）：取本批未记录的规则/原名
+            _rule = norm_rule_of.get(name, "")
+            if _rule and not bucket.get("norm_rule"):
+                bucket["norm_rule"] = _rule
+            if raw_clean != canon and not bucket.get("norm_from"):
+                bucket["norm_from"] = raw_clean
+            # 同一 canonical 的其它原始写法也要留 mention（R4）
+            mentions = bucket.setdefault("mentions", [])
+            if raw_clean != canon and all(m.get("text") != raw_clean for m in mentions):
+                mentions.append({"text": raw_clean,
+                                 "chunk_pk": list(src.get("chunk_pk_list") or []),
+                                 "file_id": src.get("file_id", ""),
+                                 "title": src.get("title", "")})
         # 类型推断
         llm_type = next((t for t in bucket["e_type"] if t), "")
         typ, source = infer_type(canon, llm_type)

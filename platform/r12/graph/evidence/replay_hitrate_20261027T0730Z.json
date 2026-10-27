@@ -1,0 +1,256 @@
+{
+ "doc_id": "139363536840301567",
+ "file_id": 328,
+ "chunk_chars": 459,
+ "conditions": {
+  "model_port": "127.0.0.1:18092",
+  "model": "qwen2.5-7b-instruct",
+  "temperature": 0.0,
+  "max_tokens": 2048,
+  "seed": 42,
+  "method": "同批连续跑，每组 n=3；判据只看命中率",
+  "prompt_source": "services/rag-alg/index_data_service/index_graph_service/prompts/entity_extraction.py",
+  "entity_types_default": [
+   "人",
+   "机构",
+   "位置",
+   "时间",
+   "角色",
+   "疾病",
+   "药品",
+   "项目"
+  ],
+  "entity_types_biz": [
+   "机构",
+   "评级",
+   "金额",
+   "指标",
+   "期限",
+   "产品",
+   "条款",
+   "编号"
+  ]
+ },
+ "nudge_text": "补充要求：文中若有“评级/档次 → 具体取值”这类对照（例如 AAA级加30个基点），必须逐项抽成实体与关系，不得省略或概括。",
+ "cells": [
+  {
+   "cell": "default_types|no_nudge",
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "used_nudge": false,
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 2,
+    "hit_all_three": 2,
+    "entities_avg": 10.0,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "run": 1,
+     "prompt_chars": 2253,
+     "out_chars": 977,
+     "entities": 10,
+     "relationships": 14,
+     "has_AAA": true,
+     "basis_points": [],
+     "finish_reason": "stop",
+     "completion_tokens": 432,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::项目)\n\n(\"entity\"::装备制造::项目)\n\n(\"entity\"::电子信息::项目)\n\n(\"entity\"::全国银行间同业拆借中心::机构)\n\n(\"entity\"::AAA级::疾病)"
+    },
+    {
+     "run": 2,
+     "prompt_chars": 2253,
+     "out_chars": 1182,
+     "entities": 10,
+     "relationships": 18,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 543,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::项目)\n\n(\"entity\"::装备制造::项目)\n\n(\"entity\"::电子信息::项目)\n\n(\"entity\"::全国银行间同业拆借中心::机构)\n\n(\"entity\"::AAA级::疾病)"
+    },
+    {
+     "run": 3,
+     "prompt_chars": 2253,
+     "out_chars": 1182,
+     "entities": 10,
+     "relationships": 18,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 543,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::项目)\n\n(\"entity\"::装备制造::项目)\n\n(\"entity\"::电子信息::项目)\n\n(\"entity\"::全国银行间同业拆借中心::机构)\n\n(\"entity\"::AAA级::疾病)"
+    }
+   ]
+  },
+  {
+   "cell": "default_types|nudge",
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "used_nudge": true,
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 15.0,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "run": 1,
+     "prompt_chars": 2318,
+     "out_chars": 1394,
+     "entities": 15,
+     "relationships": 19,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 634,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::信用方式::项目)\n\n(\"entity\"::应收账款质押::项目)\n\n(\"e"
+    },
+    {
+     "run": 2,
+     "prompt_chars": 2318,
+     "out_chars": 1394,
+     "entities": 15,
+     "relationships": 19,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 634,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::信用方式::项目)\n\n(\"entity\"::应收账款质押::项目)\n\n(\"e"
+    },
+    {
+     "run": 3,
+     "prompt_chars": 2318,
+     "out_chars": 1394,
+     "entities": 15,
+     "relationships": 19,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 634,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::信用方式::项目)\n\n(\"entity\"::应收账款质押::项目)\n\n(\"e"
+    }
+   ]
+  },
+  {
+   "cell": "biz_types|no_nudge",
+   "entity_types": [
+    "机构",
+    "评级",
+    "金额",
+    "指标",
+    "期限",
+    "产品",
+    "条款",
+    "编号"
+   ],
+   "used_nudge": false,
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 23.67,
+    "finish_reasons": [
+     "length",
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "run": 1,
+     "prompt_chars": 2254,
+     "out_chars": 1252,
+     "entities": 20,
+     "relationships": 15,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 550,
+     "raw_head": "########\n(\"entity\"::智造贷::产品)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::机构)\n\n(\"entity\"::装备制造::机构)\n\n(\"entity\"::电子信息::机构)\n\n(\"entity\"::R12 验收测试夹具::编号)\n\n(\"entity\"::PRD-CORP-LOAN-2026-02::编号)\n\n(\"entity\":"
+    },
+    {
+     "run": 2,
+     "prompt_chars": 2254,
+     "out_chars": 1585,
+     "entities": 27,
+     "relationships": 17,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 736,
+     "raw_head": "########\n(\"entity\"::智造贷::产品)\n\n(\"entity\"::PRD-CORP-LOAN-2026-02::编号)\n\n(\"entity\"::R12 验收测试夹具::编号)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::机构)\n\n(\"entity\"::装备制造::机构)\n\n(\"entity\"::电子信息::机构)\n\n(\"entity\":"
+    },
+    {
+     "run": 3,
+     "prompt_chars": 2254,
+     "out_chars": 4571,
+     "entities": 24,
+     "relationships": 73,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "length",
+     "completion_tokens": 2048,
+     "raw_head": "########\n(\"entity\"::智造贷::产品)\n\n(\"entity\"::PRD-CORP-LOAN-2026-02::编号)\n\n(\"entity\"::R12 验收测试夹具::编号)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::机构)\n\n(\"entity\"::装备制造::机构)\n\n(\"entity\"::电子信息::机构)\n\n(\"entity\":"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,408 @@
+{
+ "query": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，它执行利率相对一年期LPR要加多少基点？",
+ "rerank": true,
+ "on": {
+  "http": 200,
+  "cost": 24.3,
+  "n": 3,
+  "graph_blocks": 2,
+  "docs": [
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "len": 459,
+    "search_type": [
+     "es",
+     "es",
+     "graph"
+    ],
+    "is_graph": true,
+    "recovered_by": null,
+    "chunk_pk": null
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "len": 123,
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "is_graph": true,
+    "recovered_by": null,
+    "chunk_pk": null
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "offset": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      3
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      0,
+      5
+     ],
+     [
+      0,
+      6
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      1,
+      6
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      2,
+      6
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      3,
+      6
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      4,
+      6
+     ]
+    ],
+    "len": 221,
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": null
+   }
+  ]
+ },
+ "off": {
+  "http": 200,
+  "cost": 4.3,
+  "n": 3,
+  "graph_blocks": 0,
+  "docs": [
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "len": 459,
+    "search_type": [
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": null
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "len": 123,
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": null
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "offset": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      3
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      0,
+      5
+     ],
+     [
+      0,
+      6
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      1,
+      6
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      2,
+      6
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      3,
+      6
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      4,
+      6
+     ]
+    ],
+    "len": 221,
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": null
+   }
+  ]
+ },
+ "verdict": {
+  "graph_blocks_on": 2,
+  "graph_blocks_off": 0,
+  "only_on": 0,
+  "only_off": 0,
+  "graph_adds_blocks": false,
+  "graph_absent_when_off": true
+ }
+}

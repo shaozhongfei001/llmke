@@ -247,8 +247,14 @@ async def process_multi_version_documents(documents_result_list, query, multi_ve
             lambda: multiple_retrieval_data_process(new_documents_result_dict))
         documents, table_summary_data, web_search, database_sql  = multiple_retrieval_data
 
-        documents_list = documents[query]
-        documents_list = await asyncio.to_thread(lambda: document_version(documents_list))
+        # R14-C-FIX-11b：该分支的 documents 只在"确有普通文档块"时才会写入 query 键
+        # （retrieval_fun_tool.multiple_retrieval_data_process 里 `if documents_list:` 才 set），
+        # 若本次召回全是 table_summary/web，直接下标会 KeyError → 整个检索 500。
+        # 同时保留小写键兜底（上游召回键可能已被 _add_query_to_queries 归一化成小写）。
+        documents_list = (documents.get(query)
+                          or documents.get(str(query).lower())
+                          or [])
+        documents_list = await asyncio.to_thread(lambda: document_version(documents_list, server_config, qa_model.knowledge_base_name))
 
         document_objects = []
         for doc_dict in documents_list:
@@ -475,7 +481,28 @@ async def multiple_retrieval_documents(qa_model: QARetrieveConfig):
         graph_documents = await retrieval_graph(query, qa_model.knowledge_base_name, qa_model.top_k, qa_model.model_info,
                                                server_config)
         if graph_documents:
-            documents[query].extend(graph_documents)
+            # R14-C-FIX-11（A/B 定位）：_add_query_to_queries 只把小写串放进 queries，于是 documents
+            # 的键都是小写；这里原来直接用**原始大小写**取键 —— 任何含大写 ASCII 的查询
+            # （AAA / T-CORE-001 / PRD-CORP-LOAN-2026-01 / 英文缩写）只要开图就 KeyError → 500，
+            # Java 侧拿不到 documents_list → 引用必为空（表现为"开图 refs=0、但答案对"）。
+            # 修法：按键时做"原始 → 小写"降级，并保证原始键存在（下游还有 documents[query] 的直接取值）。
+            if query in documents:
+                graph_target_key = query
+            elif query.lower() in documents:
+                graph_target_key = query.lower()
+            else:
+                graph_target_key = query
+            # R14-C-FIX-18（B 定位 + TL 确认）：这里原来还有一句
+            #   documents.setdefault(query, [])
+            # 目的是"下游可能用原始串取键"。它制造了一个**空列表键**，而 reranker_service 是
+            # `for qus, doc_list in documents.items()` 逐键发 rerank、且单批分支没有 try ——
+            # 空列表会被服务端 400 "documents must be a non-empty list" 拒掉，异常冒泡把
+            # **整轮 rerank** 变成空 → documents_list 空 → 引用归零 → 模型凭常识编答案
+            # （实测编出 "AAA 35个基点"，真值 30）。触发条件：问句含大写 ASCII（AAA/T-CORE-001…）
+            # 时 _add_query_to_queries 用小写键，于是 query 与原键不同名，补出来的就是空键。
+            # 现改为"不存在就新建并立即填充"（同一条语句内 extend，绝不留下空键），
+            # 下游取值一律走 documents.get(query) or documents.get(query.lower()) or []。
+            documents.setdefault(graph_target_key, []).extend(graph_documents)
 
     # 合并数据开始计算排序
     documents, log_pk_dict = await rerank_cal_fun(qa_model, query, documents, external_pk, server_config, log_pk_dict)
@@ -504,7 +531,7 @@ async def multiple_retrieval_documents(qa_model: QARetrieveConfig):
                             data={"faq_result_list": faq_result_list,
                                   "database_documents": [],
                                   "documents_list": documents_list, "log_list": log_list})
-    documents_list = await asyncio.to_thread(lambda: document_version(documents_list))
+    documents_list = await asyncio.to_thread(lambda: document_version(documents_list, server_config, qa_model.knowledge_base_name))
     documents_list = sorted_result(documents_list)
     logger.info(f"{uuid_test}------多路合并排序完成，共查询出{len(documents_list)}条数据")
     documents_result_list = await asyncio.to_thread(lambda: process_return_results(documents_list))

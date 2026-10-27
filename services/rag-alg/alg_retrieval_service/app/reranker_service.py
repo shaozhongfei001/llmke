@@ -197,6 +197,13 @@ async def merge_and_rerank(documents, top_n, score_threshold, server_config, log
 
     ranked_documents_dict = {}
     for qus, doc_list in documents.items():
+        # R14-C-FIX-18（B 定位）：任何来源留下的空键都不该让**整轮** rerank 失败。
+        # 服务端对空列表直接 400 "documents must be a non-empty list"，而单批分支没有 try，
+        # 异常会冒泡到调用方 → 所有 query 的 rerank 结果一起丢 → 上下文为空 → 模型自答。
+        # 这里显式跳过空集合（保留该键、结果为空），把"一条坏数据"限制在它自己身上。
+        if not doc_list:
+            logger.warning(f"reranker: 跳过空文档集合 query={qus[:40]!r}，避免整轮 rerank 失败")
+            continue
         new_ranked_documents = []
         if len(doc_list) > server_config["rerank_batch_size"]:
             chunk_document_list = split_array(doc_list, server_config["rerank_batch_size"])

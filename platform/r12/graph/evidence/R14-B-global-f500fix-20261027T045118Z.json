@@ -1,0 +1,115 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": null,
+ "answer": "事实中未提及 [L0-3c882b30]",
+ "refs": [
+  {
+   "score": "1.0",
+   "metadata": {
+    "title": "社区摘要 L0-3c882b30",
+    "community_id": "L0-3c882b30",
+    "level": 0,
+    "member_entities": [
+     "2026-12-31",
+     "关注",
+     "海川电子材料股份有限公司"
+    ],
+    "file_ids": [],
+    "file_names": [],
+    "source": "",
+    "sources_resolved_by": "",
+    "chunk_refs": [],
+    "chunk_refs_stats": {
+     "entities_with_pk": 0,
+     "total_pks": 0,
+     "resolved": 0,
+     "dangling": 0
+    },
+    "offset": [
+     [
+      0,
+      86
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "page_content": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+   "order_num": "gc-L0-3c882b30",
+   "type": "text"
+  }
+ ],
+ "cost": 1.2,
+ "frames": [
+  {
+   "sessionId": "b-1793076677782",
+   "queryId": "q-1793076677782",
+   "lastDate": 1793076678930,
+   "status": 2,
+   "reply": {
+    "content": "事实中未提及 [L0-3c882b30]",
+    "type": "markdown"
+   },
+   "reference": "[{\"score\":\"1.0\",\"metadata\":{\"title\":\"社区摘要 L0-3c882b30\",\"community_id\":\"L0-3c882b30\",\"level\":0,\"member_entities\":[\"2026-12-31\",\"关注\",\"海川电子材料股份有限公司\"],\"file_ids\":[],\"file_names\":[],\"source\":\"\",\"sources_resolved_by\":\"\",\"chunk_refs\":[],\"chunk_refs_stats\":{\"entities_with_pk\":0,\"total_pks\":0,\"resolved\":0,\"dangling\":0},\"offset\":[[0,86]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"page_content\":\"这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。\",\"order_num\":\"gc-L0-3c882b30\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793076677782\", \"queryId\": \"q-1793076677782\", \"content\": \"\\u6d77\\u5ddd\\u7535\\u5b50\\u6750\\u6599\\u80a1\\u4efd\\u6709\\u9650\\u516c\\u53f8\\u88ab\\u5217\\u4e3a\\u5173\\u6ce8\\u7c7b\\uff0c\\u9700\\u8981\\u8ba1\\u63d0\\u591a\\u5c11\\u6bd4\\u4f8b\\u7684\\u8d37\\u6b3e\\u635f\\u5931\\u51c6\\u5907\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793076677782",
+  "queryId": "q-1793076677782",
+  "content": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-3c882b30",
+   "page_content_len": 86,
+   "page_content_head": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+   "source": "",
+   "title": "社区摘要 L0-3c882b30",
+   "file_id": null,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-3c882b30",
+   "level": 0,
+   "member_entities": [
+    "2026-12-31",
+    "关注",
+    "海川电子材料股份有限公司"
+   ]
+  }
+ ]
+}

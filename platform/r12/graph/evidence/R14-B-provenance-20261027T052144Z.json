@@ -1,0 +1,54 @@
+{
+ "kb": "kb_9",
+ "ts": "2026-10-27T05:21:44Z",
+ "blocks": 4,
+ "counts": {
+  "exact_chunk": 0,
+  "stale_version": 0,
+  "entity_content": 4,
+  "unknown": 0
+ },
+ "verdict": "UNVERIFIED_NO_EXACT",
+ "hint": "重建前属预期；重建后仍 0 才是真问题",
+ "stale_pks": [],
+ "ratios": {
+  "exact_chunk": 0.0,
+  "stale_version": 0.0,
+  "entity_content": 1.0,
+  "unknown": 0.0
+ },
+ "detail": [
+  {
+   "query": "智造贷 授信额度 票据贴现",
+   "pk": "1050585778220806563",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-intro(1).pptx",
+   "class": "entity_content"
+  },
+  {
+   "query": "智造贷 授信额度 票据贴现",
+   "pk": "445478030307964037",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-intro.pptx",
+   "class": "entity_content"
+  },
+  {
+   "query": "智造贷 授信额度 票据贴现",
+   "pk": "409721235889955614",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-loan(1).docx",
+   "class": "entity_content"
+  },
+  {
+   "query": "智造贷 授信额度 票据贴现",
+   "pk": "120287042403321691",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-loan.docx",
+   "class": "entity_content"
+  }
+ ]
+}

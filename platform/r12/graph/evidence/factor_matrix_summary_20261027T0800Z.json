@@ -1,0 +1,146 @@
+{
+ "purpose": "R14 图抽取：seed × nudge × entity_types × 块长度 的因子对照（交付引用用）",
+ "conditions": {
+  "model_port": "127.0.0.1:18092",
+  "model": "qwen2.5-7b-instruct",
+  "temperature": 0.01,
+  "max_tokens": 2048,
+  "seed": 42,
+  "reps_per_cell": 3,
+  "method": "同批连续跑；命中率判据，不接受单次"
+ },
+ "sources": {
+  "no_nudge": "baseline_pre_fix_20261027T0745Z.json",
+  "with_nudge": "matrix_nudge_20261027T0755Z.json"
+ },
+ "nudge_text": "见两个源文件的 cells[*].runs[*].raw_head 与脚本 NUDGE 常量",
+ "rows": [
+  {
+   "cell": "A_only_rating_sentence|default_types",
+   "passage_chars": 46,
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "no_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 6.0
+   },
+   "with_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 6.0
+   }
+  },
+  {
+   "cell": "B_prefix150+rating|default_types",
+   "passage_chars": 196,
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "no_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 10.0
+   },
+   "with_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 11.0
+   }
+  },
+  {
+   "cell": "C_full_chunk|default_types",
+   "passage_chars": 459,
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "no_nudge": {
+    "hit_basis_points": "2/3",
+    "hit_all_three": "2/3",
+    "entities_avg": 10.0
+   },
+   "with_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 10.67
+   }
+  },
+  {
+   "cell": "A_only_rating_sentence|biz_types",
+   "passage_chars": 46,
+   "entity_types": [
+    "机构",
+    "评级",
+    "金额",
+    "指标",
+    "期限",
+    "产品",
+    "条款",
+    "编号"
+   ],
+   "no_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 6.0
+   },
+   "with_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 6.0
+   }
+  },
+  {
+   "cell": "C_full_chunk|biz_types",
+   "passage_chars": 459,
+   "entity_types": [
+    "机构",
+    "评级",
+    "金额",
+    "指标",
+    "期限",
+    "产品",
+    "条款",
+    "编号"
+   ],
+   "no_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 27.0
+   },
+   "with_nudge": {
+    "hit_basis_points": "3/3",
+    "hit_all_three": "3/3",
+    "entities_avg": 20.0
+   }
+  }
+ ],
+ "conclusion": {
+  "nudge_is_lever": "加一句『分级/分档对照逐项抽取』后，5 个组合全部 3/3（含此前 2/3 的 C+默认类型）",
+  "types_not_sufficient": "不改提示时，C+默认类型 2/3、C+业务类型 3/3；类型表提高命中率但不是开关",
+  "length_effect": "短块（46/196 字）不加提示也 3/3；长块（459 字）不加提示不稳定",
+  "seed_note": "seed=42 保证同进程连续调用可复现；跨批次（共享端口）仍会漂，故需多采样兜底",
+  "verification": "同批交错跑 3 次：hit_AAA==3/3 且 hit_any_basis_point>=2/3，且必须连映射关系一起判（AAA级 -加点幅度-> 30个基点）"
+ }
+}

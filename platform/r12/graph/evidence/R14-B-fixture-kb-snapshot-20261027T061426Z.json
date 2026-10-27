@@ -1,0 +1,63 @@
+{
+ "kb_22": [
+  {
+   "_id": "976704006275211714",
+   "title": "R14FIX-graph-03-noise.docx",
+   "len": 52
+  },
+  {
+   "_id": "11163383697297784",
+   "title": "R14FIX-graph-02-dept.docx",
+   "len": 86
+  },
+  {
+   "_id": "1119709012770011279",
+   "title": "R14FIX-graph-01-project.docx",
+   "len": 101
+  }
+ ],
+ "kb_25": [
+  {
+   "_id": "509000241138849870",
+   "title": "R14FIX-graph-03-noise.docx",
+   "len": 52
+  },
+  {
+   "_id": "497154724396442175",
+   "title": "R14FIX-graph-02b-dept.docx",
+   "len": 36
+  },
+  {
+   "_id": "1065455262466008650",
+   "title": "R14FIX-graph-02a-plan.docx",
+   "len": 73
+  },
+  {
+   "_id": "122341982206971893",
+   "title": "R14FIX-graph-01-project.docx",
+   "len": 101
+  }
+ ],
+ "kb_26": [
+  {
+   "_id": "767214983421995939",
+   "title": "R14FIX-graph-03-noise.docx",
+   "len": 52
+  },
+  {
+   "_id": "1137290163540114561",
+   "title": "R14FIX-graph-02b2-padded.docx",
+   "len": 210
+  },
+  {
+   "_id": "824124112789750831",
+   "title": "R14FIX-graph-02a-plan.docx",
+   "len": 73
+  },
+  {
+   "_id": "945335002786456486",
+   "title": "R14FIX-graph-01-project.docx",
+   "len": 101
+  }
+ ]
+}

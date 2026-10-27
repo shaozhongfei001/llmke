@@ -1,0 +1,27 @@
+{
+ "http": 500,
+ "status": null,
+ "resultType": null,
+ "answer": "",
+ "refs": [],
+ "cost": 0.7,
+ "frames": [],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793076590668\", \"queryId\": \"q-1793076590668\", \"content\": \"\\u6d77\\u5ddd\\u7535\\u5b50\\u6750\\u6599\\u80a1\\u4efd\\u6709\\u9650\\u516c\\u53f8\\u88ab\\u5217\\u4e3a\\u5173\\u6ce8\\u7c7b\\uff0c\\u9700\\u8981\\u8ba1\\u63d0\\u591a\\u5c11\\u6bd4\\u4f8b\\u7684\\u8d37\\u6b3e\\u635f\\u5931\\u51c6\\u5907\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 500
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793076590668",
+  "queryId": "q-1793076590668",
+  "content": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": []
+}

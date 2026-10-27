@@ -1,10 +1,16 @@
 import json
+import os
 import traceback
 
 from graph_fun_tool import requests_llm, clean_entity
 from operators.common.log import logger
 from prompts.entity_extraction import system_prompt, user_prompt, LOOP_PROMPT, CONTINUE_PROMPT
 from prompts.query_extraction import ner_prompts
+
+
+# 单轮抽取的输出预算（token）。原实现不传该参数，等于吃服务端默认值，
+# 在多事实块上会中途截断；459 字块实测需要 >1200 才能把实体+关系写完。
+EXTRACT_MAX_TOKENS = int(os.environ.get("GRAPH_EXTRACT_MAX_TOKENS", "2048"))
 
 
 def generate_graph_relations(passage, model_info, server_config, entity_types=None):
@@ -33,24 +39,55 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
     is_continue = True
     count = 0
     try:
-        while is_continue and count < 2:
+        # R14-P1-03：原为 `count < 2`（最多 2 轮）。实测 459 字含"产品要素 + 评级加点表"的块，
+        # 两轮只能覆盖约 2/3 的事实，G1 依赖的评级映射整段缺失。
+        # 轮次上限改为可配（默认 5），让"抽不完就继续"成为默认行为；
+        # 真正的成本护栏是 MAX_EXTRACT_ROUNDS，而不是指望模型一次抽全。
+        max_rounds = int(os.environ.get("GRAPH_EXTRACT_MAX_ROUNDS", "5"))
+        while is_continue and count < max_rounds:
             if count == 0:
                 extract_message = messages
             else:
                 extract_message = messages + [response_message, continue_message]
             logger.info(extract_message)
-            llm_response_text = requests_llm(extract_message, model_info, server_config)
+            # R14-P1-03：首轮未传 max_tokens，落到 LLM 服务端默认值 —— 459 字多事实块
+            # 的输出会在 ~20 行实体处被硬截断（实测：最后一行停在"十五个工作日"，
+            # 尾部的评级加点表永远抽不到）。这里显式给足输出预算。
+            # 温度 0 + 固定 seed：抽取是"照文抄写"的任务，不需要创造性；
+            # 实测 0.1 时同一块三次跑出 17/20/27 个实体，评级档位时有时无。
+            llm_response_text = requests_llm(extract_message, model_info, server_config,
+                                             max_tokens=EXTRACT_MAX_TOKENS,
+                                             temperature=0, seed=42)
 
             entity_dict, relation_dict, filtered_output = process_relation_response(llm_response_text,
                                                                                     entity_dict=entity_dict,
                                                                                     relation_dict=relation_dict,
                                                                                     debug=True)
             response_message["content"] = filtered_output
-            continue_response = requests_llm(messages + [response_message, loop_message], model_info, server_config, max_tokens=1)
-            is_continue = continue_response == "Y"
+            # R14-P1-03：原为 max_tokens=1 + `== "Y"` 精确匹配。
+            # max_tokens=1 时模型很可能只吐出空白或 "Y\n"，精确比较会判 False -> 永不续写。
+            # 改为给 4 个 token，并把判定做归一化（去空白/大小写/取首字符）。
+            continue_response = requests_llm(messages + [response_message, loop_message],
+                                             model_info, server_config, max_tokens=4)
+            _ans = str(continue_response or "").strip().upper()
+            is_continue = _ans.startswith("Y") or _ans.startswith("是")
             count += 1
     except:
         traceback.print_exc()
+
+    # R14-P1-03：单次调用存在**随机整段漏抽**（实测同一块 6 次里 1 次完全没有"基点"）。
+    # 分块/换模型都不是必需，性价比最高的是"多采样取并集"：
+    #   漏抽率 p≈0.4，3 次全漏 ≈ 6.4%
+    samples = int(os.environ.get("GRAPH_EXTRACT_SAMPLES", "3"))
+    for _i in range(1, samples):
+        try:
+            extra = requests_llm(messages, model_info, server_config,
+                                 max_tokens=EXTRACT_MAX_TOKENS,
+                                 temperature=0.3, seed=42 + _i)
+            entity_dict, relation_dict, _ = process_relation_response(
+                extra, entity_dict=entity_dict, relation_dict=relation_dict, debug=False)
+        except Exception as e:
+            logger.error(f"补充采样 {_i} 失败（不影响已有结果）: {str(e)[:80]}")
     return list(relation_dict.values()), entity_dict
 
 
@@ -94,7 +131,14 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
     for line in relation_lines:
         flag = False
         try:
-            _, relation_name, src_ent, dest_ent, description = line[1:-1].split("::")
+            # R14-P1-03：原为严格 5 段解包，模型只要少写一段 description
+            # （或 description 里多一个 "::"）就抛 "not enough values to unpack" 并**丢整条关系**。
+            # 实测同一块一轮里能丢 5~8 条，正好落在"评级加点"这类长描述上。
+            _parts = line[1:-1].split("::")
+            if len(_parts) < 4:
+                raise ValueError(f"关系行字段不足: {line[:60]}")
+            relation_name, src_ent, dest_ent = _parts[1], _parts[2], _parts[3]
+            description = "::".join(_parts[4:]) if len(_parts) > 4 else ""
             src_ent = clean_entity(src_ent)
             dest_ent = clean_entity(dest_ent)
             if not src_ent or not dest_ent:

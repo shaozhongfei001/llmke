@@ -1,0 +1,1152 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以获取准确信息。",
+ "refs": [
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-3c882b30",
+    "community_id": "L0-3c882b30",
+    "level": 0,
+    "member_entities": [
+     "2026-12-31",
+     "关注",
+     "海川电子材料股份有限公司"
+    ],
+    "file_ids": [
+     "120",
+     "259"
+    ],
+    "file_names": [],
+    "source": "",
+    "sources_resolved_by": "",
+    "offset": [
+     [
+      0,
+      86
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-3c882b30",
+   "page_content": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+   "score": "1.0",
+   "type": "text"
+  }
+ ],
+ "cost": 2.1,
+ "frames": [
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659026,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659137,
+   "status": 1,
+   "reply": {
+    "content": "根据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659155,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659175,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659194,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659216,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659238,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659259,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659281,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659304,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659331,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659367,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659397,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659422,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659445,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659468,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659490,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659512,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659534,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659556,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659577,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659599,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659621,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659643,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659665,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659687,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659709,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659731,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659753,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659775,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659797,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659819,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659841,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659862,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659889,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659925,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068659975,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660004,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660030,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660053,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660075,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660097,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660119,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660141,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660163,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660185,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660207,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660230,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660252,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以获取",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660274,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以获取准确",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660296,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以获取准确信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660318,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以获取准确信息。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068658214",
+   "queryId": "q-1793068658214",
+   "lastDate": 1793068660340,
+   "status": 2,
+   "reply": {
+    "content": "根据提供的参考资料，无法直接找到关于海川电子材料股份有限公司计提贷款损失准备的具体比例。这类信息通常会在财务报告或相关监管文件中详细说明。建议查阅公司的最新财务报告或咨询相关财务管理人员以获取准确信息。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-3c882b30\",\"community_id\":\"L0-3c882b30\",\"level\":0,\"member_entities\":[\"2026-12-31\",\"关注\",\"海川电子材料股份有限公司\"],\"file_ids\":[\"120\",\"259\"],\"file_names\":[],\"source\":\"\",\"sources_resolved_by\":\"\",\"offset\":[[0,86]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-3c882b30\",\"page_content\":\"这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。\",\"score\":\"1.0\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 2112,
+   "tokens": 101,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793068658214\", \"queryId\": \"q-1793068658214\", \"content\": \"\\u6d77\\u5ddd\\u7535\\u5b50\\u6750\\u6599\\u80a1\\u4efd\\u6709\\u9650\\u516c\\u53f8\\u88ab\\u5217\\u4e3a\\u5173\\u6ce8\\u7c7b\\uff0c\\u9700\\u8981\\u8ba1\\u63d0\\u591a\\u5c11\\u6bd4\\u4f8b\\u7684\\u8d37\\u6b3e\\u635f\\u5931\\u51c6\\u5907\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793068658214",
+  "queryId": "q-1793068658214",
+  "content": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-3c882b30",
+   "page_content_len": 86,
+   "page_content_head": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+   "source": "",
+   "title": "社区摘要 L0-3c882b30",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-3c882b30",
+   "level": 0,
+   "member_entities": [
+    "2026-12-31",
+    "关注",
+    "海川电子材料股份有限公司"
+   ]
+  }
+ ]
+}

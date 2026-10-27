@@ -1,0 +1,227 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": null,
+ "answer": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是30个基点 [L0-3af0d4bc] [L0-18625408]。 \n\n华东精密制造有限公司的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-18625408]。\n\n北方重工配件厂的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-18625408]。",
+ "refs": [
+  {
+   "score": "1.0",
+   "metadata": {
+    "title": "社区摘要 L0-3af0d4bc",
+    "community_id": "L0-3af0d4bc",
+    "level": 0,
+    "member_entities": [
+     "2027-06-30",
+     "AAA",
+     "江南装备科技有限公司",
+     "装备制造"
+    ],
+    "file_ids": [],
+    "file_names": [],
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "entity_content",
+    "chunk_refs": [],
+    "chunk_refs_stats": {
+     "entities_with_pk": 1,
+     "total_pks": 4,
+     "resolved": 0,
+     "dangling": 4
+    },
+    "offset": [
+     [
+      0,
+      103
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "page_content": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足，无法提供更多关键实体及其关系。",
+   "order_num": "gc-L0-3af0d4bc",
+   "type": "text"
+  },
+  {
+   "score": "1.0",
+   "metadata": {
+    "title": "社区摘要 L0-18625408",
+    "community_id": "L0-18625408",
+    "level": 0,
+    "member_entities": [
+     "1000万元",
+     "100个基点",
+     "30个基点",
+     "3年",
+     "5000万元",
+     "60个基点",
+     "一年期贷款市场报价利率",
+     "三个工作日",
+     "三个工作日内放款",
+     "三年",
+     "人民币1000万元",
+     "人民币5000万元",
+     "信用方式",
+     "信用部分不超过1000万元",
+     "全国银行间同业拆借中心",
+     "制造业中小微企业",
+     "加100个基点",
+     "加30个基点",
+     "加60个基点",
+     "十个工作日",
+     "十个工作日内完成审批",
+     "十二个月",
+     "十五个工作日",
+     "受理",
+     "客户信用评级",
+     "应收账款质押",
+     "按季付息分期还本",
+     "按月付息到期还本",
+     "提前十五个工作日提出书面申请",
+     "放款日",
+     "智造贷",
+     "核心企业保证方式",
+     "电子信息",
+     "等额本息",
+     "设备抵押",
+     "评级授信",
+     "资料审核"
+    ],
+    "file_ids": [],
+    "file_names": [],
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "entity_content",
+    "chunk_refs": [],
+    "chunk_refs_stats": {
+     "entities_with_pk": 32,
+     "total_pks": 7,
+     "resolved": 0,
+     "dangling": 7
+    },
+    "offset": [
+     [
+      0,
+      259
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "page_content": "这个社区围绕“智造贷”这一主题聚集，主要面向制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -面向-> 制造业中小微企业\n- 电子信息 -重点支持-> 智造贷\n\n社区内还详细规定了贷款的额度、期限、利率、还款方式及审批流程等，例如：\n\n- 智造贷 -最高额度-> 人民币5000万元\n- 智造贷 -最长期限-> 三年\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\n- 智造贷 -审批流程-> 十个工作日内完成审批\n\n这些信息共同构成了一个全面的贷款支持体系，旨在为制造业中小微企业提供便捷的融资服务。",
+   "order_num": "gc-L0-18625408",
+   "type": "text"
+  }
+ ],
+ "cost": 4.5,
+ "frames": [
+  {
+   "sessionId": "b-1793076859209",
+   "queryId": "q-1793076859209",
+   "lastDate": 1793076863679,
+   "status": 2,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是30个基点 [L0-3af0d4bc] [L0-18625408]。 \n\n华东精密制造有限公司的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-18625408]。\n\n北方重工配件厂的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-18625408]。",
+    "type": "markdown"
+   },
+   "reference": "[{\"score\":\"1.0\",\"metadata\":{\"title\":\"社区摘要 L0-3af0d4bc\",\"community_id\":\"L0-3af0d4bc\",\"level\":0,\"member_entities\":[\"2027-06-30\",\"AAA\",\"江南装备科技有限公司\",\"装备制造\"],\"file_ids\":[],\"file_names\":[],\"source\":\"r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"entity_content\",\"chunk_refs\":[],\"chunk_refs_stats\":{\"entities_with_pk\":1,\"total_pks\":4,\"resolved\":0,\"dangling\":4},\"offset\":[[0,103]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"page_content\":\"这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\\n\\n- 江南装备科技有限公司 -信用评级-> AAA\\n- 江南装备科技有限公司 -所属产业链-> 装备制造\\n\\n信息不足，无法提供更多关键实体及其关系。\",\"order_num\":\"gc-L0-3af0d4bc\",\"type\":\"text\"},{\"score\":\"1.0\",\"metadata\":{\"title\":\"社区摘要 L0-18625408\",\"community_id\":\"L0-18625408\",\"level\":0,\"member_entities\":[\"1000万元\",\"100个基点\",\"30个基点\",\"3年\",\"5000万元\",\"60个基点\",\"一年期贷款市场报价利率\",\"三个工作日\",\"三个工作日内放款\",\"三年\",\"人民币1000万元\",\"人民币5000万元\",\"信用方式\",\"信用部分不超过1000万元\",\"全国银行间同业拆借中心\",\"制造业中小微企业\",\"加100个基点\",\"加30个基点\",\"加60个基点\",\"十个工作日\",\"十个工作日内完成审批\",\"十二个月\",\"十五个工作日\",\"受理\",\"客户信用评级\",\"应收账款质押\",\"按季付息分期还本\",\"按月付息到期还本\",\"提前十五个工作日提出书面申请\",\"放款日\",\"智造贷\",\"核心企业保证方式\",\"电子信息\",\"等额本息\",\"设备抵押\",\"评级授信\",\"资料审核\"],\"file_ids\":[],\"file_names\":[],\"source\":\"r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"entity_content\",\"chunk_refs\":[],\"chunk_refs_stats\":{\"entities_with_pk\":32,\"total_pks\":7,\"resolved\":0,\"dangling\":7},\"offset\":[[0,259]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[1]},\"search_type\":[\"graph_community\"]},\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"page_content\":\"这个社区围绕“智造贷”这一主题聚集，主要面向制造业中小微企业。关键实体及其关系包括：\\n\\n- 智造贷 -面向-> 制造业中小微企业\\n- 电子信息 -重点支持-> 智造贷\\n\\n社区内还详细规定了贷款的额度、期限、利率、还款方式及审批流程等，例如：\\n\\n- 智造贷 -最高额度-> 人民币5000万元\\n- 智造贷 -最长期限-> 三年\\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\\n- 智造贷 -审批流程-> 十个工作日内完成审批\\n\\n这些信息共同构成了一个全面的贷款支持体系，旨在为制造业中小微企业提供便捷的融资服务。\",\"order_num\":\"gc-L0-18625408\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793076859209\", \"queryId\": \"q-1793076859209\", \"content\": \"\\u6c5f\\u5357\\u88c5\\u5907\\u79d1\\u6280\\u6709\\u9650\\u516c\\u53f8\\u3001\\u534e\\u4e1c\\u7cbe\\u5bc6\\u5236\\u9020\\u6709\\u9650\\u516c\\u53f8\\u3001\\u5317\\u65b9\\u91cd\\u5de5\\u914d\\u4ef6\\u5382\\u4e09\\u5bb6\\u7684\\u4fe1\\u7528\\u8bc4\\u7ea7\\u5206\\u522b\\u662f\\u4ec0\\u4e48\\uff1f\\u6309\\u667a\\u9020\\u8d37\\u7684\\u8bc4\\u7ea7\\u52a0\\u70b9\\u89c4\\u5219\\uff0c\\u5b83\\u4eec\\u6267\\u884c\\u5229\\u7387\\u76f8\\u5bf9\\u4e00\\u5e74\\u671fLPR\\u7684\\u52a0\\u70b9\\u5206\\u522b\\u662f\\u591a\\u5c11\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793076859209",
+  "queryId": "q-1793076859209",
+  "content": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-3af0d4bc",
+   "page_content_len": 103,
+   "page_content_head": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足，无法提供更多关键实体及其关系。",
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-3af0d4bc",
+   "file_id": null,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-3af0d4bc",
+   "level": 0,
+   "member_entities": [
+    "2027-06-30",
+    "AAA",
+    "江南装备科技有限公司",
+    "装备制造"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-18625408",
+   "page_content_len": 259,
+   "page_content_head": "这个社区围绕“智造贷”这一主题聚集，主要面向制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -面向-> 制造业中小微企业\n- 电子信息 -重点支持-> 智造贷\n\n社区内还详细规定了贷款的额度、期限、利率、还款方式及审批流程等，例如：\n\n- 智造贷 -最高额度-> 人民币5000万元\n- 智造贷 -最长期限-> ",
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-18625408",
+   "file_id": null,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-18625408",
+   "level": 0,
+   "member_entities": [
+    "1000万元",
+    "100个基点",
+    "30个基点",
+    "3年",
+    "5000万元",
+    "60个基点",
+    "一年期贷款市场报价利率",
+    "三个工作日",
+    "三个工作日内放款",
+    "三年",
+    "人民币1000万元",
+    "人民币5000万元"
+   ]
+  }
+ ]
+}

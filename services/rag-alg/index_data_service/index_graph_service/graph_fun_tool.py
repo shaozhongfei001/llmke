@@ -55,7 +55,8 @@ def split_embedding_data(data_list, model_name, server_config):
     return full_entity_list
 
 
-def requests_llm(mes, model_info, server_config, prompt_flag=True, max_tokens=None):
+def requests_llm(mes, model_info, server_config, prompt_flag=True, max_tokens=None,
+                 temperature=None, seed=None):
     """
     大模型请求服务
     Args:
@@ -100,7 +101,12 @@ def requests_llm(mes, model_info, server_config, prompt_flag=True, max_tokens=No
             messages = [{"role": "user", "content": str(mes)}]
         model_name = (model_info or {}).get("model_id") or (model_info or {}).get("model_name") \
             or server_config["llm_server"].get("model") or "qwen2.5-7b-instruct"
-        oa_payload = {"model": model_name, "messages": messages, "stream": False, "temperature": 0.1}
+        # R14-B2：图谱侧允许显式指定 temperature/seed，让"同一问题同一事实"可复现，
+        # 不必再用随机采样去掩盖稳定性问题（默认值保持 0.1，不改变既有调用方行为）。
+        oa_payload = {"model": model_name, "messages": messages, "stream": False,
+                      "temperature": 0.1 if temperature is None else float(temperature)}
+        if seed is not None:
+            oa_payload["seed"] = int(seed)
         if max_tokens:
             oa_payload["max_tokens"] = int(max_tokens)
         try:

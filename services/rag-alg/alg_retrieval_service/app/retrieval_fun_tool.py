@@ -13,6 +13,40 @@ import pandas as pd
 import httpx
 from langchain_core.documents import Document
 
+# R14-B6：图谱两层溯源字段的**唯一定义处**（C 2026-10-27 建议）。
+# 响应组装有两份白名单（本文件 process_return_results / table_retrieve），
+# 若各自手写键名，下一轮加字段时必然出现"某个分支漏加 -> 下游一个判 exact_chunk、
+# 一个判 attribution，各缺一半"。这里收敛成 (输出键, 源键) 对：
+#   chunk_pk 的源键是 metadata["pk"]（图/ES 侧习惯叫 pk），其余同名。
+PROVENANCE_FIELDS = (
+    ("provenance_quality", "provenance_quality"),
+    ("identity_stability", "identity_stability"),
+    ("recovered_by", "recovered_by"),
+    ("chunk_pk", "pk"),
+)
+
+
+def provenance_of(meta, doc=None):
+    """取溯源字段。`chunk_pk` 的三级回退**不是防御性编程，而是三种真实存在的 doc 形态**：
+
+    1) 图检索块            —— `metadata["pk"]` 有值；
+    2) 白名单重组后的 doc  —— `metadata["pk"]` 被过滤成 None，真实 pk 在**顶层** `pk`；
+    3) 老块 / 只有 _id     —— 顶层只有 `_id`（ES 原生形态）。
+    依次 `meta.pk -> doc.pk -> doc._id`，取到即止；三者都没有才是真的没有身份。
+
+    另注（C 实测确认）：`metadata.pk` 在**响应里恒不存在**（不是"值为空"），
+    所以块身份对外统一用 `chunk_pk`；`metadata.pk` 不可作为判据。
+    """
+    meta = meta or {}
+    doc = doc or {}
+    out = {}
+    for out_key, src_key in PROVENANCE_FIELDS:
+        if out_key == "chunk_pk":
+            out["chunk_pk"] = meta.get("pk") or doc.get("pk") or doc.get("_id")
+        else:
+            out[out_key] = meta.get(src_key, None)
+    return out
+
 from utils import create_uuid
 from operators.common.log import logger
 from operators.client.es_client import ESClient
@@ -108,11 +142,32 @@ def _safe_int(v):
         return None
 
 
-def document_version(documents_list):
+def _pk_to_int(v):
+    """R14-C-FIX-22e：把 pk 转成 int，**绝不允许经过 float**。
+    18 位 pk 走 float 会丢精度（139363536840301567 -> 1.3936353684030157e+17 -> 139363536840301568），
+    拿去查 ES `ids` 必然 0 命中 —— 这就是 `candidates_pk=5 / hit_by_id=0` 的真正原因。
+    """
+    if v is None:
+        return None
+    try:
+        if isinstance(v, str):
+            return int(v.strip())
+        if isinstance(v, bool):
+            return int(v)
+        if isinstance(v, float):
+            return None if pd.isna(v) else int(round(v))
+        return int(v)
+    except Exception:
+        return None
+
+
+def document_version(documents_list, server_config=None, index_names=None):
     """
     版本控制
     Args:
         documents_list:
+        server_config: R14-C-FIX-22c — 需要它才能按 pk 反查 ES 回填 version（缺省则只做批内传播）
+        index_names:   R14-C-FIX-22c — 候选可能来自 kb / table_chunks_ / table_summary_ 三类索引
 
     Returns:
 
@@ -135,12 +190,206 @@ def document_version(documents_list):
     # 而 revise_date 在多数文档上为空 → 直接跳过去重，导致同一文件的 V0/V1 同时进上下文，
     # 回答里出现"5000 万/8000 万"互相矛盾。
     # 版本号兜底：老数据的 chunk metadata 没有 version，但对象路径形如 .../<name>/V1/<file>
-    if 'version' not in df.columns or df['version'].isnull().all():
-        def _ver_from_source(src):
-            m = re.search(r'/(V\d+)/', str(src or ''))
-            return m.group(1) if m else None
-        if 'source' in df.columns:
-            df['version'] = df['source'].map(_ver_from_source)
+    def _ver_from_source(src):
+        m = re.search(r'/(V\d+)/', str(src or ''))
+        return m.group(1) if m else None
+
+    # R14-C-FIX-17（A 提的 C12 残余风险）：原实现是"整列都没 version 才整体退回 source 正则"，
+    # 一旦 metadata.version 只有部分行为空（新上传已落库、历史块没有），空的那部分会**既不过滤也不报错**，
+    # V0/V1 就会同时进上下文。改为**逐行优先 metadata.version，缺失的行才用 source 反推**，
+    # 并打点统计"多少 block 靠正则兜底"，让 C12 能判"这次过滤是元数据驱动还是路径猜测驱动"。
+    _src_ver = df['source'].map(_ver_from_source) if 'source' in df.columns else None
+
+    # R14-C-FIX-22（TL 批准 A 方案）：**同 pk 用 ES 副本回填**，不再让 source 正则冒充元数据。
+    # 背景：Milvus 集合没有 version 列，ES/Milvus 合并同 pk 只留一份，留下的若是 Milvus 那份，
+    # version 必然缺失 → 原来的 source 正则兜底会把"缺元数据"伪装成"有版本"，
+    # 结果 `兜底` 永远等于块数、`兜底=0` 永远到不了。
+    # 这里按 pk 组内互相补齐（组内只要有任一份带 version，就回填给同组其它块）；
+    # 补不出来的（Milvus 独有、ES 侧也没同 pk）**保持空并计数**，绝不伪造。
+    _n_pk_backfill = 0
+    _n_pk_candidates = 0
+    _hit_by_id = 0
+    _indexes_queried = []
+    _md_pks = set()
+    _es_filled_pks = []
+    _src_filled_pks = []
+    if 'version' not in df.columns:
+        df['version'] = None
+    if 'pk' in df.columns:
+        # ① 先在**本批内**互相补齐（同一 pk 有任一份带 version 就传播）——零成本，命中即有
+        _donor = df.dropna(subset=['version']).drop_duplicates(subset=['pk']).set_index('pk')['version'].to_dict()
+        if _donor:
+            _need = df['version'].isnull()
+            if _need.any():
+                _filled = df.loc[_need, 'pk'].map(_donor)
+                _n_pk_backfill = int(_filled.notnull().sum())
+                if _n_pk_backfill:
+                    df.loc[_need, 'version'] = _filled
+
+        # ② 批内补不出来的，**按 _id 直查 ES**（R14-C-FIX-22c，TL 指出的实现缺陷）。
+        # 原实现只做了 ①（批内传播），一旦整批都来自 Milvus（都没有 version），① 必然 0 命中，
+        # 而打点显示"ES同pk回填=0"会被误读成"两套 id 不同源"。正确做法是拿 pk 当 _id 去 ES 取：
+        #   - 用 `ids` 查询（对类型/mapping 不敏感，不需要 term 命中 keyword 索引）；
+        #   - 三个索引都查（kb / table_chunks_kb / table_summary_kb），候选可能来自任一。
+        _missing_pks = []
+        if 'pk' in df.columns:
+            for _pk, _v in zip(df['pk'], df['version']):
+                if pd.isna(_v) and _pk is not None and not pd.isna(_pk):
+                    try:
+                        _missing_pks.append(_pk_to_int(_pk))
+                    except Exception:
+                        continue
+        _missing_pks = list(dict.fromkeys(_missing_pks))
+        _n_pk_candidates = len(_missing_pks)
+        if _missing_pks and server_config is not None:
+            _bases = index_names or []
+            if isinstance(_bases, str):
+                _bases = [_bases]
+            _idxs = []
+            for _b in _bases:
+                _b = str(_b)
+                _idxs.extend([_b, f"table_chunks_{_b}", f"table_summary_{_b}"])
+            _idxs = list(dict.fromkeys(_idxs))
+            _indexes_queried = _idxs
+            try:
+                _data = {
+                    "query_body": {
+                        "size": max(10, len(_missing_pks)),
+                        "_source": ["metadata.version", "metadata.pk", "metadata.file_id",
+                                    "metadata.title", "metadata.parent_file_name", "metadata.revise_date",
+                                    # R14-C-FIX-22d（A 提供）：`.md` 转换产物降级解析时会在 chunk metadata 上落
+                                    # parser_fallback="md_text"，这类块本来就没有版本目录信息，
+                                    # 取回来是为了把"无 version 可依"与"回填失败"分开计数。
+                                    "metadata.parser_fallback"],
+                        "query": {"ids": {"values": [str(_i) for _i in _missing_pks]}},
+                    },
+                    "index_name": _idxs,
+                }
+                _es_url = 'http://' + server_config["es_config"]["host"] + ':' + str(server_config["es_config"]["port"]) + '/'
+                _resp = ESClient.request_sync(es_url=_es_url + 'search_by_custom_param', data=_data)
+                _rows = ((_resp or {}).get("data") or {}).get("result_data") or []
+                _by_pk = {}
+                _md_pks = set()
+                for _r in _rows:
+                    _m = (_r.get("_source") or {}).get("metadata") or {}
+                    _rk = _m.get("pk")
+                    _rv = _m.get("version")
+                    _rid = _r.get("_id")
+                    # R14-C-FIX-22d：`.md` 降级块（parser_fallback=md_text）本来就没有版本目录，
+                    # 单独记下来，避免它被算成"回填失败"。
+                    if str(_m.get("parser_fallback") or "").strip().lower() == "md_text":
+                        for _key in (_rk, _rid):
+                            if _key is not None:
+                                try:
+                                    _md_pks.add(_pk_to_int(_key))
+                                except Exception:
+                                    pass
+                    if _rv is None:
+                        continue
+                    for _key in (_rk, _rid):
+                        if _key is None:
+                            continue
+                        try:
+                            _by_pk[_pk_to_int(_key)] = _rv
+                        except Exception:
+                            continue
+                if _by_pk:
+                    _need2 = df['version'].isnull()
+                    _fk = df.loc[_need2, 'pk'].map(lambda x: _by_pk.get(_pk_to_int(x)))
+                    _hit_by_id = int(_fk.notnull().sum())
+                    if _hit_by_id:
+                        try:
+                            _es_filled_pks = [int(_p) for _p in
+                                              df.loc[_need2, 'pk'][_fk.notnull()].map(_pk_to_int).tolist()]
+                        except Exception:
+                            _es_filled_pks = []
+                        df.loc[_need2, 'version'] = _fk
+                        _n_pk_backfill += _hit_by_id
+            except Exception as _e:
+                logger.warning(f"document_version: 按 pk 查 ES 回填失败（继续走 source 兜底），err={_e}")
+
+    # R14-C-FIX-22b（B 建议）：三条计数只能说明"有没有回填成功"，看不出**为什么**失败。
+    # 按 search_type 里的路数给出来源分解，一眼区分"Milvus pk 与 ES _id 完全不同源"和"部分重叠"。
+    _pk_src = {'milvus_only': 0, 'es_only': 0, 'both': 0, 'unknown': 0}
+    if 'search_type' in df.columns:
+        for _st in df['search_type']:
+            _flat = []
+            if isinstance(_st, (list, tuple)):
+                for _e in _st:
+                    _flat.extend(_e if isinstance(_e, (list, tuple)) else [_e])
+            elif _st is not None:
+                _flat = [_st]
+            _flat = [str(_x).lower() for _x in _flat]
+            _has_m = any('milvus' in _x for _x in _flat)
+            _has_e = any(_x == 'es' or _x.startswith('es') for _x in _flat)
+            if _has_m and _has_e:
+                _pk_src['both'] += 1
+            elif _has_m:
+                _pk_src['milvus_only'] += 1
+            elif _has_e:
+                _pk_src['es_only'] += 1
+            else:
+                _pk_src['unknown'] += 1
+    else:
+        _pk_src['unknown'] = len(df)
+
+    # 仍然缺失的才退回 source 正则（仅历史块；**单独计数**，不再与"元数据"混为一谈）
+    _still_missing = df['version'].isnull()
+    _n_fallback = int((_still_missing & _src_ver.notnull()).sum()) if _src_ver is not None else 0
+    if _n_fallback:
+        try:
+            _src_filled_pks = [int(_p) for _p in
+                               df.loc[_still_missing, 'pk'][_src_ver[_still_missing].notnull()].map(_pk_to_int).tolist()
+                               if _p is not None]
+        except Exception:
+            _src_filled_pks = []
+        df.loc[_still_missing, 'version'] = _src_ver[_still_missing]
+    # 补不出来也无从反推的行：保持空、单独计数（这是 Milvus 独有块的正常表现，不是缺陷）
+    _n_no_ver = int(df['version'].isnull().sum())
+    # R14-C-FIX-22e-g（A 建议）廉价护栏：18 位 pk 一旦被人用 float/JSON 浮点搬过，
+    # int(float(p)) != int(p) 会立刻暴露（误差随量级变化，不是固定 +1/-12），
+    # 比等到 hit_by_id 掉成 0 再回头查快得多。
+    _pk_precision_ok = True
+    if 'pk' in df.columns:
+        for _pk in df['pk']:
+            if _pk is None or (isinstance(_pk, float) and pd.isna(_pk)):
+                continue
+            try:
+                # 语义修正：判的是"这个值**是否已经**丢了精度"，而不是"float 化会不会丢"。
+                # 18 位 int 一旦转 float 必然丢尾数，但若 df 里本来就是 int/纯数字字符串，就没问题。
+                # 可疑形态只有两种：值是 float 类型，或字符串里带小数点/科学计数（说明被浮点搬过）。
+                if isinstance(_pk, float):
+                    _pk_precision_ok = False
+                    break
+                _s = str(_pk).strip()
+                if ('.' in _s) or ('e' in _s.lower()):
+                    _pk_precision_ok = False
+                    break
+            except Exception:
+                continue
+    # R14-C-FIX-22d：把"无 version 可依"里属于 .md 降级产物的那部分单独计出来，
+    # 否则 no_version>0 会被误读成"回填失败"（A 的判据：md_text 降级块本来就没有版本目录）。
+    _n_no_ver_md = 0
+    if _n_no_ver and _md_pks and 'pk' in df.columns:
+        for _pk, _v in zip(df['pk'], df['version']):
+            if pd.isna(_v) and _pk is not None and not pd.isna(_pk):
+                try:
+                    if _pk_to_int(_pk) in _md_pks:
+                        _n_no_ver_md += 1
+                except Exception:
+                    pass
+    if len(df):
+        # 注意：本仓 logger 是 loguru 风格（`{}` 占位），用 `%d` 会原样打印，别写成 %s。
+        # R14-C-FIX-22c：TL 要求"查了哪些索引、候选多少个、命中多少"必须自证，
+        # 否则"回填=0"会被误读成"两套 id 不同源"（上一轮就是这么误判的）。
+        logger.info(f"document_version: blocks={len(df)} candidates_pk={_n_pk_candidates} "
+                    f"hit_by_id={_hit_by_id} ES_pk_backfill={_n_pk_backfill} "
+                    f"source_regex={_n_fallback} no_version={_n_no_ver} "
+                    f"no_version_md_text={_n_no_ver_md} pk_precision_ok={_pk_precision_ok} "
+                    f"indexes_queried={_indexes_queried} "
+                    f"pk_attribution(es={_es_filled_pks[:8]} source={_src_filled_pks[:8]}) "
+                    f"pk来源(milvus_only={_pk_src['milvus_only']} es_only={_pk_src['es_only']} "
+                    f"both={_pk_src['both']} unknown={_pk_src['unknown']})")
     if 'version' in df.columns and df['version'].notnull().any():
         def _vnum(v):
             try:
@@ -480,6 +729,25 @@ def process_return_results(documents_list):
                         "chunk_index": x["metadata"].get("chunk_index", None),
                         "table_summary_id": x["metadata"].get("table_summary_id", None),
                         "revise_date": x["metadata"].get("revise_date", None),
+                        # R14-C-FIX-14：本处是显式白名单，此前把"别人写的可审计字段"整片丢掉，
+                        # 导致引用只能显示文件名、表格类引用无法回指到"哪张表/哪一行"。
+                        # 补齐：title（B 的 ground truth 用文件名做判据）+ 表格资产的 7 个审计键。
+                        # 注意：绝不透传 base64 / image_url 这类大字段，否则响应体会被图片撑爆。
+                        "title": x["metadata"].get("title", None),
+                        # R14-B6：图谱两层溯源字段必须原样透出，否则下游读 provenance_quality
+                        # 得到 None -> 误判"重建没生效/字段消失"，只能靠 pk ∩ ES._id 反推。
+                        # 缺省也写成键（值为 None），让"键在"与"走了兜底"两件事可分别判断。
+                        **provenance_of(x.get("metadata"), x),
+                        "knowledge_base_name": x["metadata"].get("knowledge_base_name", None),
+                        "file_ids": x["metadata"].get("file_ids", None),
+                        "table_ordinal": x["metadata"].get("table_ordinal", None),
+                        "business_name": x["metadata"].get("business_name", None),
+                        "physical_name": x["metadata"].get("physical_name", None),
+                        "database_id": x["metadata"].get("database_id", None),
+                        "database_name": x["metadata"].get("database_name", None),
+                        "row_count": x["metadata"].get("row_count", None),
+                        "column_count": x["metadata"].get("column_count", None),
+                        "database_description": x["metadata"].get("database_description", None),
                         "score": x["metadata"].get("score", 0),
                         "rerank_score_rank": x["metadata"].get("rerank_score_rank", 0),
                         "rrf_score": x["metadata"].get("rrf_score", 0),

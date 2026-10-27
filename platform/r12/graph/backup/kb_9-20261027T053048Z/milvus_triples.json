@@ -1,0 +1,1844 @@
+[
+ {
+  "page_content": "智造贷,额度有效期,十二个月",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "十二个月",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.818377",
+   "pk": 45156555217931523,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "额度有效期",
+   "update_time": "2026-10-26 22:59:43.818377",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "月度,口径,用电量",
+  "metadata": {
+   "file_id": [
+    "263"
+   ],
+   "target_entity": "用电量",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.535441",
+   "pk": 74930813972745071,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "月度",
+   "relationship": "口径",
+   "update_time": "2026-10-26 22:46:39.535441",
+   "chunk_pk_list": [
+    "1024737308141832299",
+    "1960589330589231216"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "放款,办理流程,智造贷",
+  "metadata": {
+   "file_id": [
+    "268"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.293312",
+   "pk": 137295984588017814,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "放款",
+   "relationship": "办理流程",
+   "update_time": "2026-10-26 23:50:34.293312",
+   "chunk_pk_list": [
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "268_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,增信方式,核心企业保证方式",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "核心企业保证方式",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.821520",
+   "pk": 145381266317113373,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "增信方式",
+   "update_time": "2026-10-26 22:59:43.821520",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "30~100BP,利率加点范围,1年期LPR",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "1年期LPR",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.546482",
+   "pk": 156024676189582997,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "30~100BP",
+   "relationship": "利率加点范围",
+   "update_time": "2026-10-26 22:46:39.546482",
+   "chunk_pk_list": [
+    "794663329353800421"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,提前还款流程,提前十五个工作日提出书面申请",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "提前十五个工作日提出书面申请",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.540691",
+   "pk": 230451727069643812,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "提前还款流程",
+   "update_time": "2026-10-26 22:46:39.540691",
+   "chunk_pk_list": [
+    "603679223195613463"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "电子信息,重点支持,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.643702",
+   "pk": 244510794043116918,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "电子信息",
+   "relationship": "重点支持",
+   "update_time": "2026-10-26 23:50:57.643702",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,重点支持,装备制造",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "装备制造",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.531560",
+   "pk": 289787938633734319,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "重点支持",
+   "update_time": "2026-10-26 22:46:39.531560",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "十个工作日,审批完成时限,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.645210",
+   "pk": 319498378111465202,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "十个工作日",
+   "relationship": "审批完成时限",
+   "update_time": "2026-10-26 23:50:57.645210",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "30个基点,AAA级加点幅度,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.639034",
+   "pk": 436295868362753719,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "30个基点",
+   "relationship": "AAA级加点幅度",
+   "update_time": "2026-10-26 23:50:57.639034",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,还款方式,等额本息",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "等额本息",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.534353",
+   "pk": 458546681589074213,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "还款方式",
+   "update_time": "2026-10-26 22:46:39.534353",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,审批完成时限,十个工作日",
+  "metadata": {
+   "file_id": [
+    "226"
+   ],
+   "target_entity": "十个工作日",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.534895",
+   "pk": 671569442657590979,
+   "title": [
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "审批完成时限",
+   "update_time": "2026-10-26 22:46:39.534895",
+   "chunk_pk_list": [
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "制造业中小微企业,面向,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.644478",
+   "pk": 720021237242298791,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "制造业中小微企业",
+   "relationship": "面向",
+   "update_time": "2026-10-26 23:50:57.644478",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,还款方式,按月付息到期还本",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "按月付息到期还本",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.538085",
+   "pk": 894531526575340491,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "还款方式",
+   "update_time": "2026-10-26 22:46:39.538085",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "十五个工作日,提前还款需提前,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.634961",
+   "pk": 960805732451909231,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "十五个工作日",
+   "relationship": "提前还款需提前",
+   "update_time": "2026-10-26 23:50:57.634961",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,增信方式,应收账款质押",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "应收账款质押",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.822026",
+   "pk": 1045397175723145549,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "增信方式",
+   "update_time": "2026-10-26 22:59:43.822026",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,授信额度上限,应收账款质押",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "应收账款质押",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.532138",
+   "pk": 1120356277025465139,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 22:46:39.532138",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,重点支持,电子信息",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "电子信息",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.542753",
+   "pk": 1131876447213648296,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "重点支持",
+   "update_time": "2026-10-26 22:46:39.542753",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "三年,贷款期限最长,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.641325",
+   "pk": 1177093710418146943,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "三年",
+   "relationship": "贷款期限最长",
+   "update_time": "2026-10-26 23:50:57.641325",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "十二个月,授信额度有效期,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.632443",
+   "pk": 1254047453664894113,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "十二个月",
+   "relationship": "授信额度有效期",
+   "update_time": "2026-10-26 23:50:57.632443",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "核心企业保证方式,授信额度上限,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.635830",
+   "pk": 1285151696955414445,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "核心企业保证方式",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 23:50:57.635830",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "信用方式,授信额度上限,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.640604",
+   "pk": 1380317060413977576,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "信用方式",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 23:50:57.640604",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,提前还款申请方式,提前十五个工作日提出书面申请",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "提前十五个工作日提出书面申请",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.824102",
+   "pk": 1422345769704701166,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "提前还款申请方式",
+   "update_time": "2026-10-26 22:59:43.824102",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "1年期LPR,利率基准,智造贷",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.539655",
+   "pk": 1422590885762284175,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "1年期LPR",
+   "relationship": "利率基准",
+   "update_time": "2026-10-26 22:46:39.539655",
+   "chunk_pk_list": [
+    "794663329353800421",
+    "3120294016267756374",
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,贷款期限最长,三年",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "三年",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.537563",
+   "pk": 1427988782794142362,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "贷款期限最长",
+   "update_time": "2026-10-26 22:46:39.537563",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,放款流程,三个工作日内放款",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "三个工作日内放款",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.537038",
+   "pk": 1502303934252983571,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "放款流程",
+   "update_time": "2026-10-26 22:46:39.537038",
+   "chunk_pk_list": [
+    "603679223195613463"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,办理时限审批完成时间,十个工作日",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "十个工作日",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.817745",
+   "pk": 1560752369283109646,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "办理时限审批完成时间",
+   "update_time": "2026-10-26 22:59:43.817745",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "三个工作日,放款完成时限,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.633257",
+   "pk": 1687856856359267844,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "三个工作日",
+   "relationship": "放款完成时限",
+   "update_time": "2026-10-26 23:50:57.633257",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,增信方式,设备抵押",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "设备抵押",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.819493",
+   "pk": 1770625207959815500,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "增信方式",
+   "update_time": "2026-10-26 22:59:43.819493",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "T-EXT-001,数据源,用电量",
+  "metadata": {
+   "file_id": [
+    "263"
+   ],
+   "target_entity": "用电量",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.533251",
+   "pk": 1819915585163302255,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "T-EXT-001",
+   "relationship": "数据源",
+   "update_time": "2026-10-26 22:46:39.533251",
+   "chunk_pk_list": [
+    "1024737308141832299",
+    "1960589330589231216"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "智造贷,还款方式,按季付息分期还本",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "按季付息分期还本",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.533791",
+   "pk": 1996590630362974513,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "还款方式",
+   "update_time": "2026-10-26 22:46:39.533791",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "十二个月,贷款期限最长,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.636658",
+   "pk": 2101723418449122377,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "十二个月",
+   "relationship": "贷款期限最长",
+   "update_time": "2026-10-26 23:50:57.636658",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "3年,最长期限,智造贷",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.545644",
+   "pk": 2127113599533452417,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "3年",
+   "relationship": "最长期限",
+   "update_time": "2026-10-26 22:46:39.545644",
+   "chunk_pk_list": [
+    "794663329353800421",
+    "3120294016267756374",
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ },
+ {
+  "page_content": "5000万元,最高额度,智造贷",
+  "metadata": {
+   "file_id": [
+    "268"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.291855",
+   "pk": 2197156194553692047,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "5000万元",
+   "relationship": "最高额度",
+   "update_time": "2026-10-26 23:50:34.291855",
+   "chunk_pk_list": [
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "268_0"
+   ]
+  }
+ },
+ {
+  "page_content": "日均存款,数据源,T-CORE-001",
+  "metadata": {
+   "file_id": [
+    "263"
+   ],
+   "target_entity": "T-CORE-001",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:11.909180",
+   "pk": 2236058687623214515,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "日均存款",
+   "relationship": "数据源",
+   "update_time": "2026-10-26 22:59:11.909180",
+   "chunk_pk_list": [
+    "1942180628671666588"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "智造贷,单户最高授信额度,人民币5000万元",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "人民币5000万元",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.820027",
+   "pk": 2404342007009933986,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "单户最高授信额度",
+   "update_time": "2026-10-26 22:59:43.820027",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,重点支持,汽车零部件",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "汽车零部件",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.548018",
+   "pk": 2586370775893174325,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "重点支持",
+   "update_time": "2026-10-26 22:46:39.548018",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "60个基点,AA级加点幅度,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.642158",
+   "pk": 2607008030614484614,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "60个基点",
+   "relationship": "AA级加点幅度",
+   "update_time": "2026-10-26 23:50:57.642158",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,授信额度要求,制造业中小微企业",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "制造业中小微企业",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.823057",
+   "pk": 2884492417393324152,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "授信额度要求",
+   "update_time": "2026-10-26 22:59:43.823057",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,信用方式上限,1000万元",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "1000万元",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.822542",
+   "pk": 2942327759221679564,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "信用方式上限",
+   "update_time": "2026-10-26 22:59:43.822542",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,AA级加点幅度,60个基点",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "60个基点",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.530935",
+   "pk": 2953515960833286858,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "AA级加点幅度",
+   "update_time": "2026-10-26 22:46:39.530935",
+   "chunk_pk_list": [
+    "603679223195613463"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "用电量,数据源,T-EXT-001",
+  "metadata": {
+   "file_id": [
+    "263"
+   ],
+   "target_entity": "T-EXT-001",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:11.909910",
+   "pk": 2960469993481374202,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "用电量",
+   "relationship": "数据源",
+   "update_time": "2026-10-26 22:59:11.909910",
+   "chunk_pk_list": [
+    "1942180628671666588"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "智造贷,提前还款需提前,十五个工作日",
+  "metadata": {
+   "file_id": [
+    "226"
+   ],
+   "target_entity": "十五个工作日",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.543814",
+   "pk": 3097193160667608160,
+   "title": [
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "提前还款需提前",
+   "update_time": "2026-10-26 22:46:39.543814",
+   "chunk_pk_list": [
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,办理时限放款时间,三个工作日",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "三个工作日",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.823599",
+   "pk": 3218669482728656152,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "办理时限放款时间",
+   "update_time": "2026-10-26 22:59:43.823599",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "制造业中小微企业,适用对象,智造贷",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.545030",
+   "pk": 3221804774631884036,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "制造业中小微企业",
+   "relationship": "适用对象",
+   "update_time": "2026-10-26 22:46:39.545030",
+   "chunk_pk_list": [
+    "794663329353800421",
+    "3120294016267756374",
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,加点幅度确定方式,客户信用评级",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "客户信用评级",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.818936",
+   "pk": 3255085702988194136,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "加点幅度确定方式",
+   "update_time": "2026-10-26 22:59:43.818936",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,贷款期限,三年",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "三年",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.821026",
+   "pk": 3306219853808418930,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "贷款期限",
+   "update_time": "2026-10-26 22:59:43.821026",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "应收账款质押,授信额度上限,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.638268",
+   "pk": 3317826413447527599,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "应收账款质押",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 23:50:57.638268",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "设备抵押,授信额度上限,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.631436",
+   "pk": 3344343903029520797,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "设备抵押",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 23:50:57.631436",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "放款日,执行利率依据,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.637449",
+   "pk": 3422054708637630192,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "放款日",
+   "relationship": "执行利率依据",
+   "update_time": "2026-10-26 23:50:57.637449",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "跨账户,口径,日均存款",
+  "metadata": {
+   "file_id": [
+    "271"
+   ],
+   "target_entity": "日均存款",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.300117",
+   "pk": 3424045378858098112,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "跨账户",
+   "relationship": "口径",
+   "update_time": "2026-10-26 23:50:34.300117",
+   "chunk_pk_list": [
+    "1960589330589231216"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "1000万元,最高额度,智造贷",
+  "metadata": {
+   "file_id": [
+    "268"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.290213",
+   "pk": 3504100456138129238,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "1000万元",
+   "relationship": "最高额度",
+   "update_time": "2026-10-26 23:50:34.290213",
+   "chunk_pk_list": [
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "268_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,放款完成时限,三个工作日",
+  "metadata": {
+   "file_id": [
+    "226"
+   ],
+   "target_entity": "三个工作日",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.539141",
+   "pk": 3525501744938183435,
+   "title": [
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "放款完成时限",
+   "update_time": "2026-10-26 22:46:39.539141",
+   "chunk_pk_list": [
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,授信额度上限,设备抵押",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "设备抵押",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.541209",
+   "pk": 3536115240432546420,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 22:46:39.541209",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,贷款期限,十二个月",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "十二个月",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:59:43.820525",
+   "pk": 3655513961005436996,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "贷款期限",
+   "update_time": "2026-10-26 22:59:43.820525",
+   "chunk_pk_list": [
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "资料审核,办理流程,智造贷",
+  "metadata": {
+   "file_id": [
+    "268"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.292563",
+   "pk": 3658071127491752902,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "资料审核",
+   "relationship": "办理流程",
+   "update_time": "2026-10-26 23:50:34.292563",
+   "chunk_pk_list": [
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "268_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,A级加点幅度,100个基点",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "100个基点",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.547258",
+   "pk": 3682061711528656216,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "A级加点幅度",
+   "update_time": "2026-10-26 22:46:39.547258",
+   "chunk_pk_list": [
+    "603679223195613463"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,AAA级加点幅度,30个基点",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "30个基点",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.542235",
+   "pk": 3698622400617912991,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "AAA级加点幅度",
+   "update_time": "2026-10-26 22:46:39.542235",
+   "chunk_pk_list": [
+    "603679223195613463"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "100个基点,A级加点幅度,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.642911",
+   "pk": 3820522110032961266,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "100个基点",
+   "relationship": "A级加点幅度",
+   "update_time": "2026-10-26 23:50:57.642911",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "同比,口径,用电量",
+  "metadata": {
+   "file_id": [
+    "271"
+   ],
+   "target_entity": "用电量",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.299459",
+   "pk": 4040548878904005005,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "同比",
+   "relationship": "口径",
+   "update_time": "2026-10-26 23:50:34.299459",
+   "chunk_pk_list": [
+    "1960589330589231216"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "10个工作日,审批时间,智造贷",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.540169",
+   "pk": 4125793776617778042,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "10个工作日",
+   "relationship": "审批时间",
+   "update_time": "2026-10-26 22:46:39.540169",
+   "chunk_pk_list": [
+    "794663329353800421",
+    "3120294016267756374"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ },
+ {
+  "page_content": "装备制造,重点支持,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.634105",
+   "pk": 4193895634178184004,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "装备制造",
+   "relationship": "重点支持",
+   "update_time": "2026-10-26 23:50:57.634105",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "汽车零部件,重点支持,智造贷",
+  "metadata": {
+   "file_id": [
+    "266"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:57.639817",
+   "pk": 4221174864586764657,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "汽车零部件",
+   "relationship": "重点支持",
+   "update_time": "2026-10-26 23:50:57.639817",
+   "chunk_pk_list": [
+    "1075644721950122678"
+   ],
+   "labels": [],
+   "page_num": [
+    "266_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,授信额度上限,核心企业保证方式",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "核心企业保证方式",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.532683",
+   "pk": 4247124021876183010,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "授信额度上限",
+   "update_time": "2026-10-26 22:46:39.532683",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,审批流程,十个工作日内完成审批",
+  "metadata": {
+   "file_id": [
+    "258"
+   ],
+   "target_entity": "十个工作日内完成审批",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.536513",
+   "pk": 4269311810129795492,
+   "title": [
+    "R12FIX-product-loan.docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "审批流程",
+   "update_time": "2026-10-26 22:46:39.536513",
+   "chunk_pk_list": [
+    "603679223195613463"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0"
+   ]
+  }
+ },
+ {
+  "page_content": "T-CORE-001,数据源,日均存款",
+  "metadata": {
+   "file_id": [
+    "263"
+   ],
+   "target_entity": "日均存款",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.543259",
+   "pk": 4362005300898265404,
+   "title": [
+    "docx-table.docx"
+   ],
+   "source_entity": "T-CORE-001",
+   "relationship": "数据源",
+   "update_time": "2026-10-26 22:46:39.543259",
+   "chunk_pk_list": [
+    "1024737308141832299",
+    "1960589330589231216"
+   ],
+   "labels": [],
+   "page_num": []
+  }
+ },
+ {
+  "page_content": "智造贷,面向,制造业中小微企业",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "制造业中小微企业",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.541719",
+   "pk": 4386191528751024967,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "面向",
+   "update_time": "2026-10-26 22:46:39.541719",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178",
+    "3876504572213913891"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "智造贷,授信额度有效期,十二个月",
+  "metadata": {
+   "file_id": [
+    "258",
+    "226"
+   ],
+   "target_entity": "十二个月",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.535982",
+   "pk": 4401522717191091870,
+   "title": [
+    "R12FIX-product-loan.docx",
+    "R12FIX-product-loan(1).docx"
+   ],
+   "source_entity": "智造贷",
+   "relationship": "授信额度有效期",
+   "update_time": "2026-10-26 22:46:39.535982",
+   "chunk_pk_list": [
+    "603679223195613463",
+    "332999700890475178"
+   ],
+   "labels": [],
+   "page_num": [
+    "258_0",
+    "226_0"
+   ]
+  }
+ },
+ {
+  "page_content": "审批,办理流程,智造贷",
+  "metadata": {
+   "file_id": [
+    "268"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.291165",
+   "pk": 4404439768771980937,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "审批",
+   "relationship": "办理流程",
+   "update_time": "2026-10-26 23:50:34.291165",
+   "chunk_pk_list": [
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "268_0"
+   ]
+  }
+ },
+ {
+  "page_content": "3个工作日,放款时间,智造贷",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.538621",
+   "pk": 4505451579220973552,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "3个工作日",
+   "relationship": "放款时间",
+   "update_time": "2026-10-26 22:46:39.538621",
+   "chunk_pk_list": [
+    "794663329353800421",
+    "3120294016267756374"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ },
+ {
+  "page_content": "评级授信,办理流程,智造贷",
+  "metadata": {
+   "file_id": [
+    "268"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 23:50:34.294299",
+   "pk": 4565414275328064961,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "评级授信",
+   "relationship": "办理流程",
+   "update_time": "2026-10-26 23:50:34.294299",
+   "chunk_pk_list": [
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "268_0"
+   ]
+  }
+ },
+ {
+  "page_content": "受理,办理流程,智造贷",
+  "metadata": {
+   "file_id": [
+    "260"
+   ],
+   "target_entity": "智造贷",
+   "folder_id": "",
+   "create_time": "2026-10-26 22:46:39.544429",
+   "pk": 4581232905530539376,
+   "title": [
+    "R12FIX-product-intro.pptx"
+   ],
+   "source_entity": "受理",
+   "relationship": "办理流程",
+   "update_time": "2026-10-26 22:46:39.544429",
+   "chunk_pk_list": [
+    "794663329353800421",
+    "3120294016267756374",
+    "3715198606399299383"
+   ],
+   "labels": [],
+   "page_num": [
+    "260_0"
+   ]
+  }
+ }
+]

@@ -1,0 +1,2009 @@
+{
+ "vertices": [
+  {
+   "id": "60个基点",
+   "props": {
+    "file_id": "258,266",
+    "type": "unclassified",
+    "name": "60个基点",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "AAA级",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "AAA级",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "审批",
+   "props": {
+    "file_id": "268",
+    "type": "unclassified",
+    "name": "审批",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "提前十五个工作日提出书面申请",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "提前十五个工作日提出书面申请",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "北方",
+   "props": {
+    "file_id": "120",
+    "type": "地点",
+    "name": "北方",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "信用方式",
+   "props": {
+    "file_id": "258,266",
+    "type": "担保",
+    "name": "信用方式",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "设备抵押",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "担保",
+    "name": "设备抵押",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "T-CORE-001",
+   "props": {
+    "file_id": "263,271",
+    "type": "机构",
+    "name": "T-CORE-001",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "T-EXT-001",
+   "props": {
+    "file_id": "263,271",
+    "type": "机构",
+    "name": "T-EXT-001",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "华东精密制造有限公司",
+   "props": {
+    "file_id": "259",
+    "type": "机构",
+    "name": "华东精密制造有限公司",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "江南装备科技有限公司",
+   "props": {
+    "file_id": "259",
+    "type": "机构",
+    "name": "江南装备科技有限公司",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "资料审核",
+   "props": {
+    "file_id": "268",
+    "type": "unclassified",
+    "name": "资料审核",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "日均存款",
+   "props": {
+    "file_id": "263,271",
+    "type": "指标",
+    "name": "日均存款",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "VisionHoldings",
+   "props": {
+    "file_id": "120",
+    "type": "机构",
+    "name": "VisionHoldings",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "等额本息",
+   "props": {
+    "file_id": "258",
+    "type": "条款",
+    "name": "等额本息",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "5000万元",
+   "props": {
+    "file_id": "268",
+    "type": "金额",
+    "name": "5000万元",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "人民币5000万元",
+   "props": {
+    "file_id": "258,266",
+    "type": "金额",
+    "name": "人民币5000万元",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "加60个基点",
+   "props": {
+    "file_id": "226",
+    "type": "unclassified",
+    "name": "加60个基点",
+    "title": "R12FIX-product-loan(1).docx"
+   }
+  },
+  {
+   "id": "放款",
+   "props": {
+    "file_id": "268",
+    "type": "unclassified",
+    "name": "放款",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "汽车零部件",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "unclassified",
+    "name": "汽车零部件",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "评级授信",
+   "props": {
+    "file_id": "268",
+    "type": "unclassified",
+    "name": "评级授信",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "加点幅度",
+   "props": {
+    "file_id": "119",
+    "type": "口径",
+    "name": "加点幅度",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "跨账户",
+   "props": {
+    "file_id": "263,271",
+    "type": "口径",
+    "name": "跨账户",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "10个工作日",
+   "props": {
+    "file_id": "260",
+    "type": "期限",
+    "name": "10个工作日",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "TechGlobal",
+   "props": {
+    "file_id": "120",
+    "type": "机构",
+    "name": "TechGlobal",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "海川电子材料股份有限公司",
+   "props": {
+    "file_id": "259",
+    "type": "机构",
+    "name": "海川电子材料股份有限公司",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "AA级",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "AA级",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "三个工作日内放款",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "三个工作日内放款",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "受理",
+   "props": {
+    "file_id": "260,268",
+    "type": "unclassified",
+    "name": "受理",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "高端智能手机",
+   "props": {
+    "file_id": "124",
+    "type": "产品",
+    "name": "高端智能手机",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "应收账款质押",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "担保",
+    "name": "应收账款质押",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "核心企业保证方式",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "担保",
+    "name": "核心企业保证方式",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "月度同比",
+   "props": {
+    "file_id": "124",
+    "type": "指标",
+    "name": "月度同比",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "用电量",
+   "props": {
+    "file_id": "263,271",
+    "type": "指标",
+    "name": "用电量",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "额度",
+   "props": {
+    "file_id": "259",
+    "type": "指标",
+    "name": "额度",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "十五个工作日",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "期限",
+    "name": "十五个工作日",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "30~100BP",
+   "props": {
+    "file_id": "260",
+    "type": "unclassified",
+    "name": "30~100BP",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "30个基点",
+   "props": {
+    "file_id": "258,266",
+    "type": "unclassified",
+    "name": "30个基点",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "智造贷",
+   "props": {
+    "file_id": "260,258,226,266",
+    "type": "产品",
+    "name": "智造贷",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "2027-03-31",
+   "props": {
+    "file_id": "259",
+    "type": "日期",
+    "name": "2027-03-31",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "按月付息到期还本",
+   "props": {
+    "file_id": "258",
+    "type": "条款",
+    "name": "按月付息到期还本",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "1000万元",
+   "props": {
+    "file_id": "258,268",
+    "type": "金额",
+    "name": "1000万元",
+    "title": "R12FIX-product-loan.docx,R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "1年期LPR",
+   "props": {
+    "file_id": "260,268",
+    "type": "unclassified",
+    "name": "1年期LPR",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "万元",
+   "props": {
+    "file_id": "259",
+    "type": "unclassified",
+    "name": "万元",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "信用部分",
+   "props": {
+    "file_id": "252",
+    "type": "unclassified",
+    "name": "信用部分",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "客户名称",
+   "props": {
+    "file_id": "259",
+    "type": "unclassified",
+    "name": "客户名称",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "所属产业链",
+   "props": {
+    "file_id": "259",
+    "type": "unclassified",
+    "name": "所属产业链",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "放款日",
+   "props": {
+    "file_id": "266",
+    "type": "unclassified",
+    "name": "放款日",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "电子信息",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "unclassified",
+    "name": "电子信息",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "同比",
+   "props": {
+    "file_id": "263,271",
+    "type": "指标",
+    "name": "同比",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "授信额度",
+   "props": {
+    "file_id": "259",
+    "type": "指标",
+    "name": "授信额度",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "2026-12-31",
+   "props": {
+    "file_id": "259",
+    "type": "日期",
+    "name": "2026-12-31",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "3个工作日",
+   "props": {
+    "file_id": "260",
+    "type": "期限",
+    "name": "3个工作日",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "五级分类",
+   "props": {
+    "file_id": "259",
+    "type": "unclassified",
+    "name": "五级分类",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "到期日",
+   "props": {
+    "file_id": "259",
+    "type": "unclassified",
+    "name": "到期日",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "客户信用评级",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "客户信用评级",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "装备制造",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "unclassified",
+    "name": "装备制造",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "一年期贷款市场报价利率",
+   "props": {
+    "file_id": "266",
+    "type": "指标",
+    "name": "一年期贷款市场报价利率",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "全国银行间同业拆借中心",
+   "props": {
+    "file_id": "266",
+    "type": "机构",
+    "name": "全国银行间同业拆借中心",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "制造业中小微企业",
+   "props": {
+    "file_id": "260,258,226,266",
+    "type": "机构",
+    "name": "制造业中小微企业",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "北方重工配件厂",
+   "props": {
+    "file_id": "259",
+    "type": "机构",
+    "name": "北方重工配件厂",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "按季付息分期还本",
+   "props": {
+    "file_id": "258",
+    "type": "条款",
+    "name": "按季付息分期还本",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "加30个基点",
+   "props": {
+    "file_id": "226",
+    "type": "unclassified",
+    "name": "加30个基点",
+    "title": "R12FIX-product-loan(1).docx"
+   }
+  },
+  {
+   "id": "已用额度",
+   "props": {
+    "file_id": "259",
+    "type": "指标",
+    "name": "已用额度",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "三年",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "期限",
+    "name": "三年",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "十二个月",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "期限",
+    "name": "十二个月",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "AAA",
+   "props": {
+    "file_id": "259",
+    "type": "评级",
+    "name": "AAA",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "BP",
+   "props": {
+    "file_id": "260,268",
+    "type": "unclassified",
+    "name": "BP",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "信用评级",
+   "props": {
+    "file_id": "259",
+    "type": "unclassified",
+    "name": "信用评级",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "加100个基点",
+   "props": {
+    "file_id": "226",
+    "type": "unclassified",
+    "name": "加100个基点",
+    "title": "R12FIX-product-loan(1).docx"
+   }
+  },
+  {
+   "id": "十个工作日内完成审批",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "十个工作日内完成审批",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "十个工作日",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "期限",
+    "name": "十个工作日",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "PRD-CORP-LOAN-2026-01",
+   "props": {
+    "file_id": "258,266",
+    "type": "编号",
+    "name": "PRD-CORP-LOAN-2026-01",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "100个基点",
+   "props": {
+    "file_id": "258,266",
+    "type": "unclassified",
+    "name": "100个基点",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "A级",
+   "props": {
+    "file_id": "258",
+    "type": "unclassified",
+    "name": "A级",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "半导体",
+   "props": {
+    "file_id": "120",
+    "type": "产品",
+    "name": "半导体",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "按业务日跨账户汇总/天数",
+   "props": {
+    "file_id": "124",
+    "type": "指标",
+    "name": "按业务日跨账户汇总/天数",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "2027-01-31",
+   "props": {
+    "file_id": "259",
+    "type": "日期",
+    "name": "2027-01-31",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "2027-06-30",
+   "props": {
+    "file_id": "259",
+    "type": "日期",
+    "name": "2027-06-30",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "月度",
+   "props": {
+    "file_id": "263,271",
+    "type": "时间",
+    "name": "月度",
+    "title": "docx-table.docx"
+   }
+  },
+  {
+   "id": "3年",
+   "props": {
+    "file_id": "260,268",
+    "type": "期限",
+    "name": "3年",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  },
+  {
+   "id": "三个工作日",
+   "props": {
+    "file_id": "258,226,266",
+    "type": "期限",
+    "name": "三个工作日",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "五年",
+   "props": {
+    "file_id": "258",
+    "type": "期限",
+    "name": "五年",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "AA",
+   "props": {
+    "file_id": "259",
+    "type": "评级",
+    "name": "AA",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "关注",
+   "props": {
+    "file_id": "259",
+    "type": "评级",
+    "name": "关注",
+    "title": "R12FIX-credit-ledger.xlsx"
+   }
+  },
+  {
+   "id": "人民币1000万元",
+   "props": {
+    "file_id": "119,234",
+    "type": "金额",
+    "name": "人民币1000万元",
+    "title": "R12FIX-product-loan.docx"
+   }
+  },
+  {
+   "id": "信用部分不超过1000万元",
+   "props": {
+    "file_id": "260",
+    "type": "金额",
+    "name": "信用部分不超过1000万元",
+    "title": "R12FIX-product-intro.pptx"
+   }
+  }
+ ],
+ "edges": [
+  {
+   "src": "2026-12-31",
+   "dst": "海川电子材料股份有限公司",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "1年期LPR",
+   "dst": "30~100BP",
+   "props": {
+    "name": "利率加点范围",
+    "file_id": "260",
+    "show_flag": "0",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "1年期LPR",
+   "dst": "智造贷",
+   "props": {
+    "name": "利率基准",
+    "file_id": "260,268",
+    "show_flag": "1",
+    "page_num": "260_0,268_0"
+   }
+  },
+  {
+   "src": "3个工作日",
+   "dst": "放款",
+   "props": {
+    "name": "放款时长",
+    "file_id": "252",
+    "show_flag": "1",
+    "page_num": "252_0"
+   }
+  },
+  {
+   "src": "3个工作日",
+   "dst": "智造贷",
+   "props": {
+    "name": "放款时间",
+    "file_id": "260",
+    "show_flag": "1",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "电子信息",
+   "dst": "智造贷",
+   "props": {
+    "name": "重点支持",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "同比",
+   "dst": "用电量",
+   "props": {
+    "name": "口径",
+    "file_id": "271",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "放款日",
+   "dst": "智造贷",
+   "props": {
+    "name": "执行利率依据",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "制造业中小微企业",
+   "dst": "智造贷",
+   "props": {
+    "name": "面向",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "按季付息分期还本",
+   "dst": "智造贷",
+   "props": {
+    "name": "还款方式",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "装备制造",
+   "dst": "智造贷",
+   "props": {
+    "name": "重点支持",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "装备制造",
+   "dst": "江南装备科技有限公司",
+   "props": {
+    "name": "所属产业链",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "客户信用评级",
+   "dst": "智造贷",
+   "props": {
+    "name": "加点幅度确定方式",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "全国银行间同业拆借中心",
+   "dst": "智造贷",
+   "props": {
+    "name": "执行利率依据",
+    "file_id": "119",
+    "show_flag": "1",
+    "page_num": "119_0"
+   }
+  },
+  {
+   "src": "北方重工配件厂",
+   "dst": "2027-01-31",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "北方重工配件厂",
+   "dst": "AA",
+   "props": {
+    "name": "信用评级",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "一年期贷款市场报价利率",
+   "dst": "智造贷",
+   "props": {
+    "name": "执行利率基准",
+    "file_id": "234",
+    "show_flag": "0",
+    "page_num": "234_0"
+   }
+  },
+  {
+   "src": "AAA",
+   "dst": "江南装备科技有限公司",
+   "props": {
+    "name": "信用评级",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "十二个月",
+   "dst": "智造贷",
+   "props": {
+    "name": "贷款期限最长",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "三年",
+   "dst": "智造贷",
+   "props": {
+    "name": "贷款期限最长",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "加30个基点",
+   "dst": "智造贷",
+   "props": {
+    "name": "AAA级",
+    "file_id": "226",
+    "show_flag": "1",
+    "page_num": "226_0"
+   }
+  },
+  {
+   "src": "关注",
+   "dst": "海川电子材料股份有限公司",
+   "props": {
+    "name": "五级分类",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "AA",
+   "dst": "北方重工配件厂",
+   "props": {
+    "name": "信用评级",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "AA",
+   "dst": "华东精密制造有限公司",
+   "props": {
+    "name": "信用评级",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "3年",
+   "dst": "智造贷",
+   "props": {
+    "name": "最长期限",
+    "file_id": "260,268",
+    "show_flag": "1",
+    "page_num": "260_0,268_0"
+   }
+  },
+  {
+   "src": "2027-01-31",
+   "dst": "北方重工配件厂",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "100个基点",
+   "dst": "智造贷",
+   "props": {
+    "name": "A级加点幅度",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "三个工作日",
+   "dst": "智造贷",
+   "props": {
+    "name": "放款完成时限",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "人民币1000万元",
+   "dst": "智造贷",
+   "props": {
+    "name": "信用方式上限",
+    "file_id": "234",
+    "show_flag": "0",
+    "page_num": "234_0"
+   }
+  },
+  {
+   "src": "2027-06-30",
+   "dst": "江南装备科技有限公司",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "月度",
+   "dst": "用电量",
+   "props": {
+    "name": "口径",
+    "file_id": "263,271",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "信用部分不超过1000万元",
+   "dst": "智造贷",
+   "props": {
+    "name": "最高额度",
+    "file_id": "260",
+    "show_flag": "0",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "十个工作日内完成审批",
+   "dst": "智造贷",
+   "props": {
+    "name": "审批流程",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "加100个基点",
+   "dst": "智造贷",
+   "props": {
+    "name": "A级",
+    "file_id": "226",
+    "show_flag": "1",
+    "page_num": "226_0"
+   }
+  },
+  {
+   "src": "十个工作日",
+   "dst": "智造贷",
+   "props": {
+    "name": "审批完成时限",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "江南装备科技有限公司",
+   "dst": "2027-06-30",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "江南装备科技有限公司",
+   "dst": "AAA",
+   "props": {
+    "name": "信用评级",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "江南装备科技有限公司",
+   "dst": "装备制造",
+   "props": {
+    "name": "所属产业链",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "华东精密制造有限公司",
+   "dst": "2027-03-31",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "华东精密制造有限公司",
+   "dst": "AA",
+   "props": {
+    "name": "信用评级",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "华东精密制造有限公司",
+   "dst": "汽车零部件",
+   "props": {
+    "name": "所属产业链",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "T-EXT-001",
+   "dst": "用电量",
+   "props": {
+    "name": "数据源",
+    "file_id": "263,271",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "T-CORE-001",
+   "dst": "日均存款",
+   "props": {
+    "name": "数据源",
+    "file_id": "263,271",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "设备抵押",
+   "dst": "智造贷",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "提前十五个工作日提出书面申请",
+   "dst": "智造贷",
+   "props": {
+    "name": "提前还款申请方式",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "60个基点",
+   "dst": "智造贷",
+   "props": {
+    "name": "AA级加点幅度",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "审批",
+   "dst": "10个工作日",
+   "props": {
+    "name": "办理流程时长",
+    "file_id": "252",
+    "show_flag": "0",
+    "page_num": "252_0"
+   }
+  },
+  {
+   "src": "审批",
+   "dst": "智造贷",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "1",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "信用方式",
+   "dst": "智造贷",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "人民币5000万元",
+   "dst": "智造贷",
+   "props": {
+    "name": "单户最高授信额度",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "5000万元",
+   "dst": "智造贷",
+   "props": {
+    "name": "最高额度",
+    "file_id": "268",
+    "show_flag": "1",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "等额本息",
+   "dst": "智造贷",
+   "props": {
+    "name": "还款方式",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "日均存款",
+   "dst": "T-CORE-001",
+   "props": {
+    "name": "数据源",
+    "file_id": "263,271",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "日均存款",
+   "dst": "跨账户",
+   "props": {
+    "name": "口径",
+    "file_id": "271",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "资料审核",
+   "dst": "智造贷",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "1",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "海川电子材料股份有限公司",
+   "dst": "2026-12-31",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "海川电子材料股份有限公司",
+   "dst": "关注",
+   "props": {
+    "name": "五级分类",
+    "file_id": "120",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "跨账户",
+   "dst": "日均存款",
+   "props": {
+    "name": "口径",
+    "file_id": "271",
+    "show_flag": "1",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "评级授信",
+   "dst": "智造贷",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "1",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "汽车零部件",
+   "dst": "华东精密制造有限公司",
+   "props": {
+    "name": "所属产业链",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "汽车零部件",
+   "dst": "智造贷",
+   "props": {
+    "name": "重点支持",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "放款",
+   "dst": "3个工作日",
+   "props": {
+    "name": "放款时长",
+    "file_id": "252",
+    "show_flag": "0",
+    "page_num": "252_0"
+   }
+  },
+  {
+   "src": "放款",
+   "dst": "智造贷",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "1",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "加60个基点",
+   "dst": "智造贷",
+   "props": {
+    "name": "AA级",
+    "file_id": "226",
+    "show_flag": "1",
+    "page_num": "226_0"
+   }
+  },
+  {
+   "src": "10个工作日",
+   "dst": "审批",
+   "props": {
+    "name": "办理流程时长",
+    "file_id": "252",
+    "show_flag": "1",
+    "page_num": "252_0"
+   }
+  },
+  {
+   "src": "10个工作日",
+   "dst": "智造贷",
+   "props": {
+    "name": "审批时间",
+    "file_id": "260",
+    "show_flag": "1",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "1000万元",
+   "dst": "智造贷",
+   "props": {
+    "name": "最高额度",
+    "file_id": "268",
+    "show_flag": "1",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "按月付息到期还本",
+   "dst": "智造贷",
+   "props": {
+    "name": "还款方式",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "2027-03-31",
+   "dst": "华东精密制造有限公司",
+   "props": {
+    "name": "到期日",
+    "file_id": "120",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "1000万元",
+   "props": {
+    "name": "最高额度",
+    "file_id": "268",
+    "show_flag": "0",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "100个基点",
+   "props": {
+    "name": "A级加点幅度",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "10个工作日",
+   "props": {
+    "name": "审批时间",
+    "file_id": "260",
+    "show_flag": "0",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "1年期LPR",
+   "props": {
+    "name": "利率基准",
+    "file_id": "260,268",
+    "show_flag": "0",
+    "page_num": "260_0,268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "30个基点",
+   "props": {
+    "name": "AAA级加点幅度",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "3个工作日",
+   "props": {
+    "name": "放款时间",
+    "file_id": "260",
+    "show_flag": "0",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "3年",
+   "props": {
+    "name": "最长期限",
+    "file_id": "260,268",
+    "show_flag": "0",
+    "page_num": "260_0,268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "5000万元",
+   "props": {
+    "name": "最高额度",
+    "file_id": "268",
+    "show_flag": "0",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "60个基点",
+   "props": {
+    "name": "AA级加点幅度",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "一年期贷款市场报价利率",
+   "props": {
+    "name": "执行利率基准",
+    "file_id": "234",
+    "show_flag": "1",
+    "page_num": "234_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "三个工作日",
+   "props": {
+    "name": "放款完成时限",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "三个工作日内放款",
+   "props": {
+    "name": "放款流程",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "三年",
+   "props": {
+    "name": "贷款期限最长",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "人民币1000万元",
+   "props": {
+    "name": "信用方式上限",
+    "file_id": "234",
+    "show_flag": "1",
+    "page_num": "234_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "人民币5000万元",
+   "props": {
+    "name": "单户最高授信额度",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "信用方式",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "信用部分不超过1000万元",
+   "props": {
+    "name": "最高额度",
+    "file_id": "260",
+    "show_flag": "1",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "全国银行间同业拆借中心",
+   "props": {
+    "name": "执行利率依据",
+    "file_id": "119",
+    "show_flag": "0",
+    "page_num": "119_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "制造业中小微企业",
+   "props": {
+    "name": "面向",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "加100个基点",
+   "props": {
+    "name": "A级",
+    "file_id": "226",
+    "show_flag": "0",
+    "page_num": "226_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "加30个基点",
+   "props": {
+    "name": "AAA级",
+    "file_id": "226",
+    "show_flag": "0",
+    "page_num": "226_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "加60个基点",
+   "props": {
+    "name": "AA级",
+    "file_id": "226",
+    "show_flag": "0",
+    "page_num": "226_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "十个工作日",
+   "props": {
+    "name": "审批完成时限",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "十个工作日内完成审批",
+   "props": {
+    "name": "审批流程",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "十二个月",
+   "props": {
+    "name": "贷款期限最长",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "十五个工作日",
+   "props": {
+    "name": "提前还款需提前",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "受理",
+   "props": {
+    "name": "办理流程",
+    "file_id": "260,268",
+    "show_flag": "0",
+    "page_num": "260_0,268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "审批",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "0",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "客户信用评级",
+   "props": {
+    "name": "加点幅度确定方式",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "应收账款质押",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "按季付息分期还本",
+   "props": {
+    "name": "还款方式",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "按月付息到期还本",
+   "props": {
+    "name": "还款方式",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "提前十五个工作日提出书面申请",
+   "props": {
+    "name": "提前还款申请方式",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "放款",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "0",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "放款日",
+   "props": {
+    "name": "执行利率依据",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "核心企业保证方式",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "汽车零部件",
+   "props": {
+    "name": "重点支持",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "电子信息",
+   "props": {
+    "name": "重点支持",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "等额本息",
+   "props": {
+    "name": "还款方式",
+    "file_id": "258",
+    "show_flag": "1",
+    "page_num": "258_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "装备制造",
+   "props": {
+    "name": "重点支持",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "设备抵押",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "0",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "评级授信",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "0",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "智造贷",
+   "dst": "资料审核",
+   "props": {
+    "name": "办理流程",
+    "file_id": "268",
+    "show_flag": "0",
+    "page_num": "268_0"
+   }
+  },
+  {
+   "src": "30个基点",
+   "dst": "智造贷",
+   "props": {
+    "name": "AAA级加点幅度",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "30~100BP",
+   "dst": "1年期LPR",
+   "props": {
+    "name": "利率加点范围",
+    "file_id": "260",
+    "show_flag": "1",
+    "page_num": "260_0"
+   }
+  },
+  {
+   "src": "十五个工作日",
+   "dst": "智造贷",
+   "props": {
+    "name": "提前还款需提前",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "用电量",
+   "dst": "T-EXT-001",
+   "props": {
+    "name": "数据源",
+    "file_id": "263,271",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "用电量",
+   "dst": "同比",
+   "props": {
+    "name": "口径",
+    "file_id": "271",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "用电量",
+   "dst": "月度",
+   "props": {
+    "name": "口径",
+    "file_id": "263,271",
+    "show_flag": "0",
+    "page_num": ""
+   }
+  },
+  {
+   "src": "核心企业保证方式",
+   "dst": "智造贷",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "应收账款质押",
+   "dst": "智造贷",
+   "props": {
+    "name": "授信额度上限",
+    "file_id": "266",
+    "show_flag": "1",
+    "page_num": "266_0"
+   }
+  },
+  {
+   "src": "受理",
+   "dst": "智造贷",
+   "props": {
+    "name": "办理流程",
+    "file_id": "260,268",
+    "show_flag": "1",
+    "page_num": "260_0,268_0"
+   }
+  },
+  {
+   "src": "三个工作日内放款",
+   "dst": "智造贷",
+   "props": {
+    "name": "放款流程",
+    "file_id": "258",
+    "show_flag": "0",
+    "page_num": "258_0"
+   }
+  }
+ ]
+}

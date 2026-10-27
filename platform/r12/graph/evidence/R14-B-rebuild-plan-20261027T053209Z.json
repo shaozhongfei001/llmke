@@ -1,0 +1,33 @@
+{
+ "kb": "kb_9",
+ "ts": "2026-10-27T05:30:56Z",
+ "effective_blocks": 9,
+ "effective_file_ids": [
+  328,
+  329,
+  331,
+  332,
+  333,
+  334,
+  343
+ ],
+ "excluded": [
+  {
+   "id": "897762163454970252",
+   "title": "R12FIX-product-loan.docx",
+   "version": "V0"
+  },
+  {
+   "id": "1117439109309760356",
+   "title": "R12FIX-product-intro.pptx",
+   "version": "V0"
+  }
+ ],
+ "steps": [
+  "drop_milvus",
+  "POST http://127.0.0.1:19529/del_space {space_name:kb_9}",
+  "POST http://127.0.0.1:19529/generate_triple_data col_name=file_id col_values=[328, 329, 331, 332, 333, 334, 343]",
+  "POST http://127.0.0.1:19529/generate_community {space_name:kb_9,with_summary:true}"
+ ],
+ "executed": true
+}

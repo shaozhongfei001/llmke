@@ -1,0 +1,173 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": null,
+ "answer": "现有社区摘要不足以回答",
+ "refs": [
+  {
+   "score": "1.0",
+   "metadata": {
+    "file_id": 343,
+    "title": "社区摘要 L0-7d801f38",
+    "community_id": "L0-7d801f38",
+    "level": 0,
+    "member_entities": [
+     "1000万元",
+     "3年",
+     "8000万元",
+     "LPR",
+     "一年期贷款市场报价利率",
+     "三个工作日",
+     "三年",
+     "人民币一千万元",
+     "人民币八千万元",
+     "制造业中小微企业",
+     "十个工作日",
+     "十二个月",
+     "十五个工作日",
+     "智造贷",
+     "汽车零部件",
+     "电子信息",
+     "装备制造"
+    ],
+    "file_ids": [
+     343,
+     328
+    ],
+    "file_names": [
+     "R12FIX-product-intro(1).pptx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "sources_resolved_by": "file_id",
+    "chunk_refs": [
+     {
+      "pk": "626225001556669433",
+      "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+      "title": "R12FIX-product-intro(1).pptx",
+      "offset": [
+       [
+        0,
+        123
+       ]
+      ],
+      "chunk_index": 0
+     },
+     {
+      "pk": "139363536840301567",
+      "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+      "title": "R12FIX-product-loan(1).docx",
+      "offset": [
+       [
+        0,
+        459
+       ]
+      ],
+      "chunk_index": 0
+     }
+    ],
+    "chunk_refs_stats": {
+     "entities_with_pk": 17,
+     "total_pks": 2,
+     "resolved": 2,
+     "dangling": 0
+    },
+    "chunk_pk": "626225001556669433",
+    "chunk_index": 0,
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "三家客户的评级分别对应多少基点",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt",
+   "page_content": "这个社区围绕“智造贷”这一主题聚集，主要支持制造业中小微企业，特别是汽车零部件、电子信息和装备制造行业。关键实体及其关系包括：\n\n- 制造业中小微企业 -适用对象-> 智造贷\n- 智造贷 -利率基准-> LPR\n\n信息不足的部分未在给定的事实中明确说明，因此未在摘要中提及。",
+   "order_num": "gc-L0-7d801f38",
+   "type": "text"
+  }
+ ],
+ "cost": 0.1,
+ "frames": [
+  {
+   "sessionId": "b-1793084276422",
+   "queryId": "q-1793084276422",
+   "lastDate": 1793084276555,
+   "status": 2,
+   "reply": {
+    "content": "现有社区摘要不足以回答",
+    "type": "markdown"
+   },
+   "reference": "[{\"score\":\"1.0\",\"metadata\":{\"file_id\":343,\"title\":\"社区摘要 L0-7d801f38\",\"community_id\":\"L0-7d801f38\",\"level\":0,\"member_entities\":[\"1000万元\",\"3年\",\"8000万元\",\"LPR\",\"一年期贷款市场报价利率\",\"三个工作日\",\"三年\",\"人民币一千万元\",\"人民币八千万元\",\"制造业中小微企业\",\"十个工作日\",\"十二个月\",\"十五个工作日\",\"智造贷\",\"汽车零部件\",\"电子信息\",\"装备制造\"],\"file_ids\":[343,328],\"file_names\":[\"R12FIX-product-intro(1).pptx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"sources_resolved_by\":\"file_id\",\"chunk_refs\":[{\"pk\":\"626225001556669433\",\"source\":\"r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"title\":\"R12FIX-product-intro(1).pptx\",\"offset\":[[0,123]],\"chunk_index\":0},{\"pk\":\"139363536840301567\",\"source\":\"r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"title\":\"R12FIX-product-loan(1).docx\",\"offset\":[[0,459]],\"chunk_index\":0}],\"chunk_refs_stats\":{\"entities_with_pk\":17,\"total_pks\":2,\"resolved\":2,\"dangling\":0},\"chunk_pk\":\"626225001556669433\",\"chunk_index\":0,\"offset\":[[0,123]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"三家客户的评级分别对应多少基点\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt\",\"page_content\":\"这个社区围绕“智造贷”这一主题聚集，主要支持制造业中小微企业，特别是汽车零部件、电子信息和装备制造行业。关键实体及其关系包括：\\n\\n- 制造业中小微企业 -适用对象-> 智造贷\\n- 智造贷 -利率基准-> LPR\\n\\n信息不足的部分未在给定的事实中明确说明，因此未在摘要中提及。\",\"order_num\":\"gc-L0-7d801f38\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793084276422\", \"queryId\": \"q-1793084276422\", \"content\": \"\\u4e09\\u5bb6\\u5ba2\\u6237\\u7684\\u8bc4\\u7ea7\\u5206\\u522b\\u5bf9\\u5e94\\u591a\\u5c11\\u57fa\\u70b9\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793084276422",
+  "queryId": "q-1793084276422",
+  "content": "三家客户的评级分别对应多少基点",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-7d801f38",
+   "page_content_len": 137,
+   "page_content_head": "这个社区围绕“智造贷”这一主题聚集，主要支持制造业中小微企业，特别是汽车零部件、电子信息和装备制造行业。关键实体及其关系包括：\n\n- 制造业中小微企业 -适用对象-> 智造贷\n- 智造贷 -利率基准-> LPR\n\n信息不足的部分未在给定的事实中明确说明，因此未在摘要中提及。",
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "title": "社区摘要 L0-7d801f38",
+   "file_id": 343,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-7d801f38",
+   "level": 0,
+   "member_entities": [
+    "1000万元",
+    "3年",
+    "8000万元",
+    "LPR",
+    "一年期贷款市场报价利率",
+    "三个工作日",
+    "三年",
+    "人民币一千万元",
+    "人民币八千万元",
+    "制造业中小微企业",
+    "十个工作日",
+    "十二个月"
+   ]
+  }
+ ]
+}

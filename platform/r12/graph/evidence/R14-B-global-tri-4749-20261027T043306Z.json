@@ -1,0 +1,204 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": null,
+ "answer": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是30个基点 [L0-3af0d4bc]。\n\n北方重工配件厂的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-60d6fa91]。\n\n华东精密制造有限公司的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-60d6fa91]。",
+ "refs": [
+  {
+   "score": "1.0",
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-60d6fa91",
+    "community_id": "L0-60d6fa91",
+    "level": 0,
+    "member_entities": [
+     "2027-01-31",
+     "2027-03-31",
+     "AA",
+     "北方重工配件厂",
+     "华东精密制造有限公司",
+     "汽车零部件"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [],
+    "source": "kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "entity_content",
+    "chunk_refs": [],
+    "chunk_refs_stats": {
+     "entities_with_pk": 1,
+     "total_pks": 4,
+     "resolved": 0,
+     "dangling": 4
+    },
+    "offset": [
+     [
+      0,
+      137
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "parsedFilePath": "http://127.0.0.1:19000/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "page_content": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息进行讨论。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，社区成员包括北方重工配件厂和华东精密制造有限公司，两者均拥有AA的信用评级，并且涉及到期日的安排。",
+   "order_num": "gc-L0-60d6fa91",
+   "type": "text"
+  },
+  {
+   "score": "1.0",
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-3af0d4bc",
+    "community_id": "L0-3af0d4bc",
+    "level": 0,
+    "member_entities": [
+     "2027-06-30",
+     "AAA",
+     "江南装备科技有限公司",
+     "装备制造"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [],
+    "source": "kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "entity_content",
+    "chunk_refs": [],
+    "chunk_refs_stats": {
+     "entities_with_pk": 1,
+     "total_pks": 4,
+     "resolved": 0,
+     "dangling": 4
+    },
+    "offset": [
+     [
+      0,
+      103
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "parsedFilePath": "http://127.0.0.1:19000/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "page_content": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足，无法提供更多关键实体及其关系。",
+   "order_num": "gc-L0-3af0d4bc",
+   "type": "text"
+  }
+ ],
+ "cost": 3.7,
+ "frames": [
+  {
+   "sessionId": "b-1793075582518",
+   "queryId": "q-1793075582518",
+   "lastDate": 1793075586250,
+   "status": 2,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是30个基点 [L0-3af0d4bc]。\n\n北方重工配件厂的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-60d6fa91]。\n\n华东精密制造有限公司的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-60d6fa91]。",
+    "type": "markdown"
+   },
+   "reference": "[{\"score\":\"1.0\",\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-60d6fa91\",\"community_id\":\"L0-60d6fa91\",\"level\":0,\"member_entities\":[\"2027-01-31\",\"2027-03-31\",\"AA\",\"北方重工配件厂\",\"华东精密制造有限公司\",\"汽车零部件\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[],\"source\":\"kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"entity_content\",\"chunk_refs\":[],\"chunk_refs_stats\":{\"entities_with_pk\":1,\"total_pks\":4,\"resolved\":0,\"dangling\":4},\"offset\":[[0,137]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"parsedFilePath\":\"http://127.0.0.1:19000/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"page_content\":\"这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息进行讨论。\\n\\n- 北方重工配件厂 -信用评级-> AA\\n- 华东精密制造有限公司 -信用评级-> AA\\n\\n相关信息显示，社区成员包括北方重工配件厂和华东精密制造有限公司，两者均拥有AA的信用评级，并且涉及到期日的安排。\",\"order_num\":\"gc-L0-60d6fa91\",\"type\":\"text\"},{\"score\":\"1.0\",\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-3af0d4bc\",\"community_id\":\"L0-3af0d4bc\",\"level\":0,\"member_entities\":[\"2027-06-30\",\"AAA\",\"江南装备科技有限公司\",\"装备制造\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[],\"source\":\"kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"entity_content\",\"chunk_refs\":[],\"chunk_refs_stats\":{\"entities_with_pk\":1,\"total_pks\":4,\"resolved\":0,\"dangling\":4},\"offset\":[[0,103]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[1]},\"search_type\":[\"graph_community\"]},\"parsedFilePath\":\"http://127.0.0.1:19000/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"page_content\":\"这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\\n\\n- 江南装备科技有限公司 -信用评级-> AAA\\n- 江南装备科技有限公司 -所属产业链-> 装备制造\\n\\n信息不足，无法提供更多关键实体及其关系。\",\"order_num\":\"gc-L0-3af0d4bc\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793075582518\", \"queryId\": \"q-1793075582518\", \"content\": \"\\u6c5f\\u5357\\u88c5\\u5907\\u79d1\\u6280\\u6709\\u9650\\u516c\\u53f8\\u3001\\u534e\\u4e1c\\u7cbe\\u5bc6\\u5236\\u9020\\u6709\\u9650\\u516c\\u53f8\\u3001\\u5317\\u65b9\\u91cd\\u5de5\\u914d\\u4ef6\\u5382\\u4e09\\u5bb6\\u7684\\u4fe1\\u7528\\u8bc4\\u7ea7\\u5206\\u522b\\u662f\\u4ec0\\u4e48\\uff1f\\u6309\\u667a\\u9020\\u8d37\\u7684\\u8bc4\\u7ea7\\u52a0\\u70b9\\u89c4\\u5219\\uff0c\\u5b83\\u4eec\\u6267\\u884c\\u5229\\u7387\\u76f8\\u5bf9\\u4e00\\u5e74\\u671fLPR\\u7684\\u52a0\\u70b9\\u5206\\u522b\\u662f\\u591a\\u5c11\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793075582518",
+  "queryId": "q-1793075582518",
+  "content": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-60d6fa91",
+   "page_content_len": 137,
+   "page_content_head": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息进行讨论。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，社区成员包括北方重工配件厂和华东精密制造有限公司，两者均拥有AA的信用评级，并且涉及到期日的安排。",
+   "source": "kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-60d6fa91",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-60d6fa91",
+   "level": 0,
+   "member_entities": [
+    "2027-01-31",
+    "2027-03-31",
+    "AA",
+    "北方重工配件厂",
+    "华东精密制造有限公司",
+    "汽车零部件"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-3af0d4bc",
+   "page_content_len": 103,
+   "page_content_head": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足，无法提供更多关键实体及其关系。",
+   "source": "kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-3af0d4bc",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-3af0d4bc",
+   "level": 0,
+   "member_entities": [
+    "2027-06-30",
+    "AAA",
+    "江南装备科技有限公司",
+    "装备制造"
+   ]
+  }
+ ]
+}

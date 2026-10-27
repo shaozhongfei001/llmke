@@ -1,0 +1,51 @@
+{
+ "defect": "R14-P1-01",
+ "title": "零召回仍生成确定性答案（拒答分支运行时不可达）",
+ "severity": "P1",
+ "verdict": "FAIL（用户可见：引用为空 + 确定性事实断言，且两次取值不同）",
+
+ "question": "恒星项目的归口部门是哪个？",
+ "context": {
+  "kb": "kb_9",
+  "fact": "kb_9 内不存在与“恒星项目/归口部门”对应的任何块",
+  "configId": 1,
+  "route": "/qa/ai/question（经 8088 网关，configId=1）"
+ },
+
+ "samples": [
+  {
+   "by": "B（本人执行，输出原文如下）",
+   "time_cst": "2026-10-27 14:17:00",
+   "evidence_file": "platform/r12/graph/evidence/R14-B-local-off-c-claim5-20261027T061700Z.json",
+   "http": 200,
+   "status": 2,
+   "refs_len": 0,
+   "answer": "恒星项目的归口部门是阿里云智能。"
+  },
+  {
+   "by": "C（他人提供，B 未独立复核）",
+   "http": 200,
+   "refs_len": 0,
+   "answer": "恒星项目的归口部门是阿里巴巴达摩院。"
+  }
+ ],
+
+ "repro_commands": [
+  "platform/r12/venvs/graph/bin/python platform/r12/graph/r14_b_probe.py local --query \"恒星项目的归口部门是哪个？\" --config-id 1 --tag p1-01",
+  "curl -s -X POST http://127.0.0.1:8088/qa/ai/question -H 'Content-Type: application/json' -H \"Authorization: <token>\" -d '{\"content\":\"恒星项目的归口部门是哪个？\",\"type\":\"text\",\"sysType\":\"KNO_INDEX\",\"configId\":1}'"
+ ],
+
+ "mechanism": {
+  "code_verified_by": "B（逐行核对 AiServiceImpl.java:369-378）",
+  "code": "if (Objects.nonNull(config.getDependOnKb()) && config.getDependOnKb() == 1 && (Objects.isNull(retrievedData) || !retrievedData.existDocs()) && CollectionUtils.isEmpty(files)) { answer = \"抱歉未能找到您要的答案\"; resultType = AIResultTypeEnum.DEPEND_ON_KB.getCode(); }",
+  "config_read_by": "C（B 无 MySQL 权限，未复核）",
+  "config": "search_config.depend_on_kb 列为 int DEFAULT 0；id in (1,2,6,8,9,12) 全部为 0（不是 NULL，也不是 config_json 里的键）",
+  "frontend_read_by": "C",
+  "frontend": "frontend/.../SettingDetail/index.tsx:104  dependOnKb 默认 false —— “允许无依据作答”是产品默认姿态",
+  "chain": "检索 0 命中 -> 守卫因 depend_on_kb=0 不触发 -> 进入 LLM，上下文为空 -> 模型自由生成部门名 -> 采样不同则取值不同"
+ },
+
+ "why_this_is_not_model_quality": "两次采样给出不同取值，说明答案来自自由生成而非检索结果；缺陷点是“该拒答的分支从未被走到”，不是“模型偶尔编”。",
+
+ "acceptance_after_fix": "0 召回时返回 resultType=DEPEND_ON_KB 的拒答文案（“抱歉未能找到您要的答案”），且答案中不含任何事实性断言（实体/数值/日期）。"
+}

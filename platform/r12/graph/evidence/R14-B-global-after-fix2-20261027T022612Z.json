@@ -1,0 +1,1715 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地回答您的问题。",
+ "refs": [
+  {
+   "metadata": {
+    "file_id": "119",
+    "title": "社区摘要 L1-fe7fdd1c",
+    "community_id": "L1-fe7fdd1c",
+    "level": 1,
+    "member_entities": [
+     "1000万元",
+     "100个基点",
+     "2027-01-31",
+     "2027-03-31",
+     "2027-06-30",
+     "30个基点",
+     "3年",
+     "5000万元",
+     "60个基点",
+     "AA",
+     "AAA",
+     "一年期贷款市场报价利率",
+     "三个工作日",
+     "三个工作日内放款",
+     "三年",
+     "人民币1000万元",
+     "人民币5000万元",
+     "信用方式",
+     "信用部分不超过1000万元",
+     "全国银行间同业拆借中心",
+     "制造业中小微企业",
+     "加100个基点",
+     "加30个基点",
+     "加60个基点",
+     "北方重工配件厂",
+     "十个工作日",
+     "十个工作日内完成审批",
+     "十二个月",
+     "十五个工作日",
+     "华东精密制造有限公司",
+     "受理",
+     "客户信用评级",
+     "应收账款质押",
+     "按季付息分期还本",
+     "按月付息到期还本",
+     "提前十五个工作日提出书面申请",
+     "放款日",
+     "智造贷",
+     "核心企业保证方式",
+     "江南装备科技有限公司",
+     "汽车零部件",
+     "电子信息",
+     "等额本息",
+     "装备制造",
+     "设备抵押",
+     "评级授信",
+     "资料审核"
+    ],
+    "file_ids": [
+     "119",
+     "120",
+     "226",
+     "234",
+     "258",
+     "259",
+     "260",
+     "266",
+     "268"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-intro.pptx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      95
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L1-fe7fdd1c",
+   "page_content": "这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\n- 智造贷 -A级加点幅度-> 100个基点",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/parsed/R12FIX-product-intro.pptx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "263",
+    "title": "社区摘要 L0-a2157bee",
+    "community_id": "L0-a2157bee",
+    "level": 0,
+    "member_entities": [
+     "T-CORE-001",
+     "日均存款",
+     "跨账户"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      85
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-a2157bee",
+   "page_content": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 作为数据源为日均存款提供数据支持。\n- 日均存款的统计口径与跨账户相关。",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-5befded4",
+    "community_id": "L0-5befded4",
+    "level": 0,
+    "member_entities": [
+     "2027-01-31",
+     "2027-03-31",
+     "AA",
+     "北方重工配件厂",
+     "华东精密制造有限公司",
+     "汽车零部件"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      126
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      2
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-5befded4",
+   "page_content": "这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-918cb4d7",
+    "community_id": "L0-918cb4d7",
+    "level": 0,
+    "member_entities": [
+     "2027-06-30",
+     "AAA",
+     "江南装备科技有限公司",
+     "装备制造"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      122
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      3
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-918cb4d7",
+   "page_content": "这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "263",
+    "title": "社区摘要 L0-261c4893",
+    "community_id": "L0-261c4893",
+    "level": 0,
+    "member_entities": [
+     "T-EXT-001",
+     "同比",
+     "月度",
+     "用电量"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      87
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      4
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-261c4893",
+   "page_content": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  }
+ ],
+ "cost": 3.2,
+ "frames": [
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970206,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970610,
+   "status": 1,
+   "reply": {
+    "content": "根据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970629,
+   "status": 1,
+   "reply": {
+    "content": "根据现有",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970649,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970669,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970689,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970710,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970732,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970753,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970774,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970795,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970816,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970836,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970858,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970878,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970899,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970920,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970941,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970962,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067970983,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971004,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971025,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971046,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971067,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971088,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971111,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971141,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971184,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971224,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971255,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971280,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971303,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971326,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971348,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971369,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971390,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971412,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971433,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971454,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971475,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971496,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971517,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971538,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971559,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971580,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971601,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971622,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971643,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971663,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971684,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971705,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971727,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971748,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971769,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971790,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971811,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971832,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971853,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971874,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971895,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地回答",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971916,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地回答您的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971937,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地回答您的问题",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971958,
+   "status": 1,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地回答您的问题。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067968793",
+   "queryId": "q-1793067968793",
+   "lastDate": 1793067971980,
+   "status": 2,
+   "reply": {
+    "content": "根据现有参考资料，我们没有直接关于授信额度与票据贴现关系的信息。这些资料主要关注制造业中小企业的贷款利率基准、金融数据的统计口径、企业信用评级以及电力使用数据的比较和统计。建议您提供更多具体信息，以便我们能更准确地回答您的问题。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"file_id\":\"119\",\"title\":\"社区摘要 L1-fe7fdd1c\",\"community_id\":\"L1-fe7fdd1c\",\"level\":1,\"member_entities\":[\"1000万元\",\"100个基点\",\"2027-01-31\",\"2027-03-31\",\"2027-06-30\",\"30个基点\",\"3年\",\"5000万元\",\"60个基点\",\"AA\",\"AAA\",\"一年期贷款市场报价利率\",\"三个工作日\",\"三个工作日内放款\",\"三年\",\"人民币1000万元\",\"人民币5000万元\",\"信用方式\",\"信用部分不超过1000万元\",\"全国银行间同业拆借中心\",\"制造业中小微企业\",\"加100个基点\",\"加30个基点\",\"加60个基点\",\"北方重工配件厂\",\"十个工作日\",\"十个工作日内完成审批\",\"十二个月\",\"十五个工作日\",\"华东精密制造有限公司\",\"受理\",\"客户信用评级\",\"应收账款质押\",\"按季付息分期还本\",\"按月付息到期还本\",\"提前十五个工作日提出书面申请\",\"放款日\",\"智造贷\",\"核心企业保证方式\",\"江南装备科技有限公司\",\"汽车零部件\",\"电子信息\",\"等额本息\",\"装备制造\",\"设备抵押\",\"评级授信\",\"资料审核\"],\"file_ids\":[\"119\",\"120\",\"226\",\"234\",\"258\",\"259\",\"260\",\"266\",\"268\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-intro.pptx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,95]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L1-fe7fdd1c\",\"page_content\":\"这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\\n\\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\\n- 智造贷 -A级加点幅度-> 100个基点\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/parsed/R12FIX-product-intro.pptx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"263\",\"title\":\"社区摘要 L0-a2157bee\",\"community_id\":\"L0-a2157bee\",\"level\":0,\"member_entities\":[\"T-CORE-001\",\"日均存款\",\"跨账户\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,85]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[1]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-a2157bee\",\"page_content\":\"这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\\n\\n- T-CORE-001 作为数据源为日均存款提供数据支持。\\n- 日均存款的统计口径与跨账户相关。\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-5befded4\",\"community_id\":\"L0-5befded4\",\"level\":0,\"member_entities\":[\"2027-01-31\",\"2027-03-31\",\"AA\",\"北方重工配件厂\",\"华东精密制造有限公司\",\"汽车零部件\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,126]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[2]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-5befded4\",\"page_content\":\"这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\\n\\n- 北方重工配件厂 -信用评级-> AA\\n- 华东精密制造有限公司 -信用评级-> AA\\n\\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-918cb4d7\",\"community_id\":\"L0-918cb4d7\",\"level\":0,\"member_entities\":[\"2027-06-30\",\"AAA\",\"江南装备科技有限公司\",\"装备制造\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,122]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[3]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-918cb4d7\",\"page_content\":\"这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"263\",\"title\":\"社区摘要 L0-261c4893\",\"community_id\":\"L0-261c4893\",\"level\":0,\"member_entities\":[\"T-EXT-001\",\"同比\",\"月度\",\"用电量\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,87]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[4]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-261c4893\",\"page_content\":\"这个社区围绕电力使用数据的比较和统计主题聚集。\\n\\n关键实体及其关系：\\n- 用电量 -数据源-> T-EXT-001\\n- 用电量 -口径-> 同比\\n- 用电量 -口径-> 月度\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 3169,
+   "tokens": 114,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793067968793\", \"queryId\": \"q-1793067968793\", \"content\": \"\\u6211\\u4eec\\u8fd9\\u7c7b\\u4f01\\u4e1a\\u7684\\u6388\\u4fe1\\u989d\\u5ea6\\u4e0e\\u7968\\u636e\\u8d34\\u73b0\\u662f\\u4ec0\\u4e48\\u5173\\u7cfb\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793067968793",
+  "queryId": "q-1793067968793",
+  "content": "我们这类企业的授信额度与票据贴现是什么关系",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L1-fe7fdd1c",
+   "page_content_len": 95,
+   "page_content_head": "这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\n- 智造贷 -A级加点幅度-> 100个基点",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+   "title": "社区摘要 L1-fe7fdd1c",
+   "file_id": "119",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L1-fe7fdd1c",
+   "level": 1,
+   "member_entities": [
+    "1000万元",
+    "100个基点",
+    "2027-01-31",
+    "2027-03-31",
+    "2027-06-30",
+    "30个基点",
+    "3年",
+    "5000万元",
+    "60个基点",
+    "AA",
+    "AAA",
+    "一年期贷款市场报价利率"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-a2157bee",
+   "page_content_len": 85,
+   "page_content_head": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 作为数据源为日均存款提供数据支持。\n- 日均存款的统计口径与跨账户相关。",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "社区摘要 L0-a2157bee",
+   "file_id": "263",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-a2157bee",
+   "level": 0,
+   "member_entities": [
+    "T-CORE-001",
+    "日均存款",
+    "跨账户"
+   ]
+  },
+  {
+   "i": 2,
+   "order_num": "gc-L0-5befded4",
+   "page_content_len": 126,
+   "page_content_head": "这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-5befded4",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-5befded4",
+   "level": 0,
+   "member_entities": [
+    "2027-01-31",
+    "2027-03-31",
+    "AA",
+    "北方重工配件厂",
+    "华东精密制造有限公司",
+    "汽车零部件"
+   ]
+  },
+  {
+   "i": 3,
+   "order_num": "gc-L0-918cb4d7",
+   "page_content_len": 122,
+   "page_content_head": "这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-918cb4d7",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-918cb4d7",
+   "level": 0,
+   "member_entities": [
+    "2027-06-30",
+    "AAA",
+    "江南装备科技有限公司",
+    "装备制造"
+   ]
+  },
+  {
+   "i": 4,
+   "order_num": "gc-L0-261c4893",
+   "page_content_len": 87,
+   "page_content_head": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "社区摘要 L0-261c4893",
+   "file_id": "263",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-261c4893",
+   "level": 0,
+   "member_entities": [
+    "T-EXT-001",
+    "同比",
+    "月度",
+    "用电量"
+   ]
+  }
+ ]
+}

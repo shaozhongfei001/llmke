@@ -1,0 +1,34 @@
+{
+ "kb": "kb_9",
+ "utc": "20261027T041728Z",
+ "ports": {
+  "es": 19527,
+  "milvus_svc": 19526,
+  "milvus_db": "graph_base",
+  "graph": 19529
+ },
+ "counts": {
+  "nebula_vertices": 87,
+  "nebula_edges": 122,
+  "milvus_entity_rows": 53,
+  "milvus_triple_rows": 72,
+  "es_community_summary": 7,
+  "es_chunks": 9
+ },
+ "restore": [
+  "1) 若已 drop Nebula 空间：先 POST 19529/init_space 或 platform/r12/graph/init_space.py 重建 schema",
+  "2) Nebula：按 nebula.json 的 vertices/edges 用 INSERT VERTEX/EDGE 逐条回灌（同名 vid 幂等）",
+  "3) Milvus：用 /insert_vector_documents_custom 回灌 milvus_entity.json / milvus_triples.json",
+  "4) ES：community_summary 用 /insert_vector_documents_custom（ES 侧入 kb 索引）回灌快照",
+  "5) 回灌后跑 platform/r12/graph/m1_normalize_diff.py 与 A 的 probe_entity_citations.py 对账"
+ ],
+ "note": "本快照为**重抽取前**状态；重抽取后若 ref_validity 未改善，可直接据此回滚。",
+ "stale_after_id_rotation": true,
+ "stale_scope": {
+  "es_chunks": true,
+  "milvus_entity": true,
+  "milvus_triples": true,
+  "nebula_graph": false,
+  "note": "chunk/向量段与 _id 强绑定，种子改造后整段失效，不得据此回灌；Nebula 图段仍有效（图自 04:17:28Z 未被触碰）"
+ }
+}

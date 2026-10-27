@@ -1,0 +1,53 @@
+{
+ "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+ "mode": "global",
+ "http": 200,
+ "refs": [
+  {
+   "i": 0,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "community_id": "L0-60d6fa91",
+   "form_ok": true,
+   "presign_ok": true,
+   "presign_trace": [
+    "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+    200,
+    "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx?response-content-type=application%2Fvnd.openxml"
+   ],
+   "presigned_url": true,
+   "get_status": 200,
+   "bytes": 37544
+  },
+  {
+   "i": 1,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "community_id": "L0-3af0d4bc",
+   "form_ok": true,
+   "presign_ok": true,
+   "presign_trace": [
+    "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+    200,
+    "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx?response-content-type=application%2Fvnd.openxml"
+   ],
+   "presigned_url": true,
+   "get_status": 200,
+   "bytes": 37544
+  },
+  {
+   "i": 2,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "community_id": "L0-18625408",
+   "form_ok": true,
+   "presign_ok": true,
+   "presign_trace": [
+    "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+    200,
+    "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx?response-content-type=application%2Fvnd.openxml"
+   ],
+   "presigned_url": true,
+   "get_status": 200,
+   "bytes": 37544
+  }
+ ],
+ "ok": true
+}

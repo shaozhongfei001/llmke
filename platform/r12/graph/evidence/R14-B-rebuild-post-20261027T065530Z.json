@@ -1,0 +1,461 @@
+{
+ "space": "g_kb_9",
+ "es_current_file_ids": [
+  "290",
+  "328",
+  "329",
+  "330",
+  "331",
+  "332",
+  "333",
+  "334",
+  "343"
+ ],
+ "vertices": 30,
+ "edges": 32,
+ "generation_split": {
+  "current_only": 30
+ },
+ "edge_generation_split": {
+  "current_only": 32
+ },
+ "duplicate_triples": 0,
+ "type_distribution": {
+  "unclassified": 7,
+  "期限": 7,
+  "机构": 5,
+  "担保": 3,
+  "金额": 2,
+  "指标": 2,
+  "条款": 2,
+  "产品": 1,
+  "编号": 1
+ },
+ "unclassified_ratio": 0.2333,
+ "probe_existence": {
+  "加30个基点": 0,
+  "加60个基点": 0,
+  "加100个基点": 0,
+  "30个基点": 0,
+  "60个基点": 0,
+  "100个基点": 0,
+  "人民币5000万元": 0,
+  "5000万元": 0,
+  "人民币1000万元": 0,
+  "1000万元": 1,
+  "八千万元": 1,
+  "8000万元": 1,
+  "额度": 0,
+  "万元": 0,
+  "已用额度": 0,
+  "授信额度": 0
+ },
+ "rows": [
+  {
+   "name": "设备抵押",
+   "type": "担保",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "华东精密制造有限公司",
+   "type": "机构",
+   "file_id": "329",
+   "generation": "current_only"
+  },
+  {
+   "name": "江南装备科技有限公司",
+   "type": "机构",
+   "file_id": "329",
+   "generation": "current_only"
+  },
+  {
+   "name": "8000万元",
+   "type": "金额",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "name": "日均存款",
+   "type": "指标",
+   "file_id": "333,332",
+   "generation": "current_only"
+  },
+  {
+   "name": "等额本息",
+   "type": "条款",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "LPR",
+   "type": "unclassified",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "name": "八千万元",
+   "type": "unclassified",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "汽车零部件",
+   "type": "unclassified",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "海川电子材料股份有限公司",
+   "type": "机构",
+   "file_id": "329",
+   "generation": "current_only"
+  },
+  {
+   "name": "人民币八千万元",
+   "type": "unclassified",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "应收账款质押",
+   "type": "担保",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "核心企业保证方式",
+   "type": "担保",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "十五个工作日",
+   "type": "期限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "智造贷",
+   "type": "产品",
+   "file_id": "343,328",
+   "generation": "current_only"
+  },
+  {
+   "name": "1000万元",
+   "type": "金额",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "name": "电子信息",
+   "type": "unclassified",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "人民币一千万元",
+   "type": "unclassified",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "装备制造",
+   "type": "unclassified",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "一年期贷款市场报价利率",
+   "type": "指标",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "一个月",
+   "type": "期限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "制造业中小微企业",
+   "type": "机构",
+   "file_id": "343,328",
+   "generation": "current_only"
+  },
+  {
+   "name": "北方重工配件厂",
+   "type": "机构",
+   "file_id": "329",
+   "generation": "current_only"
+  },
+  {
+   "name": "按季付息分期还本",
+   "type": "条款",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "三年",
+   "type": "期限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "十二个月",
+   "type": "期限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "十个工作日",
+   "type": "期限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "PRD-CORP-LOAN-2026-02",
+   "type": "编号",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "name": "3年",
+   "type": "期限",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "name": "三个工作日",
+   "type": "期限",
+   "file_id": "328",
+   "generation": "current_only"
+  }
+ ],
+ "edge_rows": [
+  {
+   "src": "制造业中小微企业",
+   "dst": "智造贷",
+   "rel": "适用对象",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "一年期贷款市场报价利率",
+   "dst": "智造贷",
+   "rel": "执行利率基准",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "装备制造",
+   "dst": "智造贷",
+   "rel": "重点支持",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "人民币一千万元",
+   "dst": "智造贷",
+   "rel": "信用方式上限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "三年",
+   "dst": "智造贷",
+   "rel": "贷款期限最长",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "十二个月",
+   "dst": "智造贷",
+   "rel": "授信额度有效期",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "8000万元",
+   "dst": "智造贷",
+   "rel": "最高额度",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "3年",
+   "dst": "智造贷",
+   "rel": "最长期限",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "三个工作日",
+   "dst": "智造贷",
+   "rel": "放款时限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "十个工作日",
+   "dst": "智造贷",
+   "rel": "审批完成时限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "汽车零部件",
+   "dst": "智造贷",
+   "rel": "重点支持",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "LPR",
+   "dst": "智造贷",
+   "rel": "利率基准",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "1000万元",
+   "dst": "智造贷",
+   "rel": "信用部分最高额度",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "1000万元",
+   "rel": "信用部分最高额度",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "3年",
+   "rel": "最长期限",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "8000万元",
+   "rel": "最高额度",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "LPR",
+   "rel": "利率基准",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "一年期贷款市场报价利率",
+   "rel": "执行利率基准",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "三个工作日",
+   "rel": "放款时限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "三年",
+   "rel": "贷款期限最长",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "人民币一千万元",
+   "rel": "信用方式上限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "人民币八千万元",
+   "rel": "授信额度上限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "制造业中小微企业",
+   "rel": "适用对象",
+   "file_id": "343",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "十个工作日",
+   "rel": "审批完成时限",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "十二个月",
+   "rel": "授信额度有效期",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "十五个工作日",
+   "rel": "提前还款需提前",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "汽车零部件",
+   "rel": "重点支持",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "电子信息",
+   "rel": "重点支持",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "智造贷",
+   "dst": "装备制造",
+   "rel": "重点支持",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "电子信息",
+   "dst": "智造贷",
+   "rel": "重点支持",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "十五个工作日",
+   "dst": "智造贷",
+   "rel": "提前还款需提前",
+   "file_id": "328",
+   "generation": "current_only"
+  },
+  {
+   "src": "人民币八千万元",
+   "dst": "智造贷",
+   "rel": "授信额度上限",
+   "file_id": "328",
+   "generation": "current_only"
+  }
+ ]
+}

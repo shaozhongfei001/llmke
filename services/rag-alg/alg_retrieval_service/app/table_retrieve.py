@@ -1,4 +1,5 @@
 from retrieval_service import *
+from retrieval_fun_tool import PROVENANCE_FIELDS, provenance_of
 from utils import create_uuid, return_nacos_model
 
 TABLE_CHUNKS_INDEX_TEMPLATE = "table_chunks_{}"
@@ -104,11 +105,19 @@ async def table_multiple_retrieval_documents(qa_model: QARetrieveConfig):
         for x in documents_list:
             if "document_id" not in x["metadata"].keys():
                 x["metadata"]["document_id"] = ""
+            # R14-B6：这里原先是**四键白名单**（source/id/search_type/offset），
+            # 把上游带来的溯源字段整批丢掉，导致下游只能靠 `pk ∩ ES._id` 反推，
+            # 读 provenance_quality 会得到"假红"。改为在保留原四键的基础上**透传溯源字段**，
+            # 缺省为 None（键始终存在，便于用 in 判支持、用值判是否兜底）。
+            _md = x["metadata"]
             dict_new = {"page_content": x["page_content"],
-                        "metadata": {"source": x["metadata"]["source"],
-                                     "id": x["metadata"]["document_id"],
-                                     "search_type": x["metadata"]["search_type"],
-                                     "offset": x["metadata"].get("offset", None)
+                        "metadata": {"source": _md.get("source"),
+                                     "id": _md.get("document_id"),
+                                     "search_type": _md.get("search_type"),
+                                     "offset": _md.get("offset", None),
+                                     **provenance_of(_md, x),
+                                     "chunk_index": _md.get("chunk_index"),
+                                     "title": _md.get("title"),
                                      },
                         "type": x["type"],
                         "order_num": str(create_uuid()),

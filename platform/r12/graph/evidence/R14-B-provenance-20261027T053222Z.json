@@ -1,0 +1,47 @@
+{
+ "kb": "kb_9",
+ "ts": "2026-10-27T05:32:22Z",
+ "blocks": 2,
+ "counts": {
+  "exact_chunk": 2,
+  "stale_version": 0,
+  "entity_content": 0,
+  "unknown": 0
+ },
+ "verdict": "PASS",
+ "hint": "",
+ "stale_pks": [],
+ "ratios": {
+  "exact_chunk": 1.0,
+  "stale_version": 0.0,
+  "entity_content": 0.0,
+  "unknown": 0.0
+ },
+ "detail": [
+  {
+   "query": "智造贷 授信额度 票据贴现",
+   "pk": "139363536840301567",
+   "recovered_by": null,
+   "provenance_quality": null,
+   "title": "R12FIX-product-loan(1).docx",
+   "class": "exact_chunk",
+   "es_version": 1,
+   "effective_version": 1,
+   "index_name": "kb_9",
+   "file_id": 328
+  },
+  {
+   "query": "智造贷 授信额度 票据贴现",
+   "pk": "626225001556669433",
+   "recovered_by": null,
+   "provenance_quality": null,
+   "title": "R12FIX-product-intro(1).pptx",
+   "class": "exact_chunk",
+   "es_version": 1,
+   "effective_version": 1,
+   "index_name": "kb_9",
+   "file_id": 343
+  }
+ ],
+ "recovered_stale": []
+}

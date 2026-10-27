@@ -1,0 +1,1062 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和月度。",
+ "refs": [
+  {
+   "metadata": {
+    "file_id": "263",
+    "title": "社区摘要 L0-a2157bee",
+    "community_id": "L0-a2157bee",
+    "level": 0,
+    "member_entities": [
+     "T-CORE-001",
+     "日均存款",
+     "跨账户"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      85
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-a2157bee",
+   "page_content": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 作为数据源为日均存款提供数据支持。\n- 日均存款的统计口径与跨账户相关。",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "263",
+    "title": "社区摘要 L0-261c4893",
+    "community_id": "L0-261c4893",
+    "level": 0,
+    "member_entities": [
+     "T-EXT-001",
+     "同比",
+     "月度",
+     "用电量"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      87
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-261c4893",
+   "page_content": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  }
+ ],
+ "cost": 3.8,
+ "frames": [
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081137,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081339,
+   "status": 1,
+   "reply": {
+    "content": "日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081357,
+   "status": 1,
+   "reply": {
+    "content": "日均",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081376,
+   "status": 1,
+   "reply": {
+    "content": "日均存款",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081394,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081413,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081433,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081453,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081473,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-C",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081493,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081514,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081534,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-0",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081554,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-00",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081574,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081595,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081615,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081636,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081656,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081677,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081697,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081718,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081738,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081738,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081758,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081778,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081799,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081820,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081840,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081861,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081881,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081903,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081924,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081945,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-0",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081966,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-00",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068081988,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082010,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082041,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082084,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082124,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082152,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082178,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082201,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和月",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082227,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和月度",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082248,
+   "status": 1,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和月度。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068078452",
+   "queryId": "q-1793068078452",
+   "lastDate": 1793068082271,
+   "status": 2,
+   "reply": {
+    "content": "日均存款的数据源是T-CORE-001，统计口径与跨账户相关。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和月度。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"file_id\":\"263\",\"title\":\"社区摘要 L0-a2157bee\",\"community_id\":\"L0-a2157bee\",\"level\":0,\"member_entities\":[\"T-CORE-001\",\"日均存款\",\"跨账户\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,85]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-a2157bee\",\"page_content\":\"这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\\n\\n- T-CORE-001 作为数据源为日均存款提供数据支持。\\n- 日均存款的统计口径与跨账户相关。\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"263\",\"title\":\"社区摘要 L0-261c4893\",\"community_id\":\"L0-261c4893\",\"level\":0,\"member_entities\":[\"T-EXT-001\",\"同比\",\"月度\",\"用电量\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,87]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？\",\"rank\":[1]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-261c4893\",\"page_content\":\"这个社区围绕电力使用数据的比较和统计主题聚集。\\n\\n关键实体及其关系：\\n- 用电量 -数据源-> T-EXT-001\\n- 用电量 -口径-> 同比\\n- 用电量 -口径-> 月度\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 3797,
+   "tokens": 63,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793068078452\", \"queryId\": \"q-1793068078452\", \"content\": \"\\u77e5\\u8bc6\\u5e93\\u91cc\\u65e5\\u5747\\u5b58\\u6b3e\\u548c\\u7528\\u7535\\u91cf\\u8fd9\\u4e24\\u4e2a\\u5bf9\\u8d26\\u6307\\u6807\\uff0c\\u6570\\u636e\\u6e90\\u5206\\u522b\\u662f\\u4ec0\\u4e48\\u3001\\u7edf\\u8ba1\\u53e3\\u5f84\\u5206\\u522b\\u662f\\u4ec0\\u4e48\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793068078452",
+  "queryId": "q-1793068078452",
+  "content": "知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-a2157bee",
+   "page_content_len": 85,
+   "page_content_head": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 作为数据源为日均存款提供数据支持。\n- 日均存款的统计口径与跨账户相关。",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "社区摘要 L0-a2157bee",
+   "file_id": "263",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-a2157bee",
+   "level": 0,
+   "member_entities": [
+    "T-CORE-001",
+    "日均存款",
+    "跨账户"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-261c4893",
+   "page_content_len": 87,
+   "page_content_head": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "社区摘要 L0-261c4893",
+   "file_id": "263",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-261c4893",
+   "level": 0,
+   "member_entities": [
+    "T-EXT-001",
+    "同比",
+    "月度",
+    "用电量"
+   ]
+  }
+ ]
+}

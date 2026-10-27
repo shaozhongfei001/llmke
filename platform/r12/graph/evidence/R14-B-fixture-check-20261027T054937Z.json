@@ -1,0 +1,109 @@
+{
+ "kb": "kb_22",
+ "query": "恒星项目的归口部门是哪个？",
+ "top_k": 2,
+ "truth": "装备制造事业部",
+ "1_es_lexical": {
+  "ok": true,
+  "hits": 1,
+  "titles": [
+   "R14FIX-graph-01-project.docx"
+  ]
+ },
+ "2_vector_only": {
+  "ok": true,
+  "titles": [
+   "R14FIX-graph-01-project.docx"
+  ]
+ },
+ "3_graph_chain": {
+  "ok": true,
+  "hop1": 2,
+  "hop2": 2,
+  "two_hop_edges": true
+ },
+ "4_graph_off_answer": {
+  "ok": true,
+  "titles": [
+   "R14FIX-graph-01-project.docx"
+  ],
+  "note": "目标块未进入上下文，后续生成不可能答出真值"
+ },
+ "5_kb9_untouched": {
+  "ok": false,
+  "mode": "compared",
+  "verdict": "kb9_changed",
+  "diffs": [
+   {
+    "field": "nebula",
+    "before": {
+     "vertices": 87,
+     "edges": 122,
+     "vertex_hash": "5914282cf892de28",
+     "edge_hash": "9b53ca30078f317e"
+    },
+    "after": {
+     "vertices": 91,
+     "edges": 126,
+     "vertex_hash": "d9dd6f086ae8a908",
+     "edge_hash": "f97ecb0066d76577"
+    }
+   },
+   {
+    "field": "community_summary_kb_9",
+    "added": [
+     "123452196447606810",
+     "460200653501761369"
+    ],
+    "removed": [
+     "701610196895493082",
+     "903369296772016881"
+    ],
+    "added_meta": {
+     "123452196447606810": {
+      "create_time": "2026-10-27 13:32:03",
+      "update_time": "2026-10-27 13:32:03.764921",
+      "file_id": null,
+      "version": null,
+      "title": null
+     },
+     "460200653501761369": {
+      "create_time": "2026-10-27 13:31:49",
+      "update_time": "2026-10-27 13:32:03.764819",
+      "file_id": null,
+      "version": null,
+      "title": null
+     }
+    },
+    "removed_meta": {
+     "701610196895493082": {
+      "create_time": "2026-10-27 11:06:49",
+      "update_time": "2026-10-27 11:06:49.951004",
+      "file_id": null,
+      "version": null,
+      "title": null
+     },
+     "903369296772016881": {
+      "create_time": "2026-10-27 11:06:39",
+      "update_time": "2026-10-27 11:06:49.950924",
+      "file_id": null,
+      "version": null,
+      "title": null
+     }
+    }
+   }
+  ],
+  "attribution": [
+   {
+    "field": "community_summary_kb_9",
+    "added": 2,
+    "removed": 2,
+    "latest_write": "2026-10-27 13:32:03.764921"
+   }
+  ],
+  "hint": "kb_9 指纹变化：先判断是谁写的（看下面 added_meta 的 update_time / removed 的 id），确认是 A 的重解析等**外部写入**后，才允许用 --accept-kb9-baseline 重取基线；不要默默重取，否则会把违规洗掉。",
+  "baseline_ts": "2026-10-27T05:30:41Z",
+  "current_ts": "2026-10-27T05:49:37Z"
+ },
+ "all_ok": false
+}

@@ -1,0 +1,35 @@
+{
+ "http": 503,
+ "status": 503,
+ "resultType": null,
+ "answer": "",
+ "refs": [],
+ "cost": 0.0,
+ "frames": [
+  {
+   "timestamp": "2026-10-27T02:42:21.162+00:00",
+   "path": "/qa/ai/question",
+   "status": 503,
+   "error": "Service Unavailable",
+   "requestId": "3809ccc8-681"
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793068941132\", \"queryId\": \"q-1793068941132\", \"content\": \"\\u6c5f\\u5357\\u88c5\\u5907\\u79d1\\u6280\\u6709\\u9650\\u516c\\u53f8\\u7684\\u4fe1\\u7528\\u8bc4\\u7ea7\\u662fAAA\\uff0c\\u6309\\u667a\\u9020\\u8d37\\u7684\\u8bc4\\u7ea7\\u52a0\\u70b9\\u89c4\\u5219\\uff0c\\u5b83\\u6267\\u884c\\u5229\\u7387\\u76f8\\u5bf9\\u4e00\\u5e74\\u671fLPR\\u8981\\u52a0\\u591a\\u5c11\\u57fa\\u70b9\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 6}",
+   "status": 503
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793068941132",
+  "queryId": "q-1793068941132",
+  "content": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，它执行利率相对一年期LPR要加多少基点？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 6
+ },
+ "refs_summary": [],
+ "graph_flag": "off"
+}

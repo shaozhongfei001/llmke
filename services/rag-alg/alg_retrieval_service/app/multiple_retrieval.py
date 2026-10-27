@@ -207,12 +207,19 @@ async def retrieval_milvus(question, knowledge_base_name, top_k, server_config, 
         }
 
         # 尝试解析 offset
+        # R14-C-FIX-09（A/F 联合定位）：原实现遇到一行 offset 不是合法 JSON 就 break，
+        # 整批 dense 召回被截断（FAQ 行在 Milvus 里 offset 落成空串 → faq_result_list=0，
+        # 表现为"FAQ 直答永远不命中"；同理普通向量召回也会被静默清空）。
+        # 坏数据只应降级为"无定位"，绝不允许中断整批。
         try:
-            if "offset" in x['metadata']:
-                x['metadata']['offset'] = json.loads(x['metadata']['offset'])
+            raw_offset = x['metadata'].get('offset')
+            if raw_offset in (None, "", b""):
+                x['metadata']['offset'] = []
+            elif isinstance(raw_offset, str):
+                x['metadata']['offset'] = json.loads(raw_offset)
         except Exception as e:
-            logger.error(f"解析 offset 失败: {e}, 数据: {x}")
-            break
+            logger.warning(f"offset 非合法 JSON，按无定位处理并继续: {e}, 数据: {str(x)[:200]}")
+            x['metadata']['offset'] = []
 
         milvus_documents.append(Document(page_content=x['page_content'], metadata=x['metadata']))
 
@@ -443,11 +450,17 @@ async def retrieval_graph(question, knowledge_base_name, top_k, model_info, serv
         milvus_data = None
 
         try:
-            milvus_data = await GraphClient.request(graph_url=full_url, data=data)
-            milvus_data = milvus_data['data']['result_data']
+            graph_resp = await GraphClient.request(graph_url=full_url, data=data) or {}
+            if graph_resp.get("code") not in (None, 200):
+                # 图服务对"空间不存在"等返回 code!=200 且 data 为空；这里只跳过该 KB，
+                # 不能 return（否则后续 KB 的图结果全被静默丢弃，用户与验收都看不到异常）
+                logger.warning(f"图检索跳过 space={k_name}: code={graph_resp.get('code')} msg={graph_resp.get('msg')}")
+                continue
+            milvus_data = ((graph_resp.get("data") or {}).get("result_data")) or []
         except Exception as e:
-            logger.exception(f"graph查询报错: {e}, 请求 URL: {graph_url}, 请求参数 data: {data}, 图检索结果 response: {milvus_data}")
-            return graph_documents
+            logger.exception(f"graph查询报错: {e}, 请求 URL: {graph_url}, 请求参数 data: {data}, space={k_name}")
+            # R14-C-FIX-09：单个 KB 失败只跳过它，绝不丢弃后续 KB（多 KB 场景下老 KB 常没建过图空间）
+            continue
 
         for i, x in enumerate(milvus_data):
             x["metadata"]["search"] = {

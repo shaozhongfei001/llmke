@@ -1,0 +1,3470 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信客户的详细信息。",
+ "refs": [
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-3af0d4bc",
+    "community_id": "L0-3af0d4bc",
+    "level": 0,
+    "member_entities": [
+     "2027-06-30",
+     "AAA",
+     "江南装备科技有限公司",
+     "装备制造"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [],
+    "source": "",
+    "sources_resolved_by": "",
+    "offset": [
+     [
+      0,
+      88
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-3af0d4bc",
+   "page_content": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足。",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-60d6fa91",
+    "community_id": "L0-60d6fa91",
+    "level": 0,
+    "member_entities": [
+     "2027-01-31",
+     "2027-03-31",
+     "AA",
+     "北方重工配件厂",
+     "华东精密制造有限公司",
+     "汽车零部件"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [],
+    "source": "",
+    "sources_resolved_by": "",
+    "offset": [
+     [
+      0,
+      126
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-60d6fa91",
+   "page_content": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-3c882b30",
+    "community_id": "L0-3c882b30",
+    "level": 0,
+    "member_entities": [
+     "2026-12-31",
+     "关注",
+     "海川电子材料股份有限公司"
+    ],
+    "file_ids": [
+     "120",
+     "259"
+    ],
+    "file_names": [],
+    "source": "",
+    "sources_resolved_by": "",
+    "offset": [
+     [
+      0,
+      86
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+     "rank": [
+      2
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-3c882b30",
+   "page_content": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+   "score": "1.0",
+   "type": "text"
+  }
+ ],
+ "cost": 8.9,
+ "frames": [
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654201,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654472,
+   "status": 1,
+   "reply": {
+    "content": "根据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654490,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654509,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654529,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654550,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654571,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654592,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654614,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654636,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654657,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654679,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654700,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654722,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654744,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654765,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654766,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654787,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654809,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654830,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654852,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654873,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654895,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654917,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司**",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654938,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** -",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654960,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - ",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068654982,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655004,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655025,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级:",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655048,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655074,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655108,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655155,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655196,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655224,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655249,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655271,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655294,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655315,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655316,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655337,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655359,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655381,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655402,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655424,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655445,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655467,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂**",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655489,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** -",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655511,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - ",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655533,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655554,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655576,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级:",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655597,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655619,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655641,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655663,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655684,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655707,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655728,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655750,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655751,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655772,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655794,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655816,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655837,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655859,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655881,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655903,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司**",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655925,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** -",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655947,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - ",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655969,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068655991,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656014,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级:",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656039,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656067,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656097,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656126,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656155,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656182,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656208,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656233,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656234,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656258,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656281,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656305,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656328,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656350,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656372,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656394,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656416,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656438,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司**",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656460,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** -",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656482,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - ",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656504,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656526,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656548,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656570,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656592,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656614,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656636,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656658,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656679,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656701,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 ",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656723,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656745,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 20",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656767,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 202",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656790,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656812,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656833,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-1",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656855,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656877,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656899,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656921,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656945,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656974,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068656997,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657020,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在20",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657046,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在202",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657072,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657097,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657123,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657149,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657150,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657175,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657200,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657224,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657249,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657273,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657297,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657320,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657343,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在20",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657365,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在202",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657388,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657410,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657433,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657455,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657478,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（20",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657500,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（202",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657522,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657544,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657567,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-0",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657589,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657611,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657633,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657655,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657677,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657699,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657721,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657743,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657744,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657766,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657788,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657810,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657832,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657854,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657877,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657900,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657924,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信客户的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657948,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信客户的详细",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657973,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信客户的详细信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068657998,
+   "status": 1,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信客户的详细信息。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068649111",
+   "queryId": "q-1793068649111",
+   "lastDate": 1793068658023,
+   "status": 2,
+   "reply": {
+    "content": "根据提供的信息，目前仅有三家企业的信用评级和授信到期日：\n\n- **江南装备科技有限公司** - 信用评级: AAA，但未提供授信到期日信息。\n- **北方重工配件厂** - 信用评级: AA，授信到期日未提及。\n- **华东精密制造有限公司** - 信用评级: AA，授信到期日未提及。\n- **海川电子材料股份有限公司** - 信用评级未提及，授信到期日为 2026-12-31，不在2027年上半年到期。\n\n因此，没有客户的授信在2027年上半年（2027-06-30之前）到期。\n\n信息有限，未能找到所有授信客户的详细信息。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-3af0d4bc\",\"community_id\":\"L0-3af0d4bc\",\"level\":0,\"member_entities\":[\"2027-06-30\",\"AAA\",\"江南装备科技有限公司\",\"装备制造\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[],\"source\":\"\",\"sources_resolved_by\":\"\",\"offset\":[[0,88]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-3af0d4bc\",\"page_content\":\"这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\\n\\n- 江南装备科技有限公司 -信用评级-> AAA\\n- 江南装备科技有限公司 -所属产业链-> 装备制造\\n\\n信息不足。\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-60d6fa91\",\"community_id\":\"L0-60d6fa91\",\"level\":0,\"member_entities\":[\"2027-01-31\",\"2027-03-31\",\"AA\",\"北方重工配件厂\",\"华东精密制造有限公司\",\"汽车零部件\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[],\"source\":\"\",\"sources_resolved_by\":\"\",\"offset\":[[0,126]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？\",\"rank\":[1]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-60d6fa91\",\"page_content\":\"这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\\n\\n- 北方重工配件厂 -信用评级-> AA\\n- 华东精密制造有限公司 -信用评级-> AA\\n\\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-3c882b30\",\"community_id\":\"L0-3c882b30\",\"level\":0,\"member_entities\":[\"2026-12-31\",\"关注\",\"海川电子材料股份有限公司\"],\"file_ids\":[\"120\",\"259\"],\"file_names\":[],\"source\":\"\",\"sources_resolved_by\":\"\",\"offset\":[[0,86]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？\",\"rank\":[2]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-3c882b30\",\"page_content\":\"这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。\",\"score\":\"1.0\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 8899,
+   "tokens": 266,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793068649111\", \"queryId\": \"q-1793068649111\", \"content\": \"\\u56db\\u5bb6\\u6388\\u4fe1\\u5ba2\\u6237\\u7684\\u4fe1\\u7528\\u8bc4\\u7ea7\\u548c\\u6388\\u4fe1\\u5230\\u671f\\u65e5\\u5206\\u522b\\u662f\\u4ec0\\u4e48\\uff1f\\u5176\\u4e2d\\u54ea\\u4e9b\\u5ba2\\u6237\\u7684\\u6388\\u4fe1\\u57282027\\u5e74\\u4e0a\\u534a\\u5e74\\uff082027-06-30\\u4e4b\\u524d\\uff09\\u5230\\u671f\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793068649111",
+  "queryId": "q-1793068649111",
+  "content": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-3af0d4bc",
+   "page_content_len": 88,
+   "page_content_head": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足。",
+   "source": "",
+   "title": "社区摘要 L0-3af0d4bc",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-3af0d4bc",
+   "level": 0,
+   "member_entities": [
+    "2027-06-30",
+    "AAA",
+    "江南装备科技有限公司",
+    "装备制造"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-60d6fa91",
+   "page_content_len": 126,
+   "page_content_head": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "source": "",
+   "title": "社区摘要 L0-60d6fa91",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-60d6fa91",
+   "level": 0,
+   "member_entities": [
+    "2027-01-31",
+    "2027-03-31",
+    "AA",
+    "北方重工配件厂",
+    "华东精密制造有限公司",
+    "汽车零部件"
+   ]
+  },
+  {
+   "i": 2,
+   "order_num": "gc-L0-3c882b30",
+   "page_content_len": 86,
+   "page_content_head": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+   "source": "",
+   "title": "社区摘要 L0-3c882b30",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-3c882b30",
+   "level": 0,
+   "member_entities": [
+    "2026-12-31",
+    "关注",
+    "海川电子材料股份有限公司"
+   ]
+  }
+ ]
+}

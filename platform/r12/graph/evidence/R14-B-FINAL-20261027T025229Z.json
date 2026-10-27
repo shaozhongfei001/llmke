@@ -1,0 +1,631 @@
+{
+ "ts": "20261027T025229Z",
+ "global": {
+  "G1": {
+   "q": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+   "http": 200,
+   "status": 2,
+   "answer": "根据提供的参考资料，相关信息如下：\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 华东精密制造有限公司 -信用评级-> AA\n- 北方重工配件厂 -信用评级-> AA\n\n关于“智造贷”的执行利率，参考资料中没有提供具体的加点规则。因此，我们无法确定江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家公司执行利率相对一年期LPR的加点分别是多少。建议您进一步咨询相关贷款服务的具体政策。",
+   "refs": [
+    {
+     "metadata": {
+      "file_id": "120",
+      "title": "社区摘要 L0-60d6fa91",
+      "community_id": "L0-60d6fa91",
+      "level": 0,
+      "member_entities": [
+       "2027-01-31",
+       "2027-03-31",
+       "AA",
+       "北方重工配件厂",
+       "华东精密制造有限公司",
+       "汽车零部件"
+      ],
+      "file_ids": [
+       "120",
+       "226",
+       "258",
+       "259",
+       "266"
+      ],
+      "file_names": [],
+      "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "sources_resolved_by": "entity_content",
+      "offset": [
+       [
+        0,
+        126
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+       "rank": [
+        0
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-60d6fa91",
+     "page_content": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+     "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+     "score": "1.0",
+     "type": "text"
+    },
+    {
+     "metadata": {
+      "file_id": "120",
+      "title": "社区摘要 L0-3af0d4bc",
+      "community_id": "L0-3af0d4bc",
+      "level": 0,
+      "member_entities": [
+       "2027-06-30",
+       "AAA",
+       "江南装备科技有限公司",
+       "装备制造"
+      ],
+      "file_ids": [
+       "120",
+       "226",
+       "258",
+       "259",
+       "266"
+      ],
+      "file_names": [],
+      "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "sources_resolved_by": "entity_content",
+      "offset": [
+       [
+        0,
+        88
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+       "rank": [
+        1
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-3af0d4bc",
+     "page_content": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足。",
+     "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+     "score": "1.0",
+     "type": "text"
+    },
+    {
+     "metadata": {
+      "file_id": "119",
+      "title": "社区摘要 L0-18625408",
+      "community_id": "L0-18625408",
+      "level": 0,
+      "member_entities": [
+       "1000万元",
+       "100个基点",
+       "30个基点",
+       "3年",
+       "5000万元",
+       "60个基点",
+       "一年期贷款市场报价利率",
+       "三个工作日",
+       "三个工作日内放款",
+       "三年",
+       "人民币1000万元",
+       "人民币5000万元",
+       "信用方式",
+       "信用部分不超过1000万元",
+       "全国银行间同业拆借中心",
+       "制造业中小微企业",
+       "加100个基点",
+       "加30个基点",
+       "加60个基点",
+       "十个工作日",
+       "十个工作日内完成审批",
+       "十二个月",
+       "十五个工作日",
+       "受理",
+       "客户信用评级",
+       "应收账款质押",
+       "按季付息分期还本",
+       "按月付息到期还本",
+       "提前十五个工作日提出书面申请",
+       "放款日",
+       "智造贷",
+       "核心企业保证方式",
+       "电子信息",
+       "等额本息",
+       "设备抵押",
+       "评级授信",
+       "资料审核"
+      ],
+      "file_ids": [
+       "119",
+       "226",
+       "234",
+       "258",
+       "260",
+       "266",
+       "268"
+      ],
+      "file_names": [],
+      "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "sources_resolved_by": "entity_content",
+      "offset": [
+       [
+        0,
+        236
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+       "rank": [
+        2
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-18625408",
+     "page_content": "这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -面向-> 制造业中小微企业\n- 电子信息 -重点支持-> 智造贷\n\n社区内还详细规定了贷款的额度、期限、利率、还款方式及审批流程等，例如：\n\n- 智造贷 -最高额度-> 5000万元\n- 智造贷 -最长期限-> 3年\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\n- 智造贷 -审批流程-> 十个工作日内完成审批\n\n这些信息共同构成了一个全面的贷款服务框架。",
+     "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+     "score": "1.0",
+     "type": "text"
+    }
+   ],
+   "cost": 7.7,
+   "refs_summary": [
+    {
+     "i": 0,
+     "order_num": "gc-L0-60d6fa91",
+     "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "title": "社区摘要 L0-60d6fa91",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-60d6fa91",
+     "recovered_by": null,
+     "len": 126,
+     "head": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到"
+    },
+    {
+     "i": 1,
+     "order_num": "gc-L0-3af0d4bc",
+     "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "title": "社区摘要 L0-3af0d4bc",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-3af0d4bc",
+     "recovered_by": null,
+     "len": 88,
+     "head": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足。"
+    },
+    {
+     "i": 2,
+     "order_num": "gc-L0-18625408",
+     "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "title": "社区摘要 L0-18625408",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-18625408",
+     "recovered_by": null,
+     "len": 236,
+     "head": "这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -面向-> 制造业中小微企业\n- 电子信息 -重点支持-> 智造贷\n\n社区内还详细规定了贷款的额度、期限、利率、还款方式及审批流程等，例如"
+    }
+   ]
+  },
+  "G2": {
+   "q": "知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？",
+   "http": 200,
+   "status": 2,
+   "answer": "日均存款的数据源是T-CORE-001，统计口径是跨账户。\n\n用电量的数据源是T-EXT-001，统计口径包括同比和月度。",
+   "refs": [
+    {
+     "metadata": {
+      "file_id": "263",
+      "title": "社区摘要 L0-a5a28a99",
+      "community_id": "L0-a5a28a99",
+      "level": 0,
+      "member_entities": [
+       "T-CORE-001",
+       "日均存款",
+       "跨账户"
+      ],
+      "file_ids": [
+       "263",
+       "271"
+      ],
+      "file_names": [],
+      "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+      "sources_resolved_by": "entity_content",
+      "offset": [
+       [
+        0,
+        77
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？",
+       "rank": [
+        0
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-a5a28a99",
+     "page_content": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 -数据源-> 日均存款\n- 日均存款 -口径-> 跨账户",
+     "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/parsed/docx-plain.docx.txt",
+     "score": "1.0",
+     "type": "text"
+    },
+    {
+     "metadata": {
+      "file_id": "263",
+      "title": "社区摘要 L0-be7452ca",
+      "community_id": "L0-be7452ca",
+      "level": 0,
+      "member_entities": [
+       "T-EXT-001",
+       "同比",
+       "月度",
+       "用电量"
+      ],
+      "file_ids": [
+       "263",
+       "271"
+      ],
+      "file_names": [],
+      "source": "",
+      "sources_resolved_by": "",
+      "offset": [
+       [
+        0,
+        123
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "知识库里日均存款和用电量这两个对账指标，数据源分别是什么、统计口径分别是什么？",
+       "rank": [
+        1
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-be7452ca",
+     "page_content": "这个社区围绕电力数据的比较和统计主题聚集。关键实体及其关系包括：用电量作为数据源来自T-EXT-001，同时用电量还与同比和月度进行比较。\n\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+     "score": "1.0",
+     "type": "text"
+    }
+   ],
+   "cost": 4.0,
+   "refs_summary": [
+    {
+     "i": 0,
+     "order_num": "gc-L0-a5a28a99",
+     "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+     "title": "社区摘要 L0-a5a28a99",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-a5a28a99",
+     "recovered_by": null,
+     "len": 77,
+     "head": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 -数据源-> 日均存款\n- 日均存款 -口径-> 跨账户"
+    },
+    {
+     "i": 1,
+     "order_num": "gc-L0-be7452ca",
+     "source": "",
+     "title": "社区摘要 L0-be7452ca",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-be7452ca",
+     "recovered_by": null,
+     "len": 123,
+     "head": "这个社区围绕电力数据的比较和统计主题聚集。关键实体及其关系包括：用电量作为数据源来自T-EXT-001，同时用电量还与同比和月度进行比较。\n\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径->"
+    }
+   ]
+  },
+  "G3": {
+   "q": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+   "http": 200,
+   "status": 2,
+   "answer": "根据现有信息，仅有三家公司的信用评级和授信到期日被提及，分别为：\n\n- 江南装备科技有限公司 - 信用评级 -> AAA\n- 北方重工配件厂 - 信用评级 -> AA\n- 华东精密制造有限公司 - 信用评级 -> AA\n- 海川电子材料股份有限公司 - 到期日 -> 2026-12-31\n\n没有第四家公司的相关信息。因此，无法提供第四家授信客户的信用评级和授信到期日。根据提供的信息，没有授信客户在2027年上半年（2027-06-30之前）到期。\n\n$$\n\\begin{array}{|c|c|c|}\n\\hline\n\\text{公司名称} & \\text{信用评级} & \\text{授信到期日} \\\\\n\\hline\n\\text{江南装备科技有限公司} & \\text{AAA} & \\text{信息不足} \\\\\n\\hline\n\\text{北方重工配件厂} & \\text{AA} & \\text{信息不足} \\\\\n\\hline\n\\text{华东精密制造有限公司} & \\text{AA} & \\text{信息不足} \\\\\n\\hline\n\\text{海川电子材料股份有限公司} & \\text{关注级别} & 2026-12-31 \\\\\n\\hline\n\\end{array}\n$$",
+   "refs": [
+    {
+     "metadata": {
+      "file_id": "120",
+      "title": "社区摘要 L0-3af0d4bc",
+      "community_id": "L0-3af0d4bc",
+      "level": 0,
+      "member_entities": [
+       "2027-06-30",
+       "AAA",
+       "江南装备科技有限公司",
+       "装备制造"
+      ],
+      "file_ids": [
+       "120",
+       "226",
+       "258",
+       "259",
+       "266"
+      ],
+      "file_names": [],
+      "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "sources_resolved_by": "entity_content",
+      "offset": [
+       [
+        0,
+        88
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+       "rank": [
+        0
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-3af0d4bc",
+     "page_content": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足。",
+     "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+     "score": "1.0",
+     "type": "text"
+    },
+    {
+     "metadata": {
+      "file_id": "120",
+      "title": "社区摘要 L0-60d6fa91",
+      "community_id": "L0-60d6fa91",
+      "level": 0,
+      "member_entities": [
+       "2027-01-31",
+       "2027-03-31",
+       "AA",
+       "北方重工配件厂",
+       "华东精密制造有限公司",
+       "汽车零部件"
+      ],
+      "file_ids": [
+       "120",
+       "226",
+       "258",
+       "259",
+       "266"
+      ],
+      "file_names": [],
+      "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "sources_resolved_by": "entity_content",
+      "offset": [
+       [
+        0,
+        126
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+       "rank": [
+        1
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-60d6fa91",
+     "page_content": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+     "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+     "score": "1.0",
+     "type": "text"
+    },
+    {
+     "metadata": {
+      "file_id": "120",
+      "title": "社区摘要 L0-3c882b30",
+      "community_id": "L0-3c882b30",
+      "level": 0,
+      "member_entities": [
+       "2026-12-31",
+       "关注",
+       "海川电子材料股份有限公司"
+      ],
+      "file_ids": [
+       "120",
+       "259"
+      ],
+      "file_names": [],
+      "source": "",
+      "sources_resolved_by": "",
+      "offset": [
+       [
+        0,
+        86
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "四家授信客户的信用评级和授信到期日分别是什么？其中哪些客户的授信在2027年上半年（2027-06-30之前）到期？",
+       "rank": [
+        2
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-3c882b30",
+     "page_content": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+     "score": "1.0",
+     "type": "text"
+    }
+   ],
+   "cost": 13.0,
+   "refs_summary": [
+    {
+     "i": 0,
+     "order_num": "gc-L0-3af0d4bc",
+     "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "title": "社区摘要 L0-3af0d4bc",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-3af0d4bc",
+     "recovered_by": null,
+     "len": 88,
+     "head": "这个社区围绕江南装备科技有限公司的信用和产业链主题聚集。\n\n- 江南装备科技有限公司 -信用评级-> AAA\n- 江南装备科技有限公司 -所属产业链-> 装备制造\n\n信息不足。"
+    },
+    {
+     "i": 1,
+     "order_num": "gc-L0-60d6fa91",
+     "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "title": "社区摘要 L0-60d6fa91",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-60d6fa91",
+     "recovered_by": null,
+     "len": 126,
+     "head": "这个社区主要围绕汽车零部件产业链上的企业信用和到期日信息聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到"
+    },
+    {
+     "i": 2,
+     "order_num": "gc-L0-3c882b30",
+     "source": "",
+     "title": "社区摘要 L0-3c882b30",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-3c882b30",
+     "recovered_by": null,
+     "len": 86,
+     "head": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。"
+    }
+   ]
+  },
+  "R2": {
+   "q": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+   "http": 200,
+   "status": 2,
+   "answer": "根据现有参考资料，无法直接确定海川电子材料股份有限公司被列为关注类时需要计提的具体贷款损失准备比例。通常，计提比例会根据企业的具体财务状况和风险评估结果来确定。建议查阅公司最新的财务报告或咨询相关金融专业人士以获取准确信息。",
+   "refs": [
+    {
+     "metadata": {
+      "file_id": "120",
+      "title": "社区摘要 L0-3c882b30",
+      "community_id": "L0-3c882b30",
+      "level": 0,
+      "member_entities": [
+       "2026-12-31",
+       "关注",
+       "海川电子材料股份有限公司"
+      ],
+      "file_ids": [
+       "120",
+       "259"
+      ],
+      "file_names": [],
+      "source": "",
+      "sources_resolved_by": "",
+      "offset": [
+       [
+        0,
+        86
+       ]
+      ],
+      "chunk_type": "text",
+      "search": {
+       "type": [
+        "graph_community"
+       ],
+       "query": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+       "rank": [
+        0
+       ]
+      },
+      "search_type": [
+       "graph_community"
+      ]
+     },
+     "order_num": "gc-L0-3c882b30",
+     "page_content": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+     "score": "1.0",
+     "type": "text"
+    }
+   ],
+   "cost": 2.4,
+   "refs_summary": [
+    {
+     "i": 0,
+     "order_num": "gc-L0-3c882b30",
+     "source": "",
+     "title": "社区摘要 L0-3c882b30",
+     "search_type": [
+      "graph_community"
+     ],
+     "community_id": "L0-3c882b30",
+     "recovered_by": null,
+     "len": 86,
+     "head": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。"
+    }
+   ]
+  }
+ },
+ "local": {
+  "on": {
+   "q": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，它执行利率相对一年期LPR要加多少基点？",
+   "configId": 1,
+   "http": 200,
+   "status": 2,
+   "answer": "根据智造贷的评级加点规则，AAA级信用评级对应的基点加成是15基点。因此，江南装备科技有限公司执行的利率相对一年期LPR要加15基点。",
+   "refs": [],
+   "cost": 7.5,
+   "refs_summary": []
+  }
+ }
+}

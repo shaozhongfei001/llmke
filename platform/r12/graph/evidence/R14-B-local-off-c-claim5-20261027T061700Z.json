@@ -1,0 +1,288 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "恒星项目的归口部门是阿里云智能。",
+ "refs": [],
+ "cost": 9.3,
+ "frames": [
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820238,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820295,
+   "status": 1,
+   "reply": {
+    "content": "恒",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820313,
+   "status": 1,
+   "reply": {
+    "content": "恒星",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820331,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820350,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820370,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820390,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口部门",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820410,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口部门是",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820430,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口部门是阿里",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820450,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口部门是阿里云",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820470,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口部门是阿里云智能",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820490,
+   "status": 1,
+   "reply": {
+    "content": "恒星项目的归口部门是阿里云智能。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793081811204",
+   "queryId": "q-1793081811204",
+   "lastDate": 1793081820510,
+   "status": 2,
+   "reply": {
+    "content": "恒星项目的归口部门是阿里云智能。",
+    "type": "markdown"
+   },
+   "reference": "[]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 9277,
+   "tokens": 16,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793081811204\", \"queryId\": \"q-1793081811204\", \"content\": \"\\u6052\\u661f\\u9879\\u76ee\\u7684\\u5f52\\u53e3\\u90e8\\u95e8\\u662f\\u54ea\\u4e2a\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793081811204",
+  "queryId": "q-1793081811204",
+  "content": "恒星项目的归口部门是哪个？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1
+ },
+ "refs_summary": [],
+ "graph_flag": "off"
+}

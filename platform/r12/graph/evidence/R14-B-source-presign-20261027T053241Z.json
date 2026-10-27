@@ -1,0 +1,62 @@
+{
+ "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+ "mode": "global",
+ "http": 200,
+ "refs": [
+  {
+   "i": 0,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "community_id": "L0-60d6fa91",
+   "form_ok": true,
+   "ref_version": 1,
+   "effective_version": 1,
+   "version_ok": true,
+   "presign_ok": true,
+   "presign_trace": [
+    "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+    200,
+    "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan%281%29.docx?response-content-type=application%2Fvnd."
+   ],
+   "presigned_url": true,
+   "get_status": 200,
+   "bytes": 37543
+  },
+  {
+   "i": 1,
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "community_id": "L0-92b533ae",
+   "form_ok": true,
+   "ref_version": 1,
+   "effective_version": 1,
+   "version_ok": true,
+   "presign_ok": true,
+   "presign_trace": [
+    "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+    200,
+    "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro%281%29.pptx?response-content-type=application%2Fvn"
+   ],
+   "presigned_url": true,
+   "get_status": 200,
+   "bytes": 29388
+  },
+  {
+   "i": 2,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "community_id": "L0-3af0d4bc",
+   "form_ok": true,
+   "ref_version": 1,
+   "effective_version": 1,
+   "version_ok": true,
+   "presign_ok": true,
+   "presign_trace": [
+    "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+    200,
+    "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan%281%29.docx?response-content-type=application%2Fvnd."
+   ],
+   "presigned_url": true,
+   "get_status": 200,
+   "bytes": 37543
+  }
+ ],
+ "ok": true
+}

@@ -1,0 +1,1097 @@
+[
+ {
+  "_index": "kb_9",
+  "_id": "2779346151338697596",
+  "_score": 1.0,
+  "_source": {
+   "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+   "metadata": {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "document_id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==",
+    "file_id": 343,
+    "knowledge_base_name": "kb_9",
+    "file_size": "29388.0MB",
+    "title": "R12FIX-product-intro(1).pptx",
+    "type": "text",
+    "position": [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    ],
+    "page_number": [
+     0
+    ],
+    "page_size": [
+     [
+      0,
+      0
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "revise_date": "",
+    "parent_file_name": "R12FIX-product-intro.pptx",
+    "version": null,
+    "pk": 2779346151338697596,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "id_origin": "pk_from_caller",
+    "create_time": "2026-10-27 11:20:15.141026",
+    "update_time": "2026-10-27 11:20:15.141026"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 11:20:15.141026"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "3081403756790210060",
+  "_score": 1.0,
+  "_source": {
+   "page_content": "DOCX with table下表为多指标对账口径。",
+   "metadata": {
+    "source": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "file_path": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "document_id": "cjEyLXJhZy9rYl85L2RvY3gtdGFibGUuZG9jeC9WMC9kb2N4LXRhYmxlLmRvY3g=",
+    "file_id": 333,
+    "knowledge_base_name": "kb_9",
+    "file_size": "36944.0MB",
+    "title": "docx-table.docx",
+    "type": "text",
+    "position": [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    ],
+    "page_number": [
+     0
+    ],
+    "page_size": [
+     [
+      0,
+      0
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      26
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "docx-table.docx",
+    "version": null,
+    "pk": 3081403756790210060,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:47:02.658801",
+    "update_time": "2026-10-27 10:47:02.658801"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:47:02.658801"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "926415934990104915",
+  "_score": 1.0,
+  "_source": {
+   "page_content": "Plain DOCX第一段：客户访前准备。第二段：日均存款 2,983,333.33 元。",
+   "metadata": {
+    "source": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+    "file_path": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+    "document_id": "cjEyLXJhZy9rYl85L2RvY3gtcGxhaW4uZG9jeC9WMC9kb2N4LXBsYWluLmRvY3g=",
+    "file_id": 332,
+    "knowledge_base_name": "kb_9",
+    "file_size": "36716.0MB",
+    "title": "docx-plain.docx",
+    "type": "text",
+    "position": [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    ],
+    "page_number": [
+     0
+    ],
+    "page_size": [
+     [
+      0,
+      0
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      45
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "docx-plain.docx",
+    "version": null,
+    "pk": 926415934990104915,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:46:45.195083",
+    "update_time": "2026-10-27 10:46:45.195083"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:46:45.195083"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "2107837105731089944",
+  "_score": 1.0,
+  "_source": {
+   "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+   "metadata": {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+    "document_id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjAvUjEyRklYLXByb2R1Y3QtaW50cm8ucHB0eA==",
+    "file_id": 330,
+    "knowledge_base_name": "kb_9",
+    "file_size": "29388.0MB",
+    "title": "R12FIX-product-intro.pptx",
+    "type": "text",
+    "position": [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    ],
+    "page_number": [
+     0
+    ],
+    "page_size": [
+     [
+      0,
+      0
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "R12FIX-product-intro.pptx",
+    "version": null,
+    "pk": 2107837105731089944,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:46:45.116228",
+    "update_time": "2026-10-27 10:46:45.116228"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:46:45.116228"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "2425164609413958605",
+  "_score": 1.0,
+  "_source": {
+   "page_content": "SCANNED PAGE-notex layene 10 of alocume nt imagne 11 of a 9ine 13 of a scanned docume nt imagme nt imag",
+   "metadata": {
+    "source": "r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+    "file_path": "r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+    "document_id": "cjEyLXJhZy9rYl85L3BkZi1zY2FubmVkLnBkZi9WMC9wZGYtc2Nhbm5lZC5wZGY=",
+    "file_id": 334,
+    "knowledge_base_name": "kb_9",
+    "file_size": "6525683.0MB",
+    "title": "pdf-scanned.pdf",
+    "type": "text",
+    "position": [
+     [
+      [
+       190.0,
+       231.0
+      ],
+      [
+       367.0,
+       231.0
+      ],
+      [
+       367.0,
+       268.0
+      ],
+      [
+       190.0,
+       268.0
+      ]
+     ],
+     [
+      [
+       205.0,
+       658.0
+      ],
+      [
+       258.0,
+       658.0
+      ],
+      [
+       258.0,
+       676.0
+      ],
+      [
+       205.0,
+       676.0
+      ]
+     ],
+     [
+      [
+       321.0,
+       658.0
+      ],
+      [
+       404.0,
+       658.0
+      ],
+      [
+       404.0,
+       676.0
+      ],
+      [
+       321.0,
+       676.0
+      ]
+     ],
+     [
+      [
+       202.0,
+       697.0
+      ],
+      [
+       268.0,
+       697.0
+      ],
+      [
+       268.0,
+       716.0
+      ],
+      [
+       202.0,
+       716.0
+      ]
+     ],
+     [
+      [
+       199.0,
+       774.0
+      ],
+      [
+       409.0,
+       774.0
+      ],
+      [
+       409.0,
+       792.0
+      ],
+      [
+       199.0,
+       792.0
+      ]
+     ],
+     [
+      [
+       348.0,
+       816.0
+      ],
+      [
+       409.0,
+       816.0
+      ],
+      [
+       409.0,
+       834.0
+      ],
+      [
+       348.0,
+       834.0
+      ]
+     ]
+    ],
+    "page_number": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "page_size": [
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      103
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "pdf-scanned.pdf",
+    "version": null,
+    "pk": 2425164609413958605,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:46:31.731518",
+    "update_time": "2026-10-27 10:46:31.731518"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:46:31.731518"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "1071618004722579279",
+  "_score": 1.0,
+  "_source": {
+   "page_content": "Paragraph line 8: knowledge engineering baseline.Paragraph line 9: knowledge engineering baseline.Paragraph line 10: knowledge engineering baseline.Paragraph line 11: knowledge engineering baseline.Paragraph line 12: knowledge engineering baseline.",
+   "metadata": {
+    "source": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+    "file_path": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+    "document_id": "cjEyLXJhZy9rYl85L3BkZi1kaWdpdGFsLnBkZi9WMC9wZGYtZGlnaXRhbC5wZGY=",
+    "file_id": 331,
+    "knowledge_base_name": "kb_9",
+    "file_size": "3577.0MB",
+    "title": "pdf-digital.pdf",
+    "type": "text",
+    "position": [
+     [
+      [
+       212.0,
+       587.0
+      ],
+      [
+       890.0,
+       587.0
+      ],
+      [
+       890.0,
+       624.0
+      ],
+      [
+       212.0,
+       624.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       629.0
+      ],
+      [
+       890.0,
+       629.0
+      ],
+      [
+       890.0,
+       666.0
+      ],
+      [
+       212.0,
+       666.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       671.0
+      ],
+      [
+       890.0,
+       671.0
+      ],
+      [
+       890.0,
+       708.0
+      ],
+      [
+       212.0,
+       708.0
+      ]
+     ],
+     [
+      [
+       210.0,
+       708.0
+      ],
+      [
+       906.0,
+       708.0
+      ],
+      [
+       906.0,
+       753.0
+      ],
+      [
+       210.0,
+       753.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       750.0
+      ],
+      [
+       906.0,
+       750.0
+      ],
+      [
+       906.0,
+       795.0
+      ],
+      [
+       212.0,
+       795.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       797.0
+      ],
+      [
+       903.0,
+       797.0
+      ],
+      [
+       903.0,
+       834.0
+      ],
+      [
+       212.0,
+       834.0
+      ]
+     ]
+    ],
+    "page_number": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "page_size": [
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ]
+    ],
+    "offset": [
+     [
+      415,
+      663
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "pdf-digital.pdf",
+    "version": null,
+    "pk": 1071618004722579279,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 1,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:46:31.130647",
+    "update_time": "2026-10-27 10:46:31.130647"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:46:31.130647"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "1544062908944774486",
+  "_score": 1.0,
+  "_ignored": [
+   "page_content.keyword"
+  ],
+  "_source": {
+   "page_content": "Digital PDF sample····2,983,333.33 CNY. This page has a real text layer.Paragraph line 1: knowledge engineering baseline.Paragraph line 2: knowledge engineering baseline.Paragraph line 3: knowledge engineering baseline.Paragraph line 4: knowledge engineering baseline.Paragraph line 5: knowledge engineering baseline.Paragraph line 6: knowledge engineering baseline.Paragraph line 7: knowledge engineering baseline.Paragraph line 8: knowledge engineering baseline.",
+   "metadata": {
+    "source": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+    "file_path": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+    "document_id": "cjEyLXJhZy9rYl85L3BkZi1kaWdpdGFsLnBkZi9WMC9wZGYtZGlnaXRhbC5wZGY=",
+    "file_id": 331,
+    "knowledge_base_name": "kb_9",
+    "file_size": "3577.0MB",
+    "title": "pdf-digital.pdf",
+    "type": "text",
+    "position": [
+     [
+      [
+       215.0,
+       176.0
+      ],
+      [
+       630.0,
+       176.0
+      ],
+      [
+       630.0,
+       229.0
+      ],
+      [
+       215.0,
+       229.0
+      ]
+     ],
+     [
+      [
+       215.0,
+       266.0
+      ],
+      [
+       1004.0,
+       266.0
+      ],
+      [
+       1004.0,
+       310.0
+      ],
+      [
+       215.0,
+       310.0
+      ]
+     ],
+     [
+      [
+       210.0,
+       332.0
+      ],
+      [
+       887.0,
+       332.0
+      ],
+      [
+       887.0,
+       376.0
+      ],
+      [
+       210.0,
+       376.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       376.0
+      ],
+      [
+       887.0,
+       376.0
+      ],
+      [
+       887.0,
+       413.0
+      ],
+      [
+       212.0,
+       413.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       418.0
+      ],
+      [
+       890.0,
+       418.0
+      ],
+      [
+       890.0,
+       455.0
+      ],
+      [
+       212.0,
+       455.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       460.0
+      ],
+      [
+       890.0,
+       460.0
+      ],
+      [
+       890.0,
+       497.0
+      ],
+      [
+       212.0,
+       497.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       503.0
+      ],
+      [
+       890.0,
+       503.0
+      ],
+      [
+       890.0,
+       539.0
+      ],
+      [
+       212.0,
+       539.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       545.0
+      ],
+      [
+       890.0,
+       545.0
+      ],
+      [
+       890.0,
+       582.0
+      ],
+      [
+       212.0,
+       582.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       587.0
+      ],
+      [
+       890.0,
+       587.0
+      ],
+      [
+       890.0,
+       624.0
+      ],
+      [
+       212.0,
+       624.0
+      ]
+     ],
+     [
+      [
+       212.0,
+       629.0
+      ],
+      [
+       890.0,
+       629.0
+      ],
+      [
+       890.0,
+       666.0
+      ],
+      [
+       212.0,
+       666.0
+      ]
+     ]
+    ],
+    "page_number": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "page_size": [
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ],
+     [
+      1785,
+      2526
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      464
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "pdf-digital.pdf",
+    "version": null,
+    "pk": 1544062908944774486,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:46:31.130612",
+    "update_time": "2026-10-27 10:46:31.130612"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:46:31.130612"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "1689901252393637717",
+  "_score": 1.0,
+  "_ignored": [
+   "page_content.keyword"
+  ],
+  "_source": {
+   "page_content": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币8000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。四、还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。五、办理时限资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。",
+   "metadata": {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "document_id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMS9SMTJGSVgtcHJvZHVjdC1sb2FuKDEpLmRvY3g=",
+    "file_id": 328,
+    "knowledge_base_name": "kb_9",
+    "file_size": "37543.0MB",
+    "title": "R12FIX-product-loan(1).docx",
+    "type": "text",
+    "position": [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    ],
+    "page_number": [
+     0
+    ],
+    "page_size": [
+     [
+      0,
+      0
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "revise_date": "",
+    "parent_file_name": "R12FIX-product-loan.docx",
+    "version": null,
+    "pk": 1689901252393637717,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 10:45:15.544140",
+    "update_time": "2026-10-27 10:45:15.544140"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 10:45:15.544140"
+  ]
+ },
+ {
+  "_index": "kb_9",
+  "_id": "498386897502206386",
+  "_score": 1.0,
+  "_ignored": [
+   "page_content.keyword"
+  ],
+  "_source": {
+   "page_content": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。四、还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。五、办理时限资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。",
+   "metadata": {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "document_id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3g=",
+    "file_id": 290,
+    "knowledge_base_name": "kb_9",
+    "file_size": "37544.0MB",
+    "title": "R12FIX-product-loan.docx",
+    "type": "text",
+    "position": [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ]
+    ],
+    "page_number": [
+     0
+    ],
+    "page_size": [
+     [
+      0,
+      0
+     ]
+    ],
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "revise_date": null,
+    "parent_file_name": "R12FIX-product-loan.docx",
+    "version": null,
+    "pk": 498386897502206386,
+    "pic_url_list": [],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "need_filtered": false,
+    "title_path": "",
+    "chunk_index": 0,
+    "labels": [],
+    "folder_id": null,
+    "status": 0,
+    "create_time": "2026-10-27 02:29:00.150802",
+    "update_time": "2026-10-27 02:29:00.150802"
+   }
+  },
+  "sort": [
+   1.0,
+   "2026-10-27 02:29:00.150802"
+  ]
+ }
+]

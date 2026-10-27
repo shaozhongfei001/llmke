@@ -2,14 +2,29 @@
 
 只做一件确定性的事：从 Nebula `g_<kb>` 读出实体关系图，用 networkx 的 Louvain 划分社区。
 不生成摘要（见 graph_summary.py），不写库（见 graph_community_store.py），便于单独验证。
+
+R14-F05：community_id 必须是**逻辑身份**，即"同一图、同一划分 → 同一 id"。
+原实现用 uuid4 生成，重建一次全变，导致既无法按 community_id 去重，也无法判断
+"这一条摘要是不是同一社区的上一代"。现改为由 (kb, level, 成员集合) 派生：
+    同一输入 → 同一 id（可用于覆盖写/去重）
+    成员集合变化 → 新 id（旧摘要会被新代替换，而不是和新代混在一起）
 """
+import hashlib
 import time
-import uuid
 
 import networkx as nx
 
 from graph_fun_tool import user_connect_space
 from operators.common.log import logger
+
+
+def community_id_for(namespace: str, level: int, members) -> str:
+    """确定性社区 id：L<level>-<sha1(kb|level|排序成员)8位>。
+
+    排序保证与 Louvain 输出的成员顺序无关；namespace 隔离不同知识库的同名实体集。
+    """
+    seed = "|".join([str(namespace or ""), str(level)] + sorted(str(m) for m in members))
+    return f"L{level}-{hashlib.sha1(seed.encode('utf-8')).hexdigest()[:8]}"
 
 
 def load_graph(space_name: str):
@@ -35,10 +50,11 @@ def load_graph(space_name: str):
     return g
 
 
-def detect_communities(g, resolution=1.0, min_community_size=3, max_level=1):
+def detect_communities(g, resolution=1.0, min_community_size=3, max_level=1, namespace=""):
     """
     返回 [{community_id, level, members, size, edge_count}]。
     level0：对实体图做 Louvain；level1：把每个社区折叠成超节点后再做一次（层级摘要的基础）。
+    namespace 参与 community_id 派生（通常传知识库名），避免跨库同名实体集撞 id。
     """
     t0 = time.time()
     communities = []
@@ -54,7 +70,7 @@ def detect_communities(g, resolution=1.0, min_community_size=3, max_level=1):
             continue
         sub = g.subgraph(members)
         level0.append({
-            "community_id": f"L0-{uuid.uuid4().hex[:8]}",
+            "community_id": community_id_for(namespace, 0, members),
             "level": 0,
             "members": members,
             "size": len(members),
@@ -82,7 +98,7 @@ def detect_communities(g, resolution=1.0, min_community_size=3, max_level=1):
             for cid in part:
                 members.extend(next(c["members"] for c in level0 if c["community_id"] == cid))
             communities.append({
-                "community_id": f"L1-{uuid.uuid4().hex[:8]}",
+                "community_id": community_id_for(namespace, 1, members),
                 "level": 1,
                 "members": sorted(members),
                 "size": len(members),

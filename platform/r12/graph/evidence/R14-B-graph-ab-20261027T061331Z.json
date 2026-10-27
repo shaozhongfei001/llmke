@@ -1,0 +1,67 @@
+{
+ "query": "恒星项目的归口部门是哪个？",
+ "rerank": true,
+ "kb": "kb_26",
+ "top_k": 5,
+ "on": {
+  "http": 200,
+  "cost": 5.0,
+  "n": 1,
+  "graph_blocks": 1,
+  "docs": [
+   {
+    "source": "r12-rag/kb_26/R14FIX-graph-01-project.docx/V0/R14FIX-graph-01-project.docx",
+    "offset": [
+     [
+      0,
+      101
+     ]
+    ],
+    "len": 101,
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "is_graph": true,
+    "recovered_by": null,
+    "chunk_pk": 945335002786456486
+   }
+  ]
+ },
+ "off": {
+  "http": 200,
+  "cost": 1.4,
+  "n": 1,
+  "graph_blocks": 0,
+  "docs": [
+   {
+    "source": "r12-rag/kb_26/R14FIX-graph-01-project.docx/V0/R14FIX-graph-01-project.docx",
+    "offset": [
+     [
+      0,
+      101
+     ]
+    ],
+    "len": 101,
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": 945335002786456486
+   }
+  ]
+ },
+ "verdict": {
+  "graph_blocks_on": 1,
+  "graph_blocks_off": 0,
+  "only_on": 0,
+  "only_off": 0,
+  "graph_adds_blocks": false,
+  "graph_absent_when_off": true
+ }
+}

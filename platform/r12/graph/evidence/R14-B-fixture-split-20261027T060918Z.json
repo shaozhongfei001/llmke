@@ -1,0 +1,46 @@
+{
+ "kb_name": "graph-increment-split",
+ "kb_id": "25",
+ "space": "g_kb_25",
+ "docs": [
+  "R14FIX-graph-01-project.docx",
+  "R14FIX-graph-02a-plan.docx",
+  "R14FIX-graph-02b-dept.docx",
+  "R14FIX-graph-03-noise.docx"
+ ],
+ "per_doc": [
+  {
+   "doc": "R14FIX-graph-01-project.docx",
+   "http": 200,
+   "success": true,
+   "indexed": true,
+   "blocks_before": 0
+  },
+  {
+   "doc": "R14FIX-graph-02a-plan.docx",
+   "http": 200,
+   "success": true,
+   "indexed": true,
+   "blocks_before": 1
+  },
+  {
+   "doc": "R14FIX-graph-02b-dept.docx",
+   "http": 200,
+   "success": true,
+   "indexed": true,
+   "blocks_before": 2
+  },
+  {
+   "doc": "R14FIX-graph-03-noise.docx",
+   "http": 200,
+   "success": true,
+   "indexed": true,
+   "blocks_before": 3
+  }
+ ],
+ "es": {
+  "kb_25": 4,
+  "table_chunks_kb_25": null,
+  "table_summary_kb_25": null
+ }
+}

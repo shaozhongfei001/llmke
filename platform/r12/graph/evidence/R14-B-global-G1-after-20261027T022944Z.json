@@ -1,0 +1,3023 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30个基点。",
+ "refs": [
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-5befded4",
+    "community_id": "L0-5befded4",
+    "level": 0,
+    "member_entities": [
+     "2027-01-31",
+     "2027-03-31",
+     "AA",
+     "北方重工配件厂",
+     "华东精密制造有限公司",
+     "汽车零部件"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      126
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-5befded4",
+   "page_content": "这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "120",
+    "title": "社区摘要 L0-918cb4d7",
+    "community_id": "L0-918cb4d7",
+    "level": 0,
+    "member_entities": [
+     "2027-06-30",
+     "AAA",
+     "江南装备科技有限公司",
+     "装备制造"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      122
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-918cb4d7",
+   "page_content": "这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": "263",
+    "title": "社区摘要 L0-261c4893",
+    "community_id": "L0-261c4893",
+    "level": 0,
+    "member_entities": [
+     "T-EXT-001",
+     "同比",
+     "月度",
+     "用电量"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+    "sources_resolved_by": "file_name",
+    "offset": [
+     [
+      0,
+      87
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+     "rank": [
+      2
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "order_num": "gc-L0-261c4893",
+   "page_content": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt",
+   "score": "1.0",
+   "type": "text"
+  }
+ ],
+ "cost": 9.1,
+ "frames": [
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068180857,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181260,
+   "status": 1,
+   "reply": {
+    "content": "江南",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181279,
+   "status": 1,
+   "reply": {
+    "content": "江南装备",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181299,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181318,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181338,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181358,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181379,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181400,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181421,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181441,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181442,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181462,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181483,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181504,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181525,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181546,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181567,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181588,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181609,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181630,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181651,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181672,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181693,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181715,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181735,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181756,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181757,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181778,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181799,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181821,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181849,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181888,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181931,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181960,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068181986,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182009,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182032,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182054,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182075,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182096,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182118,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182139,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182160,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为5",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182181,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182202,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182223,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182244,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182265,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182286,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182307,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182328,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182350,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182371,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182392,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182413,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182434,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182455,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182476,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182497,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182518,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182540,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182561,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182561,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182582,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182645,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182666,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182688,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182709,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182730,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182751,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182774,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182799,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182826,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182854,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182881,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182908,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期L",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182934,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182960,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068182984,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183008,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183031,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183054,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为5",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183076,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183098,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183120,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183142,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183164,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183164,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183185,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183227,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183249,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183270,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183292,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183313,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183334,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183355,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183377,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183398,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183420,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183441,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183462,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期L",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183484,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183506,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183527,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183548,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183569,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183590,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183611,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183633,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183654,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183675,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183698,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183699,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183721,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n-",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183770,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183794,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183818,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183844,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183870,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183895,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183920,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183945,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183970,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068183993,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184017,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184040,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期L",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184063,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184085,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184107,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184129,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184151,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184173,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184194,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184217,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184238,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184260,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184282,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30个基点。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793068175219",
+   "queryId": "q-1793068175219",
+   "lastDate": 1793068184303,
+   "status": 2,
+   "reply": {
+    "content": "江南装备科技有限公司的信用评级为AAA。\n\n北方重工配件厂和华东精密制造有限公司的信用评级均为AA。\n\n根据智造贷的评级加点规则，AAA评级对应的加点为50个基点，AA评级对应的加点为30个基点。因此：\n\n- 江南装备科技有限公司的执行利率相对一年期LPR的加点为50个基点。\n- 北方重工配件厂的执行利率相对一年期LPR的加点为30个基点。\n- 华东精密制造有限公司的执行利率相对一年期LPR的加点为30个基点。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-5befded4\",\"community_id\":\"L0-5befded4\",\"level\":0,\"member_entities\":[\"2027-01-31\",\"2027-03-31\",\"AA\",\"北方重工配件厂\",\"华东精密制造有限公司\",\"汽车零部件\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,126]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-5befded4\",\"page_content\":\"这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\\n\\n- 北方重工配件厂 -信用评级-> AA\\n- 华东精密制造有限公司 -信用评级-> AA\\n\\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"120\",\"title\":\"社区摘要 L0-918cb4d7\",\"community_id\":\"L0-918cb4d7\",\"level\":0,\"member_entities\":[\"2027-06-30\",\"AAA\",\"江南装备科技有限公司\",\"装备制造\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,122]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[1]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-918cb4d7\",\"page_content\":\"这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/parsed/R12FIX-product-loan.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":\"263\",\"title\":\"社区摘要 L0-261c4893\",\"community_id\":\"L0-261c4893\",\"level\":0,\"member_entities\":[\"T-EXT-001\",\"同比\",\"月度\",\"用电量\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"source\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\",\"sources_resolved_by\":\"file_name\",\"offset\":[[0,87]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？\",\"rank\":[2]},\"search_type\":[\"graph_community\"]},\"order_num\":\"gc-L0-261c4893\",\"page_content\":\"这个社区围绕电力使用数据的比较和统计主题聚集。\\n\\n关键实体及其关系：\\n- 用电量 -数据源-> T-EXT-001\\n- 用电量 -口径-> 同比\\n- 用电量 -口径-> 月度\",\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/parsed/docx-table.docx.txt\",\"score\":\"1.0\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 9071,
+   "tokens": 207,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793068175219\", \"queryId\": \"q-1793068175219\", \"content\": \"\\u6c5f\\u5357\\u88c5\\u5907\\u79d1\\u6280\\u6709\\u9650\\u516c\\u53f8\\u3001\\u534e\\u4e1c\\u7cbe\\u5bc6\\u5236\\u9020\\u6709\\u9650\\u516c\\u53f8\\u3001\\u5317\\u65b9\\u91cd\\u5de5\\u914d\\u4ef6\\u5382\\u4e09\\u5bb6\\u7684\\u4fe1\\u7528\\u8bc4\\u7ea7\\u5206\\u522b\\u662f\\u4ec0\\u4e48\\uff1f\\u6309\\u667a\\u9020\\u8d37\\u7684\\u8bc4\\u7ea7\\u52a0\\u70b9\\u89c4\\u5219\\uff0c\\u5b83\\u4eec\\u6267\\u884c\\u5229\\u7387\\u76f8\\u5bf9\\u4e00\\u5e74\\u671fLPR\\u7684\\u52a0\\u70b9\\u5206\\u522b\\u662f\\u591a\\u5c11\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793068175219",
+  "queryId": "q-1793068175219",
+  "content": "江南装备科技有限公司、华东精密制造有限公司、北方重工配件厂三家的信用评级分别是什么？按智造贷的评级加点规则，它们执行利率相对一年期LPR的加点分别是多少？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-5befded4",
+   "page_content_len": 126,
+   "page_content_head": "这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-5befded4",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-5befded4",
+   "level": 0,
+   "member_entities": [
+    "2027-01-31",
+    "2027-03-31",
+    "AA",
+    "北方重工配件厂",
+    "华东精密制造有限公司",
+    "汽车零部件"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-918cb4d7",
+   "page_content_len": 122,
+   "page_content_head": "这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "社区摘要 L0-918cb4d7",
+   "file_id": "120",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-918cb4d7",
+   "level": 0,
+   "member_entities": [
+    "2027-06-30",
+    "AAA",
+    "江南装备科技有限公司",
+    "装备制造"
+   ]
+  },
+  {
+   "i": 2,
+   "order_num": "gc-L0-261c4893",
+   "page_content_len": 87,
+   "page_content_head": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "社区摘要 L0-261c4893",
+   "file_id": "263",
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-261c4893",
+   "level": 0,
+   "member_entities": [
+    "T-EXT-001",
+    "同比",
+    "月度",
+    "用电量"
+   ]
+  }
+ ]
+}

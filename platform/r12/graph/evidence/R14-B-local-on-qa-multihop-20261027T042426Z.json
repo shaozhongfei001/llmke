@@ -1,0 +1,1552 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30个基点。",
+ "refs": [
+  {
+   "metadata": {
+    "source": "kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "file_path": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==",
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "offset": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ],
+     [
+      0,
+      3
+     ],
+     [
+      0,
+      4
+     ],
+     [
+      0,
+      5
+     ],
+     [
+      0,
+      6
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      1,
+      5
+     ],
+     [
+      1,
+      6
+     ],
+     [
+      2,
+      0
+     ],
+     [
+      2,
+      1
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      2,
+      5
+     ],
+     [
+      2,
+      6
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      3,
+      6
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      4,
+      2
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      4,
+      5
+     ],
+     [
+      4,
+      6
+     ]
+    ],
+    "pic_children_id_list": [],
+    "text_parent_id_list": [],
+    "chunk_type": "table",
+    "parent_file_name": "R12FIX-credit-ledger.xlsx",
+    "revise_date": "",
+    "version": "V0",
+    "position": "[]",
+    "file_id": 329,
+    "page_size": "[]",
+    "page_number": [],
+    "table_name": "table-0-授信台账",
+    "labels": [],
+    "chunk_index": 0,
+    "table_summary_id": "3819837196680809723",
+    "title": "R12FIX-credit-ledger.xlsx",
+    "knowledge_base_name": "kb_9",
+    "score": 0.7902237176895142,
+    "rerank_score_rank": 1,
+    "rrf_score": 0.2,
+    "rrf_score_rank": 3
+   },
+   "order_num": "4094096137389456339",
+   "page_content": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|",
+   "parsedFilePath": "http://127.0.0.1:19000/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt",
+   "score": "0.7902237176895142",
+   "type": "table"
+  },
+  {
+   "metadata": {
+    "source": "kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMS9SMTJGSVgtcHJvZHVjdC1sb2FuKDEpLmRvY3g=",
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "text_parent_id_list": [],
+    "chunk_type": "text",
+    "parent_file_name": "R12FIX-product-loan.docx",
+    "revise_date": "",
+    "version": "V1",
+    "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+    "file_id": 328,
+    "image_path": "",
+    "page_size": "[[0, 0]]",
+    "page_number": [
+     0
+    ],
+    "table_name": "",
+    "labels": [],
+    "chunk_index": 0,
+    "title": "R12FIX-product-loan(1).docx",
+    "knowledge_base_name": "kb_9",
+    "score": 0.7785986661911011,
+    "rerank_score_rank": 2,
+    "rrf_score": 0.75,
+    "rrf_score_rank": 1
+   },
+   "order_num": "193428936941807193",
+   "page_content": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币8000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。四、还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。五、办理时限资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。",
+   "parsedFilePath": "http://127.0.0.1:19000/kb_9/R12FIX-product-loan.docx/V1/parsed/R12FIX-product-loan(1).docx.txt",
+   "score": "0.7785986661911011",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "source": "kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==",
+    "search_type": [
+     "milvus",
+     "graph"
+    ],
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "text_parent_id_list": [],
+    "chunk_type": "text",
+    "parent_file_name": "R12FIX-product-intro.pptx",
+    "revise_date": "",
+    "version": "V1",
+    "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+    "file_id": 343,
+    "image_path": "",
+    "page_size": "[[0, 0]]",
+    "page_number": [
+     0
+    ],
+    "table_name": "",
+    "labels": [],
+    "chunk_index": 0,
+    "title": "R12FIX-product-intro(1).pptx",
+    "knowledge_base_name": "kb_9",
+    "score": 0.45259252190589905,
+    "rerank_score_rank": 5,
+    "rrf_score": 0.5,
+    "rrf_score_rank": 5
+   },
+   "order_num": "1830345457236159148",
+   "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+   "parsedFilePath": "http://127.0.0.1:19000/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt",
+   "score": "0.45259252190589905",
+   "type": "text"
+  }
+ ],
+ "cost": 37.3,
+ "frames": [
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065106,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065606,
+   "status": 1,
+   "reply": {
+    "content": "江南",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065629,
+   "status": 1,
+   "reply": {
+    "content": "江南装备",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065645,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065662,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065680,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065700,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065730,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065744,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065763,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065782,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065802,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为20",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065823,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为202",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065844,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065866,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065886,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065906,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065925,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065949,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065968,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075065987,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066006,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066032,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066048,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066074,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066103,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066134,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066165,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066191,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066219,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066241,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066262,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066288,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066311,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066338,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066359,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066373,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066393,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066418,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066434,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066455,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066476,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066496,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066519,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066537,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066558,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066580,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066599,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066622,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066640,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066665,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期L",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066682,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066704,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066723,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加3",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066744,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066766,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30个",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066786,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30个基",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066806,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30个基点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066827,
+   "status": 1,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30个基点。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793075029563",
+   "queryId": "q-1793075029563",
+   "lastDate": 1793075066848,
+   "status": 2,
+   "reply": {
+    "content": "江南装备科技有限公司的授信到期日为2027年6月30日。根据其AAA级信用评级，“智造贷”的加点规则为AAA级加30个基点，因此执行利率相对一年期LPR加30个基点。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"source\":\"kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx\",\"file_path\":\"r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx\",\"id\":\"cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==\",\"search_type\":[\"milvus\",\"es\",\"es\"],\"offset\":[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6]],\"pic_children_id_list\":[],\"text_parent_id_list\":[],\"chunk_type\":\"table\",\"parent_file_name\":\"R12FIX-credit-ledger.xlsx\",\"revise_date\":\"\",\"version\":\"V0\",\"position\":\"[]\",\"file_id\":329,\"page_size\":\"[]\",\"page_number\":[],\"table_name\":\"table-0-授信台账\",\"labels\":[],\"chunk_index\":0,\"table_summary_id\":\"3819837196680809723\",\"title\":\"R12FIX-credit-ledger.xlsx\",\"knowledge_base_name\":\"kb_9\",\"score\":0.7902237176895142,\"rerank_score_rank\":1,\"rrf_score\":0.2,\"rrf_score_rank\":3},\"order_num\":\"4094096137389456339\",\"page_content\":\"|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|\",\"parsedFilePath\":\"http://127.0.0.1:19000/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt\",\"score\":\"0.7902237176895142\",\"type\":\"table\"},{\"metadata\":{\"source\":\"kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"file_path\":\"r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"id\":\"cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMS9SMTJGSVgtcHJvZHVjdC1sb2FuKDEpLmRvY3g=\",\"search_type\":[\"milvus\",\"es\",\"es\",\"graph\"],\"offset\":[[0,459]],\"pic_offset_list\":[],\"pic_children_id_list\":[],\"text_parent_id_list\":[],\"chunk_type\":\"text\",\"parent_file_name\":\"R12FIX-product-loan.docx\",\"revise_date\":\"\",\"version\":\"V1\",\"position\":\"[[[0, 0], [0, 0], [0, 0], [0, 0]]]\",\"file_id\":328,\"image_path\":\"\",\"page_size\":\"[[0, 0]]\",\"page_number\":[0],\"table_name\":\"\",\"labels\":[],\"chunk_index\":0,\"title\":\"R12FIX-product-loan(1).docx\",\"knowledge_base_name\":\"kb_9\",\"score\":0.7785986661911011,\"rerank_score_rank\":2,\"rrf_score\":0.75,\"rrf_score_rank\":1},\"order_num\":\"193428936941807193\",\"page_content\":\"“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币8000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。四、还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。五、办理时限资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。\",\"parsedFilePath\":\"http://127.0.0.1:19000/kb_9/R12FIX-product-loan.docx/V1/parsed/R12FIX-product-loan(1).docx.txt\",\"score\":\"0.7785986661911011\",\"type\":\"text\"},{\"metadata\":{\"source\":\"kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"file_path\":\"r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"id\":\"cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==\",\"search_type\":[\"milvus\",\"graph\"],\"offset\":[[0,123]],\"pic_offset_list\":[],\"pic_children_id_list\":[],\"text_parent_id_list\":[],\"chunk_type\":\"text\",\"parent_file_name\":\"R12FIX-product-intro.pptx\",\"revise_date\":\"\",\"version\":\"V1\",\"position\":\"[[[0, 0], [0, 0], [0, 0], [0, 0]]]\",\"file_id\":343,\"image_path\":\"\",\"page_size\":\"[[0, 0]]\",\"page_number\":[0],\"table_name\":\"\",\"labels\":[],\"chunk_index\":0,\"title\":\"R12FIX-product-intro(1).pptx\",\"knowledge_base_name\":\"kb_9\",\"score\":0.45259252190589905,\"rerank_score_rank\":5,\"rrf_score\":0.5,\"rrf_score_rank\":5},\"order_num\":\"1830345457236159148\",\"page_content\":\"“智造贷”产品要点\\n适用对象：制造业中小微企业\\n最高额度：8000万元（信用部分不超过1000万元）\\n最长期限：3年\\n利率：1年期LPR加点30~100BP办理流程\\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）\",\"parsedFilePath\":\"http://127.0.0.1:19000/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt\",\"score\":\"0.45259252190589905\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 16532,
+   "tokens": 83,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793075029563\", \"queryId\": \"q-1793075029563\", \"content\": \"\\u6c5f\\u5357\\u88c5\\u5907\\u79d1\\u6280\\u6709\\u9650\\u516c\\u53f8\\u7684\\u6388\\u4fe1\\u4f55\\u65f6\\u5230\\u671f\\uff1f\\u6309\\u5b83\\u7684\\u4fe1\\u7528\\u8bc4\\u7ea7\\u548c\\u667a\\u9020\\u8d37\\u7684\\u52a0\\u70b9\\u89c4\\u5219\\uff0c\\u6267\\u884c\\u5229\\u7387\\u76f8\\u5bf9\\u4e00\\u5e74\\u671fLPR\\u52a0\\u591a\\u5c11\\u57fa\\u70b9\\uff1f\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793075029563",
+  "queryId": "q-1793075029563",
+  "content": "江南装备科技有限公司的授信何时到期？按它的信用评级和智造贷的加点规则，执行利率相对一年期LPR加多少基点？",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "4094096137389456339",
+   "page_content_len": 221,
+   "page_content_head": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\n|海川电子材料股份有限公司|电子信息|A|12",
+   "source": "kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "title": "R12FIX-credit-ledger.xlsx",
+   "file_id": 329,
+   "search_type": [
+    "milvus",
+    "es",
+    "es"
+   ],
+   "community_id": null,
+   "level": null,
+   "member_entities": []
+  },
+  {
+   "i": 1,
+   "order_num": "193428936941807193",
+   "page_content_len": 459,
+   "page_content_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币8",
+   "source": "kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "title": "R12FIX-product-loan(1).docx",
+   "file_id": 328,
+   "search_type": [
+    "milvus",
+    "es",
+    "es",
+    "graph"
+   ],
+   "community_id": null,
+   "level": null,
+   "member_entities": []
+  },
+  {
+   "i": 2,
+   "order_num": "1830345457236159148",
+   "page_content_len": 123,
+   "page_content_head": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+   "source": "kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "title": "R12FIX-product-intro(1).pptx",
+   "file_id": 343,
+   "search_type": [
+    "milvus",
+    "graph"
+   ],
+   "community_id": null,
+   "level": null,
+   "member_entities": []
+  }
+ ],
+ "graph_flag": "on"
+}

@@ -1,0 +1,59 @@
+{
+ "kb": "kb_9",
+ "ts": "2026-10-27T05:06:44Z",
+ "blocks": 5,
+ "counts": {
+  "exact_chunk": 0,
+  "stale_version": 0,
+  "entity_content": 5,
+  "unknown": 0
+ },
+ "ratios": {
+  "exact_chunk": 0.0,
+  "stale_version": 0.0,
+  "entity_content": 1.0,
+  "unknown": 0.0
+ },
+ "detail": [
+  {
+   "query": "江南装备科技有限公司的信用评级",
+   "pk": "409721235889955614",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-loan(1).docx",
+   "class": "entity_content"
+  },
+  {
+   "query": "江南装备科技有限公司的信用评级",
+   "pk": "120287042403321691",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-loan.docx",
+   "class": "entity_content"
+  },
+  {
+   "query": "江南装备科技有限公司的信用评级",
+   "pk": "1145021270768877382",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-credit-ledger.xlsx",
+   "class": "entity_content"
+  },
+  {
+   "query": "江南装备科技有限公司的信用评级",
+   "pk": "1050585778220806563",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-intro(1).pptx",
+   "class": "entity_content"
+  },
+  {
+   "query": "江南装备科技有限公司的信用评级",
+   "pk": "445478030307964037",
+   "recovered_by": "entity_content",
+   "provenance_quality": "entity_content_recovered",
+   "title": "R12FIX-product-intro.pptx",
+   "class": "entity_content"
+  }
+ ]
+}

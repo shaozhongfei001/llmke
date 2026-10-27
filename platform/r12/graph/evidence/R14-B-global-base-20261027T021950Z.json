@@ -1,0 +1,2005 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": 1,
+ "answer": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出更精确的回答。",
+ "refs": [
+  {
+   "metadata": {
+    "file_id": 290,
+    "title": "R12FIX-product-loan.docx",
+    "community_id": "L1-fe7fdd1c",
+    "level": 1,
+    "member_entities": [
+     "1000万元",
+     "100个基点",
+     "2027-01-31",
+     "2027-03-31",
+     "2027-06-30",
+     "30个基点",
+     "3年",
+     "5000万元",
+     "60个基点",
+     "AA",
+     "AAA",
+     "一年期贷款市场报价利率",
+     "三个工作日",
+     "三个工作日内放款",
+     "三年",
+     "人民币1000万元",
+     "人民币5000万元",
+     "信用方式",
+     "信用部分不超过1000万元",
+     "全国银行间同业拆借中心",
+     "制造业中小微企业",
+     "加100个基点",
+     "加30个基点",
+     "加60个基点",
+     "北方重工配件厂",
+     "十个工作日",
+     "十个工作日内完成审批",
+     "十二个月",
+     "十五个工作日",
+     "华东精密制造有限公司",
+     "受理",
+     "客户信用评级",
+     "应收账款质押",
+     "按季付息分期还本",
+     "按月付息到期还本",
+     "提前十五个工作日提出书面申请",
+     "放款日",
+     "智造贷",
+     "核心企业保证方式",
+     "江南装备科技有限公司",
+     "汽车零部件",
+     "电子信息",
+     "等额本息",
+     "装备制造",
+     "设备抵押",
+     "评级授信",
+     "资料审核"
+    ],
+    "file_ids": [
+     "119",
+     "120",
+     "226",
+     "234",
+     "258",
+     "259",
+     "260",
+     "266",
+     "268"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-intro.pptx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "offset": [
+     [
+      0,
+      95
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ],
+    "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+   },
+   "order_num": "gc-L1-fe7fdd1c",
+   "page_content": "这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\n- 智造贷 -A级加点幅度-> 100个基点",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": 295,
+    "title": "docx-table.docx",
+    "community_id": "L0-a2157bee",
+    "level": 0,
+    "member_entities": [
+     "T-CORE-001",
+     "日均存款",
+     "跨账户"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "offset": [
+     [
+      0,
+      85
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      1
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ],
+    "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"
+   },
+   "order_num": "gc-L0-a2157bee",
+   "page_content": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 作为数据源为日均存款提供数据支持。\n- 日均存款的统计口径与跨账户相关。",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": 290,
+    "title": "R12FIX-product-loan.docx",
+    "community_id": "L0-5befded4",
+    "level": 0,
+    "member_entities": [
+     "2027-01-31",
+     "2027-03-31",
+     "AA",
+     "北方重工配件厂",
+     "华东精密制造有限公司",
+     "汽车零部件"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "offset": [
+     [
+      0,
+      126
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      2
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ],
+    "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+   },
+   "order_num": "gc-L0-5befded4",
+   "page_content": "这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": 290,
+    "title": "R12FIX-product-loan.docx",
+    "community_id": "L0-918cb4d7",
+    "level": 0,
+    "member_entities": [
+     "2027-06-30",
+     "AAA",
+     "江南装备科技有限公司",
+     "装备制造"
+    ],
+    "file_ids": [
+     "120",
+     "226",
+     "258",
+     "259",
+     "266"
+    ],
+    "file_names": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "offset": [
+     [
+      0,
+      122
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      3
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ],
+    "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+   },
+   "order_num": "gc-L0-918cb4d7",
+   "page_content": "这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。",
+   "score": "1.0",
+   "type": "text"
+  },
+  {
+   "metadata": {
+    "file_id": 295,
+    "title": "docx-table.docx",
+    "community_id": "L0-261c4893",
+    "level": 0,
+    "member_entities": [
+     "T-EXT-001",
+     "同比",
+     "月度",
+     "用电量"
+    ],
+    "file_ids": [
+     "263",
+     "271"
+    ],
+    "file_names": [
+     "docx-table.docx"
+    ],
+    "offset": [
+     [
+      0,
+      87
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "我们这类企业的授信额度与票据贴现是什么关系",
+     "rank": [
+      4
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ],
+    "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"
+   },
+   "order_num": "gc-L0-261c4893",
+   "page_content": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "score": "1.0",
+   "type": "text"
+  }
+ ],
+ "cost": 4.2,
+ "frames": [
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588215,
+   "status": 1,
+   "reply": {
+    "content": "",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588583,
+   "status": 1,
+   "reply": {
+    "content": "根据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588602,
+   "status": 1,
+   "reply": {
+    "content": "根据当前",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588622,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588641,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588660,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588680,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588699,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588719,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588738,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588758,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588777,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588797,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588816,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588836,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588855,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588875,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588895,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588915,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588934,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588954,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588974,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067588993,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589013,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589032,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589052,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589073,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589096,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589126,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589164,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589199,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589225,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589248,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589268,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589269,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589289,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589309,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589329,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589348,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589368,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589388,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589408,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589428,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589448,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589468,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589488,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589507,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589527,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589547,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589567,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589587,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589606,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589626,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589646,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589666,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589685,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589705,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589725,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589745,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589765,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589785,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589805,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589824,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589844,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589864,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589884,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589904,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589924,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589943,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589963,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067589983,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590003,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590024,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590047,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590071,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出更",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590097,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出更精确",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590123,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出更精确的回答",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590148,
+   "status": 1,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出更精确的回答。",
+    "type": "markdown"
+   },
+   "reference": null,
+   "webReference": null,
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  },
+  {
+   "sessionId": "b-1793067586037",
+   "queryId": "q-1793067586037",
+   "lastDate": 1793067590173,
+   "status": 2,
+   "reply": {
+    "content": "根据当前提供的参考资料，主要涉及的是企业的信用评级、贷款市场报价利率以及用电量数据等方面，并未直接涉及授信额度与票据贴现的关系。\n\n为了更准确地回答您的问题，我们可能需要更多具体信息，比如您所属行业的特点、企业的信用状况等。如果有更多详细信息，欢迎提供更多内容，以便我们能够给出更精确的回答。",
+    "type": "markdown"
+   },
+   "reference": "[{\"metadata\":{\"file_id\":290,\"title\":\"R12FIX-product-loan.docx\",\"community_id\":\"L1-fe7fdd1c\",\"level\":1,\"member_entities\":[\"1000万元\",\"100个基点\",\"2027-01-31\",\"2027-03-31\",\"2027-06-30\",\"30个基点\",\"3年\",\"5000万元\",\"60个基点\",\"AA\",\"AAA\",\"一年期贷款市场报价利率\",\"三个工作日\",\"三个工作日内放款\",\"三年\",\"人民币1000万元\",\"人民币5000万元\",\"信用方式\",\"信用部分不超过1000万元\",\"全国银行间同业拆借中心\",\"制造业中小微企业\",\"加100个基点\",\"加30个基点\",\"加60个基点\",\"北方重工配件厂\",\"十个工作日\",\"十个工作日内完成审批\",\"十二个月\",\"十五个工作日\",\"华东精密制造有限公司\",\"受理\",\"客户信用评级\",\"应收账款质押\",\"按季付息分期还本\",\"按月付息到期还本\",\"提前十五个工作日提出书面申请\",\"放款日\",\"智造贷\",\"核心企业保证方式\",\"江南装备科技有限公司\",\"汽车零部件\",\"电子信息\",\"等额本息\",\"装备制造\",\"设备抵押\",\"评级授信\",\"资料审核\"],\"file_ids\":[\"119\",\"120\",\"226\",\"234\",\"258\",\"259\",\"260\",\"266\",\"268\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-intro.pptx\",\"R12FIX-product-loan(1).docx\"],\"offset\":[[0,95]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[0]},\"search_type\":[\"graph_community\"],\"source\":\"http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\"},\"order_num\":\"gc-L1-fe7fdd1c\",\"page_content\":\"这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\\n\\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\\n- 智造贷 -A级加点幅度-> 100个基点\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":295,\"title\":\"docx-table.docx\",\"community_id\":\"L0-a2157bee\",\"level\":0,\"member_entities\":[\"T-CORE-001\",\"日均存款\",\"跨账户\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"offset\":[[0,85]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[1]},\"search_type\":[\"graph_community\"],\"source\":\"http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\"},\"order_num\":\"gc-L0-a2157bee\",\"page_content\":\"这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\\n\\n- T-CORE-001 作为数据源为日均存款提供数据支持。\\n- 日均存款的统计口径与跨账户相关。\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":290,\"title\":\"R12FIX-product-loan.docx\",\"community_id\":\"L0-5befded4\",\"level\":0,\"member_entities\":[\"2027-01-31\",\"2027-03-31\",\"AA\",\"北方重工配件厂\",\"华东精密制造有限公司\",\"汽车零部件\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-loan(1).docx\"],\"offset\":[[0,126]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[2]},\"search_type\":[\"graph_community\"],\"source\":\"http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\"},\"order_num\":\"gc-L0-5befded4\",\"page_content\":\"这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\\n\\n- 北方重工配件厂 -信用评级-> AA\\n- 华东精密制造有限公司 -信用评级-> AA\\n\\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":290,\"title\":\"R12FIX-product-loan.docx\",\"community_id\":\"L0-918cb4d7\",\"level\":0,\"member_entities\":[\"2027-06-30\",\"AAA\",\"江南装备科技有限公司\",\"装备制造\"],\"file_ids\":[\"120\",\"226\",\"258\",\"259\",\"266\"],\"file_names\":[\"R12FIX-product-loan.docx\",\"R12FIX-product-loan(1).docx\"],\"offset\":[[0,122]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[3]},\"search_type\":[\"graph_community\"],\"source\":\"http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\"},\"order_num\":\"gc-L0-918cb4d7\",\"page_content\":\"这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。\",\"score\":\"1.0\",\"type\":\"text\"},{\"metadata\":{\"file_id\":295,\"title\":\"docx-table.docx\",\"community_id\":\"L0-261c4893\",\"level\":0,\"member_entities\":[\"T-EXT-001\",\"同比\",\"月度\",\"用电量\"],\"file_ids\":[\"263\",\"271\"],\"file_names\":[\"docx-table.docx\"],\"offset\":[[0,87]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"我们这类企业的授信额度与票据贴现是什么关系\",\"rank\":[4]},\"search_type\":[\"graph_community\"],\"source\":\"http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx\"},\"order_num\":\"gc-L0-261c4893\",\"page_content\":\"这个社区围绕电力使用数据的比较和统计主题聚集。\\n\\n关键实体及其关系：\\n- 用电量 -数据源-> T-EXT-001\\n- 用电量 -口径-> 同比\\n- 用电量 -口径-> 月度\",\"score\":\"1.0\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": 1,
+   "filePaths": null,
+   "respTime": 4105,
+   "tokens": 146,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793067586037\", \"queryId\": \"q-1793067586037\", \"content\": \"\\u6211\\u4eec\\u8fd9\\u7c7b\\u4f01\\u4e1a\\u7684\\u6388\\u4fe1\\u989d\\u5ea6\\u4e0e\\u7968\\u636e\\u8d34\\u73b0\\u662f\\u4ec0\\u4e48\\u5173\\u7cfb\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793067586037",
+  "queryId": "q-1793067586037",
+  "content": "我们这类企业的授信额度与票据贴现是什么关系",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L1-fe7fdd1c",
+   "page_content_len": 95,
+   "page_content_head": "这个社区围绕“智造贷”这一主题聚集，主要服务于制造业中小微企业。关键实体及其关系包括：\n\n- 智造贷 -执行利率基准-> 一年期贷款市场报价利率\n- 智造贷 -A级加点幅度-> 100个基点",
+   "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "R12FIX-product-loan.docx",
+   "file_id": 290,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L1-fe7fdd1c",
+   "level": 1,
+   "member_entities": [
+    "1000万元",
+    "100个基点",
+    "2027-01-31",
+    "2027-03-31",
+    "2027-06-30",
+    "30个基点",
+    "3年",
+    "5000万元",
+    "60个基点",
+    "AA",
+    "AAA",
+    "一年期贷款市场报价利率"
+   ]
+  },
+  {
+   "i": 1,
+   "order_num": "gc-L0-a2157bee",
+   "page_content_len": 85,
+   "page_content_head": "这个社区围绕金融数据主题聚集，特别是关注日均存款和跨账户的相关数据。\n\n- T-CORE-001 作为数据源为日均存款提供数据支持。\n- 日均存款的统计口径与跨账户相关。",
+   "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "docx-table.docx",
+   "file_id": 295,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-a2157bee",
+   "level": 0,
+   "member_entities": [
+    "T-CORE-001",
+    "日均存款",
+    "跨账户"
+   ]
+  },
+  {
+   "i": 2,
+   "order_num": "gc-L0-5befded4",
+   "page_content_len": 126,
+   "page_content_head": "这个社区主要围绕汽车零部件产业链中的企业信用和到期日问题聚集。\n\n- 北方重工配件厂 -信用评级-> AA\n- 华东精密制造有限公司 -信用评级-> AA\n\n相关信息显示，北方重工配件厂和华东精密制造有限公司均获得了AA的信用评级，且涉及到期日的安排。",
+   "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "R12FIX-product-loan.docx",
+   "file_id": 290,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-5befded4",
+   "level": 0,
+   "member_entities": [
+    "2027-01-31",
+    "2027-03-31",
+    "AA",
+    "北方重工配件厂",
+    "华东精密制造有限公司",
+    "汽车零部件"
+   ]
+  },
+  {
+   "i": 3,
+   "order_num": "gc-L0-918cb4d7",
+   "page_content_len": 122,
+   "page_content_head": "这个社区围绕江南装备科技有限公司的装备制造产业链主题聚集。关键实体及其关系包括：江南装备科技有限公司 -所属产业链-> 装备制造，以及江南装备科技有限公司 -信用评级-> AAA。社区还关注到江南装备科技有限公司的到期日为2027-06-30。",
+   "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "title": "R12FIX-product-loan.docx",
+   "file_id": 290,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-918cb4d7",
+   "level": 0,
+   "member_entities": [
+    "2027-06-30",
+    "AAA",
+    "江南装备科技有限公司",
+    "装备制造"
+   ]
+  },
+  {
+   "i": 4,
+   "order_num": "gc-L0-261c4893",
+   "page_content_len": 87,
+   "page_content_head": "这个社区围绕电力使用数据的比较和统计主题聚集。\n\n关键实体及其关系：\n- 用电量 -数据源-> T-EXT-001\n- 用电量 -口径-> 同比\n- 用电量 -口径-> 月度",
+   "source": "http://127.0.0.1:19000/http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "docx-table.docx",
+   "file_id": 295,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-261c4893",
+   "level": 0,
+   "member_entities": [
+    "T-EXT-001",
+    "同比",
+    "月度",
+    "用电量"
+   ]
+  }
+ ]
+}

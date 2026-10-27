@@ -1,0 +1,133 @@
+{
+ "ts": "2026-10-27T05:04:40Z",
+ "nebula": {
+  "vertices": 87,
+  "edges": 122,
+  "vertex_hash": "5914282cf892de28",
+  "edge_hash": "9b53ca30078f317e"
+ },
+ "kb_9": {
+  "count": 9,
+  "id_hash": "9b5a2d2bec204544",
+  "ids": {
+   "409721235889955614": {
+    "create_time": "2026-10-27 13:03:39.839029",
+    "update_time": "2026-10-27 13:03:39.839029",
+    "file_id": 328,
+    "version": "V1",
+    "title": "R12FIX-product-loan(1).docx"
+   },
+   "445478030307964037": {
+    "create_time": "2026-10-27 13:03:46.289916",
+    "update_time": "2026-10-27 13:03:46.289916",
+    "file_id": 330,
+    "version": "V0",
+    "title": "R12FIX-product-intro.pptx"
+   },
+   "120287042403321691": {
+    "create_time": "2026-10-27 13:01:48.846433",
+    "update_time": "2026-10-27 13:01:48.846433",
+    "file_id": 290,
+    "version": "V0",
+    "title": "R12FIX-product-loan.docx"
+   },
+   "623455035040524818": {
+    "create_time": "2026-10-27 13:03:50.071359",
+    "update_time": "2026-10-27 13:03:50.071359",
+    "file_id": 331,
+    "version": "V0",
+    "title": "pdf-digital.pdf"
+   },
+   "986447652642970016": {
+    "create_time": "2026-10-27 13:03:50.071390",
+    "update_time": "2026-10-27 13:03:50.071390",
+    "file_id": 331,
+    "version": "V0",
+    "title": "pdf-digital.pdf"
+   },
+   "99869736860800068": {
+    "create_time": "2026-10-27 13:03:53.616631",
+    "update_time": "2026-10-27 13:03:53.616631",
+    "file_id": 332,
+    "version": "V0",
+    "title": "docx-plain.docx"
+   },
+   "875161562640603273": {
+    "create_time": "2026-10-27 13:03:58.930678",
+    "update_time": "2026-10-27 13:03:58.930678",
+    "file_id": 333,
+    "version": "V0",
+    "title": "docx-table.docx"
+   },
+   "824962146013202499": {
+    "create_time": "2026-10-27 13:04:05.079402",
+    "update_time": "2026-10-27 13:04:05.079402",
+    "file_id": 334,
+    "version": "V0",
+    "title": "pdf-scanned.pdf"
+   },
+   "1050585778220806563": {
+    "create_time": "2026-10-27 13:04:10.429288",
+    "update_time": "2026-10-27 13:04:10.429288",
+    "file_id": 343,
+    "version": "V1",
+    "title": "R12FIX-product-intro(1).pptx"
+   }
+  }
+ },
+ "community_summary_kb_9": {
+  "count": 7,
+  "id_hash": "7ec5ae70da6ec61e",
+  "ids": {
+   "740752240406502471": {
+    "create_time": "2026-10-27 11:06:35",
+    "update_time": "2026-10-27 11:06:49.950888",
+    "file_id": null,
+    "version": null,
+    "title": null
+   },
+   "903369296772016881": {
+    "create_time": "2026-10-27 11:06:39",
+    "update_time": "2026-10-27 11:06:49.950924",
+    "file_id": null,
+    "version": null,
+    "title": null
+   },
+   "134587897015381504": {
+    "create_time": "2026-10-27 11:06:41",
+    "update_time": "2026-10-27 11:06:49.950942",
+    "file_id": null,
+    "version": null,
+    "title": null
+   },
+   "911381443080510623": {
+    "create_time": "2026-10-27 11:06:42",
+    "update_time": "2026-10-27 11:06:49.950957",
+    "file_id": null,
+    "version": null,
+    "title": null
+   },
+   "948156577482946777": {
+    "create_time": "2026-10-27 11:06:44",
+    "update_time": "2026-10-27 11:06:49.950972",
+    "file_id": null,
+    "version": null,
+    "title": null
+   },
+   "233353709975835299": {
+    "create_time": "2026-10-27 11:06:46",
+    "update_time": "2026-10-27 11:06:49.950988",
+    "file_id": null,
+    "version": null,
+    "title": null
+   },
+   "701610196895493082": {
+    "create_time": "2026-10-27 11:06:49",
+    "update_time": "2026-10-27 11:06:49.951004",
+    "file_id": null,
+    "version": null,
+    "title": null
+   }
+  }
+ }
+}

@@ -1,0 +1,366 @@
+{
+ "doc_id": "139363536840301567",
+ "file_id": 328,
+ "chunk_chars": 459,
+ "temperature": 0.01,
+ "seed": 42,
+ "nudge": true,
+ "reps": 3,
+ "cells": [
+  {
+   "cell": "A_only_rating_sentence|default_types",
+   "passage_chars": 46,
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 6.0,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "prompt_chars": 1905,
+     "out_chars": 284,
+     "entities": 6,
+     "relationships": 3,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 146,
+     "raw_head": "(\"entity\"::AAA级::角色)\n\n(\"entity\"::AA级::角色)\n\n(\"entity\"::A级::角色)\n\n(\"entity\"::30个基点::角色)\n\n(\"entity\"::60个基点::角色)\n\n(\"entity\"::100个基点::角色)\n\n(\"relationship\"::加点幅度->AAA级::30个基点::AAA级加30个基点)\n\n(\"relationship\"::加"
+    },
+    {
+     "prompt_chars": 1905,
+     "out_chars": 292,
+     "entities": 6,
+     "relationships": 3,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 148,
+     "raw_head": "(\"entity\"::AAA级::角色)\n\n(\"entity\"::AA级::角色)\n\n(\"entity\"::A级::角色)\n\n(\"entity\"::30个基点::角色)\n\n(\"entity\"::60个基点::角色)\n\n(\"entity\"::100个基点::角色)\n\n(\"relationship\"::加点幅度->AAA级::30个基点::评级/档次 → 具体取值)\n\n(\"relationship\":"
+    },
+    {
+     "prompt_chars": 1905,
+     "out_chars": 284,
+     "entities": 6,
+     "relationships": 3,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 146,
+     "raw_head": "(\"entity\"::AAA级::角色)\n\n(\"entity\"::AA级::角色)\n\n(\"entity\"::A级::角色)\n\n(\"entity\"::30个基点::角色)\n\n(\"entity\"::60个基点::角色)\n\n(\"entity\"::100个基点::角色)\n\n(\"relationship\"::加点幅度->AAA级::30个基点::AAA级加30个基点)\n\n(\"relationship\"::加"
+    }
+   ]
+  },
+  {
+   "cell": "B_prefix150+rating|default_types",
+   "passage_chars": 196,
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 11.0,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "prompt_chars": 2055,
+     "out_chars": 600,
+     "entities": 9,
+     "relationships": 7,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 264,
+     "raw_head": "(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::三年::时间)\n\n(\"entity\"::连续逾期记录::疾病)\n\n(\"entity\"::客户信用评级::角色)\n\n(\"entity\"::R12 验收测"
+    },
+    {
+     "prompt_chars": 2055,
+     "out_chars": 766,
+     "entities": 12,
+     "relationships": 10,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 336,
+     "raw_head": "(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::单户::机构)\n\n(\"entity\"::R12 验收测试夹具::位置)\n\n(\"entity\"::客户::人)\n\n(\"entity\"::AAA级::角色"
+    },
+    {
+     "prompt_chars": 2055,
+     "out_chars": 766,
+     "entities": 12,
+     "relationships": 10,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 336,
+     "raw_head": "(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::单户::机构)\n\n(\"entity\"::R12 验收测试夹具::位置)\n\n(\"entity\"::客户::人)\n\n(\"entity\"::AAA级::角色"
+    }
+   ]
+  },
+  {
+   "cell": "C_full_chunk|default_types",
+   "passage_chars": 459,
+   "entity_types": [
+    "人",
+    "机构",
+    "位置",
+    "时间",
+    "角色",
+    "疾病",
+    "药品",
+    "项目"
+   ],
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 10.67,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "prompt_chars": 2318,
+     "out_chars": 1312,
+     "entities": 11,
+     "relationships": 18,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 605,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::全国银行间同业拆借中心::机构)\n\n(\"entity\"::一年期贷款市场报价"
+    },
+    {
+     "prompt_chars": 2318,
+     "out_chars": 1312,
+     "entities": 11,
+     "relationships": 18,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 605,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::全国银行间同业拆借中心::机构)\n\n(\"entity\"::一年期贷款市场报价"
+    },
+    {
+     "prompt_chars": 2318,
+     "out_chars": 1369,
+     "entities": 10,
+     "relationships": 19,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 631,
+     "raw_head": "########\n(\"entity\"::智造贷::项目)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::位置)\n\n(\"entity\"::装备制造::位置)\n\n(\"entity\"::电子信息::位置)\n\n(\"entity\"::R12 验收测试夹具::项目)\n\n(\"entity\"::全国银行间同业拆借中心::机构)\n\n(\"entity\"::AAA级::角色)"
+    }
+   ]
+  },
+  {
+   "cell": "A_only_rating_sentence|biz_types",
+   "passage_chars": 46,
+   "entity_types": [
+    "机构",
+    "评级",
+    "金额",
+    "指标",
+    "期限",
+    "产品",
+    "条款",
+    "编号"
+   ],
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 6.0,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "prompt_chars": 1906,
+     "out_chars": 274,
+     "entities": 6,
+     "relationships": 3,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 133,
+     "raw_head": "(\"entity\"::AAA级::评级)\n\n(\"entity\"::AA级::评级)\n\n(\"entity\"::A级::评级)\n\n(\"entity\"::30个基点::金额)\n\n(\"entity\"::60个基点::金额)\n\n(\"entity\"::100个基点::金额)\n\n(\"relationship\"::加点幅度->评级::AAA级::AAA级加30个基点)\n\n(\"relationship\"::加点幅度"
+    },
+    {
+     "prompt_chars": 1906,
+     "out_chars": 274,
+     "entities": 6,
+     "relationships": 3,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 133,
+     "raw_head": "(\"entity\"::AAA级::评级)\n\n(\"entity\"::AA级::评级)\n\n(\"entity\"::A级::评级)\n\n(\"entity\"::30个基点::金额)\n\n(\"entity\"::60个基点::金额)\n\n(\"entity\"::100个基点::金额)\n\n(\"relationship\"::加点幅度->评级::AAA级::AAA级加30个基点)\n\n(\"relationship\"::加点幅度"
+    },
+    {
+     "prompt_chars": 1906,
+     "out_chars": 274,
+     "entities": 6,
+     "relationships": 3,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 133,
+     "raw_head": "(\"entity\"::AAA级::评级)\n\n(\"entity\"::AA级::评级)\n\n(\"entity\"::A级::评级)\n\n(\"entity\"::30个基点::金额)\n\n(\"entity\"::60个基点::金额)\n\n(\"entity\"::100个基点::金额)\n\n(\"relationship\"::加点幅度->评级::AAA级::AAA级加30个基点)\n\n(\"relationship\"::加点幅度"
+    }
+   ]
+  },
+  {
+   "cell": "C_full_chunk|biz_types",
+   "passage_chars": 459,
+   "entity_types": [
+    "机构",
+    "评级",
+    "金额",
+    "指标",
+    "期限",
+    "产品",
+    "条款",
+    "编号"
+   ],
+   "summary": {
+    "reps": 3,
+    "hit_AAA": 3,
+    "hit_any_basis_point": 3,
+    "hit_all_three": 3,
+    "entities_avg": 20.0,
+    "finish_reasons": [
+     "stop"
+    ]
+   },
+   "runs": [
+    {
+     "prompt_chars": 2319,
+     "out_chars": 1741,
+     "entities": 20,
+     "relationships": 26,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 768,
+     "raw_head": "########\n(\"entity\"::智造贷::产品)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::机构)\n\n(\"entity\"::装备制造::机构)\n\n(\"entity\"::电子信息::机构)\n\n(\"entity\"::R12 验收测试夹具::编号)\n\n(\"entity\"::PRD-CORP-LOAN-2026-02::编号)\n\n(\"entity\":"
+    },
+    {
+     "prompt_chars": 2319,
+     "out_chars": 1615,
+     "entities": 20,
+     "relationships": 21,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 723,
+     "raw_head": "########\n(\"entity\"::智造贷::产品)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::机构)\n\n(\"entity\"::装备制造::机构)\n\n(\"entity\"::电子信息::机构)\n\n(\"entity\"::R12 验收测试夹具::编号)\n\n(\"entity\"::PRD-CORP-LOAN-2026-02::编号)\n\n(\"entity\":"
+    },
+    {
+     "prompt_chars": 2319,
+     "out_chars": 1642,
+     "entities": 20,
+     "relationships": 21,
+     "has_AAA": true,
+     "basis_points": [
+      "30个基点",
+      "60个基点",
+      "100个基点"
+     ],
+     "finish_reason": "stop",
+     "completion_tokens": 744,
+     "raw_head": "########\n(\"entity\"::智造贷::产品)\n\n(\"entity\"::制造业中小微企业::机构)\n\n(\"entity\"::汽车零部件::机构)\n\n(\"entity\"::装备制造::机构)\n\n(\"entity\"::电子信息::机构)\n\n(\"entity\"::R12 验收测试夹具::编号)\n\n(\"entity\"::PRD-CORP-LOAN-2026-02::编号)\n\n(\"entity\":"
+    }
+   ]
+  }
+ ]
+}

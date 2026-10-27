@@ -1,0 +1,15 @@
+{
+ "kb_name": "graph-increment-fixture",
+ "kb_id": "22",
+ "space": "g_kb_22",
+ "es": {
+  "kb_22": null,
+  "table_chunks_kb_22": null,
+  "table_summary_kb_22": null
+ },
+ "docs": [
+  "R14FIX-graph-01-project.docx",
+  "R14FIX-graph-02-dept.docx",
+  "R14FIX-graph-03-noise.docx"
+ ]
+}

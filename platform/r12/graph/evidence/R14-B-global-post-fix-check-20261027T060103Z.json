@@ -1,0 +1,195 @@
+{
+ "http": 200,
+ "status": 2,
+ "resultType": null,
+ "answer": "北方重工配件厂的评级对应60个基点 [L0-92b533ae]。\n\n华东精密制造有限公司的评级对应60个基点 [L0-92b533ae]。\n\n江南装备科技有限公司的评级对应30个基点 [L0-92b533ae]。",
+ "refs": [
+  {
+   "score": "1.0",
+   "metadata": {
+    "file_id": 343,
+    "title": "社区摘要 L0-92b533ae",
+    "community_id": "L0-92b533ae",
+    "level": 0,
+    "member_entities": [
+     "1000万元",
+     "100个基点",
+     "30个基点",
+     "3年",
+     "5000万元",
+     "60个基点",
+     "8000万元",
+     "LPR",
+     "一年期贷款市场报价利率",
+     "三个工作日",
+     "三个工作日内放款",
+     "三年",
+     "人民币1000万元",
+     "人民币5000万元",
+     "信用方式",
+     "信用部分不超过1000万元",
+     "全国银行间同业拆借中心",
+     "制造业中小微企业",
+     "加100个基点",
+     "加30个基点",
+     "加60个基点",
+     "十个工作日",
+     "十个工作日内完成审批",
+     "十二个月",
+     "十五个工作日",
+     "受理",
+     "客户信用评级",
+     "应收账款质押",
+     "按季付息分期还本",
+     "按月付息到期还本",
+     "提前十五个工作日提出书面申请",
+     "放款日",
+     "智造贷",
+     "核心企业保证方式",
+     "电子信息",
+     "等额本息",
+     "设备抵押",
+     "评级授信",
+     "资料审核"
+    ],
+    "file_ids": [
+     343,
+     328
+    ],
+    "file_names": [
+     "R12FIX-product-intro(1).pptx",
+     "R12FIX-product-loan(1).docx"
+    ],
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "sources_resolved_by": "file_id",
+    "chunk_refs": [
+     {
+      "pk": "626225001556669433",
+      "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+      "title": "R12FIX-product-intro(1).pptx",
+      "offset": [
+       [
+        0,
+        123
+       ]
+      ],
+      "chunk_index": 0
+     },
+     {
+      "pk": "139363536840301567",
+      "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+      "title": "R12FIX-product-loan(1).docx",
+      "offset": [
+       [
+        0,
+        459
+       ]
+      ],
+      "chunk_index": 0
+     }
+    ],
+    "chunk_refs_stats": {
+     "entities_with_pk": 19,
+     "total_pks": 2,
+     "resolved": 2,
+     "dangling": 0
+    },
+    "chunk_pk": "626225001556669433",
+    "chunk_index": 0,
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "chunk_type": "text",
+    "search": {
+     "type": [
+      "graph_community"
+     ],
+     "query": "三家客户的评级分别对应多少基点",
+     "rank": [
+      0
+     ]
+    },
+    "search_type": [
+     "graph_community"
+    ]
+   },
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt",
+   "page_content": "这个社区围绕“智造贷”这一主题聚集，主要涉及制造业中小微企业的贷款服务。关键实体及其关系如下：\n- 智造贷 -执行利率基准-> LPR\n- 智造贷 -面向-> 制造业中小微企业",
+   "order_num": "gc-L0-92b533ae",
+   "type": "text"
+  }
+ ],
+ "cost": 2.3,
+ "frames": [
+  {
+   "sessionId": "b-1793080861356",
+   "queryId": "q-1793080861356",
+   "lastDate": 1793080863627,
+   "status": 2,
+   "reply": {
+    "content": "北方重工配件厂的评级对应60个基点 [L0-92b533ae]。\n\n华东精密制造有限公司的评级对应60个基点 [L0-92b533ae]。\n\n江南装备科技有限公司的评级对应30个基点 [L0-92b533ae]。",
+    "type": "markdown"
+   },
+   "reference": "[{\"score\":\"1.0\",\"metadata\":{\"file_id\":343,\"title\":\"社区摘要 L0-92b533ae\",\"community_id\":\"L0-92b533ae\",\"level\":0,\"member_entities\":[\"1000万元\",\"100个基点\",\"30个基点\",\"3年\",\"5000万元\",\"60个基点\",\"8000万元\",\"LPR\",\"一年期贷款市场报价利率\",\"三个工作日\",\"三个工作日内放款\",\"三年\",\"人民币1000万元\",\"人民币5000万元\",\"信用方式\",\"信用部分不超过1000万元\",\"全国银行间同业拆借中心\",\"制造业中小微企业\",\"加100个基点\",\"加30个基点\",\"加60个基点\",\"十个工作日\",\"十个工作日内完成审批\",\"十二个月\",\"十五个工作日\",\"受理\",\"客户信用评级\",\"应收账款质押\",\"按季付息分期还本\",\"按月付息到期还本\",\"提前十五个工作日提出书面申请\",\"放款日\",\"智造贷\",\"核心企业保证方式\",\"电子信息\",\"等额本息\",\"设备抵押\",\"评级授信\",\"资料审核\"],\"file_ids\":[343,328],\"file_names\":[\"R12FIX-product-intro(1).pptx\",\"R12FIX-product-loan(1).docx\"],\"source\":\"r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"sources_resolved_by\":\"file_id\",\"chunk_refs\":[{\"pk\":\"626225001556669433\",\"source\":\"r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"title\":\"R12FIX-product-intro(1).pptx\",\"offset\":[[0,123]],\"chunk_index\":0},{\"pk\":\"139363536840301567\",\"source\":\"r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"title\":\"R12FIX-product-loan(1).docx\",\"offset\":[[0,459]],\"chunk_index\":0}],\"chunk_refs_stats\":{\"entities_with_pk\":19,\"total_pks\":2,\"resolved\":2,\"dangling\":0},\"chunk_pk\":\"626225001556669433\",\"chunk_index\":0,\"offset\":[[0,123]],\"chunk_type\":\"text\",\"search\":{\"type\":[\"graph_community\"],\"query\":\"三家客户的评级分别对应多少基点\",\"rank\":[0]},\"search_type\":[\"graph_community\"]},\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt\",\"page_content\":\"这个社区围绕“智造贷”这一主题聚集，主要涉及制造业中小微企业的贷款服务。关键实体及其关系如下：\\n- 智造贷 -执行利率基准-> LPR\\n- 智造贷 -面向-> 制造业中小微企业\",\"order_num\":\"gc-L0-92b533ae\",\"type\":\"text\"}]",
+   "webReference": "[]",
+   "databaseReference": null,
+   "docsTree": null,
+   "resultType": null,
+   "filePaths": null,
+   "respTime": null,
+   "tokens": 0,
+   "promptContent": null,
+   "llmType": 1
+  }
+ ],
+ "http_trace": [
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8088/qa/ai/question",
+   "req_body": "{\"sessionId\": \"b-1793080861356\", \"queryId\": \"q-1793080861356\", \"content\": \"\\u4e09\\u5bb6\\u5ba2\\u6237\\u7684\\u8bc4\\u7ea7\\u5206\\u522b\\u5bf9\\u5e94\\u591a\\u5c11\\u57fa\\u70b9\", \"type\": \"text\", \"sysType\": \"KNO_INDEX\", \"configId\": 1, \"globalMode\": true}",
+   "status": 200
+  }
+ ],
+ "payload": {
+  "sessionId": "b-1793080861356",
+  "queryId": "q-1793080861356",
+  "content": "三家客户的评级分别对应多少基点",
+  "type": "text",
+  "sysType": "KNO_INDEX",
+  "configId": 1,
+  "globalMode": true
+ },
+ "refs_summary": [
+  {
+   "i": 0,
+   "order_num": "gc-L0-92b533ae",
+   "page_content_len": 88,
+   "page_content_head": "这个社区围绕“智造贷”这一主题聚集，主要涉及制造业中小微企业的贷款服务。关键实体及其关系如下：\n- 智造贷 -执行利率基准-> LPR\n- 智造贷 -面向-> 制造业中小微企业",
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "title": "社区摘要 L0-92b533ae",
+   "file_id": 343,
+   "search_type": [
+    "graph_community"
+   ],
+   "community_id": "L0-92b533ae",
+   "level": 0,
+   "member_entities": [
+    "1000万元",
+    "100个基点",
+    "30个基点",
+    "3年",
+    "5000万元",
+    "60个基点",
+    "8000万元",
+    "LPR",
+    "一年期贷款市场报价利率",
+    "三个工作日",
+    "三个工作日内放款",
+    "三年"
+   ]
+  }
+ ]
+}

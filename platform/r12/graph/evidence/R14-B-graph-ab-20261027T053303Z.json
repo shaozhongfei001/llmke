@@ -1,0 +1,104 @@
+{
+ "query": "智造贷的最高额度是多少？",
+ "rerank": true,
+ "kb": "kb_9",
+ "top_k": 10,
+ "on": {
+  "http": 200,
+  "cost": 8.4,
+  "n": 2,
+  "graph_blocks": 2,
+  "docs": [
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "len": 123,
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "is_graph": true,
+    "recovered_by": null,
+    "chunk_pk": null
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "len": 459,
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "is_graph": true,
+    "recovered_by": null,
+    "chunk_pk": null
+   }
+  ]
+ },
+ "off": {
+  "http": 200,
+  "cost": 5.4,
+  "n": 2,
+  "graph_blocks": 0,
+  "docs": [
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "len": 123,
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": null
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "len": 459,
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "is_graph": false,
+    "recovered_by": null,
+    "chunk_pk": null
+   }
+  ]
+ },
+ "verdict": {
+  "graph_blocks_on": 2,
+  "graph_blocks_off": 0,
+  "only_on": 0,
+  "only_off": 0,
+  "graph_adds_blocks": false,
+  "graph_absent_when_off": true
+ }
+}
