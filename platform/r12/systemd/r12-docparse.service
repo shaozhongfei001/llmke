@@ -23,4 +23,4 @@ StandardOutput=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/doc-parse.l
 StandardError=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/doc-parse.log
 
 [Install]
-WantedBy=default.target
+WantedBy=r12.target

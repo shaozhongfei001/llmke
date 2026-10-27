@@ -1,0 +1,22 @@
+[Unit]
+Description=R12 model services (embedding 18090 / rerank 18091 / llm 18092 / vlm 18093)
+After=network-online.target docker.service
+StartLimitIntervalSec=300
+StartLimitBurst=15
+
+[Service]
+# 同 r12-alg：oneshot 保留，但加 docker 就绪闸门与启动失败重试；
+# 运行期模型子进程死亡由 r12-watchdog（18090-18093 端口 + /healthz、/health 探针）发现后整组重拉。
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/szf/data/dev/llmke-r12
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh docker 120
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/models/start-all.sh up
+ExecStop=/home/szf/data/dev/llmke-r12/platform/r12/models/start-all.sh down
+TimeoutStartSec=600
+TimeoutStopSec=180
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

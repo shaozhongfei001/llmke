@@ -19,4 +19,4 @@ Restart=on-failure
 RestartSec=30
 
 [Install]
-WantedBy=default.target
+WantedBy=r12.target

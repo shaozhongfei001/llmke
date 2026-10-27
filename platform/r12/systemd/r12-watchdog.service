@@ -25,4 +25,6 @@ Nice=10
 Restart=no
 
 [Install]
-WantedBy=default.target
+
+# R14-F08：本单元由 r12-watchdog.timer 每 45s 触发，不单独 enable，
+# 也不挂在 default.target 下 —— 安全网必须比它守护的东西活得更久。

@@ -1,0 +1,32 @@
+[Unit]
+Description=R13 graph extraction service (index_graph_service, 19529)
+After=network-online.target docker.service r12-models.service
+Wants=r12-models.service
+StartLimitIntervalSec=300
+StartLimitBurst=30
+
+[Service]
+Type=simple
+Environment=PYTHONPATH=/home/szf/data/dev/llmke-r12/services/rag-alg/index_data_service/index_graph_service
+Environment=NACOS_SERVER_ADDRESS=127.0.0.1:18848
+Environment=NAMESPACE=
+Environment=DATA_ID=index_graph_config_py
+Environment=GROUP=DEFAULT_GROUP
+WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-alg/index_data_service/index_graph_service
+# R14-F07：先等 Nacos 与 Nebula graphd(19669) 就绪，再拉图服务
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh nacos 300
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh tcp 19669 -- 180
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/venvs/graph/bin/python -m uvicorn graph_api_start:graph_app --host 127.0.0.1 --port 19529
+Restart=always
+RestartSec=5
+# R14-F07 实测缺陷：uvicorn 会派生 worker 子进程，只给主进程 SIGTERM 时子进程不退出，
+# unit 长期卡在 deactivating(final-sigterm) 直到 90s 默认超时才被 SIGKILL，
+# 期间 19529 已经不监听＝服务实际不可用（journal 里 10-26 23:31 / 23:38 各撞一次）。
+# 因此：停止时向整个 cgroup 发 SIGTERM，并把停止超时收到 30s。
+KillMode=control-group
+TimeoutStopSec=30
+StandardOutput=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/index_graph_service.log
+StandardError=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/index_graph_service.log
+
+[Install]
+WantedBy=default.target

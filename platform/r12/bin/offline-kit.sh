@@ -57,8 +57,9 @@ REQUIRED_FILES=(
   "bin/init-endpoints.sh" "bin/check-units.sh" "bin/gates-selftest.sh" "bin/boot-timing.sh"
   "run/algctl.sh" "run/doc-parse.env"
   "models/start-all.sh"
-  "systemd/r12-alg.service" "systemd/r12-docparse.service" "systemd/r12-graphsvc.service"
+  "systemd/r12.target" "systemd/r12-alg.service" "systemd/r12-docparse.service" "systemd/r12-graphsvc.service"
   "systemd/r12-java@.service" "systemd/r12-models.service" "systemd/doc-parse.env"
+  "systemd/r12-watchdog.service" "systemd/r12-watchdog.timer"
   "docker/docker-compose.infra.yml" "docker/rocketmq/broker.conf"
   "frontend/nginx/r12-18088.conf"
   "frontend/dist/index.html"
@@ -412,13 +413,20 @@ R13 文档把"初始化 DB/Nacos"写在"起容器"之前，而 `init-db.sh` 明�
    各算法端口在监听、模型端口在监听）任一失败即退出 1。
 
 12) systemd --user 托管（含自愈看门狗）
-   mkdir -p ~/.config/systemd/user && cp /opt/r12/systemd/*.service /opt/r12/systemd/*.timer ~/.config/systemd/user/
+   mkdir -p ~/.config/systemd/user && cp /opt/r12/systemd/*.service /opt/r12/systemd/*.timer /opt/r12/systemd/r12.target ~/.config/systemd/user/
    systemctl --user daemon-reload
-   for u in r12-models r12-alg r12-docparse r12-graphsvc; do systemctl --user enable --now $u; done
-   for s in rag-auth-service rag-index-service rag-qa-service sensitive-words-service rag-gateway; do
-     systemctl --user enable --now r12-java@$s.service; done
+   systemctl --user enable r12.target          # 整栈唯一入口 -> default.target.wants/r12.target
    systemctl --user enable --now r12-watchdog.timer
+   systemctl --user start r12.target           # 拉起 9 个服务单元
+   # 校验：default.target.wants 下应只有 r12.target 一条 r12 条目（原为 11 条）
+   systemctl --user list-dependencies default.target --no-pager | grep -c 'r12\.[a-z@.-]*service' || true
    # 看门狗 45s 巡检、连续 2 次判失才动作；维护停机时 touch /opt/r12/run/.maintenance
+   # 看门狗故意不并入 r12.target：它是安全网，必须在整栈被停时仍能巡检与自愈。
+   #
+   # 为什么收敛到 target：R14 两次全栈中断（13:22 / 13:39）都是本机另一个自动化
+   # 按字母序 stop/restart systemd user unit，dkws-skill 与 r12-* 出现在同一秒。
+   # 收敛后外部按 unit 名逐个扫时不再逐个命中；但这只是"收敛入口"，不是"隔离边界"，
+   # 按 r12-* 通配或遍历全部已加载 unit 仍会命中 —— 硬隔离需独立 system user 或独立主机。
 
 13) 源码复建（与运行包分开验证，见 /opt/r12/src-build/build/BUILD-OFFLINE.md）
    包内不含 node_modules / ~/.m2 / wheel 缓存，但含：Java 与前端源码、三种 lock、

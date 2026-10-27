@@ -1,0 +1,26 @@
+[Unit]
+Description=R12 algorithm services (vector 19526 / fulltext 19527 / retrieval 19995 / llm-infer 19996)
+After=network-online.target docker.service r12-models.service
+Wants=r12-models.service
+# R14-F07：起不来时不要陷入无限重试，交由 r12-watchdog.timer 有界重试（带退避）
+StartLimitIntervalSec=300
+StartLimitBurst=15
+
+[Service]
+# 保留 oneshot 形态（algctl 负责四个进程的编排），但补上两个漏洞：
+#  1) ExecStartPre 等 Nacos readiness，避免冷启动即失败（R14 事故根因之一）
+#  2) Restart=on-failure，让"启动阶段就失败"能被 systemd 自己重试
+# 运行期子进程死亡由 r12-watchdog 按真实监听口检测后逐个重启（algctl restart <svc>）
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/szf/data/dev/llmke-r12
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh nacos 300
+ExecStart=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/run/algctl.sh start all'
+ExecStop=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/run/algctl.sh stop all'
+TimeoutStartSec=300
+TimeoutStopSec=120
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

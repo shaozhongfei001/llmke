@@ -1,0 +1,41 @@
+[Unit]
+# R14-F08：把 r12 全部服务单元收敛到自有 target，不再各自直挂 default.target。
+#
+# 背景（R14 两次全栈中断的根因）：
+#   13:22 与 13:39 各发生一次全栈中断，journal 显示本机另一自动化按字母序
+#   stop/restart systemd user unit —— "Stopped DKWS Skill Execution Service"
+#   与 "Stopped R12 document parse service" 出现在同一秒，21 秒后又来一轮，
+#   而 ~/.bash_history 自 09:59 起无记录（不是人在终端操作）。
+#
+# 损失不在停机本身（看门狗 3–6 分钟自愈），而在数据被截断后各方仍以为拿到了
+# 完整结果：F 的 acceptance 作废 4 轮、A 的重解析整批重跑、B 的一份 before 白取。
+#
+# 收敛后 default.target.wants 只剩 r12.target 一个入口（原为 11 条 r12 条目），
+# 外部按 unit 名逐个扫时不再逐个命中；同时给运维一个"整栈"把手。
+#
+# 注意（不要误读为硬隔离）：
+#   本 target 只是"收敛入口"，不是"隔离边界"。若外部自动化按 r12-* 通配或遍历
+#   全部已加载 unit，仍会命中。真正的硬隔离是把 r12 放到独立 system user 或
+#   独立主机；本改动降低被误伤面积，并让"谁动了整栈"在 journal 里只是一个单元。
+#
+# watchdog 不并入本 target：它是安全网，必须在整栈被停时仍能巡检与自愈，
+# 因此 r12-watchdog.timer 仍挂在 timers.target 下常驻。
+Description=R12 RAG stack (single entry point)
+Documentation=file:/home/szf/data/dev/llmke-r12/docs/r12/r14/R14-FINAL-REPORT.md
+
+Wants=r12-models.service
+Wants=r12-alg.service
+Wants=r12-docparse.service
+Wants=r12-graphsvc.service
+Wants=r12-java@rag-auth-service.service
+Wants=r12-java@rag-gateway.service
+Wants=r12-java@rag-index-service.service
+Wants=r12-java@rag-qa-service.service
+Wants=r12-java@sensitive-words-service.service
+
+After=network-online.target
+# 停 target 时按依赖反序停：先应用层、后基础设施
+After=r12-java@rag-gateway.service r12-java@rag-index-service.service
+
+[Install]
+WantedBy=default.target

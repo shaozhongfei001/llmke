@@ -1,0 +1,26 @@
+[Unit]
+Description=R12 document parse service (12340)
+After=network-online.target docker.service r12-models.service
+Wants=r12-models.service
+# R14-F07：Restart=always 也受 StartLimit 约束，超限后 unit 会 failed 且不再自愈；
+# 由 r12-watchdog 兜底（它看真实端口，不看 unit 状态）。
+StartLimitIntervalSec=300
+StartLimitBurst=30
+
+[Service]
+Type=simple
+EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/systemd/doc-parse.env
+WorkingDirectory=/home/szf/data/dev/llmke-r12/services/rag-alg/alg_doc_parse_service
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh nacos 300
+ExecStart=/home/szf/data/dev/llmke-r12/platform/r12/venvs/parse/bin/python -u alg_doc_parse_service_start.py
+Restart=always
+RestartSec=5
+# 解析服务同样是"父进程 + 多个 worker"结构（见 cgroup 内 4~5 个 python），
+# 只给父进程 SIGTERM 会留下 worker 使 unit 卡在 final-sigterm。
+KillMode=control-group
+TimeoutStopSec=30
+StandardOutput=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/doc-parse.log
+StandardError=append:/home/szf/data/dev/llmke-r12/platform/r12/logs/doc-parse.log
+
+[Install]
+WantedBy=default.target
