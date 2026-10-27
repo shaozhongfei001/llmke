@@ -43,6 +43,27 @@
         SET status = #{status},gmt_modified = NOW()
         where id in <foreach collection="taskIds" separator="," open="(" close=")" item="id">#{id}</foreach>
     </update>
+
+    <!-- R14-C-FIX-32：派发前的**抢占（CAS）**。
+         原实现是"先 select 出可派发任务，再同步调解析，解析成功后才把 status 置 DEAL_ING"，
+         也就是说**整个解析窗口内任务状态仍是 PENDING(1)/RETRY_ING(3)**。
+         任何第二个执行者（多实例、POST /execTask 手工触发、Redisson 锁 5 秒租约过期后下一轮）
+         都会把同一 task_id 再取一次 → 同一文件被两个 worker 同时解析（重复写、互相覆盖）。
+         FIX-30 让 RETRY_ING 重新可派发后，这个窗口从 PENDING 扩大到了 RETRY_ING。
+         这里用带 status 条件的 UPDATE 做原子抢占：只有真正把状态从 1/3 改成 2 的那个执行者
+         才能继续派发；返回 0 表示已被别人抢走，必须跳过。 -->
+    <update id="claimTask">
+        <!-- `COALESCE(start_time, NOW())` 不是防御性编程，是**语义修正**（R14-C-P2-01②）：
+             start_time 的语义是"这个任务什么时候开始被处理"，不是"最近一次重试是什么时候"。
+             原实现每轮派发都刷新它，导致超时判定永远从新的起点算 -> 永久失败的文件永远算不出超时。
+             若将来需要"最近一次重试时间"，应新增 last_retry_at 字段，不要复用 start_time。 -->
+        UPDATE file_parse_task
+        SET status = #{toStatus},
+            start_time = COALESCE(start_time, NOW()),
+            gmt_modified = NOW()
+        where id = #{id}
+          and status in <foreach collection="fromStatus" item="s" separator="," open="(" close=")">#{s}</foreach>
+    </update>
     <select id="getTaskList" resultType="com.gientech.ragindexservice.domain.model.FileParseTaskDO">
         select
         <include refid="Base_Column_List"/>

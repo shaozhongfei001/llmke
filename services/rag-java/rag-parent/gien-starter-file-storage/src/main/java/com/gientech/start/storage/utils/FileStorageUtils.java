@@ -135,8 +135,19 @@ public class FileStorageUtils {
         while (u.startsWith("/")) {
             u = u.substring(1);
         }
-        if (p.getBucketName() != null && u.startsWith(p.getBucketName() + "/")) {
-            u = u.substring(p.getBucketName().length() + 1);
+        // R14-C-FIX-07：前端/聊天库历史写法会带网关代理前缀 /minio/（R13 撤匿名读后该前缀已不可用，
+        // 但库里与 @gientech/modual 仍会拼它）。此处统一剥掉，让 stream / previewStream / markdown
+        // 三条链路都能吃三种历史写法：/minio/<bucket>/...、http://host/<bucket>/...、<bucket>/...。
+        if (p.getBucketName() != null) {
+            while (u.startsWith("minio/" + p.getBucketName() + "/")) {
+                u = u.substring("minio/".length());
+            }
+        }
+        if (p.getBucketName() != null) {
+            // 历史脏数据里桶名可能被拼两次（r12-rag/r12-rag/...），一并收敛
+            while (u.startsWith(p.getBucketName() + "/")) {
+                u = u.substring(p.getBucketName().length() + 1);
+            }
         }
         return u;
     }

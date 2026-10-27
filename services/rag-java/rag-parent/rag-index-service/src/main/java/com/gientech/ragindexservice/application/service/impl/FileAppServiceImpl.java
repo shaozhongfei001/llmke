@@ -158,9 +158,15 @@ public class FileAppServiceImpl implements FileAppService {
                 Boolean isSuccess = jsonObject.getBoolean("success");
                 if (isSuccess) {
                     knowledgeBaseFile.setStatus(KbFileStatusEnums.PARSE_ING.getValue());
-                    task.setStartTime(new Date());
-                    if (!ParseTaskStatusEnums.RETRY_ING.getCode().equals(task.getStatus()))
-                        task.setStatus(ParseTaskStatusEnums.DEAL_ING.getCode());
+                    // R14-C-FIX-32：start_time 的语义是"**开始解析**的时刻"，由派发前的 CAS 抢占写入。
+                    // 原实现在解析**返回之后**才写，导致两件事：
+                    //   ① 解析窗口内任务状态仍是 1/3，可被第二个执行者重复取到（重复解析）；
+                    //   ② 超时计时从"解析结束"开始算，等于把超时窗口凭空延长一个解析时长。
+                    // 这里只在确实没有值时兜底，绝不覆盖抢占时写入的真实起点。
+                    if (Objects.isNull(task.getStartTime())) {
+                        task.setStartTime(new Date());
+                    }
+                    task.setStatus(ParseTaskStatusEnums.DEAL_ING.getCode());
                 } else {
                     knowledgeBaseFile.setStatus(KbFileStatusEnums.PARSE_FAIL.getValue());
                     synLogDomainService.saveLog(kbId, fileId, LogTypeEnums.FILE_PARSE.getCode(), null, parseResult);
@@ -752,13 +758,116 @@ public class FileAppServiceImpl implements FileAppService {
                     KnowledgeBaseList dbFile = knowledgeBaseFileDomainService.findByKbIdAndGroupIds(kbId, groupId);
                     if (!Objects.isNull(dbFile))
                         parentFileName = dbFile.getParentFileName();
-                    List<Long> ids = files.stream().map(file -> Long.parseLong(file.getId())).collect(Collectors.toList());
+                    // R14-C-FIX-01（F04 文档稳定身份）：算法端 FILENAME_CONTENT 归并会在"样本 chunk 数不足"时
+                    // 用 1 个 chunk 的相似占比（1/1=1.0 >= 阈值）把不同文档并入同一 group。实测
+                    // R12FIX-credit-ledger.xlsx 被并入 R12FIX-product-loan.docx 组（parent/group 双双被改写），
+                    // 后果是检索按 parent_file_name 做版本去重时把台账当"旧版本"挤掉、引用指错文件。
+                    // 此处做写入前校验：只有"归一键"（去扩展名后去掉末尾 (n)/（n） 版本标记）与组父名一致的文件
+                    // 才允许进组；不一致的一律跳过并告警，绝不改写其 parent_file_name/group_id。
+                    List<Long> ids = Lists.newArrayList();
+                    List<FileMultiversion> rejectedFiles = Lists.newArrayList();
+                    String parentKey = versionKeyOf(parentFileName);
+                    for (FileMultiversion f : files) {
+                        String fileKey = versionKeyOf(f.getName());
+                        boolean parseable = true;
+                        long parsedId = -1L;
+                        try {
+                            parsedId = Long.parseLong(f.getId());
+                        } catch (NumberFormatException nfe) {
+                            parseable = false;
+                        }
+                        if (parseable && parentKey.equals(fileKey)) {
+                            ids.add(parsedId);
+                        } else {
+                            rejectedFiles.add(f);
+                        }
+                    }
+                    // R14-C-FIX-16（TL 裁决 B）：group 变更审计。只记录、不参与业务判定。
+                    // 目的：下次再出现"不同文档被并进同一版本组"时，能直接查到 fileId、旧/新 group 与父名、
+                    // 触发路径与时间，而不是像本轮那样只能靠日志时间窗反推。
+                    auditGroupChange(kbId, groupId, parentFileName, versionDate, ids, rejectedFiles);
+                    if (!rejectedFiles.isEmpty()) {
+                        log.warn("R14-C-FIX-01 拒绝跨文档归组 kbId={} groupId={} parentFile={} parentKey={} rejected={}",
+                                kbId, groupId, parentFileName, parentKey, describeFiles(rejectedFiles));
+                    }
+                    if (ids.isEmpty())
+                        return;
                     knowledgeBaseFileDomainService.updateMultiversion(ids, parentFileName, groupId, versionDate);
                     //更新es和milvus中的versiondate
                     updateVersion(primitiveName, ids, versionDate);
                 }
             });
         }
+    }
+
+    /** R14-C-FIX-16：把 group 变更前后值打成一行可 grep 的审计日志（不参与判定）。 */
+    private void auditGroupChange(Long kbId, String groupId, String parentFileName, String versionDate,
+                                  List<Long> acceptedIds, List<FileMultiversion> rejectedFiles) {
+        try {
+            List<Long> probe = Lists.newArrayList(acceptedIds);
+            for (FileMultiversion f : rejectedFiles) {
+                try {
+                    probe.add(Long.parseLong(f.getId()));
+                } catch (NumberFormatException ignore) {
+                    // id 非数字：无法反查旧值，审计里保留原始 id 字符串
+                }
+            }
+            Map<Long, KnowledgeBaseList> before = new HashMap<>();
+            if (!probe.isEmpty()) {
+                List<KnowledgeBaseList> rows = knowledgeBaseFileDomainService.findByIds(probe);
+                if (rows != null) {
+                    for (KnowledgeBaseList r : rows) {
+                        if (r != null && r.getId() != null) {
+                            before.put(r.getId(), r);
+                        }
+                    }
+                }
+            }
+            for (Long id : acceptedIds) {
+                KnowledgeBaseList old = before.get(id);
+                log.info("[AUDIT-GROUP] action=JOIN trigger=file_parse_callback kbId={} fileId={} oldGroupId={} oldParent={} newGroupId={} newParent={} versionDate={}",
+                        kbId, id,
+                        old == null ? null : old.getGroupId(),
+                        old == null ? null : old.getParentFileName(),
+                        groupId, parentFileName, versionDate);
+            }
+            for (FileMultiversion f : rejectedFiles) {
+                KnowledgeBaseList old = null;
+                try {
+                    old = before.get(Long.parseLong(f.getId()));
+                } catch (NumberFormatException ignore) {
+                    // 保持 old=null
+                }
+                log.warn("[AUDIT-GROUP] action=REJECT trigger=file_parse_callback kbId={} fileId={} fileName={} oldGroupId={} oldParent={} intendedGroupId={} intendedParent={} versionDate={}",
+                        kbId, f.getId(), f.getName(),
+                        old == null ? null : old.getGroupId(),
+                        old == null ? null : old.getParentFileName(),
+                        groupId, parentFileName, versionDate);
+            }
+        } catch (Exception e) {
+            // 审计失败绝不影响归组主流程
+            log.warn("R14-C-FIX-16 审计失败 kbId={} groupId={} err={}", kbId, groupId, e.getMessage());
+        }
+    }
+
+    private String describeFiles(List<FileMultiversion> files) {
+        List<String> out = Lists.newArrayList();
+        for (FileMultiversion f : files) {
+            out.add(f.getId() + ":" + f.getName());
+        }
+        return out.toString();
+    }
+
+    /**
+     * R14-C-FIX-01：版本归一键。
+     * "R12FIX-product-loan(1).docx" 与 "R12FIX-product-loan.docx" 归一到同一键（同一文档的不同版本）；
+     * "R12FIX-credit-ledger.xlsx" 保持自身键（不同文档绝不并组）。扩展名参与比较，避免 .docx/.xlsx 混淆。
+     */
+    private static String versionKeyOf(String fileName) {
+        if (fileName == null)
+            return "";
+        String name = fileName.trim().replace(" ", "");
+        return name.replaceAll("[（(]\\d+[）)](\\.[^.]*)?$", "$1");
     }
 
     private void updateVersion(String primitiveName, List<Long> ids, String versionDate) {

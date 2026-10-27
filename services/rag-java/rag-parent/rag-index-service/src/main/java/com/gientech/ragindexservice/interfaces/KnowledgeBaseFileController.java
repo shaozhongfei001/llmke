@@ -51,6 +51,15 @@ public class KnowledgeBaseFileController {
     @Autowired
     private com.gientech.ragindexservice.application.service.KnowledgeBaseAppService knowledgeBaseAppService;
 
+    /** R14-C-FIX-03：引用原文预签名。凭据只在服务端参与签名，响应里只有 URL 与有效期。 */
+    @Autowired
+    private io.minio.MinioClient minioClient;
+
+    @Autowired
+    private com.gientech.start.storage.properties.StorageProperties storageProperties;
+
+    private static final int PRESIGN_EXPIRES_SECONDS = 300;
+
     /** R13-PV-01：Office→PDF 预览服务（容器 r12-preview）。只允许经本接口访问，不再对浏览器直暴露 */
     @org.springframework.beans.factory.annotation.Value("${remote.preview-stream.url:http://127.0.0.1:18095/stream}")
     private String previewStreamUrl;
@@ -65,6 +74,12 @@ public class KnowledgeBaseFileController {
         if (objectKey == null || objectKey.isBlank()) {
             return;
         }
+        // R14-C-FIX-23（D 报、TL 批准）：前端/第三方 `@mxmweb/fview` 会把 marker 整串塞进 query 并编码，
+        // 形如 `/preview/convert?key=r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx`。
+        // 原实现按 "/" 切段找 `kb_` 前缀，整串被编码成 %2F 后切不开 → 认不出归属 → 403/30016，
+        // 用户点"引用原文"打不开。这里先做一次 URL 解码 + 提取 `key=` 参数，
+        // **只放宽"解析"，不放宽"授权"**：解出来的对象键仍要走后续"找 kb_ 段 → 反查 → assertRead"。
+        objectKey = extractObjectKey(objectKey);
         String primitive = null;
         for (String seg : objectKey.split("/")) {
             if (seg.startsWith("kb_")) {
@@ -371,6 +386,157 @@ public class KnowledgeBaseFileController {
     @GetMapping("/viewFile")
     public void viewFile(HttpServletResponse response, @RequestParam("fileUrl") String fileUrl) throws IOException {
         knowledgeBaseListAppService.viewFile(response, fileUrl);
+    }
+
+    /**
+     * R14-C-FIX-03：引用原文打开链路。
+     * R13 撤销 MinIO 匿名读后，前端 `CommonEditor/utils/tools.ts` 的 `/minio/${source}` 一律 403，
+     * 用户点引用打不开原文（功能性回归）。处置不是恢复匿名策略，而是由服务端签发短时效预签名 URL：
+     *   1) 先做对象级授权（复用 assertStreamAllowed：认不出所属知识库即拒绝，越权 403/30016）；
+     *   2) 再用服务端 MinIO 凭据签名，凭据不下发前端；
+     *   3) 有效期 5 分钟。
+     */
+    @Operation(summary = "为对象键签发短时效预签名下载地址（引用原文打开）")
+    @GetMapping("/presign")
+    @OperationLog(operateType = "获取原文预签名地址")
+    public java.util.Map<String, Object> presign(@RequestParam("key") String key) {
+        if (key == null || key.isBlank()) {
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.PARAM_IS_NULL);
+        }
+        // 对象级授权：无法归属知识库 -> KB 不存在/权限不足；越权 -> 30016
+        PageFileStreamReq authReq = new PageFileStreamReq();
+        authReq.setConvertedFilePath(key);
+        assertStreamAllowed(authReq);
+
+        String bucket = storageProperties.getDefaultStorageProperties().getBucketName();
+        String objectKey = normalizeObjectKey(key, bucket);
+        if (objectKey.isEmpty() || (bucket != null && bucket.equals(objectKey))) {
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
+        // R14-C-FIX-03c：对象级授权只判"这个 kb 你能读"，不判"这个键真的存在"。
+        // 实测 `r12-rag/kb_9/..../__not_exist__.docx` 也能签出 URL（HTTP 200），
+        // 等于把 presign 变成"桶内任意键探测 + 签发"的接口。这里先 stat 一次，
+        // 不存在就按 404 拒绝，绝不签发。
+        try {
+            minioClient.statObject(io.minio.StatObjectArgs.builder()
+                    .bucket(bucket).object(objectKey).build());
+        } catch (Exception e) {
+            log.warn("presign reject: object not found key={} objectKey={} err={}", key, objectKey, e.getMessage());
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.KB_FILE_NOT_EXISTS_ERROR);
+        }
+        try {
+            io.minio.GetPresignedObjectUrlArgs.Builder builder = io.minio.GetPresignedObjectUrlArgs.builder()
+                    .method(io.minio.http.Method.GET)
+                    .bucket(bucket)
+                    .object(objectKey)
+                    .expiry(PRESIGN_EXPIRES_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+            // R14-C-FIX-03b（D 反馈）：默认签出来的对象 content-type 是 application/octet-stream，
+            // 浏览器用 <iframe> 打开会变成下载。这里按扩展名显式声明 response-content-type。
+            String ct = contentTypeOfKey(objectKey);
+            if (ct != null) {
+                java.util.Map<String, String> extra = new java.util.HashMap<>();
+                extra.put("response-content-type", ct);
+                builder.extraQueryParams(extra);
+            }
+            String url = minioClient.getPresignedObjectUrl(builder.build());
+            java.util.Map<String, Object> out = new java.util.LinkedHashMap<>();
+            out.put("url", url);
+            out.put("expires_in", PRESIGN_EXPIRES_SECONDS);
+            out.put("objectKey", objectKey);
+            return out;
+        } catch (Exception e) {
+            log.error("presign failed key={} objectKey={} err={}", key, objectKey, e.getMessage());
+            throw new com.gientech.ragcommon.infrastructure.exception.ApplicationException(
+                    com.gientech.ragcommon.global.ErrCodeEnum.READ_OBJECT_STREAM_ERROR);
+        }
+    }
+
+    /**
+     * 三种入参都要能吃：桶内相对对象键（ES 侧 source）、绝对 URL（MySQL converted_file_path），
+     * 以及被重复拼了两次桶名的历史脏数据（r12-rag/r12-rag/kb_9/...）。
+     */
+    /**
+     * R14-C-FIX-23：把"被整体 URL 编码进 query 的 marker"还原成对象键。
+     * 只处理三种历史形态，其余原样返回：
+     *   1) `/preview/convert?key=<URLEncoded 对象键>`
+     *   2) `?key=<对象键>`
+     *   3) 本身就是 `...%2F...` 编码串
+     */
+    private String extractObjectKey(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String s = raw.trim();
+        try {
+            int qi = s.indexOf("?");
+            if (qi >= 0) {
+                String query = s.substring(qi + 1);
+                for (String kv : query.split("&")) {
+                    if (kv.startsWith("key=")) {
+                        s = kv.substring(4);
+                        break;
+                    }
+                }
+            }
+            // 经过一次解码后若还含 %（双重编码），最多再解一次
+            for (int i = 0; i < 2 && s.indexOf('%') >= 0; i++) {
+                String decoded = java.net.URLDecoder.decode(s.replace("+", "%2B"), java.nio.charset.StandardCharsets.UTF_8);
+                if (decoded.equals(s)) {
+                    break;
+                }
+                s = decoded;
+            }
+        } catch (Exception e) {
+            log.warn("extractObjectKey decode failed, fallback to raw. err={}", e.getMessage());
+            return raw.trim();
+        }
+        return s;
+    }
+
+    private String normalizeObjectKey(String key, String bucket) {
+
+        String s = key == null ? "" : key.trim();
+        s = s.replaceFirst("^https?://[^/]+/", "");
+        while (s.startsWith("/")) {
+            s = s.substring(1);
+        }
+        if (bucket != null && !bucket.isBlank()) {
+            while (s.startsWith(bucket + "/")) {
+                s = s.substring(bucket.length() + 1);
+            }
+        }
+        return s;
+    }
+
+    /** R14-C-FIX-03b：按对象键扩展名给出预签名响应的 content-type（只覆盖预览会用到的类型）。 */
+    private String contentTypeOfKey(String objectKey) {
+        if (objectKey == null) {
+            return null;
+        }
+        String k = objectKey.toLowerCase();
+        int dot = k.lastIndexOf('.');
+        if (dot < 0) {
+            return null;
+        }
+        switch (k.substring(dot + 1)) {
+            case "pdf": return "application/pdf";
+            case "png": return "image/png";
+            case "jpg":
+            case "jpeg": return "image/jpeg";
+            case "gif": return "image/gif";
+            case "webp": return "image/webp";
+            case "bmp": return "image/bmp";
+            case "svg": return "image/svg+xml";
+            case "txt": return "text/plain; charset=utf-8";
+            case "md": return "text/markdown; charset=utf-8";
+            case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "xlsx": return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            case "pptx": return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+            default: return null;
+        }
     }
 
     @Operation(summary = "通过知识库名和文件fileuIds查询文件，fileUids如果是null，查询当前知识库下所有的文件")

@@ -175,6 +175,9 @@ public enum ErrCodeEnum {
     API_KEY_NOT_LEGAL("4011", "apiKey不合法"),
     RETRIEVE_DOC_ERROR("4012", "召回文档失败"),
     RETRIEVE_SQL_ERROR("4013", "调用sql生成失败"),
+    // R14-C-FIX-15（TL 裁决 A）：未选助手配置且系统默认助手也缺失 —— 这是**配置缺失**（400），
+    // 不是越权（30016）。用 30016 会让普通用户看到"没有足够权限"，把运维问题误报成安全问题。
+    DEFAULT_ASSISTANT_NOT_CONFIGURED("4014", "缺少默认助手配置，请联系管理员"),
 
     //敏感词
     CONTAINS_SENS_WORD("5001", "存在敏感词"),

@@ -12,6 +12,14 @@ public interface SearchConfigRepository {
 
     Config getDefaultConfig(int status);
 
+    /**
+     * R14-C-FIX-15b：系统默认助手（**不限 create_by**）。
+     * getDefaultConfig 是按 create_by 过滤的"个人默认"，普通用户没有自有助手时必然取不到，
+     * 于是"回落到系统默认助手"这条裁决落不了地（会让非 admin 用户一律 400）。
+     * 这里取 is_default=1 且未删除的那一行——DB 层已用函数唯一索引保证至多一行。
+     */
+    Config getSystemDefaultConfig(int status);
+
     Boolean updateStatus(Long id, int status);
 
     Config insert(Config config);

@@ -25,6 +25,9 @@ public interface FileParseTaskRepository {
 
     void updateStatusByIds(List<Long> taskIds, Integer status);
 
+    /** R14-C-FIX-32：派发前原子抢占（CAS），返回 true 表示本次调用抢到了该任务。 */
+    boolean claimTask(Long id, Integer toStatus, List<Integer> fromStatus);
+
     void deleteByFileIds(List<Long> fileIds);
 
     void deleteByKbIds(List<Long> kbIds);

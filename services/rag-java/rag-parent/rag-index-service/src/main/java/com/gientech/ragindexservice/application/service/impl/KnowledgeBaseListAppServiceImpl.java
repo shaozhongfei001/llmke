@@ -254,6 +254,13 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
             file.setFileSize(fileInfo.getFileSize() + "MB");
             file.setParentFileName(fileInfo.getParentFileName());
             file.setFilePath(fileInfo.getFilePath());
+            // R14-C-FIX-12：把 MySQL knowledge_base_list.version（V0/V1…）随解析请求下发。
+            // 类型侧早就留好了字段（R13-VER-10：FilesParseReq.File / FileParseTaskInfo.File /
+            // ParseParam.File 都有 @JsonProperty("version")），但**从来没人赋值**，导致解析落到
+            // ES metadata.version 恒为 null，检索只能靠 source 里的 /V\d+/ 兜底。
+            // 注意：version 只进 metadata，**不进 chunk pk 种子**（document_id 已含 /V0/ 路径，
+            // 再加 version 会在"有的行 null、有的 V0"时制造漂移）。
+            file.setVersion(fileInfo.getVersion());
             return file;
 
         }).collect(Collectors.toList());
@@ -278,6 +285,11 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
 
         String filePath = sourceFile.getFilePath();
         String objectName = filePath.replace(storageProperties.getDefaultStorageProperties().getDomain(), "");
+        // R14-C-FIX-04：FileStorageUtils.putObject 的 folder 语义是"桶内相对前缀"（内部会自己拼 bucketName），
+        // 而这里的 objectName 从绝对 URL 经过 replace(domain,"") 后仍带桶名（/r12-rag/kb_9/...），
+        // 直接当 folder 会导致落库路径变成 http://h/r12-rag/r12-rag/kb_9/...（桶名拼两次）。
+        // 实测：knowledge_base_list.parsed_file_path / converted_file_path（如 file_id=300 台账）。
+        objectName = stripBucketPrefix(objectName);
         String folder = objectName.substring(0, objectName.lastIndexOf("/") + 1) + "parsed/";
 
         //String folder = getFolder(dbKnowledgeBase.getPlatform(), userId, dbKnowledgeBase.getPrimitiveName(), sourceFile.getParentFileName(), sourceFile.getVersion()) + "parsed/";
@@ -462,6 +474,25 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
             bizLabelDomainService.saveBatch(superiorLabels);
         }
         return BeanUtil.copyToList(knowledgeBaseListsResult, KnowledgeBaseFileDTO.class);
+    }
+
+    /**
+     * R14-C-FIX-04：把"带桶名的对象路径/绝对 URL"归一化成 FileStorageUtils 需要的"桶内相对前缀"。
+     * 例：`/r12-rag/kb_9/x/V0/` -> `kb_9/x/V0/`；`r12-rag/r12-rag/kb_9/...` -> `kb_9/...`（历史脏数据双桶名）。
+     */
+    private String stripBucketPrefix(String pathOrUrl) {
+        String s = pathOrUrl == null ? "" : pathOrUrl.trim();
+        s = s.replaceFirst("^https?://[^/]+/", "");
+        while (s.startsWith("/")) {
+            s = s.substring(1);
+        }
+        String bucket = storageProperties.getDefaultStorageProperties().getBucketName();
+        if (bucket != null && !bucket.isBlank()) {
+            while (s.startsWith(bucket + "/")) {
+                s = s.substring(bucket.length() + 1);
+            }
+        }
+        return s;
     }
 
     private BizTypeEnums getBizTypeByParseType(Integer parseType) {

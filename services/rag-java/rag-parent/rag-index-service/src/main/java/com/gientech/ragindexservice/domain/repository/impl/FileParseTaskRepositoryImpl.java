@@ -101,6 +101,14 @@ public class  FileParseTaskRepositoryImpl implements  FileParseTaskRepository {
     }
 
     @Override
+    public boolean claimTask(Long id, Integer toStatus, List<Integer> fromStatus) {
+        if (Objects.isNull(id) || CollectionUtils.isEmpty(fromStatus)) {
+            return false;
+        }
+        return fileParseTaskMapper.claimTask(id, toStatus, fromStatus) == 1;
+    }
+
+    @Override
     public void deleteByFileIds(List<Long> fileIds) {
         if(CollectionUtils.isEmpty(fileIds))
             return;

@@ -66,6 +66,11 @@ public class FileParseTaskDomainServiceImpl implements FileParseTaskDomainServic
     }
 
     @Override
+    public boolean claimTask(Long id, Integer toStatus, List<Integer> fromStatus) {
+        return fileParseTaskRepository.claimTask(id, toStatus, fromStatus);
+    }
+
+    @Override
     public void deleteByFileIds(List<Long> fileIds) {
         if(CollectionUtils.isEmpty(fileIds))
             return;

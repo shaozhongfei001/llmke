@@ -187,7 +187,22 @@ public class PdfConvertorUtils {
             }
 
         }
-        return pdfObjectName;
+        // R14-C-P0-01（F 实测：docx/xlsx/pptx 全废 / S3 NoSuchKey）：
+        // 原实现**无条件** return pdfObjectName（"…/V0/xxx.pdf"）。但上面的 catch 里，
+        // docx/pptx 的"回落"分支只把 kbFile.convertedFilePath 改回原始文件路径，**没有改变返回值**，
+        // 于是调用方拿到的仍是 .pdf → 解析服务去取一个从未生成的对象 → NoSuchKey → 文件终态失败。
+        // 语义上这里要返回"**最终应当被解析的那个对象**"：
+        //   转换成功 -> convertedFilePath = 新生成的 pdf
+        //   回落     -> convertedFilePath = 原始 docx/pptx（catch 里已设置）
+        // 因此统一返回 kbFile.getConvertedFilePath()，让"回落的语义"和"回落的实现"一致。
+        String finalUrl = kbFile.getConvertedFilePath();
+        if (finalUrl == null || finalUrl.isEmpty()) {
+            // 理论上不会走到（成功与回落两条分支都会设置），保底仍返回 pdf 对象名
+            return pdfObjectName;
+        }
+        // 注意形态：调用方 FileAppServiceImpl:136 会拼 `bucket + "/" + 返回值`，
+        // 所以这里必须返回**桶内对象键**（不带 endpoint、不带桶名），与 pdfObjectName 同形态。
+        return fileStorageUtils.getObjectNameFromUrl(finalUrl);
     }
 
     public static double calculateFileSizeMB(InputStream inputStream) throws IOException {

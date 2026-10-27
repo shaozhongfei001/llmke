@@ -140,6 +140,12 @@ public class AiServiceImpl implements AiService {
     @Autowired
     private SensitiveWordsClient sensitiveWordsClient;
 
+    /**
+     * R14-C-FIX-05：检索侧（社区摘要 map-reduce）返回的最终答案字段名。
+     * 放在本类内部常量，避免为了一个字符串去改 rag-common 的公共常量类。
+     */
+    private static final String GLOBAL_ANSWER = "global_answer";
+
     @Autowired
     private FileStorageUtils fileStorageUtils;
 
@@ -216,10 +222,43 @@ public class AiServiceImpl implements AiService {
             if (config == null && aiRequest.getConfigId() != null) {
                 config = searchConfigDomainService.getConfigById(aiRequest.getConfigId());
             }
+            // R14-C-FIX-15c（F 的 F05-A5/A6）：这里是 `/qa/ai/question` 的**前置**鉴权，
+            // 与 saveOrUpdateDialogue 是两条独立路径。原实现取不到 dialogue/configId 就直接拿 null 去
+            // assertKnowledgeBaseReadable → 被判定"empty config" → 403/30016，
+            // 表现为"不传 configId = 越权"，与"允许回落系统默认助手"的裁决冲突。
+            // 补齐同一条回落链：个人默认 → 系统默认行 → nacos；都没有才 400/4014。
+            if (config == null) {
+                config = resolveDefaultConfigOrNull();
+            }
+        } catch (ApplicationException ae) {
+            throw ae;
         } catch (Exception ex) {
             log.warn("resolve config for access check failed: {}", ex.getMessage());
         }
         assertKnowledgeBaseReadable(config);
+    }
+
+    /**
+     * R14-C-FIX-15/15b/15c 共用的默认助手解析：个人默认 → 系统默认行 → nacos → 全无则 400/4014。
+     */
+    private Config resolveDefaultConfigOrNull() {
+        Config config = searchConfigDomainService.getDefaultConfig();
+        if (Objects.isNull(config)) {
+            config = searchConfigDomainService.getSystemDefaultConfig();
+            if (Objects.nonNull(config)) {
+                log.info("R14-C-FIX-15b 回落系统默认助手 id={} name={}", config.getId(), config.getName());
+            }
+        }
+        if (Objects.isNull(config)) {
+            String defaultConf = nacosConfig.getDefaultSearchConf();
+            if (StringUtils.isBlank(defaultConf)) {
+                log.error("R14-C-FIX-15 默认助手配置缺失：个人默认/系统默认行/nacos 全为空");
+                throw new ApplicationException(ErrCodeEnum.DEFAULT_ASSISTANT_NOT_CONFIGURED);
+            }
+            config = new Config();
+            config.setConfigJson(defaultConf);
+        }
+        return config;
     }
 
     @Override
@@ -581,7 +620,7 @@ public class AiServiceImpl implements AiService {
         Long dialogueId = saveOrUpdateDialogue(aiRequest);//2694L;//2804L;// 2816L;//
         List<Map<String, Object>> documents = new ArrayList<>();
         List<Map<String, Object>> webRsDocuments = new ArrayList<>();
-        JSONObject alParams;
+        JSONObject alParams = null;
         String indexRecallJson = "[]";
         String sessionId = aiRequest.getSessionId();
         String queryId = aiRequest.getQueryId();
@@ -611,12 +650,20 @@ public class AiServiceImpl implements AiService {
 
         jsonConfig.put(QUERY, aiRequest.getContent());
 
+        // R14-C-FIX-05：global 的 map-reduce 答案（检索侧给出），命中后直接作为最终回答
+        String reduceAnswer = null;
+        // R14-C-FIX-10（B 反馈）：是否 global 模式 —— 用于"reduce 无答案时不得回落生成"的判定
+        boolean reqGlobalMode = Boolean.TRUE.equals(aiRequest.getGlobalMode())
+                || "global".equalsIgnoreCase(jsonConfig.getString("query_mode"));
+
         if (StringUtils.isNotBlank(jsonConfig.getString(KNOWLEDGE_BASE_NAME))) {
             //检索召回组装json数据
             alParams = retrieveRecallParamToJson(jsonConfig);
 
             //1.调用检索召回接口（）
             indexRecallJson = retrieveRecall(aiRequest, alParams, dialogueId, Boolean.FALSE);
+            // R14-C-FIX-05：retrieveRecall 在 global 模式下把 data.global_answer 回填到 alParams
+            reduceAnswer = alParams == null ? null : alParams.getString(GLOBAL_ANSWER);
             if (Objects.nonNull(indexRecallJson)) {
                 List<Map> itemList = JSON.parseArray(indexRecallJson, Map.class);
                 for (Map item : itemList) {
@@ -735,8 +782,15 @@ public class AiServiceImpl implements AiService {
                         }
                     }
                     // R13-GRAPH-16：解析不到来源时不要拼出 ".../null"（前端会当成可点链接但打不开）
+                    // R14-C-FIX-02（B 报 global 双 host）：ES 侧 source 是桶内相对对象键，而回落分支取的是
+                    // MySQL converted_file_path（已是 http://host/... 绝对 URL），无条件加 endPoint 会拼成
+                    // "http://h/http://h/..."。
+                    // R14-C-FIX-13（F 的 GLOBAL_POS 与 D 的前端契约）：source 的**契约是桶内相对对象键**，
+                    // 前端 `CommonEditor/utils/tools.ts:149` 是 `/minio/${source}`、聊天库也是同样拼法；
+                    // 若这里下发绝对 URL，会变成 `/minio/http://host/...`，点开必 404/403。
+                    // 因此统一归一化成对象键（去 scheme+host、去前导斜杠、去 /minio 前缀、去重复桶名）。
                     if (StringUtils.isNotBlank(source)) {
-                        metadata.put(SOURCE, storageProperties.getDefaultStorageProperties().getEndPoint() + "/" + source);
+                        metadata.put(SOURCE, toBucketKey(source));
                     } else {
                         metadata.put(SOURCE, "");
                     }
@@ -765,6 +819,25 @@ public class AiServiceImpl implements AiService {
                 }
             }
         }
+        // R14-C-FIX-05（B 定位）：global 模式下检索侧已经把社区摘要的 map-reduce 答案算好放在
+        // data.global_answer。旧实现只把 documents_list（摘要）往下传，等于把 reduce 结果丢掉，
+        // 再让模型"把摘要当原文"生成一遍，典型表现就是明明 reduce 有正确答案却答"资料中没有"。
+        // 这里直接采用 reduce 答案作为最终回答，documents（社区摘要+原文块）仍作为引用卡片下发。
+        if (StringUtils.isNotBlank(reduceAnswer)) {
+            log.info("R14-C-GLOBAL 采用 reduce 答案，跳过二次生成 len={}", reduceAnswer.length());
+            addQuestionAndAnswer(alParams, dialogueId, aiRequest, reduceAnswer, webRsDocuments);
+            return ReplyDTO.fastReply(sessionId, queryId, reduceAnswer, webRsDocuments);
+        }
+        if (reqGlobalMode) {
+            // R14-C-FIX-10（B 实测依据）：global 模式且 reduce 没给答案时，**不要回落到模型生成**。
+            // 无上下文时主链会产出"精确但编造"的数字（同一题实测出现 15/50/20/30 基点四种答案，正解 30），
+            // 而且用户看不到任何引用 —— 危害大于"说不知道"。这里明确回显并打机器可读标记。
+            String noAnswer = "现有社区摘要不足以回答该问题，未生成推测性答案。";
+            log.info("R14-C-GLOBAL reason=global_no_answer，跳过生成，queryId={}", queryId);
+            addQuestionAndAnswer(alParams, dialogueId, aiRequest, noAnswer, webRsDocuments);
+            return ReplyDTO.fastReply(sessionId, queryId, noAnswer, webRsDocuments);
+        }
+
         //如果助手配置了强关联知识库,且知识库没有召回内容，则直接返回
         if ((Objects.nonNull(config.getDependOnKb()) && config.getDependOnKb() == 1)
                 && (Objects.isNull(indexRecallJson) || StringUtils.equals(indexRecallJson, "[]"))) {
@@ -880,7 +953,7 @@ public class AiServiceImpl implements AiService {
 
     private String publicQuestionForCZBank(AiCZBankRequest aiRequest, InputType inputType) {
         List<Map> documents = new ArrayList<>();
-        JSONObject alParams;
+        JSONObject alParams = null;
         String indexRecallJson = "[]";
 
         Config config = searchConfigDomainService.getConfigById(aiRequest.getConfigId());
@@ -978,12 +1051,33 @@ public class AiServiceImpl implements AiService {
         }
 
         //没有助手配置的权限 || 没有指定组手配置
+        //R14-C-FIX-15（TL 裁决 A）：允许回落到系统默认助手；但**默认助手本身缺失**时必须给出
+        //可判定的 400 + 明确文案。原实现会构造一个 configJson 为空的 Config，一路走到
+        //assertKnowledgeBaseReadable 再抛 30016，普通用户看到的是"没有足够权限"（把配置缺失误报成越权）。
         if (!permission || Objects.isNull(configId)) {
-            //个人的默认助手配置
+            //个人的默认助手配置（按 create_by 过滤）
             config = searchConfigDomainService.getDefaultConfig();
-            //系统默认助手配置
+            //R14-C-FIX-15b：getDefaultConfig 是"个人默认"，普通用户没有自有助手时必然为空；
+            //此前直接跳到 nacos 兜底，会让"回落到系统默认助手"这条裁决落不了地
+            //（非 admin 用户一律 400）。这里补一层"全局唯一默认行"（DB 已加函数唯一索引保证至多一行）。
+            if (Objects.isNull(config)) {
+                config = searchConfigDomainService.getSystemDefaultConfig();
+                if (Objects.nonNull(config)) {
+                    log.info("R14-C-FIX-15b 回落系统默认助手 id={} name={} user={}",
+                            config.getId(), config.getName(), UserContext.getUser().getUserName());
+                }
+            }
+            if (Objects.nonNull(config) && Objects.isNull(configId)) {
+                configId = config.getId();
+            }
+            //nacos 兜底（配置行都不存在时的最后一道）
             if (Objects.isNull(config)) {
                 String defaultConf = nacosConfig.getDefaultSearchConf();
+                if (StringUtils.isBlank(defaultConf)) {
+                    log.error("R14-C-FIX-15 默认助手配置缺失: 个人默认/系统默认行/nacos 全为空，sessionId={}",
+                            aiRequest.getSessionId());
+                    throw new ApplicationException(ErrCodeEnum.DEFAULT_ASSISTANT_NOT_CONFIGURED);
+                }
                 config = new Config();
                 config.setConfigJson(defaultConf);
             }
@@ -2150,6 +2244,16 @@ public class AiServiceImpl implements AiService {
             JSONObject dataJson = jsonObject.getJSONObject(DATA);
 //            List<JSONObject> documentsList = dataJson.getList(DOCUMENTS_LIST, JSONObject.class);
 //            String logList = dataJson.getString(LOG_LIST);
+            // R14-C-FIX-05：global 模式的 map-reduce 最终答案在 data.global_answer，
+            // 原实现只取 documents_list（社区摘要），答案被丢弃后被重新生成成"拒答"。
+            // 这里把它回传给调用方（挂在 alParams 上），由主链优先直接采用。
+            if (globalMode) {
+                String globalAnswer = dataJson.getString(GLOBAL_ANSWER);
+                if (StringUtils.isNotBlank(globalAnswer)) {
+                    alParams.put(GLOBAL_ANSWER, globalAnswer);
+                    log.info("R14-C-GLOBAL answer from reduce, len={}", globalAnswer.length());
+                }
+            }
             rs = dataJson.getString(DOCUMENTS_LIST);
             // R13-FAQ-08：检索侧返回的 faq_result_list 在这里被整段丢掉，
             // 导致"FAQ 已命中 0.99"仍然去走大模型生成，answer 的 resultType 永远是 1（文档）。
@@ -2387,6 +2491,9 @@ public class AiServiceImpl implements AiService {
         JSONArray documentStringList = new JSONArray();
         JSONArray faqStringList = new JSONArray();
         JSONArray logStringList = new JSONArray();
+        // R14-C-FIX-05：global 的 map-reduce 结果（global_answer）必须原样带下去，
+        // 否则多知识库合并时同样会被丢弃。
+        StringBuilder globalAnswer = new StringBuilder();
         retrievedDataList.forEach(retrievedData -> {
             // R13-GRAPH-02：全局（社区摘要）响应里没有 faq_result_list / log_list，直接 addAll(null) 会 NPE
             JSONArray documentsList = retrievedData.getData().getJSONArray(DOCUMENTS_LIST);
@@ -2395,12 +2502,22 @@ public class AiServiceImpl implements AiService {
             if (faqResultList != null) faqStringList.addAll(faqResultList);
             JSONArray logList = retrievedData.getData().getJSONArray(LOG_LIST);
             if (logList != null) logStringList.addAll(logList);
+            String ga = retrievedData.getGlobalAnswer();
+            if (StringUtils.isNotBlank(ga)) {
+                if (globalAnswer.length() > 0) {
+                    globalAnswer.append("\n\n");
+                }
+                globalAnswer.append(ga.trim());
+            }
         });
         RetrievedData retrievedData = new RetrievedData();
         JSONObject data = new JSONObject();
         data.put(DOCUMENTS_LIST, documentStringList);
         data.put(FAQ_RESULT_LIST, faqStringList);
         data.put(LOG_LIST, logStringList);
+        if (globalAnswer.length() > 0) {
+            data.put(GLOBAL_ANSWER, globalAnswer.toString());
+        }
         retrievedData.setData(data);
                 // R13-FAQ-10：高分 FAQ 升为首条参考，命中后由问答主链走 FAQ 直答（resultType=2）
         JSONObject bestFaq = null;
@@ -2480,14 +2597,80 @@ return retrievedData;
         if (StringUtils.isBlank(source)) {
             return null;
         }
-        String fileName = source.substring(source.lastIndexOf("/") + 1);
         String filePath = "";
         try {
-            filePath = storageProperties.getDefaultStorageProperties().getEndPoint() + "/" + source.substring(0, source.lastIndexOf("/")) + "/parsed/" + fileName + TXT;
+            // R14-C-FIX-02/19：source 可能是绝对 URL，先归一化成**带桶名**的相对键再拼 parsed 路径，
+            // 否则会拼出 "http://h/http://h/.../parsed/x.txt" 或丢掉桶名导致 404。
+            String endPoint = trimTrailingSlash(storageProperties.getDefaultStorageProperties().getEndPoint());
+            String objectKey = toBucketKey(source);
+            String fileName = objectKey.substring(objectKey.lastIndexOf("/") + 1);
+            String dir = objectKey.substring(0, objectKey.lastIndexOf("/"));
+            filePath = endPoint + "/" + (dir.isEmpty() ? "" : dir + "/") + "parsed/" + fileName + TXT;
         } catch (Exception e) {
             log.error(e.getMessage());
         }
         return filePath;
+    }
+
+    /** R14-C-FIX-02：已带 scheme 的原样返回，相对对象键才补 endPoint（endPoint 尾斜杠先裁掉，避免双斜杠）。 */
+    private String toAbsoluteSource(String source) {
+        if (StringUtils.isBlank(source)) {
+            return source;
+        }
+        String s = source.trim();
+        if (s.startsWith("http://") || s.startsWith("https://")) {
+            return s;
+        }
+        String endPoint = trimTrailingSlash(storageProperties.getDefaultStorageProperties().getEndPoint());
+        while (s.startsWith("/")) {
+            s = s.substring(1);
+        }
+        return endPoint.isEmpty() ? s : endPoint + "/" + s;
+    }
+
+    /**
+     * R14-C-FIX-02/13/19：任意来源写法 -> **带桶名的相对对象键**（`r12-rag/kb_9/x.docx/V0/x.docx`）。
+     * 这是前端 `tools.ts` 的 `/minio/${source}` 与 `getParsedFilePath` 唯一能用的形态：
+     *   - `/minio` 是 vite 代理，直接把路径转发给 MinIO，**桶名必须在路径里**；
+     *   - `getParsedFilePath` 拼的是 `endPoint + "/" + 键`，而 endPoint 只有 `http://host:19000`（不含桶）。
+     * 能吃：`http://host/bucket/kb/...`、`/minio/bucket/kb/...`、`bucket/kb/...`、`bucket/bucket/kb/...`、`kb/...`（后者补桶名）。
+     * 注意：**绝不能把桶名裁掉**——FIX-13 曾裁掉，导致 source 变成 `kb_9/...`，
+     * 前端拼出 `/minio/kb_9/...` 后 MinIO 里找不到该对象（桶是 `r12-rag`）。
+     */
+    private String toBucketKey(String source) {
+        String s = source == null ? "" : source.trim();
+        s = s.replaceFirst("^https?://[^/]+/", "");
+        while (s.startsWith("/")) {
+            s = s.substring(1);
+        }
+        String bucket = storageProperties.getDefaultStorageProperties().getBucketName();
+        if (StringUtils.isBlank(bucket)) {
+            return s;
+        }
+        // 前端历史写法会带网关代理前缀 /minio/
+        while (s.startsWith("minio/")) {
+            s = s.substring("minio/".length());
+        }
+        // 历史脏数据里桶名可能被拼两次：r12-rag/r12-rag/kb_9/... -> r12-rag/kb_9/...
+        while (s.startsWith(bucket + "/" + bucket + "/")) {
+            s = s.substring(bucket.length() + 1);
+        }
+        // 完全没带桶名（如 ES 老数据只有 kb_9/...）时补上，保证前端与 parsed 路径都可用
+        if (!s.startsWith(bucket + "/")) {
+            s = bucket + "/" + s;
+        }
+        return s;
+    }
+
+    private String trimTrailingSlash(String v) {
+        if (v == null) {
+            return "";
+        }
+        String s = v.trim();
+        while (s.endsWith("/")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s;
     }
 
     private String retrieveRecallForCZBank(AiCZBankRequest aiRequest, JSONObject alParams) {
@@ -2867,9 +3050,26 @@ return retrievedData;
         if (fileIds.isEmpty()) {
             return;   // 社区摘要类结果没有 file_id，不需要补文件路径
         }
-        Map<Long, String> filePathMap = kbClient.getByIds(fileIds).stream().collect(Collectors.toMap(KnowledgeBaseFileDTO::getId, KnowledgeBaseFileDTO::getConvertedFilePath, (v1, v2) -> v1));
+        // R14-C-FIX-24（B 报）：社区摘要里的 file_ids 可能是**旧代 id**（文档重解析后行已不存在），
+        // KbClient#getByIds 会返回 404，FeignErrorDecode 抛异常 → 整个问答 500。
+        // "引用到的文件已不存在"是**随数据代次反复出现的常态**，应降级为"引用不可解析"，
+        // 不能升级成用户可见的 500。这里捕获后按空映射处理，答案照常回显。
+        Map<Long, String> filePathMap = java.util.Collections.emptyMap();
+        try {
+            List<KnowledgeBaseFileDTO> files = kbClient.getByIds(fileIds);
+            if (files != null && !files.isEmpty()) {
+                filePathMap = files.stream()
+                        .filter(f -> f != null && f.getId() != null)
+                        .collect(Collectors.toMap(KnowledgeBaseFileDTO::getId,
+                                f -> f.getConvertedFilePath() == null ? "" : f.getConvertedFilePath(),
+                                (v1, v2) -> v1));
+            }
+        } catch (Exception ex) {
+            log.warn("R14-C-FIX-24 getByIds 降级（引用不可解析，不打断问答）: fileIds={} err={}", fileIds, ex.getMessage());
+        }
+        Map<Long, String> finalFilePaths = filePathMap;
         retrieveDocs.forEach(doc -> {
-            doc.setConvertedFilePath(filePathMap.get(doc.getMetadata().getFileId()));
+            doc.setConvertedFilePath(finalFilePaths.get(doc.getMetadata().getFileId()));
             doc.setParsedFilePath(doc.getConvertedFilePath());
             doc.setPdfPages(PdfUtils.getPdfPages(doc.getConvertedFilePath()));
         });

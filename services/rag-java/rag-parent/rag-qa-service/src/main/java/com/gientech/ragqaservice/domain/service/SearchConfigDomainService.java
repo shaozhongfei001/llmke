@@ -24,6 +24,9 @@ public interface SearchConfigDomainService {
 
     Config getDefaultConfig();
 
+    /** R14-C-FIX-15b：系统默认助手（不限 create_by，取 is_default=1 且未删除的那一行）。 */
+    Config getSystemDefaultConfig();
+
     Boolean updateStatus(Long id, int status);
 
     Boolean update(Config config);

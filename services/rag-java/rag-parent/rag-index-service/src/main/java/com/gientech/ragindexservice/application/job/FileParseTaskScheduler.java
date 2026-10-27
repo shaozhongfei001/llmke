@@ -30,8 +30,11 @@ public class FileParseTaskScheduler {
         String lockKey = "doc_parse_bak";
         RLock lock = redissonClient.getLock(LOCK_PREFIX + lockKey);
         try {
-            // 尝试获取锁（不等待，锁超时5秒）
-            if (lock.tryLock(0, 5, TimeUnit.SECONDS)) {
+            // R14-C-FIX-32b：原来是 `tryLock(0, 5, SECONDS)` —— **显式 5 秒租约且不续期**。
+            // execTask 内部是同步调解析（单个文件常远超 5 秒），锁会在解析中途自动过期，
+            // 于是下一轮 cron（15s 后）在另一个线程/实例上重新拿到锁，把仍在解析的任务再取一次。
+            // 改用 leaseTime = -1（Redisson watchdog 自动续期，进程活着就一直持有、进程挂了才释放）。
+            if (lock.tryLock(0, -1, TimeUnit.SECONDS)) {
                 taskAppService.execTask();
             }
 

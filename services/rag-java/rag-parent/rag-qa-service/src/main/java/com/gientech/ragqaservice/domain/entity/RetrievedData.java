@@ -55,6 +55,14 @@ public class RetrievedData {
         return data.getString("log_list");
     }
 
+    /**
+     * R14-C-FIX-05（B 定位）：global 模式走社区摘要 map-reduce，答案由检索侧算好放在 data.global_answer。
+     * 原实现只取 documents_list，把"摘要"当原文再让模型答一遍，reduce 结果被整段丢弃。
+     */
+    public String getGlobalAnswer() {
+        return data.getString("global_answer");
+    }
+
 //    public int getDocumentSize() {
 //        JSONArray documentList = data.getJSONArray("documents_list");
 //        if (Objects.isNull(documentList))

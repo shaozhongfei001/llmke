@@ -50,6 +50,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalHandler implements ResponseBodyAdvice<Object> {
 
+    /** R14-C-FIX-06：SSE 错误体手工序列化用。 */
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private ArrayList<String> noConvertUrl = Lists.newArrayList("/v3/api-docs/swagger-config", "/v3/api-docs", "/authenticate", "/faq/downloadTemplate","/ai/questionForCZBank","/word/downloadTemplate");
 
     /**
@@ -102,7 +105,8 @@ public class GlobalHandler implements ResponseBodyAdvice<Object> {
     }
 
     @ExceptionHandler(ApplicationException.class)
-    public CommonResponse applicationExceptionHandle(ApplicationException e, HttpServletResponse response) {
+    public CommonResponse applicationExceptionHandle(ApplicationException e, HttpServletRequest request,
+                                                     HttpServletResponse response) {
         // R13-SEC-A1：权限不足是"拒绝"，不是"服务端故障"。
         // 原实现统一返回 500，导致前端/监控把越权拒绝误判为系统异常，也让负例断言失真。
         boolean denied = ErrCodeEnum.INSUFFICIENT_PERMISSIONS.getErrCode().equals(e.getErrCode());
@@ -110,15 +114,43 @@ public class GlobalHandler implements ResponseBodyAdvice<Object> {
         // 否则监控/前端无法区分"资源没了"和"服务端炸了"。
         boolean notFound = ErrCodeEnum.KB_NOT_EXISTS_ERROR.getErrCode().equals(e.getErrCode())
                 || ErrCodeEnum.KB_FILE_NOT_EXISTS_ERROR.getErrCode().equals(e.getErrCode());
+        // R14-C-FIX-15：配置缺失是客户端可修正的前置条件问题（400），既不伪装成 5xx 也不伪装成 403。
+        boolean badRequest = ErrCodeEnum.DEFAULT_ASSISTANT_NOT_CONFIGURED.getErrCode().equals(e.getErrCode());
         if (denied) {
             response.setStatus(HttpStatus.FORBIDDEN.value());
         } else if (notFound) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
+        } else if (badRequest) {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
         } else {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         log.error("application exception occur:{}", e);
+        // R14-C-FIX-06：SSE 端点（produces=text/event-stream，如 /qa/ai/question）无法用 POJO 转换器
+        // 写错误体，实测会退化成 "500 + 空 body"，拒绝态不可判定（违反 R14-F08 口径）。
+        // 这里对 Accept 含 text/event-stream 的请求显式写 JSON 错误体（HTTP 状态仍是 403/404/500）。
+        if (wantsEventStream(request)) {
+            try {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+                String body = OBJECT_MAPPER.writeValueAsString(CommonResponse.fail(e.getMessage(), e.getErrCode()));
+                response.getWriter().write(body);
+                response.getWriter().flush();
+                return null;
+            } catch (Exception ignore) {
+                // 写不出去就退回默认处理，不掩盖原始异常
+            }
+        }
         return CommonResponse.fail(e.getMessage(), e.getErrCode());
+    }
+
+    /** Accept 里带 text/event-stream 的请求走"手工写 JSON 错误体"分支。 */
+    private boolean wantsEventStream(HttpServletRequest request) {
+        if (request == null) {
+            return false;
+        }
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.toLowerCase().contains("text/event-stream");
     }
 
     @ExceptionHandler(BusinessException.class)

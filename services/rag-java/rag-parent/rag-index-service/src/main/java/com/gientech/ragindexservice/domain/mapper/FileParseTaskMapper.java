@@ -16,6 +16,13 @@ public interface FileParseTaskMapper extends BaseMapper<FileParseTaskDO> {
 
     void updateStatusByIds(@Param("taskIds") List<Long> taskIds, @Param("status") Integer status);
 
+    /**
+     * R14-C-FIX-32：原子抢占。仅当任务当前处于 fromStatus 之一时才改成 toStatus 并写入 start_time；
+     * 返回受影响行数（1=抢到，0=已被别人抢走），调用方必须据此决定是否继续派发。
+     */
+    int claimTask(@Param("id") Long id, @Param("toStatus") Integer toStatus,
+                  @Param("fromStatus") List<Integer> fromStatus);
+
     void deleteByFileIds(@Param("fileIds") List<Long> fileIds);
 
     void deleteByKbIds(@Param("kbIds") List<Long> kbIds);

@@ -53,6 +53,18 @@ public class SearchConfigRepositoryImpl implements SearchConfigRepository {
     }
 
     @Override
+    public Config getSystemDefaultConfig(int status) {
+        // R14-C-FIX-15b：与 getDefaultConfig 的唯一区别是**不加 create_by 过滤**。
+        // DB 里 is_default=1 至多一行（uk_search_config_default 函数唯一索引），所以 limit 1 是确定的。
+        QueryWrapper<SearchConfigDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_default", status);
+        queryWrapper.eq("is_del", ConfigIsDelEnums.NO.getCode());
+        queryWrapper.last("limit 1");
+        SearchConfigDO searchConfigDOS = searchConfigMapper.selectOne(queryWrapper);
+        return Objects.isNull(searchConfigDOS) ? null : BeanUtil.copyProperties(searchConfigDOS, Config.class);
+    }
+
+    @Override
     public Boolean updateStatus(Long id, int status) {
         User user = UserContext.getUser();
         String userName = user.getUserName();

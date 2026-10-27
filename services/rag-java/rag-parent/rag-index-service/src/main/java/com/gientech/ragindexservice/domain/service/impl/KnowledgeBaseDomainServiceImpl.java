@@ -122,6 +122,15 @@ public class KnowledgeBaseDomainServiceImpl implements KnowledgeBaseDomainServic
 
     @Override
     public Integer getHighestPermission(Long kbId) {
+        // R14-C-FIX-20（E 报的 folderList 500）：直连服务（不经网关、没有 X-UserName）时，
+        // userClient.getUserInfo() 的 Feign 调用会因主体为空而走到 FeignErrorDecode，
+        // 那里解析失败抛 "Cannot parse null string" → GlobalHandler 当未知异常返回 **500**，
+        // 把"未登录/直连"伪装成服务端故障。这里显式前置拒绝：识别不出主体 = 无权限（403/30016），
+        // 与 R13-SEC-A2 "无法判定来源就拒绝"的口径一致，也不再去打下游 Feign。
+        com.gientech.ragcommon.context.user.User current = UserContext.getUser();
+        if (Objects.isNull(current) || StringUtils.isBlank(current.getUserName())) {
+            throw new ApplicationException(ErrCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
         UserInfoDTO userInfoDTO = userClient.getUserInfo();
         return knowledgeBaseRepository.getHighestPermission(kbId, userInfoDTO.getLongTypeDeptId(), userInfoDTO.getId(), userInfoDTO.getUserName());
     }

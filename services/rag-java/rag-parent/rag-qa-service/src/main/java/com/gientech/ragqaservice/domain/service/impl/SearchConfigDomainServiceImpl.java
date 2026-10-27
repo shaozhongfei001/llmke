@@ -56,6 +56,11 @@ public class SearchConfigDomainServiceImpl implements SearchConfigDomainService 
     }
 
     @Override
+    public Config getSystemDefaultConfig() {
+        return searchConfigRepository.getSystemDefaultConfig(ConfigDefaultEnums.YES.getCode());
+    }
+
+    @Override
     public Boolean updateStatus(Long id, int status) {
         return searchConfigRepository.updateStatus(id, status);
     }
