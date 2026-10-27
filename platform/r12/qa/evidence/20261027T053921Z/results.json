@@ -1,0 +1,188 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录并取菜单",
+    "ok": true,
+    "detail": "http=200 menus=7",
+    "extra": {
+      "menus": [
+        {
+          "id": "1",
+          "name": "智能对话",
+          "url": "/chats/main",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "chat",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "2",
+          "name": "知识库",
+          "url": "/chats/knowledgeBase",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "book",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "3",
+          "name": "知识检索",
+          "url": "/chats/knowledgeSearch",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "search",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "4",
+          "name": "助手配置",
+          "url": "/chats/setting",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "setting",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "5",
+          "name": "用户反馈",
+          "url": "/chats/feedback",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "feedback",
+          "subMenuDTOList": []
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户信息",
+    "ok": true,
+    "detail": "http=200 user=admin"
+  },
+  {
+    "scene": "S2",
+    "case": "删除上一轮验收库（保证基线独立可重复）",
+    "ok": true,
+    "detail": "kbId=21 kbName=R14-BASELINE-KB http=200"
+  },
+  {
+    "scene": "S2",
+    "case": "创建独立验收库",
+    "ok": true,
+    "detail": "http=200 kbId=23 kbName=R14-BASELINE-KB primitive=kb_23 旧库清理=1",
+    "extra": {
+      "resp": {
+        "success": true,
+        "errorMsg": null,
+        "errorCode": null,
+        "data": {
+          "id": "23",
+          "kbName": "R14-BASELINE-KB",
+          "primitiveName": "kb_23",
+          "kbType": 1,
+          "kbDes": "R14 严格断言基线验收库（独立于 kb_9）",
+          "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_23/",
+          "status": 1,
+          "fileTotalSize": null,
+          "fileCount": null,
+          "permission": null,
+          "chunkSize": 512,
+          "fileType": "naive",
+          "chunkOverlap": 50,
+          "splitRegex": null,
+          "embeddingModelName": "bge-m3",
+          "modelName": "qwen2.5-7b-instruct",
+          "multiModelName": "qwen2.5-vl-3b-instruct",
+          "faqModelName": "qwen2.5-7b-instruct",
+          "generateGraphModelName": "qwen2.5-7b-instruct",
+          "kbLabel": null,
+          "fileFaqMaxNums": 0,
+          "similarQuestionMaxNums": 1,
+          "enablePolish": false,
+          "graphPrompt": null,
+          "platform": "rag-qa",
+          "label": null,
+          "chunkType": null,
+          "privateKb": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "独立库助手配置就绪",
+    "ok": true,
+    "detail": "kbName=kb_23 configId=12（R14-BASELINE-CFG）"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=398 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "398"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=399 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "399"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=400 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "400"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": false,
+    "detail": "http=500 fileId=None name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "timestamp": "2026-10-27T05:39:22.221+00:00",
+        "path": "/index/knowledgeBase/file/uploadFileList",
+        "status": 500,
+        "error": "Internal Server Error",
+        "requestId": "5ab0375d-383"
+      }
+    }
+  },
+  {
+    "scene": "ERR",
+    "case": "执行异常",
+    "ok": false,
+    "detail": "HTTPConnectionPool(host='127.0.0.1', port=8088): Max retries exceeded with url: /index/knowledgeBase/file/uploadFileList (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7c86a05d3c10>: Failed to establish a new connection: [Errno 111] Connection refused'))\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/urllib3/connection.py\", line 169, in _new_conn\n    conn = connection.create_connection(\n  File \"/usr/lib/python3/dist-packages/urllib3/util/connection.py\", line 96, in create_connection\n    raise err\n  File \"/usr/lib/python3/dist-packages/urllib3/util/connection.py\", line 86, in create_connection\n    sock.connect(sa)\nConnectionRefusedError: [Errno 111] Connection refused\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/urllib3/connectionpool.py\", line 700, in urlopen\n    httplib_response = self._make_request(\n  File \"/usr/lib/python3/dist-packages/urllib3/connectionpool.py\", line 395, in _make_request\n    conn.request(metho"
+  },
+  {
+    "scene": "COVERAGE",
+    "case": "选中的场景均已真实执行",
+    "ok": false,
+    "detail": "选中=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'] 实际执行=['S1', 'S2'] 未执行=['S3', 'S4', 'S5', 'S6', 'S7', 'S8'] 未知场景=[]"
+  }
+]

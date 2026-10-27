@@ -1,0 +1,16 @@
+{
+ "question": "台账里华东精密制造的授信额度是多少？",
+ "raw": {
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": {
+   "sessionId": "kb_9",
+   "queryId": "table1-1793067942178",
+   "lastDate": 1793067942196,
+   "status": 3,
+   "content": "",
+   "filePath": "http://127.0.0.1:19000"
+  }
+ }
+}

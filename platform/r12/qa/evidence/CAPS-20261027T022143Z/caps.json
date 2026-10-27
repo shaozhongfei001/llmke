@@ -1,0 +1,17 @@
+[
+ {
+  "cap": "NORMAL",
+  "ok": true,
+  "detail": "http=200 status=2 answer_len=73 refs=3 rt=1"
+ },
+ {
+  "cap": "GRAPH_LOCAL",
+  "ok": false,
+  "detail": "http=200 docs=3 graph_docs=0 有正文的图块=0"
+ },
+ {
+  "cap": "GLOBAL",
+  "ok": false,
+  "detail": "http=200 status=2 cost=3.1s refs=5 ref_src示例=ct-loan.docx/V0/R12FIX-product-loan.docx"
+ }
+]

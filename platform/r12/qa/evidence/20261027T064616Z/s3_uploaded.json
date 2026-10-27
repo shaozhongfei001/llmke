@@ -1,0 +1,43 @@
+[
+  {
+    "fileId": "436",
+    "name": "R12FIX-product-loan.docx",
+    "label": "中文 DOCX 业务夹具"
+  },
+  {
+    "fileId": "437",
+    "name": "R12FIX-credit-ledger.xlsx",
+    "label": "中文 XLSX 业务夹具"
+  },
+  {
+    "fileId": "438",
+    "name": "R12FIX-product-intro.pptx",
+    "label": "中文 PPTX 业务夹具"
+  },
+  {
+    "fileId": "439",
+    "name": "pdf-digital.pdf",
+    "label": "PDF 数字版"
+  },
+  {
+    "fileId": "440",
+    "name": "docx-plain.docx",
+    "label": "DOCX 纯文本"
+  },
+  {
+    "fileId": "441",
+    "name": "docx-table.docx",
+    "label": "DOCX 含表格"
+  },
+  {
+    "fileId": "442",
+    "name": "pdf-scanned.pdf",
+    "label": "PDF 扫描件(OCR)"
+  },
+  {
+    "fileId": "443",
+    "name": "pdf-encrypted.pdf",
+    "label": "加密 PDF(应解析失败)",
+    "expect": "fail"
+  }
+]

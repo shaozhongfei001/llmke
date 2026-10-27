@@ -1,0 +1,127 @@
+{
+  "question": "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？",
+  "answer": "借款额度和期限取决于多个因素，包括企业的财务状况、信用评级、抵押物情况等。通常，中型企业可以从银行获得的贷款额度可能在几十万到几百万人民币不等。贷款期限一般可以从几个月到几年不等。\n\n建议您咨询当地的银行或金融机构，以获取更准确的贷款额度和期限信息。",
+  "frames": [
+    {
+      "sessionId": "kb_18",
+      "queryId": "q-1793072330054",
+      "lastDate": 1793072330308,
+      "status": 1,
+      "reply": {
+        "content": "",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": null,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_18",
+      "queryId": "q-1793072330054",
+      "lastDate": 1793072330435,
+      "status": 1,
+      "reply": {
+        "content": "借款",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_18",
+      "queryId": "q-1793072330054",
+      "lastDate": 1793072330453,
+      "status": 1,
+      "reply": {
+        "content": "额度",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_18",
+      "queryId": "q-1793072330054",
+      "lastDate": 1793072330472,
+      "status": 1,
+      "reply": {
+        "content": "和",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_18",
+      "queryId": "q-1793072330054",
+      "lastDate": 1793072330491,
+      "status": 1,
+      "reply": {
+        "content": "期限",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_18",
+      "queryId": "q-1793072330054",
+      "lastDate": 1793072330513,
+      "status": 1,
+      "reply": {
+        "content": "取决于",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    }
+  ],
+  "reference": []
+}

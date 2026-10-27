@@ -1,0 +1,74 @@
+[
+ {
+  "cap": "NORMAL",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=200 status=2 answer_len=68 refs=0 rt=1"
+ },
+ {
+  "cap": "FAQ",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=403 status=None resultType=None 尝试=3/3 answer='' refs=0"
+ },
+ {
+  "cap": "GLOBAL_POS",
+  "ok": false,
+  "neutral": false,
+  "detail": " http=403 status=None cost=0.0s refs=0 可解析=0（其中绝对URL=0 相对键=0）社区id=False src示例=None"
+ },
+ {
+  "cap": "GLOBAL_REFUSE/R1",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=403 status=None 拒答=False 编造数值=[] refs=0 answer=''"
+ },
+ {
+  "cap": "GLOBAL_REFUSE/R2",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=403 status=None 拒答=False 编造数值=[] refs=0 answer=''"
+ },
+ {
+  "cap": "GLOBAL_FAITH",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=403 客户→加点实测={'江南装备': None, '华东精密': None, '北方重工': None} 期望={'江南装备': '30', '华东精密': '60', '北方重工': '60'} 不符={'江南装备': (None, '30'), '华东精密': (None, '60'), '北方重工': (None, '60')} 缺失数值=['30', '60']"
+ },
+ {
+  "cap": "VERSION",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 groups=0 多版本组=0 版本=[] ← 空列表不再算通过"
+ },
+ {
+  "cap": "TABLE",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=403 status=None 数值=False 单位=False 主体=False 口径='授信/额度'=False refs=0 answer=''"
+ },
+ {
+  "cap": "GRAPH_LOCAL",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 docs=3 含graph标记=2 有正文的图块=2 search_type示例=[['milvus', 'es', 'es', 'graph'], ['milvus', 'es', 'es'], ['milvus', 'es', 'es', 'graph']]"
+ },
+ {
+  "cap": "GRAPH_IDENTITY",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 code=200 reason=None 键存在=True violations_count=0"
+ },
+ {
+  "cap": "GRAPH_UPPERCASE",
+  "ok": true,
+  "neutral": false,
+  "detail": "大写(AAA)+开图 http=200 docs=3 graph块=1 | 小写(aaa)+开图 http=200 docs=3 graph块=1"
+ },
+ {
+  "cap": "INTERNAL_GUARD",
+  "ok": true,
+  "neutral": false,
+  "detail": "callback=401 uploadParsedFile=401"
+ }
+]

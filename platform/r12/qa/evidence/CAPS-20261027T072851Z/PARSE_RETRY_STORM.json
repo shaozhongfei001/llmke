@@ -1,0 +1,9 @@
+{
+ "rows": [],
+ "rows_inflight": [],
+ "stuck_98_99": 0,
+ "window_min": 30,
+ "limit": 3,
+ "restart_check": "无「原地重启但不计数」的任务",
+ "slow_fail_no_retry_count": "1"
+}

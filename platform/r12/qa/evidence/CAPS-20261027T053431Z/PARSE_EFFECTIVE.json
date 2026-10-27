@@ -1,0 +1,47 @@
+{
+ "broken": [
+  {
+   "fileId": "328",
+   "name": "R12FIX-product-loan(1).docx",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "290",
+   "name": "R12FIX-product-loan.docx",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "343",
+   "name": "R12FIX-product-intro(1).pptx",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "330",
+   "name": "R12FIX-product-intro.pptx",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "329",
+   "name": "R12FIX-credit-ledger.xlsx",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "331",
+   "name": "pdf-digital.pdf",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "332",
+   "name": "docx-plain.docx",
+   "es_chunks": 0
+  },
+  {
+   "fileId": "333",
+   "name": "docx-table.docx",
+   "es_chunks": 0
+  }
+ ],
+ "stale_index": [],
+ "parsed_count": 9,
+ "since": null
+}

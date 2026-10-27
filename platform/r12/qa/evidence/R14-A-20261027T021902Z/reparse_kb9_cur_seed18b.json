@@ -1,0 +1,374 @@
+[plan] 9 files: 290(raw), 328(raw), 329(raw), 330(raw), 331(raw), 332(raw), 333(raw), 334(raw), 343(raw)
+[parse] fid=290 ver=V0 path=raw http=200 ok=True 0.6s
+[parse] fid=328 ver=V1 path=raw http=200 ok=True 0.1s
+[parse] fid=329 ver=V0 path=raw http=200 ok=False 0.1s
+[parse] fid=330 ver=V0 path=raw http=200 ok=True 0.1s
+[parse] fid=331 ver=V0 path=raw http=200 ok=True 0.7s
+[parse] fid=332 ver=V0 path=raw http=200 ok=True 0.1s
+[parse] fid=333 ver=V0 path=raw http=200 ok=False 0.1s
+[parse] fid=334 ver=V0 path=raw http=200 ok=True 0.7s
+[parse] fid=343 ver=V1 path=raw http=200 ok=True 0.1s
+{
+ "tag": "seed18b",
+ "files": [
+  {
+   "file_id": 290,
+   "file_name": "R12FIX-product-loan.docx",
+   "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "parent_file_name": "R12FIX-product-loan.docx",
+   "version": "V0",
+   "file_size": "0.036MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 328,
+   "file_name": "R12FIX-product-loan(1).docx",
+   "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "parent_file_name": "R12FIX-product-loan.docx",
+   "version": "V1",
+   "file_size": "0.036MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 329,
+   "file_name": "R12FIX-credit-ledger.xlsx",
+   "file_path": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "parent_file_name": "R12FIX-credit-ledger.xlsx",
+   "version": "V0",
+   "file_size": "0.005MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 330,
+   "file_name": "R12FIX-product-intro.pptx",
+   "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+   "parent_file_name": "R12FIX-product-intro.pptx",
+   "version": "V0",
+   "file_size": "0.028MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 331,
+   "file_name": "pdf-digital.pdf",
+   "file_path": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+   "parent_file_name": "pdf-digital.pdf",
+   "version": "V0",
+   "file_size": "0.003MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 332,
+   "file_name": "docx-plain.docx",
+   "file_path": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+   "parent_file_name": "docx-plain.docx",
+   "version": "V0",
+   "file_size": "0.035MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 333,
+   "file_name": "docx-table.docx",
+   "file_path": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "parent_file_name": "docx-table.docx",
+   "version": "V0",
+   "file_size": "0.035MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 334,
+   "file_name": "pdf-scanned.pdf",
+   "file_path": "r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+   "parent_file_name": "pdf-scanned.pdf",
+   "version": "V0",
+   "file_size": "6.223MB",
+   "path_kind": "raw"
+  },
+  {
+   "file_id": 343,
+   "file_name": "R12FIX-product-intro(1).pptx",
+   "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "parent_file_name": "R12FIX-product-intro.pptx",
+   "version": "V1",
+   "file_size": "0.028MB",
+   "path_kind": "raw"
+  }
+ ],
+ "runs": [
+  {
+   "file_id": 290,
+   "result": {
+    "http": 200,
+    "secs": 0.6,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "file_id": 290,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "ES错误：请求失败: All connection attempts failed, URL: http://127.0.0.1:19527/insert_fulltext_documents LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 328,
+   "result": {
+    "http": 200,
+    "secs": 0.1,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+      "file_id": 328,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "ES错误：请求失败: All connection attempts failed, URL: http://127.0.0.1:19527/insert_fulltext_documents LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 329,
+   "result": {
+    "http": 200,
+    "secs": 0.1,
+    "ok": false,
+    "task_statuses": [],
+    "msg": "HTTPConnectionPool(host='127.0.0.1', port=18092): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=18092): Failed to establish a new connection: [Errno 111] Connection refused\")) LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 330,
+   "result": {
+    "http": 200,
+    "secs": 0.1,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+      "file_id": 330,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "ES错误：请求失败: All connection attempts failed, URL: http://127.0.0.1:19527/insert_fulltext_documents LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 331,
+   "result": {
+    "http": 200,
+    "secs": 0.7,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+      "file_id": 331,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "ES错误：请求失败: All connection attempts failed, URL: http://127.0.0.1:19527/insert_fulltext_documents LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 332,
+   "result": {
+    "http": 200,
+    "secs": 0.1,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+      "file_id": 332,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "ES错误：请求失败: All connection attempts failed, URL: http://127.0.0.1:19527/insert_fulltext_documents LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 333,
+   "result": {
+    "http": 200,
+    "secs": 0.1,
+    "ok": false,
+    "task_statuses": [],
+    "msg": "HTTPConnectionPool(host='127.0.0.1', port=18092): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=18092): Failed to establish a new connection: [Errno 111] Connection refused\")) LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 334,
+   "result": {
+    "http": 200,
+    "secs": 0.7,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+      "file_id": 334,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "milvus错误：返回码错误：保存数据失败，embed请求失败，请检查配置后重试, URL: http://127.0.0.1:19526/insert_vector_documents_custom LOG_ID: 1254498"
+   }
+  },
+  {
+   "file_id": 343,
+   "result": {
+    "http": 200,
+    "secs": 0.1,
+    "ok": true,
+    "task_statuses": [
+     {
+      "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+      "file_id": 343,
+      "success": true,
+      "fail_reason": null,
+      "revise_date": null,
+      "code": 200
+     }
+    ],
+    "msg": "milvus错误：返回码错误：保存数据失败，embed请求失败，请检查配置后重试, URL: http://127.0.0.1:19526/insert_vector_documents_custom LOG_ID: 1254498"
+   }
+  }
+ ],
+ "es_rows": [
+  {
+   "index": "kb_9",
+   "id": "409721235889955614",
+   "file_id": 328,
+   "version": "V1",
+   "title": "R12FIX-product-loan(1).docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "120287042403321691",
+   "file_id": 290,
+   "version": "V0",
+   "title": "R12FIX-product-loan.docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "623455035040524818",
+   "file_id": 331,
+   "version": "V0",
+   "title": "pdf-digital.pdf",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "986447652642970016",
+   "file_id": 331,
+   "version": "V0",
+   "title": "pdf-digital.pdf",
+   "chunk_index": 1
+  },
+  {
+   "index": "kb_9",
+   "id": "445478030307964037",
+   "file_id": 330,
+   "version": "V0",
+   "title": "R12FIX-product-intro.pptx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "99869736860800068",
+   "file_id": 332,
+   "version": "V0",
+   "title": "docx-plain.docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "875161562640603273",
+   "file_id": 333,
+   "version": "V0",
+   "title": "docx-table.docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "366245621242201281",
+   "file_id": 334,
+   "version": "V0",
+   "title": "pdf-scanned.pdf",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "626225001556669433",
+   "file_id": 343,
+   "version": "V1",
+   "title": "R12FIX-product-intro(1).pptx",
+   "chunk_index": 0
+  },
+  {
+   "index": "table_chunks_kb_9",
+   "id": "997724284838580288",
+   "file_id": 329,
+   "version": "V0",
+   "title": "R12FIX-credit-ledger.xlsx",
+   "chunk_index": 0
+  },
+  {
+   "index": "table_chunks_kb_9",
+   "id": "200221935568348543",
+   "file_id": 333,
+   "version": "V0",
+   "title": "docx-table.docx",
+   "chunk_index": 1
+  },
+  {
+   "index": "table_summary_kb_9",
+   "id": "973192532146488516",
+   "file_id": 329,
+   "version": "V0",
+   "title": "R12FIX-credit-ledger.xlsx",
+   "chunk_index": -1
+  },
+  {
+   "index": "table_summary_kb_9",
+   "id": "355827159772508698",
+   "file_id": 333,
+   "version": "V0",
+   "title": "docx-table.docx",
+   "chunk_index": -1
+  }
+ ],
+ "summary": {
+  "total": 13,
+  "by_index": {
+   "kb_9": 9,
+   "table_chunks_kb_9": 2,
+   "table_summary_kb_9": 2
+  },
+  "version_nonnull": 13,
+  "table_file_ids": [
+   "329",
+   "333"
+  ],
+  "parse_failed": [
+   329,
+   333
+  ]
+ }
+}

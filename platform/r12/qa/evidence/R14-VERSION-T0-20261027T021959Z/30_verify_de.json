@@ -1,0 +1,59 @@
+{
+ "d_getByGroupId": {
+  "http": 200,
+  "count": 2,
+  "rows": [
+   {
+    "id": "290",
+    "fileName": "R12FIX-product-loan.docx",
+    "version": "V0",
+    "status": 3,
+    "groupId": "614524213",
+    "parentFileName": "R12FIX-product-loan.docx",
+    "reviseDate": null
+   },
+   {
+    "id": "299",
+    "fileName": "R12FIX-product-loan(1).docx",
+    "version": "V1",
+    "status": 99,
+    "groupId": "614524213",
+    "parentFileName": "R12FIX-product-loan.docx",
+    "reviseDate": ""
+   }
+  ]
+ },
+ "e_chunks_290": {
+  "http": 200,
+  "chunks": 1,
+  "len": 459,
+  "hits": {
+   "5000万元": true,
+   "8000万元": false,
+   "2026-01": true,
+   "2026-02": false
+  },
+  "src": [
+   null
+  ],
+  "head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5"
+ },
+ "e_chunks_298": {
+  "http": 404,
+  "chunks": 0,
+  "len": 0,
+  "hits": {
+   "5000万元": false,
+   "8000万元": false,
+   "2026-01": false,
+   "2026-02": false
+  },
+  "src": [],
+  "head": ""
+ },
+ "verdict": {
+  "V0_is_own_original": true,
+  "V1_is_own_original": false,
+  "history_has_two_versions": true
+ }
+}

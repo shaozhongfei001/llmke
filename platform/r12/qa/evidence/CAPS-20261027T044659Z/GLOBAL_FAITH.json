@@ -1,0 +1,25 @@
+{
+ "runs": [
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": []
+  },
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": []
+  }
+ ],
+ "sources": [
+  "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+ ]
+}

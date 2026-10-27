@@ -1,0 +1,640 @@
+[
+  {
+    "scene": "S1",
+    "case": "登录并取菜单",
+    "ok": true,
+    "detail": "http=200 menus=7",
+    "extra": {
+      "menus": [
+        {
+          "id": "1",
+          "name": "智能对话",
+          "url": "/chats/main",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "chat",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "2",
+          "name": "知识库",
+          "url": "/chats/knowledgeBase",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "book",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "3",
+          "name": "知识检索",
+          "url": "/chats/knowledgeSearch",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "search",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "4",
+          "name": "助手配置",
+          "url": "/chats/setting",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "setting",
+          "subMenuDTOList": []
+        },
+        {
+          "id": "5",
+          "name": "用户反馈",
+          "url": "/chats/feedback",
+          "icon": "menu",
+          "pid": null,
+          "resourceType": 1,
+          "permission": true,
+          "code": "feedback",
+          "subMenuDTOList": []
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S1",
+    "case": "取当前用户信息",
+    "ok": true,
+    "detail": "http=200 user=admin"
+  },
+  {
+    "scene": "S2",
+    "case": "删除上一轮验收库（保证基线独立可重复）",
+    "ok": true,
+    "detail": "kbId=23 kbName=R14-BASELINE-KB http=200"
+  },
+  {
+    "scene": "S2",
+    "case": "创建独立验收库",
+    "ok": true,
+    "detail": "http=200 kbId=24 kbName=R14-BASELINE-KB primitive=kb_24 旧库清理=1",
+    "extra": {
+      "resp": {
+        "success": true,
+        "errorMsg": null,
+        "errorCode": null,
+        "data": {
+          "id": "24",
+          "kbName": "R14-BASELINE-KB",
+          "primitiveName": "kb_24",
+          "kbType": 1,
+          "kbDes": "R14 严格断言基线验收库（独立于 kb_9）",
+          "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_24/",
+          "status": 1,
+          "fileTotalSize": null,
+          "fileCount": null,
+          "permission": null,
+          "chunkSize": 512,
+          "fileType": "naive",
+          "chunkOverlap": 50,
+          "splitRegex": null,
+          "embeddingModelName": "bge-m3",
+          "modelName": "qwen2.5-7b-instruct",
+          "multiModelName": "qwen2.5-vl-3b-instruct",
+          "faqModelName": "qwen2.5-7b-instruct",
+          "generateGraphModelName": "qwen2.5-7b-instruct",
+          "kbLabel": null,
+          "fileFaqMaxNums": 0,
+          "similarQuestionMaxNums": 1,
+          "enablePolish": false,
+          "graphPrompt": null,
+          "platform": "rag-qa",
+          "label": null,
+          "chunkType": null,
+          "privateKb": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "独立库助手配置就绪",
+    "ok": true,
+    "detail": "kbName=kb_24 configId=12（R14-BASELINE-CFG）"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=404 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "404"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=405 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "405"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=406 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "406"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=407 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "407"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=408 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "408"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=409 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "409"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=410 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "410"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=411"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": false,
+    "detail": "fileId=404 最终状态=99 耗时=600s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "fileId=405 最终状态=3 耗时=325s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "fileId=406 最终状态=3 耗时=33s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 数字版",
+    "ok": true,
+    "detail": "fileId=407 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 纯文本",
+    "ok": true,
+    "detail": "fileId=408 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 含表格",
+    "ok": true,
+    "detail": "fileId=409 最终状态=3 耗时=33s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "fileId=410 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "detail": "fileId=411 最终状态=4(4=失败) 耗时=24s"
+  },
+  {
+    "scene": "S5",
+    "case": "真实模型回答（29字问题）",
+    "ok": true,
+    "detail": "http=200 帧数=73 答案长度=439",
+    "extra": {
+      "answer_head": "根据“智造贷”产品说明书，面向制造业中小微企业，尤其是汽车零部件产业链上的企业，单户最高授信额度为人民币5000万元。[retrive-tag id=\"1966575916320098241\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag][retrive-tag id=\"3368706006273794591\" image_urls=\"\" fromTyp",
+      "frames_head": [
+        {
+          "sessionId": "kb_24",
+          "queryId": "q-1793081175496",
+          "lastDate": 1793081182540,
+          "status": 1,
+          "reply": {
+            "content": "",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": null,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        },
+        {
+          "sessionId": "kb_24",
+          "queryId": "q-1793081175496",
+          "lastDate": 1793081183060,
+          "status": 1,
+          "reply": {
+            "content": "根据",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": 1,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S5",
+    "case": "回答带引用",
+    "ok": true,
+    "detail": "引用条数=3",
+    "extra": {
+      "reference_head": [
+        {
+          "metadata": {
+            "source": "r12-rag/kb_24/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+            "file_path": "r12-rag/kb_24/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+            "id": "cjEyLXJhZy9rYl8yNC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3gvVjAvUjEyRklYLXByb2R1Y3QtbG9hbi5kb2N4",
+            "search_type": [
+              "milvus",
+              "es",
+              "es"
+            ],
+            "offset": [
+              [
+                0,
+                459
+              ]
+            ],
+            "pic_offset_list": [],
+            "chunk_type": "text",
+            "parent_file_name": "R12FIX-product-loan.docx",
+            "revise_date": "",
+            "version": "V0",
+            "position": "[[], [], [], [], [], [], [], [], [], [], [], []]",
+            "file_id": 404,
+            "image_path": "",
+            "page_size": "[[], [], [], [], [], [], [], [], [], [], [], []]",
+            "page_number": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "table_name": "",
+            "chunk_index": 0,
+            "title": "R12FIX-product-loan.docx",
+            "chunk_pk": 58144427298050361,
+            "knowledge_base_name": "kb_24",
+            "score": 0.5864670872688293,
+            "rerank_score_rank": 1,
+            "rrf_score": 0.6666666666666666,
+            "rrf_score_rank": 2
+          },
+          "order_num": "1966575916320098241",
+          "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_24/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+          "rerank_score_rank": "1",
+          "rrf_score": "0.6666666666666666",
+          "rrf_score_rank": "2",
+          "score": "0.5864670872688293",
+          "sourceFileName": "R12FIX-product-loan.docx",
+          "type": "text"
+        },
+        {
+          "metadata": {
+            "source": "r12-rag/kb_24/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+            "file_path": "r12-rag/kb_24/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+            "id": "cjEyLXJhZy9rYl8yNC9SMTJGSVgtY3JlZGl0LWxlZGdlci54bHN4L1YwL1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3g=",
+            "search_type": [
+              "milvus",
+              "es",
+              "es"
+            ],
+            "offset": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                5
+              ],
+              [
+                1,
+                6
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                3,
+                2
+              ],
+              [
+                3,
+                3
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                3,
+                6
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                4,
+                5
+              ],
+              [
+                4,
+                6
+              ]
+            ],
+            "chunk_type": "table",
+            "parent_file_name": "R12FIX-credit-ledger.xlsx",
+            "revise_date": "",
+            "version": "V0",
+            "position": "[]",
+            "file_id": 405,
+            "page_size": "[]",
+            "page_number": [],
+            "table_name": "table-0-授信台账",
+            "chunk_index": 0,
+            "table_summary_id": "45018880417176283",
+            "title": "R12FIX-credit-ledger.xlsx",
+            "chunk_pk": 43734390226407052,
+            "knowledge_base_name": "kb_24",
+            "score": 0.04317394644021988,
+            "rerank_score_rank": 2,
+            "rrf_score": 0.2,
+            "rrf_score_rank": 1
+          },
+          "order_num": "3368706006273794591",
+          "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_24/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0-授信台账.md",
+          "rerank_score_rank": "2",
+          "rrf_score": "0.2",
+          "rrf_score_rank": "1",
+          "score": "0.04317394644021988",
+          "sourceFileName": "R12FIX-credit-ledger.xlsx",
+          "type": "table"
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "服务端可独立取回原文（不随请求传正文）",
+    "ok": true,
+    "detail": "http=200 chunk数=1 首块长度=459",
+    "extra": {
+      "chunk_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或",
+      "raw_keys": [
+        "id",
+        "content",
+        "picChunkIdList",
+        "picUrlList",
+        "imagePath",
+        "positions",
+        "pageNumbers",
+        "pageSizes"
+      ]
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "引用携带文件与定位信息",
+    "ok": true,
+    "detail": "引用 source 数=3 示例=['r12-rag/kb_24/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx', 'r12-rag/kb_24/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx']"
+  },
+  {
+    "scene": "S6",
+    "case": "答案要点可在引用原文中找到支撑",
+    "ok": true,
+    "detail": "答案命中要点=['5000', '三年', '授信额度'] 其中被原文支撑=['5000', '三年', '授信额度'] 引用块数=3",
+    "extra": {
+      "corpus_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加"
+    }
+  },
+  {
+    "scene": "S7",
+    "case": "历史对话可恢复",
+    "ok": true,
+    "detail": "http=200 session=kb_24 问答对数=1 问与答均有正文=True 本轮queryId=q-1793081175496 命中=True"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "ok": true,
+    "detail": "http=200"
+  },
+  {
+    "scene": "S8",
+    "case": "无 token 被拒绝",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "伪造 token 被拒绝(Bearer forge…)",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "伪造 token 被拒绝(eyJhbGciOiJu…)",
+    "ok": true,
+    "detail": "http=401"
+  },
+  {
+    "scene": "S8",
+    "case": "坏文件被网关/服务直接拒绝",
+    "ok": true,
+    "detail": "http=200 resp={'success': True, 'errorMsg': None, 'errorCode': None, 'data': []}"
+  },
+  {
+    "scene": "S8",
+    "case": "删除不存在的知识库被明确拒绝且无副作用",
+    "ok": true,
+    "detail": "http=404 errorCode=10001 data=None"
+  },
+  {
+    "scene": "COVERAGE",
+    "case": "选中的场景均已真实执行",
+    "ok": true,
+    "detail": "选中=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'] 实际执行=['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'] 未执行=[] 未知场景=[]"
+  }
+]

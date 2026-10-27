@@ -1,0 +1,8 @@
+[
+ {
+  "cap": "PARSE_QUEUE_STALL",
+  "ok": false,
+  "neutral": false,
+  "detail": "队列分布={'PENDING(1)':0,'DEAL_ING(2)':0,'RETRY_ING(3)':0,'成功(4)':369,'失败(5)':50} status=99合计=0 其中超5分钟未推进=0 最老PENDING=3409分钟 判定=最老 PENDING 已等 3409 分钟"
+ }
+]

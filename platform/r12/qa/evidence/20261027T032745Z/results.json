@@ -1,0 +1,247 @@
+[
+  {
+    "scene": "PREP",
+    "case": "创建独立验收库",
+    "ok": true,
+    "detail": "http=200 kbId=15 kbName=R14-BASELINE-KB primitive=kb_15 旧库清理=0",
+    "extra": {
+      "resp": {
+        "success": true,
+        "errorMsg": null,
+        "errorCode": null,
+        "data": {
+          "id": "15",
+          "kbName": "R14-BASELINE-KB",
+          "primitiveName": "kb_15",
+          "kbType": 1,
+          "kbDes": "R14 严格断言基线验收库（独立于 kb_9）",
+          "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_15/",
+          "status": 1,
+          "fileTotalSize": null,
+          "fileCount": null,
+          "permission": null,
+          "chunkSize": 512,
+          "fileType": "naive",
+          "chunkOverlap": 50,
+          "splitRegex": null,
+          "embeddingModelName": "bge-m3",
+          "modelName": "qwen2.5-7b-instruct",
+          "multiModelName": "qwen2.5-vl-3b-instruct",
+          "faqModelName": "qwen2.5-7b-instruct",
+          "generateGraphModelName": "qwen2.5-7b-instruct",
+          "kbLabel": null,
+          "fileFaqMaxNums": 0,
+          "similarQuestionMaxNums": 1,
+          "enablePolish": false,
+          "graphPrompt": null,
+          "platform": "rag-qa",
+          "label": null,
+          "chunkType": null,
+          "privateKb": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=344 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "344"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=345 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "345"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=346 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "346"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=347 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "347"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=348 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "348"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=349 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "349"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=350 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "350"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=351"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "fileId=344 最终状态=3 耗时=30s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "fileId=345 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "fileId=346 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 PDF 数字版",
+    "ok": true,
+    "detail": "fileId=347 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 DOCX 纯文本",
+    "ok": true,
+    "detail": "fileId=348 最终状态=3 耗时=18s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 DOCX 含表格",
+    "ok": true,
+    "detail": "fileId=349 最终状态=3 耗时=15s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "fileId=350 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "detail": "fileId=351 最终状态=4(4=失败) 耗时=42s"
+  },
+  {
+    "scene": "PREP",
+    "case": "真实模型回答（29字问题）",
+    "ok": false,
+    "detail": "http=403 帧数=0 答案长度=0",
+    "extra": {
+      "answer_head": "",
+      "frames_head": []
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "回答带引用",
+    "ok": false,
+    "detail": "引用条数=0",
+    "extra": {
+      "reference_head": []
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "服务端可独立取回原文（不随请求传正文）",
+    "ok": true,
+    "detail": "http=200 chunk数=1 首块长度=459",
+    "extra": {
+      "chunk_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或",
+      "raw_keys": [
+        "id",
+        "content",
+        "picChunkIdList",
+        "picUrlList",
+        "imagePath",
+        "positions",
+        "pageNumbers",
+        "pageSizes"
+      ]
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "引用携带文件与定位信息",
+    "ok": false,
+    "detail": "引用 source 数=0 示例=[]"
+  },
+  {
+    "scene": "S6",
+    "case": "答案要点可在引用原文中找到支撑",
+    "ok": false,
+    "detail": "答案命中要点=[] 其中被原文支撑=[] 引用块数=0",
+    "extra": {
+      "corpus_head": ""
+    }
+  },
+  {
+    "scene": "S7",
+    "case": "历史对话可恢复",
+    "ok": false,
+    "detail": "http=200 session=kb_15 问答对数=0 问与答均有正文=False 本轮queryId=q-1793071772867 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "ok": true,
+    "detail": "http=200"
+  },
+  {
+    "scene": "COVERAGE",
+    "case": "选中的场景均已真实执行",
+    "ok": true,
+    "detail": "选中=['S6', 'S7'] 实际执行=['S6', 'S7'] 未执行=[] 未知场景=[]"
+  }
+]

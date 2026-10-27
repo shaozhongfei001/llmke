@@ -1,0 +1,132 @@
+{
+ "graph_docs": [
+  {
+   "page_content": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币8000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。四、还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。五、办理时限资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。",
+   "metadata": {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMS9SMTJGSVgtcHJvZHVjdC1sb2FuKDEpLmRvY3g=",
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "offset": [
+     [
+      0,
+      459
+     ]
+    ],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "text_parent_id_list": [],
+    "chunk_type": "text",
+    "parent_file_name": "R12FIX-product-loan.docx",
+    "revise_date": "",
+    "version": "V1",
+    "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+    "file_id": 328,
+    "image_path": "",
+    "page_size": "[[0, 0]]",
+    "page_number": [
+     0
+    ],
+    "table_name": "",
+    "labels": [],
+    "chunk_index": 0,
+    "table_summary_id": null,
+    "title": "R12FIX-product-loan(1).docx",
+    "knowledge_base_name": "kb_9",
+    "file_ids": null,
+    "table_ordinal": null,
+    "business_name": null,
+    "physical_name": null,
+    "database_id": null,
+    "database_name": null,
+    "row_count": null,
+    "column_count": null,
+    "database_description": null,
+    "score": 0.8,
+    "rerank_score_rank": 0,
+    "rrf_score": 0.2,
+    "rrf_score_rank": 1
+   },
+   "type": "text",
+   "pic_url_list": [],
+   "knowledge_base_name": "kb_9",
+   "order_num": "1917456149605727834",
+   "faq_question": null,
+   "faq_answer": null,
+   "pk": 139363536840301567,
+   "score": 0.8,
+   "rerank_score_rank": 0,
+   "rrf_score": 0.2,
+   "rrf_score_rank": 1
+  },
+  {
+   "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+   "metadata": {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==",
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "offset": [
+     [
+      0,
+      123
+     ]
+    ],
+    "pic_offset_list": [],
+    "pic_children_id_list": [],
+    "text_parent_id_list": [],
+    "chunk_type": "text",
+    "parent_file_name": "R12FIX-product-intro.pptx",
+    "revise_date": "",
+    "version": "V1",
+    "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+    "file_id": 343,
+    "image_path": "",
+    "page_size": "[[0, 0]]",
+    "page_number": [
+     0
+    ],
+    "table_name": "",
+    "labels": [],
+    "chunk_index": 0,
+    "table_summary_id": null,
+    "title": "R12FIX-product-intro(1).pptx",
+    "knowledge_base_name": "kb_9",
+    "file_ids": null,
+    "table_ordinal": null,
+    "business_name": null,
+    "physical_name": null,
+    "database_id": null,
+    "database_name": null,
+    "row_count": null,
+    "column_count": null,
+    "database_description": null,
+    "score": 0.5952380952380952,
+    "rerank_score_rank": 0,
+    "rrf_score": 0.25,
+    "rrf_score_rank": 3
+   },
+   "type": "text",
+   "pic_url_list": [],
+   "knowledge_base_name": "kb_9",
+   "order_num": "3892682684933165900",
+   "faq_question": null,
+   "faq_answer": null,
+   "pk": 626225001556669433,
+   "score": 0.5952380952380952,
+   "rerank_score_rank": 0,
+   "rrf_score": 0.25,
+   "rrf_score_rank": 3
+  }
+ ]
+}

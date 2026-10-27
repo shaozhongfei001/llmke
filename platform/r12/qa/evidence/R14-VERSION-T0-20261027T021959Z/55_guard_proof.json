@@ -1,0 +1,60 @@
+{
+ "A_row": {
+  "id": 341,
+  "fileName": "R14-GUARD-A.docx",
+  "parent": "R14-GUARD-A.docx",
+  "version": "V0",
+  "status": 3,
+  "group": "779989229"
+ },
+ "B_row": {
+  "id": 342,
+  "fileName": "R14-GUARD-B.docx",
+  "parent": "R14-GUARD-B.docx",
+  "version": "V0",
+  "status": 3,
+  "group": "808618380"
+ },
+ "alg_replay_payload": {
+  "knowledge_base_name": "kb_14",
+  "index_name": "kb_14",
+  "need_version_doc": [
+   {
+    "group_id": "",
+    "id": "342",
+    "name": "R14-GUARD-B.docx"
+   }
+  ],
+  "have_version_doc": [
+   {
+    "group_id": "779989229",
+    "id": "341",
+    "name": "R14-GUARD-A.docx"
+   }
+  ],
+  "model_info": {
+   "key": "sk-r12-local",
+   "model_id": "qwen2.5-7b-instruct",
+   "model_name": "qwen2.5-7b-instruct",
+   "url": "http://127.0.0.1:18092/v1/chat/completions"
+  },
+  "status": "1"
+ },
+ "alg_replay_response": [
+  {
+   "id": "342",
+   "name": "R14-GUARD-B.docx",
+   "group_id": "",
+   "version_date": ""
+  }
+ ],
+ "alg_merged_B_into_A_group": false,
+ "guard_log_hits": 0,
+ "guard_log_tail": [],
+ "verdict": {
+  "docs_grouped_separately": true,
+  "alg_did_not_merge_in_replay": true,
+  "guard_reject_branch_exercised": false
+ },
+ "note": "回放时算法未合并（返回 group 空），因此本轮守卫的拒绝分支未被触发；本证据只支持'不同文档各自成组、未被并组'，不支持'守卫拦住了串组'。"
+}

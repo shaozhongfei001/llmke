@@ -1,0 +1,25 @@
+# FIX-22c BEFORE 快照（19995 尚未加载 FIX-22c，仍为'只做批内传播'版本）
+# 采集时间: 2026-10-27 13:47:27 CST
+# 19995 pid: 1391634
+
+2026-10-27 13:45:46.472 | INFO     | retrieval_fun_tool:document_version:298 - document_version: blocks=5 candidates_pk=5 hit_by_id=0 ES_pk_backfill=0 source_regex=5 no_version=0 no_version_md_text=0 indexes_queried=['kb_9', 'table_chunks_kb_9', 'table_summary_kb_9'] pk来源(milvus_only=1 es_only=0 both=4 unknown=0)
+2026-10-27 13:46:23.885 | INFO     | retrieval_fun_tool:document_version:298 - document_version: blocks=5 candidates_pk=5 hit_by_id=0 ES_pk_backfill=0 source_regex=5 no_version=0 no_version_md_text=0 indexes_queried=['kb_9', 'table_chunks_kb_9', 'table_summary_kb_9'] pk来源(milvus_only=3 es_only=0 both=2 unknown=0)
+
+# ---- 更正（13:50 追加）----
+# 本快照**不是**"FIX-22c 修复前"：进程已加载 22c（打点含 candidates_pk/hit_by_id/ES_pk_backfill/no_version_md_text）。
+# 正确解读：修复已加载但未命中 —— candidates_pk=5, hit_by_id=0，命中判据 `hit_by_id==0 且 candidates_pk>0` = bug。
+# 手工用同一批 pk 直查 19527 ids 查询 -> 3/3 命中（fid=328/343/329，version V1/V1/V0），
+# 说明查询体正确、进程内调用路径不同（待加三行诊断日志定位 es_url / 响应结构 / pk 类型）。
+
+# ---- 根因（13:56 定位，已数值验证）----
+# 5 处 pk 转换用了 int(float(x))，18 位 pk 经 float 丢精度：
+#   int(float('139363536840301567')) = 139363536840301568   （差 +1）
+#   int('139363536840301567')        = 139363536840301567
+# => 用错位的 id 去查 ES `ids`，必然 0 命中（candidates_pk=5 / hit_by_id=0 由此而来）。
+# 手工用**正确**的 id 查 19527 -> 3/3 命中，验证了查询体本身没问题。
+# 修法：新增 _pk_to_int()（不经 float），替换全部 5 处；py_compile 通过。待重启 19995 生效。
+
+# ---- AFTER（FIX-22e 已在运行态：19995 于 13:51:39 重启时加载）----
+# 采集: 2026-10-27 13:53:32 CST  19995 pid=1445068
+2026-10-27 13:52:17.354 | INFO     | retrieval_fun_tool:document_version:317 - document_version: blocks=4 candidates_pk=3 hit_by_id=3 ES_pk_backfill=3 source_regex=0 no_version=0 no_version_md_text=0 indexes_queried=['kb_9', 'table_chunks_kb_9', 'table_summary_kb_9'] pk来源(milvus_only=0 es_only=0 both=2 unknown=2)
+2026-10-27 13:53:26.525 | INFO     | retrieval_fun_tool:document_version:317 - document_version: blocks=5 candidates_pk=5 hit_by_id=5 ES_pk_backfill=5 source_regex=0 no_version=0 no_version_md_text=0 indexes_queried=['kb_9', 'table_chunks_kb_9', 'table_summary_kb_9'] pk来源(milvus_only=1 es_only=0 both=4 unknown=0)

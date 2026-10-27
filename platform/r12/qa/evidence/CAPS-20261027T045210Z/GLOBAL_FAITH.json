@@ -1,0 +1,41 @@
+{
+ "runs": [
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": []
+  },
+  {
+   "ok": false,
+   "found": {
+    "江南装备": null,
+    "华东精密": null,
+    "北方重工": null
+   },
+   "missing": [
+    "30",
+    "60"
+   ]
+  },
+  {
+   "ok": false,
+   "found": {
+    "江南装备": null,
+    "华东精密": null,
+    "北方重工": null
+   },
+   "missing": [
+    "30",
+    "60"
+   ]
+  }
+ ],
+ "sources": [
+  "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+ ]
+}

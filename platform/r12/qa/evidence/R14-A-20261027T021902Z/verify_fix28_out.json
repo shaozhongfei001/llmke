@@ -1,0 +1,89 @@
+{
+ "ts": "140649",
+ "cases": {
+  "A_positive": {
+   "res": {
+    "http": 200,
+    "secs": 3.6,
+    "body": {
+     "success": true,
+     "msg": null,
+     "task_id": null,
+     "task_statuses": [
+      {
+       "file_path": "r12-rag/fixtures/docx-plain.docx",
+       "file_id": 991001,
+       "success": true,
+       "fail_reason": null,
+       "revise_date": null,
+       "code": 200
+      }
+     ]
+    }
+   },
+   "md": "success=True tasks=[(991001, True, 200)]",
+   "es": 1,
+   "mv": 1,
+   "pass": true
+  },
+  "B_negative": {
+   "res": {
+    "http": 200,
+    "secs": 0.1,
+    "body": {
+     "success": false,
+     "msg": "有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618",
+     "task_id": null,
+     "task_statuses": [
+      {
+       "file_path": "r12-rag/__no_such_object__/nope.docx",
+       "file_id": 991002,
+       "success": false,
+       "fail_reason": "解析失败：S3 operation failed; code: NoSuchKey, message: The specified key does not exist., resource: /r12-rag/__no_such_object__/nope.docx, request_id: 18E24DDD193DA96B, host_id: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, bucket_name: r12-rag, object_name: __no_such_object__/nope.docx",
+       "revise_date": null,
+       "code": 1100
+      }
+     ]
+    }
+   },
+   "http": 200,
+   "body_success": false,
+   "tasks": [
+    [
+     991002,
+     false,
+     1100,
+     "解析失败：S3 operation failed; code: NoSuchKey, message: The specified key does not exist., resource: /r12-rag/__no_such_object__/nope.docx, request_id: 18E24DDD193DA96B, host_id: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, bucket_name: r12-rag, object_name: __no_such_object__/nope.docx"
+    ]
+   ],
+   "pass": true
+  },
+  "C_concurrent": {
+   "results": [
+    [
+     0,
+     200,
+     "success=True tasks=[(991010, True, 200)]"
+    ],
+    [
+     1,
+     200,
+     "success=True tasks=[(991011, True, 200)]"
+    ],
+    [
+     2,
+     200,
+     "success=True tasks=[(991012, True, 200)]"
+    ]
+   ],
+   "es": 3,
+   "mv": 0,
+   "pass": true
+  }
+ },
+ "verdict": {
+  "A_positive": true,
+  "B_negative": true,
+  "C_concurrent": true
+ }
+}

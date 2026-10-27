@@ -1,0 +1,7 @@
+## FINAL SWEEP
+2026-10-27T14:08:02+0800
+ports6=6
+STALE=0
+rag-index-service pidfile=1403224 procs=1403224,
+rag-qa-service pidfile=1403466 procs=1403466,
+19529=pid=1461792

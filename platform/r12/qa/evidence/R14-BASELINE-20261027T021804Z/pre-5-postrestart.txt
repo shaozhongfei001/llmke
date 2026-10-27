@@ -1,0 +1,15 @@
+## POST-RESTART BEFORE ALL
+2026-10-27T02:35:23Z
+2026-10-27T10:35:23+0800
+ss1999=2
+containers=14
+196174 27 10:31:29
+212510 27 10:34:20
+=== r13_full_check start 10:35:23 ===
+### r13_full_check exit=1 elapsed=31s
+=== acceptance start 10:35:54 ===
+### acceptance exit=124 elapsed=2400s
+=== security_acceptance start 11:15:54 ===
+### security_acceptance exit=1 elapsed=0s
+=== revoke_acceptance start 11:15:54 ===
+### revoke_acceptance exit=1 elapsed=1s

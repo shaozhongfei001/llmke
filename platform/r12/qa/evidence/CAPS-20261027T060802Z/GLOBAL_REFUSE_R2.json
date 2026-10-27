@@ -1,0 +1,11 @@
+{
+ "answer": "海川电子材料股份有限公司被列为关注类，但事实中未提及需要计提多少比例的贷款损失准备。[L0-3c882b30]",
+ "sources": [
+  "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.md"
+ ],
+ "infra": {
+  "graph_pid": "1461792",
+  "es_ok": true,
+  "es_ms": 8.7
+ }
+}

@@ -1,0 +1,80 @@
+[
+ {
+  "cap": "NORMAL",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 status=None answer_len=0 refs=0 rt=None"
+ },
+ {
+  "cap": "FAQ",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 status=None resultType=None 尝试=3/3 answer='' refs=0"
+ },
+ {
+  "cap": "GLOBAL_POS",
+  "ok": false,
+  "neutral": false,
+  "detail": " http=500 status=None cost=0.0s configId=1 refs=0 可解析=0（绝对URL=0 相对键=0）社区id=False src示例=None"
+ },
+ {
+  "cap": "GLOBAL_REFUSE/R1",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 status=None 拒答=False 编造数值=[] refs=0 answer=''"
+ },
+ {
+  "cap": "GLOBAL_REFUSE/R2",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 status=None 拒答=False 编造数值=[] refs=0 answer=''"
+ },
+ {
+  "cap": "GLOBAL_FAITH",
+  "ok": false,
+  "neutral": false,
+  "detail": "多数票=0/3 首次 http=500 首次实测={'江南装备': None, '华东精密': None, '北方重工': None} 期望={'江南装备': '30', '华东精密': '60', '北方重工': '60'} 不符={'江南装备': (None, '30'), '华东精密': (None, '60'), '北方重工': (None, '60')} 缺失数值=['30', '60'] 各次=[{'江南装备': None, '华东精密': None, '北方重工': None}, {'江南装备': None, '华东精密': None, '北方重工': None}, {'江南装备': None, '华东精密': None, '北方重工': None}]"
+ },
+ {
+  "cap": "VERSION",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 groups=0 多版本组=0 版本=[] ← 空列表不再算通过"
+ },
+ {
+  "cap": "TABLE",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 status=None 数值=False 单位=False 主体=False 口径='授信/额度'=False refs=0 answer=''"
+ },
+ {
+  "cap": "GRAPH_LOCAL",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 docs=3 含graph标记=2 有正文的图块=2 search_type示例=[['milvus', 'es', 'es', 'graph'], ['milvus', 'es', 'es', 'graph'], ['milvus', 'es', 'es']]"
+ },
+ {
+  "cap": "GRAPH_IDENTITY",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 code=200 reason=None 块数=4 键存在=True violations_count=0"
+ },
+ {
+  "cap": "GRAPH_PROVENANCE",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=200 块数=4 exact_chunk=0 provenance分布=['entity_content_recovered'] 抽查引用=4 悬空=[] ← 数据代次悬空：图 chunk_pk_list 与当前 ES _id 无交集（需重解析+重建图）"
+ },
+ {
+  "cap": "GRAPH_UPPERCASE",
+  "ok": true,
+  "neutral": false,
+  "detail": "大写(AAA)+开图 http=200 docs=3 graph块=2 | 小写(aaa)+开图 http=200 docs=3 graph块=2"
+ },
+ {
+  "cap": "INTERNAL_GUARD",
+  "ok": true,
+  "neutral": false,
+  "detail": "callback=401 uploadParsedFile=401"
+ }
+]

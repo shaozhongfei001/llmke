@@ -1,0 +1,22 @@
+# FINAL RUN 20261027T043954Z
+2026-10-27T12:39:54+0800
+ready_signal=2026-10-27 12:33:10 (E)
+ss1999=2
+containers=14
+ports_listening=12
+proc 953518 27 12:38:39
+proc 953521 27 12:38:39
+## 复跑前置 2026-10-27T12:46:59+0800
+qa pid=983520 start=27 12:42:50
+jar 12:46:08
+invalid_token_probe=500 (发现：非法 Authorization 头导致 500，应为 401)
+
+## 12:50:25 STALE 清零后的复跑前置 2026-10-27T12:51:20+0800
+SERVICE                  PID      JAR_TS       PROC_TS      DELTA
+rag-index-service        1033963  1793076363   1793076614   -251s
+rag-qa-service           1038952  1793076368   1793076655   -287s
+STALE_count=0
+
+## 冻结期复跑 2026-10-27T13:10:18+08:00
+19529_pid=pid=1061358
+STALE=0

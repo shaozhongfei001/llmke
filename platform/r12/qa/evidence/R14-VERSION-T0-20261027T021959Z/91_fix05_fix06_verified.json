@@ -1,0 +1,45 @@
+{
+ "id": "R14-C-FIX-05-06-RUNTIME-VERIFIED",
+ "at": "2026-10-27T11:38:00+08:00",
+ "runtime": {
+  "rag-qa-service": {"pid": 518098, "start": "2026-10-27 11:25:03", "jar_mtime": "11:19:08",
+                     "jar_md5_prefix": "f509615c",
+                     "consistency": "进程启动时间晚于 jar 写入时间 → 运行的就是新制品（无覆盖错配）"}
+ },
+ "case_1_sse_denial": {
+  "what": "R14-C-FIX-06：SSE 端点（produces=text/event-stream）的 ApplicationException 不再退化成 500 空 body",
+  "request": "POST /qa/ai/question  Authorization=r13_noauth(无 kb_9 授权)  Accept: text/event-stream  body={sessionId,queryId,content='智造贷最高额度是多少？',type=text,sysType=KNO_INDEX,configId=1}",
+  "before": {"http": 500, "body": "", "log": "Servlet.service() for servlet [dispatcherServlet] threw exception [RequestProcessingFailed: ApplicationException: 没有足够权限]"},
+  "after": {"http": 403,
+            "content_type": "application/json;charset=UTF-8",
+            "body": {"success": false, "errorMsg": "没有足够权限", "errorCode": "30016", "data": null}},
+  "verdict": "PASS（符合 R14-F08：拒绝只认 401/403 或 30016/30017/30018）"
+ },
+ "case_2_global_reduce_adopted": {
+  "what": "R14-C-FIX-05：global 模式的 map-reduce 答案（data.global_answer）被直接采用，不再把社区摘要当原文二次生成",
+  "request": "POST /qa/ai/question auth=admin body={content='我们这类企业的授信额度与票据贴现是什么关系', sysType=KNO_INDEX, configId=1, globalMode=true}",
+  "observed": {
+   "http": 200,
+   "status": 2,
+   "refs": 1,
+   "reply_content": "授信额度与票据贴现的关系在提供的事实中未提及，因此无法得出结论。[L0-18625408]",
+   "reply_content_len": 45,
+   "sources": ["product-loan.docx/V0/R12FIX-product-loan.docx"],
+   "double_host": false
+  },
+  "server_log": [
+   "11:37:53.940 R14-C-GLOBAL answer from reduce, len=45",
+   "11:37:53.941 R14-C-GLOBAL 采用 reduce 答案，跳过二次生成 len=45"
+  ],
+  "verdict": "PASS（机制层）：日志 len=45 与 reply.content 长度一致，且答案带社区 id [L0-18625408] → reply.content 逐字等于 data.global_answer，满足 B 的判据「global_answer 与 reply.content 必须逐字一致」",
+  "residual_quality_issue": "该 reduce 答案本身是「未提及…无法得出结论」，而 B 直连 19529/query_community 能拿到「江南 AAA→30个基点」类事实。说明链路已诚实透传 reduce 结果，但 reduce 经 Java 这条路径时未产出那些事实 —— 归因待 B 确认 payload 差异（Java 侧发送 {knowledge_base_name, query, query_mode=global, summary_top_k=5, model_info}）"
+ },
+ "case_3_source_single_host": {
+  "what": "R14-C-FIX-02：metadata.source 绝对 URL 归一化",
+  "observed": "sources=['product-loan.docx/V0/R12FIX-product-loan.docx']；double_host=False（改前为 http://h/http://h/r12-rag/...）",
+  "verdict": "PASS"
+ },
+ "not_yet_active": {
+  "R14-C-FIX-03b/07": "在同一份新 index jar（/tmp/r14_c/new-index.jar md5 43fa56a1…）里，等 rag-index-service 重启后做 HTTP 复测；离线自检见 72_object_key_normalize_offline.json"
+ }
+}

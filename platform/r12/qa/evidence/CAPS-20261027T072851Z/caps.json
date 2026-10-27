@@ -1,0 +1,8 @@
+[
+ {
+  "cap": "PARSE_RETRY_STORM",
+  "ok": true,
+  "neutral": false,
+  "detail": "窗口=30分钟 阈值>3条/文件 超限文件=无 file_id 在窗口内产生 >3 条 task status∈(98,99)超窗未结束=0 原地重启未计数=无「原地重启但不计数」的任务 （事后观察：窗口内失败且耗时>10min且retry_times=0 的任务=1，不判红）"
+ }
+]

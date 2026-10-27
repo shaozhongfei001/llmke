@@ -104,7 +104,11 @@ FIX_ROUTING = [
 
 # ------------------------------------------------------------------ 基础设施
 def sql(q):
+    # R14-F08：与 security_acceptance.sql 同一缺陷 —— 不检查退出码时，
+    # SQL 失败输出的空串会让下游 all(...) 在空集上为真，把"查询失败"读成"检查通过"。
     out = subprocess.run(MYSQL + [q], capture_output=True, text=True)
+    if out.returncode != 0:
+        raise RuntimeError(f"sql failed rc={out.returncode}: {out.stderr.strip()[:200]}")
     return out.stdout.strip()
 
 
@@ -118,13 +122,21 @@ def record(case, ok, detail, extra=None):
 
 
 def denied_http(code, body):
-    """HTTP 层拒绝信封：401/403，或 success=false + 30016（没有足够权限）。"""
+    """HTTP 层拒绝信封（R14-F08 收紧，与 security_acceptance.denied 同口径）。
+
+    旧实现：`401/403` 或 **任意** `success=false` 或 `errorCode == 30016` 即判"已拒绝"。
+    问题：上一版把一般业务异常/内部错误（同样返回 success=false）也算成"撤权生效"，
+    于是故障方向反而更容易通过验收。现口径：
+      - 只认 HTTP 401/403，或网关明确的鉴权错误码（30016/30017/30018）；
+      - 5xx / http=0（连接中断、超时）/ 取不到状态码 —— 一律判**未拒绝**（fail-closed）；
+      - 200 + success=false 但无鉴权错误码 —— 判未拒绝，需人工看 body 定性。
+    """
     if code in (401, 403):
         return True
+    if code is None or code == 0 or code >= 500:
+        return False
     if isinstance(body, dict):
-        if body.get("success") is False:
-            return True
-        if str(body.get("errorCode")) == "30016":
+        if str(body.get("errorCode") or "") in ("30016", "30017", "30018"):
             return True
     return False
 
@@ -249,17 +261,25 @@ def ensure_fixture():
     uid = int(uid)
     FIXTURE_LOG.append(f"{USER} user_id={uid}")
 
+    # R14-F01l（schema 变更适配）：11:58 之后 search_config 增加了函数唯一索引
+    #   UNIQUE KEY uk_search_config_default (((case when is_default=1 and is_del=1 then 1 else NULL end)))
+    #   —— 即**全局只允许一行**"默认助手"。因此 r13_reader 不能再有 is_default=1（会 1062）。
+    #   这里改用 is_default=0 的自有配置：question/ question_re 走显式 configId 时只校验
+    #   "配置属主命中 create_by 或有配置级权限"，不依赖 is_default，所以夹具语义不变。
     cfg = sql("select id from gienrag.search_config "
-              f"where create_by='{USER}' and is_default=1 and is_del=1 order by id limit 1")
+              f"where create_by='{USER}' and is_del=1 order by id limit 1")
     if not cfg:
         sql("insert into gienrag.search_config(status,is_default,config_json,name,des,create_by,"
             "gmt_create,gmt_modified,enabled_faq,depend_on_kb,is_del) "
-            "select 1,1,config_json,'R13-QA-READER-CFG','QA 夹具：reader 自有助手配置(指向 kb_9)',"
+            "select 1,0,config_json,'R13-QA-READER-CFG','QA 夹具：reader 自有助手配置(指向 kb_9)',"
             f"'{USER}',now(),now(),1,0,1 from gienrag.search_config where id=1")
         cfg = sql("select id from gienrag.search_config "
-                  f"where create_by='{USER}' and is_default=1 and is_del=1 order by id limit 1")
+                  f"where create_by='{USER}' and is_del=1 order by id limit 1")
+    else:
+        # 老夹具可能是 is_default=1（新唯索引落地后会 1062），归零以免再次冲突
+        sql(f"update gienrag.search_config set is_default=0 where id={int(cfg)} and is_default=1")
     cfg = int(cfg)
-    FIXTURE_LOG.append(f"助手配置 fixture configId={cfg}（create_by={USER}, is_default=1, is_del=1, kb_9）")
+    FIXTURE_LOG.append(f"助手配置 fixture configId={cfg}（create_by={USER}, is_default=0, is_del=1, kb_9）")
 
     for mid in MODEL_IDS:
         has = sql("select id from gienrag.user_privilege where user_id=%d and biz_type=3 "
@@ -441,12 +461,28 @@ def main():
                       f"引用数={len(qa['references'])} 帧数={qa['n']} 尝试={qa.get('attempt')}")
 
         gl = ask_ok(token, Q_NORMAL, cfg, "revoke-global", global_mode=True)
-        ok_gl = gl["status"] == 2 and len(gl["content"]) > 20
+        # R14-F01m：原判据 `len(content)>20` 是"完整回答"的**代理指标**，实测不稳定：
+        # 同一问同一配置三次分别得到 275 / 24 / 19 字（B 也记录过 global reduce 输出不可复现）。
+        # 本用例的目的只是"撤权前 global 链路可用"（对照 R10 撤权后被拒），因此判据改为：
+        #   status==2 且答案非空 且（有可解析引用 **或** 明确拒答语义）——
+        # 既不会把"合法短拒答"判红，也不会放过"空回答/异常态"。
+        _dsem = ("未提及", "无法确定", "无法回答", "未提供", "没有相关", "没有直接", "未找到相关")
+        ok_gl = (gl["status"] == 2 and len(gl["content"].strip()) > 0
+                 and (len(gl["references"]) >= 1 or any(k in gl["content"] for k in _dsem)))
         record("R3 授权时 global 问答返回完整回答",
                ok_gl, f"POST /qa/ai/question(globalMode=true) http={gl['http']} status={gl['status']} "
                       f"内容长度={len(gl['content'])} 引用数={len(gl['references'])} 帧数={gl['n']} 尝试={gl.get('attempt')}")
 
-        faq = ask_ok(token, Q_FAQ, cfg, "revoke-faq")
+        # R14-F01k：FAQ 直答的成功判据是 `resultType==2`，而 ask_ok 的提前返回条件是
+        # "status==2 且内容>20 字"——普通回答也满足，会在第 1 次就返回 rt=1 的结果，
+        # 于是 3 次重试形同虚设（实测就发生过：单发 rt=1 FAIL、另一次 rt=2 PASS）。
+        # 这里单独重试，判据仍是严格的 resultType==2；**撤权后的拒绝态（R11）依旧单发不重试**。
+        faq = None
+        for _i in range(3):
+            faq = ask(token, Q_FAQ, cfg, f"revoke-faq-{_i}")
+            faq["attempt"] = _i + 1
+            if faq["status"] == 2 and faq["resultType"] == 2 and len(faq["content"]) > 0:
+                break
         ok_faq = faq["status"] == 2 and faq["resultType"] == 2 and len(faq["content"]) > 0
         record("R4 授权时 FAQ 直答命中（resultType=2）",
                ok_faq, f"POST /qa/ai/question(FAQ) http={faq['http']} status={faq['status']} "

@@ -1,0 +1,15 @@
+{
+ "provenance_quality": [
+  null,
+  null
+ ],
+ "dangling": [],
+ "stale_blocks": [],
+ "latest_version": {},
+ "probe": {
+  "query": "智造贷 授信额度 票据贴现",
+  "top_k": 5,
+  "kb": "kb_9"
+ },
+ "strict": false
+}

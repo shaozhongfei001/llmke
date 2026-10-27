@@ -1,0 +1,113 @@
+{
+  "chunk_size": 512,
+  "fixture": "fixtures/cn-docx-direct.docx",
+  "index": "r12a_parse_idem",
+  "run1_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0,
+        0
+      ],
+      "count": 2,
+      "ids": [
+        "154391667458976534",
+        "193687022720715930"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "chunk_index": [
+        1
+      ],
+      "count": 1,
+      "ids": [
+        "834640398399242976"
+      ],
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "chunk_index": [
+        -1
+      ],
+      "count": 1,
+      "ids": [
+        "678437520596486467"
+      ],
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run1_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0,
+        0
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "154391667458976534",
+        "193687022720715930"
+      ],
+      "visible_rows": 2
+    }
+  },
+  "run1_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/cn-docx-direct.docx\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 3.3,
+    "status": 200
+  },
+  "run2_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0,
+        0
+      ],
+      "count": 2,
+      "ids": [
+        "154391667458976534",
+        "193687022720715930"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "chunk_index": [
+        1
+      ],
+      "count": 1,
+      "ids": [
+        "834640398399242976"
+      ],
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "chunk_index": [
+        -1
+      ],
+      "count": 1,
+      "ids": [
+        "678437520596486467"
+      ],
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run2_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0,
+        0
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "154391667458976534",
+        "193687022720715930"
+      ],
+      "visible_rows": 2
+    }
+  },
+  "run2_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/cn-docx-direct.docx\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 1.9,
+    "status": 200
+  },
+  "tag": "cfix_text2",
+  "ts": "2026-10-27T11:44:45+0800"
+}

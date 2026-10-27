@@ -1,0 +1,43 @@
+{
+ "note": "R14-C-FIX-03 presign 端点：直连索引服务可用（200+可用预签名URL），经网关 401/30021（接口未在权限表注册）。本文件为 2026-10-27 10:59 实测原始输出摘录（当时脚本第二条断言因服务重启中断，故手工留存）。",
+ "at": "2026-10-27T10:59:00+08:00",
+ "cases": [
+  {
+   "target": "http://127.0.0.1:18082/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2FR12FIX-product-loan.docx%2FV0%2FR12FIX-product-loan.docx",
+   "http": 200,
+   "body_head": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=r12minio%2F202610...",
+   "verdict": "PASS 端点实现正确：返回预签名 GET URL（含 X-Amz-Signature），凭据未下发"
+  },
+  {
+   "target": "http://127.0.0.1:8088/index/knowledgeBase/file/presign?key=...",
+   "http": 401,
+   "body": "{\"errorCode\":\"30021\",\"errorMsg\":\"没有足够的权限\",\"success\":false}",
+   "verdict": "FAIL（部署项，不是代码项）：网关按 gienrag.interface_info / resource_interface / role_resource 做接口级鉴权，新端点未注册 → 一律 401/30021。需要在 interface_info 增加 url=/index/knowledgeBase/file/presign method=GET，并在 resource_interface 关联到文件资源（role_resource 已有该资源授权）。"
+  },
+  {
+   "target": "http://127.0.0.1:8088/index/knowledgeBase/file/presign（无 token）",
+   "http": 401,
+   "body": "{\"errorCode\":\"30022\",\"errorMsg\":\"没有token\",\"success\":false}",
+   "verdict": "PASS 无 token 被明确拒绝"
+  },
+  {
+   "target": "网关 + r13_noauth 账号",
+   "http": 401,
+   "body": "{\"errorCode\":\"30021\",\"errorMsg\":\"没有足够的权限\",\"success\":false}",
+   "verdict": "PASS（拒绝语义正确，但当前是被网关挡住，尚未落到端点内 assertStreamAllowed 的 30016 分支；注册后再复测一次以取证端点内授权）"
+  }
+ ],
+ "registration_gap": {
+  "tables": {
+   "interface_info": "443 行；已有 /index/knowledgeBase/file/viewFile 等；无 /index/knowledgeBase/file/presign",
+   "resource_interface": "419 行（接口→资源）",
+   "role_resource": "31 行（角色→资源授权）",
+   "resource_info": "12 行（菜单级资源）"
+  },
+  "owner": "E-deliver（platform/r12/{conf,seed} 与权限数据）",
+  "suggested_rows": [
+   "insert into gienrag.interface_info(app_name,app_name_abbreviate,name,url,method,gmt_create,gmt_modified) values('rag-index-service','rag-index','引用原文预签名','/index/knowledgeBase/file/presign','GET',now(),now());",
+   "insert into gienrag.resource_interface(<按现有同类行的列名>) values(<新 interface id>, <文件资源 id>);"
+  ]
+ }
+}

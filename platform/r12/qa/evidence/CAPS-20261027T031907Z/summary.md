@@ -1,0 +1,13 @@
+# R13 能力矩阵自检
+
+总计 4/7 PASS
+
+| 能力 | 结果 | 详情 |
+|---|---|---|
+| NORMAL | PASS | http=200 status=2 answer_len=64 refs=3 rt=1 |
+| FAQ | FAIL | http=200 status=2 resultType=1 answer='是的，客户访前准备是文档的主要内容之一。文档的开头提到了这一部分。' refs=1 |
+| GLOBAL | FAIL | http=200 status=2 cost=3.6s refs=1 ref_src示例=ct-loan.docx/V0/R12FIX-product-loan.docx |
+| VERSION | PASS | http=200 groups=1 多版本组=1 版本=['V1', 'V0'] |
+| TABLE | FAIL | http=500 status=500 数值=False 单位=False 主体=False 口径='授信/额度'=False refs=0 answer='' |
+| GRAPH_LOCAL | PASS | http=200 docs=3 graph_docs=2 有正文的图块=2 |
+| INTERNAL_GUARD | PASS | callback=401 uploadParsedFile=401 |

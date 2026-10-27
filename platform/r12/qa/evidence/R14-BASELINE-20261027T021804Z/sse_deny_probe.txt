@@ -1,0 +1,10 @@
+user=r13_noauth Accept='text/event-stream' -> http=500 ctype=None body=''
+user=r13_noauth Accept='text/event-stream, application/json' -> http=403 ctype=application/json body='{"success":false,"errorMsg":"没有足够权限","errorCode":"30016","data":null}'
+user=admin Accept='text/event-stream' -> http=200 ctype=text/event-stream body_len=200
+时间: 2026-10-27T10:35:19+0800
+
+## 关闭记录（2026-10-27T11:35:27+0800，洁净轮复验）
+r13_noauth + configId=1:
+  Accept='text/event-stream'                   -> http=403 ctype=application/json;charset=UTF-8 body={"success":false,"errorMsg":"没有足够权限","errorCode":"30016","data":null}
+  Accept='text/event-stream, application/json' -> http=403 (同上)
+结论：C 侧修复生效，原"SSE 内容协商把 403 变成 500 空体"缺陷关闭。F05-A5「未指定助手不出现 5xx」= http=403 亦通过。

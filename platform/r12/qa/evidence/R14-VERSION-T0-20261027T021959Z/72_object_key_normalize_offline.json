@@ -1,0 +1,16 @@
+{
+ "id": "R14-C-FIX-07-OFFLINE-CHECK",
+ "at": "2026-10-27T11:31:00+08:00",
+ "what": "FileStorageUtils.getObjectNameFromUrl 的对象键归一化离线自检（不改运行态：直接加载 /tmp/r14_c/new-index.jar 内嵌的 gien-starter-file-storage 类，喂六种历史写法）",
+ "how": "javac/java 以 fs.jar 解包目录 + minio-8.5.10.jar 为 classpath，new FileStorageUtils(null, StorageProperties{endPoint=http://127.0.0.1:19000, bucket=r12-rag})",
+ "cases": [
+  {"input": "/minio/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0.md", "output": "kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0.md", "note": "D 报的聊天库/前端历史写法，改前会原样当对象键 → MinIO NoSuchKey → 500"},
+  {"input": "http://127.0.0.1:19000/r12-rag/kb_9/x.pdf/V0/x.pdf", "output": "kb_9/x.pdf/V0/x.pdf", "note": "MySQL converted_file_path 的绝对 URL"},
+  {"input": "r12-rag/kb_9/x.pdf/V0/x.pdf", "output": "kb_9/x.pdf/V0/x.pdf", "note": "ES source 的桶内相对键"},
+  {"input": "r12-rag/r12-rag/kb_9/x.pdf/V0/x.pdf", "output": "kb_9/x.pdf/V0/x.pdf", "note": "历史双桶名脏数据（R14-C-FIX-04 之前的行）"},
+  {"input": "/r12-rag/kb_9/x.pdf/V0/x.pdf", "output": "kb_9/x.pdf/V0/x.pdf", "note": "前导斜杠"},
+  {"input": "kb_9/x.pdf/V0/x.pdf", "output": "kb_9/x.pdf/V0/x.pdf", "note": "裸对象键（D 前端已改用的形式，必须保持不回归）"}
+ ],
+ "verdict": "6/6 归一化正确；该函数是 getInputStreamByUrl 的唯一入口，故 stream / previewStream / HtmlProcessor(markdown) / PdfProcessor 四条链路同时受益",
+ "pending": "运行态验证需重启 rag-index-service（新 jar 已 staged 于 /tmp/r14_c/new-index.jar，md5 43fa56a1…）；重启后需复测 D 给的 HTTP 用例"
+}

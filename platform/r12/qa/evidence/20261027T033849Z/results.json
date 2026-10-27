@@ -1,0 +1,135 @@
+[
+  {
+    "scene": "PREP",
+    "case": "删除上一轮验收库（保证基线独立可重复）",
+    "ok": true,
+    "detail": "kbId=17 kbName=R14-BASELINE-KB http=200"
+  },
+  {
+    "scene": "PREP",
+    "case": "创建独立验收库",
+    "ok": true,
+    "detail": "http=200 kbId=18 kbName=R14-BASELINE-KB primitive=kb_18 旧库清理=1",
+    "extra": {
+      "resp": {
+        "success": true,
+        "errorMsg": null,
+        "errorCode": null,
+        "data": {
+          "id": "18",
+          "kbName": "R14-BASELINE-KB",
+          "primitiveName": "kb_18",
+          "kbType": 1,
+          "kbDes": "R14 严格断言基线验收库（独立于 kb_9）",
+          "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_18/",
+          "status": 1,
+          "fileTotalSize": null,
+          "fileCount": null,
+          "permission": null,
+          "chunkSize": 512,
+          "fileType": "naive",
+          "chunkOverlap": 50,
+          "splitRegex": null,
+          "embeddingModelName": "bge-m3",
+          "modelName": "qwen2.5-7b-instruct",
+          "multiModelName": "qwen2.5-vl-3b-instruct",
+          "faqModelName": "qwen2.5-7b-instruct",
+          "generateGraphModelName": "qwen2.5-7b-instruct",
+          "kbLabel": null,
+          "fileFaqMaxNums": 0,
+          "similarQuestionMaxNums": 1,
+          "enablePolish": false,
+          "graphPrompt": null,
+          "platform": "rag-qa",
+          "label": null,
+          "chunkType": null,
+          "privateKb": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "独立库助手配置就绪",
+    "ok": true,
+    "detail": "kbName=kb_18 configId=12（R14-BASELINE-CFG）"
+  },
+  {
+    "scene": "PREP",
+    "case": "真实模型回答（29字问题）",
+    "ok": true,
+    "detail": "http=200 帧数=73 答案长度=125",
+    "extra": {
+      "answer_head": "借款额度和期限取决于多个因素，包括企业的财务状况、信用评级、抵押物情况等。通常，中型企业可以从银行获得的贷款额度可能在几十万到几百万人民币不等。贷款期限一般可以从几个月到几年不等。\n\n建议您咨询当地的银行或金融机构，以获取更准确的贷款额度和期限信息。",
+      "frames_head": [
+        {
+          "sessionId": "kb_18",
+          "queryId": "q-1793072330054",
+          "lastDate": 1793072330308,
+          "status": 1,
+          "reply": {
+            "content": "",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": null,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        },
+        {
+          "sessionId": "kb_18",
+          "queryId": "q-1793072330054",
+          "lastDate": 1793072330435,
+          "status": 1,
+          "reply": {
+            "content": "借款",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": 1,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        }
+      ]
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "回答带引用",
+    "ok": false,
+    "detail": "引用条数=0",
+    "extra": {
+      "reference_head": []
+    }
+  },
+  {
+    "scene": "S7",
+    "case": "历史对话可恢复",
+    "ok": true,
+    "detail": "http=200 session=kb_18 问答对数=1 问与答均有正文=True 本轮queryId=q-1793072330054 命中=True"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "ok": true,
+    "detail": "http=200"
+  },
+  {
+    "scene": "COVERAGE",
+    "case": "选中的场景均已真实执行",
+    "ok": true,
+    "detail": "选中=['S7'] 实际执行=['S7'] 未执行=[] 未知场景=[]"
+  }
+]

@@ -1,0 +1,16 @@
+{
+ "at": "2026-10-27T10:20:00+0800",
+ "http": 200,
+ "body": {
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": {
+   "records": [],
+   "total": 0,
+   "size": 10,
+   "current": 1,
+   "pages": 0
+  }
+ }
+}

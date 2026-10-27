@@ -1,0 +1,135 @@
+{
+ "rows": [
+  {
+   "index": "kb_9",
+   "id": "409721235889955614",
+   "file_id": 328,
+   "version": "V1",
+   "title": "R12FIX-product-loan(1).docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "445478030307964037",
+   "file_id": 330,
+   "version": "V0",
+   "title": "R12FIX-product-intro.pptx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "120287042403321691",
+   "file_id": 290,
+   "version": "V0",
+   "title": "R12FIX-product-loan.docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "623455035040524818",
+   "file_id": 331,
+   "version": "V0",
+   "title": "pdf-digital.pdf",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "986447652642970016",
+   "file_id": 331,
+   "version": "V0",
+   "title": "pdf-digital.pdf",
+   "chunk_index": 1
+  },
+  {
+   "index": "kb_9",
+   "id": "99869736860800068",
+   "file_id": 332,
+   "version": "V0",
+   "title": "docx-plain.docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "875161562640603273",
+   "file_id": 333,
+   "version": "V0",
+   "title": "docx-table.docx",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "824962146013202499",
+   "file_id": 334,
+   "version": "V0",
+   "title": "pdf-scanned.pdf",
+   "chunk_index": 0
+  },
+  {
+   "index": "kb_9",
+   "id": "1050585778220806563",
+   "file_id": 343,
+   "version": "V1",
+   "title": "R12FIX-product-intro(1).pptx",
+   "chunk_index": 0
+  },
+  {
+   "index": "table_chunks_kb_9",
+   "id": "1145021270768877382",
+   "file_id": 314,
+   "version": "V0",
+   "title": "R12FIX-credit-ledger.xlsx",
+   "chunk_index": 0
+  },
+  {
+   "index": "table_chunks_kb_9",
+   "id": "200221935568348543",
+   "file_id": 333,
+   "version": "V0",
+   "title": "docx-table.docx",
+   "chunk_index": 1
+  },
+  {
+   "index": "table_summary_kb_9",
+   "id": "1072981982792313557",
+   "file_id": 314,
+   "version": "V0",
+   "title": "R12FIX-credit-ledger.xlsx",
+   "chunk_index": -1
+  },
+  {
+   "index": "table_summary_kb_9",
+   "id": "355827159772508698",
+   "file_id": 333,
+   "version": "V0",
+   "title": "docx-table.docx",
+   "chunk_index": -1
+  }
+ ],
+ "graph_pk": [
+  "1024737308141832299",
+  "1075644721950122678",
+  "1942180628671666588",
+  "1960589330589231216",
+  "3120294016267756374",
+  "332999700890475178",
+  "3715198606399299383",
+  "3876504572213913891",
+  "603679223195613463",
+  "794663329353800421"
+ ],
+ "es_all_ids": [
+  "1050585778220806563",
+  "1072981982792313557",
+  "1145021270768877382",
+  "120287042403321691",
+  "200221935568348543",
+  "355827159772508698",
+  "409721235889955614",
+  "445478030307964037",
+  "623455035040524818",
+  "824962146013202499",
+  "875161562640603273",
+  "986447652642970016",
+  "99869736860800068"
+ ]
+}

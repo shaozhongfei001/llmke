@@ -1,0 +1,30 @@
+{
+ "runs": [
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": [],
+   "env": false
+  },
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": [],
+   "env": false
+  }
+ ],
+ "sources": [],
+ "infra": {
+  "graph_pid": "1061358",
+  "es_ok": true,
+  "es_ms": 8.1
+ }
+}

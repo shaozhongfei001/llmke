@@ -1,0 +1,38 @@
+{
+ "upper_query": "信用评级为AAA的公司执行利率需要加多少个基点",
+ "lower_query": "信用评级为aaa的公司执行利率需要加多少个基点",
+ "upper_http": 200,
+ "lower_http": 200,
+ "upper_docs": 4,
+ "lower_docs": 4,
+ "upper_graph_blocks": 3,
+ "lower_graph_blocks": 3,
+ "search_type_upper": [
+  [
+   "milvus",
+   "es",
+   "es",
+   "graph"
+  ],
+  [
+   "milvus",
+   "es",
+   "es",
+   "graph"
+  ]
+ ],
+ "search_type_lower": [
+  [
+   "milvus",
+   "es",
+   "es",
+   "graph"
+  ],
+  [
+   "milvus",
+   "es",
+   "es",
+   "graph"
+  ]
+ ]
+}

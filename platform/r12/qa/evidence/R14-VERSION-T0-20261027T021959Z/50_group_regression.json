@@ -1,0 +1,351 @@
+{
+ "steps": [
+  {
+   "create_kb": {
+    "http": 200,
+    "kbId": "14",
+    "primitive": "kb_14"
+   }
+  },
+  {
+   "upload": {
+    "paths": [
+     "R12FIX-product-loan.docx",
+     "R12FIX-credit-ledger.xlsx",
+     "docx-table.docx"
+    ],
+    "types": [
+     "OVERWRITE",
+     "OVERWRITE",
+     "OVERWRITE"
+    ],
+    "http": 200,
+    "ids": [
+     "335",
+     "336",
+     "337"
+    ]
+   }
+  },
+  {
+   "rows_after_batch": [
+    {
+     "id": 335,
+     "fileName": "R12FIX-product-loan.docx",
+     "parent": "R12FIX-product-loan.docx",
+     "version": "V0",
+     "status": 3,
+     "group": "614524213"
+    },
+    {
+     "id": 336,
+     "fileName": "R12FIX-credit-ledger.xlsx",
+     "parent": "R12FIX-credit-ledger.xlsx",
+     "version": "V0",
+     "status": 3,
+     "group": "1577230197"
+    },
+    {
+     "id": 337,
+     "fileName": "docx-table.docx",
+     "parent": "docx-table.docx",
+     "version": "V0",
+     "status": 3,
+     "group": "815706637"
+    }
+   ]
+  },
+  {
+   "upload": {
+    "paths": [
+     "R12FIX-product-loan.docx"
+    ],
+    "types": [
+     "NEWVERSION"
+    ],
+    "http": 200,
+    "ids": [
+     "338"
+    ]
+   }
+  },
+  {
+   "rows_after_newversion": [
+    {
+     "id": 335,
+     "fileName": "R12FIX-product-loan.docx",
+     "parent": "R12FIX-product-loan.docx",
+     "version": "V0",
+     "status": 3,
+     "group": "614524213"
+    },
+    {
+     "id": 336,
+     "fileName": "R12FIX-credit-ledger.xlsx",
+     "parent": "R12FIX-credit-ledger.xlsx",
+     "version": "V0",
+     "status": 3,
+     "group": "1577230197"
+    },
+    {
+     "id": 337,
+     "fileName": "docx-table.docx",
+     "parent": "docx-table.docx",
+     "version": "V0",
+     "status": 3,
+     "group": "815706637"
+    },
+    {
+     "id": 338,
+     "fileName": "R12FIX-product-loan(1).docx",
+     "parent": "R12FIX-product-loan.docx",
+     "version": "V1",
+     "status": 3,
+     "group": "614524213"
+    }
+   ]
+  },
+  {
+   "multiple_version": {
+    "http": 200,
+    "groups": [
+     {
+      "id": "335",
+      "kbId": "14",
+      "fileName": null,
+      "fileSize": null,
+      "size": "nullMB",
+      "filePath": null,
+      "fullTextPath": null,
+      "convertedFilePath": null,
+      "status": null,
+      "isEnable": null,
+      "parseType": null,
+      "chunkSize": 0,
+      "fileType": null,
+      "embeddingModelName": null,
+      "parsedFilePath": null,
+      "faqExtractStatus": null,
+      "reviseDate": null,
+      "parentFileName": "R12FIX-product-loan.docx",
+      "version": null,
+      "folderId": null,
+      "folderName": null,
+      "sourceUrl": null,
+      "synLogs": [],
+      "kbFiles": [
+       {
+        "id": "338",
+        "kbId": "14",
+        "fileName": "R12FIX-product-loan(1).docx",
+        "fileSize": 37544.0,
+        "size": "37544.0MB",
+        "filePath": "http://127.0.0.1:19000/r12-rag/kb_14/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+        "fullTextPath": null,
+        "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_14/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+        "status": 3,
+        "isEnable": 1,
+        "parseType": 1,
+        "chunkSize": 0,
+        "fileType": null,
+        "embeddingModelName": null,
+        "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_14/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+        "faqExtractStatus": 1,
+        "reviseDate": "",
+        "parentFileName": "R12FIX-product-loan.docx",
+        "version": "V1",
+        "folderId": null,
+        "folderName": null,
+        "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_14/",
+        "synLogs": [],
+        "kbFiles": null,
+        "isFolder": 0,
+        "imagePaths": null,
+        "tableFilePaths": null,
+        "pdfPage": null,
+        "nodeCount": 0,
+        "edgeCount": 0,
+        "uid": "r14g-1793069645884-0",
+        "graphParseStatus": 1,
+        "uploadStatus": null,
+        "message": null,
+        "index": null,
+        "chunking": true,
+        "kbName": null,
+        "elementType": null,
+        "parentId": null,
+        "permission": null,
+        "fullFolderPath": null,
+        "groupId": "614524213",
+        "label": null,
+        "chunkType": "naive",
+        "uploadTime": "2026-10-27 10:54:06",
+        "count": 0
+       },
+       {
+        "id": "335",
+        "kbId": "14",
+        "fileName": "R12FIX-product-loan.docx",
+        "fileSize": 37544.0,
+        "size": "37544.0MB",
+        "filePath": "http://127.0.0.1:19000/r12-rag/kb_14/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "fullTextPath": null,
+        "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_14/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "status": 3,
+        "isEnable": 1,
+        "parseType": 1,
+        "chunkSize": 0,
+        "fileType": null,
+        "embeddingModelName": null,
+        "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_14/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "faqExtractStatus": 1,
+        "reviseDate": null,
+        "parentFileName": "R12FIX-product-loan.docx",
+        "version": "V0",
+        "folderId": null,
+        "folderName": null,
+        "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_14/",
+        "synLogs": [],
+        "kbFiles": null,
+        "isFolder": 0,
+        "imagePaths": null,
+        "tableFilePaths": null,
+        "pdfPage": null,
+        "nodeCount": 0,
+        "edgeCount": 0,
+        "uid": "r14g-1793069610379-0",
+        "graphParseStatus": 1,
+        "uploadStatus": null,
+        "message": null,
+        "index": null,
+        "chunking": true,
+        "kbName": null,
+        "elementType": null,
+        "parentId": null,
+        "permission": null,
+        "fullFolderPath": null,
+        "groupId": "614524213",
+        "label": null,
+        "chunkType": "naive",
+        "uploadTime": "2026-10-27 10:53:30",
+        "count": 0
+       }
+      ],
+      "isFolder": 0,
+      "imagePaths": [],
+      "tableFilePaths": null,
+      "pdfPage": null,
+      "nodeCount": 0,
+      "edgeCount": 0,
+      "uid": null,
+      "graphParseStatus": null,
+      "uploadStatus": null,
+      "message": null,
+      "index": null,
+      "chunking": false,
+      "kbName": null,
+      "elementType": null,
+      "parentId": null,
+      "permission": null,
+      "fullFolderPath": null,
+      "groupId": "614524213",
+      "label": null,
+      "chunkType": null,
+      "uploadTime": null,
+      "count": null
+     }
+    ]
+   }
+  },
+  {
+   "upload": {
+    "paths": [
+     "R14-GUARD-A.docx",
+     "R14-GUARD-B.docx"
+    ],
+    "types": [
+     "OVERWRITE",
+     "OVERWRITE"
+    ],
+    "http": 200,
+    "ids": [
+     "339",
+     "340"
+    ]
+   }
+  },
+  {
+   "rows_guard": [
+    {
+     "id": 339,
+     "fileName": "R14-GUARD-A.docx",
+     "parent": "R14-GUARD-A.docx",
+     "version": "V0",
+     "status": 3,
+     "group": "779989229"
+    },
+    {
+     "id": 340,
+     "fileName": "R14-GUARD-B.docx",
+     "parent": "R14-GUARD-B.docx",
+     "version": "V0",
+     "status": 3,
+     "group": "808618380"
+    }
+   ]
+  }
+ ],
+ "asserts": [
+  {
+   "name": "知识库可用",
+   "ok": true,
+   "detail": "kbId=14 primitive=kb_14"
+  },
+  {
+   "name": "批次内 3 个文件都解析完成",
+   "ok": true,
+   "detail": "status={'335': 3, '336': 3, '337': 3}"
+  },
+  {
+   "name": "3 个不同文件 group_id 互不相同",
+   "ok": true,
+   "detail": "groups=['614524213', '1577230197', '815706637']"
+  },
+  {
+   "name": "3 个文件 parent_file_name 均等于自身文件名",
+   "ok": true,
+   "detail": "pairs=[('R12FIX-product-loan.docx', 'R12FIX-product-loan.docx'), ('R12FIX-credit-ledger.xlsx', 'R12FIX-credit-ledger.xlsx'), ('docx-table.docx', 'docx-table.docx')]"
+  },
+  {
+   "name": "新版本解析完成",
+   "ok": true,
+   "detail": "status={'338': 3}"
+  },
+  {
+   "name": "新版本行进入 loan 组且 parent=loan.docx",
+   "ok": true,
+   "detail": "new=[{'id': 338, 'fileName': 'R12FIX-product-loan(1).docx', 'parent': 'R12FIX-product-loan.docx', 'version': 'V1', 'status': 3, 'group': '614524213'}] loanGroup=614524213"
+  },
+  {
+   "name": "其他两个文件的 group_id / parent 未被扰动",
+   "ok": true,
+   "detail": "rows=[('R12FIX-product-loan.docx', '614524213', 'R12FIX-product-loan.docx'), ('R12FIX-credit-ledger.xlsx', '1577230197', 'R12FIX-credit-ledger.xlsx'), ('docx-table.docx', '815706637', 'docx-table.docx')]"
+  },
+  {
+   "name": "multiple/version 只返回 1 个多版本组且成员仅 loan 两版",
+   "ok": true,
+   "detail": "http=200 groups=1 members=[['R12FIX-product-loan(1).docx', 'R12FIX-product-loan.docx']]"
+  },
+  {
+   "name": "守卫反例两文件解析完成",
+   "ok": true,
+   "detail": "status={'339': 3, '340': 3}"
+  },
+  {
+   "name": "内容相同的两个不同文件名未被并组（守卫生效）",
+   "ok": true,
+   "detail": "rows=[{'id': 339, 'fileName': 'R14-GUARD-A.docx', 'parent': 'R14-GUARD-A.docx', 'version': 'V0', 'status': 3, 'group': '779989229'}, {'id': 340, 'fileName': 'R14-GUARD-B.docx', 'parent': 'R14-GUARD-B.docx', 'version': 'V0', 'status': 3, 'group': '808618380'}]"
+  }
+ ],
+ "summary": "10/10"
+}

@@ -1,0 +1,118 @@
+{
+ "started": "2026-10-27T15:31:37",
+ "kb_id": "32",
+ "kb_primitive": "kb_32",
+ "samples": [
+  {
+   "n": 1,
+   "upload_at": "15:31:37",
+   "file_id": "460",
+   "final_status": 4,
+   "elapsed_s": 10.0,
+   "status_seq": [
+    [
+     0.0,
+     99
+    ],
+    [
+     10.0,
+     4
+    ]
+   ],
+   "tasks": [
+    {
+     "task": "488",
+     "status": "5",
+     "retry_times": "1",
+     "retry_limit": "3",
+     "start_time": "2026-10-27 15:31:45",
+     "gmt_create": "2026-10-27 15:31:37",
+     "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":488,\"task_statuses\":[{\"fail_reason\":\"?????\",\"fil"
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "upload_at": "15:31:50",
+   "file_id": "461",
+   "final_status": 4,
+   "elapsed_s": 10.0,
+   "status_seq": [
+    [
+     0.0,
+     99
+    ],
+    [
+     10.0,
+     4
+    ]
+   ],
+   "tasks": [
+    {
+     "task": "489",
+     "status": "5",
+     "retry_times": "1",
+     "retry_limit": "3",
+     "start_time": "2026-10-27 15:32:00",
+     "gmt_create": "2026-10-27 15:31:51",
+     "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":489,\"task_statuses\":[{\"fail_reason\":\"?????\",\"fil"
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "upload_at": "15:32:03",
+   "file_id": "462",
+   "final_status": 4,
+   "elapsed_s": 15.1,
+   "status_seq": [
+    [
+     0.0,
+     99
+    ],
+    [
+     15.1,
+     4
+    ]
+   ],
+   "tasks": [
+    {
+     "task": "490",
+     "status": "5",
+     "retry_times": "1",
+     "retry_limit": "3",
+     "start_time": "2026-10-27 15:32:15",
+     "gmt_create": "2026-10-27 15:32:04",
+     "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":490,\"task_statuses\":[{\"fail_reason\":\"?????\",\"fil"
+    }
+   ]
+  }
+ ],
+ "control": {
+  "file_id": "463",
+  "final_status": 4,
+  "elapsed_s": 10.0,
+  "tasks": [
+   {
+    "task": "491",
+    "status": "5",
+    "retry_times": "1",
+    "retry_limit": "3",
+    "start_time": "2026-10-27 15:32:30",
+    "gmt_create": "2026-10-27 15:32:22",
+    "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":491,\"task_statuses\":[{\"fail_reason\":\"?????S3 ope"
+   }
+  ]
+ },
+ "verdict": {
+  "terminal_fail_3of3": true,
+  "times": [
+   10.0,
+   10.0,
+   15.1
+  ],
+  "spread_max_over_min": 1.51,
+  "retry_times_nonzero": true,
+  "stable_fast_fail": true
+ }
+}

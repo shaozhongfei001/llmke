@@ -1,0 +1,47 @@
+{
+  "file_id": "328",
+  "kb": "kb_9",
+  "before": {
+    "count": 1,
+    "versions": [
+      "None"
+    ],
+    "ids": [
+      "1689901252393637717"
+    ],
+    "chunk_index": [
+      0
+    ],
+    "nonnull_version": 0
+  },
+  "trigger": {
+    "http": 404,
+    "body": {
+      "success": false,
+      "errorMsg": "知识库不存在",
+      "errorCode": "10001",
+      "data": null
+    }
+  },
+  "after": {
+    "count": 1,
+    "versions": [
+      "None"
+    ],
+    "ids": [
+      "1689901252393637717"
+    ],
+    "chunk_index": [
+      0
+    ],
+    "nonnull_version": 0
+  },
+  "verdict": {
+    "version_landed": false,
+    "versions": [
+      "None"
+    ],
+    "ids_stable": true,
+    "count_stable": true
+  }
+}

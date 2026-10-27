@@ -1,0 +1,98 @@
+[
+  {
+    "case": "SEC-1 无授权读知识库详情被拒",
+    "ok": true,
+    "detail": "http=403 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  },
+  {
+    "case": "SEC-2 无授权删知识库被拒且数据未变",
+    "ok": true,
+    "detail": "http=403 before=1/R12???? after=1/R12????",
+    "extra": null
+  },
+  {
+    "case": "SEC-3 无授权按已知对象键取原文被拒",
+    "ok": true,
+    "detail": "http=403 key=r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "extra": null
+  },
+  {
+    "case": "SEC-4 无授权提问被对象级授权拒绝",
+    "ok": true,
+    "detail": "http=403 errorCode=30016 configId=1 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  },
+  {
+    "case": "SEC-5 只读授权账号可读详情",
+    "ok": true,
+    "detail": "http=200 kbName=R12验收主链",
+    "extra": null
+  },
+  {
+    "case": "SEC-6 只读账号删知识库被拒",
+    "ok": true,
+    "detail": "http=403 after=1/R12????",
+    "extra": null
+  },
+  {
+    "case": "SEC-7 只读账号触发重解析被拒",
+    "ok": true,
+    "detail": "http=403",
+    "extra": null
+  },
+  {
+    "case": "SEC-8 超级管理员可读",
+    "ok": true,
+    "detail": "http=200",
+    "extra": null
+  },
+  {
+    "case": "SEC-9 撤权后读详情立即被拒",
+    "ok": true,
+    "detail": "http=403 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  },
+  {
+    "case": "SEC-10 库内口令为 BCrypt 而非 MD5",
+    "ok": true,
+    "detail": "admin\t$2a$; r13_noauth\t$2b$; r13_reader\t$2b$",
+    "extra": null
+  },
+  {
+    "case": "SEC-11 属主可预览（返回真实 PDF）",
+    "ok": true,
+    "detail": "http=200 head=%PDF-1.7",
+    "extra": null
+  },
+  {
+    "case": "SEC-12 无授权账号预览被拒",
+    "ok": true,
+    "detail": "http=403 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  },
+  {
+    "case": "SEC-13 匿名预览被拒",
+    "ok": true,
+    "detail": "http=401",
+    "extra": null
+  },
+  {
+    "case": "SEC-14 前端 /preview/ 匿名直连已关闭",
+    "ok": true,
+    "detail": "http=403",
+    "extra": null
+  },
+  {
+    "case": "SEC-15 存储匿名直取被拒（直连+反代）",
+    "ok": true,
+    "detail": "minio=403 nginx=403",
+    "extra": null
+  },
+  {
+    "case": "SEC-16 无法归属知识库的对象键被拒",
+    "ok": true,
+    "detail": "http=403 body={'success': False, 'errorMsg': '没有足够权限', 'errorCode': '30016', 'data': None}",
+    "extra": null
+  }
+]

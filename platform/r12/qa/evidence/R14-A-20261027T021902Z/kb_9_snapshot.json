@@ -1,0 +1,107 @@
+{
+  "es": [
+    {
+      "chunk_refs": [
+        "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjAvUjEyRklYLXByb2R1Y3QtaW50cm8ucHB0eA==#0",
+        "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==#0",
+        "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3g=#0",
+        "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMS9SMTJGSVgtcHJvZHVjdC1sb2FuKDEpLmRvY3g=#0",
+        "cjEyLXJhZy9rYl85L2RvY3gtcGxhaW4uZG9jeC9WMC9kb2N4LXBsYWluLmRvY3g=#0",
+        "cjEyLXJhZy9rYl85L2RvY3gtdGFibGUuZG9jeC9WMC9kb2N4LXRhYmxlLmRvY3g=#0",
+        "cjEyLXJhZy9rYl85L3BkZi1kaWdpdGFsLnBkZi9WMC9wZGYtZGlnaXRhbC5wZGY=#0",
+        "cjEyLXJhZy9rYl85L3BkZi1kaWdpdGFsLnBkZi9WMC9wZGYtZGlnaXRhbC5wZGY=#1",
+        "cjEyLXJhZy9rYl85L3BkZi1zY2FubmVkLnBkZi9WMC9wZGYtc2Nhbm5lZC5wZGY=#0"
+      ],
+      "es_count": 9,
+      "id_origin": {
+        "__MISSING__": 8,
+        "pk_from_caller": 1
+      },
+      "index": "kb_9",
+      "pk_list": [
+        "1071618004722579279",
+        "1544062908944774486",
+        "1689901252393637717",
+        "2107837105731089944",
+        "2425164609413958605",
+        "2779346151338697596",
+        "3081403756790210060",
+        "498386897502206386",
+        "926415934990104915"
+      ]
+    },
+    {
+      "chunk_refs": [
+        "cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==#0",
+        "cjEyLXJhZy9rYl85L2RvY3gtdGFibGUuZG9jeC9WMC9kb2N4LXRhYmxlLmRvY3g=#1"
+      ],
+      "es_count": 2,
+      "id_origin": {
+        "__MISSING__": 2
+      },
+      "index": "table_chunks_kb_9",
+      "pk_list": [
+        "410318197897170860",
+        "4289364499036111283"
+      ]
+    },
+    {
+      "chunk_refs": [
+        "cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==#-1",
+        "cjEyLXJhZy9rYl85L2RvY3gtdGFibGUuZG9jeC9WMC9kb2N4LXRhYmxlLmRvY3g=#-1"
+      ],
+      "es_count": 2,
+      "id_origin": {
+        "__MISSING__": 2
+      },
+      "index": "table_summary_kb_9",
+      "pk_list": [
+        "2295938146707185474",
+        "3819837196680809723"
+      ]
+    },
+    {
+      "chunk_refs": [
+        "None#None",
+        "None#None",
+        "None#None",
+        "None#None",
+        "None#None",
+        "None#None",
+        "None#None"
+      ],
+      "es_count": 7,
+      "id_origin": {
+        "derived_community": 7
+      },
+      "index": "community_summary_kb_9",
+      "pk_list": [
+        "134587897015381504",
+        "233353709975835299",
+        "701610196895493082",
+        "740752240406502471",
+        "903369296772016881",
+        "911381443080510623",
+        "948156577482946777"
+      ]
+    }
+  ],
+  "kb": "kb_9",
+  "milvus": {
+    "rag_knowledge_base": {
+      "collection": "_kb_9",
+      "pk_list": [
+        "1071618004722579279",
+        "1544062908944774486",
+        "1689901252393637717",
+        "2107837105731089944",
+        "2425164609413958605",
+        "2779346151338697596",
+        "3081403756790210060",
+        "498386897502206386",
+        "926415934990104915"
+      ],
+      "visible_rows": 9
+    }
+  }
+}

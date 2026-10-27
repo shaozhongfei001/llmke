@@ -1,0 +1,41 @@
+{
+ "runs": [
+  {
+   "ok": false,
+   "found": {
+    "江南装备": null,
+    "华东精密": null,
+    "北方重工": null
+   },
+   "missing": [
+    "30",
+    "60"
+   ]
+  },
+  {
+   "ok": false,
+   "found": {
+    "江南装备": null,
+    "华东精密": null,
+    "北方重工": null
+   },
+   "missing": [
+    "30",
+    "60"
+   ]
+  },
+  {
+   "ok": false,
+   "found": {
+    "江南装备": null,
+    "华东精密": null,
+    "北方重工": null
+   },
+   "missing": [
+    "30",
+    "60"
+   ]
+  }
+ ],
+ "sources": []
+}

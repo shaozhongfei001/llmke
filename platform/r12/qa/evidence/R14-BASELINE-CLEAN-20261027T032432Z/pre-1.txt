@@ -1,0 +1,11 @@
+# CLEAN RUN 20261027T032432Z
+2026-10-27T11:24:32+0800
+ss1999=2
+containers=14
+ports6=6
+proc 474113 27 11:17:01
+proc 509461 27 11:23:27
+proc 509463 27 11:23:27
+jar 10:39:42 services/rag-java/rag-parent/rag-index-service/target/rag-index-service-0.0.1-SNAPSHOT.jar
+jar 11:19:08 services/rag-java/rag-parent/rag-qa-service/target/rag-qa-service-0.0.1-SNAPSHOT.jar
+elapsed=19s

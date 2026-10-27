@@ -47,19 +47,29 @@ def record(case, ok, detail, extra=None):
 
 
 def sql(q):
+    # R14-F08：原来不检查退出码，SQL 失败时输出空串会被下游 all(...) 判为"通过"。
     out = subprocess.run(MYSQL + [q], capture_output=True, text=True)
+    if out.returncode != 0:
+        raise RuntimeError(f"sql failed rc={out.returncode}: {out.stderr.strip()[:200]}")
     return out.stdout.strip()
 
 
 def denied(code, body):
-    """拒绝的判定：HTTP 403/401，或网关错误信封 success=false。"""
+    """拒绝的判定（R14-F08 收紧）：
+    只认 HTTP 401/403，或网关明确的鉴权错误码 30016。
+    不再接受任意 success=false（那会把 500/业务异常当成"已拒绝"），
+    5xx / 超时 / http=0 一律判验收失败。
+    """
     if code in (401, 403):
         return True
+    # R14-F08b：code 可能是 None（上游取不到状态码）——旧实现会在 `code >= 500` 处抛 TypeError，
+    # 中断整轮验收；现统一按"无法证明被拒绝"=失败处理（fail-closed）。
+    if code is None:
+        return False
+    if code >= 500 or code == 0:
+        return False
     if isinstance(body, dict):
-        if body.get("success") is False:
-            return True
-        ec = str(body.get("errorCode") or "")
-        if ec == "30016":
+        if str(body.get("errorCode") or "") in ("30016", "30017", "30018"):
             return True
     return False
 

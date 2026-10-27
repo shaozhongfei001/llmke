@@ -1,0 +1,16 @@
+{
+ "rows": [],
+ "rows_inflight": [
+  [
+   "479",
+   "451",
+   "3",
+   "0",
+   "9"
+  ]
+ ],
+ "stuck_98_99": 0,
+ "window_min": 30,
+ "limit": 3,
+ "restart_check": "1 条任务原地重启但 retry_times=0（无限重试且计数失效）：[{'task': '479', 'file_id': '451', 'status': '3', 'retry_times': '0', 'gap_min': 9}]"
+}

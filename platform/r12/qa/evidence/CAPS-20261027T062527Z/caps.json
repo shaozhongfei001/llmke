@@ -1,0 +1,8 @@
+[
+ {
+  "cap": "NO_RECALL_FAB",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 status=2 refs=0 判定=零引用 + 明确拒答 answer='抱歉未能找到您要的答案'"
+ }
+]

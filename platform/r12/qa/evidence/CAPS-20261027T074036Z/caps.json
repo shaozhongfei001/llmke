@@ -1,0 +1,8 @@
+[
+ {
+  "cap": "PARSE_CONVERT_PATH",
+  "ok": false,
+  "neutral": false,
+  "detail": "无法查询转换链路失败：ValueError: unsupported format character 'N' (0x4e) at index 116"
+ }
+]

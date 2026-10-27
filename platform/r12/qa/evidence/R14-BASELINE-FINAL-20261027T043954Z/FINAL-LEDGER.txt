@@ -1,0 +1,20 @@
+=== FINAL LEDGER 14:17:03 ===
+r13_full_check | == 15/16 PASS（INFO 0 条不计入）== 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/CAPS-20261027T061703Z | rc=1 | 60s
+FAIL [PARSE_EFFECTIVE] http=200 status=3文件=9 抽查=8 取不到块=[] 索引未更新=[{'fileId': '328', 'name': 'R12FIX-product-loan(1).docx', 'latest_create_time': '2026-10-27 13:25:55.428683', 'since': '2026-10-27T14:15:00'}, {'fileId': '290', 'name': 'R12FIX-product-loan.docx', 'latest_create_time': '2026-10-27 13:25:49.049291', 'since': '2026-10-27T14:15:00'}] ← 解析成功但 ES create_time 未更新（索引未生效）
+security_acceptance | == 16/16 PASS == 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/SEC-20261027T061803Z | rc=0 | 2s
+revoke_acceptance | == 21/21 PASS == 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/REVOKE-20261027T061806Z | rc=0 | 64s
+permission_domain_scope | == 9/9 PASS == 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/R14-F05-20261027T061909Z | rc=0 | 11s
+=== 停后复跑 14:22:20 ===
+STALE=0 idx=1642203/pid=1642203 qa=1647331/pid=1647331
+elapsed=62s
+security_acceptance | == 16/16 PASS == 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/SEC-20261027T062327Z | rc=0 | 5s
+revoke_acceptance | == 21/21 PASS == 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/REVOKE-20261027T062333Z | rc=0 | 39s
+permission_domain_scope | == 9/9 PASS == 证据: /home/szf/data/dev/llmke-r12/platform/r12/qa/evidence/R14-F05-20261027T062411Z | rc=0 | 10s
+## POST-C-BUILD 2026-10-27T14:25:52+0800
+index=1642203 -11s
+STALE=0
+r13 elapsed=83s
+acc elapsed=1063s
+## POST-止血 2026-10-27T14:46:16+0800
+elapsed=434s
+## FINAL GEN 2026-10-27T15:51:10+0800 index=pid=2139785 qa=pid=1647331

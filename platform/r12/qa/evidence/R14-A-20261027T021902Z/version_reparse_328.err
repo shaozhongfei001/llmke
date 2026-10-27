@@ -1,0 +1,3 @@
+[before] {'count': 1, 'versions': ['None'], 'ids': ['1689901252393637717'], 'chunk_index': [0], 'nonnull_version': 0}
+[trigger] http=404 body={'success': False, 'errorMsg': '知识库不存在', 'errorCode': '10001', 'data': None}
+[poll] {'count': 1, 'versions': ['None'], 'ids': ['1689901252393637717'], 'chunk_index': [0], 'nonnull_version': 0}

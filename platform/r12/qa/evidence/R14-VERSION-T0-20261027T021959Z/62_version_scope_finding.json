@@ -1,0 +1,35 @@
+{
+ "id": "R14-C-VERSION-SCOPE-FINDING",
+ "at": "2026-10-27T11:20:00+08:00",
+ "title": "「默认现行版本」只在召回候选集内生效：V0 单独命中时仍会以旧值回答",
+ "severity": "MAJOR（C12 判据的可判定性问题）",
+ "fact_1": {
+  "case": "S5 换措辞提问（acceptance.s5 原题）",
+  "question": "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？",
+  "answer_head": "您们这种做汽车零部件的中型企业，最多可以申请的授信额度为人民币5000万元。……贷款期限最长为三年。",
+  "reference": [{"file_id": 328, "version": "V1"}, {"file_id": 329, "version": "V0"}],
+  "contradiction": "引用元数据指向 V1(328)，但答案里的额度是 5000万元（V0 的旧值）；而 ES/Milvus 里 328 的正文都是 8000万元（已核）。"
+ },
+ "root_cause_analysis": {
+  "checked_milvus": "rag_knowledge_base._kb_9，file_id=328 只有 1 行（pk=1689901252393637717，正文含 8000万元），无残留旧行；全库可见 8 行无重复 source。→ 排除「向量库残留旧正文」。",
+  "checked_es": "kb_9 索引 8 条 chunk，290=V0(5000万元)、328=V1(8000万元)，source 分别为 .../V0/... 与 .../V1/...。",
+  "actual_source_of_5000": "同库另一文档 R12FIX-product-intro.pptx 的 **V0**（file_id=330）正文为「最高额度：5000万元（信用部分不超过1000万元）」。当时该文档只有一版，所以这是**现行版本**的合法内容，模型把两个文档的数字混在了一起。",
+  "deeper_issue": "版本去重（retrieval_fun_tool.document_version）是在**召回候选集**上按 parent_file_name/title 分组后取 max(version)。若某次召回只命中 V0、未命中 V1，则组内只有 V0，去重无从生效 → 旧值照常进入上下文并参与作答。即「默认现行」不是索引级约束，而是概率性行为。"
+ },
+ "reproduction": {
+  "command": "python3 -u /tmp/r14_c/ask_probe.py <证据目录> '我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？' s5repro",
+  "observed_knowledge_docs": [
+   "file_id=328 version=V1 正文=2026-02 / 8000万元",
+   "file_id=329 version=V0 正文=台账（华东精密制造有限公司 授信额度…）",
+   "file_id=330 version=V0 正文=最高额度：5000万元"
+  ]
+ },
+ "mitigation_done": {
+  "action": "把 pptx 也做成两版：V1 = R12FIX-product-intro(1).pptx（file_id=343，正文 8000万元，status=3，parent=R12FIX-product-intro.pptx，group=1939665135），V0=330 保留 5000万元 作历史。",
+  "effect": "语料层面「现行版本」不再有 5000万元；这是夹具侧的收敛，不改变上述产品级问题。"
+ },
+ "recommendation": [
+  "产品级修复（建议 A 的索引层 + 检索层）：写入时给 chunk 打 is_current 标记（或读侧按 file_id 查 MySQL 当前版本再过滤），把「只检索现行版本」做成**索引级/查询级约束**，而不是召回后去重；历史版本检索用显式参数（如 version=V0）。",
+  "C12 验收口径建议：除「默认提问答 8000万」外，追加「只召回 V0 时也不得答旧值」的负例（可用 query 直接打检索侧只传 V0 的 file_id 构造）。"
+ ]
+}

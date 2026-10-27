@@ -1,0 +1,20 @@
+[
+ {
+  "cap": "GLOBAL_REFUSE/R1",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 status=2 拒答=True 编造数值=[] refs=1 answer='事实中未提及 [L0-18625408]'"
+ },
+ {
+  "cap": "GLOBAL_REFUSE/R2",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=500 status=None 拒答=False 编造数值=[] refs=0 answer=''"
+ },
+ {
+  "cap": "GLOBAL_POS",
+  "ok": false,
+  "neutral": false,
+  "detail": " http=200 status=2 cost=4.9s configId=1 refs=1 可解析=1（绝对URL=0 相对键=1）社区id=True src示例=product-loan.docx/V0/R12FIX-product-loan.docx"
+ }
+]

@@ -1,0 +1,66 @@
+{
+ "answer": "是的，客户访前准备是文档的主要内容之一。文档的第二段提到了日均存款金额，但客户访前准备应该是文档的重点部分。",
+ "ref0": {
+  "metadata": {
+   "source": "http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+   "file_path": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+   "id": "cjEyLXJhZy9rYl85L2RvY3gtcGxhaW4uZG9jeC9WMC9kb2N4LXBsYWluLmRvY3g=",
+   "search_type": [
+    "es",
+    "es"
+   ],
+   "offset": [
+    [
+     0,
+     45
+    ]
+   ],
+   "pic_offset_list": [],
+   "pic_children_id_list": [],
+   "chunk_type": "text",
+   "parent_file_name": "docx-plain.docx",
+   "version": "V0",
+   "position": [
+    [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ]
+   ],
+   "file_id": 332,
+   "page_size": [
+    [
+     0,
+     0
+    ]
+   ],
+   "page_number": [
+    0
+   ],
+   "labels": [],
+   "chunk_index": 0,
+   "score": 0.5147556662559509,
+   "rerank_score_rank": 2,
+   "rrf_score": 0.2,
+   "rrf_score_rank": 1
+  },
+  "order_num": "3469141274236685199",
+  "page_content": "Plain DOCX第一段：客户访前准备。第二段：日均存款 2,983,333.33 元。",
+  "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/parsed/docx-plain.docx.txt",
+  "score": "0.5147556662559509",
+  "type": "text"
+ }
+}

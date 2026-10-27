@@ -1,0 +1,51 @@
+{
+ "answer": "最高额度为8000万元。其中信用方式部分不超过1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。",
+ "ref0": {
+  "metadata": {
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==",
+   "search_type": [
+    "milvus",
+    "es",
+    "es",
+    "graph"
+   ],
+   "offset": [
+    [
+     0,
+     123
+    ]
+   ],
+   "pic_offset_list": [],
+   "pic_children_id_list": [],
+   "text_parent_id_list": [],
+   "chunk_type": "text",
+   "parent_file_name": "R12FIX-product-intro.pptx",
+   "revise_date": "",
+   "version": "V1",
+   "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+   "file_id": 343,
+   "image_path": "",
+   "page_size": "[[0, 0]]",
+   "page_number": [
+    0
+   ],
+   "table_name": "",
+   "labels": [],
+   "chunk_index": 0,
+   "title": "R12FIX-product-intro(1).pptx",
+   "chunk_pk": 626225001556669433,
+   "knowledge_base_name": "kb_9",
+   "score": 0.9827535152435303,
+   "rerank_score_rank": 2,
+   "rrf_score": 0.75,
+   "rrf_score_rank": 1
+  },
+  "order_num": "3572389618965484454",
+  "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+  "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt",
+  "score": "0.9827535152435303",
+  "type": "text"
+ }
+}

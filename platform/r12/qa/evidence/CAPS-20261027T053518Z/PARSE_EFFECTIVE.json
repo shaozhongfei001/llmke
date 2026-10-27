@@ -1,0 +1,55 @@
+{
+ "broken": [],
+ "stale_index": [
+  {
+   "fileId": "328",
+   "name": "R12FIX-product-loan(1).docx",
+   "latest_create_time": "2026-10-27 13:25:55.428683",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "290",
+   "name": "R12FIX-product-loan.docx",
+   "latest_create_time": "2026-10-27 13:25:49.049291",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "343",
+   "name": "R12FIX-product-intro(1).pptx",
+   "latest_create_time": "2026-10-27 13:26:53.199407",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "330",
+   "name": "R12FIX-product-intro.pptx",
+   "latest_create_time": "2026-10-27 13:26:13.258754",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "329",
+   "name": "R12FIX-credit-ledger.xlsx",
+   "latest_create_time": "2026-10-27 13:26:09.041938",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "331",
+   "name": "pdf-digital.pdf",
+   "latest_create_time": "2026-10-27 13:26:24.234184",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "332",
+   "name": "docx-plain.docx",
+   "latest_create_time": "2026-10-27 13:26:34.539232",
+   "since": "2026-10-27T13:20:00"
+  },
+  {
+   "fileId": "333",
+   "name": "docx-table.docx",
+   "latest_create_time": "2026-10-27 13:26:45.570936",
+   "since": "2026-10-27T13:20:00"
+  }
+ ],
+ "parsed_count": 9,
+ "since": "2026-10-27T13:20:00"
+}

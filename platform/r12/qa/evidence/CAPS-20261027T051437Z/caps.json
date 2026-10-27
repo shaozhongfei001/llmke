@@ -1,0 +1,8 @@
+[
+ {
+  "cap": "PARSE_EFFECTIVE",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 status=3文件=9 抽查=8 无块=[]"
+ }
+]

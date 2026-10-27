@@ -1,0 +1,8 @@
+{
+ "provenance_quality": [
+  "exact_chunk"
+ ],
+ "dangling": [
+  "r12-rag/kb_9/gone.docx"
+ ]
+}

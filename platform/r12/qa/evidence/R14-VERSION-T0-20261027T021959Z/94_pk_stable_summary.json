@@ -1,0 +1,43 @@
+{
+ "id": "R14-C-FIX-08-PK-STABLE-E2E",
+ "at": "2026-10-27T11:45:00+08:00",
+ "fixture": "r12-rag/fixtures/cn-docx-direct.docx",
+ "chunk_size": 512,
+ "index": "r12a_parse_idem（scratch）",
+ "parse_service": {
+  "pid": 619641,
+  "restarted_at": "2026-10-27 11:43:32",
+  "note": "改后重启，/docs=200"
+ },
+ "run1": {
+  "es": {
+   "text": "154391667458976534,193687022720715930",
+   "table_chunks": "834640398399242976",
+   "table_summary": "678437520596486467"
+  },
+  "milvus_pks": [
+   "154391667458976534",
+   "193687022720715930"
+  ],
+  "visible_rows": 2
+ },
+ "run2": {
+  "es": {
+   "text": "154391667458976534,193687022720715930",
+   "table_chunks": "834640398399242976",
+   "table_summary": "678437520596486467"
+  },
+  "milvus_pks": [
+   "154391667458976534",
+   "193687022720715930"
+  ],
+  "visible_rows": 2
+ },
+ "verdict": {
+  "ids_stable_across_two_parses": true,
+  "no_doubling": true,
+  "es_id_equals_milvus_pk": true,
+  "covers_table_paths": "是（该夹具同时产出 table_summary + table_chunks，均已稳定）"
+ },
+ "raw_stdout": "platform/r12/qa/evidence/R14-VERSION-T0-20261027T021959Z/95_pk_stable_e2e_after.json"
+}

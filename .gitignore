@@ -85,5 +85,9 @@ platform/r12/dist/
 
 # 构建产物与临时目录
 frontend/plateform/dist-r13*/
+frontend/plateform/dist-r14*/
 frontend/plateform/dist.bak-*/
 platform/r12/dist/offline/
+
+# Nacos 容器挂载的快照目录：含明文口令，属运行态产物，不入库
+nacos-data/

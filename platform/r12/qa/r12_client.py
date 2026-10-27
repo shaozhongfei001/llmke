@@ -88,7 +88,12 @@ def login(user="admin", password="Admin@12345", use_captcha=False):
 
 def api(s, method, path, token, **kw):
     h = {"Authorization": token, "X-Platform": "rag-qa", "User-Agent": UA}
-    r = s.request(method, GATEWAY + path, headers=h, timeout=120, **kw)
+    # R14-F08：连接中断/超时必须显式记为 http=0 并带 transport_error 标记，
+    # 不能靠异常冒泡后由上层误当"被拒绝"。所有判定方（denied() 等）都把 0 当作失败。
+    try:
+        r = s.request(method, GATEWAY + path, headers=h, timeout=120, **kw)
+    except requests.exceptions.RequestException as e:
+        return 0, {"transport_error": f"{type(e).__name__}: {str(e)[:200]}"}
     try:
         return r.status_code, r.json()
     except Exception:

@@ -1,0 +1,14 @@
+[
+ {
+  "cap": "GRAPH_IDENTITY",
+  "ok": false,
+  "neutral": false,
+  "detail": "异常: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=19529): Max retries exceeded with url: /query_graph_data (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7920b1bd3d60>: Failed to establish a new connection: [Errno 111] Connection refused'))"
+ },
+ {
+  "cap": "GRAPH_PROVENANCE",
+  "ok": false,
+  "neutral": false,
+  "detail": "异常: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=19529): Max retries exceeded with url: /query_graph_data (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7920b1c844f0>: Failed to establish a new connection: [Errno 111] Connection refused'))"
+ }
+]

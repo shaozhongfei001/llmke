@@ -1,0 +1,186 @@
+{
+  "question": "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？",
+  "answer": "根据“智造贷”产品说明书，你们这种做汽车零部件的中型企业，单户最高授信额度为人民币5000万元，其中信用方式不超过1000万元，其余部分需要通过应收账款质押、设备抵押或核心企业保证等方式增信。[retrive-tag id=\"1294225338164573682\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]贷款期限最长为三年。\n\n希望这能帮到您！如果有更多问题，请随时提问。",
+  "frames": [
+    {
+      "sessionId": "kb_31",
+      "queryId": "q-1793086037562",
+      "lastDate": 1793086048442,
+      "status": 1,
+      "reply": {
+        "content": "",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": null,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_31",
+      "queryId": "q-1793086037562",
+      "lastDate": 1793086048989,
+      "status": 1,
+      "reply": {
+        "content": "根据",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_31",
+      "queryId": "q-1793086037562",
+      "lastDate": 1793086049009,
+      "status": 1,
+      "reply": {
+        "content": "“",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_31",
+      "queryId": "q-1793086037562",
+      "lastDate": 1793086049034,
+      "status": 1,
+      "reply": {
+        "content": "智造",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_31",
+      "queryId": "q-1793086037562",
+      "lastDate": 1793086049058,
+      "status": 1,
+      "reply": {
+        "content": "贷",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_31",
+      "queryId": "q-1793086037562",
+      "lastDate": 1793086049091,
+      "status": 1,
+      "reply": {
+        "content": "”",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    }
+  ],
+  "reference": [
+    {
+      "metadata": {
+        "source": "r12-rag/kb_31/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "file_path": "r12-rag/kb_31/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "id": "cjEyLXJhZy9rYl8zMS9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3gvVjAvUjEyRklYLXByb2R1Y3QtbG9hbi5kb2N4",
+        "search_type": [
+          "milvus",
+          "es",
+          "es"
+        ],
+        "offset": [
+          [
+            0,
+            459
+          ]
+        ],
+        "pic_offset_list": [],
+        "chunk_type": "text",
+        "parent_file_name": "R12FIX-product-loan.docx",
+        "revise_date": "",
+        "version": "V0",
+        "position": "[[], [], [], [], [], [], [], [], [], [], [], []]",
+        "file_id": 452,
+        "image_path": "",
+        "page_size": "[[], [], [], [], [], [], [], [], [], [], [], []]",
+        "page_number": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "table_name": "",
+        "chunk_index": 0,
+        "title": "R12FIX-product-loan.docx",
+        "chunk_pk": 151994304108843969,
+        "knowledge_base_name": "kb_31",
+        "score": 0.5864670872688293,
+        "rerank_score_rank": 1,
+        "rrf_score": 0.6666666666666666,
+        "rrf_score_rank": 2
+      },
+      "order_num": "1294225338164573682",
+      "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_31/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "rerank_score_rank": "1",
+      "rrf_score": "0.6666666666666666",
+      "rrf_score_rank": "2",
+      "score": "0.5864670872688293",
+      "sourceFileName": "R12FIX-product-loan.docx",
+      "type": "text"
+    }
+  ]
+}

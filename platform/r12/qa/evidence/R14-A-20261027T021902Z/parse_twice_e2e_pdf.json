@@ -1,0 +1,85 @@
+{
+  "chunk_size": 512,
+  "fixture": "fixtures/cn-digital.pdf",
+  "index": "r12a_parse_idem",
+  "run1_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0
+      ],
+      "count": 1,
+      "ids": [
+        "1481975016217499685"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run1_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "1481975016217499685"
+      ],
+      "visible_rows": 1
+    }
+  },
+  "run1_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/cn-digital.pdf\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 5.1,
+    "status": 200
+  },
+  "run2_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0
+      ],
+      "count": 1,
+      "ids": [
+        "1311218668815049039"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run2_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "1311218668815049039"
+      ],
+      "visible_rows": 1
+    }
+  },
+  "run2_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/cn-digital.pdf\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 2.4,
+    "status": 200
+  },
+  "tag": "e2e_pdf",
+  "ts": "2026-10-27T10:50:59+0800"
+}

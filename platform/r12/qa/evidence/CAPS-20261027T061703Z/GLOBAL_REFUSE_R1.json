@@ -1,0 +1,11 @@
+{
+ "answer": "授信额度与票据贴现的关系在提供的事实中未提及，因此无法得出具体关系。[L0-92b533ae]",
+ "sources": [
+  "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx"
+ ],
+ "infra": {
+  "graph_pid": "1461792",
+  "es_ok": true,
+  "es_ms": 8.5
+ }
+}

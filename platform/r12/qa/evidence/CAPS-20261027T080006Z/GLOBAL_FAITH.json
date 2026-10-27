@@ -1,0 +1,32 @@
+{
+ "runs": [
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": [],
+   "env": false
+  },
+  {
+   "ok": true,
+   "found": {
+    "江南装备": "30",
+    "华东精密": "60",
+    "北方重工": "60"
+   },
+   "missing": [],
+   "env": false
+  }
+ ],
+ "sources": [
+  "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx"
+ ],
+ "infra": {
+  "graph_pid": "1461792",
+  "es_ok": true,
+  "es_ms": 8.0
+ }
+}

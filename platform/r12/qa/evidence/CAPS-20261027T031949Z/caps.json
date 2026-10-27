@@ -1,0 +1,7 @@
+[
+ {
+  "cap": "TABLE",
+  "ok": false,
+  "detail": "http=500 status=500 数值=False 单位=False 主体=False 口径='授信/额度'=False refs=0 answer=''"
+ }
+]

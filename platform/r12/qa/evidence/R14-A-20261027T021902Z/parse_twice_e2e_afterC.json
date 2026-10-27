@@ -1,0 +1,109 @@
+{
+  "chunk_size": 120,
+  "fixture": "fixtures/cn-digital.pdf",
+  "index": "r12a_parse_idem",
+  "run1_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "count": 4,
+      "ids": [
+        "497043685220123864",
+        "613149029398355601",
+        "807974388166867694",
+        "957390432049458610"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run1_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "497043685220123864",
+        "613149029398355601",
+        "807974388166867694",
+        "957390432049458610"
+      ],
+      "visible_rows": 4
+    }
+  },
+  "run1_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/cn-digital.pdf\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 4.2,
+    "status": 200
+  },
+  "run2_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "count": 4,
+      "ids": [
+        "497043685220123864",
+        "613149029398355601",
+        "807974388166867694",
+        "957390432049458610"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "count": null,
+      "error": "HTTP Error 404: Not Found",
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run2_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "497043685220123864",
+        "613149029398355601",
+        "807974388166867694",
+        "957390432049458610"
+      ],
+      "visible_rows": 4
+    }
+  },
+  "run2_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/cn-digital.pdf\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 1.4,
+    "status": 200
+  },
+  "tag": "afterC",
+  "ts": "2026-10-27T11:43:51+0800"
+}

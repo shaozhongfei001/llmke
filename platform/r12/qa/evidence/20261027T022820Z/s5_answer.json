@@ -1,0 +1,352 @@
+{
+  "question": "我们这种做汽车零部件的中型企业，最多能借多少钱、能借多久？",
+  "answer": "您们这种做汽车零部件的中型企业，单户最高授信额度为人民币5000万元。[retrive-tag id=\"1599310699525164326\" image_urls=\"\" fromType=\"0\"][1][/retrive-tag][retrive-tag id=\"3065807593478805588\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。[retrive-tag id=\"3065807593478805588\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]贷款期限最长为三年。\n\n希望这能帮助到您！如果有更多问题，请随时告知。",
+  "frames": [
+    {
+      "sessionId": "kb_9",
+      "queryId": "q-1793068100859",
+      "lastDate": 1793068115341,
+      "status": 1,
+      "reply": {
+        "content": "",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": null,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_9",
+      "queryId": "q-1793068100859",
+      "lastDate": 1793068116800,
+      "status": 1,
+      "reply": {
+        "content": "您",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_9",
+      "queryId": "q-1793068100859",
+      "lastDate": 1793068116819,
+      "status": 1,
+      "reply": {
+        "content": "们",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_9",
+      "queryId": "q-1793068100859",
+      "lastDate": 1793068116839,
+      "status": 1,
+      "reply": {
+        "content": "这种",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_9",
+      "queryId": "q-1793068100859",
+      "lastDate": 1793068116858,
+      "status": 1,
+      "reply": {
+        "content": "做",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    },
+    {
+      "sessionId": "kb_9",
+      "queryId": "q-1793068100859",
+      "lastDate": 1793068116879,
+      "status": 1,
+      "reply": {
+        "content": "汽车",
+        "type": "markdown"
+      },
+      "reference": null,
+      "webReference": null,
+      "databaseReference": null,
+      "docsTree": null,
+      "resultType": 1,
+      "filePaths": null,
+      "respTime": null,
+      "tokens": 0,
+      "promptContent": null,
+      "llmType": 1
+    }
+  ],
+  "reference": [
+    {
+      "metadata": {
+        "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+        "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMC9SMTJGSVgtcHJvZHVjdC1sb2FuLmRvY3g=",
+        "search_type": [
+          "milvus",
+          "milvus",
+          "es",
+          "es",
+          "es",
+          "es"
+        ],
+        "offset": [
+          [
+            0,
+            459
+          ]
+        ],
+        "pic_offset_list": [],
+        "chunk_type": "text",
+        "parent_file_name": "R12FIX-product-loan.docx",
+        "revise_date": "",
+        "version": "V0",
+        "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+        "file_id": 290,
+        "image_path": "",
+        "page_size": "[[0, 0]]",
+        "page_number": [
+          0
+        ],
+        "table_name": "",
+        "chunk_index": 0,
+        "score": 0.586466908454895,
+        "rerank_score_rank": 1,
+        "rrf_score": 0.5416666666666666,
+        "rrf_score_rank": 1
+      },
+      "order_num": "3065807593478805588",
+      "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "rerank_score_rank": "1",
+      "rrf_score": "0.5416666666666666",
+      "rrf_score_rank": "1",
+      "score": "0.586466908454895",
+      "sourceFileName": "R12FIX-product-loan.docx",
+      "type": "text"
+    },
+    {
+      "metadata": {
+        "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+        "file_path": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+        "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==",
+        "search_type": [
+          "milvus",
+          "es",
+          "es"
+        ],
+        "offset": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "chunk_type": "table",
+        "parent_file_name": "R12FIX-credit-ledger.xlsx",
+        "revise_date": "",
+        "version": "V0",
+        "position": "[]",
+        "file_id": 300,
+        "page_size": "[]",
+        "page_number": [],
+        "table_name": "table-0-授信台账",
+        "chunk_index": 0,
+        "table_summary_id": "1131660403135378951",
+        "score": 0.043173789978027344,
+        "rerank_score_rank": 2,
+        "rrf_score": 0.2,
+        "rrf_score_rank": 2
+      },
+      "order_num": "1599310699525164326",
+      "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0-授信台账.md",
+      "rerank_score_rank": "2",
+      "rrf_score": "0.2",
+      "rrf_score_rank": "2",
+      "score": "0.043173789978027344",
+      "sourceFileName": "R12FIX-credit-ledger.xlsx",
+      "type": "table"
+    }
+  ]
+}

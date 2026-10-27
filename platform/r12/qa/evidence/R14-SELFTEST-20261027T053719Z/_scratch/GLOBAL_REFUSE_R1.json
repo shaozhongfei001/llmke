@@ -1,0 +1,9 @@
+{
+ "answer": "关注类需要计提 2% 的贷款损失准备。",
+ "sources": [],
+ "infra": {
+  "graph_pid": "1256188",
+  "es_ok": true,
+  "es_ms": 12.5
+ }
+}

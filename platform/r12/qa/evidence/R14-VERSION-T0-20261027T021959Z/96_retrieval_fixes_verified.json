@@ -1,0 +1,37 @@
+{
+ "id": "R14-C-FIX-09/11-RUNTIME-VERIFIED",
+ "at": "2026-10-27T11:48:00+08:00",
+ "runtime": {
+  "service": "alg_retrieval_service (19995)",
+  "restart": "platform/r12/run/algctl.sh restart alg_retrieval_service（只重启这一个，未动 19526/19527/19996）",
+  "pid": 641826,
+  "port_up_at": "11:47:29",
+  "files": {
+   "alg_retrieval_service/app/multiple_retrieval.py": "mtime 11:43:01（offset break→continue；graph except→continue）",
+   "alg_retrieval_service/app/retrieval_service.py": "mtime 11:46:36（:478 documents[query] KeyError）"
+  }
+ },
+ "case_1_uppercase_graph_500_fixed": {
+  "defect": "查询含大写 ASCII + enabled_graph=true → retrieval_service.py:478 KeyError → HTTP 500 → Java 拿不到 documents_list → 开图 refs=0",
+  "fix": "R14-C-FIX-11：图分支按键降级（原始 → 小写），并保证原始键存在（下游另有 documents[query] 直接取值）",
+  "before": "http=500 KeyError: '信用评级为AAA的公司执行利率需要加多少个基点'",
+  "after": {
+   "quote": "POST /qa/ai/question configId=1（enabled_graph=true）",
+   "upper": {"http": 200, "status": 2, "refs": 3, "graph_refs": 2, "answer": "信用评级为AAA的公司的执行利率需要加100个基点。"},
+   "lower": {"http": 200, "status": 2, "refs": 3, "graph_refs": 2, "answer": "根据参考资料中的信息，信用评级为AAA的公司的执行利率需要加60个基点。"}
+  },
+  "verdict": "PASS：500 消失、开图引用恢复（3 条、其中 2 条 search_type 含 graph）",
+  "residual": "答案数值仍不稳：B 的 ground truth 是 AAA=30bp，实测上/下写两次分别给 100 / 60 —— 属图召回内容与模型取值的一致性问题（B 侧 G1 证据里 AAA 是 30bp），不计入本次 500 修复"
+ },
+ "case_2_faq_direct_answer_fixed": {
+  "defect": "FAQ 行 Milvus offset 为空串 → json.loads('') 抛错 → multiple_retrieval.py 用 break 掐断整批 dense 召回 → faq_result_list=0（FAQ 直答永不命中）",
+  "fix": "R14-C-FIX-09：offset 缺失/非法降级为 [] 并 continue，不再 break",
+  "after": {
+   "request": "POST /qa/ai/question configId=9（FAQ 助手） 问题='客户访前准备是否是文档的主要内容？'",
+   "http": 200, "status": 2, "resultType": 2, "refs": 2,
+   "answer": "是的，文档的结构包含客户访前准备在第一段，日均存款在第二段。"
+  },
+  "verdict": "PASS：resultType=2（FAQ 直答）恢复，refs 非空"
+ },
+ "note": "多 KB 图检索 except→return 改 continue 也在同一次重启中生效；该场景需多 KB（其中一个 KB 无图空间）才能观测，留给 A/B 的多 KB 用例复验"
+}

@@ -1,0 +1,52 @@
+[
+ {
+  "label": "admin + configId=1",
+  "user": "admin",
+  "configId": 1,
+  "http": 200,
+  "status": 1,
+  "errorCode": null,
+  "answer_head": "",
+  "raw_head": "data:{\"sessionId\":\"r14probe-54422065\",\"queryId\":\"q-54422065\",\"lastDate\":1793069294031,\"status\":1,\"reply\":{\"content\":\"\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,"
+ },
+ {
+  "label": "admin + 不传 configId",
+  "user": "admin",
+  "configId": null,
+  "http": 500,
+  "status": null,
+  "errorCode": null,
+  "answer_head": "",
+  "raw_head": ""
+ },
+ {
+  "label": "admin + configId=6(kb_9助手)",
+  "user": "admin",
+  "configId": 6,
+  "http": 200,
+  "status": 1,
+  "errorCode": null,
+  "answer_head": "",
+  "raw_head": "data:{\"sessionId\":\"r14probe-1885850\",\"queryId\":\"q-1885850\",\"lastDate\":1793069303599,\"status\":1,\"reply\":{\"content\":\"\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"d"
+ },
+ {
+  "label": "r13_noauth + configId=1",
+  "user": "r13_noauth",
+  "configId": 1,
+  "http": 500,
+  "status": null,
+  "errorCode": null,
+  "answer_head": "",
+  "raw_head": ""
+ },
+ {
+  "label": "r13_reader + configId=1",
+  "user": "r13_reader",
+  "configId": 1,
+  "http": 200,
+  "status": 1,
+  "errorCode": null,
+  "answer_head": "",
+  "raw_head": "data:{\"sessionId\":\"r14probe-60201888\",\"queryId\":\"q-60201888\",\"lastDate\":1793069312360,\"status\":1,\"reply\":{\"content\":\"\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,"
+ }
+]

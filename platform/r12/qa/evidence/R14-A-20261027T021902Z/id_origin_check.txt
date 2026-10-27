@@ -1,0 +1,5 @@
+{"index": "r12a_id_origin", "_id": "247735811832568997", "id_origin": "derived_chunk_index", "pk": "247735811832568997", "community_id": null, "chunk_index": 0}
+{"index": "r12a_id_origin", "_id": "123456789012345", "id_origin": "pk_from_caller", "pk": "123456789012345", "community_id": null, "chunk_index": 1}
+{"index": "r12a_id_origin", "_id": "3358427186682117724", "id_origin": "random", "pk": "3358427186682117724", "community_id": null, "chunk_index": null}
+{"index": "community_summary_kb_probe", "_id": "1112174475615003848", "id_origin": "derived_community", "pk": "1112174475615003848", "community_id": "L0-deadbeef", "chunk_index": null}
+{"index": "r12a_id_origin", "ts": "2026-10-27T11:01:20+0800", "cases": [{"expect": "derived_chunk_index", "msg": "r12a_id_origin保存数据成功，共保存1条数据"}, {"expect": "pk_from_caller", "msg": "r12a_id_origin保存数据成功，共保存1条数据"}, {"expect": "random", "msg": "r12a_id_origin保存数据成功，共保存1条数据"}, {"expect": "derived_community", "msg": "community_summary_kb_probe保存数据成功，共保存1条数据，清理旧代 0 条"}]}

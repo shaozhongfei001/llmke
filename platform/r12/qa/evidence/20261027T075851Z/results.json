@@ -1,0 +1,214 @@
+[
+  {
+    "scene": "PREP",
+    "case": "删除上一轮验收库（保证基线独立可重复）",
+    "ok": true,
+    "state": "PASS",
+    "detail": "kbId=33 kbName=R14-BASELINE-KB http=200"
+  },
+  {
+    "scene": "PREP",
+    "case": "创建独立验收库",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 kbId=34 kbName=R14-BASELINE-KB primitive=kb_34 旧库清理=1",
+    "extra": {
+      "resp": {
+        "success": true,
+        "errorMsg": null,
+        "errorCode": null,
+        "data": {
+          "id": "34",
+          "kbName": "R14-BASELINE-KB",
+          "primitiveName": "kb_34",
+          "kbType": 1,
+          "kbDes": "R14 严格断言基线验收库（独立于 kb_9）",
+          "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_34/",
+          "status": 1,
+          "fileTotalSize": null,
+          "fileCount": null,
+          "permission": null,
+          "chunkSize": 512,
+          "fileType": "naive",
+          "chunkOverlap": 50,
+          "splitRegex": null,
+          "embeddingModelName": "bge-m3",
+          "modelName": "qwen2.5-7b-instruct",
+          "multiModelName": "qwen2.5-vl-3b-instruct",
+          "faqModelName": "qwen2.5-7b-instruct",
+          "generateGraphModelName": "qwen2.5-7b-instruct",
+          "kbLabel": null,
+          "fileFaqMaxNums": 0,
+          "similarQuestionMaxNums": 1,
+          "enablePolish": false,
+          "graphPrompt": null,
+          "platform": "rag-qa",
+          "label": null,
+          "chunkType": null,
+          "privateKb": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "独立库助手配置就绪",
+    "ok": true,
+    "state": "PASS",
+    "detail": "kbName=kb_34 configId=12（R14-BASELINE-CFG）"
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=483 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "483"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=484 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "484"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=485 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "485"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=486 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "486"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=487 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "487"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=488 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "488"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=489 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "489"
+      }
+    }
+  },
+  {
+    "scene": "S3",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "state": "PASS",
+    "detail": "http=200 fileId=490"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=483 最终状态=3 耗时=27s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 XLSX 业务夹具",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=484 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 中文 PPTX 业务夹具",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=485 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 数字版",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=486 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 纯文本",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=487 最终状态=3 耗时=3s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 DOCX 含表格",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=488 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "解析完成 PDF 扫描件(OCR)",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=489 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "S4",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "state": "PASS",
+    "detail": "fileId=490 负例 最终状态=4(失败·正确终态) 耗时=0s"
+  },
+  {
+    "scene": "COVERAGE",
+    "case": "选中的场景均已真实执行",
+    "ok": true,
+    "state": "PASS",
+    "detail": "选中=['S3', 'S4'] 实际执行=['S3', 'S4'] 未执行=[] 未知场景=[]"
+  }
+]

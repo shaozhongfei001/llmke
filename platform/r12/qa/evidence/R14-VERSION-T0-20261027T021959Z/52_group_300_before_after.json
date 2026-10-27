@@ -1,0 +1,65 @@
+{
+ "id": "R14-C-GROUP-300-BEFORE-AFTER",
+ "at": "2026-10-27T11:27:00+08:00",
+ "owner": "C-business",
+ "defect": "F04 文档稳定身份：不同文档被并进同一版本组（parent_file_name / group_id 被跨文档改写）",
+ "before": {
+  "observed_at": "2026-10-27T10:22:24+08:00",
+  "where": "kb_9（R12验收主链）",
+  "row": {"id": 300, "fileName": "R12FIX-credit-ledger.xlsx", "parent_file_name": "R12FIX-product-loan.docx",
+          "version": "V0", "status": 3, "group_id": "614524213"},
+  "expected": {"parent_file_name": "R12FIX-credit-ledger.xlsx", "group_id": "1577230197"},
+  "impact": [
+   "台账与贷款说明书被归为同一版本组 → 检索侧 document_version 按 parent_file_name 取 max(version)，台账被当作 loan 的旧版本过滤掉",
+   "台账的 ES chunk 消失（kb_9 索引 8 条 chunk 里没有 xlsx），表格问答从「3000万元」退化为「5000万元 + refs=0」",
+   "group_id=614524213 实为 Java hashCode('R12FIX-product-loan.docx') & 0x7FFFFFFF，可证明被 loan 组吸收"
+  ],
+  "evidence": ["40_db_before_rebuild.tsv", "60_verify_ae.json(历史)", "62_version_scope_finding.json"]
+ },
+ "fix": {
+  "id": "R14-C-FIX-01",
+  "file": "services/rag-java/rag-parent/rag-index-service/.../FileAppServiceImpl.java",
+  "method": "doFileMultiversion + versionKeyOf",
+  "rule": "写入前按「归一键」（去扩展名后剥掉末尾 (n)/（n））校验：只有与组父名同键的文件才允许 updateMultiversion；否则跳过并 log.warn('R14-C-FIX-01 拒绝跨文档归组 ...')；绝不改写其 parent_file_name / group_id"
+ },
+ "after": [
+  {
+   "case": "kb_9 重灌台账后",
+   "observed_at": "2026-10-27T10:44-10:47",
+   "row": {"id": 329, "fileName": "R12FIX-credit-ledger.xlsx",
+           "parent_file_name": "R12FIX-credit-ledger.xlsx", "version": "V0", "status": 3,
+           "group_id": "1577230197"},
+   "verdict": "PASS：parent=自身、group=自身 hash，未进入 loan 组"
+  },
+  {
+   "case": "kb_14 受控回归（一次请求上传 3 个不同文件）",
+   "rows": [
+    {"id": 335, "fileName": "R12FIX-product-loan.docx", "group_id": "614524213"},
+    {"id": 336, "fileName": "R12FIX-credit-ledger.xlsx", "group_id": "1577230197"},
+    {"id": 337, "fileName": "docx-table.docx", "group_id": "815706637"}
+   ],
+   "verdict": "PASS：3 个 group 互不相同，parent 均等于自身文件名"
+  },
+  {
+   "case": "kb_14 只对 loan 上传新版本",
+   "rows": [{"id": 338, "fileName": "R12FIX-product-loan(1).docx", "version": "V1", "group_id": "614524213"}],
+   "other_files_untouched": true,
+   "multiple_version": "只返回 1 个多版本组，成员恰为 loan 两版",
+   "verdict": "PASS：只有它进组，另两个文件 group/parent 未被扰动"
+  },
+  {
+   "case": "kb_14 守卫反例（内容逐字节相同、文件名不同）",
+   "rows": [
+    {"id": 341, "fileName": "R14-GUARD-A.docx", "group_id": "779989229", "parent": "R14-GUARD-A.docx"},
+    {"id": 342, "fileName": "R14-GUARD-B.docx", "group_id": "808618380", "parent": "R14-GUARD-B.docx"}
+   ],
+   "verdict": "PASS：未被并组（但本轮算法端回放未尝试合并，故守卫的拒绝分支未被触发——见 55_guard_proof.json）"
+  }
+ ],
+ "results": {"group_regression": "10/10 PASS", "c12_version_assertions": "6/6 PASS"},
+ "honest_limits": [
+  "id=300 当初被并入 loan 组的具体触发路径尚未定位：把同一 payload 回放给算法端 /parse/multi_version（status=0/1）均返回 group_id 空，无法复现",
+  "R14-C-FIX-01 是写入侧防御，本轮证明的是「没有发生跨文档并组」，不是「拦住了它」（拒绝分支日志 0 命中）",
+  "建议下一轮加 group 变更审计（fileId / 旧 group / 新 group / 触发调用）以定位原始触发链"
+ ]
+}

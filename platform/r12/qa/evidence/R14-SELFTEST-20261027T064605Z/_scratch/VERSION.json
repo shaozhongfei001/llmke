@@ -1,0 +1,15 @@
+{
+ "groups": [
+  {
+   "id": 1,
+   "kbFiles": [
+    {
+     "version": "V0"
+    },
+    {
+     "version": "V1"
+    }
+   ]
+  }
+ ]
+}

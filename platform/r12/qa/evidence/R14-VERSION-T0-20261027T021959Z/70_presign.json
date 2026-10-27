@@ -1,0 +1,49 @@
+{
+ "cases": [
+  {
+   "case": "200 正常签发（相对对象键）",
+   "ok": false,
+   "detail": "http=401 expires_in=None objectKey=None 预签名URL实际GET=0",
+   "extra": {
+    "url_prefix": ""
+   }
+  },
+  {
+   "case": "200 正常签发（绝对URL）",
+   "ok": false,
+   "detail": "http=401 expires_in=None objectKey=None 预签名URL实际GET=0",
+   "extra": {
+    "url_prefix": ""
+   }
+  },
+  {
+   "case": "200 正常签发（双桶名脏数据）",
+   "ok": false,
+   "detail": "http=401 expires_in=None objectKey=None 预签名URL实际GET=0",
+   "extra": {
+    "url_prefix": ""
+   }
+  },
+  {
+   "case": "401 无 token 被拒",
+   "ok": true,
+   "detail": "http=401 body={\"errorCode\":\"30022\",\"errorMsg\":\"没有token\",\"success\":false}"
+  },
+  {
+   "case": "403 越权账号(r13_noauth)被拒",
+   "ok": true,
+   "detail": "http=401 errorCode=30021 body={'errorCode': '30021', 'errorMsg': '没有足够的权限', 'success': False}"
+  },
+  {
+   "case": "拒绝无法归属知识库的对象键",
+   "ok": false,
+   "detail": "http=401 errorCode=30021 body={'errorCode': '30021', 'errorMsg': '没有足够的权限', 'success': False}"
+  },
+  {
+   "case": "响应不含 MinIO 凭据",
+   "ok": true,
+   "detail": "http=401 响应键=[]"
+  }
+ ],
+ "summary": "3/7"
+}

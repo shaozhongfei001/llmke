@@ -1,0 +1,31 @@
+{
+ "test1_same_doc_id": {
+  "doc_id_A": 695656292719609117,
+  "doc_id_B": 481065570543413937,
+  "pass": false
+ },
+ "test2_content_change": {
+  "base": [
+   627810962251856211,
+   480414138587720917,
+   513211253822444487
+  ],
+  "changed": [
+   627810962251856211,
+   935833601441311555,
+   513211253822444487
+  ],
+  "changed_blocks": [
+   1
+  ],
+  "pass": true
+ },
+ "test3_es_mv": {
+  "error": "pymilvus missing: No module named 'pymilvus'",
+  "pass": null
+ },
+ "verdict": {
+  "pass": false,
+  "seed_still_has_document_id": true
+ }
+}

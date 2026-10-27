@@ -1,0 +1,478 @@
+[
+  {
+    "scene": "PREP",
+    "case": "删除上一轮验收库（保证基线独立可重复）",
+    "ok": true,
+    "detail": "kbId=15 kbName=R14-BASELINE-KB http=200"
+  },
+  {
+    "scene": "PREP",
+    "case": "创建独立验收库",
+    "ok": true,
+    "detail": "http=200 kbId=16 kbName=R14-BASELINE-KB primitive=kb_16 旧库清理=1",
+    "extra": {
+      "resp": {
+        "success": true,
+        "errorMsg": null,
+        "errorCode": null,
+        "data": {
+          "id": "16",
+          "kbName": "R14-BASELINE-KB",
+          "primitiveName": "kb_16",
+          "kbType": 1,
+          "kbDes": "R14 严格断言基线验收库（独立于 kb_9）",
+          "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_16/",
+          "status": 1,
+          "fileTotalSize": null,
+          "fileCount": null,
+          "permission": null,
+          "chunkSize": 512,
+          "fileType": "naive",
+          "chunkOverlap": 50,
+          "splitRegex": null,
+          "embeddingModelName": "bge-m3",
+          "modelName": "qwen2.5-7b-instruct",
+          "multiModelName": "qwen2.5-vl-3b-instruct",
+          "faqModelName": "qwen2.5-7b-instruct",
+          "generateGraphModelName": "qwen2.5-7b-instruct",
+          "kbLabel": null,
+          "fileFaqMaxNums": 0,
+          "similarQuestionMaxNums": 1,
+          "enablePolish": false,
+          "graphPrompt": null,
+          "platform": "rag-qa",
+          "label": null,
+          "chunkType": null,
+          "privateKb": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "独立库助手配置就绪",
+    "ok": true,
+    "detail": "kbName=kb_16 configId=12（R14-BASELINE-CFG）"
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=352 name=R12FIX-product-loan.docx",
+    "extra": {
+      "resp": {
+        "fileId": "352"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=353 name=R12FIX-credit-ledger.xlsx",
+    "extra": {
+      "resp": {
+        "fileId": "353"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "http=200 fileId=354 name=R12FIX-product-intro.pptx",
+    "extra": {
+      "resp": {
+        "fileId": "354"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 PDF 数字版",
+    "ok": true,
+    "detail": "http=200 fileId=355 name=pdf-digital.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "355"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 DOCX 纯文本",
+    "ok": true,
+    "detail": "http=200 fileId=356 name=docx-plain.docx",
+    "extra": {
+      "resp": {
+        "fileId": "356"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 DOCX 含表格",
+    "ok": true,
+    "detail": "http=200 fileId=357 name=docx-table.docx",
+    "extra": {
+      "resp": {
+        "fileId": "357"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "上传 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "http=200 fileId=358 name=pdf-scanned.pdf",
+    "extra": {
+      "resp": {
+        "fileId": "358"
+      }
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "加密 PDF 已入库待解析",
+    "ok": true,
+    "detail": "http=200 fileId=359"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 中文 DOCX 业务夹具",
+    "ok": true,
+    "detail": "fileId=352 最终状态=3 耗时=21s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 中文 XLSX 业务夹具",
+    "ok": true,
+    "detail": "fileId=353 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 中文 PPTX 业务夹具",
+    "ok": true,
+    "detail": "fileId=354 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 PDF 数字版",
+    "ok": true,
+    "detail": "fileId=355 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 DOCX 纯文本",
+    "ok": true,
+    "detail": "fileId=356 最终状态=3 耗时=15s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 DOCX 含表格",
+    "ok": true,
+    "detail": "fileId=357 最终状态=3 耗时=21s"
+  },
+  {
+    "scene": "PREP",
+    "case": "解析完成 PDF 扫描件(OCR)",
+    "ok": true,
+    "detail": "fileId=358 最终状态=3 耗时=0s"
+  },
+  {
+    "scene": "PREP",
+    "case": "负例按预期失败 加密 PDF(应解析失败)",
+    "ok": true,
+    "detail": "fileId=359 最终状态=4(4=失败) 耗时=24s"
+  },
+  {
+    "scene": "PREP",
+    "case": "真实模型回答（29字问题）",
+    "ok": true,
+    "detail": "http=200 帧数=73 答案长度=200",
+    "extra": {
+      "answer_head": "根据“智造贷”产品说明书，面向制造业中小微企业，特别是汽车零部件产业链上的企业，单户最高授信额度为人民币5000万元。[retrive-tag id=\"333492945248342356\" image_urls=\"\" fromType=\"0\"][1][/retrive-tag]您这种做汽车零部件的中型企业，最多也能申请5000万元的授信额度。贷款期限最长可达三年。\n\n如有其他问题，欢迎继续咨询。",
+      "frames_head": [
+        {
+          "sessionId": "kb_16",
+          "queryId": "q-1793071878016",
+          "lastDate": 1793071884159,
+          "status": 1,
+          "reply": {
+            "content": "",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": null,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        },
+        {
+          "sessionId": "kb_16",
+          "queryId": "q-1793071878016",
+          "lastDate": 1793071884676,
+          "status": 1,
+          "reply": {
+            "content": "根据",
+            "type": "markdown"
+          },
+          "reference": null,
+          "webReference": null,
+          "databaseReference": null,
+          "docsTree": null,
+          "resultType": 1,
+          "filePaths": null,
+          "respTime": null,
+          "tokens": 0,
+          "promptContent": null,
+          "llmType": 1
+        }
+      ]
+    }
+  },
+  {
+    "scene": "PREP",
+    "case": "回答带引用",
+    "ok": true,
+    "detail": "引用条数=1",
+    "extra": {
+      "reference_head": [
+        {
+          "metadata": {
+            "source": "r12-rag/kb_16/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+            "file_path": "r12-rag/kb_16/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+            "id": "cjEyLXJhZy9rYl8xNi9SMTJGSVgtY3JlZGl0LWxlZGdlci54bHN4L1YwL1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3g=",
+            "search_type": [
+              "milvus",
+              "es",
+              "es"
+            ],
+            "offset": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                5
+              ],
+              [
+                1,
+                6
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                3,
+                2
+              ],
+              [
+                3,
+                3
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                3,
+                6
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                4,
+                5
+              ],
+              [
+                4,
+                6
+              ]
+            ],
+            "chunk_type": "table",
+            "parent_file_name": "R12FIX-credit-ledger.xlsx",
+            "revise_date": "",
+            "version": "V0",
+            "position": "[]",
+            "file_id": 353,
+            "page_size": "[]",
+            "page_number": [],
+            "table_name": "table-0-授信台账",
+            "chunk_index": 0,
+            "table_summary_id": "3254243878024925290",
+            "score": 0.04317394644021988,
+            "rerank_score_rank": 2,
+            "rrf_score": 0.2,
+            "rrf_score_rank": 1
+          },
+          "order_num": "333492945248342356",
+          "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_16/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0-授信台账.md",
+          "rerank_score_rank": "2",
+          "rrf_score": "0.2",
+          "rrf_score_rank": "1",
+          "score": "0.04317394644021988",
+          "sourceFileName": "R12FIX-credit-ledger.xlsx",
+          "type": "table"
+        }
+      ]
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "服务端可独立取回原文（不随请求传正文）",
+    "ok": true,
+    "detail": "http=200 chunk数=1 首块长度=221",
+    "extra": {
+      "chunk_head": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\n|北方重工配件厂|汽车零部件|AA|",
+      "raw_keys": [
+        "id",
+        "content",
+        "picChunkIdList",
+        "picUrlList",
+        "imagePath",
+        "positions",
+        "pageNumbers",
+        "pageSizes"
+      ]
+    }
+  },
+  {
+    "scene": "S6",
+    "case": "引用携带文件与定位信息",
+    "ok": true,
+    "detail": "引用 source 数=1 示例=['r12-rag/kb_16/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx']"
+  },
+  {
+    "scene": "S6",
+    "case": "答案要点可在引用原文中找到支撑",
+    "ok": true,
+    "detail": "答案命中要点=['5000', '三年', '授信额度'] 其中被原文支撑=['5000', '授信额度'] 引用块数=1",
+    "extra": {
+      "corpus_head": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|"
+    }
+  },
+  {
+    "scene": "S7",
+    "case": "历史对话可恢复",
+    "ok": true,
+    "detail": "http=200 session=kb_16 问答对数=1 问与答均有正文=True 本轮queryId=q-1793071878016 命中=True"
+  },
+  {
+    "scene": "S7",
+    "case": "会话列表可查",
+    "ok": true,
+    "detail": "http=200"
+  },
+  {
+    "scene": "COVERAGE",
+    "case": "选中的场景均已真实执行",
+    "ok": true,
+    "detail": "选中=['S6', 'S7'] 实际执行=['S6', 'S7'] 未执行=[] 未知场景=[]"
+  }
+]

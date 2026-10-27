@@ -1,0 +1,27 @@
+{
+ "provenance_quality": [
+  "entity_content_recovered",
+  "entity_content_recovered",
+  "entity_content_recovered",
+  "entity_content_recovered"
+ ],
+ "dangling": [],
+ "stale_blocks": [
+  {
+   "name": "R12FIX-product-intro.pptx",
+   "version": "V0",
+   "latest": "V1",
+   "source": "oduct-intro.pptx/V0/R12FIX-product-intro.pptx"
+  },
+  {
+   "name": "R12FIX-product-loan.docx",
+   "version": "V0",
+   "latest": "V1",
+   "source": "product-loan.docx/V0/R12FIX-product-loan.docx"
+  }
+ ],
+ "latest_version": {
+  "R12FIX-product-intro.pptx": "V1",
+  "R12FIX-product-loan.docx": "V1"
+ }
+}

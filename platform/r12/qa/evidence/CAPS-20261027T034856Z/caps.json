@@ -1,0 +1,56 @@
+[
+ {
+  "cap": "NORMAL",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 status=2 answer_len=67 refs=3 rt=1"
+ },
+ {
+  "cap": "FAQ",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 status=2 resultType=2 answer='是的，文档的结构包含客户访前准备在第一段，日均存款在第二段。' refs=2"
+ },
+ {
+  "cap": "GLOBAL",
+  "ok": false,
+  "neutral": false,
+  "detail": "http=200 status=2 cost=0.9s refs=1 ref_src示例=ct-loan.docx/V0/R12FIX-product-loan.docx"
+ },
+ {
+  "cap": "VERSION",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 groups=2 多版本组=2 版本=['V1', 'V0', 'V1', 'V0']"
+ },
+ {
+  "cap": "TABLE",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 status=2 数值=True 单位=True 主体=True 口径='授信/额度'=True refs=3 answer='华东精密制造有限公司的授信额度为3000万元。'"
+ },
+ {
+  "cap": "GRAPH_LOCAL",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 docs=4 含graph标记=4 有正文的图块=4 search_type示例=[['milvus', 'es', 'es', 'graph'], ['milvus', 'es', 'es', 'graph'], ['milvus', 'es', 'es', 'graph']]"
+ },
+ {
+  "cap": "GRAPH_IDENTITY",
+  "ok": true,
+  "neutral": false,
+  "detail": "http=200 code=200 reason=None 键存在=True violations_count=0"
+ },
+ {
+  "cap": "GRAPH_UPPERCASE",
+  "ok": true,
+  "neutral": false,
+  "detail": "大写(AAA)+开图 http=200 docs=3 graph块=2 | 小写(aaa)+开图 http=200 docs=3 graph块=2"
+ },
+ {
+  "cap": "INTERNAL_GUARD",
+  "ok": true,
+  "neutral": false,
+  "detail": "callback=401 uploadParsedFile=401"
+ }
+]

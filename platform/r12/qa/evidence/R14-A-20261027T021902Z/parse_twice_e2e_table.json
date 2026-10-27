@@ -1,0 +1,105 @@
+{
+  "chunk_size": 512,
+  "fixture": "fixtures/docx-table.docx",
+  "index": "r12a_parse_idem",
+  "run1_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0
+      ],
+      "count": 1,
+      "ids": [
+        "4597340033913717959"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "chunk_index": [
+        1
+      ],
+      "count": 1,
+      "ids": [
+        "1584125798458539161"
+      ],
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "chunk_index": [
+        -1
+      ],
+      "count": 1,
+      "ids": [
+        "1521528558926904931"
+      ],
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run1_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "4597340033913717959"
+      ],
+      "visible_rows": 1
+    }
+  },
+  "run1_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/docx-table.docx\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 17.6,
+    "status": 200
+  },
+  "run2_es": {
+    "r12a_parse_idem": {
+      "chunk_index": [
+        0
+      ],
+      "count": 1,
+      "ids": [
+        "1550926146843180583"
+      ],
+      "index": "r12a_parse_idem"
+    },
+    "table_chunks_r12a_parse_idem": {
+      "chunk_index": [
+        1
+      ],
+      "count": 1,
+      "ids": [
+        "2623958020253696490"
+      ],
+      "index": "table_chunks_r12a_parse_idem"
+    },
+    "table_summary_r12a_parse_idem": {
+      "chunk_index": [
+        -1
+      ],
+      "count": 1,
+      "ids": [
+        "1174181099316582460"
+      ],
+      "index": "table_summary_r12a_parse_idem"
+    }
+  },
+  "run2_mv": {
+    "rag_knowledge_base": {
+      "chunk_index": [
+        0
+      ],
+      "collection": "_r12a_parse_idem",
+      "pks": [
+        "1550926146843180583"
+      ],
+      "visible_rows": 1
+    }
+  },
+  "run2_parse": {
+    "head": "{\"success\":true,\"msg\":null,\"task_id\":null,\"task_statuses\":[{\"file_path\":\"r12-rag/fixtures/docx-table.docx\",\"file_id\":990002,\"success\":true,\"fail_reason\":null,\"revise_date\":null,\"code\":200}]}",
+    "secs": 11.8,
+    "status": 200
+  },
+  "tag": "e2e_table",
+  "ts": "2026-10-27T10:52:21+0800"
+}

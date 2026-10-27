@@ -1,0 +1,763 @@
+{
+ "ts_utc": "2026-10-27T03:54:13+00:00",
+ "scripts_dir": "/home/szf/data/dev/llmke-r12/platform/r12/qa",
+ "scripts": [
+  "r13_full_check.py",
+  "acceptance.py",
+  "security_acceptance.py",
+  "revoke_acceptance.py",
+  "permission_domain_scope.py"
+ ],
+ "rows": [
+  {
+   "id": "VERSION-1",
+   "target": "r13_full_check.cap_version",
+   "desc": "groups=[]（R13 实测假绿点：空版本列表）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 groups=0 多版本组=0 版本=[] ← 空列表不再算通过"
+  },
+  {
+   "id": "VERSION-2",
+   "target": "r13_full_check.cap_version",
+   "desc": "data=None（接口无数据）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 groups=0 多版本组=0 版本=[] ← 空列表不再算通过"
+  },
+  {
+   "id": "VERSION-3",
+   "target": "r13_full_check.cap_version",
+   "desc": "一组两条但版本号相同 [V0,V0]（同名重复入库，不是两版冲突）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 groups=1 多版本组=0 版本=[]"
+  },
+  {
+   "id": "VERSION-4",
+   "target": "r13_full_check.cap_version",
+   "desc": "一组只有一条 [V0]（单版本，无冲突可区分）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 groups=1 多版本组=0 版本=[]"
+  },
+  {
+   "id": "VERSION-5",
+   "target": "r13_full_check.cap_version",
+   "desc": "http=500 但 body 合规（故障不得当通过）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=500 groups=1 多版本组=1 版本=['V0', 'V1']"
+  },
+  {
+   "id": "VERSION-6",
+   "target": "r13_full_check.cap_version",
+   "desc": "正例对照：一组含 V0/V1 两版",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 groups=1 多版本组=1 版本=['V0', 'V1']"
+  },
+  {
+   "id": "S7-1",
+   "target": "acceptance.s7",
+   "desc": "data=None（R13 摘要实测：success=true 但无历史）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=0 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-2",
+   "target": "acceptance.s7",
+   "desc": "data=[]（空历史）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=0 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-3",
+   "target": "acceptance.s7",
+   "desc": "data=[{id:1}]（有记录但无正文）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=1 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-4",
+   "target": "acceptance.s7",
+   "desc": "http=500 但 data 含正文（故障不得当通过）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=500 session=kb_9 问答对数=1 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-5",
+   "target": "acceptance.s7",
+   "desc": "正例对照：服务真实结构 data={queryReplyPairList:[{query,reply}]} 且问答均有正文",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=1 问与答均有正文=True 本轮queryId=None 命中=False"
+  },
+  {
+   "id": "S7-6",
+   "target": "acceptance.s7",
+   "desc": "data={queryReplyPairList: []}（会话存在但没有任何问答对）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=0 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-7",
+   "target": "acceptance.s7",
+   "desc": "问答对里 reply 正文为空（只存了问题没存答案，R14-F01b 收紧点）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=1 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-8",
+   "target": "acceptance.s7",
+   "desc": "问答对里 query 正文为空（只有答案没有提问，无法证明是同一轮问答）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=1 问与答均有正文=False 本轮queryId=None 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S7-9",
+   "target": "acceptance.s7",
+   "desc": "正例对照：历史里存在本轮 queryId 的问答对且回答非空",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=1 问与答均有正文=True 本轮queryId=q-THIS-ROUND 命中=True"
+  },
+  {
+   "id": "S7-10",
+   "target": "acceptance.s7",
+   "desc": "只有旧 queryId 的历史（本轮提问未落库，历史再多也不算通过）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 session=kb_9 问答对数=2 问与答均有正文=True 本轮queryId=q-THIS-ROUND 命中=False ← 空历史/缺答案/未命中本轮提问 不算通过"
+  },
+  {
+   "id": "S6-1",
+   "target": "acceptance.s6",
+   "desc": "records=[{content:\"\"}]（空原文，R13 摘要\"首块长度=0\"仍 PASS）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 chunk数=1 首块长度=0 ← 空原文不算通过"
+  },
+  {
+   "id": "S6-2",
+   "target": "acceptance.s6",
+   "desc": "records=[]（取不到任何块）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 chunk数=0 首块长度=0 ← 空原文不算通过"
+  },
+  {
+   "id": "S6-3",
+   "target": "acceptance.s6",
+   "desc": "content/pageContent/page_content 全空",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 chunk数=1 首块长度=0 ← 空原文不算通过"
+  },
+  {
+   "id": "S6-4",
+   "target": "acceptance.s6",
+   "desc": "http=500 但含正文",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=500 chunk数=1 首块长度=10 ← 空原文不算通过"
+  },
+  {
+   "id": "S6-5",
+   "target": "acceptance.s6",
+   "desc": "正例对照：正文在服务真实字段 content",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 chunk数=1 首块长度=15"
+  },
+  {
+   "id": "S6-6",
+   "target": "acceptance.s6",
+   "desc": "引用无 metadata.source（\"引用携带文件与定位信息\"）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "引用 source 数=0 示例=[]"
+  },
+  {
+   "id": "S6-7",
+   "target": "acceptance.s6",
+   "desc": "正例对照：引用带 source",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "引用 source 数=1 示例=['kb_9/R12FIX-product-loan.docx']"
+  },
+  {
+   "id": "TABLE-1",
+   "target": "r13_full_check.cap_table",
+   "desc": "答案含 3000 但主体错（\"本季度市场预算是3000元\"）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 status=2 数值=True 单位=False 主体=False 口径='授信/额度'=True refs=1 answer='本季度市场预算是3000元，与授信无关。'"
+  },
+  {
+   "id": "TABLE-2",
+   "target": "r13_full_check.cap_table",
+   "desc": "答案含 3000/万元/主体，但口径错（营收而非授信额度）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 status=2 数值=True 单位=True 主体=True 口径='授信/额度'=False refs=1 answer='华东精密制造有限公司2025年营业收入为3000万元。'"
+  },
+  {
+   "id": "TABLE-3",
+   "target": "r13_full_check.cap_table",
+   "desc": "答案对但无引用（不可回填的结论不算证据）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 status=2 数值=True 单位=True 主体=True 口径='授信/额度'=True refs=0 answer='华东精密制造有限公司的授信额度为3000万元。'"
+  },
+  {
+   "id": "TABLE-4",
+   "target": "r13_full_check.cap_table",
+   "desc": "答案无主体（\"授信额度3000万元\" 不知是谁的）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 status=2 数值=True 单位=True 主体=False 口径='授信/额度'=True refs=1 answer='授信额度3000万元。'"
+  },
+  {
+   "id": "TABLE-5",
+   "target": "r13_full_check.cap_table",
+   "desc": "http=500 但答案文本对",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=500 status=2 数值=True 单位=True 主体=True 口径='授信/额度'=True refs=1 answer='华东精密制造有限公司的授信额度为3000万元。'"
+  },
+  {
+   "id": "TABLE-6",
+   "target": "r13_full_check.cap_table",
+   "desc": "正例对照：数值+单位+主体+口径+引用齐备（= 02:24 真实答案）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 status=2 数值=True 单位=True 主体=True 口径='授信/额度'=True refs=1 answer='华东精密制造有限公司的授信额度为3000万元。'"
+  },
+  {
+   "id": "GLOBAL-1",
+   "target": "r13_full_check.cap_global",
+   "desc": "正例题却答成拒答（没有 [L0- 社区 id）→ 不得当通过",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": " http=200 status=2 cost=0.0s refs=2 可解析=2（其中绝对URL=0 相对键=2）社区id=False src示例=r12-rag/kb_9/a.docx/V0/a.docx"
+  },
+  {
+   "id": "GLOBAL-2",
+   "target": "r13_full_check.cap_global",
+   "desc": "source 重复拼接 host（http://h/http://h/…）→ 不可解析",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": " http=200 status=2 cost=0.0s refs=2 可解析=1（其中绝对URL=0 相对键=1）社区id=True src示例=r12-rag/kb_9/b.docx/V0/b.docx"
+  },
+  {
+   "id": "GLOBAL-3",
+   "target": "r13_full_check.cap_global",
+   "desc": "只有 1 条 source（跨文档归纳至少 2 条）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": " http=200 status=2 cost=0.0s refs=1 可解析=1（其中绝对URL=0 相对键=1）社区id=True src示例=r12-rag/kb_9/a.docx/V0/a.docx"
+  },
+  {
+   "id": "GLOBAL-4",
+   "target": "r13_full_check.cap_global",
+   "desc": "两条 source 都是重复拼接 host → 全部不可解析",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": " http=200 status=2 cost=0.0s refs=2 可解析=0（其中绝对URL=0 相对键=0）社区id=True src示例=None"
+  },
+  {
+   "id": "GLOBAL-6",
+   "target": "r13_full_check.cap_global",
+   "desc": "正例对照：单 host 绝对 URL（合法形态，R14-F01j 实测修正，不得判不可解析）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": " http=200 status=2 cost=0.0s refs=2 可解析=2（其中绝对URL=2 相对键=0）社区id=True src示例=127.0.0.1:19000/r12-rag/kb_9/a.docx/V0/a.docx"
+  },
+  {
+   "id": "GLOBAL-5",
+   "target": "r13_full_check.cap_global",
+   "desc": "正例对照：≥2 条可解析 source + 出现社区 id（不判措辞/行数）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": " http=200 status=2 cost=0.0s refs=2 可解析=2（其中绝对URL=0 相对键=2）社区id=True src示例=r12-rag/kb_9/a.docx/V0/a.docx"
+  },
+  {
+   "id": "GREFUSE-1",
+   "target": "r13_full_check.cap_global_refuse",
+   "desc": "正例对照：拒答且未出现任何具体数值（引用数不设下限）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 status=2 拒答=True 编造数值=[] refs=0 answer='提供的资料中未提及票据贴现与授信额度的关系，无法确定。'"
+  },
+  {
+   "id": "GREFUSE-2",
+   "target": "r13_full_check.cap_global_refuse",
+   "desc": "拒答话术里夹带编造数值（\"AAA 加 15 个基点\"）→ 必须 FAIL（B 实测过的回归）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 status=2 拒答=True 编造数值=['15 个基点'] refs=0 answer='资料未提及，但按行业惯例 AAA 加 15 个基点。'"
+  },
+  {
+   "id": "GREFUSE-3",
+   "target": "r13_full_check.cap_global_refuse",
+   "desc": "不拒答且直接给数值（R2 计提比例被编造）→ 必须 FAIL",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 status=2 拒答=False 编造数值=['2%'] refs=0 answer='关注类需要计提 2% 的贷款损失准备。'"
+  },
+  {
+   "id": "GFAITH-1",
+   "target": "r13_full_check.cap_global_faith",
+   "desc": "正例对照：答案与原文一致（AAA→30 个基点、AA→60 个基点）",
+   "expected": true,
+   "observed": false,
+   "match": false,
+   "detail": "http=200 客户→加点实测={'江南装备': '30', '华东精密': '60'} 期望={'江南装备': '30', '华东精密': '60', '北方重工': '60'} 不符={'北方重工': (None, '60')}"
+  },
+  {
+   "id": "GFAITH-2",
+   "target": "r13_full_check.cap_global_faith",
+   "desc": "答案与上下文矛盾（AAA→100 个基点）→ 忠实度 FAIL（A 实测过 100/60 形态）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 客户→加点实测={'江南装备': '100', '华东精密': '60'} 期望={'江南装备': '30', '华东精密': '60', '北方重工': '60'} 不符={'江南装备': ('100', '30'), '北方重工': (None, '60')}"
+  },
+  {
+   "id": "GFAITH-3",
+   "target": "r13_full_check.cap_global_faith",
+   "desc": "正例对照：评级句与加点句分开表述（实测真实形态），映射 30/60/60 正确即 PASS",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 客户→加点实测={'江南装备': '30', '华东精密': '60', '北方重工': '60'} 期望={'江南装备': '30', '华东精密': '60', '北方重工': '60'} 不符={}"
+  },
+  {
+   "id": "GRAPH_LOCAL-1",
+   "target": "r13_full_check.cap_graph_local",
+   "desc": "search_type 含 graph 但正文为空（无法回填原文）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 docs=1 含graph标记=1 有正文的图块=0 search_type示例=[['milvus', 'graph']]"
+  },
+  {
+   "id": "GRAPH_LOCAL-2",
+   "target": "r13_full_check.cap_graph_local",
+   "desc": "http=500 但文档列表非空",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=500 docs=1 含graph标记=1 有正文的图块=1 search_type示例=[['milvus', 'graph']]"
+  },
+  {
+   "id": "GRAPH_LOCAL-3",
+   "target": "r13_full_check.cap_graph_local",
+   "desc": "正例对照：search_type 含 graph 且正文非空",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 docs=1 含graph标记=1 有正文的图块=1 search_type示例=[['milvus', 'es', 'graph']]"
+  },
+  {
+   "id": "GRAPH_LOCAL-4",
+   "target": "r13_full_check.cap_graph_local",
+   "desc": "正文非空但 search_type 不含 graph（只是普通向量/全文命中，不得当\"图参与\"）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 docs=1 含graph标记=0 有正文的图块=0 search_type示例=[['milvus', 'es']]"
+  },
+  {
+   "id": "INTERNAL_GUARD-1",
+   "target": "r13_full_check.cap_internal_guard",
+   "desc": "内部回写入口返回 200（未鉴权放行）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "callback=200 uploadParsedFile=403"
+  },
+  {
+   "id": "INTERNAL_GUARD-2",
+   "target": "r13_full_check.cap_internal_guard",
+   "desc": "内部回写入口返回 500（故障不得当\"已拒绝\"）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "callback=500 uploadParsedFile=403"
+  },
+  {
+   "id": "INTERNAL_GUARD-3",
+   "target": "r13_full_check.cap_internal_guard",
+   "desc": "正例对照：两个入口均 403",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "callback=403 uploadParsedFile=403"
+  },
+  {
+   "id": "DENIED-1",
+   "target": "security_acceptance.denied",
+   "desc": "denied(500, {\"success\": false})（R13 实测返回 True，一般故障被当拒绝）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied(...) = False"
+  },
+  {
+   "id": "DENIED-2",
+   "target": "security_acceptance.denied",
+   "desc": "denied(0, {\"success\": false})（连接中断/超时）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied(...) = False"
+  },
+  {
+   "id": "DENIED-3",
+   "target": "security_acceptance.denied",
+   "desc": "denied(None, {\"success\": false})（取不到状态码）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied(...) = False"
+  },
+  {
+   "id": "DENIED-4",
+   "target": "security_acceptance.denied",
+   "desc": "denied(200, {\"success\": false, \"errorCode\": \"99999\"})（业务报错≠鉴权拒绝）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied(...) = False"
+  },
+  {
+   "id": "DENIED-5",
+   "target": "security_acceptance.denied",
+   "desc": "denied(200, {\"success\": false})（无明确鉴权错误码）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied(...) = False"
+  },
+  {
+   "id": "DENIED-6",
+   "target": "security_acceptance.denied",
+   "desc": "正例对照：denied(403, …)",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "denied(...) = True"
+  },
+  {
+   "id": "DENIED-7",
+   "target": "security_acceptance.denied",
+   "desc": "正例对照：denied(200, {\"errorCode\": \"30016\"})（网关明确鉴权错误码）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "denied(...) = True"
+  },
+  {
+   "id": "DENIED-8",
+   "target": "security_acceptance.denied",
+   "desc": "正例对照：denied(200, {\"errorCode\": 30017})（整型错误码）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "denied(...) = True"
+  },
+  {
+   "id": "SQL-1",
+   "target": "security_acceptance.sql",
+   "desc": "mysql 退出码 1（口令检查容器/查询失败）-> 必须抛错而不是返回空串",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "抛出 RuntimeError: sql failed rc=1: ERROR 2003 (HY000): Can't connect（期望如此）"
+  },
+  {
+   "id": "SQL-2",
+   "target": "security_acceptance.sql",
+   "desc": "正例对照：退出码 0 -> 原样返回",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "返回 'admin\\t$2a$'"
+  },
+  {
+   "id": "ONLY-1",
+   "target": "acceptance.plan",
+   "desc": "--only S6,S7 必须解析为\"要执行 S6/S7\"（旧实现两者都会落空 → 0 用例）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "plan('S6,S7')=(['S6', 'S7'], [])"
+  },
+  {
+   "id": "ONLY-2",
+   "target": "acceptance.plan",
+   "desc": "--only S99 必须被识别为未知场景（不得静默当成全量/空跑）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "plan('S99')=([], ['S99'])"
+  },
+  {
+   "id": "ONLY-3",
+   "target": "acceptance.plan",
+   "desc": "空 --only = 全量场景（顺序固定）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "plan('')=(['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'], [])"
+  },
+  {
+   "id": "COVERAGE-1",
+   "target": "acceptance.check_coverage",
+   "desc": "选中 S6/S7 但只执行了 S6 → 必须判\"未覆盖\"（选中未执行=失败）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "选中=['S6', 'S7'] 实际执行=['S6'] 未执行=['S7'] 未知场景=[]"
+  },
+  {
+   "id": "COVERAGE-2",
+   "target": "acceptance.check_coverage",
+   "desc": "正例对照：选中的场景全部执行（多余的前置 PREP 不影响判定）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "选中=['S6', 'S7'] 实际执行=['PREP', 'S6', 'S7'] 未执行=[] 未知场景=[]"
+  },
+  {
+   "id": "COVERAGE-3",
+   "target": "acceptance.check_coverage",
+   "desc": "--only 里有不存在的场景（S99）时覆盖判定也必须 FAIL（不能\"选中=[] 就已覆盖\"）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "选中=[] 实际执行=[] 未执行=[] 未知场景=['S99']"
+  },
+  {
+   "id": "GID-1",
+   "target": "r13_full_check.cap_graph_identity",
+   "desc": "正例对照：200 且含 identity_violations*/count=0",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "http=200 code=200 reason=None 键存在=True violations_count=0"
+  },
+  {
+   "id": "GID-2",
+   "target": "r13_full_check.cap_graph_identity",
+   "desc": "200 但缺 identity 键（不得用默认 0 当通过）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 code=200 reason=None 键存在=False violations_count=None ← 200 缺键不得当 0"
+  },
+  {
+   "id": "GID-3",
+   "target": "r13_full_check.cap_graph_identity",
+   "desc": "200 但 identity_violations_count=2（chunk_pk_list 与社区摘要混用）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=200 code=200 reason=None 键存在=True violations_count=2"
+  },
+  {
+   "id": "GID-4",
+   "target": "r13_full_check.cap_graph_identity",
+   "desc": "http=500（非 200 不得当通过，identity 无法验证）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "http=500 code=500 reason=None 键存在=False violations_count=None ← 非 200/非 code=200 且无 reason：identity 无法验证，不计入图算法结论"
+  },
+  {
+   "id": "GUP-1",
+   "target": "r13_full_check.cap_graph_uppercase",
+   "desc": "大写查询 500 / 小写 200（开图对大写 ASCII 抛异常）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "大写(AAA)+开图 http=500 docs=1 graph块=1 | 小写(aaa)+开图 http=200 docs=1 graph块=1 ← 仅大写失败：开图检索对大写 ASCII 抛异常（检索层缺陷，非图算法无效）"
+  },
+  {
+   "id": "GID-5",
+   "target": "r13_full_check.cap_graph_identity",
+   "desc": "http=200 + body code=500 + reason（图业务空结果）→ 归 INFO/EMPTY_LEGIT，既不算 PASS 也不算 FAIL",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "neutral=True ok=False detail=http=200 code=500 reason='no_vertex_matched' 键存在=False violations_count=None ← EMPTY_LEGIT"
+  },
+  {
+   "id": "GUP-2",
+   "target": "r13_full_check.cap_graph_uppercase",
+   "desc": "正例对照：大写与小写都 200，且两边都含 graph 块",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "大写(AAA)+开图 http=200 docs=1 graph块=1 | 小写(aaa)+开图 http=200 docs=1 graph块=1"
+  },
+  {
+   "id": "GUP-3",
+   "target": "r13_full_check.cap_graph_uppercase",
+   "desc": "两边都 200 但检索结果里没有 graph 块（只证明\"不 500\"，没证明图参与 → 仍判 FAIL）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "大写(AAA)+开图 http=200 docs=1 graph块=0 | 小写(aaa)+开图 http=200 docs=1 graph块=0 ← 大写真 200 但无文档/无 graph 块：只证明不 500，未证明图参与"
+  },
+  {
+   "id": "F05-OOD-1",
+   "target": "permission_domain_scope.out_of_domain",
+   "desc": "kb_10 的引用被判为域外（跨域引用=泄露）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "out_of_domain(kb_10)=['http://x/r12-rag/kb_10/a.docx']"
+  },
+  {
+   "id": "F05-OOD-2",
+   "target": "permission_domain_scope.out_of_domain",
+   "desc": "kb_9 引用 + 空 source（FAQ 直答命中）均不算域外",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "out_of_domain(kb_9,空)=[]"
+  },
+  {
+   "id": "F05-5XX-1",
+   "target": "permission_domain_scope.classify_5xx",
+   "desc": "500 必须被判为 5xx（错误页炸掉不能算\"已拒绝\"）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "classify_5xx(500)=True"
+  },
+  {
+   "id": "F05-5XX-2",
+   "target": "permission_domain_scope.classify_5xx",
+   "desc": "403 不得被判为 5xx（真拒绝不能被当成故障）",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "classify_5xx(403)=False"
+  },
+  {
+   "id": "REVOKE-DENIED-1",
+   "target": "revoke_acceptance.denied_http",
+   "desc": "denied_http(500, {\"success\": false})（撤权验收把一般故障当\"撤权生效\"）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied_http(...) = False"
+  },
+  {
+   "id": "REVOKE-DENIED-2",
+   "target": "revoke_acceptance.denied_http",
+   "desc": "denied_http(200, {\"success\": false})（无鉴权错误码）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied_http(...) = False"
+  },
+  {
+   "id": "REVOKE-DENIED-3",
+   "target": "revoke_acceptance.denied_http",
+   "desc": "denied_http(0, …)（连接中断，不得当撤权生效）",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "denied_http(...) = False"
+  },
+  {
+   "id": "REVOKE-DENIED-4",
+   "target": "revoke_acceptance.denied_http",
+   "desc": "正例对照：denied_http(403, …)",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "denied_http(...) = True"
+  },
+  {
+   "id": "REVOKE-DENIED-5",
+   "target": "revoke_acceptance.denied_http",
+   "desc": "正例对照：denied_http(200, {\"errorCode\": \"30016\"})",
+   "expected": true,
+   "observed": true,
+   "match": true,
+   "detail": "denied_http(...) = True"
+  },
+  {
+   "id": "REVOKE-SQL-1",
+   "target": "revoke_acceptance.sql",
+   "desc": "mysql 退出码 1（撤权 SQL 失败）-> 必须抛错而不是空串",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "抛出 RuntimeError: sql failed rc=1: （期望如此）"
+  },
+  {
+   "id": "S7-11",
+   "target": "acceptance.s7",
+   "desc": "不传 session（旧默认 r12-sess-1 不存在）必须判 FAIL，不得静默查一个不存在的会话",
+   "expected": false,
+   "observed": false,
+   "match": true,
+   "detail": "未指定会话 id：禁止用默认值（旧默认 r12-sess-1 不存在，会掩盖真实问题）"
+  }
+ ],
+ "mismatch": [
+  "GFAITH-1"
+ ]
+}

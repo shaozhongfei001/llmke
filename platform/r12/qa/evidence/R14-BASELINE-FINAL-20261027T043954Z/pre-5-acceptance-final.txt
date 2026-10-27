@@ -1,0 +1,7 @@
+## BEFORE acceptance (round-3, final)
+2026-10-27T14:15:11+0800
+index_pidfile=1403224 index_port=pid=1403224
+qa_pidfile=1403466 qa_port=pid=1403466
+STALE=0
+docparse_pid=pid=1543618
+elapsed=108s
