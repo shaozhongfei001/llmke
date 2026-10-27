@@ -8,7 +8,7 @@ import {
   getInitialZoom,
   useAppPassport
 } from "@root/src/core/helps";
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 export const DrawerContent = ({
   content,
   onClose

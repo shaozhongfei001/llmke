@@ -17,7 +17,7 @@ import { getFileIcon } from "../FolderDetail";
 import empty from "@/assets/knowledgebase/empty.png";
 import loadingGif from "@/assets/knowledgebase/loading_gif.gif";
 import { getFileByPageNum } from "./service";
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 const KnowledgeAnalyBlock = () => {
   const { getToken } = useAppPassport();
   const [loading, setLoading] = useState<boolean>(false);

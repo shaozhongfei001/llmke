@@ -26,6 +26,7 @@ import {
 } from "@root/src/const/permission";
 import RetrieveTest from "./RetrieveTest";
 import DataExtract from "./DataExtract";
+import { formatFileSize } from "@root/src/core/helps";
 
 interface KnowledgeBaseTabOpt {
   key: KnowledgeBaseTabType;
@@ -201,9 +202,7 @@ const KnowledgeBaseDetail = (props: Iprops) => {
                   <span className="detail-info-statistices">
                     {`文件数：${kbInfo?.fileCount || "暂无"}  `}
                     <span className="ml-2">
-                      {`大小：${kbInfo?.fileTotalSize || "暂无"}${
-                        kbInfo?.fileTotalSize ? "M" : ""
-                      }`}
+                      {`大小：${formatFileSize(kbInfo?.fileTotalSize)}`}
                     </span>
                   </span>
                 </div>

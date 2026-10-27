@@ -9,6 +9,7 @@ import {
   PERMISSION_RULES,
   PERMISSION_STATUS
 } from "@root/src/const/permission";
+import { formatFileSize } from "@root/src/core/helps";
 
 interface ICard {
   row: {
@@ -181,10 +182,7 @@ const Card = (props: ICard) => {
                 color: "#555"
               }}
             >
-              {typeof row?.fileTotalSize === "number"
-                ? row?.fileTotalSize
-                : "-"}
-              M
+              {formatFileSize(row?.fileTotalSize)}
             </label>
           </div>
           {/* <div className="tooltip-wrap">

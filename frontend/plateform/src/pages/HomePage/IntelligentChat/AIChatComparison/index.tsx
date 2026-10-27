@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 import { useAiChatComparison } from "@root/src/components/AiChatComparison";
 import FileView3, { ICurFileInfo } from "@root/src/components/FileView3";
 import {

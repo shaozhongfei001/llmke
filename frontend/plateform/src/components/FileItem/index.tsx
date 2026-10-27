@@ -15,7 +15,7 @@ import CloseCircle from "@/assets/img/CloseCircle.png";
 import CloseCircleFail from "@/assets/img/CloseCircleFail.png";
 import FileShow from "@/assets/img/fileShow.png";
 import { useEffect, useMemo, useState } from "react";
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 export const FileItem = ({
   type,
   fileList,

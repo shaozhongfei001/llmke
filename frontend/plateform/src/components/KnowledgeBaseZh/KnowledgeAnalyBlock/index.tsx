@@ -33,7 +33,7 @@ import {
 } from "@root/src/core/helps";
 import { FILE_BTN, getBtnDisabled } from "@root/src/const/permission";
 import { filegetById } from "../common/faqService";
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 
 interface Iprops {
   isCec?: boolean;

@@ -27,7 +27,7 @@ import AiInputer from "../AiInputer";
 import { useAiChatCore } from "../AiInputer/common/useAiChatCore";
 import { FileDown } from "lucide-react";
 import CustomTooltip from "../CustomTooltip";
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 export interface SdContentData {
   file_source: string;
   file_type: string;

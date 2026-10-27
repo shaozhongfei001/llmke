@@ -179,7 +179,7 @@ const FaqRow = (props: IFaqRow) => {
             unCheckedChildren="禁用"
             title={item.status === 1 ? "禁用" : "启用"}
             onChange={changeStatusQa}
-            value={item.status === 1}
+            checked={item.status === 1}
           />
         </div>
       </div>

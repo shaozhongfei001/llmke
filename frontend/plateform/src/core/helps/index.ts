@@ -37,6 +37,20 @@ export const dealMinioUrl = (url: string) => {
   return `${prefix}/${url.replace(/^\/+/, "")}`;
 };
 
+/**
+ * R14-D-FIX-02：知识库 fileTotalSize 的单位是 KB（后端原始值），
+ * 旧代码直接把数字后缀写死 "M"，导致 kb_9 显示 "6717181M"（实为 6.4GB）。
+ * 此处按二进制换算到合适单位并保留 1 位小数。
+ */
+export const formatFileSize = (kb?: number | string | null) => {
+  const n = typeof kb === "number" ? kb : Number(kb);
+  if (!isFinite(n) || n <= 0) return "-";
+  if (n < 1024) return `${n.toFixed(1)} KB`;
+  const mb = n / 1024;
+  if (mb < 1024) return `${mb.toFixed(1)} MB`;
+  return `${(mb / 1024).toFixed(1)} GB`;
+};
+
 export const uniqArr2By = (array1: any[], array2: any[], key: string) => {
   return array2.filter(
     (item2) => !array1.some((item1) => item1[key] === item2[key])

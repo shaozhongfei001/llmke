@@ -911,6 +911,12 @@ export const useFaqController = ({
           message.error(`问答对${txt}失败！`);
         }
         setConfirmLoading(false);
+      }).catch((err: any) => {
+        // R14-D：接口 5xx/网络失败时必须显式失败，不得让开关停留在"已切换"的假成功状态
+        setConfirmLoading(false);
+        const msg =
+          err?.response?.data?.errorMsg || err?.message || "服务不可用";
+        message.error(`问答对${txt}失败：${msg}`);
       });
     } catch (error) {
       setConfirmLoading(false);

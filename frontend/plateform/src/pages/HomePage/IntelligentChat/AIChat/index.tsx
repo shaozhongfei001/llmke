@@ -137,6 +137,47 @@ const ChatPage = () => {
     setGlobalMode(enabled);
     setGlobalModeState(enabled);
   };
+
+  /**
+   * R14-D-FIX-03：「全局(GraphRAG)」开关兜底。
+   *
+   * 事实：`@gientech/modual` 的 sender 开关点击后只做内部转发
+   * （控制台 `sender:configChange {all:…} core内部转发`），**不回调宿主**
+   * `eventsEmit`；而 `chat.d.ts` 的 `GientechChatAdopterProps` 里也没有
+   * `onSenderConfigChange`（那条通道是死代码）。结果：按钮视觉变蓝，
+   * 但 `r13_global_mode` 恒为 0，`globalMode` 从不注入请求体 → 全局检索点了等于没点。
+   *
+   * 兜底做法：监听该按钮点击，等库把激活态渲染出来后**读真实渲染态**
+   * （激活时 inline style 的 border-color/color 为 rgb(78,110,242)），
+   * 再写回同一份状态。
+   *
+   * TODO(R14-D-FIX-03)：这是**临时方案**，属技术债。一旦 @gientech/modual 在
+   * sender 开关变化时真的回调宿主 `eventsEmit("sender:configChange", …)`（或
+   * `GientechChatAdopterProps` 正式提供 onSenderConfigChange），**请整体删除本 useEffect**，
+   * 只保留原有的回调通道。判定依赖按钮 inline style 颜色（rgb(78,110,242)），
+   * 库若改主题色/改用 class，本兜底会同时失效——这是它必须被替换的原因。
+   */
+  useEffect(() => {
+    const LABEL = "全局(GraphRAG)";
+    const ACTIVE = "78,110,242";
+    const findBtn = () =>
+      Array.from(document.querySelectorAll("button")).find(
+        b => (b.textContent || "").trim() === LABEL
+      ) as HTMLButtonElement | undefined;
+    const onClick = (ev: MouseEvent) => {
+      const el = ev.target as HTMLElement | null;
+      const btn = el?.closest?.("button") as HTMLButtonElement | null;
+      if (!btn || (btn.textContent || "").trim() !== LABEL) return;
+      window.setTimeout(() => {
+        const cur = findBtn();
+        if (!cur) return;
+        const style = (cur.getAttribute("style") || "").replace(/\s/g, "");
+        handleGlobalModeChange(style.includes(ACTIVE));
+      }, 80);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
   const [isRenameModalOpen, setisRenameModalOpen] = useState(false);
   const [isRemoveModalOpen, setisRemoveModalOpen] = useState(false);
   const [curEditData, setCurEditData] = useState<any>(null);

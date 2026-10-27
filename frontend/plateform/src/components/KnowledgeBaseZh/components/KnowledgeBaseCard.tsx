@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useServices } from "@/components/KnowledgeBaseZh/service.ts";
 // import "@/assets/styles/knowledgebase.less";
 import { FILE_BTN, getBtnDisabled } from "@root/src/const/permission";
+import { formatFileSize } from "@root/src/core/helps";
 
 interface ICard {
   row: {
@@ -175,10 +176,7 @@ const KnowledgeBaseCard = (props: ICard) => {
                   color: "#555"
                 }}
               >
-                {typeof row?.fileTotalSize === "number"
-                  ? row?.fileTotalSize
-                  : "-"}
-                M
+                {formatFileSize(row?.fileTotalSize)}
               </label>
             </div>
             <Tooltip

@@ -1,4 +1,4 @@
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 import { handleReqOrder } from "@root/src/components/AiEditor/core/operators/help";
 import IndicatorEditor from "@root/src/components/IndicatorEditor/index";
 import ModuleTest from "@root/src/components/ModuleTest";

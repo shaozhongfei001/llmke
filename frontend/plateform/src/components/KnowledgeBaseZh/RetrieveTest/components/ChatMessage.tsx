@@ -24,7 +24,7 @@ import {
 import { FileItem } from "@root/src/components/FileItem";
 import { Code, Settings, Zap, ChevronDown, ChevronUp } from "lucide-react";
 import { DrawerContent } from "@root/src/components/AiChat/components/ChatDisplayer/components/DrawerContent";
-import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { GientechStreamReader } from "@root/src/core/components/StreamReader";
 
 interface ChatMessageProps {
   parentContainerRef: any;
