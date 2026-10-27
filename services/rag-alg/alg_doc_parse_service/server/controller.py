@@ -35,7 +35,7 @@ from .nacos_utils import DocParseConfig
 from .process_reporter import ProcessReporter, TASK_STATUS
 from .response_model import ParseResponse, TaskResult, OCRResponse, Box, MultiVersionResponse, IndicatorResponse, \
     BaseResponse, IndicatorGroupbyResponse, DataBaseDescResponse
-from .utils import create_uuid, run_in_thread_pool, image_need_multi_modal, try_catch
+from .utils import create_uuid, create_chunk_pk, run_in_thread_pool, image_need_multi_modal, try_catch
 from deepdoc.database_desc.build_database_desc import (DatabaseDesc)
 
 indexing_failed_chunks = Path(DocParseConfig().config['log_path']) / 'indexing_failed_chunks'
@@ -404,7 +404,16 @@ class _Parser:
         for i, chunk in enumerate(sorted_all_chunks):
             chunk.metadata.parsed_chunk_index = i
             if not isinstance(chunk, ParsedTable):
-                chunk.metadata.pk = create_uuid()
+                # R14-C-FIX-08：改为内容寻址派生（与索引写入层同一算法），同一文件重解析 id 不变。
+                # seq 用 parsed_chunk_index：此刻最终 chunk_index 还不存在（它在 :644-646 才按页码重排产生），
+                # 且 linking 依赖 metadata.pk，必须在 link_images_text 之前定好。
+                chunk.metadata.pk = create_chunk_pk(
+                    chunk.metadata.knowledge_base_name or self.parse_params.index_name,
+                    chunk.metadata.document_id,
+                    chunk.metadata.file_id,
+                    i,
+                    chunk.page_content,
+                )
                 self.text_image_chunks.append(chunk)
 
         logger.info('表格切分中')
@@ -474,7 +483,11 @@ class _Parser:
             # if not isinstance(document, ParsedImage):
             #     continue
 
-            page_number = document.metadata.page_number[0]
+            # R14-C-FIX-26b（A 指出同族裸下标）：图片合并是"有图就必走"的分支，
+            # 任一图片块缺 page_number 会让整篇失败（上层仍 success=true），与 splitter 那条同源。
+            # page_number 占位保持 0（下游有 `page_number[0]` 取值，给 [] 反而会 IndexError）。
+            _pn = document.metadata.page_number or []
+            page_number = _pn[0] if _pn else 0
             if page_number in images_dict:
                 images_dict[page_number].page_content = images_dict[
                                                             page_number].page_content + " " + document.page_content
@@ -496,7 +509,17 @@ class _Parser:
             except:
                 pass
             images_dict[key].metadata.offset = deduplicate_nested_list_ordered(images_dict[key].metadata.offset)
-            images_dict[key].metadata.pk = create_uuid()
+            # R14-C-FIX-08：合并后的图片块同样用确定性 pk（seq 用页码，跨解析稳定）。
+            # 注意：若该块随后进入 sorted_all_chunks 的 :407 循环，会再用 parsed_chunk_index 派生一次，
+            # 这里只是保证"未被 :407 覆盖"的路径也不会每次换 id。
+            _img_md = images_dict[key].metadata
+            _img_md.pk = create_chunk_pk(
+                _img_md.knowledge_base_name or self.parse_params.index_name,
+                _img_md.document_id,
+                _img_md.file_id,
+                f"img-{key}",
+                images_dict[key].page_content,
+            )
             merge_images.append(images_dict[key])
         return merge_images
 
@@ -561,8 +584,15 @@ class _Parser:
             for document in self.text_image_chunks:
                 if isinstance(document, ParsedText):
                     document.metadata.base64 = None
-            for document in self.text_image_chunks:
-                document.metadata.pk = create_uuid()
+            for _ppt_i, document in enumerate(self.text_image_chunks):
+                # R14-C-FIX-08：PPT 分支同样确定性派生（该分支当前被 is_ppt=False 关掉，保持一致性）
+                document.metadata.pk = create_chunk_pk(
+                    document.metadata.knowledge_base_name or self.parse_params.index_name,
+                    document.metadata.document_id,
+                    document.metadata.file_id,
+                    getattr(document.metadata, "parsed_chunk_index", _ppt_i),
+                    document.page_content,
+                )
             self.text_image_chunks = link_images_text_ppt(self.text_image_chunks,
                                                           self.parse_params.embedding_model_info)
             chunks = []
@@ -642,7 +672,9 @@ class _Parser:
                                                                          x["metadata"]["chunk_index"]])
 
             for i, chunk in enumerate(self.all_chunks):
-                self.all_chunks[i]["metadata"].pop("parsed_chunk_index")
+                # R14-C-FIX-08：**不再 pop parsed_chunk_index**。索引写入层要按它派生主键
+                # （最终 chunk_index 在上一行才产生，写入层拿不到"解析期序号"），
+                # pop 掉会让写入层退回 chunk_index，与解析侧派生出两套 id。
                 self.all_chunks[i]["metadata"]["chunk_index"] = i
 
 
@@ -773,7 +805,15 @@ def parse_task(parse_params: ParseParams):
                             process_info=_info + traceback.format_exc()
                         )
 
-                    return ParseResponse(msg=_info, task_statuses=parser.task_results, task_id=parse_params.task_id)
+                    # R14-A-FIX-28：索引失败必须对调用方可见。
+                    # 原实现把 task_statuses 原样返回（解析阶段都是 success=True），
+                    # 结果"解析成功但库里零内容"，前端/验收看不出来。
+                    for _tr in parser.task_results:
+                        _tr.success = False
+                        _tr.fail_reason = f'索引失败：{_info}'[:500]
+                        _tr.code = 500
+                    return ParseResponse(success=False, msg=_info,
+                                         task_statuses=parser.task_results, task_id=parse_params.task_id)
 
                 timer = time.perf_counter()
 
@@ -926,7 +966,12 @@ def parse_sync(parse_params: ParseParams):
                             process_info=_info + traceback.format_exc()
                         )
 
-                    return ParseResponse(msg=_info, task_statuses=parser.task_results)
+                    # R14-A-FIX-28：同上，索引失败必须让调用方看到 success=false。
+                    for _tr in parser.task_results:
+                        _tr.success = False
+                        _tr.fail_reason = f'索引失败：{_info}'[:500]
+                        _tr.code = 500
+                    return ParseResponse(success=False, msg=_info, task_statuses=parser.task_results)
 
                 timer = time.perf_counter()
 
@@ -988,10 +1033,14 @@ def parse_sync(parse_params: ParseParams):
                 )
 
         if parse_params.need_chunk:
-            return ParseResponse(success=True, task_statuses=parser.task_results)
+            # R14-A-FIX-28：顶层 success 由 task_statuses 派生，避免"某个文件索引失败但整体成功"
+            _all_ok = all(tr.success for tr in parser.task_results) if parser.task_results else True
+            return ParseResponse(success=_all_ok, task_statuses=parser.task_results)
         else:
             if parser.task_results:
-                return ParseResponse(success=True, task_statuses=parser.task_results)
+                # R14-A-FIX-28：顶层 success 由 task_statuses 派生，避免"某个文件索引失败但整体成功"
+                _all_ok = all(tr.success for tr in parser.task_results)
+                return ParseResponse(success=_all_ok, task_statuses=parser.task_results)
             else:
                 return {
                     'success': True,

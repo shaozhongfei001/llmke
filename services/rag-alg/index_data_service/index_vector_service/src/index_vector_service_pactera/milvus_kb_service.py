@@ -5,6 +5,7 @@
 # @File    : milvus_kb_service.py
 import asyncio
 import concurrent.futures
+import hashlib
 import json
 import os
 import re
@@ -180,6 +181,55 @@ def generate_collection_name_uuid(collection_name: str) -> str:
         collection_name = str(uuid.uuid5(uuid.NAMESPACE_DNS, collection_name))
     collection_name = "_" + collection_name.replace("-", "_")
     return collection_name
+
+
+COMMUNITY_COLLECTION_PREFIX = "community_summary_"
+DEL_VISIBLE_TIMEOUT = 6.0
+
+
+def derive_doc_id(*parts) -> int:
+    """R14-A：与 index_fulltext_service 同一算法的确定性主键（63 位正整数）。
+
+    两侧必须同源同实现，改这里必须同步 es.py 的 derive_doc_id，否则 ES `_id` 与 Milvus `pk` 会漂移。
+    """
+    seed = "|".join("" if p is None else str(p) for p in parts)
+    return int(hashlib.sha1(seed.encode("utf-8")).hexdigest()[:15], 16)
+
+
+def community_doc_id(collection_name, metadata) -> int:
+    """R14-A：社区摘要主键 = f(kb, level, community_id)，与 ES 侧 community_doc_id 一致。"""
+    metadata = metadata or {}
+    return derive_doc_id("community", collection_name, metadata.get("level"),
+                         metadata.get("community_id"))
+
+
+def _visible_count(coll, expr: str):
+    """返回当前对查询可见的行数；异常返回 None（调用方按 fail-closed 处理）。"""
+    try:
+        return len(coll.query(expr=expr, output_fields=["pk"], limit=16384))
+    except Exception as e:  # noqa: BLE001
+        logger.error(f'统计可见行失败 expr={expr}: {e}')
+        return None
+
+
+def _source_expr(sources):
+    return "source in [" + ",".join(json.dumps(str(s), ensure_ascii=False) for s in sources) + "]"
+
+
+def _wait_until_deleted(coll, expr: str, expected: int = 0, timeout: float = DEL_VISIBLE_TIMEOUT):
+    """Milvus 删除是最终一致的：删除后必须确认旧行对查询不可见，否则重复事件会把数据写成两代。
+
+    返回 (ok, 最后可见行数)。ok=False 表示等满 timeout 仍有可见旧行 —— 调用方必须中止写入。
+    """
+    waited = 0.0
+    n = _visible_count(coll, expr)
+    while n is None or n > expected:
+        if waited >= timeout:
+            return False, n
+        time.sleep(0.3)
+        waited += 0.3
+        n = _visible_count(coll, expr)
+    return True, n
 
 
 def check_field_type(data_dict, fields_type_dict):
@@ -417,6 +467,8 @@ async def add_doc_custom(insert_model: InsertDataModel) -> BaseResponse:
     # 获取字段顺序
     fields_order = [f.name for f in fields if not (f.name == "pk" and f.auto_id)]
     add_sources = set()
+    # R14-A：社区摘要集合（community_summary_<kb>）走"整代替换 + 确定性主键"，与 ES 侧一致
+    is_community_collection = coll_name_low.startswith(COMMUNITY_COLLECTION_PREFIX)
     data_dict_list = []
     text_list = [tt["page_content"] for tt in insert_model.document_list]
     
@@ -545,8 +597,52 @@ async def add_doc_custom(insert_model: InsertDataModel) -> BaseResponse:
                 else:
                     if v is not None:
                         data_dict[k] = str(v)
+        # R14-A：offset / position / page_size 在读侧会被 json.loads()，写入侧必须落"合法 JSON 字符串"。
+        # 历史缺陷：FAQ 抽取没有 offset → 写入落成 ""，检索层 json.loads("") 抛
+        #   "Expecting value: line 1 column 1 (char 0)"，而 retrieval_milvus 的 except 是 break（不是 continue），
+        #   于是整批 FAQ 命中被丢弃 → faq_result_list=0 → FAQ 直答失效（R14-FAQ 根因之一）。
+        for _jf in ("offset", "position", "page_size"):
+            if _jf not in i_name:
+                continue
+            _cur = data_dict.get(_jf)
+            if _cur in (None, "", b""):
+                data_dict[_jf] = "[]"
+            elif isinstance(_cur, str):
+                continue          # 已是字符串：保持原样（可能是历史数据回灌的 JSON 文本）
+            elif isinstance(_cur, (list, tuple)):
+                data_dict[_jf] = json.dumps(list(_cur), ensure_ascii=False)
+            else:
+                data_dict[_jf] = json.dumps(_cur, ensure_ascii=False)
         if "pk" in data_dict.keys() and not data_dict["pk"]:
-            data_dict["pk"] = create_uuid()
+            _meta = doc["metadata"]
+            if is_community_collection and _meta.get("community_id"):
+                data_dict["pk"] = community_doc_id(insert_model.collection_name, _meta)
+            elif (not coll_name_low.startswith("faq_") and _meta.get("document_id")
+                  and (_meta.get("parsed_chunk_index") is not None or _meta.get("chunk_index") is not None)):
+                # R14-A/F04：与 ES 侧同一算法的内容寻址主键，保证 ES `_id` 与 Milvus `pk` 一致。
+                # 注意 1：ES 侧 index_name 会先经 is_index_lower() 小写化，这里必须同样小写，否则大小写 KB 名会算出不同 id。
+                # 注意 2：序号优先取 parsed_chunk_index（解析全序，:405 赋值、linking 之前即可用），
+                #         缺失才退回 chunk_index（解析末尾重编号，:646），与解析服务 pk 派生保持同一字段。
+                _seq = _meta.get("parsed_chunk_index")
+                if _seq is None:
+                    _seq = _meta.get("chunk_index")
+                # R14-A-FIX-18：与 es.py 同口径——种子不含 document_id（路径形态会变），
+                # 用 file_id（缺失退回 title）+ 序号 + 内容哈希，保证换入口解析 id 不变。
+                _fid = _meta.get("file_id")
+                if _fid in (None, ""):
+                    _fid = _meta.get("title")
+                data_dict["pk"] = derive_doc_id("chunk", str(insert_model.collection_name).lower(),
+                                                _fid, _seq,
+                                                hashlib.sha1(str(doc["page_content"]).encode("utf-8")).hexdigest())
+            else:
+                data_dict["pk"] = create_uuid()
+        if is_community_collection and doc["metadata"].get("community_id"):
+            # 社区摘要的 schema 没有 community_id 列（见 milvus_kb_config.MILVUS_FIELDS），
+            # 这里用通用列 chunk_doc_id 承载逻辑身份，供对账/删除按 community_id 精确定位。
+            if "chunk_doc_id" in i_name:
+                data_dict["chunk_doc_id"] = str(doc["metadata"]["community_id"])
+            if "knowledge_base_name" in i_name and not data_dict.get("knowledge_base_name"):
+                data_dict["knowledge_base_name"] = insert_model.collection_name
         if "source" in doc["metadata"].keys():
             add_sources.add(doc["metadata"]["source"])
         now = datetime.now()
@@ -570,11 +666,35 @@ async def add_doc_custom(insert_model: InsertDataModel) -> BaseResponse:
             return BaseResponse(code=500, msg=f'保存数据失败，{e}')
         data_dict_list.append(data_dict)
 
-    if "faq_" not in coll_name_low and add_sources and insert_model.duplicate_flag:
+    if is_community_collection and data_dict_list:
+        # R14-A：社区摘要整代替换——先删旧代（含 R13 遗留的随机 pk 行），确认对查询不可见后再写新代
         try:
-            if add_sources:
-                del_param = DataParamModel(collection_name=insert_model.collection_name, col_name="source", col_values=add_sources)
-                await asyncio.to_thread(del_doc_by_col, del_param)
+            existing = await asyncio.to_thread(_visible_count, coll, "pk >= 0")
+            if existing:
+                await asyncio.to_thread(coll.delete, expr="pk >= 0")
+            ok, remain = await asyncio.to_thread(_wait_until_deleted, coll, "pk >= 0")
+            if not ok:
+                return BaseResponse(code=500,
+                                    msg=f'社区摘要替换失败：删除旧代后仍有 {remain} 条可见，已中止写入以免重复')
+            logger.info(f'{insert_model.collection_name} 社区摘要整代替换：清理旧行 {existing} 条，写入 {len(data_dict_list)} 条')
+        except Exception as e:
+            logger.error(f'社区摘要替换失败，{e}')
+            return BaseResponse(code=500, msg=f'社区摘要替换失败: {e}')
+    elif "faq_" not in coll_name_low and add_sources and insert_model.duplicate_flag:
+        try:
+            sources = sorted(str(s) for s in add_sources)
+            # R14-F04/F06：原实现没有把 db_name 传下去，删除落到配置默认库（rag_knowledge_base），
+            # 实际集合在 graph_base/其它库 → is_collection 查不到 → 删除被静默跳过 → 重解析翻倍。
+            del_param = DataParamModel(collection_name=insert_model.collection_name,
+                                       db_name=insert_model.db_name,
+                                       col_name="source", col_values=sources)
+            del_res = await asyncio.to_thread(del_doc_by_col, del_param)
+            logger.info(f'{insert_model.collection_name} 入库前按 source 去重: {del_res.msg}')
+            # Milvus 删除是最终一致的，必须确认旧行不可见后再插入，否则重复事件仍会写成两代
+            ok, remain = await asyncio.to_thread(_wait_until_deleted, coll, _source_expr(sources))
+            if not ok:
+                return BaseResponse(code=500,
+                                    msg=f'删除已入库文件失败：{remain} 条旧数据仍可见，已中止写入以免重复')
         except Exception as e:
             logger.error(f'删除已入库文件失败，{e}')
             return BaseResponse(code=500, msg=f'删除已入库文件失败，{e}')
@@ -1361,3 +1481,27 @@ def static_count(static_param: DataParamModel):
         logger.error(f"{collection_name}链接失败，{e}")
         return BaseResponse(code=500, msg=f'查询数据失败，{e}', )
     return BaseResponse(code=200, msg=f'成功查询数据', data={'count': num})
+
+
+def del_collection(del_param: DataParamModel) -> BaseResponse:
+    """R14-A：删除整个 Milvus 集合（补 graph_summary.del_community 依赖、但服务端缺失的路由）。
+
+    R14 实测事实：`GET /openapi.json` 里没有 `/del_collection`，而 `graph_summary.del_community()`
+    一直 POST 到这个路由 → 404，且调用方把 404 当"已执行"记录进明细 → **Milvus 侧社区摘要集合
+    从未真正被删除过**（ES 侧被 graph-refresh 删索引清掉，所以出现 ES 7 条 / Milvus 65 条）。
+    """
+    server_config = return_nacos_model().get_config()
+    collection_name = generate_collection_name_uuid(del_param.collection_name)
+    if not is_collection(collection_name, server_config, del_param.db_name):
+        return BaseResponse(code=200,
+                            msg=f'未执行删除，milvus未找到集合: {del_param.collection_name}',
+                            data={'collection_name': collection_name, 'dropped': False})
+    try:
+        coll = get_collection(collection_name, server_config["milvus_conn_config"], del_param.db_name)
+        coll.drop()
+        logger.info(f'集合{collection_name}已删除(db={del_param.db_name})')
+        return BaseResponse(code=200, msg=f'集合{collection_name}已删除',
+                            data={'collection_name': collection_name, 'dropped': True})
+    except Exception as e:  # noqa: BLE001
+        logger.error(f'删除集合失败，{e}')
+        return BaseResponse(code=500, msg=f'删除集合失败，{e}')

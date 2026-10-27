@@ -21,6 +21,7 @@ from view.api.update_by_id_batch_view import UpdateByIdBatchView
 from view.api.get_doc_page_view import GetDocPageView
 from view.api.static_count_view import StaticCountView
 from view.api.migrate_collection_view import MigrateCollectionView
+from view.api.del_collection_view import DelCollectionView
 
 CreateMilvusDbView(path="/create_milvus_db", tags=["create_milvus_db"], summary="创建milvus数据库")
 CreateMilvusCollectionView(path="/create_milvus_collection", tags=["create_milvus_collection"], summary="创建milvus的collection")
@@ -35,6 +36,7 @@ UpdateByIdView(path="/update_by_id", tags=["update_by_pk"], summary="根据pk修
 UpdateByIdBatchView(path="/update_by_id_batch", tags=["update_by_pk_batch"], summary="根据pk修改数据_batch")
 GetDocPageView(path="/get_doc_page", tags=["get_doc_page"], summary="分页查询")
 StaticCountView(path="/static_count", tags=["static_count"], summary="统计总量")
+DelCollectionView(path="/del_collection", tags=["del_collection"], summary="删除整个集合（社区摘要等派生集合重建用）")
 MigrateCollectionView(path="/migrate_milvus_collection", tags=["migrate_milvus_collection"], summary="迁移milvus集合数据")
 
 

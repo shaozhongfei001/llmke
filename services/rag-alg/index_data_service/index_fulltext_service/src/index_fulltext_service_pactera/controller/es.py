@@ -12,6 +12,7 @@ ES 相关的异步控制逻辑：
 """
 
 import asyncio
+import hashlib
 import json
 from datetime import datetime
 from typing import List, Tuple, Set
@@ -29,6 +30,29 @@ from es_kb_config import (
 )
 from operators.common.log import logger
 from utils import return_nacos_model, create_uuid
+
+
+COMMUNITY_INDEX_PREFIX = "community_summary_"
+
+
+def derive_doc_id(*parts) -> int:
+    """R14-A：由给定字符串派生稳定的 63 位正整数主键（与 index_vector 侧同一算法，改一处必须同步另一侧）。
+
+    用途：让"同一份解析结果重放"落到同一条记录上（ES `_id` 与 Milvus `pk` 取值一致），
+    使重复事件幂等、旧引用不会因为重写而无声失效。
+    """
+    seed = "|".join("" if p is None else str(p) for p in parts)
+    return int(hashlib.sha1(seed.encode("utf-8")).hexdigest()[:15], 16)
+
+
+def community_doc_id(index_name, metadata) -> int:
+    """R14-A：社区摘要的确定性主键 = f(kb, level, community_id)。
+
+    R13 实测：社区摘要两侧主键都是随机 uuid，重跑一次就是一代新行，ES 7 条 / Milvus 65 条。
+    社区逻辑身份由 community_id 承载，主键必须跟它一一对应，才能"按 community_id 去重/覆盖"。
+    """
+    return derive_doc_id("community", index_name, (metadata or {}).get("level"),
+                         (metadata or {}).get("community_id"))
 
 
 def is_index_lower(index_name):
@@ -85,8 +109,28 @@ async def get_index_mapping_field_async(index_name) -> Tuple[List[str], List[str
         index_model = CreateIndexModel(index_name=index_name)
         data = await create_index_async(index_model)
         if data.code == 500:
-            raise ValueError(data.msg)
-    mapping = await es.indices.get_mapping(index=index_name)
+            # R14-A-FIX-27：**并发创建同名索引是常态**（多篇文件同时首次入库），不是失败。
+            # 原实现把 400 resource_already_exists 当异常抛出 -> 整批 insert 返回 500 ->
+            # 上层 /parse_sync 仍 success=true -> 用户看到"解析成功但零写入"。实测 kb_22 三篇并发即命中。
+            _msg = str(data.msg)
+            # 注意 create_index_async 有两条"已存在"路径：ES 抛的英文异常、以及它自己的中文 '已存在' 分支。
+            if ('resource_already_exists' in _msg or 'already_exists' in _msg
+                    or '已存在' in _msg):
+                logger.warning(f'索引 {index_name} 已被并发创建（资源已存在），继续取 mapping')
+            else:
+                raise ValueError(data.msg)
+    # ES 建索引有刷新延迟：刚建好/被并发建好后立刻取 mapping 可能 404，重试几次再判失败。
+    mapping = None
+    _last_ex = None
+    for _attempt in range(3):
+        try:
+            mapping = await es.indices.get_mapping(index=index_name)
+            break
+        except Exception as ex:  # noqa: BLE001
+            _last_ex = ex
+            await asyncio.sleep(0.5 * (_attempt + 1))
+    if mapping is None:
+        raise ValueError(f'索引 {index_name} 已创建但取不到 mapping: {_last_ex}')
     if mapping and index_name in mapping:
         mapping_properties = mapping[index_name]['mappings']['properties']
         for field_name, field_mapping in mapping_properties.items():
@@ -162,14 +206,41 @@ def build_actions(insert_model: InsertDataModel, s_field_names, index_name) -> T
             if "update_time" not in actions_dict['_source']['metadata'].keys():
                 actions_dict['_source']['metadata']["update_time"] = now.strftime(
                     "%Y-%m-%d %H:%M:%S.") + f"{now.microsecond:06d}"
+            # R14-A：database 类文档仍是随机 id（未纳入内容寻址），如实标注来源
+            actions_dict['_source']['metadata']["id_origin"] = "random"
             data_list.append(actions_dict)
     else:
         for doc_dict in insert_model.document_list:
             doc_keys = doc_dict.keys()
-            if "pk" in doc_dict["metadata"].keys() and doc_dict["metadata"]["pk"]:
-                ids = doc_dict["metadata"]["pk"]
+            meta = doc_dict["metadata"]
+            if meta.get("pk"):
+                ids = meta["pk"]
+                id_origin = "pk_from_caller"
+            elif index_name.startswith(COMMUNITY_INDEX_PREFIX) and meta.get("community_id"):
+                # R14-A：社区摘要主键由 (kb, level, community_id) 派生，重跑同一社区覆盖同一条
+                ids = community_doc_id(index_name, meta)
+                id_origin = "derived_community"
+            elif (not index_name.startswith("faq_") and meta.get("document_id")
+                  and (meta.get("parsed_chunk_index") is not None or meta.get("chunk_index") is not None)):
+                # R14-A/F04：内容寻址主键。同一文件同一块的重复解析落到同一条，图侧 chunk_pk_list
+                # 不再因为"重写一次就换一代 id"而无声悬空；内容或 file_id 变化才产生新 id。
+                # 序号优先取 parsed_chunk_index（解析全序，controller.py:405 赋值、linking 之前就可用），
+                # 缺失才退回 chunk_index（解析末尾重编号，controller.py:646）——必须与解析服务 pk 派生同字段。
+                _seq = meta.get("parsed_chunk_index")
+                if _seq is None:
+                    _seq = meta.get("chunk_index")
+                # R14-A-FIX-18：种子**不含 document_id**。document_id 由调用方传入的路径形态决定
+                # （`r12-rag/kb_9/.../V1/x.docx` vs `x.docx`），同一文件同内容换个入口解析就会换一代 id，
+                # 图侧 chunk_pk_list 立刻悬空。改用 file_id（缺失时退回 title）+ 序号 + 内容哈希。
+                _fid = meta.get("file_id")
+                if _fid in (None, ""):
+                    _fid = meta.get("title")
+                ids = derive_doc_id("chunk", index_name, _fid, _seq,
+                                    hashlib.sha1(doc_dict["page_content"].encode("utf-8")).hexdigest())
+                id_origin = "derived_parsed_chunk_index" if meta.get("parsed_chunk_index") is not None else "derived_chunk_index"
             else:
                 ids = create_uuid()
+                id_origin = "random"
             actions_dict = {
                 '_index': index_name,
                 "_id": ids,
@@ -192,6 +263,9 @@ def build_actions(insert_model: InsertDataModel, s_field_names, index_name) -> T
                 actions_dict['_source']['question'] = meta_q
             if "status" not in doc_dict['metadata'].keys():
                 actions_dict['_source']['metadata']["status"] = 0
+            # R14-A：把"这个 _id 是怎么来的"写在写入点（唯一知情处），供图/审计侧判定
+            # provenance，避免下游靠重算哈希去猜（猜错就会出现"两个都合法"的 id）。
+            actions_dict['_source']['metadata']["id_origin"] = id_origin
             if "pk" not in doc_dict['metadata'].keys():
                 actions_dict['_source']['metadata']["pk"] = ids
             now = datetime.now()
@@ -311,7 +385,73 @@ async def _rollback_documents_by_ids(es, index_name: str, doc_ids: List[str]) ->
         return False
 
 
+async def _prune_stale_community_docs(es, index_name: str, keep_ids) -> Tuple[int, List[str]]:
+    """R14-A：社区摘要按"整代替换"收敛，保证同一 community_id 只有一条且不留旧代。
+
+    R13 实测问题：社区摘要每次重建都 insert 新行（_id 随机），ES 只能靠"删索引重建"清理，
+    Milvus 侧从不清理 → 两侧 community_id 集合不一致（7 vs 65）。
+    这里在写入后把"本次集合之外"以及"同一 community_id 但 _id 不是派生值"的旧行删掉。
+    """
+    keep = {str(x) for x in keep_ids}
+    body = {"size": 5000, "_source": ["metadata.community_id"], "query": {"match_all": {}}}
+    resp = await es.search(index=index_name, body=body)
+    hits = ((resp or {}).get("hits") or {}).get("hits") or []
+    stale_ids, stale_cids = [], []
+    for hit in hits:
+        if hit.get("_id") in keep:
+            continue
+        cid = (((hit.get("_source") or {}).get("metadata")) or {}).get("community_id")
+        stale_ids.append(hit.get("_id"))
+        if cid:
+            stale_cids.append(cid)
+    if not stale_ids:
+        return 0, []
+    delete_body = {"query": {"terms": {"_id": stale_ids}}}
+    result = await es.delete_by_query(index=index_name, body=delete_body, refresh=True)
+    return int((result or {}).get("deleted", 0) or 0), sorted(set(stale_cids))
+
+
+# R14-A-FIX-35：同 source 并发写入必须**串行**，否则 FIX-34 的"写后剪枝"会互相把对方刚写的块删掉。
+# 实测（2026-10-27 14:48，scratch 索引 r14a_conc_probe，同 source 并发 3 次，连续三轮）：
+#   R1 -> 1 条 / R2 -> 0 条 / R3 -> 0 条，三次全部返回 200「共保存1条数据」**静默丢数据**。
+# 机制：A/B/C 各自"保留自己的 _id、删掉同 source 的其他行"；三方交错时，
+# 最后执行剪枝的那个人，自己的行可能已被别人删掉 -> 剪完剩 0 条。
+# 即"最后完成者胜"这个语义无法保证"胜者的行还在"。
+# 修法：进程内按 source 串行（本服务单进程），跨进程再去依赖 ES 的版本冲突重试。
+_SOURCE_LOCKS: dict = {}
+
+
+def _source_lock(src: str) -> asyncio.Lock:
+    lock = _SOURCE_LOCKS.get(src)
+    if lock is None:
+        lock = asyncio.Lock()
+        _SOURCE_LOCKS[src] = lock
+    return lock
+
+
 async def add_documents_async(insert_model: InsertDataModel) -> BaseResponse:
+    """按 source 串行化后调用实现体（R14-A-FIX-35）。"""
+    sources = set()
+    for doc in (insert_model.document_list or []):
+        try:
+            src = str(((doc or {}).get("metadata") or {}).get("source") or "")
+        except Exception:  # noqa: BLE001
+            src = ""
+        if src:
+            sources.add(src)
+    if not sources:
+        return await _add_documents_async_impl(insert_model)
+    locks = [_source_lock(s) for s in sorted(sources)]
+    for lock in locks:
+        await lock.acquire()
+    try:
+        return await _add_documents_async_impl(insert_model)
+    finally:
+        for lock in reversed(locks):
+            lock.release()
+
+
+async def _add_documents_async_impl(insert_model: InsertDataModel) -> BaseResponse:
     """
     批量添加数据（异步），带分批、并发与重试。
     """
@@ -388,5 +528,45 @@ async def add_documents_async(insert_model: InsertDataModel) -> BaseResponse:
     except Exception as ex:
         logger.warning(f'{index_name}刷新索引失败，但插入结果已提交: {ex}')
 
+    # R14-A-FIX-34：同一 source **并发**写入的收敛（写后剪枝）。
+    # 原实现只有"写前按 source 删"：三个并发请求各自先删后写，后到的删除看到的是空，
+    # 结果是 ES 留 3 条同 source 文档，而 Milvus 因插入串行收敛到 1 条 —— 两侧去重口径不一致
+    # （实测：同文件并发 3 次 → ES 3 / Milvus 1）。这里在写后按 source 剪掉"不属于本批 _id"的行，
+    # 语义为"最后完成者胜"，与 Milvus 对齐；并发写不同文件时各剪各的 source，互不影响。
+    if (insert_model.type != "database" and "faq_" not in index_name
+            and not index_name.startswith(COMMUNITY_INDEX_PREFIX)
+            and source_paths and insert_model.duplicate_flag):
+        try:
+            keep_ids = [str(a["_id"]) for a in data_list if a.get("_id")]
+            if keep_ids:
+                # 注意两个坑（都实测过）：
+                #  ① 本索引**没有顶层 source 字段**，source 在 metadata 下；
+                #  ② `metadata.source` 是 text（带 keyword 子字段），直接 terms 精确值 **0 命中**，
+                #     必须用 `metadata.source.keyword`（与 es_query.init_field_body 的 QueryType.METADATA 一致）。
+                # 写错任一处都会静默 0 命中——"看起来剪了，其实没剪"。
+                prune_body = {"query": {"bool": {
+                    "filter": [{"terms": {"metadata.source.keyword": list(source_paths)}}],
+                    "must_not": [{"ids": {"values": keep_ids}}],
+                }}}
+                prune_res = await es.delete_by_query(index=index_name, body=prune_body, refresh=True)
+                pruned = int((prune_res or {}).get("deleted", 0) or 0)
+                if pruned:
+                    logger.info(f'{index_name}写后按 source 剪枝 {pruned} 条（同 source 并发写入收敛）')
+        except Exception as ex:  # noqa: BLE001
+            # 剪枝失败不影响本次写入结果（数据已落库），只记警告，避免把"清理没做"升级成"写入失败"
+            logger.warning(f'{index_name}写后按 source 剪枝失败（不影响本次写入）: {ex}')
+
     total_saved = len(data_list)
-    return BaseResponse(code=200, msg=f'{index_name}保存数据成功，共保存{total_saved}条数据')
+    msg = f'{index_name}保存数据成功，共保存{total_saved}条数据'
+    if index_name.startswith(COMMUNITY_INDEX_PREFIX):
+        # R14-A：社区摘要整代替换，删掉本次集合之外的旧行（含 R13 遗留的随机 _id 重复行）
+        try:
+            deleted, stale = await _prune_stale_community_docs(es, index_name,
+                                                               [a["_id"] for a in data_list])
+            msg += f'，清理旧代 {deleted} 条'
+            if stale:
+                logger.info(f'{index_name}清理旧代 {deleted} 条，涉及 community_id={stale[:10]}')
+        except Exception as ex:
+            logger.error(f'{index_name}清理旧代失败: {ex}')
+            return BaseResponse(code=500, msg=f'{index_name}写入成功但清理旧代失败: {ex}')
+    return BaseResponse(code=200, msg=msg)

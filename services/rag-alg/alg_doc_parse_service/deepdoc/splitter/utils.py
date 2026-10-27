@@ -138,7 +138,19 @@ def query_position_by_content(slice_offset_start, slice_offset_end, documents, l
                         break
             return index
 
-        intervals = [doc.metadata.offset[0] for doc in documents]
+        # R14-C-FIX-26（A 定位）：短文档/某些段落没有 offset/position/page_size/page_number，
+        # 原实现 `doc.metadata.offset[0]` 裸下标 → IndexError → 整个函数 except 后返回
+        # `_flag=False` + 三个空列表 → 下游拿到空 position 的块失败 → **ES/Milvus 零写入**，
+        # 而 `/parse_sync` 仍返回 success=true（假成功）。日志里该异常累计出现过 1296 次
+        # （最早 10-25 10:34），一直被当成"索引失败噪声"。
+        # 这里逐条做空值保护：缺失的按空处理并 warn 一次，**不再让单条数据质量问题吃掉整批写入**。
+        _miss = [i for i, doc in enumerate(documents)
+                 if not (doc.metadata.offset and doc.metadata.position
+                         and doc.metadata.page_size and doc.metadata.page_number)]
+        if _miss:
+            logger.warning(f"query_position_by_content: {len(_miss)}/{len(documents)} 条文档缺 "
+                           f"offset/position/page_size/page_number（索引={_miss[:10]}），按空处理，其余块照常写入")
+        intervals = [(doc.metadata.offset[0] if doc.metadata.offset else [0, 0]) for doc in documents]
         content_intervals = []
         begin = 0
         for doc in documents:
@@ -149,9 +161,9 @@ def query_position_by_content(slice_offset_start, slice_offset_end, documents, l
         end_idx = find_index(slice_offset_end, intervals, content_intervals)
         for idx, doc in enumerate(documents):
             if start_idx <= idx <= end_idx:
-                new_position.append(doc.metadata.position[0])
-                new_page_size.append(doc.metadata.page_size[0])
-                new_page_number.append(doc.metadata.page_number[0])
+                new_position.append(doc.metadata.position[0] if doc.metadata.position else [])
+                new_page_size.append(doc.metadata.page_size[0] if doc.metadata.page_size else [])
+                new_page_number.append(doc.metadata.page_number[0] if doc.metadata.page_number else 0)
                 _flag = True
     except Exception as e:
         logger.exception(f'query_position_by_offset{e}')

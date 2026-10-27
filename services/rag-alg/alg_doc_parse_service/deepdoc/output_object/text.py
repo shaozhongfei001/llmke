@@ -30,6 +30,11 @@ class ParsedTextMetadata(BaseModel):
     parent_file_name: str | None = Field(default=None, description='传入的父文件名称')
     version: str | None = Field(default=None, description='文件版本号（V0/V1…），检索按当前有效版本去重')
     pk: int | None = Field(default=None, description='存到索引数据库中的主键')
+    parser_fallback: str | None = Field(
+        default=None,
+        description='解析降级标记：md_text 表示该文件只有转换产物(.md)、按纯文本解析，'
+                    '因此不会有 table_chunks/table_summary 兄弟块'
+    )
     pic_url_list: list[str] = Field(default=[], description='关联图片的minio路径')
     pic_offset_list: list[int] = Field(default=[], description='关联图片的坐标和pic_url_list一一对应')
     pic_children_id_list: list[int] = Field(default=[], description='关联图片在索引数据库中的主键')

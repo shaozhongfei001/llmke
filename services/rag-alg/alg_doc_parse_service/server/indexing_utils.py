@@ -91,6 +91,29 @@ async def index_es(
     index_name: str,
     document_list
 ) -> None:
+    """ES 写入的外层幂等包装（R14-A-FIX-28）。
+
+    多文件**并发首次入库**同一个新库时，谁先建索引谁赢，其余请求会收到
+    `resource_already_exists_exception`（索引已存在）。这是**预期内的并发状态，不是失败**：
+    索引此刻已就绪，隔一次重试即可正常写入。
+    原实现把它当异常向上抛 -> 整批零写入 -> 上层 `/parse_sync` 仍 `success=true`，
+    用户视角"传了 3 个只生效 1 个"。实测 kb_22 三篇并发即命中。
+    """
+    try:
+        return await _index_es_once(index_name, document_list)
+    except Exception as e:  # noqa: BLE001
+        _msg = str(e)
+        if any(k in _msg for k in ('resource_already_exists', 'already_exists', '已存在', '创建索引失败')):
+            logger.warning(f'ES 索引并发创建冲突（预期状态），1s 后重试一次: {index_name} | {_msg[:200]}')
+            await asyncio.sleep(1.0)
+            return await _index_es_once(index_name, document_list)
+        raise
+
+
+async def _index_es_once(
+    index_name: str,
+    document_list
+) -> None:
     """
     将解析后的 chunks 按批次并发写入 ES
     第一批次单独处理（去重），后续批次按 max_concurrency 分组并发执行

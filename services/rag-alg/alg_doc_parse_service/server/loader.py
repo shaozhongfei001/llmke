@@ -117,10 +117,17 @@ def _parse_images(documents: list[ParsedText], file_path: Path, batch_size=4):
     garbage_positions_group_by_page = dict()
     for document in documents:
         if document.metadata.need_filtered:
-            garbage_positions_group_by_page.setdefault(
-                document.metadata.page_number[0],
-                []
-            ).extend(document.metadata.position)
+            # R14-C-FIX-26b（A 指出同族裸下标）：garbage 过滤也是"有输入必走"的分支，
+            # 缺 page_number/position 时会整篇失败而上层仍 success=true。
+            _pn = document.metadata.page_number or []
+            _pos = document.metadata.position or []
+            if not _pn or not _pos:
+                logger.warning(f'garbage 过滤：文档缺 page_number/position，已跳过该块的垃圾区间记录')
+            else:
+                garbage_positions_group_by_page.setdefault(
+                    _pn[0],
+                    []
+                ).extend(_pos)
 
     parsed_images = list(filter(lambda _document: isinstance(_document, ParsedImage), documents))
 
@@ -231,7 +238,42 @@ def load_files(
             file_name = _file_path.name
             ext = _file_path.suffix.lower()
             document_id = create_document_id(_file_path)
-            blob = MinioFile(str(_file_path)).get_blob()
+
+            # R14-A-FIX-25：`.md` 是**转换产物**而不是原始文件。
+            # 直接按纯文本读 .md 能"成功"，但表格已变成 Markdown 文本，table_chunks/table_summary 不再产出
+            # ——那是一次静默降级（success=true、chunk 数也 >0，只是表格块没了）。
+            # 规则：① 能定位到同名原文件 -> 一律解析原文件（表格结构保留）；
+            #      ② 只剩转换产物 -> 才按纯文本解析，并打 metadata.parser_fallback='md_text' 留痕。
+            parser_fallback = None
+            _blob_ready = False
+            if ext in {'.md', '.markdown'}:
+                _orig_name = file_name[:-3] if file_name.lower().endswith('.md') else None
+                _orig_ext = Path(_orig_name).suffix.lower() if _orig_name else ''
+                _candidate = None
+                if _orig_ext in {'.docx', '.doc', '.pptx', '.ppt', '.pdf', '.txt',
+                                 '.xlsx', '.xls', '.html', '.csv', '.wps'}:
+                    _parent = _file_path.parent
+                    _candidate = (_parent.parent if _parent.name.lower() == 'parsed' else _parent) / _orig_name
+                _blob = None
+                if _candidate is not None:
+                    try:
+                        _blob = MinioFile(str(_candidate)).get_blob()
+                    except Exception as _e:  # noqa: BLE001
+                        logger.warning(f'转换产物对应的原文件不可用，将按纯文本解析 .md：{_candidate} ({_e})')
+                if _blob is not None:
+                    logger.info(f'.md 转换产物，优先解析原文件：{_candidate}')
+                    _file_path = _candidate
+                    file_name = _file_path.name
+                    ext = _file_path.suffix.lower()
+                    blob = _blob
+                    _blob_ready = True
+                else:
+                    parser_fallback = 'md_text'
+                    logger.warning(f'.md 转换产物且无可用原文件，按纯文本解析（降级，parser_fallback=md_text）：{_file.file_path}')
+                    blob = MinioFile(str(_file_path)).get_blob()
+                    _blob_ready = True
+            if not _blob_ready:
+                blob = MinioFile(str(_file_path)).get_blob()
 
             # 有的解析工具并不将文档中图片的内容给出来 需要再次进行解析
             parse_image = False
@@ -279,7 +321,9 @@ def load_files(
                         garbage_file_name=_file_path.stem,
                         document_type=document_type
                     )
-                elif ext == '.txt':
+                elif ext in {'.txt', '.md', '.markdown'}:
+                    # R14-A-FIX-25：`.md`/`.markdown` 是转换产物，按纯文本读；
+                    # 若上游能给出原文件，本项目已在上面把 ext 换回原后缀，不会走到这里。
                     parser = TXTParser.get_parser()
                 elif ext in {'.xlsx', '.xls'}:
                     parser = ExcelParser.get_parser()
@@ -298,6 +342,14 @@ def load_files(
                         raise NotImplementedError(f'不支持格式“{ext}”')
 
                 documents = parser.parse(blob)
+
+            # R14-A-FIX-25：降级解析必须留痕，否则下游会把"没有 table_* 兄弟块"当成缺块来查。
+            if parser_fallback and documents:
+                for _doc in documents:
+                    try:
+                        _doc.metadata.parser_fallback = parser_fallback
+                    except Exception:  # noqa: BLE001
+                        pass
 
             if parse_image:
                 _parse_images(documents, _file_path)
