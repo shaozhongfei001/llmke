@@ -93,16 +93,23 @@ export const resolvePreviewTarget = async ({
 }): Promise<{ filePath: string; streamApiUrl: string }> => {
   const key = getObjectKeyFromSource(source);
   if (!key) throw new Error("缺少原文对象键，无法打开原文");
+  // R14-E2E-LIVE-03：分流必须以**对象键的真实后缀**为准。
+  // 上游 fileType 有两个来源都是不可靠的：getFileType() 对 Office 一律返回 "pdf"
+  // （R13 起按服务端转出的 PDF 渲染），而调用方传入的 fileType 也可能取自没有后缀的
+  // 路径。实测知识库文件列表点 docx：fileType 判成 pdf → 投 /file/stream →
+  // 服务端白名单只有 md/pdf → 500/5004「参数非法」→ 用户看到「PDF请求失败: 500」。
+  const extOfKey = (key.split("?")[0].split(".").pop() || "").toLowerCase();
+  const effectiveType = extOfKey || (fileType || "").toLowerCase();
   // R14-D-FIX-04：**所有类型**先做一次 presign 前置校验。
   // 理由：presign 的错误口径可区分（403/30016 越权、404/10002 文件不存在、
   // 5xx 存储异常），而 stream / previewStream 的失败在第三方渲染器里只会被
   // 压成「PDF请求失败: 4xx」，用户与验收都无法判断是权限还是文件没了。
   // 图片直接复用该预签名地址（浏览器直取）；其余类型丢弃 URL，仍走鉴权取流。
   const presigned = await getPresignedObjectUrl(source, token);
-  if (isImageType(fileType)) {
+  if (isImageType(effectiveType)) {
     return { filePath: presigned, streamApiUrl: STREAM_API };
   }
-  if (isOfficePreviewType(fileType) || isSheetType(fileType)) {
+  if (isOfficePreviewType(effectiveType) || isSheetType(effectiveType)) {
     return { filePath: key, streamApiUrl: PREVIEW_STREAM_API };
   }
   return { filePath: key, streamApiUrl: STREAM_API };

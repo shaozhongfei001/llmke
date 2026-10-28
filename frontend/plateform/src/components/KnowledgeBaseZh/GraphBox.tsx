@@ -93,6 +93,11 @@ const GraphList = (
     setGientechServera,
     kbInfo
   } = props;
+  // R14-LIVE-05：图空间的键是知识库的原始名（primitiveName，如 kb_9），不是中文展示名。
+  // 原实现把 kbName（"R12验收主链"）直接当 spaceName 传给 /graph/*，
+  // 后端拼成 g_R12验收主链 这个不存在的空间 -> NebulaGraph pool init failed -> 页面空白。
+  // 实测：spaceName=kb_9 -> 200（g_kb_9，87 节点）；spaceName=R12验收主链 -> 500。
+  const graphSpace = kbInfo?.primitiveName || kbName;
   const {
     getGraphParseStatusById,
     getFolderList,
@@ -456,18 +461,18 @@ const GraphList = (
 
   const showGraphHandler = () => {
     // if (wholeGraphData && Object.keys(wholeGraphData).length) {
-    setGientechServera({ spaceName: kbName, type: "allGraph", fileName: "" });
+    setGientechServera({ spaceName: graphSpace, type: "allGraph", fileName: "" });
     setShowGraph(true);
     // } else {
     //   fetchGraphData(
     //     {
-    //       spaceName: kbName,
+    //       spaceName: graphSpace,
     //     },
     //     (res: any) => {
     //       const _res = res || {}
     //       setWholeGraphData({ ..._res })
     //       setGientechServera({
-    //         spaceName: kbName,
+    //         spaceName: graphSpace,
     //         type: "allGraph",
     //         fileName: "",
     //       })
@@ -513,7 +518,7 @@ const GraphList = (
         filePath: data.filePath,
         pdfPage: data.pdfPage,
         fileType: data.type,
-        spaceName: kbName
+        spaceName: graphSpace
       }
     });
     setCurFileInfo(data);
@@ -749,7 +754,7 @@ const GraphList = (
     console.log(record);
     const { fileId, fileName } = record;
     setGientechServera({
-      spaceName: kbName,
+      spaceName: graphSpace,
       fileId,
       type: "subGraph",
       fileName
@@ -778,7 +783,7 @@ const GraphList = (
   //   if (kbName) {
   //     fetchGraphData(
   //       {
-  //         spaceName: kbName,
+  //         spaceName: graphSpace,
   //       },
   //       (res: any) => {
   //         const _res = res || {}

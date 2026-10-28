@@ -87,6 +87,8 @@ platform/r12/dist/
 frontend/plateform/dist-r13*/
 frontend/plateform/dist-r14*/
 frontend/plateform/dist.bak-*/
+# 构建临时输出目录（每次构建一个新目录，避免触发批量删除保护）
+frontend/plateform/dist-release*/
 platform/r12/dist/offline/
 
 # Nacos 容器挂载的快照目录：含明文口令，属运行态产物，不入库

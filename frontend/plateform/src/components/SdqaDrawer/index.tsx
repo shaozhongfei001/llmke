@@ -19,8 +19,14 @@ import {
   getInitialZoom,
   getUrlPrefix,
   useAppPassport,
-  judgePPT
+  judgePPT,
+  isOfficePreviewType
 } from "@root/src/core/helps";
+import {
+  PREVIEW_STREAM_API,
+  STREAM_API,
+  isSheetType
+} from "@root/src/core/helps/fileAccess";
 import { Node } from "slate";
 import { uid } from "uid";
 import AiInputer from "../AiInputer";
@@ -474,10 +480,16 @@ const SdqaContent = ({
       console.log("content999", content);
       const filePath = dealMinioUrl(getFilePath(content));
       const fileType = getFileType(content, filePath);
+      // R14-E2E-LIVE-02: getFileType 对 Office 一律返回 pdf（R13 起按服务端转出的
+      // PDF 渲染），不能用它判要不要走 previewStream，必须用源文件名后缀。
+      const sourceType = (
+        String(getFilePath(content) || "").split("?")[0].split(".").pop() || ""
+      ).toLowerCase();
       return {
         filePath,
         fileName: getFileName(content),
         fileType,
+        sourceType,
         totalPages: content.pdfPages || 0,
         token
       };
@@ -490,15 +502,23 @@ const SdqaContent = ({
     if (!curData.filePath) return <></>;
     console.log("curData", curData);
 
+    // R14-E2E-LIVE-02：知识库文件列表点开文件走的是本抽屉。
+    // 原实现把 streamApiUrl 硬编码成 /file/stream，而该接口白名单只有 md/pdf
+    // （KnowledgeBaseListAppServiceImpl.checkFileExtIsSupported），docx/pptx/xlsx
+    // 一律 500/5004「参数非法」，页面显示「PDF请求失败: 500」——用户看到的就是
+    // "文件列表里无法预览任何 Office 文件"。Office 必须走 previewStream（服务端转 PDF）。
+    const officeOrSheet =
+      isOfficePreviewType(curData.sourceType) ||
+      isSheetType(curData.sourceType);
     return (
       <GientechStreamReader
         convertedFilePath={curData.filePath}
         fileName={curData.fileName}
-        fileType={curData.fileType}
+        fileType={officeOrSheet ? "pdf" : curData.fileType}
         initialPage={1}
         totalPages={curData.totalPages}
         authorization={curData.token}
-        streamApiUrl="/proxy/index/knowledgeBase/file/stream"
+        streamApiUrl={officeOrSheet ? PREVIEW_STREAM_API : STREAM_API}
         eventsEmit={() => {}}
         tools={{
           close: false

@@ -137,8 +137,12 @@ interface ICrumbs {
   name: string;
 }
 
-export const getFileIcon = (fileType: string) => {
-  const _type = fileType.toLocaleLowerCase();
+export const getFileIcon = (fileType?: string | null) => {
+  // R14-E2E-LIVE-01：图谱页 Header 传的是 state?.fileType，图谱未加载/无 fileType 时为
+  // undefined，原实现直接 fileType.toLocaleLowerCase() 抛 TypeError，被错误边界整页接住，
+  // 表现为"点图谱增强 → Something went wrong"，连"数据为空"的兜底都进不去。
+  // 归位做法：判空收敛在工具函数，所有调用点一次性安全，回落到默认文件图标。
+  const _type = String(fileType ?? "").toLocaleLowerCase();
   switch (_type) {
     case "folder":
       return getImg(IconFolder);

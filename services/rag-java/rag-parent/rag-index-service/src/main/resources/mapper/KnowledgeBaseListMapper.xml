@@ -422,6 +422,13 @@
         <if test="params.faqExtractStatus!=null">
             AND faq_extract_status = #{params.faqExtractStatus}
         </if>
+        <!-- R14-LIVE-04: 图谱增强列表按 graph_parse_status 判是否已做图谱解析。
+             原实现按 parse_type=3 过滤，但图谱解析不新建 parse_type=3 的行，
+             而是在原文件行上置 graph_parse_status，解析成功列表也永远空
+             (实测 kb_9 十个文件 graph_parse_status=4，页面仍是暂无数据)。 -->
+        <if test="params.graphParsedOnly != null">
+            AND graph_parse_status IS NOT NULL AND graph_parse_status &lt;&gt; 0
+        </if>
         ) t
     </select>
 
@@ -493,6 +500,13 @@
         </if>
         <if test="params.faqExtractStatus!=null">
             AND faq_extract_status = #{params.faqExtractStatus}
+        </if>
+        <!-- R14-LIVE-04: 图谱增强列表按 graph_parse_status 判是否已做图谱解析。
+             原实现按 parse_type=3 过滤，但图谱解析不新建 parse_type=3 的行，
+             而是在原文件行上置 graph_parse_status，解析成功列表也永远空
+             (实测 kb_9 十个文件 graph_parse_status=4，页面仍是暂无数据)。 -->
+        <if test="params.graphParsedOnly != null">
+            AND graph_parse_status IS NOT NULL AND graph_parse_status &lt;&gt; 0
         </if>
         ) t ORDER BY t.gmt_create DESC, COALESCE(t.id, t.folder_id) DESC limit #{params.offset},#{params.pageSize}
     </select>

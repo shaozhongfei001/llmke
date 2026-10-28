@@ -25,6 +25,27 @@ die()  { printf '  [FAIL] %s\n' "$1"; exit 1; }
 # resource_id=8 是 index 服务的资源，与 seed 里 viewFile/previewStream 一致
 ENDPOINTS=(
   "/index/knowledgeBase/file/presign|GET|rag-index-service|index|引用原文预签名（短时效）|8"
+
+  # R14-LIVE-04：/graph/* 在 seed 里 interface_info 有 17 条，但 resource_interface 一条都没挂，
+  # 网关 authenticate() 恒 false —— 任何角色（含 admin）访问图谱一律 401/30021。
+  # 现象极具误导性：菜单能点、页面能进，只有图数据接口全红。
+  "/graph/info/nodes|GET|rag-graph-service|graph|图节点类型|8"
+  "/graph/info/edges|GET|rag-graph-service|graph|图边类型|8"
+  "/graph/graphStatistics/getWholeGraphStatistics|GET|rag-graph-service|graph|全图统计|8"
+  "/graph/search/wholeGraphSearch|POST|rag-graph-service|graph|全图检索|8"
+  "/graph/search/subGraph|GET|rag-graph-service|graph|子图检索|8"
+  "/graph/search/file/pageNum|GET|rag-graph-service|graph|按页取三元组|8"
+  "/graph/search/instances|GET|rag-graph-service|graph|图实例|8"
+  "/graph/search/keywordSearch|GET|rag-graph-service|graph|关键词检索|8"
+  "/graph/search/nodeSearch|POST|rag-graph-service|graph|节点检索|8"
+  "/graph/search/edgeSearch|POST|rag-graph-service|graph|边检索|8"
+  "/graph/search/searchNodesByIds|POST|rag-graph-service|graph|按 id 查节点|8"
+  "/graph/search/nodeStepSearch|POST|rag-graph-service|graph|单跳检索|8"
+  "/graph/search/commonNeighbourSearch|POST|rag-graph-service|graph|共同邻居|8"
+  "/graph/search/pathSearch|POST|rag-graph-service|graph|路径检索|8"
+  "/graph/search/cypherSearch|POST|rag-graph-service|graph|cypher 检索|8"
+  "/graph/search/canSearchNodeOneStep|GET|rag-graph-service|graph|可单跳判定|8"
+  "/graph/search/ping|GET|rag-graph-service|graph|连通性探针|8"
 )
 
 # 口令解析顺序与 init-db.sh 保持一致（否则两个脚本对"没配 .env"的反应不同，装机时更难判）

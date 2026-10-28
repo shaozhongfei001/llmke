@@ -358,8 +358,16 @@ public class KnowledgeBaseListRepositoryImpl extends ServiceImpl<KnowledgeBaseLi
             parsetypeList = Arrays.asList(ParseTypeEnums.FILE_PARSE.getCode(), ParseTypeEnums.FAQ_FILE_PARSE.getCode());
         else if (FileListTypeEnums.FAQ_LIST.getCode().equals(fileListType))
             parsetypeList = Arrays.asList(ParseTypeEnums.FAQ_PARSE.getCode(), ParseTypeEnums.FAQ_FILE_PARSE.getCode());
-        else if (FileListTypeEnums.GRAPH_LIST.getCode().equals(fileListType))
-            parsetypeList = Collections.singletonList(ParseTypeEnums.GRAPH_PARSE.getCode());
+        else if (FileListTypeEnums.GRAPH_LIST.getCode().equals(fileListType)) {
+            // R14-LIVE-04：图谱解析不新建 parse_type=3 的行，而是在原文件行上置
+            // graph_parse_status（见 graphParse 实现）。原实现按 parse_type=3 过滤，
+            // 导致解析成功也永远查不到：实测 kb_9 十个文件 graph_parse_status=4，
+            // 图谱增强页仍显示"暂无数据"。改为按文档类 parse_type 取全集，
+            // 再用 graphParsedOnly 过滤 graph_parse_status。
+            parsetypeList = Arrays.asList(ParseTypeEnums.FILE_PARSE.getCode(),
+                    ParseTypeEnums.FAQ_FILE_PARSE.getCode());
+            params.put("graphParsedOnly", Boolean.TRUE);
+        }
         else if (FileListTypeEnums.DOC_QA.getCode().equals(fileListType))
             parsetypeList = Collections.singletonList(ParseTypeEnums.DOC_QA.getCode());
 
