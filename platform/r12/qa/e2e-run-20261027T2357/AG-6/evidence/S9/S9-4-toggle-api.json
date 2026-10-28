@@ -1,0 +1,59 @@
+{
+ "time": "2026-10-28 11:51:28+0800",
+ "kb_id": "38",
+ "target": {
+  "i": 2,
+  "pk": "2115289464285302786",
+  "relatedPk": "2115289464285302787",
+  "q": "AG6Q-114802-002 智造贷的最高授信额度是多少？"
+ },
+ "steps": [
+  {
+   "step": "before",
+   "list_status": 0,
+   "es": {
+    "found": true,
+    "status": 0,
+    "update_time": "2026-10-28 11:48:03.126240"
+   }
+  },
+  {
+   "step": "disable(0)",
+   "list_status": 0,
+   "es": {
+    "found": true,
+    "status": 0,
+    "update_time": "2026-10-28 11:48:03.126240"
+   },
+   "http": 200,
+   "body": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": null
+   },
+   "elapsed": 0.032
+  },
+  {
+   "step": "enable(1)",
+   "list_status": 1,
+   "es": {
+    "found": true,
+    "status": 1,
+    "update_time": "2026-10-28 11:48:03.126240"
+   },
+   "http": 200,
+   "body": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": null
+   },
+   "elapsed": 0.061
+  }
+ ],
+ "verdict": {
+  "disable_ok": true,
+  "enable_ok": true
+ }
+}

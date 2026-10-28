@@ -1,0 +1,83 @@
+{
+ "panelClass": "h-full",
+ "tree": {
+  "tag": "DIV",
+  "cls": "h-full",
+  "txt": "新建对话 当天 智造贷最高授信额度是多少？ R12默认问答配置 10:27 智造",
+  "kids": [
+   {
+    "tag": "DIV",
+    "cls": "",
+    "txt": "新建对话 当天 智造贷最高授信额度是多少？ R12默认问答配置 10:27 智造",
+    "kids": [
+     {
+      "tag": "INPUT",
+      "cls": "",
+      "txt": "",
+      "kids": []
+     },
+     {
+      "tag": "DIV",
+      "cls": "",
+      "txt": "新建对话 当天 智造贷最高授信额度是多少？ R12默认问答配置 10:27 智造",
+      "kids": [
+       {
+        "tag": "BUTTON",
+        "cls": "",
+        "txt": "",
+        "kids": [
+         {
+          "tag": "svg",
+          "cls": "[object SVGAnimatedString]",
+          "txt": ""
+         }
+        ]
+       },
+       {
+        "tag": "DIV",
+        "cls": "",
+        "txt": "新建对话 当天 智造贷最高授信额度是多少？ R12默认问答配置 10:27 智造",
+        "kids": [
+         {
+          "tag": "DIV",
+          "cls": "",
+          "txt": "新建对话 当天 智造贷最高授信额度是多少？ R12默认问答配置 10:27 智造"
+         }
+        ]
+       },
+       {
+        "tag": "DIV",
+        "cls": "relative ",
+        "txt": "智造贷最高授信额度是多少？ 26-10-28 10:27:00 智造贷最高授信额",
+        "kids": [
+         {
+          "tag": "DIV",
+          "cls": "",
+          "txt": "智造贷最高授信额度是多少？ 26-10-28 10:27:00 智造贷最高授信额"
+         },
+         {
+          "tag": "DIV",
+          "cls": "absolute w-full bottom-0 z-20 pb-[env(safe-area-inset-bottom)] bg-transparent!",
+          "txt": "联网搜索 全局(GraphRAG) 内容由AI生成，仅供参考，不代表本公司观点。"
+         }
+        ]
+       },
+       {
+        "tag": "DIV",
+        "cls": "",
+        "txt": "知识溯源 知识库文档 R12FIX-product-loan.docx 分数: ",
+        "kids": [
+         {
+          "tag": "DIV",
+          "cls": "",
+          "txt": "知识溯源 知识库文档 R12FIX-product-loan.docx 分数: "
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

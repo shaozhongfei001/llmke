@@ -1,0 +1,24 @@
+{
+ "query_graph_data": {
+  "http": 405,
+  "code": null,
+  "reason": null,
+  "blocks_n": 0,
+  "identity_violations_count": null,
+  "keys": [],
+  "blocks": []
+ },
+ "wholeGraphSearch": {
+  "http": 401,
+  "success": false,
+  "keys": [],
+  "nodes_n": 0,
+  "edges_n": 0
+ },
+ "graph-file-list": {
+  "http": 200,
+  "rows_n": 0,
+  "rows": []
+ },
+ "es_total_kb9": null
+}

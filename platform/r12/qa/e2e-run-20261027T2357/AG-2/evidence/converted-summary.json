@@ -1,0 +1,150 @@
+{
+ "docx-plain/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 29393,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/docx-plain-previewStream.pdf"
+ },
+ "docx-plain/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 36716,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/docx-plain-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000[^U]�R���\u0001\u0000\u0000�\u0006\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml��MO�@\u0010���\u0015�/> {C\u000f\u0015��p(p,�\u001aD���8Y�/�L\u0002���:�U�P�\u0006.����}\u001e۲=�|�&[CD�]]�W�\"\u0003�|�ݢ.�f7�E�!I�H�\u001d��\u0006���|\u0019�6\u00010��:_\u0012��B�Z��X�\u0000�'��V\u0012\u001fƅ\bR=�\u0005����7��#pTR��'�+h�"
+ },
+ "docx-table/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 39628,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/docx-table-previewStream.pdf"
+ },
+ "docx-table/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 36944,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/docx-table-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000[^U]�R���\u0001\u0000\u0000�\u0006\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml��MO�@\u0010���\u0015�/> {C\u000f\u0015��p(p,�\u001aD���8Y�/�L\u0002���:�U�P�\u0006.����}\u001e۲=�|�&[CD�]]�W�\"\u0003�|�ݢ.�f7�E�!I�H�\u001d��\u0006���|\u0019�6\u00010��:_\u0012��B�Z��X�\u0000�'��V\u0012\u001fƅ\bR=�\u0005����7��#pTR��'�+h�"
+ },
+ "pptx-V1/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 38236,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pptx-V1-previewStream.pdf"
+ },
+ "pptx-V1/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 29388,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pptx-V1-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000�,Y]rΪ�\u0001\u0000\u0000<\r\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml͗MO�0\u0010����(�\u001cP��,��r؅\u0013\u000bH�?�$���ؖgZ�g�~�b[�\u0002\u0011�$�g�}\u001f����:��GeM�\u001c��$\u0002��B�a�����&\u0011�4���@�L\u0001���^�~�\u0000#.6��#\"w&\u0004�#(%�ց����R\u0012\u000f�P8�?�!��n�D��\u0010\u0018�P�\u0011�{"
+ },
+ "pptx-V0/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 38201,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pptx-V0-previewStream.pdf"
+ },
+ "pptx-V0/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 29388,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pptx-V0-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000�,Y]rΪ�\u0001\u0000\u0000<\r\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml͗MO�0\u0010����(�\u001cP��,��r؅\u0013\u000bH�?�$���ؖgZ�g�~�b[�\u0002\u0011�$�g�}\u001f����:��GeM�\u001c��$\u0002��B�a�����&\u0011�4���@�L\u0001���^�~�\u0000#.6��#\"w&\u0004�#(%�ց����R\u0012\u000f�P8�?�!��n�D��\u0010\u0018�P�\u0011�{"
+ },
+ "loan-V1/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 100300,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/loan-V1-previewStream.pdf"
+ },
+ "loan-V1/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 37543,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/loan-V1-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000�,Y]�R���\u0001\u0000\u0000�\u0006\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml��MO�@\u0010���\u0015�/> {C\u000f\u0015��p(p,�\u001aD���8Y�/�L\u0002���:�U�P�\u0006.����}\u001e۲=�|�&[CD�]]�W�\"\u0003�|�ݢ.�f7�E�!I�H�\u001d��\u0006���|\u0019�6\u00010��:_\u0012��B�Z��X�\u0000�'��V\u0012\u001fƅ\bR=�\u0005����7��#pTR��'�+h�"
+ },
+ "loan-V0/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 100329,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/loan-V0-previewStream.pdf"
+ },
+ "loan-V0/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 37544,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/loan-V0-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000�,Y]�R���\u0001\u0000\u0000�\u0006\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml��MO�@\u0010���\u0015�/> {C\u000f\u0015��p(p,�\u001aD���8Y�/�L\u0002���:�U�P�\u0006.����}\u001e۲=�|�&[CD�]]�W�\"\u0003�|�ݢ.�f7�E�!I�H�\u001d��\u0006���|\u0019�6\u00010��:_\u0012��B�Z��X�\u0000�'��V\u0012\u001fƅ\bR=�\u0005����7��#pTR��'�+h�"
+ },
+ "pdf-digital/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 3577,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pdf-digital-previewStream.pdf"
+ },
+ "pdf-digital/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 3577,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pdf-digital-stream.pdf"
+ },
+ "pdf-scanned/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 6525683,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pdf-scanned-previewStream.pdf"
+ },
+ "pdf-scanned/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 6525683,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/pdf-scanned-stream.pdf"
+ },
+ "xlsx-md/previewStream": {
+  "status": 500,
+  "ct": "application/json",
+  "bytes": 89,
+  "magic": "7b22737563636573",
+  "body": "{\"success\":false,\"errorMsg\":\"源文件转换格式失败\",\"errorCode\":\"6001\",\"data\":null}"
+ },
+ "xlsx-md/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 550,
+  "magic": "7c20e5aea2e688b7",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/xlsx-md-stream.bin",
+  "head": "| 客户名称 | 所属产业链 | 信用评级 | 授信额度(万元) | 已用额度(万元) | 五级分类 | 到期日 |\n| :----: | :----: | :----: | :----: | :----: | :----: | :----: |\n| 华东精�"
+ },
+ "xlsx-raw/previewStream": {
+  "status": 200,
+  "ct": "application/pdf",
+  "bytes": 44276,
+  "magic": "255044462d312e37",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/xlsx-raw-previewStream.pdf"
+ },
+ "xlsx-raw/stream": {
+  "status": 200,
+  "ct": "application/octet-stream",
+  "bytes": 5340,
+  "magic": "504b030414000000",
+  "saved": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-2/evidence/converted/xlsx-raw-stream.bin",
+  "head": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000�,Y]F�MH�\u0000\u0000\u0000�\u0000\u0000\u0000\u0010\u0000\u0000\u0000docProps/app.xmlM�M\u000b�0\f\u0006�Rv���\u001e�\u000eD=����.u��)m����\u0004?nyy�\u001b�.�\"&��E�.�m32�\r@�#�>�ʡ���{�1݁��\u001a\u000f�\u001f\u001e\u0003âm׀�1\f8�ⷰ��.FguϖBw�:Q&��X4:�'\u001f��\u001c\n\u0010�z%>�\u0013K9�+\u0005��S�\u0015S���o�d\u0005�\u0007�\u0017PK\u0003\u0004\u0014"
+ }
+}

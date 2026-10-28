@@ -1,0 +1,227 @@
+{
+ "case": "xlsx-ledger",
+ "desc": "台账 xlsx",
+ "file": "R12FIX-credit-ledger.xlsx",
+ "bytes": 5340,
+ "expect_fail": false,
+ "upload": {
+  "http": 200,
+  "elapsed": 0.091,
+  "req_time": "2026-10-28 11:15:40+0800",
+  "req_epoch": 1793157340.8532505,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": [
+    {
+     "id": "495",
+     "kbId": "36",
+     "fileName": "R12FIX-credit-ledger.xlsx",
+     "fileSize": 5340.0,
+     "size": "5340.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "R12FIX-credit-ledger.xlsx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157340853-R12FIX-credi",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1577230197",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:15:40",
+     "count": null
+    }
+   ]
+  }
+ },
+ "api_success": true,
+ "items": [
+  {
+   "id": "495",
+   "kbId": "36",
+   "fileName": "R12FIX-credit-ledger.xlsx",
+   "fileSize": 5340.0,
+   "size": "5340.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "fullTextPath": null,
+   "convertedFilePath": null,
+   "status": 1,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 0,
+   "fileType": null,
+   "embeddingModelName": null,
+   "parsedFilePath": null,
+   "faqExtractStatus": 1,
+   "reviseDate": null,
+   "parentFileName": "R12FIX-credit-ledger.xlsx",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": null,
+   "imagePaths": [],
+   "tableFilePaths": null,
+   "pdfPage": null,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag5-1793157340853-R12FIX-credi",
+   "graphParseStatus": 1,
+   "uploadStatus": 1,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": null,
+   "fullFolderPath": null,
+   "groupId": "1577230197",
+   "label": "",
+   "chunkType": null,
+   "uploadTime": "2026-10-28 11:15:40",
+   "count": null
+  }
+ ],
+ "file_id": "495",
+ "resp_message": null,
+ "resp_status": 1,
+ "resp_task_statuses": null,
+ "has_task_statuses_key": false,
+ "status_poll": {
+  "elapsed": 14.1,
+  "transitions": [
+   {
+    "t": 0.0,
+    "status": 99,
+    "status_name": "99(解析排队中)",
+    "http": 200
+   },
+   {
+    "t": 6.1,
+    "status": 2,
+    "status_name": "2(解析中)",
+    "http": 200
+   },
+   {
+    "t": 14.1,
+    "status": 3,
+    "status_name": "3(解析成功)",
+    "http": 200
+   }
+  ],
+  "final": 3,
+  "final_name": "3(解析成功)",
+  "timed_out": false,
+  "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+ },
+ "db_file_row": {
+  "rows": [
+   {
+    "id": "495",
+    "kb_id": "36",
+    "file_name": "R12FIX-credit-ledger.xlsx",
+    "status": "3",
+    "status_name": "解析成功",
+    "temp_status": "2",
+    "version": "V0",
+    "gmt_modified": "2026-10-28 11:15:53"
+   }
+  ]
+ },
+ "db_parse_tasks": {
+  "tasks": [
+   {
+    "task_id": "539",
+    "file_id": "495",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:15:45",
+    "end_time": "2026-10-28 11:15:53",
+    "error_msg": ""
+   }
+  ]
+ },
+ "es_chunks": {
+  "total": 0,
+  "got": 0,
+  "min_create_time": null,
+  "max_create_time": null,
+  "sample_pk": [],
+  "sample_head": null
+ },
+ "chunks_api": {
+  "http": 200,
+  "n": 1,
+  "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"551815513813976792\", \"content\": \"|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": nu"
+ },
+ "verdict": {
+  "verdict": "FAIL",
+  "checks": {
+   "A1_接口success": true,
+   "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+   "A3_文件终态=解析成功(3)": true,
+   "A3b_任务级终态=SUCCESS(4)": true,
+   "A3_note": {
+    "file_final": "3(解析成功)",
+    "tasks": [
+     {
+      "task_id": "539",
+      "file_id": "495",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:15:45",
+      "end_time": "2026-10-28 11:15:53",
+      "error_msg": ""
+     }
+    ],
+    "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+   },
+   "A4_有chunk且create_time晚于请求": false,
+   "A4_detail": {
+    "total": 0,
+    "min_create_time": null,
+    "req_time": "2026-10-28 11:15:40+0800",
+    "later": null
+   },
+   "A5_正文可取": true
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "A_存在(kb_9 pdf)": {
+  "key": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+  "http": 200,
+  "success": true,
+  "errorCode": null,
+  "errorMsg": null,
+  "has_url": true,
+  "data_type": "dict"
+ },
+ "B_不存在文件(kb_9)": {
+  "key": "r12-rag/kb_9/not-exist-file.pdf/V0/not-exist-file.pdf",
+  "http": 404,
+  "success": false,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "C_不存在版本": {
+  "key": "r12-rag/kb_9/pdf-digital.pdf/V9/pdf-digital.pdf",
+  "http": 404,
+  "success": false,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "D_他人夹具kb_22": {
+  "key": "r12-rag/kb_22/R12FIX-loan.docx/V0/R12FIX-loan.docx",
+  "http": 404,
+  "success": false,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "E_越权kb_999": {
+  "key": "r12-rag/kb_999/x.pdf/V0/x.pdf",
+  "http": 404,
+  "success": false,
+  "errorCode": "10001",
+  "errorMsg": "知识库不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "F_minio前缀": {
+  "key": "minio/r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+  "http": 404,
+  "success": false,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "G_空key": {
+  "key": "",
+  "http": 500,
+  "success": false,
+  "errorCode": "5003",
+  "errorMsg": "参数为空",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "H_路径穿越": {
+  "key": "r12-rag/kb_9/../../../etc/passwd",
+  "http": 404,
+  "success": false,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ },
+ "I_非r12前缀": {
+  "key": "other-bucket/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+  "http": 404,
+  "success": false,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false,
+  "data_type": "NoneType"
+ }
+}

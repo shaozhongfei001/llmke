@@ -1,0 +1,54 @@
+{
+ "caret_n": 2,
+ "rows_after": [
+  "/ \t / R12FIX-product-loan / \t\t\t\t\t\t / 新增文件 / 转移到 / 解散 / 删除",
+  "R12FIX-product-loan(1).docx / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:44\t / 移除 / 下载 / ...",
+  "R12FIX-product-loan.docx / \t1\tnaive\t / 解析完成 / \t\t26-10-27 02:28\t / 移除 / 下载 / ...",
+  "/ \t / R12FIX-product-intro / \t\t\t\t\t\t / 新增文件 / 转移到 / 解散 / 删除",
+  "/ \t / pdf-encrypted.pdf / \t0\tnaive\t / 解析失败 / \t\t26-10-27 10:35\t / 解析 / 删除 / ...",
+  "/ \t / R12FIX-credit-ledger.xlsx / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:45\t / 重新解析 / 删除 / ...",
+  "/ \t / pdf-digital.pdf / \t2\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ...",
+  "/ \t / docx-plain.docx / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ...",
+  "/ \t / docx-table.docx / \t2\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ...",
+  "/ \t / pdf-scanned.pdf / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ..."
+ ],
+ "body_text": "智能对话 | 知识库 | 助手配置 | 敏感词配置 | 用户反馈 | 搜索 | 智能问答 | 系统管理 | admin | R12验收主链 | R12验收主链 | 暂无标签 | 文件数：10 大小：6.4 GB | 知识解析 | FAQ | 配置 | 检索测试 | 文件管理 | 版本管理 | 图谱增强 | 更多操作 | 显示全部文件 | \t | \t | 名称 | \t分块数\t解析方法\t解析状态\t版本修订时间\t上传时间\t操作 |   | \t | \t | 名称 | \t | 分块数 | \t | 解析方法 | \t | 解析状态 | \t | 版本修订时间 | \t | 上传时间 | \t | 操作 | \t | \t | R12FIX-product-loan | \t\t\t\t\t\t | 新增文件 | 转移到 | 解散 | 删除 | 名称\t分块数\t解析方法\t解析状态\t版本修订时间\t上传时间\t操作 | 名称 | \t | 分块数 | \t | 解析方法 | \t | 解析状态 | \t | 版本修订时间 | \t | 上传时间 | \t | 操作 | R12FIX-product-loan(1).docx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:44\t | 移除 | 下载 | ... | R12FIX-product-loan.docx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 02:28\t | 移除 | 下载 | ... | \t | \t | R12FIX-product-intro | \t\t\t\t\t\t | 新增文件 | 转移到 | 解散 | 删除 | \t | \t | pdf-encrypted.pdf | \t0\tnaive\t | 解析失败 | \t\t26-10-27 10:35\t | 解析 | 删除 | ... | \t | \t | R12FIX-credit-ledger.xlsx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:45\t | 重新解析 | 删除 | ... | \t | \t | pdf-digital.pdf | \t2\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | docx-plain.docx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | docx-table.docx | \t2\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | pdf-scanned.pdf | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | 1",
+ "V0V1": [],
+ "sub_table_has_version_col": false,
+ "groups": [
+  {
+   "parentFileName": "R12FIX-product-loan.docx",
+   "files": [
+    {
+     "id": "328",
+     "fileName": "R12FIX-product-loan(1).docx",
+     "version": "V1",
+     "status": 3
+    },
+    {
+     "id": "290",
+     "fileName": "R12FIX-product-loan.docx",
+     "version": "V0",
+     "status": 3
+    }
+   ]
+  },
+  {
+   "parentFileName": "R12FIX-product-intro.pptx",
+   "files": [
+    {
+     "id": "343",
+     "fileName": "R12FIX-product-intro(1).pptx",
+     "version": "V1",
+     "status": 3
+    },
+    {
+     "id": "330",
+     "fileName": "R12FIX-product-intro.pptx",
+     "version": "V0",
+     "status": 3
+    }
+   ]
+  }
+ ]
+}

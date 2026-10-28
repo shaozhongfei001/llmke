@@ -1,0 +1,112 @@
+[
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "",
+  "x": 330,
+  "y": 517,
+  "w": 32,
+  "h": 32,
+  "svgTags": "path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "border-none flex items-center justify-center",
+  "x": 101,
+  "y": 73,
+  "w": 180,
+  "h": 42,
+  "svgTags": "path,path",
+  "html": "<div class=\"flex items-center gap-2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "ml-auto flex items-center justify-center transitio",
+  "x": 291,
+  "y": 76,
+  "w": 36,
+  "h": 36,
+  "svgTags": "circle,path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "",
+  "x": 549,
+  "y": 416,
+  "w": 18,
+  "h": 18,
+  "svgTags": "rect,path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "",
+  "x": 579,
+  "y": 416,
+  "w": 18,
+  "h": 18,
+  "svgTags": "path,path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "",
+  "x": 609,
+  "y": 416,
+  "w": 18,
+  "h": 18,
+  "svgTags": "path,path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "",
+  "x": 639,
+  "y": 416,
+  "w": 18,
+  "h": 18,
+  "svgTags": "path,path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "flex items-center gap-1 bg-white px-3 py-1 rounded",
+  "x": 534,
+  "y": 922,
+  "w": 94,
+  "h": 26,
+  "svgTags": "path,path,path,path,path",
+  "html": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" class=\"w-[16px] h-[16px] \"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8.00001 14.6666C11.6819 14.6"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "flex items-center gap-1 bg-white px-3 py-1 rounded",
+  "x": 644,
+  "y": 922,
+  "w": 138,
+  "h": 26,
+  "svgTags": "circle,path,path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucid"
+ },
+ {
+  "tag": "BUTTON",
+  "role": null,
+  "cls": "relative w-8 h-8 flex items-center justify-center ",
+  "x": 1318,
+  "y": 919,
+  "w": 32,
+  "h": 32,
+  "svgTags": "path",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4E5969\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-pap"
+ }
+]

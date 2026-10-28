@@ -1,0 +1,29 @@
+P0 范围界定：不是单点，是"同类只读接口成片缺授权"
+采集时刻：2026-10-28 11:2x   主体：r13_noauth（无任何授权）   目标库：kb_34（该账号无任何授权）
+
+静态（源代码，rag-index-service/.../interfaces/KnowledgeBaseFileController.java）：
+  :100  kbAuthzService.assertRead(kb.getId())          ← create/upload 路径有校验
+  :148  kbAuthzService.assertRead(file.getKbId())      ← GET /getById 有校验
+  :198  kbAuthzService.assertWrite(kbIdOfFile(id))     ← DELETE /delete 有校验
+  :217  kbAuthzService.assertRead(kbIdOfFile(fileId))  ← GET /getByIds 有校验
+  :154-158  @GetMapping("/folder/list") → folderList(req) 调用 knowledgeBaseListAppService.folderList(req)  ← 无 assert
+  :160-164  @GetMapping("/list")         → listNew(req)                                        ← 无 assert
+  :166-170  @GetMapping("multiple/version") → multipleVersion(req)                             ← 无 assert
+  :172-178  @GetMapping("/flatList")     → flatList(req)                                       ← 无 assert
+  :180-186  @GetMapping("/flatFiles")    → flatFiles(req)                                      ← 无 assert
+  :188-192  @GetMapping("/queryList")    → queryList(kbId, types)                              ← 无 assert
+
+运行态（同一 r13_noauth token，逐个请求）：
+  200 success=true n=8   GET /index/knowledgeBase/file/folder/list?kbId=34&fileListType=1
+  200 success=true n=8   GET /index/knowledgeBase/file/list?kbId=34
+  200 success=true n=9   GET /index/knowledgeBase/file/flatList?kbId=34
+  200 success=true n=7   GET /index/knowledgeBase/file/flatFiles?kbId=34
+  200 success=true n=8   GET /index/knowledgeBase/file/queryList?kbId=34&types=1
+  500 success=false code=999  GET /index/knowledgeBase/file/multiple/version?kbId=34   ← 自身 fastjson 报错(999)，同样无 assert，但未能读到数据
+  403 success=false code=30016 GET /index/knowledgeBase/file/getById?id=483            ← 正确拒绝
+  403 success=false code=30016 GET /index/knowledgeBase/getKbById?id=34                ← 正确拒绝
+
+结论（修正协调侧静态判断）：授权校验在 /getById、/getByIds、/delete、/create 等"单对象/写"接口上是有的，
+但"列表类"只读接口（folder/list、list、flatList、flatFiles、queryList，另 multiple/version 未授权亦无 assert）
+成片缺失。因此 P0 的范围应写"列表类只读接口缺授权（≥5 条实测放行 + 1 条被自身 500 掩盖）"，
+而不是"仅 folderList 一处"。级别不变（P0），影响面比单点更大。

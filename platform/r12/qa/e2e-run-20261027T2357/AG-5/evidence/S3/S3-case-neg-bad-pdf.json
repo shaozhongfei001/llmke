@@ -1,0 +1,216 @@
+{
+ "case": "neg-bad-pdf",
+ "desc": "纯文本改后缀 .pdf",
+ "file": "bad-renamed.pdf",
+ "bytes": 2020,
+ "expect_fail": true,
+ "upload": {
+  "http": 200,
+  "elapsed": 0.108,
+  "req_time": "2026-10-28 11:17:01+0800",
+  "req_epoch": 1793157421.4157019,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": [
+    {
+     "id": "501",
+     "kbId": "36",
+     "fileName": "bad-renamed.pdf",
+     "fileSize": 2020.0,
+     "size": "2020.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "bad-renamed.pdf",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157421415-bad-renamed.",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "2029262370",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:17:01",
+     "count": null
+    }
+   ]
+  }
+ },
+ "api_success": true,
+ "items": [
+  {
+   "id": "501",
+   "kbId": "36",
+   "fileName": "bad-renamed.pdf",
+   "fileSize": 2020.0,
+   "size": "2020.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf",
+   "fullTextPath": null,
+   "convertedFilePath": null,
+   "status": 1,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 0,
+   "fileType": null,
+   "embeddingModelName": null,
+   "parsedFilePath": null,
+   "faqExtractStatus": 1,
+   "reviseDate": null,
+   "parentFileName": "bad-renamed.pdf",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": null,
+   "imagePaths": [],
+   "tableFilePaths": null,
+   "pdfPage": null,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag5-1793157421415-bad-renamed.",
+   "graphParseStatus": 1,
+   "uploadStatus": 1,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": null,
+   "fullFolderPath": null,
+   "groupId": "2029262370",
+   "label": "",
+   "chunkType": null,
+   "uploadTime": "2026-10-28 11:17:01",
+   "count": null
+  }
+ ],
+ "file_id": "501",
+ "resp_message": null,
+ "resp_status": 1,
+ "resp_task_statuses": null,
+ "has_task_statuses_key": false,
+ "status_poll": {
+  "elapsed": 44.3,
+  "transitions": [
+   {
+    "t": 0.0,
+    "status": 99,
+    "status_name": "99(解析排队中)",
+    "http": 200
+   },
+   {
+    "t": 14.1,
+    "status": 98,
+    "status_name": "98(重试中)",
+    "http": 200
+   },
+   {
+    "t": 44.3,
+    "status": 4,
+    "status_name": "4(解析失败)",
+    "http": 200
+   }
+  ],
+  "final": 4,
+  "final_name": "4(解析失败)",
+  "timed_out": false,
+  "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+ },
+ "db_file_row": {
+  "rows": [
+   {
+    "id": "501",
+    "kb_id": "36",
+    "file_name": "bad-renamed.pdf",
+    "status": "4",
+    "status_name": "解析失败",
+    "temp_status": "2",
+    "version": "V0",
+    "gmt_modified": "2026-10-28 11:17:46"
+   }
+  ]
+ },
+ "db_parse_tasks": {
+  "tasks": [
+   {
+    "task_id": "545",
+    "file_id": "501",
+    "status": 5,
+    "status_name": "DEAL_FAIL",
+    "retry_times": "3",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:17:45",
+    "end_time": "NULL",
+    "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":545,\"task_statuses\":[{\"fail_reason\":\"?????No /Root object! - Is this really a PDF?\",\"file_id\":501,\"file_path\":\"r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf\",\"success\":false}]}"
+   }
+  ]
+ },
+ "es_chunks": {
+  "total": 0,
+  "got": 0,
+  "min_create_time": null,
+  "max_create_time": null,
+  "sample_pk": [],
+  "sample_head": null
+ },
+ "chunks_api": {
+  "http": 500,
+  "n": null,
+  "sample": "{\"success\": false, \"errorMsg\": \"知识库文件还未解析\", \"errorCode\": \"10009\", \"data\": null}"
+ },
+ "verdict": {
+  "verdict": "PASS",
+  "checks": {
+   "接口拒绝或文件终态=解析失败(4)": true,
+   "不是成功但0条": true,
+   "可见原因": true,
+   "任务级终态": [
+    {
+     "task": "545",
+     "status": "DEAL_FAIL",
+     "retry": "3/3",
+     "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":545,\"task_statuses\":[{\"fail_reason\":\"?????No /Root object! - Is this really a PDF?\",\"file_id\":501,\"file_path\":\"r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf\",\"success\":false}]}"
+    }
+   ],
+   "detail": {
+    "api_success": true,
+    "file_final_status": 4,
+    "es_chunks": 0,
+    "resp_message": "",
+    "resp_status": 1
+   }
+  }
+ }
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "user": "r13_reader",
+    "op": "DELETE kb id=999999999",
+    "status": 404,
+    "success": false,
+    "errorMsg": "知识库不存在",
+    "errorCode": "10001",
+    "detail": "http=404 success=false errorCode=10001 errorMsg=知识库不存在 total/len=null"
+  },
+  {
+    "user": "r13_noauth",
+    "op": "DELETE kb id=999999999",
+    "status": 404,
+    "success": false,
+    "errorMsg": "知识库不存在",
+    "errorCode": "10001",
+    "detail": "http=404 success=false errorCode=10001 errorMsg=知识库不存在 total/len=null"
+  },
+  {
+    "user": "admin",
+    "op": "DELETE kb id=999999999",
+    "status": 404,
+    "success": false,
+    "errorMsg": "知识库不存在",
+    "errorCode": "10001",
+    "detail": "http=404 success=false errorCode=10001 errorMsg=知识库不存在 total/len=null"
+  }
+]

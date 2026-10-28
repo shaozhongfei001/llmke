@@ -1,0 +1,37 @@
+{
+ "on": {
+  "answer": "事实中未提及 [L0-3c882b30]",
+  "is_refusal": true,
+  "refs_n": 1,
+  "sources": [
+   ""
+  ],
+  "nums": [
+   [
+    "0",
+    ""
+   ],
+   [
+    "3",
+    ""
+   ],
+   [
+    "882",
+    ""
+   ],
+   [
+    "30",
+    ""
+   ]
+  ]
+ },
+ "off": {
+  "answer": "根据参考资料，海川电子材料股份有限公司被列为关注类，但具体需要计提多少比例的贷款损失准备并未明确说明。建议参照相关金融法规或咨询专业财务人员以获取准确计提比例。",
+  "is_refusal": false,
+  "refs_n": 1,
+  "sources": [
+   "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx"
+  ],
+  "nums": []
+ }
+}

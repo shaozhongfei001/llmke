@@ -1,0 +1,28 @@
+{
+ "v0": {
+  "question": "R12FIX-product-loan.docx 的 V0 版本里，智造贷的单户最高授信额度是多少？",
+  "http": 200,
+  "status": 2,
+  "answer": "单户最高授信额度为人民币8000万元。",
+  "sources": [
+   "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx"
+  ],
+  "has_5000": false,
+  "has_8000": true
+ },
+ "v1": {
+  "question": "R12FIX-product-loan.docx 的 V1 版本里，智造贷的单户最高授信额度是多少？",
+  "http": 200,
+  "status": 2,
+  "answer": "单户最高授信额度为人民币8000万元。",
+  "sources": [
+   "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx"
+  ],
+  "has_5000": false,
+  "has_8000": true
+ }
+}

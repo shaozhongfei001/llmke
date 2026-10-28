@@ -1,0 +1,60 @@
+{
+ "boxCls": "relative mx-auto px-8",
+ "tree": {
+  "tag": "DIV",
+  "cls": "relative mx-auto px-8",
+  "txt": "联网搜索\n全局(GraphRAG)\n内容",
+  "kids": [
+   {
+    "tag": "DIV",
+    "cls": "p-3",
+    "txt": "联网搜索\n全局(GraphRAG)",
+    "kids": [
+     {
+      "tag": "DIV",
+      "cls": "mb-3 flex flex-wrap gap-2 animate-fade-in-up",
+      "txt": "",
+      "kids": []
+     },
+     {
+      "tag": "DIV",
+      "cls": "sender-container-gradient relative w-full rounded-[28px] tra",
+      "txt": "联网搜索\n全局(GraphRAG)",
+      "kids": [
+       {
+        "tag": "DIV",
+        "cls": "flex flex-col items-end w-full rounded-[28px] shadow-sm tran",
+        "txt": "联网搜索\n全局(GraphRAG)"
+       }
+      ]
+     },
+     {
+      "tag": "DIV",
+      "cls": "mt-2 pt-2 pb-3 px-1 flex items-center justify-between ",
+      "txt": "",
+      "kids": [
+       {
+        "tag": "SPAN",
+        "cls": "text-[10px]",
+        "txt": ""
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "tag": "DIV",
+    "cls": " absolute bottom-3 left-0 right-0 w-full text-xs text-center",
+    "txt": "内容由AI生成，仅供参考，不代表本公司观",
+    "kids": [
+     {
+      "tag": "DIV",
+      "cls": "text-xs text-center",
+      "txt": "内容由AI生成，仅供参考，不代表本公司观",
+      "kids": []
+     }
+    ]
+   }
+  ]
+ }
+}

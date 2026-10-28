@@ -1,0 +1,102 @@
+{
+ "ts": "2026-10-28 11:11:17+0800",
+ "kb_name_planned": "R14-E2E-AG5-1111",
+ "frontend": {
+  "entry": "assets/index-fup9RT0c.js",
+  "curl": "200 315489",
+  "md5_served": "5161c957f19bb7f1ee825ca33d6771cc",
+  "md5_dist": "5161c957f19bb7f1ee825ca33d6771cc",
+  "match": true
+ },
+ "pids_open": {
+  "8088": "925533",
+  "18082": "923878",
+  "18083": "1647331",
+  "19527": "922312",
+  "19529": "1461792",
+  "19995": "922468"
+ },
+ "kb_list": {
+  "http": 200,
+  "total": 15,
+  "records_n": 15,
+  "names": [
+   "R12业务主链",
+   "R12主链",
+   "R12验收主链",
+   "R12验收知识库",
+   "R14-BASELINE-KB",
+   "R14-P201-KB",
+   "R14C-归组回归",
+   "R14C-归组回归R14A",
+   "R14C-归组回归R14B",
+   "graph-increment-fixture",
+   "graph-increment-split",
+   "graph-increment-split2",
+   "qa_r12_final",
+   "qa_r12_indep",
+   "qa_r12_priv"
+  ]
+ },
+ "kb_9": null,
+ "kb_create": {
+  "http": 200,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": {
+    "id": "36",
+    "kbName": "R14-E2E-AG5-1111",
+    "primitiveName": "kb_36",
+    "kbType": 1,
+    "kbDes": "R14 E2E AG-5 上传/解析/收敛验收（用完即删）",
+    "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+    "status": 1,
+    "fileTotalSize": null,
+    "fileCount": null,
+    "permission": null,
+    "chunkSize": 512,
+    "fileType": "naive",
+    "chunkOverlap": 50,
+    "splitRegex": null,
+    "embeddingModelName": "bge-m3",
+    "modelName": "qwen2.5-7b-instruct",
+    "multiModelName": "qwen2.5-vl-3b-instruct",
+    "faqModelName": "qwen2.5-7b-instruct",
+    "generateGraphModelName": "qwen2.5-7b-instruct",
+    "kbLabel": null,
+    "fileFaqMaxNums": 0,
+    "similarQuestionMaxNums": 1,
+    "enablePolish": false,
+    "graphPrompt": null,
+    "platform": "rag-qa",
+    "label": null,
+    "chunkType": null,
+    "privateKb": 0
+   }
+  }
+ },
+ "kb_id": "36",
+ "kb_primitive": "kb_36",
+ "es_after_create": [
+  {
+   "idx": "kb_36",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [kb_36]"
+  },
+  {
+   "idx": "table_chunks_kb_36",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_chunks_kb_36]"
+  },
+  {
+   "idx": "table_summary_kb_36",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_summary_kb_36]"
+  }
+ ]
+}

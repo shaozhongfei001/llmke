@@ -1,0 +1,59 @@
+{
+ "pkg_entry_md5": "de2424501bd29e358043049876db2a75",
+ "instrument_selftest": {
+  "status": 200,
+  "hasUrl": true,
+  "presign_hits": 1,
+  "resource_entries": 0
+ },
+ "drawer_click": {
+  "events": [
+   "knowledge_referenceFile_title:click"
+  ],
+  "presign_hit": 0,
+  "presign_urls": []
+ },
+ "fiber": {
+  "drawer": true,
+  "hasFiber": true,
+  "components": [
+   "div",
+   "$e",
+   "ib",
+   "Rx",
+   "go",
+   "w2",
+   "_S",
+   "DS",
+   "fo",
+   "_n",
+   "Z",
+   "fe",
+   "wl",
+   "Zn",
+   "main",
+   "n",
+   "jo",
+   "Qo",
+   "Ht",
+   "aS",
+   "Zt",
+   "pa",
+   "Xn",
+   "Io",
+   "cc",
+   "Un",
+   "ve",
+   "L",
+   "uc",
+   "bc",
+   "jc",
+   "vc",
+   "z",
+   "Yt"
+  ],
+  "drawerComponents": []
+ },
+ "presign_total": 1,
+ "resources": []
+}

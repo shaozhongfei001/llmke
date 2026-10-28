@@ -1,0 +1,27 @@
+{
+ "time": "2026-10-28 11:54:58+0800",
+ "kb_id": "38",
+ "deleted": {
+  "pk": "471299935944131075",
+  "relatedPk": "275195405320273198",
+  "question": "是否有违约金？",
+  "answer": "提前还款不收取违约金。"
+ },
+ "list_total": 28,
+ "pk_in_list": false,
+ "retrieval_query": "AG6-UNIQUE-115404 蓝色独角兽保证金比例是多少？",
+ "retrieval_faq_result_list": [
+  {
+   "faq_question": "ag6-unique-115404 蓝色独角兽保证金比例是多少？",
+   "faq_answer": "单户最高授信额度为人民币5000万元。",
+   "score": 0.34285714285714286
+  }
+ ],
+ "deleted_answer_still_returned": false,
+ "es_has_pk": false,
+ "verdict": {
+  "list_clean": true,
+  "retrieval_clean": true,
+  "es_clean": true
+ }
+}

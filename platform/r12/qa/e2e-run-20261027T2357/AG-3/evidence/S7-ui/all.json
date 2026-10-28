@@ -1,0 +1,82 @@
+{
+ "env": {
+  "frontend": "http://127.0.0.1:18088",
+  "assistantPicked": true
+ },
+ "U1_citation_open": {
+  "ask": {
+   "q": "智造贷最高授信额度是多少？",
+   "done": true,
+   "elapsedMs": 28492,
+   "tail": "\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:26\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:25\n智造贷最高额度是多少？\nR12默认问答配置\n00:23\n智造贷最高额度是多少？\nR12默认问答配置\n00:13\n智造贷最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:30\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:25\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:44\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:34\n智造贷最高授信额度是多少？\n26-10-28 10:27:43\n智造贷最高授信额度是多少？\n26-10-28 10:27:43\n思考完成\n(用时 19 秒)\n智造贷的最高授信额度为人民币8000万元。1其中信用方式部分的最高额度为1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。1\n知识溯源 1\n本次回答总计消耗 237 tokens, 等待总计耗时 19秒\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+   "refsLabel": "1"
+  },
+  "citation": {
+   "steps": [],
+   "panelText": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n新建对话\n当天\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:26\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:25\n智造贷最高额度是多少？\nR12默认问答配置\n00:23\n智造贷最高额度是多少？\nR12默认问答配置\n00:13\n智造贷最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:30\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:25\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:44\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:34\n智造贷最高授信额度是多少？\n26-10-28 10:27:43\n智造贷最高授信额度是多少？\n26-10-28 10:27:43\n思考完成\n(用时 19 秒)\n智造贷的最高授信额度为人民币8000万元。1其中信用方式部分的最高额度为1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。1\n知识溯源 1\n本次回答总计消耗 237 tokens, 等待总计耗时 19秒\n信用方式下的最高额度是多少？\n除了信用方式外，还有哪些增信方式？\n申请智造贷时需要注意哪些条件？\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。\n知识溯源\n知识库文档\nR12FIX-product-loan.docx\n分数:\n0.25\n1",
+   "fileNameInPanel": "R12FIX-product-loan.docx",
+   "clicked": true,
+   "pdfBox": true,
+   "canvas": 1,
+   "text": "R12FIX-product-loan.docx\n1 / 1\n111%",
+   "hasFail": false,
+   "failMsg": "",
+   "ok": true
+  }
+ },
+ "U2_rephrase": {
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /新建对话/ }).first()\u001b[22m\n\u001b[2m    - locator resolved to <button title=\"新建会话\" class=\"border-none flex items-center justify-center\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m   "
+ },
+ "U3_multiturn": {
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('textarea').first()\u001b[22m\n\u001b[2m    - locator resolved to <textarea rows=\"1\" placeholder=\"输入问题后按Enter发送,Shift+Enter进行换行\" class=\"flex-1 w-full min-w-0 py-2 resize-none outline-none border-none min-h-[85px]↵     "
+ },
+ "U4_history": {
+  "sidebarItemFound": true,
+  "restoredAnswer": true,
+  "restoredTrace": true,
+  "tail": "贷最高授信额度是多少？\nR12默认问答配置\n10:26\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:25\n智造贷最高额度是多少？\nR12默认问答配置\n00:23\n智造贷最高额度是多少？\nR12默认问答配置\n00:13\n智造贷最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:30\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:25\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:44\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:34\n智造贷最高授信额度是多少？\n26-10-28 10:28:02\n智造贷最高授信额度是多少？\n26-10-28 10:29:19\n思考完成\n(用时 19 秒)\n智造贷的最高授信额度为人民币8000万元。1其中信用方式部分的最高额度为1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。1\n知识溯源 1\n本次回答总计消耗 237 tokens, 等待总计耗时 19秒\n信用方式下的最高额度是多少？\n除了信用方式外，还有哪些增信方式？\n申请智造贷时需要注意哪些条件？\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+  "beforeTail": "智造贷最高额度是多少？\nR12默认问答配置\n10-27 12:34\n智造贷最高授信额度是多少？\n26-10-28 10:27:43\n智造贷最高授信额度是多少？\n26-10-28 10:27:43\n思考完成\n(用时 19 秒)\n智造贷的最高授信额度为人民币8000万元。1其中信用方式部分的最高额度为1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。1\n知识溯源 1\n本次回答总计消耗 237 tokens, 等待总计耗时 19秒\n信用方式下的最高额度是多少？\n除了信用方式外，还有哪些增信方式？\n申请智造贷时需要注意哪些条件？\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。\n知识溯源\n知识库文档\nR12FIX-product-loan.docx\n分数:\n0.25\n1\nR12FIX-product-loan.docx\n1 / 1\n111%"
+ },
+ "U5_repeat3": {
+  "runs": [
+   {
+    "i": 1,
+    "done": true,
+    "elapsedMs": 23150,
+    "refs": "1",
+    "hit8000": true
+   },
+   {
+    "i": 2,
+    "done": true,
+    "elapsedMs": 21301,
+    "refs": "1",
+    "hit8000": true
+   },
+   {
+    "i": 3,
+    "done": true,
+    "elapsedMs": 23219,
+    "refs": "1",
+    "hit8000": true
+   }
+  ],
+  "allOk": true
+ },
+ "U6_cancel": {
+  "idleBtn": {
+   "cls": "relative w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer grou",
+   "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4E5969\" stroke-w"
+  },
+  "streaming": {
+   "text": "最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n请详细介绍一下智造贷的适用对象、期限、利\n26-10-28 10:30:36\n请详细介绍一下智造贷的适用对象、期限、利率和增信方式\n26-10-28 10:30:36\n💭\n深度思考中\n﻿\n\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+   "btnHtml": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4E5969\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-l",
+   "btnCls": "relative w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer grou",
+   "thinking": true
+  },
+  "cancelBtnClicked": true,
+  "stillStreamingAfterCancel": true,
+  "afterTail": "是多少？\nR12默认问答配置\n10:29\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:26\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:25\n智造贷最高额度是多少？\nR12默认问答配置\n00:23\n智造贷最高额度是多少？\nR12默认问答配置\n00:13\n智造贷最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n请详细介绍一下智造贷的适用对象、期限、利\n26-10-28 10:30:36\n请详细介绍一下智造贷的适用对象、期限、利率和增信方式\n26-10-28 10:30:36\n💭\n深度思考中\n﻿\n\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+  "ok": false
+ }
+}

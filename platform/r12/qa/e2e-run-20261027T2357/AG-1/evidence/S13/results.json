@@ -1,0 +1,66 @@
+[
+  {
+    "id": "S13-02",
+    "title": "伪造 Authorization 头 → 401/403，不得 500",
+    "verdict": "FAIL",
+    "detail": "受保护接口对 无头/空/无点串/三段乱写/篡改载荷 均返回 401（拒绝语义正确=true）；但矩阵中出现 5xx 共 3 处：无点串(0段) × 公开 /auth/user/kaptcha → 500 ; 三段乱写(a.b.c) × 公开 /auth/user/kaptcha → 500 ; Bearer 前缀+真token × 公开 /auth/user/kaptcha → 500。根因（源码级）：rag-common UserContextFilter 第 47-48 行 JWTUtils.getUserId/getUsername 未捕获 JWTDecodeException；网关 AuthFilter 已有 R12-FIX-AUTH-01 兜底，故仅\"过了网关的公开/业务路径\"暴雷",
+    "evidence": [
+      "AG-1/evidence/S13/A-auth-matrix.json",
+      "AG-1/evidence/S13/s13-raw.jsonl"
+    ],
+    "at": "10:26:22"
+  },
+  {
+    "id": "S13-01",
+    "title": "直接构造 URL 访问无权资源 → 403 或明确拒绝，不得 200",
+    "verdict": "FAIL",
+    "detail": "违规放行 2 处：r13_reader 文件清单 kbId=34（未授权） → http=200 success=true errorCode=null errorMsg=null total/len=8 ; r13_noauth 文件清单 kbId=34（未授权） → http=200 success=true errorCode=null errorMsg=null total/len=8。明细：[r13_reader] kb 列表（自身可见范围） → http=200 success=true errorCode=null errorMsg=null total/len=0 ｜ [r13_reader] getKbById id=9（r13_reader 已授权） → http=200 success=true errorCode=null errorMsg=null total/len=undefined ｜ [r13_reader] getKbById id=34（未授权库） → http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null ｜ [r13_reader] 文件清单 kbId=9（已授权） → http=200 success=true errorCode=null errorMsg=null total/len=10 ｜ [r13_reader] 文件清单 kbId=34（未授权） → http=200 success=true errorCode=null errorMsg=null total/len=8 ｜ [r13_reader] 文件详情 id=483（属未授权 kb_34） → http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null ｜ [r13_reader] 文件流 fileId=483（属未授权 kb_34） → http=401 success=false errorCode=30021 errorMsg=没有足够的权限 total/len=null ｜ [r13_noauth] kb 列表（自身可见范围） → http=200 success=true errorCode=null errorMsg=null total/len=0 ｜ [r13_noauth] getKbById id=9（r13_reader 已授权） → http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null ｜ [r13_noauth] getKbById id=34（未授权库） → http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null ｜ [r13_noauth] 文件清单 kbId=9（已授权） → http=200 success=true errorCode=null errorMsg=null total/len=10 ｜ [r13_noauth] 文件清单 kbId=34（未授权） → http=200 success=true errorCode=null errorMsg=null total/len=8 ｜ [r13_noauth] 文件详情 id=483（属未授权 kb_34） → http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null ｜ [r13_noauth] 文件流 fileId=483（属未授权 kb_34） → http=401 success=false errorCode=30021 errorMsg=没有足够的权限 total/len=null",
+    "evidence": [
+      "AG-1/evidence/S13/B-horizontal-authz.json",
+      "AG-1/evidence/S13/s13-raw.jsonl"
+    ],
+    "at": "10:26:23"
+  },
+  {
+    "id": "S13-03",
+    "title": "普通账号纵向越权访问管理员接口 → 应 403",
+    "verdict": "FAIL",
+    "detail": "违规放行 6 处：r13_reader 用户列表（管理）(http=200 success=true errorCode=null errorMsg=null total/len=5) ; r13_reader 离职用户列表（管理）(http=200 success=true errorCode=null errorMsg=null total/len=0) ; r13_reader 读他人账号信息(http=200 success=true errorCode=null errorMsg=null total/len=undefined) ; r13_noauth 用户列表（管理）(http=200 success=true errorCode=null errorMsg=null total/len=5) ; r13_noauth 离职用户列表（管理）(http=200 success=true errorCode=null errorMsg=null total/len=0) ; r13_noauth 读他人账号信息(http=200 success=true errorCode=null errorMsg=null total/len=undefined)",
+    "evidence": [
+      "AG-1/evidence/S13/C-vertical-authz.json",
+      "AG-1/evidence/S13/s13-raw.jsonl"
+    ],
+    "at": "10:26:23"
+  },
+  {
+    "id": "S13-04",
+    "title": "越权/管理员删除不存在知识库 → 明确业务错误（非 500）",
+    "verdict": "PASS",
+    "detail": "[r13_reader] DELETE kb id=999999999 → http=404 success=false errorCode=10001 errorMsg=知识库不存在 total/len=null ｜ [r13_noauth] DELETE kb id=999999999 → http=404 success=false errorCode=10001 errorMsg=知识库不存在 total/len=null ｜ [admin] DELETE kb id=999999999 → http=404 success=false errorCode=10001 errorMsg=知识库不存在 total/len=null。注：越权「创建」探测在 10:24 已执行一次并产生 id=35（随后被软删为 status=0），为避免继续污染环境不再重复，证据见 AG-1/evidence/S13/00-side-effect-and-revert.log",
+    "evidence": [
+      "AG-1/evidence/S13/D-write-nonexistent.json",
+      "AG-1/evidence/S13/00-side-effect-and-revert.log"
+    ],
+    "at": "10:26:23"
+  },
+  {
+    "id": "S13-05",
+    "title": "撤权后原会话是否立即失效",
+    "verdict": "UNVERIFIED",
+    "detail": "需删除/变更 user_privilege 中的授权行并观察存量 token 行为，属于对权限数据的写入（本轮零写入约束禁止）；仓内存在他人历史证据 platform/r12/qa/evidence/REVOKE-*，但按纪律不得引用为本次证据。替代性事实：登出后旧 token 立即失效（见 S13-06），说明会话可服务端吊销",
+    "evidence": [
+      "AG-1/evidence/S13/E-revoke-unverified.txt"
+    ],
+    "at": "10:26:23"
+  },
+  {
+    "id": "S13-06",
+    "title": "登出后旧 token 复用 → 应拒绝（会话吊销）",
+    "verdict": "PASS",
+    "detail": "登出前 http=200 success=true errorCode=null errorMsg=null total/len=7；登出 http=200 success=true errorCode=null errorMsg=null total/len=null；登出后同 token 访问鉴权接口 http=401 success=false errorCode=30013 errorMsg=登录失效已过，请重新登录 total/len=null；访问业务接口 http=401 success=false errorCode=30013 errorMsg=登录失效已过，请重新登录 total/len=null",
+    "evidence": [
+      "AG-1/evidence/S13/F-logout-revoke.json"
+    ],
+    "at": "10:26:24"
+  }
+]

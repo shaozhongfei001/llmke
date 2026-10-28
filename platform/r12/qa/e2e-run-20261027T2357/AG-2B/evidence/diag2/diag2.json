@@ -1,0 +1,110 @@
+{
+ "login": {
+  "http": 200,
+  "success": true
+ },
+ "cases": [
+  {
+   "file": "docx-plain.docx",
+   "probe": {
+    "drawerCount": 1,
+    "canvas": 0,
+    "pdfBox": true,
+    "text": "docx-plain.docx\n加载失败\nPDF请求失败: 500\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+    "failText": "加载失败\nPDF请求失败: 500\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n"
+   },
+   "reqs": [
+    {
+     "kind": "req",
+     "method": "GET",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+     "post": ""
+    },
+    {
+     "kind": "res",
+     "status": 200,
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+     "ct": "application/json",
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"records\":[{\"id\":\"343\",\"kbId\":\"9\",\"fileName\":\"R12FIX-product-intro(1).pptx\",\"fileSize\":29388.0,\"size\":\"29388.0MB\",\"filePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"fullTextPath\":null,\"convertedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-i"
+    },
+    {
+     "kind": "req",
+     "method": "GET",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx",
+     "post": ""
+    },
+    {
+     "kind": "res",
+     "status": 200,
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx",
+     "ct": "application/json",
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx?response-content-type=application%2Fvnd.openxmlformats-officedocument.wordprocessingml.document&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=r12minio%2F20261028%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261028T031533Z&X-Amz-Expires=300&X-Amz-SignedHeaders=h"
+    },
+    {
+     "kind": "req",
+     "method": "POST",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+     "post": "{\"convertedFilePath\":\"r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx\",\"pageNo\":1,\"pageSize\":5}"
+    },
+    {
+     "kind": "res",
+     "status": 500,
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+     "ct": "application/json",
+     "body": "{\"success\":false,\"errorMsg\":\"参数非法\",\"errorCode\":\"5004\",\"data\":null}"
+    }
+   ]
+  },
+  {
+   "file": "pdf-digital.pdf",
+   "probe": {
+    "drawerCount": 1,
+    "canvas": 1,
+    "pdfBox": true,
+    "text": "pdf-digital.pdf\npdf-digital.pdf\n1 / 1\n124%\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+    "failText": ""
+   },
+   "reqs": [
+    {
+     "kind": "req",
+     "method": "GET",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+     "post": ""
+    },
+    {
+     "kind": "res",
+     "status": 200,
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+     "ct": "application/json",
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"records\":[{\"id\":\"343\",\"kbId\":\"9\",\"fileName\":\"R12FIX-product-intro(1).pptx\",\"fileSize\":29388.0,\"size\":\"29388.0MB\",\"filePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx\",\"fullTextPath\":null,\"convertedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-i"
+    },
+    {
+     "kind": "req",
+     "method": "GET",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fpdf-digital.pdf%2FV0%2Fpdf-digital.pdf",
+     "post": ""
+    },
+    {
+     "kind": "req",
+     "method": "POST",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+     "post": "{\"convertedFilePath\":\"r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf\",\"pageNo\":1,\"pageSize\":5}"
+    },
+    {
+     "kind": "res",
+     "status": 200,
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fpdf-digital.pdf%2FV0%2Fpdf-digital.pdf",
+     "ct": "application/json",
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf?response-content-type=application%2Fpdf&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=r12minio%2F20261028%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261028T031548Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=cc483eb8e2d0321e3d14261420397ae52292"
+    },
+    {
+     "kind": "res",
+     "status": 200,
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+     "ct": "application/octet-stream",
+     "body": "%PDF-1.4\n%����\n1 0 obj\n<<\n/Type /Catalog\n/Version /1.4\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n3 0 obj\n<<\n/Type /Page\n/MediaBox [0 0 595 842]\n/Rotate 0\n/Resources 4 0 R\n/Parent 2 0 R\n/Contents [5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R 14 0 R\n15 0 R 16 0 R 17 0 R 18 0 R]\n>>\nendobj\n4 0 obj\n<<\n/Font <<\n/helv 19 0 R\n>>\n>>\nendobj\n5 0 obj\n<<\n/Leng"
+    }
+   ]
+  }
+ ]
+}

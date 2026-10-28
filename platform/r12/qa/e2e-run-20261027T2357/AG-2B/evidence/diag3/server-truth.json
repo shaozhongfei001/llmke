@@ -1,0 +1,85 @@
+{
+ "tokenKey": "gitech_ril:rag_ai",
+ "out": {
+  "docx-plain.docx": {
+   "presign": {
+    "status": 200,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   },
+   "previewStream": {
+    "status": 200,
+    "ct": "application/pdf",
+    "head": "%PDF-1.7",
+    "err": ""
+   },
+   "stream": {
+    "status": 500,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   }
+  },
+  "R12FIX-product-intro.pptx": {
+   "presign": {
+    "status": 200,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   },
+   "previewStream": {
+    "status": 200,
+    "ct": "application/pdf",
+    "head": "%PDF-1.7",
+    "err": ""
+   },
+   "stream": {
+    "status": 500,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   }
+  },
+  "R12FIX-credit-ledger.xlsx": {
+   "presign": {
+    "status": 200,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   },
+   "previewStream": {
+    "status": 200,
+    "ct": "application/pdf",
+    "head": "%PDF-1.7",
+    "err": ""
+   },
+   "stream": {
+    "status": 500,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   }
+  },
+  "pdf-digital.pdf": {
+   "presign": {
+    "status": 200,
+    "ct": "application/json",
+    "head": "{\"succes",
+    "err": ""
+   },
+   "previewStream": {
+    "status": 200,
+    "ct": "application/pdf",
+    "head": "%PDF-1.7",
+    "err": ""
+   },
+   "stream": {
+    "status": 200,
+    "ct": "application/octet-stream",
+    "head": "%PDF-1.4",
+    "err": ""
+   }
+  }
+ }
+}

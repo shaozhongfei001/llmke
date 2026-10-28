@@ -1,0 +1,91 @@
+{
+ "ts": "2026-10-28 11:37:49+0800",
+ "es": {
+  "kb_36": {
+   "idx": "kb_36",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [kb_36]"
+  },
+  "table_chunks_kb_36": {
+   "idx": "table_chunks_kb_36",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_chunks_kb_36]"
+  },
+  "table_summary_kb_36": {
+   "idx": "table_summary_kb_36",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_summary_kb_36]"
+  },
+  "kb_37": {
+   "idx": "kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [kb_37]"
+  },
+  "table_chunks_kb_37": {
+   "idx": "table_chunks_kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_chunks_kb_37]"
+  },
+  "table_summary_kb_37": {
+   "idx": "table_summary_kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_summary_kb_37]"
+  }
+ },
+ "milvus": {
+  "kb_36": {
+   "_kb_36": {
+    "exists": false
+   },
+   "_table_chunks_kb_36": {
+    "exists": false
+   },
+   "_table_summary_kb_36": {
+    "exists": false
+   },
+   "_community_summary_kb_36": {
+    "exists": false
+   }
+  },
+  "kb_37": {
+   "_kb_37": {
+    "exists": false
+   },
+   "_table_chunks_kb_37": {
+    "exists": false
+   },
+   "_table_summary_kb_37": {
+    "exists": false
+   },
+   "_community_summary_kb_37": {
+    "exists": false
+   }
+  }
+ },
+ "mysql": {
+  "kb_36": [
+   [
+    "1",
+    "29",
+    "35",
+    "13",
+    "0"
+   ]
+  ],
+  "kb_37": [
+   [
+    "1",
+    "3",
+    "3",
+    "0",
+    "0"
+   ]
+  ]
+ }
+}

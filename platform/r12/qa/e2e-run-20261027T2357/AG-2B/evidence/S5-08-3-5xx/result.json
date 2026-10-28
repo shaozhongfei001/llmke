@@ -1,0 +1,45 @@
+{
+ "id": "S5-08-3-5xx",
+ "mode": "inject500",
+ "kind": "注入 presign 500（仅验分支可达与文案）",
+ "login": {
+  "http": 200,
+  "success": true
+ },
+ "securityModal": {
+  "present": true,
+  "bypass": "DOM removal (注入式绕行，未点击任何确定/保存)",
+  "kills": 1
+ },
+ "probe": {
+  "url": "http://127.0.0.1:18088/chats/knowledgeBase/9",
+  "drawerCount": 1,
+  "canvas": 0,
+  "errorBlock": "加载失败：原文服务异常（HTTP 500）：对象存储读取失败 | 重试 | R12默认问答配置",
+  "failLine": "加载失败：原文服务异常（HTTP 500）：对象存储读取失败",
+  "raw": "加载失败：原文服务异常（HTTP 500）：对象存储读取失败\n重试\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n"
+ },
+ "timeline": [
+  {
+   "t": 31795,
+   "kind": "req",
+   "api": "presign",
+   "key": "r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx"
+  },
+  {
+   "t": 31814,
+   "kind": "res",
+   "api": "presign",
+   "status": 500,
+   "body": "{\"success\":false,\"errorCode\":\"5001\",\"errorMsg\":\"对象存储读取失败\"}"
+  }
+ ],
+ "presignCalls": 1,
+ "presignStatuses": [
+  500
+ ],
+ "presignBeforeStream": false,
+ "streamGatedByPresign": true,
+ "streamCalls": [],
+ "matched": true
+}

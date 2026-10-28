@@ -1,0 +1,42 @@
+{
+ "id": "S5-07",
+ "title": "图片（原图渲染）",
+ "build": "5161c957f19bb7f1ee825ca33d6771cc",
+ "login": {
+  "http": 200,
+  "success": true
+ },
+ "kb9": {
+  "http": 200,
+  "count": 10,
+  "extBuckets": {
+   "pptx": 2,
+   "pdf": 3,
+   "docx": 4,
+   "xlsx": 1
+  },
+  "imageFiles": 0,
+  "imagePaths": 0
+ },
+ "verdict": "UNVERIFIED_缺样本",
+ "note": "kb_9 图片样本为 0；其它 KB 的图片素材不借用（避免凑 PASS）。本条需在独立批次提供图片夹具后重跑。",
+ "otherKbScan": {
+  "kbCount": 17,
+  "kbWithImages": [
+   {
+    "kbId": "10",
+    "kbName": "qa_r12_final",
+    "images": [
+     "scan-text.png"
+    ]
+   },
+   {
+    "kbId": "5",
+    "kbName": "qa_r12_indep",
+    "images": [
+     "scan-text.png"
+    ]
+   }
+  ]
+ }
+}

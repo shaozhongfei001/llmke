@@ -1,0 +1,184 @@
+{
+  "说明": "S1-04 三态区分矩阵：同一 token 分别打三类端点（X-Platform=rag-qa，UA=R12AG1-TRISTATE）",
+  "构造方式": {
+    "①畸形无点串": "Authorization: FORGED-AG1（不含 '.'，JWT 解码预期 3 段失败）",
+    "①畸形两段": "Authorization: a.b",
+    "②已过期+错签名": "header/payload 均合法 base64url，payload.exp=now-3600，签名为非真实密钥生成的随机串",
+    "②未过期+错签名": "payload.exp=now+3600，签名同样为伪",
+    "②篡改payload+原签名": "取真实 token 的 header/signature，仅替换 payload（userName/aud=attacker）",
+    "③空字符串": "Authorization: ''",
+    "③无Authorization": "不带该头",
+    "④真token": "simpleLogin 取得的合法 token（对照）"
+  },
+  "结论": "只有 ①（非三段畸形串）在公开端点 /auth/user/kaptcha 触发 500；② 正常过期/签名错/被篡改一律 401（30013 登录失效已过），③ 缺 token 在受保护/业务端点 401（30022 没有token）、在公开端点 200（白名单设计）。故正常会话过期不会锁死登录页。",
+  "矩阵": [
+    {
+      "case": "①畸形无点串",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "①畸形无点串",
+      "endpoint": "公开kaptcha",
+      "http": 500,
+      "errorCode": null,
+      "errorMsg": "None"
+    },
+    {
+      "case": "①畸形无点串",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "①畸形两段",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "①畸形两段",
+      "endpoint": "公开kaptcha",
+      "http": 500,
+      "errorCode": null,
+      "errorMsg": "None"
+    },
+    {
+      "case": "①畸形两段",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "②已过期+错签名(三段合法base64)",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30013",
+      "errorMsg": "登录失效已过，请重新登录"
+    },
+    {
+      "case": "②已过期+错签名(三段合法base64)",
+      "endpoint": "公开kaptcha",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "(binary)"
+    },
+    {
+      "case": "②已过期+错签名(三段合法base64)",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30013",
+      "errorMsg": "登录失效已过，请重新登录"
+    },
+    {
+      "case": "②未过期+错签名",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30013",
+      "errorMsg": "登录失效已过，请重新登录"
+    },
+    {
+      "case": "②未过期+错签名",
+      "endpoint": "公开kaptcha",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "(binary)"
+    },
+    {
+      "case": "②未过期+错签名",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30013",
+      "errorMsg": "登录失效已过，请重新登录"
+    },
+    {
+      "case": "②篡改payload+原签名",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30013",
+      "errorMsg": "登录失效已过，请重新登录"
+    },
+    {
+      "case": "②篡改payload+原签名",
+      "endpoint": "公开kaptcha",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "(binary)"
+    },
+    {
+      "case": "②篡改payload+原签名",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30013",
+      "errorMsg": "登录失效已过，请重新登录"
+    },
+    {
+      "case": "③空字符串",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "③空字符串",
+      "endpoint": "公开kaptcha",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "(binary)"
+    },
+    {
+      "case": "③空字符串",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "③无Authorization",
+      "endpoint": "受保护",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "③无Authorization",
+      "endpoint": "公开kaptcha",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "(binary)"
+    },
+    {
+      "case": "③无Authorization",
+      "endpoint": "业务kb list",
+      "http": 401,
+      "errorCode": "30022",
+      "errorMsg": "没有token"
+    },
+    {
+      "case": "④真token(对照)",
+      "endpoint": "受保护",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "None"
+    },
+    {
+      "case": "④真token(对照)",
+      "endpoint": "公开kaptcha",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "(binary)"
+    },
+    {
+      "case": "④真token(对照)",
+      "endpoint": "业务kb list",
+      "http": 200,
+      "errorCode": null,
+      "errorMsg": "None"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+ "idleBtn": {
+  "cls": "relative w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer grou",
+  "html": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4E5969\" stroke-w"
+ },
+ "streaming": {
+  "text": "最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n请详细介绍一下智造贷的适用对象、期限、利\n26-10-28 10:30:36\n请详细介绍一下智造贷的适用对象、期限、利率和增信方式\n26-10-28 10:30:36\n💭\n深度思考中\n﻿\n\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+  "btnHtml": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4E5969\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-l",
+  "btnCls": "relative w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer grou",
+  "thinking": true
+ },
+ "cancelBtnClicked": true,
+ "stillStreamingAfterCancel": true,
+ "afterTail": "是多少？\nR12默认问答配置\n10:29\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:27\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:26\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:25\n智造贷最高额度是多少？\nR12默认问答配置\n00:23\n智造贷最高额度是多少？\nR12默认问答配置\n00:13\n智造贷最高额度是多少？\nR12默认问答配置\n00:12\n江南装备科技有限公司、华东精密制造有限公\nR12默认问答配置\n00:07\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:37\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:33\n智造贷最高额度是多少？\nR12默认问答配置\n10-27 13:31\n请详细介绍一下智造贷的适用对象、期限、利\n26-10-28 10:30:36\n请详细介绍一下智造贷的适用对象、期限、利率和增信方式\n26-10-28 10:30:36\n💭\n深度思考中\n﻿\n\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+ "ok": false
+}

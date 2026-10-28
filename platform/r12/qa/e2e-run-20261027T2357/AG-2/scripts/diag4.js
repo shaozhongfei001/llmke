@@ -1,0 +1,21 @@
+const { chromium } = require('playwright');
+const fs=require('fs');
+const FE='http://127.0.0.1:18088';
+const TOKEN=fs.readFileSync('/tmp/ag2-token.txt','utf8').trim();
+(async()=>{
+  const b=await chromium.launch({headless:true});
+  const ctx=await b.newContext({viewport:{width:1600,height:1000}});
+  await ctx.addInitScript(([t])=>{localStorage.setItem('gitech_ril:rag_ai',JSON.stringify({userInfo:{token:t,userName:'admin',id:'1'}}));},[TOKEN]);
+  let presignHits=0;
+  await ctx.route('**/file/presign**', async r => { presignHits++; console.log('PRESIGN INTERCEPTED:', r.request().url()); await r.abort(); });
+  const p=await ctx.newPage();
+  await p.goto(FE+'/chats/knowledgeBase/9',{waitUntil:'domcontentloaded'});
+  await p.getByText('docx-plain.docx',{exact:true}).first().waitFor({timeout:30000});
+  await p.getByText('docx-plain.docx',{exact:true}).first().click();
+  await p.waitForTimeout(15000);
+  const t = await p.evaluate(()=>{const d=document.querySelector('.ant-drawer-content'); return d?d.innerText.slice(0,400):'';});
+  const cvs = await p.evaluate(()=>[...document.querySelectorAll('canvas')].map(c=>[c.width,c.height]));
+  console.log('presignHits=',presignHits,'canvas=',JSON.stringify(cvs));
+  console.log('DRAWER:', JSON.stringify(t));
+  await b.close();
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,0 +1,318 @@
+{
+ "before": {
+  "ts": "2026-10-28 11:37:31+0800",
+  "kb_total": 17,
+  "kbs": [
+   {
+    "id": "37",
+    "name": "R14-E2E-AG5-1121-C",
+    "primitive": "kb_37",
+    "files": 3
+   },
+   {
+    "id": "36",
+    "name": "R14-E2E-AG5-1111",
+    "primitive": "kb_36",
+    "files": 20
+   },
+   {
+    "id": "34",
+    "name": "R14-BASELINE-KB",
+    "primitive": "kb_34",
+    "files": 8
+   },
+   {
+    "id": "32",
+    "name": "R14-P201-KB",
+    "primitive": "kb_32",
+    "files": 4
+   },
+   {
+    "id": "26",
+    "name": "graph-increment-split2",
+    "primitive": "kb_26",
+    "files": 4
+   },
+   {
+    "id": "25",
+    "name": "graph-increment-split",
+    "primitive": "kb_25",
+    "files": 4
+   },
+   {
+    "id": "22",
+    "name": "graph-increment-fixture",
+    "primitive": "kb_22",
+    "files": 3
+   },
+   {
+    "id": "14",
+    "name": "R14C-归组回归R14B",
+    "primitive": "kb_14",
+    "files": 6
+   },
+   {
+    "id": "13",
+    "name": "R14C-归组回归R14A",
+    "primitive": "kb_13",
+    "files": 6
+   },
+   {
+    "id": "12",
+    "name": "R14C-归组回归",
+    "primitive": "kb_12",
+    "files": 6
+   },
+   {
+    "id": "10",
+    "name": "qa_r12_final",
+    "primitive": "kb_10",
+    "files": 7
+   },
+   {
+    "id": "9",
+    "name": "R12验收主链",
+    "primitive": "kb_9",
+    "files": 10
+   },
+   {
+    "id": "8",
+    "name": "R12业务主链",
+    "primitive": "kb_8",
+    "files": 9
+   },
+   {
+    "id": "7",
+    "name": "qa_r12_priv",
+    "primitive": "kb_7",
+    "files": 1
+   },
+   {
+    "id": "6",
+    "name": "R12主链",
+    "primitive": "kb_6",
+    "files": 2
+   },
+   {
+    "id": "5",
+    "name": "qa_r12_indep",
+    "primitive": "kb_5",
+    "files": 9
+   },
+   {
+    "id": "4",
+    "name": "R12验收知识库",
+    "primitive": "kb_4",
+    "files": 5
+   }
+  ],
+  "mine": [
+   {
+    "id": "37",
+    "name": "R14-E2E-AG5-1121-C",
+    "primitive": "kb_37",
+    "files": 3
+   },
+   {
+    "id": "36",
+    "name": "R14-E2E-AG5-1111",
+    "primitive": "kb_36",
+    "files": 20
+   }
+  ],
+  "es": {
+   "kb_37": {
+    "idx": "kb_37",
+    "http": 200,
+    "count": 3
+   },
+   "table_chunks_kb_37": {
+    "idx": "table_chunks_kb_37",
+    "http": 200,
+    "count": 2
+   },
+   "table_summary_kb_37": {
+    "idx": "table_summary_kb_37",
+    "http": 200,
+    "count": 2
+   },
+   "kb_36": {
+    "idx": "kb_36",
+    "http": 200,
+    "count": 16
+   },
+   "table_chunks_kb_36": {
+    "idx": "table_chunks_kb_36",
+    "http": 200,
+    "count": 4
+   },
+   "table_summary_kb_36": {
+    "idx": "table_summary_kb_36",
+    "http": 200,
+    "count": 4
+   }
+  },
+  "milvus": {
+   "kb_37": {
+    "_kb_37": {
+     "exists": false
+    },
+    "_table_chunks_kb_37": {
+     "exists": false
+    },
+    "_table_summary_kb_37": {
+     "exists": false
+    },
+    "_community_summary_kb_37": {
+     "exists": false
+    }
+   },
+   "kb_36": {
+    "_kb_36": {
+     "exists": false
+    },
+    "_table_chunks_kb_36": {
+     "exists": false
+    },
+    "_table_summary_kb_36": {
+     "exists": false
+    },
+    "_community_summary_kb_36": {
+     "exists": false
+    }
+   }
+  },
+  "mysql": {
+   "kb_37": [
+    [
+     "3",
+     "3",
+     "0",
+     "1"
+    ]
+   ],
+   "kb_36": [
+    [
+     "29",
+     "35",
+     "13",
+     "1"
+    ]
+   ]
+  }
+ },
+ "delete_calls": [
+  {
+   "id": "37",
+   "name": "R14-E2E-AG5-1121-C",
+   "http": 200,
+   "success": true
+  },
+  {
+   "id": "36",
+   "name": "R14-E2E-AG5-1111",
+   "http": 200,
+   "success": true
+  }
+ ],
+ "after": {
+  "ts": "2026-10-28 11:37:40+0800",
+  "kb_total": 15,
+  "kbs": [
+   {
+    "id": "34",
+    "name": "R14-BASELINE-KB",
+    "primitive": "kb_34",
+    "files": 8
+   },
+   {
+    "id": "32",
+    "name": "R14-P201-KB",
+    "primitive": "kb_32",
+    "files": 4
+   },
+   {
+    "id": "26",
+    "name": "graph-increment-split2",
+    "primitive": "kb_26",
+    "files": 4
+   },
+   {
+    "id": "25",
+    "name": "graph-increment-split",
+    "primitive": "kb_25",
+    "files": 4
+   },
+   {
+    "id": "22",
+    "name": "graph-increment-fixture",
+    "primitive": "kb_22",
+    "files": 3
+   },
+   {
+    "id": "14",
+    "name": "R14C-归组回归R14B",
+    "primitive": "kb_14",
+    "files": 6
+   },
+   {
+    "id": "13",
+    "name": "R14C-归组回归R14A",
+    "primitive": "kb_13",
+    "files": 6
+   },
+   {
+    "id": "12",
+    "name": "R14C-归组回归",
+    "primitive": "kb_12",
+    "files": 6
+   },
+   {
+    "id": "10",
+    "name": "qa_r12_final",
+    "primitive": "kb_10",
+    "files": 7
+   },
+   {
+    "id": "9",
+    "name": "R12验收主链",
+    "primitive": "kb_9",
+    "files": 10
+   },
+   {
+    "id": "8",
+    "name": "R12业务主链",
+    "primitive": "kb_8",
+    "files": 9
+   },
+   {
+    "id": "7",
+    "name": "qa_r12_priv",
+    "primitive": "kb_7",
+    "files": 1
+   },
+   {
+    "id": "6",
+    "name": "R12主链",
+    "primitive": "kb_6",
+    "files": 2
+   },
+   {
+    "id": "5",
+    "name": "qa_r12_indep",
+    "primitive": "kb_5",
+    "files": 9
+   },
+   {
+    "id": "4",
+    "name": "R12验收知识库",
+    "primitive": "kb_4",
+    "files": 5
+   }
+  ],
+  "mine": [],
+  "es": {},
+  "milvus": {},
+  "mysql": {}
+ }
+}

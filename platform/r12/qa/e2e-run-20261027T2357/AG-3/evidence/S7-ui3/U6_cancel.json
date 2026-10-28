@@ -1,0 +1,138 @@
+{
+ "stopButton": {
+  "x": 1392,
+  "y": 935,
+  "w": 46,
+  "html": "<svg width=\"46\" height=\"46\" viewBox=\"0 0 20 20\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" class=\"\"><circle cx=\"10\" cy=\"10\" r=\"9\" fill=\"none\" stroke=\"#fffff"
+ },
+ "before": {
+  "thinking": true,
+  "len": 676
+ },
+ "samples": [
+  {
+   "t": 1,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 2,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 3,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 4,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 5,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 6,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 7,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 8,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 9,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 10,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 11,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 12,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 13,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 14,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  },
+  {
+   "t": 15,
+   "len": 676,
+   "thinking": true,
+   "stopGone": true,
+   "stoppedWord": false,
+   "aiPlaceholder": true
+  }
+ ],
+ "streamAborted": true,
+ "stuckThinking": true,
+ "hasStoppedWord": false,
+ "askAfterCancelOk": true
+}

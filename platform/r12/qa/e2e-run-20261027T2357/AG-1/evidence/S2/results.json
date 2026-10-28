@@ -1,0 +1,66 @@
+[
+  {
+    "id": "S2-01",
+    "title": "列表条数与接口 total 一致，分页 12+3 可实现",
+    "verdict": "PASS",
+    "detail": "接口 total=15（第 1 页 12 条 / 第 2 页 3 条）；UI 第 1 页卡片=12 / 第 2 页卡片=3；分页控件文本=\"1 2\"；进入知识库页可用（正文前 40 字=\"智能对话 知识库 助手配置 敏感词配置 用户反馈 搜索 智能问答 系统管理 ad\"）",
+    "evidence": [
+      "AG-1/evidence/S2/01-kb-list-page1.png",
+      "AG-1/evidence/S2/02-kb-list-page2.png",
+      "AG-1/evidence/S2/api-baseline.json"
+    ],
+    "at": "10:29:37"
+  },
+  {
+    "id": "S2-02",
+    "title": "名称与文档数逐条一致（UI 卡片 vs 接口）",
+    "verdict": "PASS",
+    "detail": "逐条比对 12 张卡片：名称不一致 0 处；文件数不一致 0 处。示例卡片原文=\"R14-BASELINE-KB 文件数： 8 · 大小： 6.4 GB\"",
+    "evidence": [
+      "AG-1/evidence/S2/ui-cards-page1.json"
+    ],
+    "at": "10:29:39"
+  },
+  {
+    "id": "S2-03",
+    "title": "大小单位一致性（卡片 / 详情 / 接口原始值，同一数字不得两种单位）",
+    "verdict": "FAIL",
+    "detail": "接口 fileTotalSize 实测为字节（kb_34 原件 R12FIX-product-loan.docx 磁盘 37544 字节，接口 fileSize=37544.0，与 byte 计数完全吻合）。卡片按 formatFileSize 以 KB 解释同一数字：R14-BASELINE-KB: API=6679637B(真实=6.4 MB) UI显示=6.4 GB ; R14-P201-KB: API=75889B(真实=74.1 KB) UI显示=74.1 MB ; graph-increment-split2: API=147534B(真实=144.1 KB) UI显示=144.1 MB ; graph-increment-split: API=147149B(真实=143.7 KB) UI显示=143.7 MB ; graph-increment-fixture: API=110464B(真实=107.9 KB) UI显示=107.9 MB ; R14C-归组回归R14B: API=192460B(真实=187.9 KB) UI显示=187.9 MB ; R14C-归组回归R14A: API=192460B(真实=187.9 KB) UI显示=187.9 MB ; R14C-归组回归: API=192460B(真实=187.9 KB) UI显示=187.9 MB ; qa_r12_final: API=138393B(真实=135.1 KB) UI显示=135.1 MB ; R12验收主链: API=6746568B(真实=6.4 MB) UI显示=6.4 GB ; R12业务主链: API=6666847B(真实=6.4 MB) UI显示=6.4 GB ; qa_r12_priv: API=3577B(真实=3.5 KB) UI显示=3.5 MB。详情页 kb_34：文件数=8 大小=6.4 GB（与卡片同源同错，故两页\"一致\"但均与真实字节不符，偏差 1024 倍）。页面尺寸 token 抽样=[\"6.4 GB\"]",
+    "evidence": [
+      "AG-1/evidence/S2/03-kb-detail-34.png",
+      "AG-1/evidence/S2/size-consistency.json"
+    ],
+    "at": "10:29:44"
+  },
+  {
+    "id": "S2-04",
+    "title": "删除不存在的库 → 明确错误提示（非 500），且真实数据零变更",
+    "verdict": "PASS",
+    "detail": "DELETE id=999999999 → http=404 success=false errorCode=10001 errorMsg=\"知识库不存在\"；探测后 total=15（探测前 15），id 集合是否完全一致=true",
+    "evidence": [
+      "AG-1/evidence/S2/delete-nonexistent.json"
+    ],
+    "at": "10:29:44"
+  },
+  {
+    "id": "S2-05",
+    "title": "列表刷新时机记录（切页/搜索）",
+    "verdict": "PASS",
+    "detail": "进入列表发出 list 请求 4 次；切到第 2 页后累计 5 次（变化=1）；搜索\"qa_r12\"后累计 6 次（触发搜索=true）；搜索后页面正文前 120 字=\"智能对话 知识库 助手配置 敏感词配置 用户反馈 搜索 智能问答 系统管理 admin 知识库 我的知识库 共享知识库 新建 qa_r12_final 文件数： 7 · 大小： 135.1 MB qa_r12_priv 文件数： 1 · 大\"。新建/删除后是否自动刷新：本轮为只读角色，未执行真实新建/删除，未见轮询/WebSocket（网络面板无长连接）→ 该子项 UNVERIFIED",
+    "evidence": [
+      "AG-1/evidence/S2/05-search-filter.png",
+      "AG-1/evidence/S2/05-network.json"
+    ],
+    "at": "10:29:53"
+  },
+  {
+    "id": "S2-06",
+    "title": "文件级大小单位（附加观察）",
+    "verdict": "FAIL",
+    "detail": "同一库 kb_34 文件接口返回 fileSize=字节数，但同字段附属文本 size 直接拼 \"MB\"：pdf-encrypted.pdf: fileSize=4445 → size=\"4445.0MB\" ; pdf-scanned.pdf: fileSize=6525683 → size=\"6525683.0MB\" ; docx-table.docx: fileSize=36944 → size=\"36944.0MB\" ; docx-plain.docx: fileSize=36716 → size=\"36716.0MB\" ; pdf-digital.pdf: fileSize=3577 → size=\"3577.0MB\"。磁盘原件 R12FIX-product-loan.docx=37544 字节，接口 size 显示 \"37544.0MB\"，与真实 36.7KB 相差约 1024×1024 倍",
+    "evidence": [
+      "AG-1/evidence/S2/file-size-raw.json"
+    ],
+    "at": "10:29:53"
+  }
+]

@@ -1,0 +1,1058 @@
+{
+ "frontend": {
+  "entry": "assets/index-fup9RT0c.js",
+  "dist_index_html_bytes": 23052,
+  "curl": "http=200 bytes=315489",
+  "md5_served": "5161c957f19bb7f1ee825ca33d6771cc",
+  "md5_dist": "5161c957f19bb7f1ee825ca33d6771cc",
+  "match": true,
+  "dist_mtime": "2026-10-28 11:11:00.802388587 +0800 315489",
+  "backup_md5_old_pkg": "de2424501bd29e358043049876db2a75"
+ },
+ "pids_open": {
+  "8088": "925533",
+  "18082": "923878",
+  "18083": "1647331",
+  "19527": "922312",
+  "19529": "1461792",
+  "19995": "1079761"
+ },
+ "kb_baseline": [
+  "R14-BASELINE-KB",
+  "R14-P201-KB",
+  "graph-increment-split2",
+  "graph-increment-split",
+  "graph-increment-fixture",
+  "R14C-归组回归R14B",
+  "R14C-归组回归R14A",
+  "R14C-归组回归",
+  "qa_r12_final",
+  "R12验收主链",
+  "R12业务主链",
+  "qa_r12_priv",
+  "R12主链",
+  "qa_r12_indep",
+  "R12验收知识库"
+ ],
+ "kb_name": "R14-E2E-AG6-1143",
+ "kb_id": "38",
+ "primitive": "kb_38",
+ "files": [
+  {
+   "file_id": "523",
+   "file_name": "R12FIX-product-loan.docx",
+   "version": null,
+   "file_path": null,
+   "converted": null,
+   "size": "nullMB",
+   "parse": {
+    "final": 3,
+    "waited": 4.0,
+    "samples": [
+     {
+      "t": 0.0,
+      "status": 2
+     },
+     {
+      "t": 2.0,
+      "status": 2
+     },
+     {
+      "t": 4.0,
+      "status": 3
+     }
+    ]
+   }
+  },
+  {
+   "file_id": "524",
+   "file_name": "docx-plain.docx",
+   "version": null,
+   "file_path": null,
+   "converted": null,
+   "size": "nullMB",
+   "parse": {
+    "final": 3,
+    "waited": 12.1,
+    "samples": [
+     {
+      "t": 0.0,
+      "status": 99
+     },
+     {
+      "t": 2.0,
+      "status": 99
+     },
+     {
+      "t": 4.0,
+      "status": 99
+     },
+     {
+      "t": 6.0,
+      "status": 99
+     },
+     {
+      "t": 8.0,
+      "status": 99
+     },
+     {
+      "t": 10.1,
+      "status": 2
+     },
+     {
+      "t": 12.1,
+      "status": 3
+     }
+    ]
+   }
+  }
+ ],
+ "faq_created": [
+  {
+   "i": 1,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288742697242625",
+      "relatedPk": "2115288742697242626",
+      "question": "AG6Q-114511-001 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-001 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288742697242625",
+    "relatedPk": "2115288742697242626",
+    "question": "AG6Q-114511-001 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-001 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 2,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288743699681282",
+      "relatedPk": "2115288743699681283",
+      "question": "AG6Q-114511-002 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-002 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288743699681282",
+    "relatedPk": "2115288743699681283",
+    "question": "AG6Q-114511-002 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-002 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 3,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288744689537025",
+      "relatedPk": "2115288744689537026",
+      "question": "AG6Q-114511-003 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-003 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288744689537025",
+    "relatedPk": "2115288744689537026",
+    "question": "AG6Q-114511-003 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-003 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 4,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288745671004162",
+      "relatedPk": "2115288745671004163",
+      "question": "AG6Q-114511-004 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-004 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288745671004162",
+    "relatedPk": "2115288745671004163",
+    "question": "AG6Q-114511-004 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-004 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 5,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288746660859905",
+      "relatedPk": "2115288746660859906",
+      "question": "AG6Q-114511-005 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-005 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288746660859905",
+    "relatedPk": "2115288746660859906",
+    "question": "AG6Q-114511-005 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-005 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 6,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288747654909954",
+      "relatedPk": "2115288747654909955",
+      "question": "AG6Q-114511-006 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-006 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288747654909954",
+    "relatedPk": "2115288747654909955",
+    "question": "AG6Q-114511-006 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-006 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 7,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288748732846082",
+      "relatedPk": "2115288748732846083",
+      "question": "AG6Q-114511-007 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-007 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288748732846082",
+    "relatedPk": "2115288748732846083",
+    "question": "AG6Q-114511-007 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-007 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 8,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288749735284737",
+      "relatedPk": "2115288749735284738",
+      "question": "AG6Q-114511-008 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-008 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288749735284737",
+    "relatedPk": "2115288749735284738",
+    "question": "AG6Q-114511-008 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-008 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 9,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288750775472130",
+      "relatedPk": "2115288750775472131",
+      "question": "AG6Q-114511-009 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-009 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288750775472130",
+    "relatedPk": "2115288750775472131",
+    "question": "AG6Q-114511-009 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-009 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 10,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288751790493698",
+      "relatedPk": "2115288751790493699",
+      "question": "AG6Q-114511-010 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-010 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288751790493698",
+    "relatedPk": "2115288751790493699",
+    "question": "AG6Q-114511-010 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-010 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 11,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288752818098178",
+      "relatedPk": "2115288752818098179",
+      "question": "AG6Q-114511-011 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-011 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288752818098178",
+    "relatedPk": "2115288752818098179",
+    "question": "AG6Q-114511-011 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-011 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  },
+  {
+   "i": 12,
+   "http": 200,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "pk": "2115288753824731138",
+      "relatedPk": "2115288753824731139",
+      "question": "AG6Q-114511-012 智造贷的最高授信额度是多少？",
+      "answer": "AG6A-114511-012 最高授信额度为 8000 万元。",
+      "status": null,
+      "sourceFile": null,
+      "pdfPages": 0,
+      "fileName": null,
+      "fileId": null,
+      "reviseDate": null,
+      "similarQuestions": [],
+      "faqType": null,
+      "folderId": null,
+      "folderName": null,
+      "dataType": 3,
+      "documentId": null,
+      "faqFileId": null,
+      "label": "",
+      "labels": null,
+      "permission": null
+     }
+    ]
+   },
+   "rec": {
+    "pk": "2115288753824731138",
+    "relatedPk": "2115288753824731139",
+    "question": "AG6Q-114511-012 智造贷的最高授信额度是多少？",
+    "answer": "AG6A-114511-012 最高授信额度为 8000 万元。",
+    "status": null,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": null,
+    "fileId": null,
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 3,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": null,
+    "permission": null
+   }
+  }
+ ],
+ "stamp": "114511",
+ "extract_ev": {
+  "time": "2026-10-28 11:45:11+0800",
+  "kb_id": "38",
+  "primitive": "kb_38",
+  "source": {
+   "file_id": "523",
+   "file_name": "R12FIX-product-loan.docx",
+   "file_path_key": "r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "faqExtractStatus_before": 1
+  },
+  "extract_endpoint": "POST /index/knowledgeBase/file/extractFQA",
+  "extract_http": 200,
+  "extract_body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": true
+  },
+  "extract_elapsed": 0.075,
+  "extract_status_poll": {
+   "final": 3,
+   "waited": 39.2,
+   "samples": [
+    {
+     "t": 0.0,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 3.0,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 6.0,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 9.0,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 12.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 15.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 18.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 21.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 24.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 27.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 30.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 33.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 36.1,
+     "faqExtractStatus": 2
+    },
+    {
+     "t": 39.2,
+     "faqExtractStatus": 3
+    }
+   ]
+  },
+  "total_elapsed": 39.2,
+  "faq_total_before": 0,
+  "faq_total_after": 1,
+  "es_index": "faq_kb_38",
+  "es_before": {
+   "idx": "faq_kb_38",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [faq_kb_38]"
+  },
+  "es_after": {
+   "idx": "faq_kb_38",
+   "http": 200,
+   "count": 18
+  },
+  "file_row_after": [
+   {
+    "id": "523",
+    "kbId": "38",
+    "fileName": "R12FIX-product-loan.docx",
+    "fileSize": 37544.0,
+    "size": "37544.0MB",
+    "filePath": "http://127.0.0.1:19000/r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "fullTextPath": null,
+    "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "status": 3,
+    "isEnable": 1,
+    "parseType": 1,
+    "chunkSize": 1,
+    "fileType": "naive",
+    "embeddingModelName": "bge-m3",
+    "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "faqExtractStatus": 3,
+    "reviseDate": null,
+    "parentFileName": "R12FIX-product-loan.docx",
+    "version": "V0",
+    "folderId": null,
+    "folderName": null,
+    "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_38/",
+    "synLogs": [],
+    "kbFiles": null,
+    "isFolder": 0,
+    "imagePaths": null,
+    "tableFilePaths": null,
+    "pdfPage": 0,
+    "nodeCount": 0,
+    "edgeCount": 0,
+    "uid": "ag6-1793159038910-R12FIX-produ",
+    "graphParseStatus": 1,
+    "uploadStatus": null,
+    "message": null,
+    "index": null,
+    "chunking": true,
+    "kbName": null,
+    "elementType": null,
+    "parentId": null,
+    "permission": 3,
+    "fullFolderPath": "R12FIX-product-loan.docx",
+    "groupId": "614524213",
+    "label": "",
+    "chunkType": "naive",
+    "uploadTime": "2026-10-28 11:43:59",
+    "count": 0
+   }
+  ],
+  "faq_extracted_sample": [
+   {
+    "pk": null,
+    "relatedPk": null,
+    "question": null,
+    "answer": null,
+    "status": 3,
+    "sourceFile": null,
+    "pdfPages": 0,
+    "fileName": "R12FIX-product-loan.docx",
+    "fileId": "525",
+    "reviseDate": null,
+    "similarQuestions": [],
+    "faqType": null,
+    "folderId": null,
+    "folderName": null,
+    "dataType": 2,
+    "documentId": null,
+    "faqFileId": null,
+    "label": "",
+    "labels": [],
+    "permission": 3
+   }
+  ]
+ },
+ "faq_file_id": 525,
+ "faq_pairs": [
+  {
+   "i": 1,
+   "http": 200,
+   "pk": "2115289463475802113",
+   "relatedPk": "2115289463475802114",
+   "q": "AG6Q-114802-001 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-001 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 2,
+   "http": 200,
+   "pk": "2115289464285302786",
+   "relatedPk": "2115289464285302787",
+   "q": "AG6Q-114802-002 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-002 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 3,
+   "http": 200,
+   "pk": "2115289465086414850",
+   "relatedPk": "2115289465086414851",
+   "q": "AG6Q-114802-003 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-003 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 4,
+   "http": 200,
+   "pk": "2115289465879138306",
+   "relatedPk": "2115289465879138307",
+   "q": "AG6Q-114802-004 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-004 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 5,
+   "http": 200,
+   "pk": "2115289466701221889",
+   "relatedPk": "2115289466701221890",
+   "q": "AG6Q-114802-005 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-005 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 6,
+   "http": 200,
+   "pk": "2115289467489751042",
+   "relatedPk": "2115289467489751043",
+   "q": "AG6Q-114802-006 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-006 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 7,
+   "http": 200,
+   "pk": "2115289468282474497",
+   "relatedPk": "2115289468282474498",
+   "q": "AG6Q-114802-007 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-007 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 8,
+   "http": 200,
+   "pk": "2115289469071003650",
+   "relatedPk": "2115289469071003651",
+   "q": "AG6Q-114802-008 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-008 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 9,
+   "http": 200,
+   "pk": "2115289469867921410",
+   "relatedPk": "2115289469867921411",
+   "q": "AG6Q-114802-009 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-009 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 10,
+   "http": 200,
+   "pk": "2115289470648061953",
+   "relatedPk": "2115289470648061954",
+   "q": "AG6Q-114802-010 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-010 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 11,
+   "http": 200,
+   "pk": "2115289471436591105",
+   "relatedPk": "2115289471436591106",
+   "q": "AG6Q-114802-011 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-011 最高授信额度为 8000 万元。"
+  },
+  {
+   "i": 12,
+   "http": 200,
+   "pk": "2115289472208343042",
+   "relatedPk": "2115289472208343043",
+   "q": "AG6Q-114802-012 智造贷的最高授信额度是多少？",
+   "a": "AG6A-114802-012 最高授信额度为 8000 万元。"
+  }
+ ],
+ "stamp2": "114552",
+ "stamp3": "114802",
+ "unique_faq": {
+  "mark": "AG6-UNIQUE-115404",
+  "question": "AG6-UNIQUE-115404 蓝色独角兽保证金比例是多少？",
+  "answer": "AG6-UNIQUE-115404 蓝色独角兽保证金比例为 42.7%。",
+  "pk": "2115290978382909441",
+  "relatedPk": "2115290978382909442"
+ },
+ "del_target": {
+  "pk": "471299935944131075",
+  "relatedPk": "275195405320273198",
+  "question": "是否有违约金？",
+  "answer": "提前还款不收取违约金。"
+ }
+}

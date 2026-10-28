@@ -1,0 +1,67 @@
+{
+ "time": "2026-10-28 11:52:34+0800",
+ "kb": "kb_9(只读)",
+ "endpoint": "POST /qa/ai/question_re",
+ "n_faqs": 20,
+ "cases": [
+  {
+   "question": "客户访前准备属于哪一部分？",
+   "expected_answer": "客户访前准备属于第一段。",
+   "got_answer": "文档的第一段主要讨论了客户访前准备。",
+   "class": "FROM_OTHER_FAQ",
+   "from_pk": "3987758739695803449",
+   "resultType": 2,
+   "http": 200,
+   "elapsed": 4.78,
+   "char_equal": false,
+   "len_expected": 12,
+   "len_got": 18
+  },
+  {
+   "question": "客户的日均存款是多少？",
+   "expected_answer": "客户的日均存款是2,983,333.33元。",
+   "got_answer": "日均存款的具体数值是2,983,333.33元。",
+   "class": "FROM_OTHER_FAQ",
+   "from_pk": "2176174361600053921",
+   "resultType": 2,
+   "http": 200,
+   "elapsed": 10.31,
+   "char_equal": false,
+   "len_expected": 22,
+   "len_got": 24
+  },
+  {
+   "question": "文档的第一段主要讨论了什么？",
+   "expected_answer": "文档的第一段主要讨论了客户访前准备。",
+   "got_answer": "[retrive-tag id=\"1500540443170820611\" image_urls=\"\" fromType=\"0\"][0][/retrive-tag]",
+   "class": "GENERATED",
+   "from_pk": null,
+   "resultType": 1,
+   "http": 200,
+   "elapsed": 3.99,
+   "char_equal": false,
+   "len_expected": 18,
+   "len_got": 82
+  },
+  {
+   "question": "文档中提到了日均存款的具体数值吗？",
+   "expected_answer": "是的，文档中提到了日均存款的具体数值。",
+   "got_answer": "是的，日均存款的数值2,983,333.33元包含整数部分和小数点后的数值。",
+   "class": "FROM_OTHER_FAQ",
+   "from_pk": "1852964962512101119",
+   "resultType": 2,
+   "http": 200,
+   "elapsed": 5.58,
+   "char_equal": false,
+   "len_expected": 19,
+   "len_got": 38
+  }
+ ],
+ "summary": {
+  "n": 4,
+  "same": 0,
+  "other": 3,
+  "generated": 1,
+  "resultType2": 3
+ }
+}

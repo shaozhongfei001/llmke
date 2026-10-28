@@ -1,0 +1,26 @@
+{
+ "probe": {
+  "counts": {
+   "drawer": 1,
+   "modal": 0,
+   "pdfBox": 1,
+   "canvas": 0,
+   "modalMask": 0
+  },
+  "pageUrl": "http://127.0.0.1:18088/chats/knowledgeBase/9",
+  "containerText": "docx-plain.docx\n加载失败\nPDF请求失败: 500\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+  "failText": "加载失败\nPDF请求失败: 500\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+  "drawerBodySnippet": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR12验收主链\nR12验收主链\n暂无标签\n文件数：10 大小：6.4 GB\n知识解析\nFAQ\n配置\n检索测试\n文件管理\n版本管理\n图谱增强\n上传\n新建文件夹\n更多操作\n全部解析状态\n\t\n名称\n\t\n标签\n\t分块数\t解析方法\t\n解析状态\n\t版本修订时间\t上传时间\t操作\n\n\t\nR12FIX-product-intro(1).pptx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\npdf-scanned.pdf\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:46\n\t\n重新解析\n删除\n...\n\n\n\t\ndocx-table.docx\n\t\n\t\n2\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:46\n\t\n重新解析\n删除\n...\n\n\n\t\ndocx-plain.docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:46\n\t\n重新解析\n删除\n...\n\n\n\t\npdf-digital.pdf\n\t\n\t\n2\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:46\n\t\n重新解析\n删除\n...\n\n\n\t\nR12FIX-product-intro.pptx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:46\n\t\n重新解析\n删除\n...\n\n\n\t\nR12FIX-credit-ledger.xlsx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:45\n\t\n重新解析\n删除\n...\n\n\n\t\nR12FIX-product-loan(1).docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 10:44\n\t\n重新解析\n删除\n...\n\n\n\t\npdf-encrypted.pdf\n\t\n\t\n0\n\t\n自定义切片\n\t\n解析失败\n\t\n\t\n26-10-27 10:35\n\t\n解析\n删除\n...\n\n\n\t\nR12FIX-product-loan.docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-27 02:28\n\t\n重新解析\n删除\n...\n1\n10 条/页\ndocx-plain.docx\n加载失败\nPDF请求失败: 500\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n"
+ },
+ "presign": [
+  200
+ ],
+ "stream": [
+  {
+   "s": 500,
+   "u": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream"
+  }
+ ],
+ "ms": 12239,
+ "loginUrl": "http://127.0.0.1:18088/"
+}

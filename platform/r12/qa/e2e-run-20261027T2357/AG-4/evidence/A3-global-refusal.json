@@ -1,0 +1,261 @@
+{
+ "question": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+ "on": {
+  "http": 200,
+  "status": 2,
+  "resultType": null,
+  "answer": "事实中未提及 [L0-3c882b30]",
+  "refs": [
+   {
+    "score": "1.0",
+    "metadata": {
+     "title": "社区摘要 L0-3c882b30",
+     "community_id": "L0-3c882b30",
+     "level": 0,
+     "member_entities": [
+      "2026-12-31",
+      "关注",
+      "海川电子材料股份有限公司"
+     ],
+     "file_ids": [],
+     "file_names": [],
+     "source": "",
+     "sources_resolved_by": "",
+     "chunk_refs": [],
+     "chunk_refs_stats": {
+      "entities_with_pk": 1,
+      "total_pks": 1,
+      "resolved": 0,
+      "dangling": 1
+     },
+     "offset": [
+      [
+       0,
+       86
+      ]
+     ],
+     "chunk_type": "text",
+     "search": {
+      "type": [
+       "graph_community"
+      ],
+      "query": "海川电子材料股份有限公司被列为关注类，需要计提多少比例的贷款损失准备？",
+      "rank": [
+       0
+      ]
+     },
+     "search_type": [
+      "graph_community"
+     ]
+    },
+    "page_content": "这个社区围绕海川电子材料股份有限公司的主题聚集。关键实体及其关系包括：海川电子材料股份有限公司的到期日为2026-12-31，以及海川电子材料股份有限公司被归类为关注级别。",
+    "order_num": "gc-L0-3c882b30",
+    "type": "text"
+   }
+  ],
+  "refs_n": 1,
+  "frames": 1,
+  "cost": 1.7,
+  "globalMode_sent": true,
+  "raw_head": "data:{\"sessionId\":\"ag4-1793116841730\",\"queryId\":\"q-1793116841730\",\"lastDate\":1793116843405,\"status\":2,\"reply\":{\"content\":\"事实中未提及 [L0-3c882b30]\",\"type\":\"markdown\"},\"reference\":\"[{\\\"score\\\":\\\"1.0\\\",\\\"metadata\\\":{\\\"title\\\":\\\"社区摘要 L0-3c882b30\\\",\\\"community_id\\\":\\\"L0-3c882b30\\\",\\\"level\\\":0,\\\"member_entities\\\":[\\\"2026-12-31\\\",\\\"关注\\\",\\\"海川电子材料股份有限公司\\\"],\\\"file_ids\\\":[],\\\"file_names\\\":[],\\\"source\\\":\\\"\\\",\\\"s",
+  "sources": [
+   ""
+  ]
+ },
+ "off": {
+  "http": 200,
+  "status": 2,
+  "resultType": 1,
+  "answer": "根据参考资料，海川电子材料股份有限公司被列为关注类，但具体需要计提多少比例的贷款损失准备并未在提供的信息中提及。通常，不同金融机构对于五级分类中的“关注”类贷款计提比例可能有所不同。建议咨询相关金融机构以获取准确的计提比例。",
+  "refs": [
+   {
+    "metadata": {
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "file_path": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==",
+     "search_type": [
+      "milvus",
+      "es",
+      "es"
+     ],
+     "offset": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       1
+      ],
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       3
+      ],
+      [
+       0,
+       4
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       1,
+       0
+      ],
+      [
+       1,
+       1
+      ],
+      [
+       1,
+       2
+      ],
+      [
+       1,
+       3
+      ],
+      [
+       1,
+       4
+      ],
+      [
+       1,
+       5
+      ],
+      [
+       1,
+       6
+      ],
+      [
+       2,
+       0
+      ],
+      [
+       2,
+       1
+      ],
+      [
+       2,
+       2
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       2,
+       4
+      ],
+      [
+       2,
+       5
+      ],
+      [
+       2,
+       6
+      ],
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       1
+      ],
+      [
+       3,
+       2
+      ],
+      [
+       3,
+       3
+      ],
+      [
+       3,
+       4
+      ],
+      [
+       3,
+       5
+      ],
+      [
+       3,
+       6
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       4,
+       1
+      ],
+      [
+       4,
+       2
+      ],
+      [
+       4,
+       3
+      ],
+      [
+       4,
+       4
+      ],
+      [
+       4,
+       5
+      ],
+      [
+       4,
+       6
+      ]
+     ],
+     "pic_children_id_list": [],
+     "text_parent_id_list": [],
+     "chunk_type": "table",
+     "parent_file_name": "R12FIX-credit-ledger.xlsx",
+     "revise_date": "",
+     "version": "V0",
+     "position": "[]",
+     "file_id": 329,
+     "page_size": "[]",
+     "page_number": [],
+     "table_name": "授信台账",
+     "labels": [],
+     "chunk_index": 0,
+     "table_summary_id": "1137902847478273881",
+     "title": "R12FIX-credit-ledger.xlsx",
+     "chunk_pk": 1095912197551331871,
+     "knowledge_base_name": "kb_9",
+     "score": 0.26881417632102966,
+     "rerank_score_rank": 1,
+     "rrf_score": 0.2,
+     "rrf_score_rank": 2
+    },
+    "order_num": "3964023242013460884",
+    "page_content": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|",
+    "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt",
+    "score": "0.26881417632102966",
+    "type": "table"
+   }
+  ],
+  "refs_n": 1,
+  "frames": 63,
+  "cost": 34.8,
+  "globalMode_sent": false,
+  "raw_head": "data:{\"sessionId\":\"ag4-1793116843416\",\"queryId\":\"q-1793116843416\",\"lastDate\":1793116876617,\"status\":1,\"reply\":{\"content\":\"\",\"type\":\"markdown\"},\"reference\":null,\"webReference\":null,\"databaseReference\":null,\"docsTree\":null,\"resultType\":null,\"filePaths\":null,\"respTime\":null,\"tokens\":0,\"promptContent\":null,\"llmType\":1}\ndata:{\"sessionId\":\"ag4-1793116843416\",\"queryId\":\"q-1793116843416\",\"lastDate\":179311",
+  "sources": [
+   "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx"
+  ]
+ }
+}

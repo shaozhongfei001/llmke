@@ -1,0 +1,141 @@
+[
+  {
+    "user": "r13_reader",
+    "label": "kb 列表（自身可见范围）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 0,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=0"
+  },
+  {
+    "user": "r13_reader",
+    "label": "getKbById id=9（r13_reader 已授权）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=undefined"
+  },
+  {
+    "user": "r13_reader",
+    "label": "getKbById id=34（未授权库）",
+    "status": 403,
+    "success": false,
+    "errorMsg": "没有足够权限",
+    "errorCode": "30016",
+    "total": null,
+    "detail": "http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null"
+  },
+  {
+    "user": "r13_reader",
+    "label": "文件清单 kbId=9（已授权）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 10,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=10"
+  },
+  {
+    "user": "r13_reader",
+    "label": "文件清单 kbId=34（未授权）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 8,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=8"
+  },
+  {
+    "user": "r13_reader",
+    "label": "文件详情 id=483（属未授权 kb_34）",
+    "status": 403,
+    "success": false,
+    "errorMsg": "没有足够权限",
+    "errorCode": "30016",
+    "total": null,
+    "detail": "http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null"
+  },
+  {
+    "user": "r13_reader",
+    "label": "文件流 fileId=483（属未授权 kb_34）",
+    "status": 401,
+    "success": false,
+    "errorMsg": "没有足够的权限",
+    "errorCode": "30021",
+    "total": null,
+    "detail": "http=401 success=false errorCode=30021 errorMsg=没有足够的权限 total/len=null"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "kb 列表（自身可见范围）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 0,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=0"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "getKbById id=9（r13_reader 已授权）",
+    "status": 403,
+    "success": false,
+    "errorMsg": "没有足够权限",
+    "errorCode": "30016",
+    "total": null,
+    "detail": "http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "getKbById id=34（未授权库）",
+    "status": 403,
+    "success": false,
+    "errorMsg": "没有足够权限",
+    "errorCode": "30016",
+    "total": null,
+    "detail": "http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "文件清单 kbId=9（已授权）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 10,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=10"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "文件清单 kbId=34（未授权）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 8,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=8"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "文件详情 id=483（属未授权 kb_34）",
+    "status": 403,
+    "success": false,
+    "errorMsg": "没有足够权限",
+    "errorCode": "30016",
+    "total": null,
+    "detail": "http=403 success=false errorCode=30016 errorMsg=没有足够权限 total/len=null"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "文件流 fileId=483（属未授权 kb_34）",
+    "status": 401,
+    "success": false,
+    "errorMsg": "没有足够的权限",
+    "errorCode": "30021",
+    "total": null,
+    "detail": "http=401 success=false errorCode=30021 errorMsg=没有足够的权限 total/len=null"
+  }
+]

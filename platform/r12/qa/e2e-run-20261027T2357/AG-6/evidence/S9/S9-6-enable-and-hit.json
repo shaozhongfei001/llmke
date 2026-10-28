@@ -1,0 +1,21 @@
+{
+ "time": "2026-10-28 11:54:13+0800",
+ "enable": {
+  "http": 200,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": null
+  }
+ },
+ "faq_result_list": [
+  {
+   "faq_question": "ag6-unique-115404 蓝色独角兽保证金比例是多少？",
+   "faq_answer": "提前还款不收取违约金。",
+   "score": 0.34285714285714286
+  }
+ ],
+ "hit": false,
+ "n_documents": 2
+}

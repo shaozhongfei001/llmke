@@ -1,0 +1,230 @@
+{
+ "case": "pdf-digital",
+ "desc": "数字版 PDF",
+ "file": "pdf-digital.pdf",
+ "bytes": 3577,
+ "expect_fail": false,
+ "upload": {
+  "http": 200,
+  "elapsed": 0.1,
+  "req_time": "2026-10-28 11:16:03+0800",
+  "req_epoch": 1793157363.6431491,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": [
+    {
+     "id": "497",
+     "kbId": "36",
+     "fileName": "pdf-digital.pdf",
+     "fileSize": 3577.0,
+     "size": "3577.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/pdf-digital.pdf/V0/pdf-digital.pdf",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "pdf-digital.pdf",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157363643-pdf-digital.",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "793420737",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:16:03",
+     "count": null
+    }
+   ]
+  }
+ },
+ "api_success": true,
+ "items": [
+  {
+   "id": "497",
+   "kbId": "36",
+   "fileName": "pdf-digital.pdf",
+   "fileSize": 3577.0,
+   "size": "3577.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/pdf-digital.pdf/V0/pdf-digital.pdf",
+   "fullTextPath": null,
+   "convertedFilePath": null,
+   "status": 1,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 0,
+   "fileType": null,
+   "embeddingModelName": null,
+   "parsedFilePath": null,
+   "faqExtractStatus": 1,
+   "reviseDate": null,
+   "parentFileName": "pdf-digital.pdf",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": null,
+   "imagePaths": [],
+   "tableFilePaths": null,
+   "pdfPage": null,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag5-1793157363643-pdf-digital.",
+   "graphParseStatus": 1,
+   "uploadStatus": 1,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": null,
+   "fullFolderPath": null,
+   "groupId": "793420737",
+   "label": "",
+   "chunkType": null,
+   "uploadTime": "2026-10-28 11:16:03",
+   "count": null
+  }
+ ],
+ "file_id": "497",
+ "resp_message": null,
+ "resp_status": 1,
+ "resp_task_statuses": null,
+ "has_task_statuses_key": false,
+ "status_poll": {
+  "elapsed": 14.1,
+  "transitions": [
+   {
+    "t": 0.0,
+    "status": 99,
+    "status_name": "99(解析排队中)",
+    "http": 200
+   },
+   {
+    "t": 12.1,
+    "status": 2,
+    "status_name": "2(解析中)",
+    "http": 200
+   },
+   {
+    "t": 14.1,
+    "status": 3,
+    "status_name": "3(解析成功)",
+    "http": 200
+   }
+  ],
+  "final": 3,
+  "final_name": "3(解析成功)",
+  "timed_out": false,
+  "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+ },
+ "db_file_row": {
+  "rows": [
+   {
+    "id": "497",
+    "kb_id": "36",
+    "file_name": "pdf-digital.pdf",
+    "status": "3",
+    "status_name": "解析成功",
+    "temp_status": "2",
+    "version": "V0",
+    "gmt_modified": "2026-10-28 11:16:17"
+   }
+  ]
+ },
+ "db_parse_tasks": {
+  "tasks": [
+   {
+    "task_id": "541",
+    "file_id": "497",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:16:15",
+    "end_time": "2026-10-28 11:16:17",
+    "error_msg": ""
+   }
+  ]
+ },
+ "es_chunks": {
+  "total": 2,
+  "got": 2,
+  "min_create_time": "2026-10-28 11:16:15.538016",
+  "max_create_time": "2026-10-28 11:16:15.538048",
+  "sample_pk": [
+   123548333196896072,
+   298974259142513990
+  ],
+  "sample_head": "Digital PDF sample····2,983,333.33 CNY. This page has a real text layer.Paragraph line 1: knowledge engineering baseline"
+ },
+ "chunks_api": {
+  "http": 200,
+  "n": 2,
+  "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"123548333196896072\", \"content\": \"Digital PDF sample····2,983,333.33 CNY. This page has a real text layer.Paragraph line 1: knowledge engineering baseline.Paragraph line 2: knowledge engineering baseline.Paragraph line 3: knowledge engineering baseline.Paragraph line 4: knowledge engineering baseline.Paragraph line "
+ },
+ "verdict": {
+  "verdict": "PASS",
+  "checks": {
+   "A1_接口success": true,
+   "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+   "A3_文件终态=解析成功(3)": true,
+   "A3b_任务级终态=SUCCESS(4)": true,
+   "A3_note": {
+    "file_final": "3(解析成功)",
+    "tasks": [
+     {
+      "task_id": "541",
+      "file_id": "497",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:15",
+      "end_time": "2026-10-28 11:16:17",
+      "error_msg": ""
+     }
+    ],
+    "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+   },
+   "A4_有chunk且create_time晚于请求": true,
+   "A4_detail": {
+    "total": 2,
+    "min_create_time": "2026-10-28 11:16:15.538016",
+    "req_time": "2026-10-28 11:16:03+0800",
+    "later": true
+   },
+   "A5_正文可取": true
+  }
+ }
+}

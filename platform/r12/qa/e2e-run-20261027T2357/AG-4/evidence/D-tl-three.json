@@ -1,0 +1,341 @@
+{
+ "question": "智造贷单户最高授信额度是多少？",
+ "global_on": [
+  {
+   "http": 200,
+   "status": 2,
+   "frames": 1,
+   "cost": 2.6,
+   "answer": "智造贷单户最高授信额度是人民币5000万元。[L0-18625408]",
+   "has_5000": true,
+   "has_8000": false,
+   "has_1000": false,
+   "refs": [
+    {
+     "title": "社区摘要 L0-18625408",
+     "community_id": "L0-18625408",
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "search_type": [
+      "graph_community"
+     ]
+    }
+   ]
+  },
+  {
+   "http": 200,
+   "status": 2,
+   "frames": 1,
+   "cost": 2.0,
+   "answer": "智造贷单户最高授信额度是人民币5000万元。[L0-18625408]",
+   "has_5000": true,
+   "has_8000": false,
+   "has_1000": false,
+   "refs": [
+    {
+     "title": "社区摘要 L0-18625408",
+     "community_id": "L0-18625408",
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "search_type": [
+      "graph_community"
+     ]
+    }
+   ]
+  },
+  {
+   "http": 200,
+   "status": 2,
+   "frames": 1,
+   "cost": 2.3,
+   "answer": "智造贷单户最高授信额度是人民币5000万元。[L0-18625408]",
+   "has_5000": true,
+   "has_8000": false,
+   "has_1000": false,
+   "refs": [
+    {
+     "title": "社区摘要 L0-18625408",
+     "community_id": "L0-18625408",
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "search_type": [
+      "graph_community"
+     ]
+    }
+   ]
+  }
+ ],
+ "local_off": [
+  {
+   "http": 200,
+   "status": 2,
+   "frames": 17,
+   "cost": 13.8,
+   "answer": "智造贷单户最高授信额度为人民币8000万元。",
+   "has_5000": false,
+   "has_8000": true,
+   "has_1000": false,
+   "refs": [
+    {
+     "title": "R12FIX-product-loan(1).docx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ]
+    },
+    {
+     "title": "R12FIX-product-intro(1).pptx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ]
+    },
+    {
+     "title": "R12FIX-credit-ledger.xlsx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "search_type": [
+      "milvus"
+     ]
+    }
+   ]
+  },
+  {
+   "http": 200,
+   "status": 2,
+   "frames": 17,
+   "cost": 15.6,
+   "answer": "智造贷单户最高授信额度为人民币8000万元。",
+   "has_5000": false,
+   "has_8000": true,
+   "has_1000": false,
+   "refs": [
+    {
+     "title": "R12FIX-product-loan(1).docx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ]
+    },
+    {
+     "title": "R12FIX-product-intro(1).pptx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ]
+    },
+    {
+     "title": "R12FIX-credit-ledger.xlsx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "search_type": [
+      "milvus"
+     ]
+    }
+   ]
+  },
+  {
+   "http": 200,
+   "status": 2,
+   "frames": 17,
+   "cost": 19.5,
+   "answer": "智造贷单户最高授信额度为人民币8000万元。",
+   "has_5000": false,
+   "has_8000": true,
+   "has_1000": false,
+   "refs": [
+    {
+     "title": "R12FIX-product-loan(1).docx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ]
+    },
+    {
+     "title": "R12FIX-product-intro(1).pptx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ]
+    },
+    {
+     "title": "R12FIX-credit-ledger.xlsx",
+     "community_id": null,
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "search_type": [
+      "milvus"
+     ]
+    }
+   ]
+  }
+ ],
+ "community_timeline": [
+  {
+   "community_id": "L1-bae29a49",
+   "create_time": "2026-10-27 11:06:49",
+   "update_time": "2026-10-27 11:06:49.951004",
+   "file_ids": [
+    "119",
+    "120",
+    "226",
+    "234",
+    "258",
+    "259",
+    "260",
+    "266",
+    "268"
+   ],
+   "sources": [
+    "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx"
+   ],
+   "has5000": true,
+   "has8000": false
+  },
+  {
+   "community_id": "L0-a5a28a99",
+   "create_time": "2026-10-27 11:06:46",
+   "update_time": "2026-10-27 11:06:49.950988",
+   "file_ids": [
+    "263",
+    "271"
+   ],
+   "sources": [
+    "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx"
+   ],
+   "has5000": false,
+   "has8000": false
+  },
+  {
+   "community_id": "L0-60d6fa91",
+   "create_time": "2026-10-27 11:06:44",
+   "update_time": "2026-10-27 11:06:49.950972",
+   "file_ids": [
+    "120",
+    "226",
+    "258",
+    "259",
+    "266"
+   ],
+   "sources": [
+    "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx"
+   ],
+   "has5000": false,
+   "has8000": false
+  },
+  {
+   "community_id": "L0-3af0d4bc",
+   "create_time": "2026-10-27 11:06:42",
+   "update_time": "2026-10-27 11:06:49.950957",
+   "file_ids": [
+    "120",
+    "226",
+    "258",
+    "259",
+    "266"
+   ],
+   "sources": [
+    "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx"
+   ],
+   "has5000": false,
+   "has8000": false
+  },
+  {
+   "community_id": "L0-be7452ca",
+   "create_time": "2026-10-27 11:06:41",
+   "update_time": "2026-10-27 11:06:49.950942",
+   "file_ids": [
+    "263",
+    "271"
+   ],
+   "sources": [],
+   "has5000": false,
+   "has8000": false
+  },
+  {
+   "community_id": "L0-18625408",
+   "create_time": "2026-10-27 11:06:39",
+   "update_time": "2026-10-27 11:06:49.950924",
+   "file_ids": [
+    "119",
+    "226",
+    "234",
+    "258",
+    "260",
+    "266",
+    "268"
+   ],
+   "sources": [
+    "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx"
+   ],
+   "has5000": true,
+   "has8000": false
+  },
+  {
+   "community_id": "L0-3c882b30",
+   "create_time": "2026-10-27 11:06:35",
+   "update_time": "2026-10-27 11:06:49.950888",
+   "file_ids": [
+    "120",
+    "259"
+   ],
+   "sources": [],
+   "has5000": false,
+   "has8000": false
+  }
+ ],
+ "es_chunk_timeline": {
+  "loan_V1_fid328": [
+   {
+    "version": "V1",
+    "create_time": "2026-10-27 13:25:55.428683",
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx"
+   }
+  ],
+  "intro_V1_fid343": [
+   {
+    "version": "V1",
+    "create_time": "2026-10-27 13:26:53.199407",
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx"
+   }
+  ],
+  "loan_V0_fid290": [
+   {
+    "version": "V0",
+    "create_time": "2026-10-27 13:25:49.049291",
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx"
+   }
+  ],
+  "intro_V0_fid330": [
+   {
+    "version": "V0",
+    "create_time": "2026-10-27 13:26:13.258754",
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx"
+   }
+  ]
+ }
+}

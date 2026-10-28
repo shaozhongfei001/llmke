@@ -1,0 +1,29 @@
+{
+ "kbId": "36",
+ "failFile": "truncated.docx",
+ "rowCount": 1,
+ "rowText": "\t\ntruncated.docx\n\t\n\t\n0\n\t\n自定义切片\n\t\n解析失败\n\t\n\t\n26-10-28 11:18\n\t\n解析\n删除\n...",
+ "rowButtons": [
+  "解析",
+  "删除"
+ ],
+ "btnCount": 1,
+ "retry": {
+  "attempted": true,
+  "responses": [
+   {
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/filesParse",
+    "status": 200,
+    "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":true}"
+   }
+  ],
+  "rowAfter": "\t\ntruncated.docx\n\t\n\t\n0\n\t\n自定义切片\n\t\n排队等待\n\t\n\t\n26-10-28 11:18\n\t\n解析\n删除\n..."
+ },
+ "parsePosts": [
+  {
+   "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/filesParse",
+   "postData": "{\"files\":[{\"folder_id\":null,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"file_size\":\"22029MB\",\"file_id\":\"503\",\"parent_file_name\":\"truncated.docx\"}],\"folder_ids\":[],\"knowledge_base_name\":\"R14-E2E-AG5-1111\",\"knowledge_base_id\":\"36\",\"override\":true,\"is_all\":false}"
+  }
+ ],
+ "bad": []
+}

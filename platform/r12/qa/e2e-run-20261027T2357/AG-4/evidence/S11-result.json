@@ -1,0 +1,61 @@
+{
+ "ts": "2026-10-27T16:06:06.771Z",
+ "steps": [
+  {
+   "step": "图谱增强列表",
+   "empty_hint": 2,
+   "rows": 0,
+   "text_tail": "图谱增强 | 上传 | 可视化图谱 | 图谱解析 | \t | 名称 | \t节点数\t关系数\t | 图谱解析状态 | \t操作 | \t | 名称 | \t | 节点数 | \t | 关系数 | \t | 图谱解析状态 | \t | 操作 | 暂无数据 | 1 | 10 条/页"
+  },
+  {
+   "step": "folder/list 调用",
+   "calls": [
+    {
+     "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+     "status": 200
+    },
+    {
+     "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=3&kbId=9&fuzzy=",
+     "status": 200
+    }
+   ]
+  },
+  {
+   "step": "图谱文件列表原始响应",
+   "status": 200,
+   "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"records\":[],\"total\":0,\"size\":20,\"current\":1,\"pages\":0}}"
+  },
+  {
+   "step": "可视化图谱(整图)",
+   "canvas": 4,
+   "svg": 32,
+   "text_tail": "智能对话 | 知识库 | 助手配置 | 敏感词配置 | 用户反馈 | 搜索 | 智能问答 | 系统管理 | admin | R12验收主链 | R12验收主链 | 暂无标签 | 文件数：10 大小：6.4 GB | 知识解析 | FAQ | 配置 | 检索测试 | 文件管理 | 版本管理 | 图谱增强 | 返回 | 力导布局 | 查询 | 导出 | 节点数: | 0/0 | 关系数: | 0/0 | 创建人:",
+   "calls": [
+    {
+     "url": "/proxy/graph/info/nodes?spaceName=R12%E9%AA%8C%E6%94%B6%E4%B8%BB%E9%93%BE",
+     "status": 401,
+     "body": "{\"errorCode\":\"30021\",\"errorMsg\":\"没有足够的权限\",\"success\":false}"
+    },
+    {
+     "url": "/proxy/graph/graphStatistics/getWholeGraphStatistics?spaceName=R12%E9%AA%8C%E6%94%B6%E4%B8%BB%E9%93%BE",
+     "status": 401,
+     "body": "{\"errorCode\":\"30021\",\"errorMsg\":\"没有足够的权限\",\"success\":false}"
+    },
+    {
+     "url": "/proxy/graph/info/edges?spaceName=R12%E9%AA%8C%E6%94%B6%E4%B8%BB%E9%93%BE",
+     "status": 401,
+     "body": "{\"errorCode\":\"30021\",\"errorMsg\":\"没有足够的权限\",\"success\":false}"
+    }
+   ]
+  },
+  {
+   "step": "图上可点节点探测",
+   "canvas_n": 4,
+   "note": "有 canvas，尝试点击中心点"
+  },
+  {
+   "step": "点击图中心后页面文本尾部",
+   "tail": "智能对话 | 知识库 | 助手配置 | 敏感词配置 | 用户反馈 | 搜索 | 智能问答 | 系统管理 | admin | R12验收主链 | R12验收主链 | 暂无标签 | 文件数：10 大小：6.4 GB | 知识解析 | FAQ | 配置 | 检索测试 | 文件管理 | 版本管理 | 图谱增强 | 返回 | 力导布局 | 查询 | 导出 | 节点数: | 0/0 | 关系数: | 0/0 | 创建人:"
+  }
+ ]
+}

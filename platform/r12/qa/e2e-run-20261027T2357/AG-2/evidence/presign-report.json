@@ -1,0 +1,306 @@
+{
+ "343/convertedFilePath": {
+  "file": "R12FIX-product-intro(1).pptx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 29388,
+  "saved": "343-convertedFilePath.pptx",
+  "sha256": "5ec98cb6ad87f271",
+  "magic": "504b030414000000"
+ },
+ "343/filePath": {
+  "file": "R12FIX-product-intro(1).pptx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 29388,
+  "saved": "343-filePath.pptx",
+  "sha256": "5ec98cb6ad87f271",
+  "magic": "504b030414000000"
+ },
+ "334/convertedFilePath": {
+  "file": "pdf-scanned.pdf",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 6525683,
+  "saved": "334-convertedFilePath.pdf",
+  "sha256": "cbc158de9363ebe9",
+  "magic": "255044462d312e37"
+ },
+ "334/filePath": {
+  "file": "pdf-scanned.pdf",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 6525683,
+  "saved": "334-filePath.pdf",
+  "sha256": "cbc158de9363ebe9",
+  "magic": "255044462d312e37"
+ },
+ "333/convertedFilePath": {
+  "file": "docx-table.docx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 36944,
+  "saved": "333-convertedFilePath.docx",
+  "sha256": "a846ab142d8d24af",
+  "magic": "504b030414000000"
+ },
+ "333/filePath": {
+  "file": "docx-table.docx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 36944,
+  "saved": "333-filePath.docx",
+  "sha256": "a846ab142d8d24af",
+  "magic": "504b030414000000"
+ },
+ "332/convertedFilePath": {
+  "file": "docx-plain.docx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 36716,
+  "saved": "332-convertedFilePath.docx",
+  "sha256": "f4982001defc7179",
+  "magic": "504b030414000000"
+ },
+ "332/filePath": {
+  "file": "docx-plain.docx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 36716,
+  "saved": "332-filePath.docx",
+  "sha256": "f4982001defc7179",
+  "magic": "504b030414000000"
+ },
+ "331/convertedFilePath": {
+  "file": "pdf-digital.pdf",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 3577,
+  "saved": "331-convertedFilePath.pdf",
+  "sha256": "4a21313b00f82571",
+  "magic": "255044462d312e37"
+ },
+ "331/filePath": {
+  "file": "pdf-digital.pdf",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 3577,
+  "saved": "331-filePath.pdf",
+  "sha256": "4a21313b00f82571",
+  "magic": "255044462d312e37"
+ },
+ "330/convertedFilePath": {
+  "file": "R12FIX-product-intro.pptx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 29388,
+  "saved": "330-convertedFilePath.pptx",
+  "sha256": "50f2740f82444c67",
+  "magic": "504b030414000000"
+ },
+ "330/filePath": {
+  "file": "R12FIX-product-intro.pptx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 29388,
+  "saved": "330-filePath.pptx",
+  "sha256": "50f2740f82444c67",
+  "magic": "504b030414000000"
+ },
+ "329/convertedFilePath": {
+  "file": "R12FIX-credit-ledger.xlsx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.md",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 550,
+  "saved": "329-convertedFilePath.md",
+  "sha256": "ebee9327e387bf49",
+  "magic": "7c20e5aea2e688b7"
+ },
+ "329/filePath": {
+  "file": "R12FIX-credit-ledger.xlsx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 5340,
+  "saved": "329-filePath.xlsx",
+  "sha256": "53d265c710bc41f1",
+  "magic": "504b030414000000"
+ },
+ "328/convertedFilePath": {
+  "file": "R12FIX-product-loan(1).docx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 37543,
+  "saved": "328-convertedFilePath.docx",
+  "sha256": "2ad8f7f8a298b882",
+  "magic": "504b030414000000"
+ },
+ "328/filePath": {
+  "file": "R12FIX-product-loan(1).docx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 37543,
+  "saved": "328-filePath.docx",
+  "sha256": "2ad8f7f8a298b882",
+  "magic": "504b030414000000"
+ },
+ "320/filePath": {
+  "file": "pdf-encrypted.pdf",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/pdf-encrypted.pdf/V0/pdf-encrypted.pdf",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 4445,
+  "saved": "320-filePath.pdf",
+  "sha256": "99d75002be855201",
+  "magic": "255044462d312e37"
+ },
+ "290/convertedFilePath": {
+  "file": "R12FIX-product-loan.docx",
+  "field": "convertedFilePath",
+  "key": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 37544,
+  "saved": "290-convertedFilePath.docx",
+  "sha256": "aa8f26b94de1302f",
+  "magic": "504b030414000000"
+ },
+ "290/filePath": {
+  "file": "R12FIX-product-loan.docx",
+  "field": "filePath",
+  "key": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "presign_status": 200,
+  "presign_body": {
+   "success": true,
+   "errorCode": null,
+   "errorMsg": null
+  },
+  "get_status": 200,
+  "bytes": 37544,
+  "saved": "290-filePath.docx",
+  "sha256": "aa8f26b94de1302f",
+  "magic": "504b030414000000"
+ }
+}

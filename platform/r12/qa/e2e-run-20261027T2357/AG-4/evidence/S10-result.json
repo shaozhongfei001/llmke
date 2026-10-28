@@ -1,0 +1,255 @@
+{
+ "ts": "2026-10-28T02:24:22.456Z",
+ "steps": [
+  {
+   "step": "详情页 Tab 列表",
+   "tabs": [
+    "知识解析",
+    "FAQ",
+    "配置",
+    "检索测试",
+    "文件管理",
+    "版本管理",
+    "图谱增强",
+    "知识库配置",
+    "权限配置"
+   ]
+  },
+  {
+   "step": "版本管理入口",
+   "present": true
+  },
+  {
+   "step": "版本管理面板控件全量",
+   "controls": [
+    {
+     "tag": "DIV",
+     "cls": "ant-dropdown-trigger flex items-center cursor-pointer hover:",
+     "text": "admin"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-tabs-nav-more",
+     "text": ""
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-tabs-nav-more",
+     "text": ""
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-select ant-select-outlined css-t8yfju ant-select-single ",
+     "text": "更多操作"
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-select ant-select-outlined css-t8yfju ant-select-single ",
+     "text": "显示全部文件"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "新增文件"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "转移到"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "解散"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "新增文件"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "转移到"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "解散"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "解析"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "重新解析"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "重新解析"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "重新解析"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "重新解析"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "重新解析"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-link ant-btn-color-link ant-btn-v",
+     "text": "删除"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-pagination-item-link",
+     "text": ""
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-pagination-item-link",
+     "text": ""
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-tabs-nav-more",
+     "text": ""
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-select ant-select-outlined ant-select-in-form-item ant-s",
+     "text": "bge-m3"
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-select ant-select-outlined ant-select-in-form-item ant-s",
+     "text": "qwen2.5-7b-instruct"
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-select ant-select-outlined ant-select-in-form-item ant-s",
+     "text": "qwen2.5-vl-3b-instruct"
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-select ant-select-outlined ant-select-auto-complete css-",
+     "text": "选择或自定义输入正则表达式"
+    },
+    {
+     "tag": "DIV",
+     "cls": "ant-radio-group ant-radio-group-outline ml-[12px] css-t8yfju",
+     "text": "前后"
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-text ant-btn-color-default ant-bt",
+     "text": ""
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-text ant-btn-color-default ant-bt",
+     "text": ""
+    },
+    {
+     "tag": "BUTTON",
+     "cls": "ant-btn css-t8yfju ant-btn-primary ant-btn-color-primary ant",
+     "text": "保 存"
+    }
+   ]
+  },
+  {
+   "step": "面板文本",
+   "V0V1_matches": [],
+   "has_version_column": false,
+   "text": "智能对话 | 知识库 | 助手配置 | 敏感词配置 | 用户反馈 | 搜索 | 智能问答 | 系统管理 | admin | R12验收主链 | R12验收主链 | 暂无标签 | 文件数：10 大小：6.4 GB | 知识解析 | FAQ | 配置 | 检索测试 | 文件管理 | 版本管理 | 图谱增强 | 更多操作 | 显示全部文件 | \t | \t | 名称 | \t分块数\t解析方法\t解析状态\t版本修订时间\t上传时间\t操作 |   | \t | \t | 名称 | \t | 分块数 | \t | 解析方法 | \t | 解析状态 | \t | 版本修订时间 | \t | 上传时间 | \t | 操作 | \t | \t | R12FIX-product-loan | \t\t\t\t\t\t | 新增文件 | 转移到 | 解散 | 删除 | \t | \t | R12FIX-product-intro | \t\t\t\t\t\t | 新增文件 | 转移到 | 解散 | 删除 | \t | \t | pdf-encrypted.pdf | \t0\tnaive\t | 解析失败 | \t\t26-10-27 10:35\t | 解析 | 删除 | ... | \t | \t | R12FIX-credit-ledger.xlsx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:45\t | 重新解析 | 删除 | ... | \t | \t | pdf-digital.pdf | \t2\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | docx-plain.docx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | docx-table.docx | \t2\tnaive\t "
+  },
+  {
+   "step": "版本分组可展开行数",
+   "n": 0
+  },
+  {
+   "step": "展开后行内容",
+   "rows": [
+    "/ \t / R12FIX-product-loan / \t\t\t\t\t\t / 新增文件 / 转移到 / 解散 / 删除",
+    "/ \t / R12FIX-product-intro / \t\t\t\t\t\t / 新增文件 / 转移到 / 解散 / 删除",
+    "/ \t / pdf-encrypted.pdf / \t0\tnaive\t / 解析失败 / \t\t26-10-27 10:35\t / 解析 / 删除 / ...",
+    "/ \t / R12FIX-credit-ledger.xlsx / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:45\t / 重新解析 / 删除 / ...",
+    "/ \t / pdf-digital.pdf / \t2\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ...",
+    "/ \t / docx-plain.docx / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ...",
+    "/ \t / docx-table.docx / \t2\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ...",
+    "/ \t / pdf-scanned.pdf / \t1\tnaive\t / 解析完成 / \t\t26-10-27 10:46\t / 重新解析 / 删除 / ..."
+   ]
+  },
+  {
+   "step": "展开后 V0/V1 出现次数",
+   "V0V1_matches": [],
+   "text_tail": "智能对话 | 知识库 | 助手配置 | 敏感词配置 | 用户反馈 | 搜索 | 智能问答 | 系统管理 | admin | R12验收主链 | R12验收主链 | 暂无标签 | 文件数：10 大小：6.4 GB | 知识解析 | FAQ | 配置 | 检索测试 | 文件管理 | 版本管理 | 图谱增强 | 更多操作 | 显示全部文件 | \t | \t | 名称 | \t分块数\t解析方法\t解析状态\t版本修订时间\t上传时间\t操作 |   | \t | \t | 名称 | \t | 分块数 | \t | 解析方法 | \t | 解析状态 | \t | 版本修订时间 | \t | 上传时间 | \t | 操作 | \t | \t | R12FIX-product-loan | \t\t\t\t\t\t | 新增文件 | 转移到 | 解散 | 删除 | \t | \t | R12FIX-product-intro | \t\t\t\t\t\t | 新增文件 | 转移到 | 解散 | 删除 | \t | \t | pdf-encrypted.pdf | \t0\tnaive\t | 解析失败 | \t\t26-10-27 10:35\t | 解析 | 删除 | ... | \t | \t | R12FIX-credit-ledger.xlsx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:45\t | 重新解析 | 删除 | ... | \t | \t | pdf-digital.pdf | \t2\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | docx-plain.docx | \t1\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | docx-table.docx | \t2\tnaive\t | 解析完成 | \t\t26-10-27 10:46\t | 重新解析 | 删除 | ... | \t | \t | pdf-scanned.pdf | \t1\tnaive\t | 解析完成 | \t\t26-10-"
+  },
+  {
+   "step": "文件管理表头",
+   "headers": [
+    "",
+    "名称",
+    "标签",
+    "分块数",
+    "解析方法",
+    "解析状态",
+    "版本修订时间",
+    "上传时间",
+    "操作"
+   ]
+  },
+  {
+   "step": "版本分组接口",
+   "status": 200,
+   "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"records\":[{\"id\":\"290\",\"kbId\":\"9\",\"fileName\":null,\"fileSize\":null,\"size\":\"nullMB\",\"filePath\":null,\"fullTextPath\":null,\"convertedFilePath\":null,\"status\":null,\"isEnable\":null,\"parseType\":null,\"chunkSize\":0,\"fileType\":null,\"embeddingModelName\":null,\"parsedFilePath\":null,\"faqExtractStatus\":null,\"reviseDate\":null,\"parentFileName\":\"R12FIX-product-loan.docx\",\"version\":null,\"folderId\":null,\"folderName\":null,\"sourceUrl\":null,\"synLogs\":[],\"kbFiles\":[{\"id\":\"328\",\"kbId\":\"9\",\"fileName\":\"R12FIX-product-loan(1).docx\",\"fileSize\":37543.0,\"size\":\"37543.0MB\",\"filePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"fullTextPath\":null,\"convertedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"status\":3,\"isEnable\":1,\"parseType\":1,\"chunkSize\":0,\"fileType\":null,\"embeddingModelName\":null,\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx\",\"faqExtractStatus\":1,\"reviseDate\":\"\",\"parentFileName\":\"R12FIX-product-loan.docx\",\"version\":\"V1\",\"folderId\":null,\"folderName\":null,\"sourceUrl\":\"http://127.0.0.1:19000/r12-rag/kb_9/\",\"synLogs\":[],\"kbFiles\":null,\"isFolder\":0,\"imagePaths\":null,\"tableFilePaths\":null,\"pdfPage\":null,\"nodeCount\":0,\"edgeCount\":0,\"uid\":\"r14v-1793069088524\",\"graphParseStatus\":1,\"uploadStatus\":null,\"message\":null,\"index\":null,\"chunking\":true,\"kbName\":null,\"elementType\":null,\"parentId\":null,\"permission\":null,\"fullFolderPath\":null,\"groupId\":\"614524213\",\"label\":null,\"chunkType\":\"naive\",\"uploadTime\":\"2026-10-27 10:44:49\",\"count\":0},{\"id\":\"290\",\"kbId\":\"9\",\"fileName\":\"R12FIX-product-loan.docx\",\"fileSize\":37544.0,\"size\":\"37544.0MB\",\"filePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"fullTextPath\":null,\"convertedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"status\":3,\"isEnable\":1,\"parseType\":1,\"chunkSize\":0,\"fileType\":null,\"embeddingModelName\":null,\"parsedFilePath\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx\",\"faqExtractStatus\":1,\"reviseDate\":null,\"parentFileName\":\"R12FIX-product-loan.docx\",\"version\":\"V0\",\"folderId\":null,\"folderName\":null,\"sourceUrl\":\"http://127.0.0.1:19000/r12-rag/kb_9/\",\"synLogs\":[],\"kbFiles\":null,\"isFolder\":0,\"imagePaths\":null,\"tableFilePaths\":null,\"pdfPage\":null,\"nodeCount\":0,\"edgeCount\":0,\"uid\""
+  }
+ ]
+}

@@ -1,0 +1,95 @@
+{
+ "question": "江南装备科技有限公司的信用评级是什么，按这个评级它适用的加点是多少，对应产品的最高授信额度又是多少？",
+ "graph_on": {
+  "http": 200,
+  "code": 200,
+  "msg": "查询成功",
+  "n": 3,
+  "docs": [
+   {
+    "pk": null,
+    "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "version": "V0",
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "score": 0.7428571428571429,
+    "len": 221
+   },
+   {
+    "pk": null,
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "version": "V1",
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "score": 0.7095238095238096,
+    "len": 459
+   },
+   {
+    "pk": null,
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "version": "V1",
+    "search_type": [
+     "milvus",
+     "graph"
+    ],
+    "score": 0.3111111111111111,
+    "len": 123
+   }
+  ]
+ },
+ "graph_off": {
+  "http": 200,
+  "code": 200,
+  "msg": "查询成功",
+  "n": 3,
+  "docs": [
+   {
+    "pk": null,
+    "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "version": "V0",
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "score": 0.6000000000000001,
+    "len": 221
+   },
+   {
+    "pk": null,
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "version": "V1",
+    "search_type": [
+     "milvus",
+     "es",
+     "es"
+    ],
+    "score": 0.5428571428571429,
+    "len": 459
+   },
+   {
+    "pk": null,
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "version": "V1",
+    "search_type": [
+     "milvus"
+    ],
+    "score": 0.1111111111111111,
+    "len": 123
+   }
+  ]
+ },
+ "pk_on_n": 0,
+ "pk_off_n": 0,
+ "only_on": [],
+ "only_off": [],
+ "identical": true
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "fileName": "pdf-encrypted.pdf",
+    "fileSize": 4445,
+    "apiSizeText": "4445.0MB"
+  },
+  {
+    "fileName": "pdf-scanned.pdf",
+    "fileSize": 6525683,
+    "apiSizeText": "6525683.0MB"
+  },
+  {
+    "fileName": "docx-table.docx",
+    "fileSize": 36944,
+    "apiSizeText": "36944.0MB"
+  },
+  {
+    "fileName": "docx-plain.docx",
+    "fileSize": 36716,
+    "apiSizeText": "36716.0MB"
+  },
+  {
+    "fileName": "pdf-digital.pdf",
+    "fileSize": 3577,
+    "apiSizeText": "3577.0MB"
+  }
+]

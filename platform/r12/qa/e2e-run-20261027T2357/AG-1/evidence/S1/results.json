@@ -1,0 +1,84 @@
+[
+  {
+    "id": "S1-01",
+    "title": "正确账号登录成功且落地页正确",
+    "verdict": "PASS",
+    "detail": "登录接口 HTTP=200 success=true；token 长度=237；落地 URL=http://127.0.0.1:18088/chats/main；页面可见用户名=true（localStorage userInfo.userName=admin）；导航菜单节点数=9；页面正文前 60 字=\"智能对话 知识库 助手配置 敏感词配置 用户反馈 搜索 智能问答 系统管理 admin 新建对话 当天 未命名会话 未选\"；登录后强制弹窗=存在，文案=\"密保问题设置 请您设置密保问题用于忘记密码时重置密码！ 问题 1 请选择问题 答案 问题 2 请选择问题 答案 问题 3\"，按钮=[\"确 定\",\"退出登录\"]，关闭按钮=无",
+    "evidence": [
+      "AG-1/evidence/S1/01-login-landing.png",
+      "AG-1/evidence/S1/01-login-security-modal.png",
+      "AG-1/evidence/S1/01-login-network.json",
+      "AG-1/evidence/S1/01-login-response.json"
+    ],
+    "at": "00:26:55"
+  },
+  {
+    "id": "S1-07",
+    "title": "登录后强制密保弹窗行为记录（附加观察项）",
+    "verdict": "PASS",
+    "detail": "弹窗存在=true；文案=\"密保问题设置 请您设置密保问题用于忘记密码时重置密码！ 问题 1 请选择问题 答案 问题 2 请选择问题 答案 问题 3 请选择问题 答案 验证码 确 定 退出\"；按钮=[\"确 定\",\"退出登录\"]；自带关闭按钮=false；ESC 是否可关=实测不可（见 AG-1/evidence/S1/01-login-security-modal.png）；该遮罩覆盖全站并拦截 pointer events，只读验收后续用例以「DOM 移除」方式绕行（注入式，已标注，不触达服务端）",
+    "evidence": [
+      "AG-1/evidence/S1/01-login-security-modal.png"
+    ],
+    "at": "00:26:55"
+  },
+  {
+    "id": "S1-02",
+    "title": "错误密码提示可读且不泄露用户是否存在",
+    "verdict": "PASS",
+    "detail": "错误密码: HTTP=500 success=false errorMsg=\"用户名或密码错误\" toast=\"用户名或密码错误 | 用户名或密码错误\" 停留URL=http://127.0.0.1:18088/login；不存在用户: HTTP=500 success=false errorMsg=\"用户名或密码错误\" toast=\"用户名或密码错误 | 用户名或密码错误\"；两者 errorMsg 是否完全相同=true",
+    "evidence": [
+      "AG-1/evidence/S1/02-wrong-password.png",
+      "AG-1/evidence/S1/02-nosuch-user.png",
+      "AG-1/evidence/S1/02-login-errors.json"
+    ],
+    "at": "00:27:37"
+  },
+  {
+    "id": "S1-03",
+    "title": "未登录直接访问受保护路由被挡回登录页",
+    "verdict": "PASS",
+    "detail": "请求 URL=http://127.0.0.1:18088/chats/knowledgeBase，最终 URL=http://127.0.0.1:18088/login，登录表单输入框数=1，正文前 80 字=\"登 录 点击注册 忘记密码\"",
+    "evidence": [
+      "AG-1/evidence/S1/03-unauth-protected-route.png",
+      "AG-1/evidence/S1/03-unauth-network.json"
+    ],
+    "at": "00:27:41"
+  },
+  {
+    "id": "S1-04",
+    "title": "伪造 token（改 localStorage）后 401 或被挡回，不得 500",
+    "verdict": "FAIL",
+    "detail": "最终 URL=http://127.0.0.1:18088/login；出现 401/403=true（受保护接口 getMenusByUser 正确拒绝）；出现 5xx=true → 500 GET /proxy/qa/feedback/que/list ; 500 GET /proxy/auth/user/kaptcha；挡回登录页=true；toast=\"请求出错，请稍后再试 | 请求出错，请稍后再试\"。用户影响：伪造 token 仍在 localStorage 时登录页验证码输入框数=0（清掉伪造 token 后=1），页面正文=\"登 录 点击注册 忘记密码 请求出错，请稍后再试\"",
+    "evidence": [
+      "AG-1/evidence/S1/04-forged-token.png",
+      "AG-1/evidence/S1/04-login-page-under-forged-token.png",
+      "AG-1/evidence/S1/04-login-page-token-cleared.png",
+      "AG-1/evidence/S1/04-forged-token-network.json",
+      "AG-1/evidence/S1/04-forged-token-detail.json"
+    ],
+    "at": "00:28:09"
+  },
+  {
+    "id": "S1-05",
+    "title": "登出后再访问受保护路由被挡回",
+    "verdict": "PASS",
+    "detail": "登出接口 HTTP=200（下拉菜单实际项=[\"系统管理员\\nadmin\\n暂无邮箱\",\"隐私政策\",\"退出登录\",\"版本 1.0.0\"]，登出项命中=1），耗时=5781ms；登出后 URL=http://127.0.0.1:18088/login；localStorage 剩余={\"appName\":\"rag_ai\",\"appInfo\":{\"authors\":[\"hanfeng zhang\"],\"version\":\"0.0.1\",\"th；再访问 /chats/knowledgeBase 后 URL=http://127.0.0.1:18088/login，登录框数=1",
+    "evidence": [
+      "AG-1/evidence/S1/05-after-logout.png",
+      "AG-1/evidence/S1/05-revisit-after-logout.png"
+    ],
+    "at": "00:28:38"
+  },
+  {
+    "id": "S1-06",
+    "title": "会话过期/刷新行为记录",
+    "verdict": "PASS",
+    "detail": "刷新前 URL=http://127.0.0.1:18088/chats/main，刷新后 URL=http://127.0.0.1:18088/chats/main，会话保持=true；token 是否变化=false（长度 237→237）；token 声明={\"iss\":\"GIEN-RAG\",\"aud\":\"admin\",\"userId\":1,\"userName\":\"admin\",\"sub\":\"mixedQuantum\",\"exp\":1793204940,\"iat\":1793118540}。说明：本轮为只读角色，未主动等待/制造过期窗口，过期后的服务端行为见 S13 伪造 token 与无 token 用例",
+    "evidence": [
+      "AG-1/evidence/S1/06-refresh-keeps-session.png",
+      "AG-1/evidence/S1/06-session.json"
+    ],
+    "at": "00:29:04"
+  }
+]

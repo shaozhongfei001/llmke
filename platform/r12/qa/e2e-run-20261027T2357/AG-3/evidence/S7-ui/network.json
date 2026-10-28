@@ -1,0 +1,52 @@
+[
+ {
+  "status": 500,
+  "method": "GET",
+  "url": "http://127.0.0.1:18088/proxy/qa/feedback/que/list",
+  "dur": null,
+  "at": "2026-10-28T02:27:41.014Z"
+ },
+ {
+  "console": "error",
+  "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ },
+ {
+  "pageerror": "AxiosError: tt$4"
+ },
+ {
+  "status": 403,
+  "method": "GET",
+  "url": "http://127.0.0.1:18088/minio/dev-rag-data/header_pic/JIABINBIN00/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20231212161213.jpg",
+  "dur": null,
+  "at": "2026-10-28T02:27:43.578Z"
+ },
+ {
+  "console": "error",
+  "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+ },
+ {
+  "status": 500,
+  "method": "GET",
+  "url": "http://127.0.0.1:18088/proxy/qa/feedback/que/list",
+  "dur": null,
+  "at": "2026-10-28T02:29:16.923Z"
+ },
+ {
+  "console": "error",
+  "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ },
+ {
+  "pageerror": "AxiosError: tt$4"
+ },
+ {
+  "status": 403,
+  "method": "GET",
+  "url": "http://127.0.0.1:18088/minio/dev-rag-data/header_pic/JIABINBIN00/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20231212161213.jpg",
+  "dur": null,
+  "at": "2026-10-28T02:29:19.229Z"
+ },
+ {
+  "console": "error",
+  "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+ }
+]

@@ -1,0 +1,80 @@
+[
+  {
+    "user": "r13_reader",
+    "label": "用户列表（管理）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 5,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=5"
+  },
+  {
+    "user": "r13_reader",
+    "label": "离职用户列表（管理）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 0,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=0"
+  },
+  {
+    "user": "r13_reader",
+    "label": "读他人账号信息",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=undefined"
+  },
+  {
+    "user": "r13_reader",
+    "label": "角色列表（管理）",
+    "status": 401,
+    "success": false,
+    "errorMsg": "没有足够的权限",
+    "errorCode": "30021",
+    "total": null,
+    "detail": "http=401 success=false errorCode=30021 errorMsg=没有足够的权限 total/len=null"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "用户列表（管理）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 5,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=5"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "离职用户列表（管理）",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "total": 0,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=0"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "读他人账号信息",
+    "status": 200,
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "detail": "http=200 success=true errorCode=null errorMsg=null total/len=undefined"
+  },
+  {
+    "user": "r13_noauth",
+    "label": "角色列表（管理）",
+    "status": 401,
+    "success": false,
+    "errorMsg": "没有足够的权限",
+    "errorCode": "30021",
+    "total": null,
+    "detail": "http=401 success=false errorCode=30021 errorMsg=没有足够的权限 total/len=null"
+  }
+]

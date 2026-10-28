@@ -1,0 +1,13 @@
+{
+  "真实验证码长度": 4,
+  "提交的验证码": "zzzz",
+  "http": 500,
+  "body": {
+    "success": false,
+    "errorMsg": "验证码错误！",
+    "errorCode": "30000",
+    "data": null
+  },
+  "toast": "验证码错误！ | 验证码错误！",
+  "停留URL": "http://127.0.0.1:18088/login"
+}

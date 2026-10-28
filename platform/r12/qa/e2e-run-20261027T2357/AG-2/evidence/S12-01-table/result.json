@@ -1,0 +1,91 @@
+{
+ "net": [
+  {
+   "status": 200,
+   "method": "GET",
+   "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+   "ms": 184
+  },
+  {
+   "status": 200,
+   "method": "POST",
+   "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+   "ms": 18
+  }
+ ],
+ "bad": [],
+ "slow": [],
+ "errs": [],
+ "hasTable": true,
+ "th": [
+  "客户名称",
+  "所属产业链",
+  "信用评级",
+  "授信额度(万元)",
+  "已用额度(万元)",
+  "五级分类",
+  "到期日"
+ ],
+ "rows": [
+  [
+   "客户名称",
+   "所属产业链",
+   "信用评级",
+   "授信额度(万元)",
+   "已用额度(万元)",
+   "五级分类",
+   "到期日"
+  ],
+  [
+   "华东精密制造有限公司",
+   "汽车零部件",
+   "AA",
+   "3000",
+   "1800",
+   "正常",
+   "2027-03-31"
+  ],
+  [
+   "江南装备科技有限公司",
+   "装备制造",
+   "AAA",
+   "5000",
+   "3200",
+   "正常",
+   "2027-06-30"
+  ],
+  [
+   "海川电子材料股份有限公司",
+   "电子信息",
+   "A",
+   "1200",
+   "900",
+   "关注",
+   "2026-12-31"
+  ],
+  [
+   "北方重工配件厂",
+   "汽车零部件",
+   "AA",
+   "2000",
+   "0",
+   "正常",
+   "2027-01-31"
+  ]
+ ],
+ "rowCount": 5,
+ "colCount": 7,
+ "controls": {
+  "inputs": [],
+  "selects": 0,
+  "buttons": [],
+  "filterish": []
+ },
+ "drawerButtons": [
+  "清空对话"
+ ],
+ "drawerText": "R12FIX-credit-ledger.xlsx\nR12FIX-credit-ledger.xlsx\n客户名称\t所属产业链\t信用评级\t授信额度(万元)\t已用额度(万元)\t五级分类\t到期日\n华东精密制造有限公司\t汽车零部件\tAA\t3000\t1800\t正常\t2027-03-31\n江南装备科技有限公司\t装备制造\tAAA\t5000\t3200\t正常\t2027-06-30\n海川电子材料股份有限公司\t电子信息\tA\t1200\t900\t关注\t2026-12-31\n北方重工配件厂\t汽车零部件\tAA\t2000\t0\t正常\t2027-01-31\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+ "paginationInBox": false,
+ "scrollH": 853,
+ "clientH": 853
+}

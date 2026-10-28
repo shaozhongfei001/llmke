@@ -1,0 +1,16 @@
+{
+  "wrongPassword": {
+    "success": false,
+    "errorMsg": "用户名或密码错误",
+    "errorCode": "999",
+    "data": null
+  },
+  "noSuchUser": {
+    "success": false,
+    "errorMsg": "用户名或密码错误",
+    "errorCode": "999",
+    "data": null
+  },
+  "toastA": "用户名或密码错误 | 用户名或密码错误",
+  "toastB": "用户名或密码错误 | 用户名或密码错误"
+}

@@ -1,0 +1,40 @@
+{
+ "id": "S5-03-docx-plain",
+ "kind": "docx",
+ "file": "docx-plain.docx",
+ "inject": false,
+ "net": [
+  {
+   "status": 200,
+   "method": "POST",
+   "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/previewStream",
+   "ms": 168,
+   "bytes": 29393,
+   "ct": "application/pdf"
+  }
+ ],
+ "bad": [],
+ "slow": [],
+ "consoleLog": [
+  "ERROR Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ ],
+ "errors": [],
+ "totalMs": 9567,
+ "canvasCount": 1,
+ "canvases": [
+  {
+   "w": 612,
+   "h": 792
+  }
+ ],
+ "drawerText": "docx-plain.docx\ndocx-plain.docx\n1 / 1\n120%\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+ "pageIndicator": {
+  "cur": 1,
+  "total": 1
+ },
+ "thCells": [],
+ "tableCells": [],
+ "hasTable": false,
+ "pdfBoxHtmlLen": 2377,
+ "failText": ""
+}

@@ -1,0 +1,19 @@
+{
+ "textarea": [],
+ "input": [
+  {
+   "tag": "INPUT",
+   "cls": "ant-select-selection-search-input",
+   "txt": ""
+  },
+  {
+   "tag": "INPUT",
+   "cls": "ant-input css-t8yfju ant-input-outlined",
+   "txt": ""
+  }
+ ],
+ "button": [],
+ "iframe": [],
+ "canvas": 0,
+ "idPdfBox": 0
+}

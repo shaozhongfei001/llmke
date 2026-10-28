@@ -1,0 +1,106 @@
+{
+ "textarea": [
+  {
+   "tag": "TEXTAREA",
+   "cls": "flex-1 w-full min-w-0 py-2 resize-none outline-none border-none min-h-[85px]\n            m",
+   "txt": ""
+  }
+ ],
+ "input": [
+  {
+   "tag": "INPUT",
+   "cls": "",
+   "txt": ""
+  }
+ ],
+ "button": [
+  {
+   "tag": "BUTTON",
+   "cls": "",
+   "txt": ""
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "border-none flex items-center justify-center",
+   "txt": "新建对话"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "ml-auto flex items-center justify-center transition-colors hover:bg-gray-50",
+   "txt": ""
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-search-btn",
+   "txt": ""
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "R12默认问答配置"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "qa_r12_cfg_kb_5"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "qa_cfg_raw_thr0"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "qa_cfg_norerank"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "qa_cfg_ref_001"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "qa_cfg_kb9"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "qa_r12_cfg_kb_10"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "R13 Global æµ‹è¯•åŠ©æ‰‹"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "R13 FAQ æµ‹è¯•åŠ©æ‰‹"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "g-welcome-btn px-3 cursor-pointer rounded-full border font-medium min-w-[160px] text-sm tr",
+   "txt": "R14-BASELINE-CFG"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "flex items-center gap-1 bg-white px-3 py-1 rounded-full border transition-all  duration-20",
+   "txt": "联网搜索"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "flex items-center gap-1 bg-white px-3 py-1 rounded-full border transition-all  duration-20",
+   "txt": "全局(GraphRAG)"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "relative w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer group hover:bg",
+   "txt": ""
+  }
+ ],
+ "iframe": [],
+ "canvas": 0,
+ "idPdfBox": 0
+}

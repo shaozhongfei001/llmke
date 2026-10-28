@@ -1,0 +1,76 @@
+{
+ "http": 200,
+ "at": "2026-10-28T03:25:09.660Z",
+ "count": 10,
+ "files": [
+  {
+   "name": "R12FIX-product-intro(1).pptx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "size": 29388,
+   "ext": "pptx"
+  },
+  {
+   "name": "pdf-scanned.pdf",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+   "size": 6525683,
+   "ext": "pdf"
+  },
+  {
+   "name": "docx-table.docx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "size": 36944,
+   "ext": "docx"
+  },
+  {
+   "name": "docx-plain.docx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+   "size": 36716,
+   "ext": "docx"
+  },
+  {
+   "name": "pdf-digital.pdf",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/pdf-digital.pdf/V0/pdf-digital.pdf",
+   "size": 3577,
+   "ext": "pdf"
+  },
+  {
+   "name": "R12FIX-product-intro.pptx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+   "size": 29388,
+   "ext": "pptx"
+  },
+  {
+   "name": "R12FIX-credit-ledger.xlsx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "size": 5340,
+   "ext": "xlsx"
+  },
+  {
+   "name": "R12FIX-product-loan(1).docx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "size": 37543,
+   "ext": "docx"
+  },
+  {
+   "name": "pdf-encrypted.pdf",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/pdf-encrypted.pdf/V0/pdf-encrypted.pdf",
+   "size": 4445,
+   "ext": "pdf"
+  },
+  {
+   "name": "R12FIX-product-loan.docx",
+   "path": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "size": 37544,
+   "ext": "docx"
+  }
+ ],
+ "imagePaths": [],
+ "extBuckets": {
+  "pptx": 2,
+  "pdf": 3,
+  "docx": 4,
+  "xlsx": 1
+ },
+ "imageFiles": [],
+ "verdict": "UNVERIFIED_缺样本"
+}

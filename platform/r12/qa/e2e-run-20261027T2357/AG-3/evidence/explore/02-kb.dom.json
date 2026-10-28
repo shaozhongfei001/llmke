@@ -1,0 +1,30 @@
+{
+ "textarea": [],
+ "input": [
+  {
+   "tag": "INPUT",
+   "cls": "ant-input css-t8yfju",
+   "txt": ""
+  }
+ ],
+ "button": [
+  {
+   "tag": "BUTTON",
+   "cls": "ant-btn css-t8yfju ant-btn-default ant-btn-color-default ant-btn-variant-outlined",
+   "txt": "新建"
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "ant-pagination-item-link",
+   "txt": ""
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "ant-pagination-item-link",
+   "txt": ""
+  }
+ ],
+ "iframe": [],
+ "canvas": 0,
+ "idPdfBox": 0
+}

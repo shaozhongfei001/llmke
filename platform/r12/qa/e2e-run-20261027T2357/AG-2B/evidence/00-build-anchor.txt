@@ -1,0 +1,26 @@
+== ROUND-B build anchor ==
+2026-10-28T11:11:20+08:00
+asset=assets/index-fup9RT0c.js
+5161c957f19bb7f1ee825ca33d6771cc  frontend/plateform/dist/assets/index-fup9RT0c.js
+-rw-rw-r-- 1 szf szf 315489 2026-10-28 11:11:00.802388587 +0800 frontend/plateform/dist/assets/index-fup9RT0c.js
+-rw-rw-r-- 1 szf szf  23076 2026-10-28 11:11:00.802388587 +0800 frontend/plateform/dist/index.html
+5161c957f19bb7f1ee825ca33d6771cc  /tmp/served-b.js
+--- response headers ---
+HTTP/1.1 200 OK
+Server: nginx/1.31.5
+Date: Wed, 28 Oct 2026 03:11:20 GMT
+Content-Type: application/javascript
+Content-Length: 315489
+Last-Modified: Wed, 28 Oct 2026 03:11:00 GMT
+Connection: keep-alive
+ETag: "6ae167c4-4d061"
+Accept-Ranges: bytes
+
+
+== 重启后复验（team-lead 报 docker restart r12-fe 之后）==
+2026-10-28T11:30:08+08:00
+asset=assets/index-fup9RT0c.js
+5161c957f19bb7f1ee825ca33d6771cc  frontend/plateform/dist/assets/index-fup9RT0c.js
+5161c957f19bb7f1ee825ca33d6771cc  -
+root=200
+(md5 与重启前一致 = 5161c957f19bb7f1ee825ca33d6771cc，ETag 6ae167c4-4d061 未变)

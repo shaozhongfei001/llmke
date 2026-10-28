@@ -1,0 +1,42 @@
+# rag-index fulltext 服务日志摘录（AG-6 取证用，原文未改）
+# 时间窗：2026-10-28 11:49:20 – 11:53:10
+2925:2026-10-28 11:49:26.964 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': 'AG6A-114802-001-EDIT 编辑后答案：最高授信额度为 8000 
+2926:2026-10-28 11:49:26.964 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': 'AG6A-114802-001-EDIT 编辑后答案：最高授信额度为 8000 
+2927:2026-10-28 11:49:26.966 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['2115289472208343042']}}
+2928:2026-10-28 11:49:26.966 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['2115289472208343042']}}
+2929:2026-10-28 11:49:26.969 | ERROR    | es_kb_service:del_by_id:331 - 删除数据失败:ConflictError(409, "{'took': 1, 'timed_out': False, 'total': 1, 'deleted': 0, 'batches': 1, 'version_conflicts': 1, 'noops': 0, 'retries': {'bulk': 0, 'search': 0}, 'thr
+2930:2026-10-28 11:49:26.970 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+2932:2026-10-28 11:49:27.008 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除1条数据
+2933:2026-10-28 11:49:27.008 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+2935:2026-10-28 11:49:29.977 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': 'AG6A-114802-001-EDIT 编辑后答案：最高授信额度为 8000 
+2936:2026-10-28 11:49:29.977 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['2115289472208343042']}}
+2937:2026-10-28 11:49:29.979 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除0条数据
+2938:2026-10-28 11:49:29.980 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+2946:2026-10-28 11:49:32.985 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': 'AG6A-114802-001-EDIT 编辑后答案：最高授信额度为 8000 
+2947:2026-10-28 11:49:32.988 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['2115289472208343042']}}
+2948:2026-10-28 11:49:32.993 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除0条数据
+2949:2026-10-28 11:49:32.994 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+2973:2026-10-28 11:49:35.998 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': 'AG6A-114802-001-EDIT 编辑后答案：最高授信额度为 8000 
+2974:2026-10-28 11:49:35.999 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['2115289472208343042']}}
+2975:2026-10-28 11:49:36.001 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除0条数据
+2976:2026-10-28 11:49:36.001 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+3160:2026-10-28 11:51:07.769 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': '流动资金贷款期限最长三年。 【AG6-EDIT-EXTRACTED】',
+3161:2026-10-28 11:51:07.770 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': '流动资金贷款期限最长三年。 【AG6-EDIT-EXTRACTED】',
+3162:2026-10-28 11:51:07.770 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['3108239472799539882']}}
+3163:2026-10-28 11:51:07.772 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['3108239472799539882']}}
+3164:2026-10-28 11:51:07.775 | ERROR    | es_kb_service:del_by_id:331 - 删除数据失败:ConflictError(409, "{'took': 2, 'timed_out': False, 'total': 1, 'deleted': 0, 'batches': 1, 'version_conflicts': 1, 'noops': 0, 'retries': {'bulk': 0, 'search': 0}, 'thr
+3165:2026-10-28 11:51:07.775 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+3167:2026-10-28 11:51:07.814 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除1条数据
+3168:2026-10-28 11:51:07.815 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+3170:2026-10-28 11:51:10.779 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': '流动资金贷款期限最长三年。 【AG6-EDIT-EXTRACTED】',
+3171:2026-10-28 11:51:10.780 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['3108239472799539882']}}
+3172:2026-10-28 11:51:10.783 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除0条数据
+3173:2026-10-28 11:51:10.784 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+3233:2026-10-28 11:51:13.788 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': '流动资金贷款期限最长三年。 【AG6-EDIT-EXTRACTED】',
+3234:2026-10-28 11:51:13.789 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['3108239472799539882']}}
+3235:2026-10-28 11:51:13.791 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除0条数据
+3236:2026-10-28 11:51:13.791 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task
+3238:2026-10-28 11:51:16.794 | INFO     | middleware.request_logging:request_logging_middleware:47 - [API] POST http://127.0.0.1:19527/update_doc, request params: {'document_list': [{'answer': '流动资金贷款期限最长三年。 【AG6-EDIT-EXTRACTED】',
+3239:2026-10-28 11:51:16.795 | INFO     | es_kb_service:del_by_id:325 - {'terms': {'_id': ['3108239472799539882']}}
+3240:2026-10-28 11:51:16.797 | INFO     | es_kb_service:del_by_id:328 - 删除数据成功:共删除0条数据
+3241:2026-10-28 11:51:16.798 | ERROR    | controller.es:_add_documents_async_impl:468 - 创建索引失败,Timeout context manager should be used inside a task

@@ -1,0 +1,20 @@
+[
+ {
+  "attempt": 1,
+  "http": 500,
+  "body": "{\"success\":false,\"errorMsg\":\"验证码错误！\",\"errorCode\":\"30000\",\"data\":null}",
+  "captchaLen": 5
+ },
+ {
+  "attempt": 2,
+  "http": 500,
+  "body": "{\"success\":false,\"errorMsg\":\"验证码错误！\",\"errorCode\":\"30000\",\"data\":null}",
+  "captchaLen": 5
+ },
+ {
+  "attempt": 3,
+  "http": 500,
+  "body": "{\"success\":false,\"errorMsg\":\"验证码错误！\",\"errorCode\":\"30000\",\"data\":null}",
+  "captchaLen": 5
+ }
+]

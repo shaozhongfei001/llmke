@@ -1,0 +1,6034 @@
+[
+ {
+  "at": 1793157849651,
+  "iso": "2026-10-28T03:24:09.651Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/chats/knowledgeBase/36",
+  "dur": null
+ },
+ {
+  "at": 1793157849674,
+  "iso": "2026-10-28T03:24:09.674Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@babel/runtime-70-LPkMI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849676,
+  "iso": "2026-10-28T03:24:09.676Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/colors-CwZCmT9p.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849676,
+  "iso": "2026-10-28T03:24:09.676Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/fast-color-D3zqsVnJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849676,
+  "iso": "2026-10-28T03:24:09.676Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/assets-8529vj7n.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849676,
+  "iso": "2026-10-28T03:24:09.676Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-antd-Br-zbjW3.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849676,
+  "iso": "2026-10-28T03:24:09.676Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@gientech/modual-rME4iV4s.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849678,
+  "iso": "2026-10-28T03:24:09.678Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-CbDlLxqx.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849678,
+  "iso": "2026-10-28T03:24:09.678Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-Bfz093Ih.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849679,
+  "iso": "2026-10-28T03:24:09.679Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/polyfills-DdIJulW3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849692,
+  "iso": "2026-10-28T03:24:09.692Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/fviewer-HACx_5JD.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849692,
+  "iso": "2026-10-28T03:24:09.692Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/xviewer-CaFpVpgL.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849693,
+  "iso": "2026-10-28T03:24:09.693Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/nodegraph-D8VGdo4C.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849694,
+  "iso": "2026-10-28T03:24:09.694Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-HSlOjuzV.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849695,
+  "iso": "2026-10-28T03:24:09.695Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/aichat-DR_34d8u.css",
+  "dur": null
+ },
+ {
+  "at": 1793157849702,
+  "iso": "2026-10-28T03:24:09.702Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-scheduler-DYLXRpC5.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849703,
+  "iso": "2026-10-28T03:24:09.703Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-router-dom-ChDnDcJ5.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849703,
+  "iso": "2026-10-28T03:24:09.703Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@remix-run/router-G1b6SE1w.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849703,
+  "iso": "2026-10-28T03:24:09.703Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-router-DZj_5xeJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849703,
+  "iso": "2026-10-28T03:24:09.703Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-jsonrpc-2tvYB2ki.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849704,
+  "iso": "2026-10-28T03:24:09.704Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-fup9RT0c.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849704,
+  "iso": "2026-10-28T03:24:09.704Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@chevrotain/utils-DQUjfX_E.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@chevrotain/gast-gcozT-t7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@chevrotain/regexp-to-ast-bTPMYxoV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-chevrotain-allstar-DWbqAQuj.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lodash-es-BXP4gKw0.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-languageserver-textdocument-CKBVUiR3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-languageserver-types-BvFum5qp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849705,
+  "iso": "2026-10-28T03:24:09.705Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-chevrotain-DRE5d59Q.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-uri-CXwoqG48.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-dom-CjqO5MCD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-hoist-non-react-statics-wr0LLmrn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-sync-external-store-Cjsxf-Rp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-is-HDPOLZQC.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mermaid-js/parser-D1j6u-_I.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-redux-iECH7HV-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849706,
+  "iso": "2026-10-28T03:24:09.706Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-langium-BoUWGQPS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849707,
+  "iso": "2026-10-28T03:24:09.707Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@emotion/hash-WldOFDRm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849707,
+  "iso": "2026-10-28T03:24:09.707Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-axios-B3U2_j9c.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849707,
+  "iso": "2026-10-28T03:24:09.707Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dayjs-Do20EDTL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849719,
+  "iso": "2026-10-28T03:24:09.719Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-util-DT_YP9Ed.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849720,
+  "iso": "2026-10-28T03:24:09.720Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@emotion/unitless-D-2QRLVp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849720,
+  "iso": "2026-10-28T03:24:09.720Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-stylis-BeIOFSfa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849720,
+  "iso": "2026-10-28T03:24:09.720Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/cssinjs-DPu15efQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-classnames-C9VH3ZEw.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/assets-DLl0IKOx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/cssinjs-utils-rDFqZVZC.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-resize-observer-polyfill-B1PUzC5B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-resize-observer-48TfWyIQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/icons-svg-DOytPBt1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-motion-D794J-sE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849722,
+  "iso": "2026-10-28T03:24:09.722Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-overflow-D-9qyu_e.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849724,
+  "iso": "2026-10-28T03:24:09.724Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/icons-jPEBg_Pd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849724,
+  "iso": "2026-10-28T03:24:09.724Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/portal-DndE7hK-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849724,
+  "iso": "2026-10-28T03:24:09.724Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-dropdown--sroKoAN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849724,
+  "iso": "2026-10-28T03:24:09.724Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/trigger-BL_5Y9ZK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849724,
+  "iso": "2026-10-28T03:24:09.724Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tabs-Grxvpt_J.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849724,
+  "iso": "2026-10-28T03:24:09.724Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-menu-DoflBrBU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-virtual-list-DhydDicd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-picker-S_X3fLjp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-select-DtGPTKil.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tree-UQP69qcm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/color-picker-B7gKrLP4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-segmented-VZUkU8Bb.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849725,
+  "iso": "2026-10-28T03:24:09.725Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-cascader-TevedAKq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/mini-decimal-C5ji-Gbg.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-input-BwypWseM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-input-number-Dmu7KxRp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-slider-DrsjloQF.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-drawer-COH7T0eR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/async-validator-QXnoYRSt.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-dialog-T_17mQyc.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-field-form-HR_0JLhV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849727,
+  "iso": "2026-10-28T03:24:09.727Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-image-krGytnpJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849728,
+  "iso": "2026-10-28T03:24:09.728Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-notification-CYajPFXA.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849728,
+  "iso": "2026-10-28T03:24:09.728Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tooltip-nvIpzclO.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849728,
+  "iso": "2026-10-28T03:24:09.728Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-rate-BwVPgZLf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849728,
+  "iso": "2026-10-28T03:24:09.728Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-steps-f3dROYkX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-switch-Dv7O9j9Z.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/context-Cjz6d24m.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-checkbox-BY-AsWHi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-compute-scroll-into-view-R6koymWn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-scroll-into-view-if-needed-BVrQ-1O6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-table-ZtXsVepS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-throttle-debounce-CUWDS_la.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849730,
+  "iso": "2026-10-28T03:24:09.730Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-pagination-V_T5fwrN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849731,
+  "iso": "2026-10-28T03:24:09.731Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-toggle-selection-BHUZwh74.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849731,
+  "iso": "2026-10-28T03:24:09.731Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tree-select-CPitVxWR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849731,
+  "iso": "2026-10-28T03:24:09.731Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-copy-to-clipboard-BgipCsi3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849731,
+  "iso": "2026-10-28T03:24:09.731Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-textarea-B5p8ZCWc.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849731,
+  "iso": "2026-10-28T03:24:09.731Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-upload-B7qCCHde.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849731,
+  "iso": "2026-10-28T03:24:09.731Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-collapse-C7-lnbkK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-progress-vXtUPA8R.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-zustand-Dpt_zCp_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@umijs/use-params-rEwdF-07.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dequal-Wows3SfR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ctrl/tinycolor-riLredlm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-swr-DY8sag0q.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849733,
+  "iso": "2026-10-28T03:24:09.733Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-safe-stable-stringify-DIgJKYFX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849734,
+  "iso": "2026-10-28T03:24:09.734Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/pro-provider-BOZ5zpnP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849734,
+  "iso": "2026-10-28T03:24:09.734Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/pro-utils-DwHPWKM1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849734,
+  "iso": "2026-10-28T03:24:09.734Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-path-to-regexp-CpWReE8w.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849734,
+  "iso": "2026-10-28T03:24:09.734Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@umijs/route-utils-CUdvs3BF.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849734,
+  "iso": "2026-10-28T03:24:09.734Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lodash-BUG7z44Z.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849735,
+  "iso": "2026-10-28T03:24:09.735Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/pro-layout-D9Los987.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849735,
+  "iso": "2026-10-28T03:24:09.735Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-plain-object-C7BF5Ngm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849735,
+  "iso": "2026-10-28T03:24:09.735Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-crypto-js-CBtca5jQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849735,
+  "iso": "2026-10-28T03:24:09.735Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-immer-B4bpQJe3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849736,
+  "iso": "2026-10-28T03:24:09.736Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-direction-DiMwLpYF.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849736,
+  "iso": "2026-10-28T03:24:09.736Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/slate-tidbuv5U.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849736,
+  "iso": "2026-10-28T03:24:09.736Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-hotkey-BT8vj_Ox.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849736,
+  "iso": "2026-10-28T03:24:09.736Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@juggle/resize-observer-C8OzoCMD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849736,
+  "iso": "2026-10-28T03:24:09.736Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/utils-DabkdXFm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849736,
+  "iso": "2026-10-28T03:24:09.736Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-history-BG0LpyFv.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849737,
+  "iso": "2026-10-28T03:24:09.737Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-B-ra2PhQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/slate-utils-Dzniox1g.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-hyperscript-CHjcFkiw.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-clsx-B9VHljUI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-react-DIGNgWCS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/react-hotkeys-D6PoquOm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-jotai-x-DDmpveao.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-jotai-B1x7BALy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-proxy-compare-DvF22pMo.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849738,
+  "iso": "2026-10-28T03:24:09.738Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-tracked-BmE9raLM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849739,
+  "iso": "2026-10-28T03:24:09.739Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-zustand-x-nfS0gTxM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849739,
+  "iso": "2026-10-28T03:24:09.739Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/slate-react-CzvwplfT.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849739,
+  "iso": "2026-10-28T03:24:09.739Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-compose-refs-Cm_lXX7s.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849739,
+  "iso": "2026-10-28T03:24:09.739Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lodash.mapvalues-BNmYEpG3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849740,
+  "iso": "2026-10-28T03:24:09.740Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-slot-Czvai5g7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849740,
+  "iso": "2026-10-28T03:24:09.740Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/react-utils-CGV1UHxR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849740,
+  "iso": "2026-10-28T03:24:09.740Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-deep-compare-B7HFRtLx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849740,
+  "iso": "2026-10-28T03:24:09.740Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-jotai-optics-CDc-PJOS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849740,
+  "iso": "2026-10-28T03:24:09.740Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-optics-ts-CWCUw4ds.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849741,
+  "iso": "2026-10-28T03:24:09.741Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-combobox-BlK8iPzE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849741,
+  "iso": "2026-10-28T03:24:09.741Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-mention-CgLLYhDZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849741,
+  "iso": "2026-10-28T03:24:09.741Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-ts-dedent-D-tao7Fd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849741,
+  "iso": "2026-10-28T03:24:09.741Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-test-utils-CMfME8qg.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849742,
+  "iso": "2026-10-28T03:24:09.742Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-timer-DdKHrDhs.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849742,
+  "iso": "2026-10-28T03:24:09.742Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-dispatch-kxCwF96_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849742,
+  "iso": "2026-10-28T03:24:09.742Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-interpolate-BoyWyR1l.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849742,
+  "iso": "2026-10-28T03:24:09.742Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-color-Cfqiy2ga.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849743,
+  "iso": "2026-10-28T03:24:09.743Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-ease-DRPgKoYJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849743,
+  "iso": "2026-10-28T03:24:09.743Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-selection-BJkelepr.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849744,
+  "iso": "2026-10-28T03:24:09.744Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-core-xqGyNzg6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849744,
+  "iso": "2026-10-28T03:24:09.744Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-zoom-BvFKO7OZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849745,
+  "iso": "2026-10-28T03:24:09.745Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-transition-m1gYyL0b.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849746,
+  "iso": "2026-10-28T03:24:09.746Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dompurify-E0SPtK4n.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849747,
+  "iso": "2026-10-28T03:24:09.747Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dagre-d3-es-BE7hVDk2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849748,
+  "iso": "2026-10-28T03:24:09.748Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cose-base-Cn2yi8Dy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849748,
+  "iso": "2026-10-28T03:24:09.748Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cytoscape-cose-bilkent-BlKjT5Wq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849749,
+  "iso": "2026-10-28T03:24:09.749Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@braintree/sanitize-url-DTxIIdJL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849750,
+  "iso": "2026-10-28T03:24:09.750Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-layout-base-sIU3_48r.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849752,
+  "iso": "2026-10-28T03:24:09.752Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-khroma-WrynedUY.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849753,
+  "iso": "2026-10-28T03:24:09.753Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-internmap-BkD7Hj8s.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849754,
+  "iso": "2026-10-28T03:24:09.754Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-array-BZ2AL3Gg.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849754,
+  "iso": "2026-10-28T03:24:09.754Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-format-CbPl0o6b.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849755,
+  "iso": "2026-10-28T03:24:09.755Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-time-2aIq57hV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849755,
+  "iso": "2026-10-28T03:24:09.755Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-axis-CbT0oJG-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849755,
+  "iso": "2026-10-28T03:24:09.755Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-scale-C_Q_a09Z.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849755,
+  "iso": "2026-10-28T03:24:09.755Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-time-format-CJWvqMJi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849762,
+  "iso": "2026-10-28T03:24:09.762Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-antd-DNTXxy0A.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849762,
+  "iso": "2026-10-28T03:24:09.762Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-shape-Cbh0wPdD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849762,
+  "iso": "2026-10-28T03:24:09.762Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-uuid-pQ80YA7_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849762,
+  "iso": "2026-10-28T03:24:09.762Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-sankey-CeTsMvs2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849762,
+  "iso": "2026-10-28T03:24:09.762Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-scale-chromatic-B4gdILZI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849763,
+  "iso": "2026-10-28T03:24:09.763Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-roughjs-CqrMvzjB.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849763,
+  "iso": "2026-10-28T03:24:09.763Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-path-AMhxdxS6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849769,
+  "iso": "2026-10-28T03:24:09.769Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@iconify/utils-D43P9bW3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849769,
+  "iso": "2026-10-28T03:24:09.769Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cytoscape-fcose-B2GyyU3d.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849769,
+  "iso": "2026-10-28T03:24:09.769Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-hierarchy-CrAEavjc.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849769,
+  "iso": "2026-10-28T03:24:09.769Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-utils-C476wn0J.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849772,
+  "iso": "2026-10-28T03:24:09.772Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-parse-entities-DUPMa2JE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849772,
+  "iso": "2026-10-28T03:24:09.772Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-chunked-DrRIdSP-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849772,
+  "iso": "2026-10-28T03:24:09.772Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-combine-extensions-d8XJZrgA.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849772,
+  "iso": "2026-10-28T03:24:09.772Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-character-Bcm1tP9o.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849772,
+  "iso": "2026-10-28T03:24:09.772Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cytoscape-DONWqf9-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849773,
+  "iso": "2026-10-28T03:24:09.773Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-marked-CWdHQ5Vu.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849773,
+  "iso": "2026-10-28T03:24:09.773Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-space-BLX5PWg0.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849773,
+  "iso": "2026-10-28T03:24:09.773Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-classify-character-CIK7-A0a.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849773,
+  "iso": "2026-10-28T03:24:09.773Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-resolve-all-PQCKh0dx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849773,
+  "iso": "2026-10-28T03:24:09.773Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-decode-named-character-reference-C3-224fz.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849774,
+  "iso": "2026-10-28T03:24:09.774Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-subtokenize-B0G4wCQY.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849774,
+  "iso": "2026-10-28T03:24:09.774Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-destination-D9NyL13B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849774,
+  "iso": "2026-10-28T03:24:09.774Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-label-D6r-Fp6V.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849775,
+  "iso": "2026-10-28T03:24:09.775Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-title-D9P6wEYK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849776,
+  "iso": "2026-10-28T03:24:09.776Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-whitespace-B0pwdzpi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849776,
+  "iso": "2026-10-28T03:24:09.776Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-normalize-identifier-C9ANKk3v.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849777,
+  "iso": "2026-10-28T03:24:09.777Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-html-tag-name-DbKNfynz.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849777,
+  "iso": "2026-10-28T03:24:09.777Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-core-commonmark-BvtFroPU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849780,
+  "iso": "2026-10-28T03:24:09.780Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mdast-util-to-string-DWnGjEoP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849780,
+  "iso": "2026-10-28T03:24:09.780Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-unist-util-stringify-position-BLjin0oJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849782,
+  "iso": "2026-10-28T03:24:09.782Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-JMJJkJ7f.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849782,
+  "iso": "2026-10-28T03:24:09.782Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-decode-numeric-character-reference-DRnCnno4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849784,
+  "iso": "2026-10-28T03:24:09.784Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-decode-string-8qDLm5JL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849785,
+  "iso": "2026-10-28T03:24:09.785Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-bail-AjTTgz1N.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849785,
+  "iso": "2026-10-28T03:24:09.785Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-remark-parse-BMJ06dv3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849785,
+  "iso": "2026-10-28T03:24:09.785Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mdast-util-from-markdown-J2jiew3Q.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849785,
+  "iso": "2026-10-28T03:24:09.785Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-buffer-z6hZpZBX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849786,
+  "iso": "2026-10-28T03:24:09.786Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-extend-l1xzC_Eq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849787,
+  "iso": "2026-10-28T03:24:09.787Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-plain-obj-D1TmHDR4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849787,
+  "iso": "2026-10-28T03:24:09.787Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-trough-DBG-YvTQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849787,
+  "iso": "2026-10-28T03:24:09.787Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vfile-message-B3xbjJvk.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849787,
+  "iso": "2026-10-28T03:24:09.787Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vfile-DXPHFxAZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849789,
+  "iso": "2026-10-28T03:24:09.789Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-unified-DZion5-J.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849789,
+  "iso": "2026-10-28T03:24:09.789Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-class-variance-authority-BRQasHcV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849789,
+  "iso": "2026-10-28T03:24:09.789Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/cn-V8oJMXBH.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849789,
+  "iso": "2026-10-28T03:24:09.789Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-markdown-BshDNE40.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849790,
+  "iso": "2026-10-28T03:24:09.790Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-tailwind-merge-BOZU2X2x.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849793,
+  "iso": "2026-10-28T03:24:09.793Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-fast-deep-equal-DhgPJNJw.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849794,
+  "iso": "2026-10-28T03:24:09.794Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-uid-CpW6Dhpp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849795,
+  "iso": "2026-10-28T03:24:09.795Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-axios-mock-adapter-Ye7Rc2dk.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849795,
+  "iso": "2026-10-28T03:24:09.795Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-prop-types-CxS-12Ye.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849796,
+  "iso": "2026-10-28T03:24:09.796Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lucide-react-8HBUVj5j.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849797,
+  "iso": "2026-10-28T03:24:09.797Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@tanstack/react-query-DMK1HGqo.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849797,
+  "iso": "2026-10-28T03:24:09.797Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@tanstack/query-core-Df_yEnq1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849797,
+  "iso": "2026-10-28T03:24:09.797Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-side-effect-BUoEACwh.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849797,
+  "iso": "2026-10-28T03:24:09.797Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-fast-compare-DmPoLI2m.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849798,
+  "iso": "2026-10-28T03:24:09.798Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-object-assign-CBn4c0Xx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849799,
+  "iso": "2026-10-28T03:24:09.799Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-router-middleware-plus-B841rS8h.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849799,
+  "iso": "2026-10-28T03:24:09.799Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-helmet-BFPF63ZV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849799,
+  "iso": "2026-10-28T03:24:09.799Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-redux-BV6oXUMW.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849799,
+  "iso": "2026-10-28T03:24:09.799Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rematch/core-BftT4oX7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849800,
+  "iso": "2026-10-28T03:24:09.800Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-tslib-BAgmoMtJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849800,
+  "iso": "2026-10-28T03:24:09.800Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-styled-components-BpoOz7An.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849801,
+  "iso": "2026-10-28T03:24:09.801Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-theme-BtJ16705.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849802,
+  "iso": "2026-10-28T03:24:09.802Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-elements-Dg2vkPRJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849803,
+  "iso": "2026-10-28T03:24:09.803Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-animejs-Cyp1bMlK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849803,
+  "iso": "2026-10-28T03:24:09.803Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-DGvHVUnD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849804,
+  "iso": "2026-10-28T03:24:09.804Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-layouts-CDMoSELn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849805,
+  "iso": "2026-10-28T03:24:09.805Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mermaid-Cc48HIgL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849806,
+  "iso": "2026-10-28T03:24:09.806Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/fviewer-CUVY0wnd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849807,
+  "iso": "2026-10-28T03:24:09.807Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-components-B1bLrbCP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849824,
+  "iso": "2026-10-28T03:24:09.824Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/rtext-D0UAD6TO.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849825,
+  "iso": "2026-10-28T03:24:09.825Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-pdfjs-dist-BDXe00Lx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849825,
+  "iso": "2026-10-28T03:24:09.825Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-icons-fKune5no.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849835,
+  "iso": "2026-10-28T03:24:09.835Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/nodegraph-CqIJ361Y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849848,
+  "iso": "2026-10-28T03:24:09.848Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/xviewer-Z-2X70vr.js",
+  "dur": null
+ },
+ {
+  "at": 1793157849900,
+  "iso": "2026-10-28T03:24:09.900Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@gientech/modual-DGMMTozi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850340,
+  "iso": "2026-10-28T03:24:10.340Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-CZUr-VlV.css",
+  "dur": null
+ },
+ {
+  "at": 1793157850340,
+  "iso": "2026-10-28T03:24:10.340Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-tweet-YvEzRQr9.css",
+  "dur": null
+ },
+ {
+  "at": 1793157850340,
+  "iso": "2026-10-28T03:24:10.340Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/ChatViewEditor-Ba8P6fS1.css",
+  "dur": null
+ },
+ {
+  "at": 1793157850340,
+  "iso": "2026-10-28T03:24:10.340Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-Cpm6Y9Eg.css",
+  "dur": null
+ },
+ {
+  "at": 1793157850340,
+  "iso": "2026-10-28T03:24:10.340Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/Detail-Bg9KCPG9.css",
+  "dur": null
+ },
+ {
+  "at": 1793157850375,
+  "iso": "2026-10-28T03:24:10.375Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/nav-logo-BKaOCDqi.png",
+  "dur": null
+ },
+ {
+  "at": 1793157850376,
+  "iso": "2026-10-28T03:24:10.376Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/autoTag-DSGIhi1X.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850376,
+  "iso": "2026-10-28T03:24:10.376Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-CVOnzZaP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-dnd-html5-backend-basGMNU1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-dnd-CU6UwJG1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dnd-core-BlYvCx9C.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@react-dnd/invariant-CpXzGp22.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@react-dnd/asap-kGd5DMWm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@react-dnd/shallowequal-D1ZyZBg9.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/service-B9MgrB10.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850377,
+  "iso": "2026-10-28T03:24:10.377Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-chardet-A-59d5In.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/service-Boj7O4fV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-Bdf7gaUG.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/UploadBox-DrGjqsbN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/FolderDetail-Cv_kmfsL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-ahooks-DVJVWIfD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/observe-dom-DJd7UTHU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/scroll-bar-HNqfSP0B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/core-DVcwp5sJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/mouse-wheel-fxJoUGdi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850378,
+  "iso": "2026-10-28T03:24:10.378Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-yCQsJpO7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-papaparse-Bme44J-s.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-block-quote-BQzxADWx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-heading-DRZI2V2y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/ChatViewEditor-4G28Yv7y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-code-block-B6CK9sK4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-horizontal-rule-D9JnwdFR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-normalizers-324-wJNI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-link-C5oOkjZ5.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-excalidraw-2n5lGC64.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-media-DjzAr4sL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-js-video-url-parser-B8w81Y1V.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-layout-q8wCPgiB.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-reset-node-CfWKg-Io.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850382,
+  "iso": "2026-10-28T03:24:10.382Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-resizable-JKMCuOlE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-date-CtJ59M1h.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-table-DRP7AEym.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-list-CimoSUoq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-basic-marks-Qq4fPvKp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-font-C6wAXYH4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-highlight-CJJ_OHMJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-kbd-CQ5t7Xb7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850383,
+  "iso": "2026-10-28T03:24:10.383Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-alignment-DaGZgbet.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-indent-ChtUriZ7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-line-height-jB9MQu-8.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-node-id-DiHGyhtn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-juice-DpTwxJyM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-indent-list-BMoARx8u.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-juice-CyjdyX0m.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cheerio-select-CzLFjvbK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-css-what-Bytf5p6M.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-domutils-DkiVtbq2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-css-select-BE5iQrl3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cheerio-DPk_ZCfK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-domelementtype-C_FFwB5S.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-boolbase-DATFwCNf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-nth-check-BC_PyA53.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-domhandler-CaWv5mPp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dom-serializer-BYPahC0Y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-htmlparser2-D_N81dNa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slick-BL90hJUm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-parse5-htmlparser2-tree-adapter-rFCKmjPA.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-entities-Dy7ke_GP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850384,
+  "iso": "2026-10-28T03:24:10.384Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mensch-D9ES5LPR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850386,
+  "iso": "2026-10-28T03:24:10.386Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cmdk-De2eEkej.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850386,
+  "iso": "2026-10-28T03:24:10.386Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/primitive-Bn0KTc7p.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850386,
+  "iso": "2026-10-28T03:24:10.386Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-dialog-D_B-hr8b.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850386,
+  "iso": "2026-10-28T03:24:10.386Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-id-Bp_vzS1M.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850386,
+  "iso": "2026-10-28T03:24:10.386Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-context-BopelqAm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850387,
+  "iso": "2026-10-28T03:24:10.387Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-layout-effect-DgEmNECa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850387,
+  "iso": "2026-10-28T03:24:10.387Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-parse5-BfHtatPe.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850387,
+  "iso": "2026-10-28T03:24:10.387Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-controllable-state-BUGCUryK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850387,
+  "iso": "2026-10-28T03:24:10.387Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-callback-ref-xQ7R-f4f.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850387,
+  "iso": "2026-10-28T03:24:10.387Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-escape-keydown-DvdTBiSK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850387,
+  "iso": "2026-10-28T03:24:10.387Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-primitive-Ci9SZOT6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850388,
+  "iso": "2026-10-28T03:24:10.388Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-focus-scope-DQaTzBDm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-prismjs-BjwqIUeu.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-dismissable-layer-ClFHGHrp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-portal-BKMWFBKy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-focus-guards-VTnFt3nj.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-remove-scroll-bar-BEhLQmLf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-style-singleton-FgWc8aKN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-presence-Cn89TJcQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850389,
+  "iso": "2026-10-28T03:24:10.389Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-remove-scroll-D4rGvAY2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-get-nonce-C-Z93AgS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-sidecar-BHQJZXj_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-callback-ref-WqgaHXH4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-aria-hidden-DvXkyWUv.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/react-dom-BU4dKUXN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-popper-DkIZLouf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850390,
+  "iso": "2026-10-28T03:24:10.390Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-popover-Cy9c5esV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/dom-DiWzokwu.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/core-t3cway3_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/utils-CMjlLL6V.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-arrow-C51mSgOk.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-size-CR2ISWFG.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-caption-CdN95xrb.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-textarea-autosize-DlcpCj2x.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-latest-D_4D0ARz.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-isomorphic-layout-effect-BIwmawVR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-composed-ref-BKr6Nq-B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-separator-jowEq29N.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-lite-youtube-embed-D0FuPEO_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-collection-wwx5cKoX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-direction-DegblRxy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-dropdown-menu-whSqHmfm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850392,
+  "iso": "2026-10-28T03:24:10.392Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-tweet-B8upbvh1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850393,
+  "iso": "2026-10-28T03:24:10.393Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-roving-focus-DNmT1SWf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-menu-xBwkkwEU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-checkbox-Le6q3COa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-previous-Beh6ehkD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-toggle-xsEjroUH.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@date-fns/tz-PQ6C_Hr0.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-date-fns-BNPKsZ0M.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-day-picker-C7ENMtO1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/constant-CMxUDVHr.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@microsoft/fetch-event-source-BzSw2dPi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/tools-B7Gx9P0B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/faqService-DAQW_jrv.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/DrawerContent-BhfnPJIi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-D0veISvP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850394,
+  "iso": "2026-10-28T03:24:10.394Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/RepeatFaq-M57z0atZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850395,
+  "iso": "2026-10-28T03:24:10.395Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-ifH6HTWV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850395,
+  "iso": "2026-10-28T03:24:10.395Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/auth/resource/getMenusByUser",
+  "dur": null
+ },
+ {
+  "at": 1793157850398,
+  "iso": "2026-10-28T03:24:10.398Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/Detail-C0zpYzCL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850441,
+  "iso": "2026-10-28T03:24:10.441Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/file-viewer-DFRp9x92.js",
+  "dur": null
+ },
+ {
+  "at": 1793157850922,
+  "iso": "2026-10-28T03:24:10.922Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/knowledge_base_title_icon-vv8ccXin.svg",
+  "dur": null
+ },
+ {
+  "at": 1793157850961,
+  "iso": "2026-10-28T03:24:10.961Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/bizLabel/historyOfKbLabel?kbId=36",
+  "dur": null
+ },
+ {
+  "at": 1793157850963,
+  "iso": "2026-10-28T03:24:10.963Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/getKbById?id=36",
+  "dur": null
+ },
+ {
+  "at": 1793157850968,
+  "iso": "2026-10-28T03:24:10.968Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=2",
+  "dur": null
+ },
+ {
+  "at": 1793157850974,
+  "iso": "2026-10-28T03:24:10.974Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=1",
+  "dur": null
+ },
+ {
+  "at": 1793157850980,
+  "iso": "2026-10-28T03:24:10.980Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=4",
+  "dur": null
+ },
+ {
+  "at": 1793157851127,
+  "iso": "2026-10-28T03:24:11.127Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=36&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793157851195,
+  "iso": "2026-10-28T03:24:11.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/icon-pdf-BNvA7klg.svg",
+  "dur": null
+ },
+ {
+  "at": 1793157875024,
+  "iso": "2026-10-28T03:24:35.024Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/chats/knowledgeBase/36",
+  "dur": null
+ },
+ {
+  "at": 1793157875041,
+  "iso": "2026-10-28T03:24:35.041Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/polyfills-DdIJulW3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875047,
+  "iso": "2026-10-28T03:24:35.047Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@babel/runtime-70-LPkMI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875051,
+  "iso": "2026-10-28T03:24:35.051Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/fast-color-D3zqsVnJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875051,
+  "iso": "2026-10-28T03:24:35.051Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/colors-CwZCmT9p.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875052,
+  "iso": "2026-10-28T03:24:35.052Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-Bfz093Ih.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875053,
+  "iso": "2026-10-28T03:24:35.053Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-scheduler-DYLXRpC5.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875055,
+  "iso": "2026-10-28T03:24:35.055Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@remix-run/router-G1b6SE1w.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875056,
+  "iso": "2026-10-28T03:24:35.056Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-router-DZj_5xeJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875056,
+  "iso": "2026-10-28T03:24:35.056Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-router-dom-ChDnDcJ5.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875058,
+  "iso": "2026-10-28T03:24:35.058Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-jsonrpc-2tvYB2ki.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875058,
+  "iso": "2026-10-28T03:24:35.058Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@chevrotain/utils-DQUjfX_E.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875059,
+  "iso": "2026-10-28T03:24:35.059Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@chevrotain/gast-gcozT-t7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875059,
+  "iso": "2026-10-28T03:24:35.059Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lodash-es-BXP4gKw0.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875059,
+  "iso": "2026-10-28T03:24:35.059Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@chevrotain/regexp-to-ast-bTPMYxoV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875060,
+  "iso": "2026-10-28T03:24:35.060Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-chevrotain-allstar-DWbqAQuj.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875061,
+  "iso": "2026-10-28T03:24:35.061Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-languageserver-types-BvFum5qp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875061,
+  "iso": "2026-10-28T03:24:35.061Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-languageserver-textdocument-CKBVUiR3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875061,
+  "iso": "2026-10-28T03:24:35.061Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vscode-uri-CXwoqG48.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875064,
+  "iso": "2026-10-28T03:24:35.064Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-is-HDPOLZQC.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875064,
+  "iso": "2026-10-28T03:24:35.064Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-hoist-non-react-statics-wr0LLmrn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875065,
+  "iso": "2026-10-28T03:24:35.065Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-sync-external-store-Cjsxf-Rp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875067,
+  "iso": "2026-10-28T03:24:35.067Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-redux-iECH7HV-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875067,
+  "iso": "2026-10-28T03:24:35.067Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-axios-B3U2_j9c.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875068,
+  "iso": "2026-10-28T03:24:35.068Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dayjs-Do20EDTL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875068,
+  "iso": "2026-10-28T03:24:35.068Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-util-DT_YP9Ed.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875089,
+  "iso": "2026-10-28T03:24:35.089Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@emotion/hash-WldOFDRm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875089,
+  "iso": "2026-10-28T03:24:35.089Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@emotion/unitless-D-2QRLVp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875089,
+  "iso": "2026-10-28T03:24:35.089Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-stylis-BeIOFSfa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875091,
+  "iso": "2026-10-28T03:24:35.091Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/cssinjs-DPu15efQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875091,
+  "iso": "2026-10-28T03:24:35.091Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/cssinjs-utils-rDFqZVZC.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875091,
+  "iso": "2026-10-28T03:24:35.091Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-classnames-C9VH3ZEw.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875093,
+  "iso": "2026-10-28T03:24:35.093Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-resize-observer-polyfill-B1PUzC5B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875093,
+  "iso": "2026-10-28T03:24:35.093Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-resize-observer-48TfWyIQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875098,
+  "iso": "2026-10-28T03:24:35.098Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-motion-D794J-sE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875098,
+  "iso": "2026-10-28T03:24:35.098Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/icons-jPEBg_Pd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875098,
+  "iso": "2026-10-28T03:24:35.098Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-overflow-D-9qyu_e.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875098,
+  "iso": "2026-10-28T03:24:35.098Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/portal-DndE7hK-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875100,
+  "iso": "2026-10-28T03:24:35.100Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/trigger-BL_5Y9ZK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875102,
+  "iso": "2026-10-28T03:24:35.102Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-dropdown--sroKoAN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875103,
+  "iso": "2026-10-28T03:24:35.103Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-menu-DoflBrBU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875103,
+  "iso": "2026-10-28T03:24:35.103Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tabs-Grxvpt_J.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875104,
+  "iso": "2026-10-28T03:24:35.104Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-virtual-list-DhydDicd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875107,
+  "iso": "2026-10-28T03:24:35.107Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-select-DtGPTKil.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875107,
+  "iso": "2026-10-28T03:24:35.107Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tree-UQP69qcm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875108,
+  "iso": "2026-10-28T03:24:35.108Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-cascader-TevedAKq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875108,
+  "iso": "2026-10-28T03:24:35.108Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/color-picker-B7gKrLP4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875108,
+  "iso": "2026-10-28T03:24:35.108Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-segmented-VZUkU8Bb.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875110,
+  "iso": "2026-10-28T03:24:35.110Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/assets-8529vj7n.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875111,
+  "iso": "2026-10-28T03:24:35.111Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-antd-Br-zbjW3.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875112,
+  "iso": "2026-10-28T03:24:35.112Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@gientech/modual-rME4iV4s.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875112,
+  "iso": "2026-10-28T03:24:35.112Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/mini-decimal-C5ji-Gbg.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875132,
+  "iso": "2026-10-28T03:24:35.132Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-CbDlLxqx.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875133,
+  "iso": "2026-10-28T03:24:35.133Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/fviewer-HACx_5JD.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875134,
+  "iso": "2026-10-28T03:24:35.134Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/xviewer-CaFpVpgL.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875137,
+  "iso": "2026-10-28T03:24:35.137Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/nodegraph-D8VGdo4C.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875138,
+  "iso": "2026-10-28T03:24:35.138Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-HSlOjuzV.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875141,
+  "iso": "2026-10-28T03:24:35.141Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/aichat-DR_34d8u.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-input-BwypWseM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-input-number-Dmu7KxRp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-slider-DrsjloQF.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-drawer-COH7T0eR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/async-validator-QXnoYRSt.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-dialog-T_17mQyc.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-field-form-HR_0JLhV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-image-krGytnpJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tooltip-nvIpzclO.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875153,
+  "iso": "2026-10-28T03:24:35.153Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-rate-BwVPgZLf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-notification-CYajPFXA.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-switch-Dv7O9j9Z.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-steps-f3dROYkX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-checkbox-BY-AsWHi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-compute-scroll-into-view-R6koymWn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-scroll-into-view-if-needed-BVrQ-1O6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875154,
+  "iso": "2026-10-28T03:24:35.154Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-table-ZtXsVepS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875163,
+  "iso": "2026-10-28T03:24:35.163Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-chevrotain-DRE5d59Q.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875163,
+  "iso": "2026-10-28T03:24:35.163Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rc-component/context-Cjz6d24m.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875166,
+  "iso": "2026-10-28T03:24:35.166Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-throttle-debounce-CUWDS_la.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875166,
+  "iso": "2026-10-28T03:24:35.166Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-pagination-V_T5fwrN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875166,
+  "iso": "2026-10-28T03:24:35.166Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-tree-select-CPitVxWR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875166,
+  "iso": "2026-10-28T03:24:35.166Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-toggle-selection-BHUZwh74.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875167,
+  "iso": "2026-10-28T03:24:35.167Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-textarea-B5p8ZCWc.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875167,
+  "iso": "2026-10-28T03:24:35.167Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-copy-to-clipboard-BgipCsi3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875167,
+  "iso": "2026-10-28T03:24:35.167Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-collapse-C7-lnbkK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875167,
+  "iso": "2026-10-28T03:24:35.167Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-progress-vXtUPA8R.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875168,
+  "iso": "2026-10-28T03:24:35.168Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-upload-B7qCCHde.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875168,
+  "iso": "2026-10-28T03:24:35.168Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-zustand-Dpt_zCp_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875168,
+  "iso": "2026-10-28T03:24:35.168Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@umijs/use-params-rEwdF-07.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875168,
+  "iso": "2026-10-28T03:24:35.168Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dequal-Wows3SfR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875168,
+  "iso": "2026-10-28T03:24:35.168Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-swr-DY8sag0q.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875168,
+  "iso": "2026-10-28T03:24:35.168Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-safe-stable-stringify-DIgJKYFX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875169,
+  "iso": "2026-10-28T03:24:35.169Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-langium-BoUWGQPS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875169,
+  "iso": "2026-10-28T03:24:35.169Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ctrl/tinycolor-riLredlm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875169,
+  "iso": "2026-10-28T03:24:35.169Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mermaid-js/parser-D1j6u-_I.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875169,
+  "iso": "2026-10-28T03:24:35.169Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@umijs/route-utils-CUdvs3BF.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875169,
+  "iso": "2026-10-28T03:24:35.169Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-path-to-regexp-CpWReE8w.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875170,
+  "iso": "2026-10-28T03:24:35.170Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/pro-provider-BOZ5zpnP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875170,
+  "iso": "2026-10-28T03:24:35.170Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-plain-object-C7BF5Ngm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875170,
+  "iso": "2026-10-28T03:24:35.170Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-immer-B4bpQJe3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875170,
+  "iso": "2026-10-28T03:24:35.170Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/pro-utils-DwHPWKM1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875170,
+  "iso": "2026-10-28T03:24:35.170Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/slate-tidbuv5U.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875170,
+  "iso": "2026-10-28T03:24:35.170Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-direction-DiMwLpYF.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875171,
+  "iso": "2026-10-28T03:24:35.171Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-hotkey-BT8vj_Ox.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875171,
+  "iso": "2026-10-28T03:24:35.171Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/utils-DabkdXFm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@juggle/resize-observer-C8OzoCMD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-history-BG0LpyFv.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-clsx-B9VHljUI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/slate-utils-Dzniox1g.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-react-DIGNgWCS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/react-hotkeys-D6PoquOm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-tracked-BmE9raLM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875172,
+  "iso": "2026-10-28T03:24:35.172Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-jotai-x-DDmpveao.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875173,
+  "iso": "2026-10-28T03:24:35.173Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-proxy-compare-DvF22pMo.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875173,
+  "iso": "2026-10-28T03:24:35.173Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/slate-react-CzvwplfT.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875173,
+  "iso": "2026-10-28T03:24:35.173Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-jotai-B1x7BALy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875173,
+  "iso": "2026-10-28T03:24:35.173Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lodash.mapvalues-BNmYEpG3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875173,
+  "iso": "2026-10-28T03:24:35.173Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-hyperscript-CHjcFkiw.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875173,
+  "iso": "2026-10-28T03:24:35.173Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-zustand-x-nfS0gTxM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-compose-refs-Cm_lXX7s.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-deep-compare-B7HFRtLx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-jotai-optics-CDc-PJOS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/react-utils-CGV1UHxR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-optics-ts-CWCUw4ds.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-combobox-BlK8iPzE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-mention-CgLLYhDZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-slot-Czvai5g7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-timer-DdKHrDhs.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-ts-dedent-D-tao7Fd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875174,
+  "iso": "2026-10-28T03:24:35.174Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-dispatch-kxCwF96_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875176,
+  "iso": "2026-10-28T03:24:35.176Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-test-utils-CMfME8qg.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875176,
+  "iso": "2026-10-28T03:24:35.176Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-selection-BJkelepr.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875176,
+  "iso": "2026-10-28T03:24:35.176Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-interpolate-BoyWyR1l.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875176,
+  "iso": "2026-10-28T03:24:35.176Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-transition-m1gYyL0b.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875176,
+  "iso": "2026-10-28T03:24:35.176Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-color-Cfqiy2ga.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875176,
+  "iso": "2026-10-28T03:24:35.176Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@braintree/sanitize-url-DTxIIdJL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-internmap-BkD7Hj8s.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dagre-d3-es-BE7hVDk2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-classify-character-CIK7-A0a.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cose-base-Cn2yi8Dy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-zoom-BvFKO7OZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-ease-DRPgKoYJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875177,
+  "iso": "2026-10-28T03:24:35.177Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cytoscape-cose-bilkent-BlKjT5Wq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875178,
+  "iso": "2026-10-28T03:24:35.178Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dompurify-E0SPtK4n.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875179,
+  "iso": "2026-10-28T03:24:35.179Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-core-xqGyNzg6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875179,
+  "iso": "2026-10-28T03:24:35.179Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-khroma-WrynedUY.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875179,
+  "iso": "2026-10-28T03:24:35.179Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-array-BZ2AL3Gg.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875181,
+  "iso": "2026-10-28T03:24:35.181Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-path-AMhxdxS6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875181,
+  "iso": "2026-10-28T03:24:35.181Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-uuid-pQ80YA7_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875181,
+  "iso": "2026-10-28T03:24:35.181Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-character-Bcm1tP9o.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875181,
+  "iso": "2026-10-28T03:24:35.181Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-decode-named-character-reference-C3-224fz.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875182,
+  "iso": "2026-10-28T03:24:35.182Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-time-2aIq57hV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875182,
+  "iso": "2026-10-28T03:24:35.182Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-resolve-all-PQCKh0dx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-scale-chromatic-B4gdILZI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-time-format-CJWvqMJi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@iconify/utils-D43P9bW3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-html-tag-name-DbKNfynz.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-label-D6r-Fp6V.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-axis-CbT0oJG-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-chunked-DrRIdSP-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-utils-C476wn0J.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-parse-entities-DUPMa2JE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875183,
+  "iso": "2026-10-28T03:24:35.183Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mdast-util-to-string-DWnGjEoP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-hierarchy-CrAEavjc.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-JMJJkJ7f.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-combine-extensions-d8XJZrgA.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-core-commonmark-BvtFroPU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-subtokenize-B0G4wCQY.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-shape-Cbh0wPdD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-title-D9P6wEYK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875184,
+  "iso": "2026-10-28T03:24:35.184Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-space-BLX5PWg0.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875185,
+  "iso": "2026-10-28T03:24:35.185Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-plain-obj-D1TmHDR4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875185,
+  "iso": "2026-10-28T03:24:35.185Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-format-CbPl0o6b.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875185,
+  "iso": "2026-10-28T03:24:35.185Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-whitespace-B0pwdzpi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875185,
+  "iso": "2026-10-28T03:24:35.185Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-class-variance-authority-BRQasHcV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875185,
+  "iso": "2026-10-28T03:24:35.185Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-normalize-identifier-C9ANKk3v.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-scale-C_Q_a09Z.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-d3-sankey-CeTsMvs2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-factory-destination-D9NyL13B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/cn-V8oJMXBH.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-decode-string-8qDLm5JL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-bail-AjTTgz1N.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mdast-util-from-markdown-J2jiew3Q.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-remark-parse-BMJ06dv3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vfile-DXPHFxAZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-unified-DZion5-J.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-extend-l1xzC_Eq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cytoscape-fcose-B2GyyU3d.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-axios-mock-adapter-Ye7Rc2dk.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875186,
+  "iso": "2026-10-28T03:24:35.186Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@tanstack/react-query-DMK1HGqo.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875187,
+  "iso": "2026-10-28T03:24:35.187Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-trough-DBG-YvTQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875187,
+  "iso": "2026-10-28T03:24:35.187Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-vfile-message-B3xbjJvk.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875187,
+  "iso": "2026-10-28T03:24:35.187Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@tanstack/query-core-Df_yEnq1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875187,
+  "iso": "2026-10-28T03:24:35.187Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-fast-deep-equal-DhgPJNJw.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875187,
+  "iso": "2026-10-28T03:24:35.187Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-uid-CpW6Dhpp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875187,
+  "iso": "2026-10-28T03:24:35.187Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-roughjs-CqrMvzjB.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875188,
+  "iso": "2026-10-28T03:24:35.188Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-unist-util-stringify-position-BLjin0oJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875188,
+  "iso": "2026-10-28T03:24:35.188Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-micromark-util-decode-numeric-character-reference-DRnCnno4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875188,
+  "iso": "2026-10-28T03:24:35.188Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-is-buffer-z6hZpZBX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-side-effect-BUoEACwh.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-markdown-BshDNE40.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-object-assign-CBn4c0Xx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lucide-react-8HBUVj5j.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-prop-types-CxS-12Ye.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-fast-compare-DmPoLI2m.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-router-middleware-plus-B841rS8h.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-helmet-BFPF63ZV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875189,
+  "iso": "2026-10-28T03:24:35.189Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-tailwind-merge-BOZU2X2x.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/icons-svg-DOytPBt1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-redux-BV6oXUMW.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-DGvHVUnD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-tslib-BAgmoMtJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-theme-BtJ16705.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-rc-picker-S_X3fLjp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-layouts-CDMoSELn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875195,
+  "iso": "2026-10-28T03:24:35.195Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@rematch/core-BftT4oX7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-styled-components-BpoOz7An.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-animejs-Cyp1bMlK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-elements-Dg2vkPRJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/fviewer-CUVY0wnd.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-crypto-js-CBtca5jQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@ant-design/pro-layout-D9Los987.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-layout-base-sIU3_48r.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slate-B-ra2PhQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875197,
+  "iso": "2026-10-28T03:24:35.197Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-marked-CWdHQ5Vu.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875198,
+  "iso": "2026-10-28T03:24:35.198Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-dom-CjqO5MCD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875198,
+  "iso": "2026-10-28T03:24:35.198Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/assets-DLl0IKOx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875198,
+  "iso": "2026-10-28T03:24:35.198Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-components-B1bLrbCP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875198,
+  "iso": "2026-10-28T03:24:35.198Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-fup9RT0c.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875198,
+  "iso": "2026-10-28T03:24:35.198Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-lodash-BUG7z44Z.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875199,
+  "iso": "2026-10-28T03:24:35.199Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-pdfjs-dist-BDXe00Lx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875199,
+  "iso": "2026-10-28T03:24:35.199Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/rtext-D0UAD6TO.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875199,
+  "iso": "2026-10-28T03:24:35.199Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cytoscape-DONWqf9-.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875200,
+  "iso": "2026-10-28T03:24:35.200Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/zui-icons-fKune5no.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875200,
+  "iso": "2026-10-28T03:24:35.200Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/nodegraph-CqIJ361Y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875201,
+  "iso": "2026-10-28T03:24:35.201Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-antd-DNTXxy0A.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875201,
+  "iso": "2026-10-28T03:24:35.201Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mermaid-Cc48HIgL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875202,
+  "iso": "2026-10-28T03:24:35.202Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/xviewer-Z-2X70vr.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875310,
+  "iso": "2026-10-28T03:24:35.310Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@gientech/modual-DGMMTozi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875497,
+  "iso": "2026-10-28T03:24:35.497Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/nav-logo-BKaOCDqi.png",
+  "dur": null
+ },
+ {
+  "at": 1793157875497,
+  "iso": "2026-10-28T03:24:35.497Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/Detail-C0zpYzCL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@react-dnd/invariant-CpXzGp22.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@react-dnd/asap-kGd5DMWm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@react-dnd/shallowequal-D1ZyZBg9.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/service-B9MgrB10.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-chardet-A-59d5In.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/service-Boj7O4fV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-Bdf7gaUG.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875498,
+  "iso": "2026-10-28T03:24:35.498Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/FolderDetail-Cv_kmfsL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/UploadBox-DrGjqsbN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-yCQsJpO7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-ahooks-DVJVWIfD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/core-DVcwp5sJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/scroll-bar-HNqfSP0B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/observe-dom-DJd7UTHU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@better-scroll/mouse-wheel-fxJoUGdi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-papaparse-Bme44J-s.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/ChatViewEditor-4G28Yv7y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875499,
+  "iso": "2026-10-28T03:24:35.499Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-block-quote-BQzxADWx.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-code-block-B6CK9sK4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-heading-DRZI2V2y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-horizontal-rule-D9JnwdFR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-link-C5oOkjZ5.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-normalizers-324-wJNI.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-media-DjzAr4sL.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875500,
+  "iso": "2026-10-28T03:24:35.500Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-js-video-url-parser-B8w81Y1V.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875501,
+  "iso": "2026-10-28T03:24:35.501Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-excalidraw-2n5lGC64.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875501,
+  "iso": "2026-10-28T03:24:35.501Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-layout-q8wCPgiB.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875501,
+  "iso": "2026-10-28T03:24:35.501Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-table-DRP7AEym.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875501,
+  "iso": "2026-10-28T03:24:35.501Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-resizable-JKMCuOlE.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875502,
+  "iso": "2026-10-28T03:24:35.502Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-list-CimoSUoq.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875502,
+  "iso": "2026-10-28T03:24:35.502Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-reset-node-CfWKg-Io.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-date-CtJ59M1h.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-basic-marks-Qq4fPvKp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-font-C6wAXYH4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-highlight-CJJ_OHMJ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-kbd-CQ5t7Xb7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-alignment-DaGZgbet.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-indent-ChtUriZ7.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875503,
+  "iso": "2026-10-28T03:24:35.503Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-indent-list-BMoARx8u.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875504,
+  "iso": "2026-10-28T03:24:35.504Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-line-height-jB9MQu-8.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875504,
+  "iso": "2026-10-28T03:24:35.504Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-node-id-DiHGyhtn.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-juice-DpTwxJyM.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-juice-CyjdyX0m.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cheerio-DPk_ZCfK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cheerio-select-CzLFjvbK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-css-what-Bytf5p6M.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-css-select-BE5iQrl3.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-domutils-DkiVtbq2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-domhandler-CaWv5mPp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875505,
+  "iso": "2026-10-28T03:24:35.505Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-domelementtype-C_FFwB5S.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875506,
+  "iso": "2026-10-28T03:24:35.506Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dom-serializer-BYPahC0Y.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875506,
+  "iso": "2026-10-28T03:24:35.506Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-entities-Dy7ke_GP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875506,
+  "iso": "2026-10-28T03:24:35.506Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-boolbase-DATFwCNf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875506,
+  "iso": "2026-10-28T03:24:35.506Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-nth-check-BC_PyA53.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875506,
+  "iso": "2026-10-28T03:24:35.506Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-htmlparser2-D_N81dNa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875506,
+  "iso": "2026-10-28T03:24:35.506Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-parse5-BfHtatPe.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875507,
+  "iso": "2026-10-28T03:24:35.507Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-parse5-htmlparser2-tree-adapter-rFCKmjPA.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875507,
+  "iso": "2026-10-28T03:24:35.507Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-mensch-D9ES5LPR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875507,
+  "iso": "2026-10-28T03:24:35.507Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-slick-BL90hJUm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875507,
+  "iso": "2026-10-28T03:24:35.507Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-prismjs-BjwqIUeu.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-cmdk-De2eEkej.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-dialog-D_B-hr8b.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/primitive-Bn0KTc7p.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-context-BopelqAm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-id-Bp_vzS1M.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-layout-effect-DgEmNECa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-controllable-state-BUGCUryK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-callback-ref-xQ7R-f4f.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875509,
+  "iso": "2026-10-28T03:24:35.509Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-dismissable-layer-ClFHGHrp.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875510,
+  "iso": "2026-10-28T03:24:35.510Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-primitive-Ci9SZOT6.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875510,
+  "iso": "2026-10-28T03:24:35.510Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-escape-keydown-DvdTBiSK.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-focus-scope-DQaTzBDm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-portal-BKMWFBKy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-presence-Cn89TJcQ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-focus-guards-VTnFt3nj.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-remove-scroll-D4rGvAY2.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-remove-scroll-bar-BEhLQmLf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-style-singleton-FgWc8aKN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-get-nonce-C-Z93AgS.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-sidecar-BHQJZXj_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875511,
+  "iso": "2026-10-28T03:24:35.511Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-callback-ref-WqgaHXH4.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-aria-hidden-DvXkyWUv.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-popover-Cy9c5esV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-popper-DkIZLouf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/react-dom-BU4dKUXN.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/dom-DiWzokwu.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/core-t3cway3_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@floating-ui/utils-CMjlLL6V.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875513,
+  "iso": "2026-10-28T03:24:35.513Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-arrow-C51mSgOk.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875514,
+  "iso": "2026-10-28T03:24:35.514Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-size-CR2ISWFG.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875514,
+  "iso": "2026-10-28T03:24:35.514Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-caption-CdN95xrb.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875514,
+  "iso": "2026-10-28T03:24:35.514Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-textarea-autosize-DlcpCj2x.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-latest-D_4D0ARz.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-isomorphic-layout-effect-BIwmawVR.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-use-composed-ref-BKr6Nq-B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-separator-jowEq29N.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-lite-youtube-embed-D0FuPEO_.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-tweet-B8upbvh1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-dropdown-menu-whSqHmfm.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-menu-xBwkkwEU.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875516,
+  "iso": "2026-10-28T03:24:35.516Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-collection-wwx5cKoX.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875517,
+  "iso": "2026-10-28T03:24:35.517Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-direction-DegblRxy.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875519,
+  "iso": "2026-10-28T03:24:35.519Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-roving-focus-DNmT1SWf.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875519,
+  "iso": "2026-10-28T03:24:35.519Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-checkbox-Le6q3COa.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875519,
+  "iso": "2026-10-28T03:24:35.519Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@radix-ui/react-use-previous-Beh6ehkD.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875519,
+  "iso": "2026-10-28T03:24:35.519Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-day-picker-C7ENMtO1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875519,
+  "iso": "2026-10-28T03:24:35.519Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@date-fns/tz-PQ6C_Hr0.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875520,
+  "iso": "2026-10-28T03:24:35.520Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-date-fns-BNPKsZ0M.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875520,
+  "iso": "2026-10-28T03:24:35.520Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@udecode/plate-toggle-xsEjroUH.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875520,
+  "iso": "2026-10-28T03:24:35.520Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/constant-CMxUDVHr.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875520,
+  "iso": "2026-10-28T03:24:35.520Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@microsoft/fetch-event-source-BzSw2dPi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875520,
+  "iso": "2026-10-28T03:24:35.520Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/tools-B7Gx9P0B.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875522,
+  "iso": "2026-10-28T03:24:35.522Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/RepeatFaq-M57z0atZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875522,
+  "iso": "2026-10-28T03:24:35.522Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/faqService-DAQW_jrv.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875522,
+  "iso": "2026-10-28T03:24:35.522Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/DrawerContent-BhfnPJIi.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875522,
+  "iso": "2026-10-28T03:24:35.522Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-D0veISvP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875522,
+  "iso": "2026-10-28T03:24:35.522Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-ifH6HTWV.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-@mxmweb/file-viewer-DFRp9x92.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-CZUr-VlV.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-tweet-YvEzRQr9.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/ChatViewEditor-Ba8P6fS1.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-Cpm6Y9Eg.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/Detail-Bg9KCPG9.css",
+  "dur": null
+ },
+ {
+  "at": 1793157875523,
+  "iso": "2026-10-28T03:24:35.523Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/autoTag-DSGIhi1X.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875524,
+  "iso": "2026-10-28T03:24:35.524Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/index-CVOnzZaP.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875524,
+  "iso": "2026-10-28T03:24:35.524Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-dnd-html5-backend-basGMNU1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875524,
+  "iso": "2026-10-28T03:24:35.524Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-react-dnd-CU6UwJG1.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875524,
+  "iso": "2026-10-28T03:24:35.524Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/vendor-dnd-core-BlYvCx9C.js",
+  "dur": null
+ },
+ {
+  "at": 1793157875524,
+  "iso": "2026-10-28T03:24:35.524Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/auth/resource/getMenusByUser",
+  "dur": null
+ },
+ {
+  "at": 1793157875954,
+  "iso": "2026-10-28T03:24:35.954Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/knowledge_base_title_icon-vv8ccXin.svg",
+  "dur": null
+ },
+ {
+  "at": 1793157875983,
+  "iso": "2026-10-28T03:24:35.983Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/bizLabel/historyOfKbLabel?kbId=36",
+  "dur": null
+ },
+ {
+  "at": 1793157875984,
+  "iso": "2026-10-28T03:24:35.984Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/getKbById?id=36",
+  "dur": null
+ },
+ {
+  "at": 1793157875984,
+  "iso": "2026-10-28T03:24:35.984Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=1",
+  "dur": null
+ },
+ {
+  "at": 1793157875984,
+  "iso": "2026-10-28T03:24:35.984Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=2",
+  "dur": null
+ },
+ {
+  "at": 1793157875985,
+  "iso": "2026-10-28T03:24:35.985Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=4",
+  "dur": null
+ },
+ {
+  "at": 1793157876102,
+  "iso": "2026-10-28T03:24:36.102Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=36&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793157876232,
+  "iso": "2026-10-28T03:24:36.232Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/icon-pdf-BNvA7klg.svg",
+  "dur": null
+ }
+]

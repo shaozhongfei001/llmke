@@ -1,0 +1,47 @@
+{
+ "marker": "AG3HIST498491",
+ "query": "AG3HIST498491 智造贷最高授信额度是多少？",
+ "answered": true,
+ "answerBeforeTail": "密制造的授信额度是多少？\nR12默认问答配置\n10:39\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:39\n智造贷最高额度是多少？\nR12默认问答配置\n10:37\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:36\n智造贷最高额度是多少？\nR12默认问答配置\n10:36\n智造贷是什么类型的产品？\nR12默认问答配置\n10:36\n智造贷这款产品最多能给企业批多少授信额度\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:33\nAG3HIST498491 智造贷最高授\n26-10-28 10:45:02\nAG3HIST498491 智造贷最高授信额度是多少？\n26-10-28 10:45:02\n思考完成\n(用时 26 秒)\n智造贷的最高授信额度为人民币8000万元。1其中信用方式部分的最高额度为1000万元，其余部分可通过应收账款质押、设备抵押或核心企业保证等方式增信。1\n知识溯源 1\n本次回答总计消耗 237 tokens, 等待总计耗时 26秒\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+ "sidebarHitAfterReload": true,
+ "clicked": true,
+ "restoredAnswer": true,
+ "restoredTrace": true,
+ "restoredMarker": true,
+ "sessionCallsBeforeReload": [
+  {
+   "m": "GET",
+   "url": "http://127.0.0.1:18088/proxy/qa/dialogue/list?pageNo=1&pageSize=16&sysType=INT_SESSION",
+   "post": ""
+  },
+  {
+   "m": "GET",
+   "url": "http://127.0.0.1:18088/proxy/qa/dialogue/getDialogBySessionId?sessionId=7f7e643757d3d7b8e35f36ff8bbd1de7",
+   "post": ""
+  },
+  {
+   "m": "POST",
+   "url": "http://127.0.0.1:18088/proxy/qa/dialogue/create",
+   "post": "{\"label\":\"AG3HIST498491 智造贷最高授\",\"sessionId\":\"7f7e643757d3d7b8e35f36ff8bbd1de7\",\"sysType\":\"INT_SESSION\",\"configId\":\"1\"}"
+  },
+  {
+   "m": "POST",
+   "url": "http://127.0.0.1:18088/proxy/qa/ai/question_re",
+   "post": "{\"configId\":\"1\",\"content\":\"AG3HIST498491 智造贷最高授信额度是多少？\",\"fileUids\":[],\"lastDate\":1793155502071,\"name\":\"AG3HIST498491 智造贷最高授\",\"queryId\":\"query-643757d3d7b8e35f36ff8bbd1de7e65e\",\"sessionId\":\"7f7e643757d3d7b8e35f36ff8bbd1de7\",\"type\":\"text\",\"audioUrl\":\"\",\"enableThinking\":false,\"enableWebsearch\":false}"
+  },
+  {
+   "m": "GET",
+   "url": "http://127.0.0.1:18088/proxy/qa/ai/recommendQuestion?queryId=query-643757d3d7b8e35f36ff8bbd1de7e65e&configId=",
+   "post": ""
+  }
+ ],
+ "sessionCallsAfterReload": [
+  {
+   "m": "GET",
+   "url": "http://127.0.0.1:18088/proxy/qa/dialogue/getDialogBySessionId?sessionId=7f7e643757d3d7b8e35f36ff8bbd1de7",
+   "post": ""
+  }
+ ],
+ "answerAfterTail": "度是多少？\nR12默认问答配置\n10:37\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:36\n智造贷最高额度是多少？\nR12默认问答配置\n10:36\n智造贷是什么类型的产品？\nR12默认问答配置\n10:36\n智造贷这款产品最多能给企业批多少授信额度\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:33\nAG3HIST498491 智造贷最高授\n26-10-28 10:45:13\nAG3HIST498491 智造贷最高授信额度是多少？\n26-10-28 10:45:32\n思考完成\n(用时 26 秒)\n智造贷的最高授信额度为人民币8000万元。1其中信用方式部分的最高额度为1000万元，其余部分可通过应收账款质押、设备抵押或核心企业保证等方式增信。1\n知识溯源 1\n本次回答总计消耗 237 tokens, 等待总计耗时 26秒\n客户申请智造贷时，信用方式之外的增信方式具体有哪些操作流程？\n如果客户需要超过1000万元的授信额度，还可以通过哪些方式来提升额度？\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+ "ok": true
+}

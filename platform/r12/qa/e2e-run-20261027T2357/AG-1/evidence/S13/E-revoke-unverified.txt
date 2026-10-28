@@ -1,0 +1,2 @@
+S13-05 UNVERIFIED 原因：撤权动作=对 gienrag.user_privilege 的写入，违反本轮零写入约束。
+可替代验证：S13-06 已证登出可服务端吊销 token（401）。

@@ -1,0 +1,6 @@
+{
+ "key": "gitech_ril:rag_ai",
+ "tokenLen": 237,
+ "userName": "admin",
+ "method": "simpleLogin(server-issued token) + AppPassport localStorage"
+}

@@ -1,0 +1,53 @@
+{
+ "A_详情页实际使用键(convertedFilePath)": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.md",
+  "http": 200,
+  "errorCode": null,
+  "errorMsg": null,
+  "has_url": true,
+  "fetch": {
+   "status": 200,
+   "bytes": 550
+  }
+ },
+ "B_AG3引用链路失败键(tables/授信台账.md)": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/授信台账.md",
+  "http": 404,
+  "errorCode": "10002",
+  "errorMsg": "知识库文件不存在",
+  "has_url": false
+ },
+ "C_清单tableFilePaths键(table-0-授信台账.md)": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0-授信台账.md",
+  "http": 200,
+  "errorCode": null,
+  "errorMsg": null,
+  "has_url": true,
+  "fetch": {
+   "status": 200,
+   "bytes": 550
+  }
+ },
+ "D_落盘txt(.xlsx.txt)": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt",
+  "http": 200,
+  "errorCode": null,
+  "errorMsg": null,
+  "has_url": true,
+  "fetch": {
+   "status": 200,
+   "bytes": 550
+  }
+ },
+ "E_docx-table的table-0.md": {
+  "key": "r12-rag/kb_9/docx-table.docx/V0/parsed/tables/table-0.md",
+  "http": 200,
+  "errorCode": null,
+  "errorMsg": null,
+  "has_url": true,
+  "fetch": {
+   "status": 200,
+   "bytes": 168
+  }
+ }
+}

@@ -1,0 +1,43 @@
+{
+ "steps": [],
+ "badge": {
+  "text": "25",
+  "x": 1386,
+  "y": 430,
+  "cls": ""
+ },
+ "step_badge": {
+  "events": [],
+  "presign": 0,
+  "drawer": false
+ },
+ "panel_html": "<div aria-describedby=\":r3d:\" style=\"white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 258px;\">R12FIX-product-loan.docx</div>",
+ "panel_controls": [
+  {
+   "tag": "DIV",
+   "cls": "ant-dropdown-trigger flex items-center cursor-pointer hover:",
+   "text": "admin",
+   "x": 1547,
+   "y": 30
+  },
+  {
+   "tag": "BUTTON",
+   "cls": "relative w-8 h-8 flex items-center justify-center rounded-lg",
+   "text": "",
+   "x": 978,
+   "y": 935
+  }
+ ],
+ "step_panel_item": {
+  "events": [
+   "knowledge_referenceFile_title:click"
+  ],
+  "presign": 0,
+  "drawer": true,
+  "drawer_text": "R12FIX-product-loan.docx\n1 / 1\n111%"
+ },
+ "presign_total": 0,
+ "all_events": [
+  "knowledge_referenceFile_title:click"
+ ]
+}

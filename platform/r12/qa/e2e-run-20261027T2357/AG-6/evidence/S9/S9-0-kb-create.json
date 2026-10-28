@@ -1,0 +1,42 @@
+{
+ "time": "2026-10-28 11:43:58+0800",
+ "kb_name": "R14-E2E-AG6-1143",
+ "create_http": 200,
+ "create_body": {
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": {
+   "id": "38",
+   "kbName": "R14-E2E-AG6-1143",
+   "primitiveName": "kb_38",
+   "kbType": 1,
+   "kbDes": "R14 E2E AG-6 FAQ 全链路验收（用完即删）",
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_38/",
+   "status": 1,
+   "fileTotalSize": null,
+   "fileCount": null,
+   "permission": null,
+   "chunkSize": 512,
+   "fileType": "naive",
+   "chunkOverlap": 50,
+   "splitRegex": null,
+   "embeddingModelName": "bge-m3",
+   "modelName": "qwen2.5-7b-instruct",
+   "multiModelName": "qwen2.5-vl-3b-instruct",
+   "faqModelName": "qwen2.5-7b-instruct",
+   "generateGraphModelName": "qwen2.5-7b-instruct",
+   "kbLabel": null,
+   "fileFaqMaxNums": 0,
+   "similarQuestionMaxNums": 1,
+   "enablePolish": false,
+   "graphPrompt": null,
+   "platform": "rag-qa",
+   "label": null,
+   "chunkType": null,
+   "privateKb": 0
+  }
+ },
+ "kb_id_from_response": "38",
+ "elapsed": 0.048
+}

@@ -1,0 +1,12 @@
+[
+ {
+  "s": 200,
+  "m": "GET",
+  "u": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy="
+ },
+ {
+  "s": 200,
+  "m": "POST",
+  "u": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream"
+ }
+]

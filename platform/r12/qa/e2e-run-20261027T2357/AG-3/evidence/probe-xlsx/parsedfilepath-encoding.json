@@ -1,0 +1,32 @@
+{
+ "note": "核对 parsedFilePath 字段编码与 table_name",
+ "refs": [
+  {
+   "type": "table",
+   "chunk_type": "table",
+   "table_name": "授信台账",
+   "table_name_raw_hex": "e68e88e4bfa1e58fb0e8b4a6",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt",
+   "parsedFilePath_raw_hex": "687474703a2f2f3132372e302e302e313a31393030302f7231322d7261672f6b625f392f5231324649582d6372656469742d6c65646765722e786c73782f56302f7061727365642f5231324649582d6372656469742d6c65646765722e786c73782e7478",
+   "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx"
+  },
+  {
+   "type": "text",
+   "chunk_type": "text",
+   "table_name": "",
+   "table_name_raw_hex": "",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/parsed/R12FIX-product-loan(1).docx.txt",
+   "parsedFilePath_raw_hex": "687474703a2f2f3132372e302e302e313a31393030302f7231322d7261672f6b625f392f5231324649582d70726f647563742d6c6f616e2e646f63782f56312f7061727365642f5231324649582d70726f647563742d6c6f616e2831292e646f63782e74",
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx"
+  },
+  {
+   "type": "text",
+   "chunk_type": "text",
+   "table_name": "",
+   "table_name_raw_hex": "",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt",
+   "parsedFilePath_raw_hex": "687474703a2f2f3132372e302e302e313a31393030302f7231322d7261672f6b625f392f5231324649582d70726f647563742d696e74726f2e707074782f56312f7061727365642f5231324649582d70726f647563742d696e74726f2831292e70707478",
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx"
+  }
+ ]
+}

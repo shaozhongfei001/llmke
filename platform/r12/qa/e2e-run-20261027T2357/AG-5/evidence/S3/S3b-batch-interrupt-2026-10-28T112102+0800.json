@@ -1,0 +1,143 @@
+{
+ "ts": "2026-10-28 11:20:39+0800",
+ "kb_id": 36,
+ "batch": {
+  "concurrent_elapsed": 0.14,
+  "files": [
+   {
+    "fname": "AG5-BATCH1-pdf-112039.pdf",
+    "uid": "ag5-1793157639728-AG5-BATCH1-p",
+    "http": 200,
+    "api_success": true,
+    "file_id": "509",
+    "resp_msg": null,
+    "body": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"509\", \"kbId\": \"36\", \"fileName\": \"AG5-BATCH1-pdf-112039.pdf\", \"fileSize\": 3577.0, \"size\": \"3577.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_36/AG5-BATCH1-pdf-112039.pdf/V0/AG5-BATCH1-pdf-112039.pdf\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-BATCH1-pdf-112039.pdf\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"http://127.0.0.1:19000/r12-rag/kb_36/\", \"synLogs\": [], \"kbFiles\": null, \"isFolder\": null, \"imagePaths\": [], \"tableFilePaths\": null, \"pdfPage\": null, \"nodeCount\": 0, \"edgeCount\": 0, \"uid\": \"ag5-1793157639728-AG5-BATCH1-p\", \"graphParseStatus\": 1, \"uploadStatus\": 1, \"message\": null, \"",
+    "file_status": 3,
+    "status_name": "3(解析成功)",
+    "waited": 8.1,
+    "es": {
+     "kb_36": 2,
+     "table_chunks_kb_36": 0,
+     "table_summary_kb_36": 0
+    },
+    "es_total": 2,
+    "db_row": [
+     {
+      "id": "509",
+      "kb_id": "36",
+      "file_name": "AG5-BATCH1-pdf-112039.pdf",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:20:47"
+     }
+    ],
+    "task": [
+     [
+      "553",
+      "SUCCESS"
+     ]
+    ],
+    "verdict": "PASS"
+   },
+   {
+    "fname": "AG5-BATCH2-docx-112039.docx",
+    "uid": "ag5-1793157639729-AG5-BATCH2-d",
+    "http": 200,
+    "api_success": true,
+    "file_id": "511",
+    "resp_msg": null,
+    "body": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"511\", \"kbId\": \"36\", \"fileName\": \"AG5-BATCH2-docx-112039.docx\", \"fileSize\": 36716.0, \"size\": \"36716.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_36/AG5-BATCH2-docx-112039.docx/V0/AG5-BATCH2-docx-112039.docx\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-BATCH2-docx-112039.docx\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"http://127.0.0.1:19000/r12-rag/kb_36/\", \"synLogs\": [], \"kbFiles\": null, \"isFolder\": null, \"imagePaths\": [], \"tableFilePaths\": null, \"pdfPage\": null, \"nodeCount\": 0, \"edgeCount\": 0, \"uid\": \"ag5-1793157639729-AG5-BATCH2-d\", \"graphParseStatus\": 1, \"uploadStatus\": 1, \"message",
+    "file_status": 3,
+    "status_name": "3(解析成功)",
+    "waited": 0.0,
+    "es": {
+     "kb_36": 1,
+     "table_chunks_kb_36": 0,
+     "table_summary_kb_36": 0
+    },
+    "es_total": 1,
+    "db_row": [
+     {
+      "id": "511",
+      "kb_id": "36",
+      "file_name": "AG5-BATCH2-docx-112039.docx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:20:46"
+     }
+    ],
+    "task": [
+     [
+      "555",
+      "SUCCESS"
+     ]
+    ],
+    "verdict": "PASS"
+   },
+   {
+    "fname": "AG5-BATCH3-xlsx-112039.xlsx",
+    "uid": "ag5-1793157639729-AG5-BATCH3-x",
+    "http": 200,
+    "api_success": true,
+    "file_id": "510",
+    "resp_msg": null,
+    "body": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"510\", \"kbId\": \"36\", \"fileName\": \"AG5-BATCH3-xlsx-112039.xlsx\", \"fileSize\": 5340.0, \"size\": \"5340.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_36/AG5-BATCH3-xlsx-112039.xlsx/V0/AG5-BATCH3-xlsx-112039.xlsx\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-BATCH3-xlsx-112039.xlsx\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"http://127.0.0.1:19000/r12-rag/kb_36/\", \"synLogs\": [], \"kbFiles\": null, \"isFolder\": null, \"imagePaths\": [], \"tableFilePaths\": null, \"pdfPage\": null, \"nodeCount\": 0, \"edgeCount\": 0, \"uid\": \"ag5-1793157639729-AG5-BATCH3-x\", \"graphParseStatus\": 1, \"uploadStatus\": 1, \"message\":",
+    "file_status": 3,
+    "status_name": "3(解析成功)",
+    "waited": 4.0,
+    "es": {
+     "kb_36": 0,
+     "table_chunks_kb_36": 1,
+     "table_summary_kb_36": 1
+    },
+    "es_total": 2,
+    "db_row": [
+     {
+      "id": "510",
+      "kb_id": "36",
+      "file_name": "AG5-BATCH3-xlsx-112039.xlsx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:20:52"
+     }
+    ],
+    "task": [
+     [
+      "554",
+      "SUCCESS"
+     ]
+    ],
+    "verdict": "PASS"
+   }
+  ],
+  "ingested": 3,
+  "sent": 3
+ },
+ "interrupt": {
+  "label": "注入（客户端 timeout=0.1s 主动中断，非服务端故障）",
+  "fname": "AG5-INTR-112039.pptx",
+  "client_error": "ReadTimeout: HTTPConnectionPool(host='127.0.0.1', port=8088): Read timed out. (read timeout=0.1)",
+  "readable": true,
+  "retry": {
+   "http": 200,
+   "api_success": true,
+   "file_id": "513",
+   "body": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"513\", \"kbId\": \"36\", \"fileName\": \"AG5-INTR-112039.pptx\", \"fileSize\": 29388.0, \"size\": \"29388.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_36/AG5-INTR-112039.pptx/V0/AG5-INTR-112039.pptx\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-INTR-112039.pptx\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"",
+   "file_status": 3,
+   "status_name": "3(解析成功)",
+   "es": {
+    "kb_36": 1,
+    "table_chunks_kb_36": 0,
+    "table_summary_kb_36": 0
+   },
+   "es_total": 1
+  },
+  "verdict": "PASS"
+ }
+}

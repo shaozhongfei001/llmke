@@ -1,0 +1,66 @@
+[
+ {
+  "at": 1793159675350,
+  "iso": "2026-10-28T03:54:35.350Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/faqService-DAQW_jrv.js",
+  "dur": null
+ },
+ {
+  "at": 1793159675350,
+  "iso": "2026-10-28T03:54:35.350Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/RepeatFaq-M57z0atZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793159677533,
+  "iso": "2026-10-28T03:54:37.533Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793159679978,
+  "iso": "2026-10-28T03:54:39.978Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=&fileId=525&folderId=525",
+  "dur": null
+ },
+ {
+  "at": 1793159681766,
+  "iso": "2026-10-28T03:54:41.766Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=%E6%98%AF%E5%90%A6%E6%9C%89%E8%BF%9D%E7%BA%A6%E9%87%91%EF%BC%9F&fileId=525&folderId=525",
+  "dur": null
+ },
+ {
+  "at": 1793159685446,
+  "iso": "2026-10-28T03:54:45.446Z",
+  "method": "POST",
+  "status": 200,
+  "url": "/proxy/index/faq/delete",
+  "dur": null
+ },
+ {
+  "at": 1793159685508,
+  "iso": "2026-10-28T03:54:45.508Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=%E6%98%AF%E5%90%A6%E6%9C%89%E8%BF%9D%E7%BA%A6%E9%87%91%EF%BC%9F&fileId=525&folderId=525",
+  "dur": null
+ },
+ {
+  "at": 1793159688126,
+  "iso": "2026-10-28T03:54:48.126Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=%E6%98%AF%E5%90%A6%E6%9C%89%E8%BF%9D%E7%BA%A6%E9%87%91%EF%BC%9F&fileId=525&folderId=525",
+  "dur": null
+ }
+]

@@ -1,0 +1,50 @@
+{
+ "G1_on": [
+  {
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "version_in_source": "1",
+   "shape_ok": true,
+   "key": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "presign_http": 200,
+   "presign_url_ok": true,
+   "fetch_http": 200,
+   "bytes": 29388,
+   "head": "PK\u0003\u0004\u0014\u0000"
+  }
+ ],
+ "amount_off": [
+  {
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "version_in_source": "1",
+   "shape_ok": true,
+   "key": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "presign_http": 200,
+   "presign_url_ok": true,
+   "fetch_http": 200,
+   "bytes": 29388,
+   "head": "PK\u0003\u0004\u0014\u0000"
+  },
+  {
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "version_in_source": "1",
+   "shape_ok": true,
+   "key": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "presign_http": 200,
+   "presign_url_ok": true,
+   "fetch_http": 200,
+   "bytes": 37543,
+   "head": "PK\u0003\u0004\u0014\u0000"
+  },
+  {
+   "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "version_in_source": "0",
+   "shape_ok": true,
+   "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "presign_http": 200,
+   "presign_url_ok": true,
+   "fetch_http": 200,
+   "bytes": 5340,
+   "head": "PK\u0003\u0004\u0014\u0000"
+  }
+ ]
+}

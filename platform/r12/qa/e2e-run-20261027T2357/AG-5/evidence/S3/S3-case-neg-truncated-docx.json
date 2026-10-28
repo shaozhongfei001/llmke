@@ -1,0 +1,216 @@
+{
+ "case": "neg-truncated-docx",
+ "desc": "合法 docx 截断 60%",
+ "file": "truncated.docx",
+ "bytes": 22029,
+ "expect_fail": true,
+ "upload": {
+  "http": 200,
+  "elapsed": 0.129,
+  "req_time": "2026-10-28 11:18:30+0800",
+  "req_epoch": 1793157510.5438595,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": [
+    {
+     "id": "503",
+     "kbId": "36",
+     "fileName": "truncated.docx",
+     "fileSize": 22029.0,
+     "size": "22029.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/truncated.docx/V0/truncated.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "truncated.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157510543-truncated.do",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1373381232",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:18:30",
+     "count": null
+    }
+   ]
+  }
+ },
+ "api_success": true,
+ "items": [
+  {
+   "id": "503",
+   "kbId": "36",
+   "fileName": "truncated.docx",
+   "fileSize": 22029.0,
+   "size": "22029.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/truncated.docx/V0/truncated.docx",
+   "fullTextPath": null,
+   "convertedFilePath": null,
+   "status": 1,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 0,
+   "fileType": null,
+   "embeddingModelName": null,
+   "parsedFilePath": null,
+   "faqExtractStatus": 1,
+   "reviseDate": null,
+   "parentFileName": "truncated.docx",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": null,
+   "imagePaths": [],
+   "tableFilePaths": null,
+   "pdfPage": null,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag5-1793157510543-truncated.do",
+   "graphParseStatus": 1,
+   "uploadStatus": 1,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": null,
+   "fullFolderPath": null,
+   "groupId": "1373381232",
+   "label": "",
+   "chunkType": null,
+   "uploadTime": "2026-10-28 11:18:30",
+   "count": null
+  }
+ ],
+ "file_id": "503",
+ "resp_message": null,
+ "resp_status": 1,
+ "resp_task_statuses": null,
+ "has_task_statuses_key": false,
+ "status_poll": {
+  "elapsed": 46.3,
+  "transitions": [
+   {
+    "t": 0.0,
+    "status": 99,
+    "status_name": "99(解析排队中)",
+    "http": 200
+   },
+   {
+    "t": 16.1,
+    "status": 98,
+    "status_name": "98(重试中)",
+    "http": 200
+   },
+   {
+    "t": 46.3,
+    "status": 4,
+    "status_name": "4(解析失败)",
+    "http": 200
+   }
+  ],
+  "final": 4,
+  "final_name": "4(解析失败)",
+  "timed_out": false,
+  "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+ },
+ "db_file_row": {
+  "rows": [
+   {
+    "id": "503",
+    "kb_id": "36",
+    "file_name": "truncated.docx",
+    "status": "4",
+    "status_name": "解析失败",
+    "temp_status": "2",
+    "version": "V0",
+    "gmt_modified": "2026-10-28 11:19:16"
+   }
+  ]
+ },
+ "db_parse_tasks": {
+  "tasks": [
+   {
+    "task_id": "547",
+    "file_id": "503",
+    "status": 5,
+    "status_name": "DEAL_FAIL",
+    "retry_times": "3",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:19:15",
+    "end_time": "NULL",
+    "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   }
+  ]
+ },
+ "es_chunks": {
+  "total": 0,
+  "got": 0,
+  "min_create_time": null,
+  "max_create_time": null,
+  "sample_pk": [],
+  "sample_head": null
+ },
+ "chunks_api": {
+  "http": 500,
+  "n": null,
+  "sample": "{\"success\": false, \"errorMsg\": \"知识库文件还未解析\", \"errorCode\": \"10009\", \"data\": null}"
+ },
+ "verdict": {
+  "verdict": "PASS",
+  "checks": {
+   "接口拒绝或文件终态=解析失败(4)": true,
+   "不是成功但0条": true,
+   "可见原因": true,
+   "任务级终态": [
+    {
+     "task": "547",
+     "status": "DEAL_FAIL",
+     "retry": "3/3",
+     "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+    }
+   ],
+   "detail": {
+    "api_success": true,
+    "file_final_status": 4,
+    "es_chunks": 0,
+    "resp_message": "",
+    "resp_status": 1
+   }
+  }
+ }
+}

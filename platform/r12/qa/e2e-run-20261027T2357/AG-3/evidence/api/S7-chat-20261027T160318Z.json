@@ -1,0 +1,681 @@
+{
+ "q1": {
+  "http": 200,
+  "status": 2,
+  "answer": "智造贷单户最高授信额度为人民币8000万元。",
+  "refs": [
+   {
+    "metadata": {
+     "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "file_path": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWxvYW4uZG9jeC9WMS9SMTJGSVgtcHJvZHVjdC1sb2FuKDEpLmRvY3g=",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ],
+     "offset": [
+      [
+       0,
+       459
+      ]
+     ],
+     "pic_offset_list": [],
+     "pic_children_id_list": [],
+     "text_parent_id_list": [],
+     "chunk_type": "text",
+     "parent_file_name": "R12FIX-product-loan.docx",
+     "revise_date": "",
+     "version": "V1",
+     "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+     "file_id": 328,
+     "image_path": "",
+     "page_size": "[[0, 0]]",
+     "page_number": [
+      0
+     ],
+     "table_name": "",
+     "labels": [],
+     "chunk_index": 0,
+     "title": "R12FIX-product-loan(1).docx",
+     "chunk_pk": 139363536840301567,
+     "knowledge_base_name": "kb_9",
+     "score": 0.9893141984939575,
+     "rerank_score_rank": 2,
+     "rrf_score": 0.25,
+     "rrf_score_rank": 2
+    },
+    "order_num": "4082816262367425333",
+    "page_content": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币8000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。四、还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。提前还款需提前十五个工作日提出书面申请，不收取违约金。五、办理时限资料齐全的情况下，自受理之日起十个工作日内完成审批，审批通过后三个工作日内放款。",
+    "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/parsed/R12FIX-product-loan(1).docx.txt",
+    "score": "0.9893141984939575",
+    "type": "text"
+   },
+   {
+    "metadata": {
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "file_path": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1wcm9kdWN0LWludHJvLnBwdHgvVjEvUjEyRklYLXByb2R1Y3QtaW50cm8oMSkucHB0eA==",
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ],
+     "offset": [
+      [
+       0,
+       123
+      ]
+     ],
+     "pic_offset_list": [],
+     "pic_children_id_list": [],
+     "text_parent_id_list": [],
+     "chunk_type": "text",
+     "parent_file_name": "R12FIX-product-intro.pptx",
+     "revise_date": "",
+     "version": "V1",
+     "position": "[[[0, 0], [0, 0], [0, 0], [0, 0]]]",
+     "file_id": 343,
+     "image_path": "",
+     "page_size": "[[0, 0]]",
+     "page_number": [
+      0
+     ],
+     "table_name": "",
+     "labels": [],
+     "chunk_index": 0,
+     "title": "R12FIX-product-intro(1).pptx",
+     "chunk_pk": 626225001556669433,
+     "knowledge_base_name": "kb_9",
+     "score": 0.9810989499092102,
+     "rerank_score_rank": 3,
+     "rrf_score": 0.75,
+     "rrf_score_rank": 1
+    },
+    "order_num": "2284184872000809201",
+    "page_content": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）",
+    "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/parsed/R12FIX-product-intro(1).pptx.txt",
+    "score": "0.9810989499092102",
+    "type": "text"
+   },
+   {
+    "metadata": {
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "file_path": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "id": "cjEyLXJhZy9rYl85L1IxMkZJWC1jcmVkaXQtbGVkZ2VyLnhsc3gvVjAvUjEyRklYLWNyZWRpdC1sZWRnZXIueGxzeA==",
+     "search_type": [
+      "milvus"
+     ],
+     "offset": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       1
+      ],
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       3
+      ],
+      [
+       0,
+       4
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       1,
+       0
+      ],
+      [
+       1,
+       1
+      ],
+      [
+       1,
+       2
+      ],
+      [
+       1,
+       3
+      ],
+      [
+       1,
+       4
+      ],
+      [
+       1,
+       5
+      ],
+      [
+       1,
+       6
+      ],
+      [
+       2,
+       0
+      ],
+      [
+       2,
+       1
+      ],
+      [
+       2,
+       2
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       2,
+       4
+      ],
+      [
+       2,
+       5
+      ],
+      [
+       2,
+       6
+      ],
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       1
+      ],
+      [
+       3,
+       2
+      ],
+      [
+       3,
+       3
+      ],
+      [
+       3,
+       4
+      ],
+      [
+       3,
+       5
+      ],
+      [
+       3,
+       6
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       4,
+       1
+      ],
+      [
+       4,
+       2
+      ],
+      [
+       4,
+       3
+      ],
+      [
+       4,
+       4
+      ],
+      [
+       4,
+       5
+      ],
+      [
+       4,
+       6
+      ]
+     ],
+     "pic_children_id_list": [],
+     "text_parent_id_list": [],
+     "chunk_type": "table",
+     "parent_file_name": "R12FIX-credit-ledger.xlsx",
+     "revise_date": "",
+     "version": "V0",
+     "position": "[]",
+     "file_id": 329,
+     "page_size": "[]",
+     "page_number": [],
+     "table_name": "授信台账",
+     "labels": [],
+     "chunk_index": 0,
+     "table_summary_id": "1137902847478273881",
+     "title": "R12FIX-credit-ledger.xlsx",
+     "chunk_pk": 1095912197551331871,
+     "knowledge_base_name": "kb_9",
+     "score": 0.02509436570107937,
+     "rerank_score_rank": 5,
+     "rrf_score": 0.1111111111111111,
+     "rrf_score_rank": 10
+    },
+    "order_num": "2104067274896840851",
+    "page_content": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|",
+    "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt",
+    "score": "0.02509436570107937",
+    "type": "table"
+   }
+  ],
+  "elapsed": 11.81,
+  "session_id": "ag3-1793117021310",
+  "query_id": "ag3q-1793117021310",
+  "content": "智造贷最高授信额度是多少？",
+  "events_n": 17,
+  "citation": [
+   {
+    "i": 0,
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "pk": "139363536840301567",
+    "file_id": 328,
+    "score": 0.9893141984939575,
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "form_ok": true,
+    "ref_version": "V1",
+    "effective_version": "V1",
+    "version_ok": true,
+    "presign_ok": true,
+    "presign_trace": {
+     "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+     "http": 200,
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan%281%29.docx?response-content-type=application%2Fvnd."
+    },
+    "has_url": true,
+    "get_status": 200,
+    "bytes": 37543,
+    "es_source_count": 1,
+    "es_hit_indexes": [
+     "kb_9"
+    ],
+    "all_green": true
+   },
+   {
+    "i": 1,
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "pk": "626225001556669433",
+    "file_id": 343,
+    "score": 0.9810989499092102,
+    "search_type": [
+     "milvus",
+     "es",
+     "es",
+     "graph"
+    ],
+    "form_ok": true,
+    "ref_version": "V1",
+    "effective_version": "V1",
+    "version_ok": true,
+    "presign_ok": true,
+    "presign_trace": {
+     "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+     "http": 200,
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro%281%29.pptx?response-content-type=application%2Fvn"
+    },
+    "has_url": true,
+    "get_status": 200,
+    "bytes": 29388,
+    "es_source_count": 1,
+    "es_hit_indexes": [
+     "kb_9"
+    ],
+    "all_green": true
+   },
+   {
+    "i": 2,
+    "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+    "pk": "1095912197551331871",
+    "file_id": 329,
+    "score": 0.02509436570107937,
+    "search_type": [
+     "milvus"
+    ],
+    "form_ok": true,
+    "ref_version": "V0",
+    "effective_version": "V0",
+    "version_ok": true,
+    "presign_ok": true,
+    "presign_trace": {
+     "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+     "http": 200,
+     "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx?response-content-type=application%2Fvnd.openx"
+    },
+    "has_url": true,
+    "get_status": 200,
+    "bytes": 5340,
+    "es_source_count": 2,
+    "es_hit_indexes": [
+     "table_chunks_kb_9",
+     "table_summary_kb_9"
+    ],
+    "all_green": true
+   }
+  ]
+ },
+ "rephrase": {
+  "A": {
+   "query": "请问智造贷这款产品能给到的最高贷款额度是多少",
+   "answer": "“智造贷”产品最高贷款额度为8000万元。其中信用方式部分最高不超过1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。",
+   "refs": 3,
+   "status": 2,
+   "http": 200,
+   "citations": [
+    {
+     "i": 0,
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "pk": "626225001556669433",
+     "file_id": 343,
+     "score": 0.9652538299560547,
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ],
+     "form_ok": true,
+     "ref_version": "V1",
+     "effective_version": "V1",
+     "version_ok": true,
+     "presign_ok": true,
+     "presign_trace": {
+      "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+      "http": 200,
+      "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro%281%29.pptx?response-content-type=application%2Fvn"
+     },
+     "has_url": true,
+     "get_status": 200,
+     "bytes": 29388,
+     "es_source_count": 1,
+     "es_hit_indexes": [
+      "kb_9"
+     ],
+     "all_green": true
+    },
+    {
+     "i": 1,
+     "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "pk": "139363536840301567",
+     "file_id": 328,
+     "score": 0.9321662783622742,
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ],
+     "form_ok": true,
+     "ref_version": "V1",
+     "effective_version": "V1",
+     "version_ok": true,
+     "presign_ok": true,
+     "presign_trace": {
+      "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+      "http": 200,
+      "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan%281%29.docx?response-content-type=application%2Fvnd."
+     },
+     "has_url": true,
+     "get_status": 200,
+     "bytes": 37543,
+     "es_source_count": 1,
+     "es_hit_indexes": [
+      "kb_9"
+     ],
+     "all_green": true
+    },
+    {
+     "i": 2,
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "pk": "1095912197551331871",
+     "file_id": 329,
+     "score": 0.006976594217121601,
+     "search_type": [
+      "milvus"
+     ],
+     "form_ok": true,
+     "ref_version": "V0",
+     "effective_version": "V0",
+     "version_ok": true,
+     "presign_ok": true,
+     "presign_trace": {
+      "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+      "http": 200,
+      "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx?response-content-type=application%2Fvnd.openx"
+     },
+     "has_url": true,
+     "get_status": 200,
+     "bytes": 5340,
+     "es_source_count": 2,
+     "es_hit_indexes": [
+      "table_chunks_kb_9",
+      "table_summary_kb_9"
+     ],
+     "all_green": true
+    }
+   ]
+  },
+  "B": {
+   "query": "智造贷最多可以批多少授信",
+   "answer": "智造贷单户最高授信额度为人民币8000万元。其中信用方式授信额度不超过1000万元，其余部分需通过应收账款质押、设备抵押或核心企业保证等方式增信。",
+   "refs": 3,
+   "status": 2,
+   "http": 200,
+   "citations": [
+    {
+     "i": 0,
+     "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "pk": "139363536840301567",
+     "file_id": 328,
+     "score": 0.8442634344100952,
+     "search_type": [
+      "milvus",
+      "graph"
+     ],
+     "form_ok": true,
+     "ref_version": "V1",
+     "effective_version": "V1",
+     "version_ok": true,
+     "presign_ok": true,
+     "presign_trace": {
+      "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+      "http": 200,
+      "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan%281%29.docx?response-content-type=application%2Fvnd."
+     },
+     "has_url": true,
+     "get_status": 200,
+     "bytes": 37543,
+     "es_source_count": 1,
+     "es_hit_indexes": [
+      "kb_9"
+     ],
+     "all_green": true
+    },
+    {
+     "i": 1,
+     "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "pk": "626225001556669433",
+     "file_id": 343,
+     "score": 0.6261376738548279,
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ],
+     "form_ok": true,
+     "ref_version": "V1",
+     "effective_version": "V1",
+     "version_ok": true,
+     "presign_ok": true,
+     "presign_trace": {
+      "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+      "http": 200,
+      "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro%281%29.pptx?response-content-type=application%2Fvn"
+     },
+     "has_url": true,
+     "get_status": 200,
+     "bytes": 29388,
+     "es_source_count": 1,
+     "es_hit_indexes": [
+      "kb_9"
+     ],
+     "all_green": true
+    },
+    {
+     "i": 2,
+     "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "pk": "1095912197551331871",
+     "file_id": 329,
+     "score": 0.00866575539112091,
+     "search_type": [
+      "milvus"
+     ],
+     "form_ok": true,
+     "ref_version": "V0",
+     "effective_version": "V0",
+     "version_ok": true,
+     "presign_ok": true,
+     "presign_trace": {
+      "url": "http://127.0.0.1:8088/index/knowledgeBase/file/presign",
+      "http": 200,
+      "body": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"url\":\"http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx?response-content-type=application%2Fvnd.openx"
+     },
+     "has_url": true,
+     "get_status": 200,
+     "bytes": 5340,
+     "es_source_count": 2,
+     "es_hit_indexes": [
+      "table_chunks_kb_9",
+      "table_summary_kb_9"
+     ],
+     "all_green": true
+    }
+   ]
+  }
+ },
+ "multiturn": {
+  "session_id": "ag3-multi-1793117068576",
+  "turn1": {
+   "q": "智造贷是什么产品？",
+   "answer": "智造贷是面向制造业中小微企业的信贷产品，特别支持汽车零部件、装备制造、电子信息等产业链上的规模以上工业企业。\n\n适用对象为制造业中小微企业，单户最高授信额度为8000万元，其中信用方式部分不超过1000万元，其余额度可通过应收账款质押、设备抵押或核心企业保证等方式增信。额度有效期为12个月，到期后需重新核定。\n\n流动资金贷款期限最长可达3年，单笔提款期限不超过12个月，执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度依据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。\n\n还款方式多样，包括按月付息到期还本、等额本息或按季付息分期还本等。若提前还款，需提前15个工作日提出书面申请，不收取违约金。\n\n整个办理流程包括受理、资料审核、评级授信、审批（10个工作日）及放款（3个工作日）。",
+   "refs": 2,
+   "status": 2
+  },
+  "turn2": {
+   "q": "它的最高授信额度是多少？",
+   "answer": "最高授信额度为人民币8000万元。",
+   "refs": 3,
+   "status": 2,
+   "refs_detail": [
+    {
+     "pk": "139363536840301567",
+     "score": 0.2635219991207123,
+     "search_type": [
+      "milvus",
+      "es",
+      "es",
+      "graph"
+     ],
+     "source": "kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "version": "V1",
+     "len": 459,
+     "head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业"
+    },
+    {
+     "pk": "626225001556669433",
+     "score": 0.1334293931722641,
+     "search_type": [
+      "milvus",
+      "graph"
+     ],
+     "source": "_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "version": "V1",
+     "len": 123,
+     "head": "“智造贷”产品要点 适用对象：制造业中小微企业 最高额度：8000万元（信用部分不超过1000万元） 最长期限：3年 利"
+    },
+    {
+     "pk": "1095912197551331871",
+     "score": 0.013261533342301846,
+     "search_type": [
+      "milvus",
+      "es",
+      "es"
+     ],
+     "source": "/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "version": "V0",
+     "len": 221,
+     "head": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日| |华东精密制造有限公司|汽车零"
+    }
+   ]
+  }
+ },
+ "repeat3": [
+  {
+   "i": 0,
+   "http": 200,
+   "status": 2,
+   "answer_len": 70,
+   "answer": "智造贷的最高授信额度为人民币8000万元。其中信用方式部分不超过1000万元，其余部分可通过应收账款质押、设备抵押或核心企业保证等方式增信。",
+   "refs": 3,
+   "ref_pks": [
+    "139363536840301567",
+    "626225001556669433",
+    "1095912197551331871"
+   ],
+   "elapsed": 14.73
+  },
+  {
+   "i": 1,
+   "http": 200,
+   "status": 2,
+   "answer_len": 22,
+   "answer": "智造贷单户最高授信额度为人民币8000万元。",
+   "refs": 3,
+   "ref_pks": [
+    "139363536840301567",
+    "626225001556669433",
+    "1095912197551331871"
+   ],
+   "elapsed": 13.93
+  },
+  {
+   "i": 2,
+   "http": 200,
+   "status": 2,
+   "answer_len": 22,
+   "answer": "智造贷单户最高授信额度为人民币8000万元。",
+   "refs": 3,
+   "ref_pks": [
+    "139363536840301567",
+    "626225001556669433",
+    "1095912197551331871"
+   ],
+   "elapsed": 15.34
+  }
+ ]
+}

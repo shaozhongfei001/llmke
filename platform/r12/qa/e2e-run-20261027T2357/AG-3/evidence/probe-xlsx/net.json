@@ -1,0 +1,7 @@
+[
+ {
+  "status": 404,
+  "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/授信台账.md",
+  "body": "{\"success\":false,\"errorMsg\":\"知识库文件不存在\",\"errorCode\":\"10002\",\"data\":null}"
+ }
+]

@@ -1,0 +1,41 @@
+{
+ "scenario": "S9-5 UI chat FAQ",
+ "question": "客户的日均存款是多少？",
+ "expected_answer": "客户的日均存款是2,983,333.33元。",
+ "injectedSession": true,
+ "assistantPicked": true,
+ "pageText": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n新建对话\n当天\n客户的日均存款是多少？\nR12默认问答配置\n11:55\n智造贷最高额度是多少？\nR12默认问答配置\n10:51\n智造贷最高额度是多少？\nR12默认问答配置\n10:49\n智造贷最高额度是多少？\nR12默认问答配置\n10:48\n智造贷最高额度是多少？\nR12默认问答配置\n10:47\nAG3HIST498491 智造贷最高授\nR12默认问答配置\n10:45\n智造贷最高授信额度是多少？\nR12默认问答配置\n10:43\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:42\n智造贷是什么类型的产品？\nR12默认问答配置\n10:41\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:39\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:39\n智造贷最高额度是多少？\nR12默认问答配置\n10:37\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:36\n智造贷最高额度是多少？\nR12默认问答配置\n10:36\n智造贷是什么类型的产品？\nR12默认问答配置\n10:36\n智造贷这款产品最多能给企业批多少授信额度\nR12默认问答配置\n10:35\n客户的日均存款是多少？\n26-10-28 11:55:30\n客户的日均存款是多少？\n26-10-28 11:55:30\n思考完成\n(用时 7 秒)\n日均存款的具体数值是2,983,333.33元。\n本次回答总计消耗 0 tokens, 等待总计耗时 7秒\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。",
+ "answer_contains_expected": false,
+ "needles": {
+  "知识溯源": false,
+  "FAQ标记": false,
+  "期望答案": false
+ },
+ "reqs": [
+  "POST 200 /proxy/qa/ai/question_re"
+ ],
+ "bad": [
+  {
+   "status": 500,
+   "url": "http://127.0.0.1:18088/proxy/qa/feedback/que/list",
+   "at": 1793159727246
+  },
+  {
+   "console": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "at": 1793159727246
+  },
+  {
+   "pageerror": "AxiosError: tt$4",
+   "at": 1793159727247
+  },
+  {
+   "status": 403,
+   "url": "http://127.0.0.1:18088/minio/dev-rag-data/header_pic/JIABINBIN00/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20231212161213.jpg",
+   "at": 1793159730473
+  },
+  {
+   "console": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+   "at": 1793159730473
+  }
+ ]
+}

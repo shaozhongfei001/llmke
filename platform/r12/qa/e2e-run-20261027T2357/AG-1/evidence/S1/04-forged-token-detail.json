@@ -1,0 +1,30 @@
+{
+  "finalUrl": "http://127.0.0.1:18088/login",
+  "statuses": [
+    "200 /proxy/auth/user/kaptcha",
+    "200 /proxy/auth/user/login",
+    "200 /proxy/auth/resource/getMenusByUser",
+    "200 /proxy/auth/user/kaptcha",
+    "500 /proxy/qa/feedback/que/list",
+    "200 /proxy/qa/search/config/helper/list?pageNo=1&pageSize=3000",
+    "200 /proxy/qa/dialogue/list?pageNo=1&pageSize=16&sysType=INT_SESSION",
+    "200 /proxy/qa/dialogue/getDialogBySessionId?sessionId=49bcfd0f0104bfb8f1cbf993bc7bf74f",
+    "401 /proxy/auth/resource/getMenusByUser",
+    "500 /proxy/auth/user/kaptcha"
+  ],
+  "toast": "请求出错，请稍后再试 | 请求出错，请稍后再试",
+  "has5xx": true,
+  "has401or403": true,
+  "fivexx": [
+    "500 GET /proxy/qa/feedback/que/list",
+    "500 GET /proxy/auth/user/kaptcha"
+  ],
+  "loginPageUnderForged": {
+    "captchaImgCount": 1,
+    "verifyInputCount": 0,
+    "loginPageText": "登 录\n点击注册\n忘记密码\n请求出错，请稍后再试"
+  },
+  "loginPageAfterClear": {
+    "verifyInputCount": 1
+  }
+}

@@ -1,0 +1,44 @@
+{
+ "A 详情页实际用键": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.md",
+  "presign": 200,
+  "get": [
+   200,
+   550
+  ],
+  "body": null
+ },
+ "B 引用链路失败键(AG-3实测)": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/授信台账.md",
+  "presign": 404,
+  "get": null,
+  "body": "{\"success\":false,\"errorMsg\":\"知识库文件不存在\",\"errorCode\":\"10002\",\"data\":null}"
+ },
+ "C tableFilePaths公布键": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/tables/table-0-授信台账.md",
+  "presign": 200,
+  "get": [
+   200,
+   550
+  ],
+  "body": null
+ },
+ "D 落盘txt": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/parsed/R12FIX-credit-ledger.xlsx.txt",
+  "presign": 200,
+  "get": [
+   200,
+   550
+  ],
+  "body": null
+ },
+ "E 真实对象": {
+  "key": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+  "presign": 200,
+  "get": [
+   200,
+   5340
+  ],
+  "body": null
+ }
+}

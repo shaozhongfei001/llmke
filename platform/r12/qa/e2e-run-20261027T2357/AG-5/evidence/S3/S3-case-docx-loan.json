@@ -1,0 +1,223 @@
+{
+ "case": "docx-loan",
+ "desc": "业务 docx",
+ "file": "R12FIX-product-loan.docx",
+ "bytes": 37544,
+ "expect_fail": false,
+ "upload": {
+  "http": 200,
+  "elapsed": 0.14,
+  "req_time": "2026-10-28 11:16:32+0800",
+  "req_epoch": 1793157392.6271877,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": [
+    {
+     "id": "499",
+     "kbId": "36",
+     "fileName": "R12FIX-product-loan.docx",
+     "fileSize": 37544.0,
+     "size": "37544.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "R12FIX-product-loan.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157392627-R12FIX-produ",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "614524213",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:16:32",
+     "count": null
+    }
+   ]
+  }
+ },
+ "api_success": true,
+ "items": [
+  {
+   "id": "499",
+   "kbId": "36",
+   "fileName": "R12FIX-product-loan.docx",
+   "fileSize": 37544.0,
+   "size": "37544.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "fullTextPath": null,
+   "convertedFilePath": null,
+   "status": 1,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 0,
+   "fileType": null,
+   "embeddingModelName": null,
+   "parsedFilePath": null,
+   "faqExtractStatus": 1,
+   "reviseDate": null,
+   "parentFileName": "R12FIX-product-loan.docx",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": null,
+   "imagePaths": [],
+   "tableFilePaths": null,
+   "pdfPage": null,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag5-1793157392627-R12FIX-produ",
+   "graphParseStatus": 1,
+   "uploadStatus": 1,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": null,
+   "fullFolderPath": null,
+   "groupId": "614524213",
+   "label": "",
+   "chunkType": null,
+   "uploadTime": "2026-10-28 11:16:32",
+   "count": null
+  }
+ ],
+ "file_id": "499",
+ "resp_message": null,
+ "resp_status": 1,
+ "resp_task_statuses": null,
+ "has_task_statuses_key": false,
+ "status_poll": {
+  "elapsed": 14.1,
+  "transitions": [
+   {
+    "t": 0.0,
+    "status": 99,
+    "status_name": "99(解析排队中)",
+    "http": 200
+   },
+   {
+    "t": 14.1,
+    "status": 3,
+    "status_name": "3(解析成功)",
+    "http": 200
+   }
+  ],
+  "final": 3,
+  "final_name": "3(解析成功)",
+  "timed_out": false,
+  "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+ },
+ "db_file_row": {
+  "rows": [
+   {
+    "id": "499",
+    "kb_id": "36",
+    "file_name": "R12FIX-product-loan.docx",
+    "status": "3",
+    "status_name": "解析成功",
+    "temp_status": "2",
+    "version": "V0",
+    "gmt_modified": "2026-10-28 11:16:47"
+   }
+  ]
+ },
+ "db_parse_tasks": {
+  "tasks": [
+   {
+    "task_id": "543",
+    "file_id": "499",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:16:45",
+    "end_time": "2026-10-28 11:16:47",
+    "error_msg": ""
+   }
+  ]
+ },
+ "es_chunks": {
+  "total": 1,
+  "got": 1,
+  "min_create_time": "2026-10-28 11:16:45.171263",
+  "max_create_time": "2026-10-28 11:16:45.171263",
+  "sample_pk": [
+   373175319049028896
+  ],
+  "sample_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须"
+ },
+ "chunks_api": {
+  "http": 200,
+  "n": 1,
+  "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"373175319049028896\", \"content\": \"“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借"
+ },
+ "verdict": {
+  "verdict": "PASS",
+  "checks": {
+   "A1_接口success": true,
+   "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+   "A3_文件终态=解析成功(3)": true,
+   "A3b_任务级终态=SUCCESS(4)": true,
+   "A3_note": {
+    "file_final": "3(解析成功)",
+    "tasks": [
+     {
+      "task_id": "543",
+      "file_id": "499",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:45",
+      "end_time": "2026-10-28 11:16:47",
+      "error_msg": ""
+     }
+    ],
+    "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+   },
+   "A4_有chunk且create_time晚于请求": true,
+   "A4_detail": {
+    "total": 1,
+    "min_create_time": "2026-10-28 11:16:45.171263",
+    "req_time": "2026-10-28 11:16:32+0800",
+    "later": true
+   },
+   "A5_正文可取": true
+  }
+ }
+}

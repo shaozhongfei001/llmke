@@ -1,0 +1,33 @@
+{
+ "time": "2026-10-28 11:51:11+0800",
+ "case": "edit extracted FAQ",
+ "kb_id": "38",
+ "target": {
+  "pk": "3108239472799539882",
+  "question": "流动资金贷款的最长还款期限是多少？",
+  "answer": "流动资金贷款期限最长三年。"
+ },
+ "update_http": 500,
+ "update_body": {
+  "success": false,
+  "errorMsg": "更新失败(es)",
+  "errorCode": "10029",
+  "data": null
+ },
+ "elapsed": 0.064,
+ "before": {
+  "es_count": 41,
+  "list_total": 29,
+  "pk_in_list": true
+ },
+ "after": {
+  "es_count": 40,
+  "list_total": 28,
+  "pk_in_list": false
+ },
+ "verdict": {
+  "http_ok": false,
+  "persisted": false,
+  "data_lost": true
+ }
+}

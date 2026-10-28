@@ -1,0 +1,210 @@
+{
+ "url": "http://127.0.0.1:18088/chats/knowledgeBase",
+ "bodyText": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n知识库\n我的知识库\n共享知识库\n新建\nR14-E2E-AG5-1121-C\n文件数：\n3\n·\n大小：\n44.8 MB\nR14-E2E-AG5-1111\n文件数：\n19\n·\n大小：\n6.5 GB\nR14-BASELINE-KB\n文件数：\n8\n·\n大小：\n6.4 GB\nR14-P201-KB\n文件数：\n4\n·\n大小：\n74.1 MB\ngraph-increment-split2\n文件数：\n4\n·\n大小：\n144.1 MB\ngraph-increment-split\n文件数：\n4\n·\n大小：\n143.7 MB\ngraph-increment-fixture\n文件数：\n3\n·\n大小：\n107.9 MB\nR14C-归组回归R14B\n文件数：\n6\n·\n大小：\n187.9 MB\nR14C-归组回归R14A\n文件数：\n6\n·\n大小：\n187.9 MB\nR14C-归组回归\n文件数：\n6\n·\n大小：\n187.9 MB\nqa_r12_final\n文件数：\n7\n·\n大小：\n135.1 MB\nR12验收主链\n文件数：\n10\n·\n大小：\n6.4 GB\n1\n2",
+ "buttons": [
+  "新建"
+ ],
+ "cards": [
+  {
+   "cls": "ant-menu-item ant-menu-item-only-child ant-pro-base-menu-inline-menu-item",
+   "text": "智能对话"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "智能对话"
+  },
+  {
+   "cls": "ant-menu-item ant-menu-item-selected ant-menu-item-only-child ant-pro-base-menu-",
+   "text": "知识库"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "知识库"
+  },
+  {
+   "cls": "ant-menu-item ant-menu-item-only-child ant-pro-base-menu-inline-menu-item",
+   "text": "助手配置"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "助手配置"
+  },
+  {
+   "cls": "ant-menu-item ant-menu-item-only-child ant-pro-base-menu-inline-menu-item",
+   "text": "敏感词配置"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "敏感词配置"
+  },
+  {
+   "cls": "ant-menu-item ant-menu-item-only-child ant-pro-base-menu-inline-menu-item",
+   "text": "用户反馈"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "用户反馈"
+  },
+  {
+   "cls": "ant-menu-item ant-menu-item-only-child ant-pro-base-menu-inline-menu-item",
+   "text": "搜索"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "搜索"
+  },
+  {
+   "cls": "ant-menu-overflow-item ant-menu-item ant-menu-item-selected ant-menu-item-only-c",
+   "text": "智能问答"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "智能问答"
+  },
+  {
+   "cls": "ant-menu-overflow-item ant-menu-item ant-menu-item-only-child ant-pro-base-menu-",
+   "text": "系统管理"
+  },
+  {
+   "cls": "flex flex-col items-center relative h-full justify-center",
+   "text": "系统管理"
+  },
+  {
+   "cls": "ant-dropdown-trigger flex items-center cursor-pointer hover:bg-gray-50 rounded-f",
+   "text": "admin"
+  },
+  {
+   "cls": "ant-pro-card css-t8yfju ant-pro-card-contain-card ant-pro-card-ghost",
+   "text": "R14-E2E-AG5-1121-C|文件数：|3|·|大小：|44.8 MB|R14-E2E-AG5-1111|文件数：|19|·|大小：|6.5 GB|R14-BASELINE-KB|文件数：|8|·|大小：|6.4 GB|R14-P2"
+  },
+  {
+   "cls": "ant-pro-card-body css-t8yfju ant-pro-card-body-wrap",
+   "text": "R14-E2E-AG5-1121-C|文件数：|3|·|大小：|44.8 MB|R14-E2E-AG5-1111|文件数：|19|·|大小：|6.5 GB|R14-BASELINE-KB|文件数：|8|·|大小：|6.4 GB|R14-P2"
+  },
+  {
+   "cls": "ant-pro-card-col css-t8yfju ant-pro-card-col-8",
+   "text": "R14-E2E-AG5-1121-C|文件数：|3|·|大小：|44.8 MB"
+  },
+  {
+   "cls": "ant-pro-card css-t8yfju ant-pro-card-ghost",
+   "text": "R14-E2E-AG5-1121-C|文件数：|3|·|大小：|44.8 MB"
+  },
+  {
+   "cls": "ant-pro-card-body css-t8yfju",
+   "text": "R14-E2E-AG5-1121-C|文件数：|3|·|大小：|44.8 MB"
+  },
+  {
+   "cls": "card-wrap",
+   "text": "R14-E2E-AG5-1121-C|文件数：|3|·|大小：|44.8 MB"
+  },
+  {
+   "cls": "flex w-full justify-start  items-start",
+   "text": "R14-E2E-AG5-1121-C"
+  },
+  {
+   "cls": "ant-pro-card-col css-t8yfju ant-pro-card-col-8",
+   "text": "R14-E2E-AG5-1111|文件数：|19|·|大小：|6.5 GB"
+  },
+  {
+   "cls": "ant-pro-card css-t8yfju ant-pro-card-ghost",
+   "text": "R14-E2E-AG5-1111|文件数：|19|·|大小：|6.5 GB"
+  },
+  {
+   "cls": "ant-pro-card-body css-t8yfju",
+   "text": "R14-E2E-AG5-1111|文件数：|19|·|大小：|6.5 GB"
+  },
+  {
+   "cls": "card-wrap",
+   "text": "R14-E2E-AG5-1111|文件数：|19|·|大小：|6.5 GB"
+  },
+  {
+   "cls": "flex w-full justify-start  items-start",
+   "text": "R14-E2E-AG5-1111"
+  },
+  {
+   "cls": "ant-pro-card-col css-t8yfju ant-pro-card-col-8",
+   "text": "R14-BASELINE-KB|文件数：|8|·|大小：|6.4 GB"
+  },
+  {
+   "cls": "ant-pro-card css-t8yfju ant-pro-card-ghost",
+   "text": "R14-BASELINE-KB|文件数：|8|·|大小：|6.4 GB"
+  },
+  {
+   "cls": "ant-pro-card-body css-t8yfju",
+   "text": "R14-BASELINE-KB|文件数：|8|·|大小：|6.4 GB"
+  },
+  {
+   "cls": "card-wrap",
+   "text": "R14-BASELINE-KB|文件数：|8|·|大小：|6.4 GB"
+  },
+  {
+   "cls": "flex w-full justify-start  items-start",
+   "text": "R14-BASELINE-KB"
+  },
+  {
+   "cls": "ant-pro-card-col css-t8yfju ant-pro-card-col-8",
+   "text": "R14-P201-KB|文件数：|4|·|大小：|74.1 MB"
+  },
+  {
+   "cls": "ant-pro-card css-t8yfju ant-pro-card-ghost",
+   "text": "R14-P201-KB|文件数：|4|·|大小：|74.1 MB"
+  },
+  {
+   "cls": "ant-pro-card-body css-t8yfju",
+   "text": "R14-P201-KB|文件数：|4|·|大小：|74.1 MB"
+  },
+  {
+   "cls": "card-wrap",
+   "text": "R14-P201-KB|文件数：|4|·|大小：|74.1 MB"
+  },
+  {
+   "cls": "flex w-full justify-start  items-start",
+   "text": "R14-P201-KB"
+  },
+  {
+   "cls": "ant-pro-card-col css-t8yfju ant-pro-card-col-8",
+   "text": "graph-increment-split2|文件数：|4|·|大小：|144.1 MB"
+  }
+ ],
+ "kbFound": 1,
+ "kbBox": {
+  "x": 691,
+  "y": 284,
+  "width": 131.53125,
+  "height": 24
+ },
+ "urlAfterClick": "http://127.0.0.1:18088/chats/knowledgeBase/36",
+ "bodyTextAfter": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR14-E2E-AG5-1111\nR14-E2E-AG5-1111\n暂无标签\n文件数：19 大小：6.5 GB\n知识解析\nFAQ\n配置\n检索测试\n文件管理\n版本管理\n图谱增强\n上传\n新建文件夹\n更多操作\n全部解析状态\n\t\n名称\n\t\n标签\n\t分块数\t解析方法\t\n解析状态\n\t版本修订时间\t上传时间\t操作\n\n\t\nAG5-INTR-112039.pptx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH2-docx-112039.docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH3-xlsx-112039.xlsx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH1-pdf-112039.pdf\n\t\n\t\n2\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-INTR-111942.pptx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH2-docx-111942.docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH1-pdf-111942.pdf\n\t\n\t\n2\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH3-xlsx-111942.xlsx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\ntruncated.docx\n\t\n\t\n0\n\t\n自定义切片\n\t\n解析失败\n\t\n\t\n26-10-28 11:18\n\t\n解析\n删除\n...\n\n\n\t\nbad-renamed.docx\n\t\n\t\n0\n\t\n自定义切片\n\t\n解析失败\n\t\n\t\n26-10-28 11:17\n\t\n解析\n删除\n...\n1\n2\n10 条/页",
+ "buttonsAfter": [
+  "上传",
+  "新建文件夹",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "重新解析",
+  "删除",
+  "解析",
+  "删除",
+  "解析",
+  "删除",
+  "保 存"
+ ],
+ "netSummary": {
+  "total": 381,
+  "statusReqs": [
+   "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=36&fuzzy="
+  ],
+  "bad": []
+ }
+}

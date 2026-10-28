@@ -1,0 +1,119 @@
+{
+ "time": "2026-10-28 11:52:04+0800",
+ "kb_id": "38",
+ "primitive": "kb_38",
+ "counts": {
+  "list_total": 28,
+  "enabled": 18
+ },
+ "target": {
+  "pk": "2115289464285302786",
+  "question": "AG6Q-114802-002 智造贷的最高授信额度是多少？",
+  "answer": "AG6A-114802-002 最高授信额度为 8000 万元。",
+  "status": 1
+ },
+ "L1": {
+  "query": "AG6Q-114802-002 智造贷的最高授信额度是多少？",
+  "http": 200,
+  "elapsed": 0.228,
+  "n_faq_hits": 2,
+  "faq_result_list": [
+   {
+    "faq_question": "ag6q-114802-002 智造贷的最高授信额度是多少？",
+    "faq_answer": "单户最高授信额度为人民币5000万元。",
+    "score": 0.3666666666666667
+   },
+   {
+    "faq_question": "ag6q-114802-002 智造贷的最高授信额度是多少？",
+    "faq_answer": "信用方式最高授信额度为人民币1000万元。",
+    "score": 0.30952380952380953
+   }
+  ],
+  "exact_question_match": false,
+  "answer_char_equal": false,
+  "answer_got": null,
+  "score": null,
+  "n_documents": 1,
+  "msg": "查询成功"
+ },
+ "L2": {
+  "http": 200,
+  "n_faq_hits": 0,
+  "faq_result_list": [],
+  "n_documents": 2
+ },
+ "kb9_faqs": [
+  {
+   "pk": "3993390602696876580",
+   "status": 1,
+   "question": "客户访前准备属于哪一部分？",
+   "answer": "客户访前准备属于第一段。"
+  },
+  {
+   "pk": "2567923333486647930",
+   "status": 1,
+   "question": "客户的日均存款是多少？",
+   "answer": "客户的日均存款是2,983,333.33元。"
+  },
+  {
+   "pk": "3987758739695803449",
+   "status": 1,
+   "question": "文档的第一段主要讨论了什么？",
+   "answer": "文档的第一段主要讨论了客户访前准备。"
+  },
+  {
+   "pk": "4448518768732489287",
+   "status": 1,
+   "question": "文档中提到了日均存款的具体数值吗？",
+   "answer": "是的，文档中提到了日均存款的具体数值。"
+  },
+  {
+   "pk": "2176174361600053921",
+   "status": 1,
+   "question": "日均存款的具体数值是多少？",
+   "answer": "日均存款的具体数值是2,983,333.33元。"
+  },
+  {
+   "pk": "380598402285052609",
+   "status": 1,
+   "question": "客户访前准备的内容在文档中提及了吗？",
+   "answer": "是的，客户访前准备的内容在文档的第一段中提及了。"
+  },
+  {
+   "pk": "1722282247298264369",
+   "status": 1,
+   "question": "日均存款的数值被精确到小数点后几位？",
+   "answer": "日均存款的数值被精确到小数点后两位。"
+  },
+  {
+   "pk": "3467472316076433335",
+   "status": 1,
+   "question": "文档中提到的存款金额是否为整数？",
+   "answer": "不是，文档中提到的存款金额包含小数点后的数字。"
+  },
+  {
+   "pk": "1337025893436667992",
+   "status": 1,
+   "question": "客户访前准备是否在文档的第二段中讨论？",
+   "answer": "否，客户访前准备在文档的第一段中讨论，而日均存款在第二段中提及。"
+  },
+  {
+   "pk": "979115453090383804",
+   "status": 1,
+   "question": "文档的第二段主要讨论了什么？",
+   "answer": "文档的第二段主要讨论了日均存款的具体数值。"
+  }
+ ],
+ "L3": {
+  "query": "客户访前准备属于哪一部分？",
+  "expected_answer": "客户访前准备属于第一段。",
+  "http": 200,
+  "n_frames": 1,
+  "frames_sample": [
+   "data:{\"sessionId\":\"ag6-faq-1793159525354\",\"queryId\":\"ag6q-1793159525354\",\"lastDate\":1793159528972,\"status\":2,\"reply\":{\"content\":\"文档的第一段主要讨论了客户访前准备。\",\"type\":\"markdown\"},\"reference\":\"[]\",\"webReference\":\"[]\",\"databaseReference\":null,\"docsTree\":null,\"resultType\":2,\"filePaths\":null,\"respTime\":2143,\"tokens\":0,\"promptContent\":null,\"llmType\":1}"
+  ],
+  "answer_char_equal": false,
+  "resultType_2_present": true,
+  "text": "data:{\"sessionId\":\"ag6-faq-1793159525354\",\"queryId\":\"ag6q-1793159525354\",\"lastDate\":1793159528972,\"status\":2,\"reply\":{\"content\":\"文档的第一段主要讨论了客户访前准备。\",\"type\":\"markdown\"},\"reference\":\"[]\",\"webReference\":\"[]\",\"databaseReference\":null,\"docsTree\":null,\"resultType\":2,\"filePaths\":null,\"respTime\":2143,\"tokens\":0,\"promptContent\":null,\"llmType\":1}\n"
+ }
+}

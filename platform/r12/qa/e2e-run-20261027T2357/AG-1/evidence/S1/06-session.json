@@ -1,0 +1,14 @@
+{
+  "firstUrl": "http://127.0.0.1:18088/chats/main",
+  "afterReloadUrl": "http://127.0.0.1:18088/chats/main",
+  "tokenSame": true,
+  "tokenClaim": {
+    "iss": "GIEN-RAG",
+    "aud": "admin",
+    "userId": 1,
+    "userName": "admin",
+    "sub": "mixedQuantum",
+    "exp": 1793204940,
+    "iat": 1793118540
+  }
+}

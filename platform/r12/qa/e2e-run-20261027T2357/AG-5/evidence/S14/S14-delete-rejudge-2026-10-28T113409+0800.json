@@ -1,0 +1,36 @@
+{
+ "ts": "2026-10-28 11:34:09+0800",
+ "judge_version": "v2",
+ "file": "AG5-CONV2-doc.docx",
+ "retrieval_after_marker": {
+  "n": 2,
+  "leaked_sources": []
+ },
+ "retrieval_after_shared": {
+  "n": 3,
+  "leaked_sources": []
+ },
+ "still_in_file_list": false,
+ "es_left": {
+  "es_v0:kb_36": 0,
+  "es_v0:table_chunks_kb_36": 0,
+  "es_v0:table_summary_kb_36": 0,
+  "es_v1:kb_36": 0,
+  "es_v1:table_chunks_kb_36": 0,
+  "es_v1:table_summary_kb_36": 0
+ },
+ "delete_calls": [
+  {
+   "file_id": "521",
+   "http": 200,
+   "success": true
+  },
+  {
+   "file_id": "522",
+   "http": 200,
+   "success": true
+  }
+ ],
+ "v1_note": "v1 用 documents 条数判 → 被无关块抬高，误判 FAIL；v2 按来源/内容判",
+ "verdict": "PASS"
+}

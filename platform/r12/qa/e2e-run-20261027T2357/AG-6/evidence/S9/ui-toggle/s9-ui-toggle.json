@@ -1,0 +1,122 @@
+{
+ "scenario": "S9-4 toggle",
+ "kbId": "38",
+ "injectedSession": true,
+ "cases": [
+  {
+   "case": "A-real",
+   "mark": "AG6Q-114802-004",
+   "http": 200,
+   "body": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": null
+   },
+   "before": {
+    "rows": [
+     {
+      "text": "Q: AG6Q-114802-004 智造贷的最高授信额度是多少？ 相似问0 转移到 启用 禁用 A: AG6A-114802-004 最高授信额度为 8000 万元。",
+      "switchChecked": false,
+      "switchAria": "false"
+     }
+    ],
+    "checked": "false",
+    "cls": "ant-switch css-t8yfju"
+   },
+   "after": {
+    "rows": [
+     {
+      "text": "Q: AG6Q-114802-004 智造贷的最高授信额度是多少？ 相似问0 转移到 启用 禁用 A: AG6A-114802-004 最高授信额度为 8000 万元。",
+      "switchChecked": true,
+      "switchAria": "true"
+     }
+    ],
+    "checked": "true",
+    "cls": "ant-switch css-t8yfju ant-switch-checked",
+    "toasts": [
+     {
+      "sel": ".ant-message-notice-content",
+      "text": "问答对启用成功！"
+     },
+     {
+      "sel": ".ant-message",
+      "text": "问答对启用成功！"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "问答对启用成功！"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "问答对启用成功！"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "问答对启用成功！"
+     }
+    ]
+   },
+   "request_payload": "{\"kbId\":\"38\",\"status\":1,\"relatedpks\":[\"2115289465879138307\"]}",
+   "flipped": true,
+   "bad": []
+  },
+  {
+   "case": "B-injected-500",
+   "mark": "AG6Q-114802-005",
+   "injected": {
+    "delivered": 1,
+    "url": "http://127.0.0.1:18088/proxy/index/faq/changeStatus"
+   },
+   "before": {
+    "checked": "false",
+    "cls": "ant-switch css-t8yfju"
+   },
+   "after": {
+    "checked": "false",
+    "cls": "ant-switch css-t8yfju",
+    "toasts": [
+     {
+      "sel": ".ant-message-notice-content",
+      "text": "注入500：模拟服务端异常"
+     },
+     {
+      "sel": ".ant-message-notice-content",
+      "text": "问答对启用失败：服务不可用"
+     },
+     {
+      "sel": ".ant-message",
+      "text": "注入500：模拟服务端异常 问答对启用失败：服务不可用"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "注入500：模拟服务端异常"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "注入500：模拟服务端异常"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "注入500：模拟服务端异常"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "问答对启用失败：服务不可用"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "问答对启用失败：服务不可用"
+     },
+     {
+      "sel": "[class*='message-notice']",
+      "text": "问答对启用失败：服务不可用"
+     }
+    ]
+   },
+   "switch_unchanged": true,
+   "toast_readable": true,
+   "note": "注入件：HTTP 500 响应体为构造件，仅用于验前端失败分支"
+  }
+ ]
+}

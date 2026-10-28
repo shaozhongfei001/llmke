@@ -1,0 +1,116 @@
+{
+ "pkg_entry_md5": "de2424501bd29e358043049876db2a75",
+ "pkg_chunk_md5": "7cd9dffc8422abd447c28caa4741c7eb",
+ "presign_hits": 0,
+ "presign_urls": [],
+ "timeline": [
+  {
+   "t": 1793155918687,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 0,
+   "errText": "R12FIX-product-loan.docx\n100%\n正在加载PDF文档..."
+  },
+  {
+   "t": 1793155918789,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 0,
+   "errText": "R12FIX-product-loan.docx\n100%\n正在加载PDF文档..."
+  },
+  {
+   "t": 1793155918890,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155918997,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919098,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919200,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919302,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919404,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919506,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919607,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919709,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  },
+  {
+   "t": 1793155919810,
+   "drawer": true,
+   "pdfBox": true,
+   "placeholder": false,
+   "canvas": 1,
+   "errText": "R12FIX-product-loan.docx\n1 / 1\n111%"
+  }
+ ],
+ "final": {
+  "drawer": true,
+  "pdfBox": true,
+  "canvas": 1,
+  "text": "R12FIX-product-loan.docx\n1 / 1\n111%"
+ },
+ "net_stream": [
+  {
+   "url": "/proxy/index/knowledgeBase/file/previewStream",
+   "status": 200
+  }
+ ]
+}

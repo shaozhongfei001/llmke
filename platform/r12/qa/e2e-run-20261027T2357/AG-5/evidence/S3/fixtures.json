@@ -1,0 +1,29 @@
+{
+ "encrypted.pdf": {
+  "path": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-5/evidence/fixtures/encrypted.pdf",
+  "bytes": 4053,
+  "sha256": "77943487f1a2bdfac1a35282bc852dc649f62d0130788de7a0243d4f36e319e6",
+  "encrypted_by": "user_pw=123456 / pypdf default",
+  "read_without_pw": "FileNotDecryptedError: File has not been decrypted",
+  "pages_with_pw": 1,
+  "is_encrypted": true
+ },
+ "bad-renamed.pdf": {
+  "path": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-5/evidence/fixtures/bad-renamed.pdf",
+  "bytes": 2020,
+  "sha256": "ceb687d5ce9839aeb1dc53bee2999e841b4c629016b25503d6740330d184e22d",
+  "note": "纯文本改后缀"
+ },
+ "bad-renamed.docx": {
+  "path": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-5/evidence/fixtures/bad-renamed.docx",
+  "bytes": 10240,
+  "sha256": "e96760a87768717bcebcfd25ddc7d46b4dbc95a4b0014def080c08539f7d90d0",
+  "note": "随机字节改后缀，非 zip 容器"
+ },
+ "truncated.docx": {
+  "path": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-5/evidence/fixtures/truncated.docx",
+  "bytes": 22029,
+  "sha256": "f15391f53ca303b6d8095fd2fe076f44fd9ae804f183ddfa26d9378d48345b3f",
+  "note": "合法 docx 截断 60%（原 36716B）"
+ }
+}

@@ -1,0 +1,20 @@
+[
+ {
+  "i": 0,
+  "type": "text",
+  "ph": "输入用户名字",
+  "visible": true
+ },
+ {
+  "i": 1,
+  "type": "password",
+  "ph": "输入密码",
+  "visible": true
+ },
+ {
+  "i": 2,
+  "type": "text",
+  "ph": "输入验证码",
+  "visible": true
+ }
+]

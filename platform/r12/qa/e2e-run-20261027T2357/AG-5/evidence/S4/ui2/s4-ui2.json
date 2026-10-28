@@ -1,0 +1,54 @@
+{
+ "kbId": "36",
+ "failFile": "truncated.docx",
+ "session": {
+  "user": "admin"
+ },
+ "failFound": 1,
+ "statusCellFound": 1,
+ "statusCellBox": {
+  "x": 899.828125,
+  "y": 934.140625,
+  "width": 56,
+  "height": 22
+ },
+ "tooltipAfterHoverStatus": [
+  "解析失败",
+  "系统服务异常，请联系管理员。",
+  "系统服务异常，请联系管理员。",
+  "系统服务异常，请联系管理员。"
+ ],
+ "afterClickName": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR14-E2E-AG5-1111\nR14-E2E-AG5-1111\n暂无标签\n文件数：19 大小：6.5 GB\n知识解析\nFAQ\n配置\n检索测试\n文件管理\n版本管理\n图谱增强\n上传\n新建文件夹\n更多操作\n全部解析状态\n\t\n名称\n\t\n标签\n\t分块数\t解析方法\t\n解析状态\n\t版本修订时间\t上传时间\t操作\n\n\t\nAG5-INTR-112039.pptx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH2-docx-112039.docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH3-xlsx-112039.xlsx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH1-pdf-112039.pdf\n\t\n\t\n2\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:20\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-INTR-111942.pptx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH2-docx-111942.docx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH1-pdf-111942.pdf\n\t\n\t\n2\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\nAG5-BATCH3-xlsx-111942.xlsx\n\t\n\t\n1\n\t\n自定义切片\n\t\n解析完成\n\t\n\t\n26-10-28 11:19\n\t\n重新解析\n删除\n...\n\n\n\t\ntruncated.docx\n\t\n\t\n0\n\t\n自定义切片\n\t\n解析失败\n\t\n\t\n26-10-28 11:18\n\t\n解析\n删除\n...\n\n\n\t\nbad-renamed.docx\n\t\n\t\n0\n\t\n自定义切片\n\t\n解析失败\n\t\n\t\n26-10-28 11:17\n\t\n解析\n删除\n...\n1\n2\n10 条/页\n文件解析状态为【解析失败】，无法进行单文档问答！\ntruncated.docx",
+ "dialogs": [],
+ "rowText": "truncated.docx",
+ "retryBtnCount": 0,
+ "retry": {
+  "attempted": false
+ },
+ "upload": {
+  "fname": "AG5-LIVE-112518.docx",
+  "http": 200,
+  "file_id": "517",
+  "req_time": "2026-10-28 11:25:18+0800"
+ },
+ "autoRefresh": {
+  "window_ms": 25000,
+  "requests_in_window": 0,
+  "reqs": []
+ },
+ "visibleAfterWait": false,
+ "visibleAfterReload": true,
+ "poll": {
+  "folderList": {
+   "count": 2,
+   "gaps_ms": [
+    33761
+   ],
+   "at": [
+    "2026-10-28T03:25:10.695Z",
+    "2026-10-28T03:25:44.456Z"
+   ]
+  }
+ },
+ "bad": []
+}

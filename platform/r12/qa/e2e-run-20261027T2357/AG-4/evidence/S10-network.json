@@ -1,0 +1,2294 @@
+[
+ {
+  "method": "GET",
+  "url": "/chats/knowledgeBase/9",
+  "status": 200,
+  "ts": 1793154262464
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@babel/runtime-70-LPkMI.js",
+  "status": 200,
+  "ts": 1793154262531
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-Bfz093Ih.js",
+  "status": 200,
+  "ts": 1793154262531
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/colors-CwZCmT9p.js",
+  "status": 200,
+  "ts": 1793154262531
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/fast-color-D3zqsVnJ.js",
+  "status": 200,
+  "ts": 1793154262531
+ },
+ {
+  "method": "GET",
+  "url": "/assets/assets-8529vj7n.css",
+  "status": 200,
+  "ts": 1793154262532
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-antd-Br-zbjW3.css",
+  "status": 200,
+  "ts": 1793154262534
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@gientech/modual-rME4iV4s.css",
+  "status": 200,
+  "ts": 1793154262534
+ },
+ {
+  "method": "GET",
+  "url": "/assets/polyfills-DdIJulW3.js",
+  "status": 200,
+  "ts": 1793154262534
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-CbDlLxqx.css",
+  "status": 200,
+  "ts": 1793154262558
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/fviewer-HACx_5JD.css",
+  "status": 200,
+  "ts": 1793154262558
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/xviewer-CaFpVpgL.css",
+  "status": 200,
+  "ts": 1793154262558
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/nodegraph-D8VGdo4C.css",
+  "status": 200,
+  "ts": 1793154262558
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-HSlOjuzV.css",
+  "status": 200,
+  "ts": 1793154262559
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/aichat-DR_34d8u.css",
+  "status": 200,
+  "ts": 1793154262560
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-scheduler-DYLXRpC5.js",
+  "status": 200,
+  "ts": 1793154262560
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-CpE2zvYY.js",
+  "status": 200,
+  "ts": 1793154262563
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-router-dom-ChDnDcJ5.js",
+  "status": 200,
+  "ts": 1793154262563
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@remix-run/router-G1b6SE1w.js",
+  "status": 200,
+  "ts": 1793154262563
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-vscode-jsonrpc-2tvYB2ki.js",
+  "status": 200,
+  "ts": 1793154262563
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-router-DZj_5xeJ.js",
+  "status": 200,
+  "ts": 1793154262564
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@chevrotain/utils-DQUjfX_E.js",
+  "status": 200,
+  "ts": 1793154262564
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-dom-CjqO5MCD.js",
+  "status": 200,
+  "ts": 1793154262564
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@chevrotain/gast-gcozT-t7.js",
+  "status": 200,
+  "ts": 1793154262564
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-lodash-es-BXP4gKw0.js",
+  "status": 200,
+  "ts": 1793154262564
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-chevrotain-allstar-DWbqAQuj.js",
+  "status": 200,
+  "ts": 1793154262564
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@chevrotain/regexp-to-ast-bTPMYxoV.js",
+  "status": 200,
+  "ts": 1793154262591
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-vscode-languageserver-types-BvFum5qp.js",
+  "status": 200,
+  "ts": 1793154262592
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-vscode-languageserver-textdocument-CKBVUiR3.js",
+  "status": 200,
+  "ts": 1793154262594
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-chevrotain-DRE5d59Q.js",
+  "status": 200,
+  "ts": 1793154262594
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-vscode-uri-CXwoqG48.js",
+  "status": 200,
+  "ts": 1793154262594
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-langium-BoUWGQPS.js",
+  "status": 200,
+  "ts": 1793154262595
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-hoist-non-react-statics-wr0LLmrn.js",
+  "status": 200,
+  "ts": 1793154262596
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-sync-external-store-Cjsxf-Rp.js",
+  "status": 200,
+  "ts": 1793154262596
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-is-HDPOLZQC.js",
+  "status": 200,
+  "ts": 1793154262596
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mermaid-js/parser-D1j6u-_I.js",
+  "status": 200,
+  "ts": 1793154262597
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-redux-iECH7HV-.js",
+  "status": 200,
+  "ts": 1793154262597
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-axios-B3U2_j9c.js",
+  "status": 200,
+  "ts": 1793154262597
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-dayjs-Do20EDTL.js",
+  "status": 200,
+  "ts": 1793154262597
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@emotion/hash-WldOFDRm.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-util-DT_YP9Ed.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@emotion/unitless-D-2QRLVp.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-stylis-BeIOFSfa.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/assets-DLl0IKOx.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/cssinjs-DPu15efQ.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-classnames-C9VH3ZEw.js",
+  "status": 200,
+  "ts": 1793154262599
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/cssinjs-utils-rDFqZVZC.js",
+  "status": 200,
+  "ts": 1793154262600
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-resize-observer-48TfWyIQ.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-resize-observer-polyfill-B1PUzC5B.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-motion-D794J-sE.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-overflow-D-9qyu_e.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/icons-svg-DOytPBt1.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rc-component/portal-DndE7hK-.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/icons-jPEBg_Pd.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rc-component/trigger-BL_5Y9ZK.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-dropdown--sroKoAN.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-menu-DoflBrBU.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-tabs-Grxvpt_J.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-virtual-list-DhydDicd.js",
+  "status": 200,
+  "ts": 1793154262602
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-picker-S_X3fLjp.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-cascader-TevedAKq.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-select-DtGPTKil.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-segmented-VZUkU8Bb.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rc-component/color-picker-B7gKrLP4.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-tree-UQP69qcm.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rc-component/mini-decimal-C5ji-Gbg.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-input-BwypWseM.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-drawer-COH7T0eR.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-input-number-Dmu7KxRp.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-slider-DrsjloQF.js",
+  "status": 200,
+  "ts": 1793154262604
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rc-component/async-validator-QXnoYRSt.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-field-form-HR_0JLhV.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-dialog-T_17mQyc.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-tooltip-nvIpzclO.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-image-krGytnpJ.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-notification-CYajPFXA.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-steps-f3dROYkX.js",
+  "status": 200,
+  "ts": 1793154262605
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-rate-BwVPgZLf.js",
+  "status": 200,
+  "ts": 1793154262606
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-switch-Dv7O9j9Z.js",
+  "status": 200,
+  "ts": 1793154262606
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rc-component/context-Cjz6d24m.js",
+  "status": 200,
+  "ts": 1793154262606
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-checkbox-BY-AsWHi.js",
+  "status": 200,
+  "ts": 1793154262606
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-compute-scroll-into-view-R6koymWn.js",
+  "status": 200,
+  "ts": 1793154262618
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-scroll-into-view-if-needed-BVrQ-1O6.js",
+  "status": 200,
+  "ts": 1793154262618
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-table-ZtXsVepS.js",
+  "status": 200,
+  "ts": 1793154262618
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-throttle-debounce-CUWDS_la.js",
+  "status": 200,
+  "ts": 1793154262619
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-toggle-selection-BHUZwh74.js",
+  "status": 200,
+  "ts": 1793154262619
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-copy-to-clipboard-BgipCsi3.js",
+  "status": 200,
+  "ts": 1793154262619
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-pagination-V_T5fwrN.js",
+  "status": 200,
+  "ts": 1793154262620
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-tree-select-CPitVxWR.js",
+  "status": 200,
+  "ts": 1793154262620
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-textarea-B5p8ZCWc.js",
+  "status": 200,
+  "ts": 1793154262620
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-upload-B7qCCHde.js",
+  "status": 200,
+  "ts": 1793154262620
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-collapse-C7-lnbkK.js",
+  "status": 200,
+  "ts": 1793154262621
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-rc-progress-vXtUPA8R.js",
+  "status": 200,
+  "ts": 1793154262621
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-zustand-Dpt_zCp_.js",
+  "status": 200,
+  "ts": 1793154262621
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@umijs/use-params-rEwdF-07.js",
+  "status": 200,
+  "ts": 1793154262621
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-dequal-Wows3SfR.js",
+  "status": 200,
+  "ts": 1793154262622
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ctrl/tinycolor-riLredlm.js",
+  "status": 200,
+  "ts": 1793154262622
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-swr-DY8sag0q.js",
+  "status": 200,
+  "ts": 1793154262622
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/pro-provider-BOZ5zpnP.js",
+  "status": 200,
+  "ts": 1793154262622
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-lodash-BUG7z44Z.js",
+  "status": 200,
+  "ts": 1793154262622
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-safe-stable-stringify-DIgJKYFX.js",
+  "status": 200,
+  "ts": 1793154262623
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@umijs/route-utils-CUdvs3BF.js",
+  "status": 200,
+  "ts": 1793154262623
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-path-to-regexp-CpWReE8w.js",
+  "status": 200,
+  "ts": 1793154262623
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/pro-utils-DwHPWKM1.js",
+  "status": 200,
+  "ts": 1793154262623
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@ant-design/pro-layout-D9Los987.js",
+  "status": 200,
+  "ts": 1793154262624
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-is-plain-object-C7BF5Ngm.js",
+  "status": 200,
+  "ts": 1793154262624
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-crypto-js-CBtca5jQ.js",
+  "status": 200,
+  "ts": 1793154262625
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-immer-B4bpQJe3.js",
+  "status": 200,
+  "ts": 1793154262626
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-direction-DiMwLpYF.js",
+  "status": 200,
+  "ts": 1793154262630
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-slate-B-ra2PhQ.js",
+  "status": 200,
+  "ts": 1793154262630
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/slate-tidbuv5U.js",
+  "status": 200,
+  "ts": 1793154262631
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@juggle/resize-observer-C8OzoCMD.js",
+  "status": 200,
+  "ts": 1793154262631
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-is-hotkey-BT8vj_Ox.js",
+  "status": 200,
+  "ts": 1793154262631
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/utils-DabkdXFm.js",
+  "status": 200,
+  "ts": 1793154262634
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-slate-history-BG0LpyFv.js",
+  "status": 200,
+  "ts": 1793154262635
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/slate-utils-Dzniox1g.js",
+  "status": 200,
+  "ts": 1793154262637
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-slate-react-DIGNgWCS.js",
+  "status": 200,
+  "ts": 1793154262638
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-clsx-B9VHljUI.js",
+  "status": 200,
+  "ts": 1793154262639
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-slate-hyperscript-CHjcFkiw.js",
+  "status": 200,
+  "ts": 1793154262639
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/react-hotkeys-D6PoquOm.js",
+  "status": 200,
+  "ts": 1793154262640
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-jotai-B1x7BALy.js",
+  "status": 200,
+  "ts": 1793154262640
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-jotai-x-DDmpveao.js",
+  "status": 200,
+  "ts": 1793154262641
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-proxy-compare-DvF22pMo.js",
+  "status": 200,
+  "ts": 1793154262642
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-tracked-BmE9raLM.js",
+  "status": 200,
+  "ts": 1793154262644
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-zustand-x-nfS0gTxM.js",
+  "status": 200,
+  "ts": 1793154262645
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-lodash.mapvalues-BNmYEpG3.js",
+  "status": 200,
+  "ts": 1793154262645
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/slate-react-CzvwplfT.js",
+  "status": 200,
+  "ts": 1793154262646
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-compose-refs-Cm_lXX7s.js",
+  "status": 200,
+  "ts": 1793154262646
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/react-utils-CGV1UHxR.js",
+  "status": 200,
+  "ts": 1793154262649
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-deep-compare-B7HFRtLx.js",
+  "status": 200,
+  "ts": 1793154262649
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-slot-Czvai5g7.js",
+  "status": 200,
+  "ts": 1793154262650
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-jotai-optics-CDc-PJOS.js",
+  "status": 200,
+  "ts": 1793154262650
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-optics-ts-CWCUw4ds.js",
+  "status": 200,
+  "ts": 1793154262650
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-combobox-BlK8iPzE.js",
+  "status": 200,
+  "ts": 1793154262653
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-mention-CgLLYhDZ.js",
+  "status": 200,
+  "ts": 1793154262654
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-ts-dedent-D-tao7Fd.js",
+  "status": 200,
+  "ts": 1793154262655
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-test-utils-CMfME8qg.js",
+  "status": 200,
+  "ts": 1793154262657
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-timer-DdKHrDhs.js",
+  "status": 200,
+  "ts": 1793154262657
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-dispatch-kxCwF96_.js",
+  "status": 200,
+  "ts": 1793154262657
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-antd-DNTXxy0A.js",
+  "status": 200,
+  "ts": 1793154262659
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-color-Cfqiy2ga.js",
+  "status": 200,
+  "ts": 1793154262660
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-core-xqGyNzg6.js",
+  "status": 200,
+  "ts": 1793154262660
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-interpolate-BoyWyR1l.js",
+  "status": 200,
+  "ts": 1793154262660
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-ease-DRPgKoYJ.js",
+  "status": 200,
+  "ts": 1793154262660
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-selection-BJkelepr.js",
+  "status": 200,
+  "ts": 1793154262661
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-transition-m1gYyL0b.js",
+  "status": 200,
+  "ts": 1793154262661
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-zoom-BvFKO7OZ.js",
+  "status": 200,
+  "ts": 1793154262661
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-dagre-d3-es-BE7hVDk2.js",
+  "status": 200,
+  "ts": 1793154262666
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-dompurify-E0SPtK4n.js",
+  "status": 200,
+  "ts": 1793154262666
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cose-base-Cn2yi8Dy.js",
+  "status": 200,
+  "ts": 1793154262667
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-layout-base-sIU3_48r.js",
+  "status": 200,
+  "ts": 1793154262669
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@braintree/sanitize-url-DTxIIdJL.js",
+  "status": 200,
+  "ts": 1793154262669
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cytoscape-cose-bilkent-BlKjT5Wq.js",
+  "status": 200,
+  "ts": 1793154262670
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-internmap-BkD7Hj8s.js",
+  "status": 200,
+  "ts": 1793154262672
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-khroma-WrynedUY.js",
+  "status": 200,
+  "ts": 1793154262672
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-array-BZ2AL3Gg.js",
+  "status": 200,
+  "ts": 1793154262674
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-format-CbPl0o6b.js",
+  "status": 200,
+  "ts": 1793154262676
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-time-2aIq57hV.js",
+  "status": 200,
+  "ts": 1793154262676
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-time-format-CJWvqMJi.js",
+  "status": 200,
+  "ts": 1793154262676
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-axis-CbT0oJG-.js",
+  "status": 200,
+  "ts": 1793154262677
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-scale-C_Q_a09Z.js",
+  "status": 200,
+  "ts": 1793154262677
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-path-AMhxdxS6.js",
+  "status": 200,
+  "ts": 1793154262678
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-shape-Cbh0wPdD.js",
+  "status": 200,
+  "ts": 1793154262679
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-uuid-pQ80YA7_.js",
+  "status": 200,
+  "ts": 1793154262680
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-roughjs-CqrMvzjB.js",
+  "status": 200,
+  "ts": 1793154262681
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-sankey-CeTsMvs2.js",
+  "status": 200,
+  "ts": 1793154262681
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cytoscape-DONWqf9-.js",
+  "status": 200,
+  "ts": 1793154262681
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-scale-chromatic-B4gdILZI.js",
+  "status": 200,
+  "ts": 1793154262683
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@iconify/utils-D43P9bW3.js",
+  "status": 200,
+  "ts": 1793154262683
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cytoscape-fcose-B2GyyU3d.js",
+  "status": 200,
+  "ts": 1793154262684
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-d3-hierarchy-CrAEavjc.js",
+  "status": 200,
+  "ts": 1793154262684
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-utils-C476wn0J.js",
+  "status": 200,
+  "ts": 1793154262686
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-marked-CWdHQ5Vu.js",
+  "status": 200,
+  "ts": 1793154262686
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-parse-entities-DUPMa2JE.js",
+  "status": 200,
+  "ts": 1793154262686
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-chunked-DrRIdSP-.js",
+  "status": 200,
+  "ts": 1793154262687
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-combine-extensions-d8XJZrgA.js",
+  "status": 200,
+  "ts": 1793154262687
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-character-Bcm1tP9o.js",
+  "status": 200,
+  "ts": 1793154262688
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-factory-space-BLX5PWg0.js",
+  "status": 200,
+  "ts": 1793154262689
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-classify-character-CIK7-A0a.js",
+  "status": 200,
+  "ts": 1793154262690
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-resolve-all-PQCKh0dx.js",
+  "status": 200,
+  "ts": 1793154262690
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-decode-named-character-reference-C3-224fz.js",
+  "status": 200,
+  "ts": 1793154262691
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-subtokenize-B0G4wCQY.js",
+  "status": 200,
+  "ts": 1793154262692
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-factory-destination-D9NyL13B.js",
+  "status": 200,
+  "ts": 1793154262692
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-factory-label-D6r-Fp6V.js",
+  "status": 200,
+  "ts": 1793154262693
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-factory-title-D9P6wEYK.js",
+  "status": 200,
+  "ts": 1793154262694
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-factory-whitespace-B0pwdzpi.js",
+  "status": 200,
+  "ts": 1793154262697
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-normalize-identifier-C9ANKk3v.js",
+  "status": 200,
+  "ts": 1793154262697
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-html-tag-name-DbKNfynz.js",
+  "status": 200,
+  "ts": 1793154262698
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-core-commonmark-BvtFroPU.js",
+  "status": 200,
+  "ts": 1793154262699
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-mdast-util-to-string-DWnGjEoP.js",
+  "status": 200,
+  "ts": 1793154262700
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-unist-util-stringify-position-BLjin0oJ.js",
+  "status": 200,
+  "ts": 1793154262700
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-JMJJkJ7f.js",
+  "status": 200,
+  "ts": 1793154262701
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-decode-numeric-character-reference-DRnCnno4.js",
+  "status": 200,
+  "ts": 1793154262702
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-micromark-util-decode-string-8qDLm5JL.js",
+  "status": 200,
+  "ts": 1793154262702
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-remark-parse-BMJ06dv3.js",
+  "status": 200,
+  "ts": 1793154262702
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-bail-AjTTgz1N.js",
+  "status": 200,
+  "ts": 1793154262703
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-mdast-util-from-markdown-J2jiew3Q.js",
+  "status": 200,
+  "ts": 1793154262703
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-is-buffer-z6hZpZBX.js",
+  "status": 200,
+  "ts": 1793154262705
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-extend-l1xzC_Eq.js",
+  "status": 200,
+  "ts": 1793154262705
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-is-plain-obj-D1TmHDR4.js",
+  "status": 200,
+  "ts": 1793154262706
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-trough-DBG-YvTQ.js",
+  "status": 200,
+  "ts": 1793154262707
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-vfile-message-B3xbjJvk.js",
+  "status": 200,
+  "ts": 1793154262707
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-class-variance-authority-BRQasHcV.js",
+  "status": 200,
+  "ts": 1793154262708
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-unified-DZion5-J.js",
+  "status": 200,
+  "ts": 1793154262708
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-vfile-DXPHFxAZ.js",
+  "status": 200,
+  "ts": 1793154262708
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-markdown-BshDNE40.js",
+  "status": 200,
+  "ts": 1793154262708
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-tailwind-merge-BOZU2X2x.js",
+  "status": 200,
+  "ts": 1793154262709
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/cn-V8oJMXBH.js",
+  "status": 200,
+  "ts": 1793154262709
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-fast-deep-equal-DhgPJNJw.js",
+  "status": 200,
+  "ts": 1793154262710
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-uid-CpW6Dhpp.js",
+  "status": 200,
+  "ts": 1793154262710
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-axios-mock-adapter-Ye7Rc2dk.js",
+  "status": 200,
+  "ts": 1793154262710
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-lucide-react-8HBUVj5j.js",
+  "status": 200,
+  "ts": 1793154262711
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@tanstack/react-query-DMK1HGqo.js",
+  "status": 200,
+  "ts": 1793154262711
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@tanstack/query-core-Df_yEnq1.js",
+  "status": 200,
+  "ts": 1793154262712
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-prop-types-CxS-12Ye.js",
+  "status": 200,
+  "ts": 1793154262712
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-side-effect-BUoEACwh.js",
+  "status": 200,
+  "ts": 1793154262713
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-fast-compare-DmPoLI2m.js",
+  "status": 200,
+  "ts": 1793154262713
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-object-assign-CBn4c0Xx.js",
+  "status": 200,
+  "ts": 1793154262714
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-router-middleware-plus-B841rS8h.js",
+  "status": 200,
+  "ts": 1793154262714
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-helmet-BFPF63ZV.js",
+  "status": 200,
+  "ts": 1793154262714
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-redux-BV6oXUMW.js",
+  "status": 200,
+  "ts": 1793154262715
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@rematch/core-BftT4oX7.js",
+  "status": 200,
+  "ts": 1793154262715
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-tslib-BAgmoMtJ.js",
+  "status": 200,
+  "ts": 1793154262716
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-theme-BtJ16705.js",
+  "status": 200,
+  "ts": 1793154262717
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-styled-components-BpoOz7An.js",
+  "status": 200,
+  "ts": 1793154262717
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-elements-Dg2vkPRJ.js",
+  "status": 200,
+  "ts": 1793154262717
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-animejs-Cyp1bMlK.js",
+  "status": 200,
+  "ts": 1793154262717
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-DGvHVUnD.js",
+  "status": 200,
+  "ts": 1793154262720
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-layouts-CDMoSELn.js",
+  "status": 200,
+  "ts": 1793154262721
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-components-B1bLrbCP.js",
+  "status": 200,
+  "ts": 1793154262724
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-mermaid-Cc48HIgL.js",
+  "status": 200,
+  "ts": 1793154262727
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/fviewer-CUVY0wnd.js",
+  "status": 200,
+  "ts": 1793154262727
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/zui-icons-fKune5no.js",
+  "status": 200,
+  "ts": 1793154262743
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/rtext-D0UAD6TO.js",
+  "status": 200,
+  "ts": 1793154262744
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-pdfjs-dist-BDXe00Lx.js",
+  "status": 200,
+  "ts": 1793154262749
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/nodegraph-CqIJ361Y.js",
+  "status": 200,
+  "ts": 1793154262753
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/xviewer-Z-2X70vr.js",
+  "status": 200,
+  "ts": 1793154262776
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@gientech/modual-DGMMTozi.js",
+  "status": 200,
+  "ts": 1793154262833
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-CZUr-VlV.css",
+  "status": 200,
+  "ts": 1793154263337
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-tweet-YvEzRQr9.css",
+  "status": 200,
+  "ts": 1793154263337
+ },
+ {
+  "method": "GET",
+  "url": "/assets/ChatViewEditor-Ba8P6fS1.css",
+  "status": 200,
+  "ts": 1793154263337
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-Cpm6Y9Eg.css",
+  "status": 200,
+  "ts": 1793154263337
+ },
+ {
+  "method": "GET",
+  "url": "/assets/Detail-Bg9KCPG9.css",
+  "status": 200,
+  "ts": 1793154263338
+ },
+ {
+  "method": "GET",
+  "url": "/assets/nav-logo-BKaOCDqi.png",
+  "status": 200,
+  "ts": 1793154263367
+ },
+ {
+  "method": "GET",
+  "url": "/assets/autoTag-DSGIhi1X.js",
+  "status": 200,
+  "ts": 1793154263368
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-dnd-html5-backend-basGMNU1.js",
+  "status": 200,
+  "ts": 1793154263368
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-dnd-CU6UwJG1.js",
+  "status": 200,
+  "ts": 1793154263368
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-dnd-core-BlYvCx9C.js",
+  "status": 200,
+  "ts": 1793154263368
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-D78Jschg.js",
+  "status": 200,
+  "ts": 1793154263369
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@react-dnd/invariant-CpXzGp22.js",
+  "status": 200,
+  "ts": 1793154263369
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@react-dnd/asap-kGd5DMWm.js",
+  "status": 200,
+  "ts": 1793154263369
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@react-dnd/shallowequal-D1ZyZBg9.js",
+  "status": 200,
+  "ts": 1793154263369
+ },
+ {
+  "method": "GET",
+  "url": "/assets/service-xWcDal2u.js",
+  "status": 200,
+  "ts": 1793154263369
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-chardet-A-59d5In.js",
+  "status": 200,
+  "ts": 1793154263370
+ },
+ {
+  "method": "GET",
+  "url": "/assets/service-DVeKxRWG.js",
+  "status": 200,
+  "ts": 1793154263370
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-CGllGpcb.js",
+  "status": 200,
+  "ts": 1793154263370
+ },
+ {
+  "method": "GET",
+  "url": "/assets/UploadBox-D5rulWWm.js",
+  "status": 200,
+  "ts": 1793154263370
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-ahooks-DVJVWIfD.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/FolderDetail-wrs3oBn5.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-DXqX5agx.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@better-scroll/core-DVcwp5sJ.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@better-scroll/observe-dom-DJd7UTHU.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@better-scroll/scroll-bar-HNqfSP0B.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@better-scroll/mouse-wheel-fxJoUGdi.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-papaparse-Bme44J-s.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-block-quote-BQzxADWx.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/ChatViewEditor-C1GqRxIG.js",
+  "status": 200,
+  "ts": 1793154263371
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-code-block-B6CK9sK4.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-heading-DRZI2V2y.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-horizontal-rule-D9JnwdFR.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-normalizers-324-wJNI.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-link-C5oOkjZ5.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-excalidraw-2n5lGC64.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-media-DjzAr4sL.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-js-video-url-parser-B8w81Y1V.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-layout-q8wCPgiB.js",
+  "status": 200,
+  "ts": 1793154263374
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-reset-node-CfWKg-Io.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-table-DRP7AEym.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-resizable-JKMCuOlE.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-date-CtJ59M1h.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-list-CimoSUoq.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-basic-marks-Qq4fPvKp.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-font-C6wAXYH4.js",
+  "status": 200,
+  "ts": 1793154263375
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-highlight-CJJ_OHMJ.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-kbd-CQ5t7Xb7.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-alignment-DaGZgbet.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-indent-ChtUriZ7.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-line-height-jB9MQu-8.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-indent-list-BMoARx8u.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-juice-DpTwxJyM.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-node-id-DiHGyhtn.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-juice-CyjdyX0m.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cheerio-select-CzLFjvbK.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cheerio-DPk_ZCfK.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-css-what-Bytf5p6M.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-css-select-BE5iQrl3.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-domhandler-CaWv5mPp.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-domelementtype-C_FFwB5S.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-domutils-DkiVtbq2.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-dom-serializer-BYPahC0Y.js",
+  "status": 200,
+  "ts": 1793154263376
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-boolbase-DATFwCNf.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-nth-check-BC_PyA53.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-htmlparser2-D_N81dNa.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-parse5-htmlparser2-tree-adapter-rFCKmjPA.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-slick-BL90hJUm.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-mensch-D9ES5LPR.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-parse5-BfHtatPe.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-cmdk-De2eEkej.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-entities-Dy7ke_GP.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/primitive-Bn0KTc7p.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-dialog-D_B-hr8b.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-id-Bp_vzS1M.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-context-BopelqAm.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-use-layout-effect-DgEmNECa.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-use-controllable-state-BUGCUryK.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-use-callback-ref-xQ7R-f4f.js",
+  "status": 200,
+  "ts": 1793154263377
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-prismjs-BjwqIUeu.js",
+  "status": 200,
+  "ts": 1793154263378
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-dismissable-layer-ClFHGHrp.js",
+  "status": 200,
+  "ts": 1793154263378
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-use-escape-keydown-DvdTBiSK.js",
+  "status": 200,
+  "ts": 1793154263378
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-primitive-Ci9SZOT6.js",
+  "status": 200,
+  "ts": 1793154263378
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-portal-BKMWFBKy.js",
+  "status": 200,
+  "ts": 1793154263378
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-focus-scope-DQaTzBDm.js",
+  "status": 200,
+  "ts": 1793154263382
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-presence-Cn89TJcQ.js",
+  "status": 200,
+  "ts": 1793154263382
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-focus-guards-VTnFt3nj.js",
+  "status": 200,
+  "ts": 1793154263382
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-remove-scroll-bar-BEhLQmLf.js",
+  "status": 200,
+  "ts": 1793154263382
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-style-singleton-FgWc8aKN.js",
+  "status": 200,
+  "ts": 1793154263382
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-remove-scroll-D4rGvAY2.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-get-nonce-C-Z93AgS.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-sidecar-BHQJZXj_.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-callback-ref-WqgaHXH4.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-aria-hidden-DvXkyWUv.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-popover-Cy9c5esV.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@floating-ui/react-dom-BU4dKUXN.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-popper-DkIZLouf.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@floating-ui/dom-DiWzokwu.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@floating-ui/core-t3cway3_.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@floating-ui/utils-CMjlLL6V.js",
+  "status": 200,
+  "ts": 1793154263383
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-arrow-C51mSgOk.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-use-size-CR2ISWFG.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-caption-CdN95xrb.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-textarea-autosize-DlcpCj2x.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-latest-D_4D0ARz.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-isomorphic-layout-effect-BIwmawVR.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-use-composed-ref-BKr6Nq-B.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-separator-jowEq29N.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-lite-youtube-embed-D0FuPEO_.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-collection-wwx5cKoX.js",
+  "status": 200,
+  "ts": 1793154263384
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-dropdown-menu-whSqHmfm.js",
+  "status": 200,
+  "ts": 1793154263385
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-direction-DegblRxy.js",
+  "status": 200,
+  "ts": 1793154263385
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-tweet-B8upbvh1.js",
+  "status": 200,
+  "ts": 1793154263385
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-menu-xBwkkwEU.js",
+  "status": 200,
+  "ts": 1793154263385
+ },
+ {
+  "method": "GET",
+  "url": "/assets/Detail-CBE2vKgR.js",
+  "status": 200,
+  "ts": 1793154263389
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-checkbox-Le6q3COa.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-use-previous-Beh6ehkD.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@radix-ui/react-roving-focus-DNmT1SWf.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@date-fns/tz-PQ6C_Hr0.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-react-day-picker-C7ENMtO1.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-date-fns-BNPKsZ0M.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@udecode/plate-toggle-xsEjroUH.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/constant-CMxUDVHr.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@microsoft/fetch-event-source-BzSw2dPi.js",
+  "status": 200,
+  "ts": 1793154263390
+ },
+ {
+  "method": "GET",
+  "url": "/assets/tools-CodCtGm6.js",
+  "status": 200,
+  "ts": 1793154263391
+ },
+ {
+  "method": "GET",
+  "url": "/assets/faqService-E-UcK7qL.js",
+  "status": 200,
+  "ts": 1793154263391
+ },
+ {
+  "method": "GET",
+  "url": "/assets/DrawerContent-dCgLGEf6.js",
+  "status": 200,
+  "ts": 1793154263391
+ },
+ {
+  "method": "GET",
+  "url": "/assets/RepeatFaq-DXcNrwzd.js",
+  "status": 200,
+  "ts": 1793154263391
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-wzSgFPrS.js",
+  "status": 200,
+  "ts": 1793154263391
+ },
+ {
+  "method": "GET",
+  "url": "/assets/index-ifH6HTWV.js",
+  "status": 200,
+  "ts": 1793154263391
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/auth/resource/getMenusByUser",
+  "status": 200,
+  "ts": 1793154263398
+ },
+ {
+  "method": "GET",
+  "url": "/assets/vendor-@mxmweb/file-viewer-DFRp9x92.js",
+  "status": 200,
+  "ts": 1793154263471
+ },
+ {
+  "method": "GET",
+  "url": "/assets/knowledge_base_title_icon-vv8ccXin.svg",
+  "status": 200,
+  "ts": 1793154263987
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/bizLabel/historyOfKbLabel?kbId=9",
+  "status": 200,
+  "ts": 1793154264023
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/knowledgeBase/getKbById?id=9",
+  "status": 200,
+  "ts": 1793154264024
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=1",
+  "status": 200,
+  "ts": 1793154264025
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=2",
+  "status": 200,
+  "ts": 1793154264026
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=4",
+  "status": 200,
+  "ts": 1793154264026
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+  "status": 200,
+  "ts": 1793154264164
+ },
+ {
+  "method": "GET",
+  "url": "/assets/icon-pdf-BNvA7klg.svg",
+  "status": 200,
+  "ts": 1793154264219
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/knowledgeBase/file/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=&showType=1",
+  "status": 200,
+  "ts": 1793154266851
+ },
+ {
+  "method": "GET",
+  "url": "/assets/icon-folder-DbcxWcwS.svg",
+  "status": 200,
+  "ts": 1793154266922
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/bizLabel/historyOfKbLabel?kbId=9",
+  "status": 200,
+  "ts": 1793154269823
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=9&fuzzy=",
+  "status": 200,
+  "ts": 1793154269955
+ },
+ {
+  "method": "GET",
+  "url": "/proxy/index/knowledgeBase/file/multiple/version?kbNames=kb_9&pageNo=1&pageSize=20",
+  "status": 200,
+  "ts": 1793154272430
+ }
+]

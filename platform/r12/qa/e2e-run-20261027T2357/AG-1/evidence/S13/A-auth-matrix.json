@@ -1,0 +1,152 @@
+[
+  {
+    "variant": "无 Authorization",
+    "endpoint": "受保护 /auth/resource/getMenusByUser",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "无 Authorization",
+    "endpoint": "公开 /auth/user/kaptcha",
+    "status": 200,
+    "isJson": false,
+    "note": ""
+  },
+  {
+    "variant": "无 Authorization",
+    "endpoint": "业务 /index/knowledgeBase/list",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "空字符串",
+    "endpoint": "受保护 /auth/resource/getMenusByUser",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "空字符串",
+    "endpoint": "公开 /auth/user/kaptcha",
+    "status": 200,
+    "isJson": false,
+    "note": ""
+  },
+  {
+    "variant": "空字符串",
+    "endpoint": "业务 /index/knowledgeBase/list",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "无点串(0段)",
+    "endpoint": "受保护 /auth/resource/getMenusByUser",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "无点串(0段)",
+    "endpoint": "公开 /auth/user/kaptcha",
+    "status": 500,
+    "isJson": true,
+    "note": ""
+  },
+  {
+    "variant": "无点串(0段)",
+    "endpoint": "业务 /index/knowledgeBase/list",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "三段乱写(a.b.c)",
+    "endpoint": "受保护 /auth/resource/getMenusByUser",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "三段乱写(a.b.c)",
+    "endpoint": "公开 /auth/user/kaptcha",
+    "status": 500,
+    "isJson": true,
+    "note": ""
+  },
+  {
+    "variant": "三段乱写(a.b.c)",
+    "endpoint": "业务 /index/knowledgeBase/list",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "三段+篡改载荷(签名不变)",
+    "endpoint": "受保护 /auth/resource/getMenusByUser",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "登录失效已过，请重新登录",
+    "note": ""
+  },
+  {
+    "variant": "三段+篡改载荷(签名不变)",
+    "endpoint": "公开 /auth/user/kaptcha",
+    "status": 200,
+    "isJson": false,
+    "note": ""
+  },
+  {
+    "variant": "三段+篡改载荷(签名不变)",
+    "endpoint": "业务 /index/knowledgeBase/list",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "登录失效已过，请重新登录",
+    "note": ""
+  },
+  {
+    "variant": "Bearer 前缀+真token",
+    "endpoint": "受保护 /auth/resource/getMenusByUser",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  },
+  {
+    "variant": "Bearer 前缀+真token",
+    "endpoint": "公开 /auth/user/kaptcha",
+    "status": 500,
+    "isJson": true,
+    "note": ""
+  },
+  {
+    "variant": "Bearer 前缀+真token",
+    "endpoint": "业务 /index/knowledgeBase/list",
+    "status": 401,
+    "isJson": true,
+    "success": false,
+    "errorMsg": "没有token",
+    "note": ""
+  }
+]

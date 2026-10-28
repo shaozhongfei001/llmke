@@ -1,0 +1,19 @@
+{
+ "kbCount": 17,
+ "kbWithImages": [
+  {
+   "kbId": "10",
+   "kbName": "qa_r12_final",
+   "images": [
+    "scan-text.png"
+   ]
+  },
+  {
+   "kbId": "5",
+   "kbName": "qa_r12_indep",
+   "images": [
+    "scan-text.png"
+   ]
+  }
+ ]
+}

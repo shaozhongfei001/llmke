@@ -1,0 +1,2481 @@
+{
+ "ts": "2026-10-28 11:15:11+0800",
+ "kb_id": 36,
+ "es_index": "kb_36",
+ "pids_open": {
+  "8088": "925533",
+  "18082": "923878",
+  "18083": "1647331",
+  "19527": "922312",
+  "19529": "1461792",
+  "19995": "922468"
+ },
+ "es_before": {
+  "idx": "kb_36",
+  "http": 200,
+  "count": 0
+ },
+ "cases": {
+  "docx-plain": {
+   "case": "docx-plain",
+   "desc": "纯文本 docx",
+   "file": "docx-plain.docx",
+   "bytes": 36716,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.14,
+    "req_time": "2026-10-28 11:15:12+0800",
+    "req_epoch": 1793157312.0007603,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "493",
+       "kbId": "36",
+       "fileName": "docx-plain.docx",
+       "fileSize": 36716.0,
+       "size": "36716.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/docx-plain.docx/V0/docx-plain.docx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "docx-plain.docx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157312000-docx-plain.d",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "1194422673",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:15:12",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "493",
+     "kbId": "36",
+     "fileName": "docx-plain.docx",
+     "fileSize": 36716.0,
+     "size": "36716.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/docx-plain.docx/V0/docx-plain.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "docx-plain.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157312000-docx-plain.d",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1194422673",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:15:12",
+     "count": null
+    }
+   ],
+   "file_id": "493",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 6.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 4.0,
+      "status": 2,
+      "status_name": "2(解析中)",
+      "http": 200
+     },
+     {
+      "t": 6.1,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "493",
+      "kb_id": "36",
+      "file_name": "docx-plain.docx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:15:16"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "537",
+      "file_id": "493",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:15:15",
+      "end_time": "2026-10-28 11:15:16",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 1,
+    "got": 1,
+    "min_create_time": "2026-10-28 11:15:15.141392",
+    "max_create_time": "2026-10-28 11:15:15.141392",
+    "sample_pk": [
+     458976604060092941
+    ],
+    "sample_head": "Plain DOCX第一段：客户访前准备。第二段：日均存款 2,983,333.33 元。"
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 1,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"458976604060092941\", \"content\": \"Plain DOCX第一段：客户访前准备。第二段：日均存款 2,983,333.33 元。\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": null, \"positions\": [[], [], []], \"pageNumbers\": [0, 0, 0], \"pageSizes\": [[], [], []], \"offsets\": [[0, 45]], \"type\": \"text\", \"tableName\": \"kb_36\", \"table\": null}], \"total\": 1, \"size\":"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "537",
+        "file_id": "493",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:15:15",
+        "end_time": "2026-10-28 11:15:16",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": true,
+     "A4_detail": {
+      "total": 1,
+      "min_create_time": "2026-10-28 11:15:15.141392",
+      "req_time": "2026-10-28 11:15:12+0800",
+      "later": true
+     },
+     "A5_正文可取": true
+    }
+   }
+  },
+  "docx-table": {
+   "case": "docx-table",
+   "desc": "含表格 docx",
+   "file": "docx-table.docx",
+   "bytes": 36944,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.095,
+    "req_time": "2026-10-28 11:15:18+0800",
+    "req_epoch": 1793157318.3660948,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "494",
+       "kbId": "36",
+       "fileName": "docx-table.docx",
+       "fileSize": 36944.0,
+       "size": "36944.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/docx-table.docx/V0/docx-table.docx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "docx-table.docx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157318366-docx-table.d",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "815706637",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:15:18",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "494",
+     "kbId": "36",
+     "fileName": "docx-table.docx",
+     "fileSize": 36944.0,
+     "size": "36944.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/docx-table.docx/V0/docx-table.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "docx-table.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157318366-docx-table.d",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "815706637",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:15:18",
+     "count": null
+    }
+   ],
+   "file_id": "494",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 22.2,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 12.1,
+      "status": 2,
+      "status_name": "2(解析中)",
+      "http": 200
+     },
+     {
+      "t": 22.2,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "494",
+      "kb_id": "36",
+      "file_name": "docx-table.docx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:15:40"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "538",
+      "file_id": "494",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:15:30",
+      "end_time": "2026-10-28 11:15:40",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 1,
+    "got": 1,
+    "min_create_time": "2026-10-28 11:15:32.058311",
+    "max_create_time": "2026-10-28 11:15:32.058311",
+    "sample_pk": [
+     333667601163210755
+    ],
+    "sample_head": "DOCX with table下表为多指标对账口径。"
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 2,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"333667601163210755\", \"content\": \"DOCX with table下表为多指标对账口径。\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": null, \"positions\": [[], []], \"pageNumbers\": [0, 0], \"pageSizes\": [[], []], \"offsets\": [[0, 26]], \"type\": \"text\", \"tableName\": \"kb_36\", \"table\": null}, {\"id\": \"479584477223083315\", \"content\": \"|指标|数据源|口"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "538",
+        "file_id": "494",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:15:30",
+        "end_time": "2026-10-28 11:15:40",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": true,
+     "A4_detail": {
+      "total": 1,
+      "min_create_time": "2026-10-28 11:15:32.058311",
+      "req_time": "2026-10-28 11:15:18+0800",
+      "later": true
+     },
+     "A5_正文可取": true
+    }
+   }
+  },
+  "xlsx-ledger": {
+   "case": "xlsx-ledger",
+   "desc": "台账 xlsx",
+   "file": "R12FIX-credit-ledger.xlsx",
+   "bytes": 5340,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.091,
+    "req_time": "2026-10-28 11:15:40+0800",
+    "req_epoch": 1793157340.8532505,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "495",
+       "kbId": "36",
+       "fileName": "R12FIX-credit-ledger.xlsx",
+       "fileSize": 5340.0,
+       "size": "5340.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "R12FIX-credit-ledger.xlsx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157340853-R12FIX-credi",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "1577230197",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:15:40",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "495",
+     "kbId": "36",
+     "fileName": "R12FIX-credit-ledger.xlsx",
+     "fileSize": 5340.0,
+     "size": "5340.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "R12FIX-credit-ledger.xlsx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157340853-R12FIX-credi",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1577230197",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:15:40",
+     "count": null
+    }
+   ],
+   "file_id": "495",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 14.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 6.1,
+      "status": 2,
+      "status_name": "2(解析中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "495",
+      "kb_id": "36",
+      "file_name": "R12FIX-credit-ledger.xlsx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:15:53"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "539",
+      "file_id": "495",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:15:45",
+      "end_time": "2026-10-28 11:15:53",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 0,
+    "got": 0,
+    "min_create_time": null,
+    "max_create_time": null,
+    "sample_pk": [],
+    "sample_head": null
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 1,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"551815513813976792\", \"content\": \"|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\\n|华东精密制造有限公司|汽车零部件|AA|3000|1800|正常|2027-03-31|\\n|江南装备科技有限公司|装备制造|AAA|5000|3200|正常|2027-06-30|\\n|海川电子材料股份有限公司|电子信息|A|1200|900|关注|2026-12-31|\\n|北方重工配件厂|汽车零部件|AA|2000|0|正常|2027-01-31|\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": nu"
+   },
+   "verdict": {
+    "verdict": "FAIL",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "539",
+        "file_id": "495",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:15:45",
+        "end_time": "2026-10-28 11:15:53",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": false,
+     "A4_detail": {
+      "total": 0,
+      "min_create_time": null,
+      "req_time": "2026-10-28 11:15:40+0800",
+      "later": null
+     },
+     "A5_正文可取": true
+    }
+   }
+  },
+  "pptx-intro": {
+   "case": "pptx-intro",
+   "desc": "PPTX",
+   "file": "R12FIX-product-intro.pptx",
+   "bytes": 29388,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.158,
+    "req_time": "2026-10-28 11:15:55+0800",
+    "req_epoch": 1793157355.2261019,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "496",
+       "kbId": "36",
+       "fileName": "R12FIX-product-intro.pptx",
+       "fileSize": 29388.0,
+       "size": "29388.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "R12FIX-product-intro.pptx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157355226-R12FIX-produ",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "1939665135",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:15:55",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "496",
+     "kbId": "36",
+     "fileName": "R12FIX-product-intro.pptx",
+     "fileSize": 29388.0,
+     "size": "29388.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "R12FIX-product-intro.pptx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157355226-R12FIX-produ",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1939665135",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:15:55",
+     "count": null
+    }
+   ],
+   "file_id": "496",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 8.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 6.1,
+      "status": 2,
+      "status_name": "2(解析中)",
+      "http": 200
+     },
+     {
+      "t": 8.1,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "496",
+      "kb_id": "36",
+      "file_name": "R12FIX-product-intro.pptx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:16:03"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "540",
+      "file_id": "496",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:00",
+      "end_time": "2026-10-28 11:16:03",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 1,
+    "got": 1,
+    "min_create_time": "2026-10-28 11:16:00.162743",
+    "max_create_time": "2026-10-28 11:16:00.162743",
+    "sample_pk": [
+     313847144313943105
+    ],
+    "sample_head": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工"
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 1,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"313847144313943105\", \"content\": \"“智造贷”产品要点\\n适用对象：制造业中小微企业\\n最高额度：5000万元（信用部分不超过1000万元）\\n最长期限：3年\\n利率：1年期LPR加点30~100BP办理流程\\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": null, \"positions\": [[], []], \"pageNumbers\": [0, 0], \"pageSizes\": [[], []], \"offsets\": [[0, 123]], \""
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "540",
+        "file_id": "496",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:16:00",
+        "end_time": "2026-10-28 11:16:03",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": true,
+     "A4_detail": {
+      "total": 1,
+      "min_create_time": "2026-10-28 11:16:00.162743",
+      "req_time": "2026-10-28 11:15:55+0800",
+      "later": true
+     },
+     "A5_正文可取": true
+    }
+   }
+  },
+  "pdf-digital": {
+   "case": "pdf-digital",
+   "desc": "数字版 PDF",
+   "file": "pdf-digital.pdf",
+   "bytes": 3577,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.1,
+    "req_time": "2026-10-28 11:16:03+0800",
+    "req_epoch": 1793157363.6431491,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "497",
+       "kbId": "36",
+       "fileName": "pdf-digital.pdf",
+       "fileSize": 3577.0,
+       "size": "3577.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/pdf-digital.pdf/V0/pdf-digital.pdf",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "pdf-digital.pdf",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157363643-pdf-digital.",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "793420737",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:16:03",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "497",
+     "kbId": "36",
+     "fileName": "pdf-digital.pdf",
+     "fileSize": 3577.0,
+     "size": "3577.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/pdf-digital.pdf/V0/pdf-digital.pdf",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "pdf-digital.pdf",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157363643-pdf-digital.",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "793420737",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:16:03",
+     "count": null
+    }
+   ],
+   "file_id": "497",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 14.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 12.1,
+      "status": 2,
+      "status_name": "2(解析中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "497",
+      "kb_id": "36",
+      "file_name": "pdf-digital.pdf",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:16:17"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "541",
+      "file_id": "497",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:15",
+      "end_time": "2026-10-28 11:16:17",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 2,
+    "got": 2,
+    "min_create_time": "2026-10-28 11:16:15.538016",
+    "max_create_time": "2026-10-28 11:16:15.538048",
+    "sample_pk": [
+     123548333196896072,
+     298974259142513990
+    ],
+    "sample_head": "Digital PDF sample····2,983,333.33 CNY. This page has a real text layer.Paragraph line 1: knowledge engineering baseline"
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 2,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"123548333196896072\", \"content\": \"Digital PDF sample····2,983,333.33 CNY. This page has a real text layer.Paragraph line 1: knowledge engineering baseline.Paragraph line 2: knowledge engineering baseline.Paragraph line 3: knowledge engineering baseline.Paragraph line 4: knowledge engineering baseline.Paragraph line "
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "541",
+        "file_id": "497",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:16:15",
+        "end_time": "2026-10-28 11:16:17",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": true,
+     "A4_detail": {
+      "total": 2,
+      "min_create_time": "2026-10-28 11:16:15.538016",
+      "req_time": "2026-10-28 11:16:03+0800",
+      "later": true
+     },
+     "A5_正文可取": true
+    }
+   }
+  },
+  "pdf-scanned": {
+   "case": "pdf-scanned",
+   "desc": "扫描版 PDF",
+   "file": "pdf-scanned.pdf",
+   "bytes": 6525683,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.319,
+    "req_time": "2026-10-28 11:16:18+0800",
+    "req_epoch": 1793157378.0330744,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "498",
+       "kbId": "36",
+       "fileName": "pdf-scanned.pdf",
+       "fileSize": 6525683.0,
+       "size": "6525683.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "pdf-scanned.pdf",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157378033-pdf-scanned.",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "96534425",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:16:18",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "498",
+     "kbId": "36",
+     "fileName": "pdf-scanned.pdf",
+     "fileSize": 6525683.0,
+     "size": "6525683.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/pdf-scanned.pdf/V0/pdf-scanned.pdf",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "pdf-scanned.pdf",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157378033-pdf-scanned.",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "96534425",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:16:18",
+     "count": null
+    }
+   ],
+   "file_id": "498",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 14.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 12.1,
+      "status": 2,
+      "status_name": "2(解析中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "498",
+      "kb_id": "36",
+      "file_name": "pdf-scanned.pdf",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:16:32"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "542",
+      "file_id": "498",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:30",
+      "end_time": "2026-10-28 11:16:32",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 1,
+    "got": 1,
+    "min_create_time": "2026-10-28 11:16:30.696808",
+    "max_create_time": "2026-10-28 11:16:30.696808",
+    "sample_pk": [
+     620920596806383385
+    ],
+    "sample_head": "SCANNED PAGE-notex layene 10 of alocume nt imagne 11 of a 9ine 13 of a scanned docume nt imagme nt imag"
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 1,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"620920596806383385\", \"content\": \"SCANNED PAGE-notex layene 10 of alocume nt imagne 11 of a 9ine 13 of a scanned docume nt imagme nt imag\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": null, \"positions\": [[[190.0, 231.0], [367.0, 231.0], [367.0, 268.0], [190.0, 268.0]], [[205.0, 658.0], [258.0, 658.0], [258."
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "542",
+        "file_id": "498",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:16:30",
+        "end_time": "2026-10-28 11:16:32",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": true,
+     "A4_detail": {
+      "total": 1,
+      "min_create_time": "2026-10-28 11:16:30.696808",
+      "req_time": "2026-10-28 11:16:18+0800",
+      "later": true
+     },
+     "A5_正文可取": true
+    }
+   }
+  },
+  "docx-loan": {
+   "case": "docx-loan",
+   "desc": "业务 docx",
+   "file": "R12FIX-product-loan.docx",
+   "bytes": 37544,
+   "expect_fail": false,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.14,
+    "req_time": "2026-10-28 11:16:32+0800",
+    "req_epoch": 1793157392.6271877,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "499",
+       "kbId": "36",
+       "fileName": "R12FIX-product-loan.docx",
+       "fileSize": 37544.0,
+       "size": "37544.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "R12FIX-product-loan.docx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157392627-R12FIX-produ",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "614524213",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:16:32",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "499",
+     "kbId": "36",
+     "fileName": "R12FIX-product-loan.docx",
+     "fileSize": 37544.0,
+     "size": "37544.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "R12FIX-product-loan.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157392627-R12FIX-produ",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "614524213",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:16:32",
+     "count": null
+    }
+   ],
+   "file_id": "499",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 14.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 3,
+      "status_name": "3(解析成功)",
+      "http": 200
+     }
+    ],
+    "final": 3,
+    "final_name": "3(解析成功)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "499",
+      "kb_id": "36",
+      "file_name": "R12FIX-product-loan.docx",
+      "status": "3",
+      "status_name": "解析成功",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:16:47"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "543",
+      "file_id": "499",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:45",
+      "end_time": "2026-10-28 11:16:47",
+      "error_msg": ""
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 1,
+    "got": 1,
+    "min_create_time": "2026-10-28 11:16:45.171263",
+    "max_create_time": "2026-10-28 11:16:45.171263",
+    "sample_pk": [
+     373175319049028896
+    ],
+    "sample_head": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须"
+   },
+   "chunks_api": {
+    "http": 200,
+    "n": 1,
+    "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"373175319049028896\", \"content\": \"“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。借款人须持续经营满三年，近十二个月无连续逾期记录。二、授信额度单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。三、贷款期限与利率流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "A1_接口success": true,
+     "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+     "A3_文件终态=解析成功(3)": true,
+     "A3b_任务级终态=SUCCESS(4)": true,
+     "A3_note": {
+      "file_final": "3(解析成功)",
+      "tasks": [
+       {
+        "task_id": "543",
+        "file_id": "499",
+        "status": 4,
+        "status_name": "SUCCESS",
+        "retry_times": "0",
+        "retry_limit": "3",
+        "start_time": "2026-10-28 11:16:45",
+        "end_time": "2026-10-28 11:16:47",
+        "error_msg": ""
+       }
+      ],
+      "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+     },
+     "A4_有chunk且create_time晚于请求": true,
+     "A4_detail": {
+      "total": 1,
+      "min_create_time": "2026-10-28 11:16:45.171263",
+      "req_time": "2026-10-28 11:16:32+0800",
+      "later": true
+     },
+     "A5_正文可取": true
+    }
+   }
+  }
+ },
+ "neg_cases": {
+  "neg-encrypted-pdf": {
+   "case": "neg-encrypted-pdf",
+   "desc": "加密 PDF（user_pw=123456）",
+   "file": "encrypted.pdf",
+   "bytes": 4053,
+   "expect_fail": true,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.135,
+    "req_time": "2026-10-28 11:16:47+0800",
+    "req_epoch": 1793157407.0244465,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "500",
+       "kbId": "36",
+       "fileName": "encrypted.pdf",
+       "fileSize": 4053.0,
+       "size": "4053.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/encrypted.pdf/V0/encrypted.pdf",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "encrypted.pdf",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157407024-encrypted.pd",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "1984713160",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:16:47",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "500",
+     "kbId": "36",
+     "fileName": "encrypted.pdf",
+     "fileSize": 4053.0,
+     "size": "4053.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/encrypted.pdf/V0/encrypted.pdf",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "encrypted.pdf",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157407024-encrypted.pd",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1984713160",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:16:47",
+     "count": null
+    }
+   ],
+   "file_id": "500",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 14.1,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 4,
+      "status_name": "4(解析失败)",
+      "http": 200
+     }
+    ],
+    "final": 4,
+    "final_name": "4(解析失败)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "500",
+      "kb_id": "36",
+      "file_name": "encrypted.pdf",
+      "status": "4",
+      "status_name": "解析失败",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:17:01"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "544",
+      "file_id": "500",
+      "status": 5,
+      "status_name": "DEAL_FAIL",
+      "retry_times": "1",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:17:00",
+      "end_time": "NULL",
+      "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":544,\"task_statuses\":[{\"fail_reason\":\"?????\",\"file_id\":500,\"file_path\":\"r12-rag/kb_36/encrypted.pdf/V0/encrypted.pdf\",\"success\":false}]}"
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 0,
+    "got": 0,
+    "min_create_time": null,
+    "max_create_time": null,
+    "sample_pk": [],
+    "sample_head": null
+   },
+   "chunks_api": {
+    "http": 500,
+    "n": null,
+    "sample": "{\"success\": false, \"errorMsg\": \"知识库文件还未解析\", \"errorCode\": \"10009\", \"data\": null}"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "接口拒绝或文件终态=解析失败(4)": true,
+     "不是成功但0条": true,
+     "可见原因": true,
+     "任务级终态": [
+      {
+       "task": "544",
+       "status": "DEAL_FAIL",
+       "retry": "1/3",
+       "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":544,\"task_statuses\":[{\"fail_reason\":\"?????\",\"file_id\":500,\"file_path\":\"r12-rag/kb_36/encrypted.pdf/V0/encrypted.pdf\",\"success\":false}]}"
+      }
+     ],
+     "detail": {
+      "api_success": true,
+      "file_final_status": 4,
+      "es_chunks": 0,
+      "resp_message": "",
+      "resp_status": 1
+     }
+    }
+   }
+  },
+  "neg-bad-pdf": {
+   "case": "neg-bad-pdf",
+   "desc": "纯文本改后缀 .pdf",
+   "file": "bad-renamed.pdf",
+   "bytes": 2020,
+   "expect_fail": true,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.108,
+    "req_time": "2026-10-28 11:17:01+0800",
+    "req_epoch": 1793157421.4157019,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "501",
+       "kbId": "36",
+       "fileName": "bad-renamed.pdf",
+       "fileSize": 2020.0,
+       "size": "2020.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "bad-renamed.pdf",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157421415-bad-renamed.",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "2029262370",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:17:01",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "501",
+     "kbId": "36",
+     "fileName": "bad-renamed.pdf",
+     "fileSize": 2020.0,
+     "size": "2020.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "bad-renamed.pdf",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157421415-bad-renamed.",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "2029262370",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:17:01",
+     "count": null
+    }
+   ],
+   "file_id": "501",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 44.3,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 98,
+      "status_name": "98(重试中)",
+      "http": 200
+     },
+     {
+      "t": 44.3,
+      "status": 4,
+      "status_name": "4(解析失败)",
+      "http": 200
+     }
+    ],
+    "final": 4,
+    "final_name": "4(解析失败)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "501",
+      "kb_id": "36",
+      "file_name": "bad-renamed.pdf",
+      "status": "4",
+      "status_name": "解析失败",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:17:46"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "545",
+      "file_id": "501",
+      "status": 5,
+      "status_name": "DEAL_FAIL",
+      "retry_times": "3",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:17:45",
+      "end_time": "NULL",
+      "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":545,\"task_statuses\":[{\"fail_reason\":\"?????No /Root object! - Is this really a PDF?\",\"file_id\":501,\"file_path\":\"r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf\",\"success\":false}]}"
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 0,
+    "got": 0,
+    "min_create_time": null,
+    "max_create_time": null,
+    "sample_pk": [],
+    "sample_head": null
+   },
+   "chunks_api": {
+    "http": 500,
+    "n": null,
+    "sample": "{\"success\": false, \"errorMsg\": \"知识库文件还未解析\", \"errorCode\": \"10009\", \"data\": null}"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "接口拒绝或文件终态=解析失败(4)": true,
+     "不是成功但0条": true,
+     "可见原因": true,
+     "任务级终态": [
+      {
+       "task": "545",
+       "status": "DEAL_FAIL",
+       "retry": "3/3",
+       "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":545,\"task_statuses\":[{\"fail_reason\":\"?????No /Root object! - Is this really a PDF?\",\"file_id\":501,\"file_path\":\"r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf\",\"success\":false}]}"
+      }
+     ],
+     "detail": {
+      "api_success": true,
+      "file_final_status": 4,
+      "es_chunks": 0,
+      "resp_message": "",
+      "resp_status": 1
+     }
+    }
+   }
+  },
+  "neg-bad-docx": {
+   "case": "neg-bad-docx",
+   "desc": "随机字节改后缀 .docx",
+   "file": "bad-renamed.docx",
+   "bytes": 10240,
+   "expect_fail": true,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.131,
+    "req_time": "2026-10-28 11:17:46+0800",
+    "req_epoch": 1793157465.9612157,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "502",
+       "kbId": "36",
+       "fileName": "bad-renamed.docx",
+       "fileSize": 10240.0,
+       "size": "10240.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/bad-renamed.docx/V0/bad-renamed.docx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "bad-renamed.docx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157465961-bad-renamed.",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "629760784",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:17:46",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "502",
+     "kbId": "36",
+     "fileName": "bad-renamed.docx",
+     "fileSize": 10240.0,
+     "size": "10240.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/bad-renamed.docx/V0/bad-renamed.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "bad-renamed.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157465961-bad-renamed.",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "629760784",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:17:46",
+     "count": null
+    }
+   ],
+   "file_id": "502",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 44.3,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 14.1,
+      "status": 98,
+      "status_name": "98(重试中)",
+      "http": 200
+     },
+     {
+      "t": 44.3,
+      "status": 4,
+      "status_name": "4(解析失败)",
+      "http": 200
+     }
+    ],
+    "final": 4,
+    "final_name": "4(解析失败)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "502",
+      "kb_id": "36",
+      "file_name": "bad-renamed.docx",
+      "status": "4",
+      "status_name": "解析失败",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:18:31"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "546",
+      "file_id": "502",
+      "status": 5,
+      "status_name": "DEAL_FAIL",
+      "retry_times": "3",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:18:30",
+      "end_time": "NULL",
+      "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":546,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":502,\"file_path\":\"r12-rag/kb_36/bad-renamed.docx/V0/bad-renamed.docx\",\"success\":false}]}"
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 0,
+    "got": 0,
+    "min_create_time": null,
+    "max_create_time": null,
+    "sample_pk": [],
+    "sample_head": null
+   },
+   "chunks_api": {
+    "http": 500,
+    "n": null,
+    "sample": "{\"success\": false, \"errorMsg\": \"知识库文件还未解析\", \"errorCode\": \"10009\", \"data\": null}"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "接口拒绝或文件终态=解析失败(4)": true,
+     "不是成功但0条": true,
+     "可见原因": true,
+     "任务级终态": [
+      {
+       "task": "546",
+       "status": "DEAL_FAIL",
+       "retry": "3/3",
+       "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":546,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":502,\"file_path\":\"r12-rag/kb_36/bad-renamed.docx/V0/bad-renamed.docx\",\"success\":false}]}"
+      }
+     ],
+     "detail": {
+      "api_success": true,
+      "file_final_status": 4,
+      "es_chunks": 0,
+      "resp_message": "",
+      "resp_status": 1
+     }
+    }
+   }
+  },
+  "neg-truncated-docx": {
+   "case": "neg-truncated-docx",
+   "desc": "合法 docx 截断 60%",
+   "file": "truncated.docx",
+   "bytes": 22029,
+   "expect_fail": true,
+   "upload": {
+    "http": 200,
+    "elapsed": 0.129,
+    "req_time": "2026-10-28 11:18:30+0800",
+    "req_epoch": 1793157510.5438595,
+    "body": {
+     "success": true,
+     "errorMsg": null,
+     "errorCode": null,
+     "data": [
+      {
+       "id": "503",
+       "kbId": "36",
+       "fileName": "truncated.docx",
+       "fileSize": 22029.0,
+       "size": "22029.0MB",
+       "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/truncated.docx/V0/truncated.docx",
+       "fullTextPath": null,
+       "convertedFilePath": null,
+       "status": 1,
+       "isEnable": 1,
+       "parseType": 1,
+       "chunkSize": 0,
+       "fileType": null,
+       "embeddingModelName": null,
+       "parsedFilePath": null,
+       "faqExtractStatus": 1,
+       "reviseDate": null,
+       "parentFileName": "truncated.docx",
+       "version": "V0",
+       "folderId": null,
+       "folderName": null,
+       "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+       "synLogs": [],
+       "kbFiles": null,
+       "isFolder": null,
+       "imagePaths": [],
+       "tableFilePaths": null,
+       "pdfPage": null,
+       "nodeCount": 0,
+       "edgeCount": 0,
+       "uid": "ag5-1793157510543-truncated.do",
+       "graphParseStatus": 1,
+       "uploadStatus": 1,
+       "message": null,
+       "index": null,
+       "chunking": true,
+       "kbName": null,
+       "elementType": null,
+       "parentId": null,
+       "permission": null,
+       "fullFolderPath": null,
+       "groupId": "1373381232",
+       "label": "",
+       "chunkType": null,
+       "uploadTime": "2026-10-28 11:18:30",
+       "count": null
+      }
+     ]
+    }
+   },
+   "api_success": true,
+   "items": [
+    {
+     "id": "503",
+     "kbId": "36",
+     "fileName": "truncated.docx",
+     "fileSize": 22029.0,
+     "size": "22029.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/truncated.docx/V0/truncated.docx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "truncated.docx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157510543-truncated.do",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1373381232",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:18:30",
+     "count": null
+    }
+   ],
+   "file_id": "503",
+   "resp_message": null,
+   "resp_status": 1,
+   "resp_task_statuses": null,
+   "has_task_statuses_key": false,
+   "status_poll": {
+    "elapsed": 46.3,
+    "transitions": [
+     {
+      "t": 0.0,
+      "status": 99,
+      "status_name": "99(解析排队中)",
+      "http": 200
+     },
+     {
+      "t": 16.1,
+      "status": 98,
+      "status_name": "98(重试中)",
+      "http": 200
+     },
+     {
+      "t": 46.3,
+      "status": 4,
+      "status_name": "4(解析失败)",
+      "http": 200
+     }
+    ],
+    "final": 4,
+    "final_name": "4(解析失败)",
+    "timed_out": false,
+    "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+   },
+   "db_file_row": {
+    "rows": [
+     {
+      "id": "503",
+      "kb_id": "36",
+      "file_name": "truncated.docx",
+      "status": "4",
+      "status_name": "解析失败",
+      "temp_status": "2",
+      "version": "V0",
+      "gmt_modified": "2026-10-28 11:19:16"
+     }
+    ]
+   },
+   "db_parse_tasks": {
+    "tasks": [
+     {
+      "task_id": "547",
+      "file_id": "503",
+      "status": 5,
+      "status_name": "DEAL_FAIL",
+      "retry_times": "3",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:19:15",
+      "end_time": "NULL",
+      "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+     }
+    ]
+   },
+   "es_chunks": {
+    "total": 0,
+    "got": 0,
+    "min_create_time": null,
+    "max_create_time": null,
+    "sample_pk": [],
+    "sample_head": null
+   },
+   "chunks_api": {
+    "http": 500,
+    "n": null,
+    "sample": "{\"success\": false, \"errorMsg\": \"知识库文件还未解析\", \"errorCode\": \"10009\", \"data\": null}"
+   },
+   "verdict": {
+    "verdict": "PASS",
+    "checks": {
+     "接口拒绝或文件终态=解析失败(4)": true,
+     "不是成功但0条": true,
+     "可见原因": true,
+     "任务级终态": [
+      {
+       "task": "547",
+       "status": "DEAL_FAIL",
+       "retry": "3/3",
+       "error_msg": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+      }
+     ],
+     "detail": {
+      "api_success": true,
+      "file_final_status": 4,
+      "es_chunks": 0,
+      "resp_message": "",
+      "resp_status": 1
+     }
+    }
+   }
+  }
+ },
+ "es_after": {
+  "idx": "kb_36",
+  "http": 200,
+  "count": 7
+ }
+}

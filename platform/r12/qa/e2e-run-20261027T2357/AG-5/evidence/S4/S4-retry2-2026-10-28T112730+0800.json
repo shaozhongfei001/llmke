@@ -1,0 +1,278 @@
+{
+ "ts": "2026-10-28 11:27:09+0800",
+ "kb_id": 36,
+ "ok_file_retry": {
+  "label": "API：成功文件重解析（前端同款 payload）",
+  "file_id": 493,
+  "payload": {
+   "files": [
+    {
+     "folder_id": null,
+     "file_path": "r12-rag/kb_36/docx-plain.docx/V0/docx-plain.docx",
+     "file_id": "493",
+     "parent_file_name": "docx-plain.docx"
+    }
+   ],
+   "folder_ids": [],
+   "knowledge_base_name": "R14-E2E-AG5-1111",
+   "knowledge_base_id": "36",
+   "override": true,
+   "is_all": false
+  },
+  "before_tasks": [
+   {
+    "task_id": "537",
+    "file_id": "493",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:15:15",
+    "end_time": "2026-10-28 11:15:16",
+    "error_msg": ""
+   }
+  ],
+  "before_row": {
+   "id": "493",
+   "kb_id": "36",
+   "file_name": "docx-plain.docx",
+   "status": "3",
+   "status_name": "解析成功",
+   "temp_status": "2",
+   "version": "V0",
+   "gmt_modified": "2026-10-28 11:15:16"
+  },
+  "req_time": "2026-10-28 11:27:09+0800",
+  "http": 200,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": true
+  },
+  "sampling": {
+   "samples": [
+    {
+     "t": 0.01,
+     "status": 99,
+     "name": "解析排队中"
+    },
+    {
+     "t": 5.65,
+     "status": 2,
+     "name": "解析中"
+    },
+    {
+     "t": 7.56,
+     "status": 3,
+     "name": "解析成功"
+    }
+   ],
+   "elapsed": 7.56,
+   "intermediate_seen": true,
+   "final": 3
+  },
+  "after_tasks": [
+   {
+    "task_id": "537",
+    "file_id": "493",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:15:15",
+    "end_time": "2026-10-28 11:15:16",
+    "error_msg": ""
+   },
+   {
+    "task_id": "563",
+    "file_id": "493",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:27:15",
+    "end_time": "2026-10-28 11:27:17",
+    "error_msg": ""
+   }
+  ],
+  "after_row": {
+   "id": "493",
+   "kb_id": "36",
+   "file_name": "docx-plain.docx",
+   "status": "3",
+   "status_name": "解析成功",
+   "temp_status": "2",
+   "version": "V0",
+   "gmt_modified": "2026-10-28 11:27:17"
+  },
+  "new_tasks": [
+   {
+    "task_id": "563",
+    "file_id": "493",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:27:15",
+    "end_time": "2026-10-28 11:27:17",
+    "error_msg": ""
+   }
+  ],
+  "task_ids_before_after": [
+   [
+    "537"
+   ],
+   [
+    "563"
+   ]
+  ],
+  "verdict": "PASS"
+ },
+ "fail_file_retry": {
+  "label": "API：失败文件重试（前端同款 payload）",
+  "file_id": 503,
+  "payload": {
+   "files": [
+    {
+     "folder_id": null,
+     "file_path": "r12-rag/kb_36/truncated.docx/V0/truncated.docx",
+     "file_id": "503",
+     "parent_file_name": "truncated.docx"
+    }
+   ],
+   "folder_ids": [],
+   "knowledge_base_name": "R14-E2E-AG5-1111",
+   "knowledge_base_id": "36",
+   "override": true,
+   "is_all": false
+  },
+  "before_tasks": [
+   {
+    "task_id": "547",
+    "file_id": "503",
+    "status": 5,
+    "status_name": "DEAL_FAIL",
+    "retry_times": "3",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:19:15",
+    "end_time": "NULL",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   },
+   {
+    "task_id": "562",
+    "file_id": "503",
+    "status": 3,
+    "status_name": "RETRY_ING",
+    "retry_times": "2",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:27:15",
+    "end_time": "NULL",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":562,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   }
+  ],
+  "before_row": {
+   "id": "503",
+   "kb_id": "36",
+   "file_name": "truncated.docx",
+   "status": "98",
+   "status_name": "重试中",
+   "temp_status": "2",
+   "version": "V0",
+   "gmt_modified": "2026-10-28 11:27:16"
+  },
+  "req_time": "2026-10-28 11:27:17+0800",
+  "http": 200,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": true
+  },
+  "sampling": {
+   "samples": [
+    {
+     "t": 0.01,
+     "status": 99,
+     "name": "解析排队中"
+    },
+    {
+     "t": 12.76,
+     "status": 4,
+     "name": "解析失败"
+    }
+   ],
+   "elapsed": 12.76,
+   "intermediate_seen": true,
+   "final": 4
+  },
+  "after_tasks": [
+   {
+    "task_id": "547",
+    "file_id": "503",
+    "status": 5,
+    "status_name": "DEAL_FAIL",
+    "retry_times": "3",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:19:15",
+    "end_time": "NULL",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   },
+   {
+    "task_id": "562",
+    "file_id": "503",
+    "status": 5,
+    "status_name": "DEAL_FAIL",
+    "retry_times": "3",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:27:30",
+    "end_time": "NULL",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":562,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   },
+   {
+    "task_id": "564",
+    "file_id": "503",
+    "status": 2,
+    "status_name": "DEAL_ING",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:27:30",
+    "end_time": "NULL",
+    "error_msg": ""
+   }
+  ],
+  "after_row": {
+   "id": "503",
+   "kb_id": "36",
+   "file_name": "truncated.docx",
+   "status": "4",
+   "status_name": "解析失败",
+   "temp_status": "2",
+   "version": "V0",
+   "gmt_modified": "2026-10-28 11:27:31"
+  },
+  "new_tasks": [
+   {
+    "task_id": "564",
+    "file_id": "503",
+    "status": 2,
+    "status_name": "DEAL_ING",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:27:30",
+    "end_time": "NULL",
+    "error_msg": ""
+   }
+  ],
+  "task_ids_before_after": [
+   [
+    "547",
+    "562"
+   ],
+   [
+    "564"
+   ]
+  ],
+  "verdict": "PASS"
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "steps": [
+  "登录页渲染完成，用户名输入框可见",
+  "验证码取自 Redis（key 由 UA 确定性推导），长度=4",
+  "POST /auth/user/login -> HTTP 200, success=true"
+ ],
+ "captchaKey": "captcha:585604B96A365C7CCD9EBA6376B15FAB",
+ "captchaRawHex": "0367796de6",
+ "loginHttp": 200,
+ "loginSuccess": true,
+ "loginBody": "{\"success\":true,\"errorMsg\":null,\"errorCode\":null,\"data\":{\"id\":\"1\",\"userName\":\"admin\",\"userRealname\":\"系统管理员\",\"userPhone\":null,\"userEmail\":null,\"url\":null,\"status\":1,\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI",
+ "tokenLen": 237,
+ "afterLoginUrl": "http://127.0.0.1:18088/"
+}

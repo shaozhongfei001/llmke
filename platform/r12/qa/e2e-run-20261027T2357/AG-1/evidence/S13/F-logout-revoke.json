@@ -1,0 +1,6 @@
+{
+  "before": "http=200 success=true errorCode=null errorMsg=null total/len=7",
+  "logout": "http=200 success=true errorCode=null errorMsg=null total/len=null",
+  "afterMenus": "http=401 success=false errorCode=30013 errorMsg=登录失效已过，请重新登录 total/len=null",
+  "afterBiz": "http=401 success=false errorCode=30013 errorMsg=登录失效已过，请重新登录 total/len=null"
+}

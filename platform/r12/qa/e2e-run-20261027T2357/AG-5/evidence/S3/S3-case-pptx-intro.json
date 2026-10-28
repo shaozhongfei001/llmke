@@ -1,0 +1,229 @@
+{
+ "case": "pptx-intro",
+ "desc": "PPTX",
+ "file": "R12FIX-product-intro.pptx",
+ "bytes": 29388,
+ "expect_fail": false,
+ "upload": {
+  "http": 200,
+  "elapsed": 0.158,
+  "req_time": "2026-10-28 11:15:55+0800",
+  "req_epoch": 1793157355.2261019,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": [
+    {
+     "id": "496",
+     "kbId": "36",
+     "fileName": "R12FIX-product-intro.pptx",
+     "fileSize": 29388.0,
+     "size": "29388.0MB",
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+     "fullTextPath": null,
+     "convertedFilePath": null,
+     "status": 1,
+     "isEnable": 1,
+     "parseType": 1,
+     "chunkSize": 0,
+     "fileType": null,
+     "embeddingModelName": null,
+     "parsedFilePath": null,
+     "faqExtractStatus": 1,
+     "reviseDate": null,
+     "parentFileName": "R12FIX-product-intro.pptx",
+     "version": "V0",
+     "folderId": null,
+     "folderName": null,
+     "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+     "synLogs": [],
+     "kbFiles": null,
+     "isFolder": null,
+     "imagePaths": [],
+     "tableFilePaths": null,
+     "pdfPage": null,
+     "nodeCount": 0,
+     "edgeCount": 0,
+     "uid": "ag5-1793157355226-R12FIX-produ",
+     "graphParseStatus": 1,
+     "uploadStatus": 1,
+     "message": null,
+     "index": null,
+     "chunking": true,
+     "kbName": null,
+     "elementType": null,
+     "parentId": null,
+     "permission": null,
+     "fullFolderPath": null,
+     "groupId": "1939665135",
+     "label": "",
+     "chunkType": null,
+     "uploadTime": "2026-10-28 11:15:55",
+     "count": null
+    }
+   ]
+  }
+ },
+ "api_success": true,
+ "items": [
+  {
+   "id": "496",
+   "kbId": "36",
+   "fileName": "R12FIX-product-intro.pptx",
+   "fileSize": 29388.0,
+   "size": "29388.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+   "fullTextPath": null,
+   "convertedFilePath": null,
+   "status": 1,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 0,
+   "fileType": null,
+   "embeddingModelName": null,
+   "parsedFilePath": null,
+   "faqExtractStatus": 1,
+   "reviseDate": null,
+   "parentFileName": "R12FIX-product-intro.pptx",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": null,
+   "imagePaths": [],
+   "tableFilePaths": null,
+   "pdfPage": null,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag5-1793157355226-R12FIX-produ",
+   "graphParseStatus": 1,
+   "uploadStatus": 1,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": null,
+   "fullFolderPath": null,
+   "groupId": "1939665135",
+   "label": "",
+   "chunkType": null,
+   "uploadTime": "2026-10-28 11:15:55",
+   "count": null
+  }
+ ],
+ "file_id": "496",
+ "resp_message": null,
+ "resp_status": 1,
+ "resp_task_statuses": null,
+ "has_task_statuses_key": false,
+ "status_poll": {
+  "elapsed": 8.1,
+  "transitions": [
+   {
+    "t": 0.0,
+    "status": 99,
+    "status_name": "99(解析排队中)",
+    "http": 200
+   },
+   {
+    "t": 6.1,
+    "status": 2,
+    "status_name": "2(解析中)",
+    "http": 200
+   },
+   {
+    "t": 8.1,
+    "status": 3,
+    "status_name": "3(解析成功)",
+    "http": 200
+   }
+  ],
+  "final": 3,
+  "final_name": "3(解析成功)",
+  "timed_out": false,
+  "enum": "file:0删除/1正常/2解析中/3成功/4失败/5重向量/98重试/99排队"
+ },
+ "db_file_row": {
+  "rows": [
+   {
+    "id": "496",
+    "kb_id": "36",
+    "file_name": "R12FIX-product-intro.pptx",
+    "status": "3",
+    "status_name": "解析成功",
+    "temp_status": "2",
+    "version": "V0",
+    "gmt_modified": "2026-10-28 11:16:03"
+   }
+  ]
+ },
+ "db_parse_tasks": {
+  "tasks": [
+   {
+    "task_id": "540",
+    "file_id": "496",
+    "status": 4,
+    "status_name": "SUCCESS",
+    "retry_times": "0",
+    "retry_limit": "3",
+    "start_time": "2026-10-28 11:16:00",
+    "end_time": "2026-10-28 11:16:03",
+    "error_msg": ""
+   }
+  ]
+ },
+ "es_chunks": {
+  "total": 1,
+  "got": 1,
+  "min_create_time": "2026-10-28 11:16:00.162743",
+  "max_create_time": "2026-10-28 11:16:00.162743",
+  "sample_pk": [
+   313847144313943105
+  ],
+  "sample_head": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理流程\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工"
+ },
+ "chunks_api": {
+  "http": 200,
+  "n": 1,
+  "sample": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": {\"records\": [{\"id\": \"313847144313943105\", \"content\": \"“智造贷”产品要点\\n适用对象：制造业中小微企业\\n最高额度：5000万元（信用部分不超过1000万元）\\n最长期限：3年\\n利率：1年期LPR加点30~100BP办理流程\\n受理 → 资料审核 → 评级授信 → 审批（10个工作日）→ 放款（3个工作日）\", \"picChunkIdList\": [], \"picUrlList\": [], \"imagePath\": null, \"positions\": [[], []], \"pageNumbers\": [0, 0], \"pageSizes\": [[], []], \"offsets\": [[0, 123]], \""
+ },
+ "verdict": {
+  "verdict": "PASS",
+  "checks": {
+   "A1_接口success": true,
+   "A2_task_statuses全true": "N/A（该端点响应不含 task_statuses 键）",
+   "A3_文件终态=解析成功(3)": true,
+   "A3b_任务级终态=SUCCESS(4)": true,
+   "A3_note": {
+    "file_final": "3(解析成功)",
+    "tasks": [
+     {
+      "task_id": "540",
+      "file_id": "496",
+      "status": 4,
+      "status_name": "SUCCESS",
+      "retry_times": "0",
+      "retry_limit": "3",
+      "start_time": "2026-10-28 11:16:00",
+      "end_time": "2026-10-28 11:16:03",
+      "error_msg": ""
+     }
+    ],
+    "注意": "文件枚举 3=解析成功；任务枚举 4=SUCCESS；两者数值不同义"
+   },
+   "A4_有chunk且create_time晚于请求": true,
+   "A4_detail": {
+    "total": 1,
+    "min_create_time": "2026-10-28 11:16:00.162743",
+    "req_time": "2026-10-28 11:15:55+0800",
+    "later": true
+   },
+   "A5_正文可取": true
+  }
+ }
+}

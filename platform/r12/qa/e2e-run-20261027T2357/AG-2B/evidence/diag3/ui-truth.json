@@ -1,0 +1,76 @@
+{
+ "login": {
+  "http": 200,
+  "success": true
+ },
+ "ui": [
+  {
+   "file": "docx-plain.docx",
+   "reqs": [
+    {
+     "st": 200,
+     "u": "/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-p"
+    },
+    {
+     "st": 500,
+     "u": "/proxy/index/knowledgeBase/file/stream"
+    }
+   ],
+   "probe": {
+    "canvas": 0,
+    "fail": "加载失败 | PDF请求失败: 500 | R12默认问答配置 | 清空对话 | 请输入您的问题，通过shift+回车换行，回车发送 | ﻿"
+   }
+  },
+  {
+   "file": "R12FIX-product-intro.pptx",
+   "reqs": [
+    {
+     "st": 200,
+     "u": "/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2FR12FIX-product-intro.pptx%2FV"
+    },
+    {
+     "st": 500,
+     "u": "/proxy/index/knowledgeBase/file/stream"
+    }
+   ],
+   "probe": {
+    "canvas": 0,
+    "fail": "加载失败 | PDF请求失败: 500 | R12默认问答配置 | 清空对话 | 请输入您的问题，通过shift+回车换行，回车发送 | ﻿"
+   }
+  },
+  {
+   "file": "R12FIX-credit-ledger.xlsx",
+   "reqs": [
+    {
+     "st": 200,
+     "u": "/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2FR12FIX-credit-ledger.xlsx%2FV"
+    },
+    {
+     "st": 200,
+     "u": "/proxy/index/knowledgeBase/file/stream"
+    }
+   ],
+   "probe": {
+    "canvas": 0,
+    "fail": ""
+   }
+  },
+  {
+   "file": "pdf-digital.pdf",
+   "reqs": [
+    {
+     "st": 200,
+     "u": "/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fpdf-digital.pdf%2FV0%2Fpdf-di"
+    },
+    {
+     "st": 200,
+     "u": "/proxy/index/knowledgeBase/file/stream"
+    }
+   ],
+   "probe": {
+    "canvas": 1,
+    "fail": ""
+   }
+  }
+ ]
+}

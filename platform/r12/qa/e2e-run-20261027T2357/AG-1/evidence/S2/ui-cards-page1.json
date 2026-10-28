@@ -1,0 +1,74 @@
+[
+  {
+    "name": "R14-BASELINE-KB",
+    "fileCount": "8",
+    "size": "6.4 GB",
+    "raw": "R14-BASELINE-KB 文件数： 8 · 大小： 6.4 GB"
+  },
+  {
+    "name": "R14-P201-KB",
+    "fileCount": "4",
+    "size": "74.1 MB",
+    "raw": "R14-P201-KB 文件数： 4 · 大小： 74.1 MB"
+  },
+  {
+    "name": "graph-increment-split2",
+    "fileCount": "4",
+    "size": "144.1 MB",
+    "raw": "graph-increment-split2 文件数： 4 · 大小： 144.1 MB"
+  },
+  {
+    "name": "graph-increment-split",
+    "fileCount": "4",
+    "size": "143.7 MB",
+    "raw": "graph-increment-split 文件数： 4 · 大小： 143.7 MB"
+  },
+  {
+    "name": "graph-increment-fixture",
+    "fileCount": "3",
+    "size": "107.9 MB",
+    "raw": "graph-increment-fixture 文件数： 3 · 大小： 107.9 MB"
+  },
+  {
+    "name": "R14C-归组回归R14B",
+    "fileCount": "6",
+    "size": "187.9 MB",
+    "raw": "R14C-归组回归R14B 文件数： 6 · 大小： 187.9 MB"
+  },
+  {
+    "name": "R14C-归组回归R14A",
+    "fileCount": "6",
+    "size": "187.9 MB",
+    "raw": "R14C-归组回归R14A 文件数： 6 · 大小： 187.9 MB"
+  },
+  {
+    "name": "R14C-归组回归",
+    "fileCount": "6",
+    "size": "187.9 MB",
+    "raw": "R14C-归组回归 文件数： 6 · 大小： 187.9 MB"
+  },
+  {
+    "name": "qa_r12_final",
+    "fileCount": "7",
+    "size": "135.1 MB",
+    "raw": "qa_r12_final 文件数： 7 · 大小： 135.1 MB"
+  },
+  {
+    "name": "R12验收主链",
+    "fileCount": "10",
+    "size": "6.4 GB",
+    "raw": "R12验收主链 文件数： 10 · 大小： 6.4 GB"
+  },
+  {
+    "name": "R12业务主链",
+    "fileCount": "9",
+    "size": "6.4 GB",
+    "raw": "R12业务主链 文件数： 9 · 大小： 6.4 GB"
+  },
+  {
+    "name": "qa_r12_priv",
+    "fileCount": "1",
+    "size": "3.5 MB",
+    "raw": "qa_r12_priv 文件数： 1 · 大小： 3.5 MB"
+  }
+]

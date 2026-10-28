@@ -1,0 +1,91 @@
+{
+ "kbId": "38",
+ "url": "http://127.0.0.1:18088/chats/knowledgeBase/38",
+ "tabs": [
+  "知识解析",
+  "FAQ",
+  "配置",
+  "检索测试",
+  "文件管理",
+  "版本管理",
+  "图谱增强",
+  "知识库配置",
+  "权限配置"
+ ],
+ "faqTabCount": 1,
+ "tabsAfter": [
+  "知识解析",
+  "FAQ",
+  "配置",
+  "检索测试",
+  "FAQ管理",
+  "FAQ抽取",
+  "知识库配置",
+  "权限配置"
+ ],
+ "bodyFAQTab": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR14-E2E-AG6-1143\nR14-E2E-AG6-1143\n暂无标签\n文件数：2 大小：72.5 MB\n知识解析\nFAQ\n配置\n检索测试\nFAQ管理\nFAQ抽取\n导入\n新建问答\n新建文件夹\n更多操作\n重复问题检测\n选择当前页\n选择全部\nR12FIX-product-loan.docx\n转移到\n授权\n删除\n1",
+ "mgrCount": 1,
+ "bodyMgr": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR14-E2E-AG6-1143\nR14-E2E-AG6-1143\n暂无标签\n文件数：2 大小：72.5 MB\n知识解析\nFAQ\n配置\n检索测试\nFAQ管理\nFAQ抽取\n导入\n新建问答\n新建文件夹\n更多操作\n重复问题检测\n选择当前页\n选择全部\nR12FIX-product-loan.docx\n转移到\n授权\n删除\n1",
+ "rowsAtRoot": [],
+ "reqsAtRoot": [
+  "GET 200 /assets/faqService-DAQW_jrv.js",
+  "GET 200 /assets/RepeatFaq-M57z0atZ.js",
+  "GET 200 /proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy="
+ ],
+ "fileItemCount": 1,
+ "bodyInside": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR14-E2E-AG6-1143\nR14-E2E-AG6-1143\n暂无标签\n文件数：2 大小：72.5 MB\n知识解析\nFAQ\n配置\n检索测试\nFAQ管理\nFAQ抽取\n导入\n新建问答\n新建文件夹\n更多操作\n重复问题检测\n选择当前页\n选择全部\n全部文件R12FIX-product-loan.docx\nQ:\n流动资金贷款的最长还款期限是多少？\n相似问0\n转移到\n启用\n禁用\nA:\n流动资金贷款期限最长三年。\nQ:\n授信额度的有效期如何？\n相似问0\n转移到\n启用\n禁用\nA:\n授信额度有效期为十二个月，到期需重新核定。\nQ:\n资料齐全的情况下，审批过程需要多少时间？\n相似问0\n转移到\n启用\n禁用\nA:\n资料齐全的情况下，自受理之日起十个工作日内完成审批。\nQ:\n是否有违约金？\n相似问0\n转移到\n启用\n禁用\nA:\n提前还款不收取违约金。\nQ:\n是否可以采用等额本金还款方式？\n相似问0\n转移到\n启用\n禁用\nA:\n可以，还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。\nQ:\n授信额度是否可以循环使用？\n相似问0\n转移到\n启用\n禁用\nA:\n授信额度有效期为十二个月，到期需重新核定，因此授信额度可以循环使用。\nQ:\n哪些企业可以申请“智造贷”？\n相似问0\n转移到\n启用\n禁用\nA:\n面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。\nQ:\n审批通过后，放款需要多少时间？\n相似问0\n转移到\n启用\n禁用\nA:\n审批通过后三个工作日内放款。\nQ:\n自受理之日起，审批完成的时间是多少？\n相似问0\n转移到\n启用\n禁用\nA:\n资料齐全的情况下，自受理之日起十个工作日内完成审批。\nQ:\n提前还款需要提前多久提出申请？\n相似问0\n转移到\n启用\n禁用\nA:\n提前还款需提前十五个工作日提出书面申请。\n1\n2",
+ "rowsInside": [
+  {
+   "text": "Q: 流动资金贷款的最长还款期限是多少？ 相似问0 转移到 启用 禁用 A: 流动资金贷款期限最长三年。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 授信额度的有效期如何？ 相似问0 转移到 启用 禁用 A: 授信额度有效期为十二个月，到期需重新核定。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 资料齐全的情况下，审批过程需要多少时间？ 相似问0 转移到 启用 禁用 A: 资料齐全的情况下，自受理之日起十个工作日内完成审批。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 是否有违约金？ 相似问0 转移到 启用 禁用 A: 提前还款不收取违约金。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 是否可以采用等额本金还款方式？ 相似问0 转移到 启用 禁用 A: 可以，还款方式可采用按月付息到期还本、等额本息或按季付息分期还本三种方式。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 授信额度是否可以循环使用？ 相似问0 转移到 启用 禁用 A: 授信额度有效期为十二个月，到期需重新核定，因此授信额度可以循环使用。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 哪些企业可以申请“智造贷”？ 相似问0 转移到 启用 禁用 A: 面向制造业中小微企业，重点支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 审批通过后，放款需要多少时间？ 相似问0 转移到 启用 禁用 A: 审批通过后三个工作日内放款。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 自受理之日起，审批完成的时间是多少？ 相似问0 转移到 启用 禁用 A: 资料齐全的情况下，自受理之日起十个工作日内完成审批。",
+   "switchChecked": true,
+   "switchAria": "true"
+  },
+  {
+   "text": "Q: 提前还款需要提前多久提出申请？ 相似问0 转移到 启用 禁用 A: 提前还款需提前十五个工作日提出书面申请。",
+   "switchChecked": true,
+   "switchAria": "true"
+  }
+ ],
+ "switchCount": 10,
+ "paginationText": "1 2"
+}

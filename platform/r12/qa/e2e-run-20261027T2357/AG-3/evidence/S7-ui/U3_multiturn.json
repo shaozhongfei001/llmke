@@ -1,0 +1,3 @@
+{
+ "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('textarea').first()\u001b[22m\n\u001b[2m    - locator resolved to <textarea rows=\"1\" placeholder=\"输入问题后按Enter发送,Shift+Enter进行换行\" class=\"flex-1 w-full min-w-0 py-2 resize-none outline-none border-none min-h-[85px]↵     "
+}

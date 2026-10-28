@@ -1,0 +1,34 @@
+== AG-2B ① 包内证据：presign 是否位于 fileType 分支之前 ==
+entry asset          : assets/index-fup9RT0c.js
+local  md5 / bytes   : 5161c957f19bb7f1ee825ca33d6771cc / 315489
+served md5 / bytes   : 5161c957f19bb7f1ee825ca33d6771cc / 315489
+local == served      : True
+decoded chars        : 305649
+
+-- chunk 枚举（特征串：缺少原文对象键，无法打开原文）--
+dist/assets/*.js 文件数: 874
+  index-fup9RT0c.js            命中=1 chars=305649 dist_md5=5161c957f19bb7f1ee825ca33d6771cc served_md5=5161c957f19bb7f1ee825ca33d6771cc 一致=True
+  index-legacy-DRXPF9oJ.js     命中=1 chars=365526 dist_md5=ff9e020e76eaaf80857bf033a458df48 served_md5=ff9e020e76eaaf80857bf033a458df48 一致=True
+
+-- 片段 A：接口常量（presign / stream / previewStream）--
+ream",xr="/proxy/index/knowledgeBase/file/previewStream",Oo="/proxy/index/knowledgeBase/file/presign",Mo=["png","jpg","jpeg","gif","bmp","webp"],Uo=["xlsx","xls","csv"],$o=t=>!!t&&Uo.includes(t.toLowerCase()),zo=t=>!!t&&Mo.includes(t.toLowerCase()),Go=async(t,
+
+-- 片段 B：Go() = getPresignedObjectUrl（含三态错误映射）--
+Go=async(t,s)=>{var i;const r=Gt(t);if(!r)throw new Error("缺少原文对象键，无法签发地址");const a=await fetch("".concat(Oo,"?key=").concat(encodeURIComponent(r)),{method:"GET",headers:{Authorization:s||""}});if(!a.ok){let c="",u="";try{const d=await a.json();c=(d==null?void 0:d.errorMsg)||"",u=String((d==null?void 0:d.errorCode)||"")}catch(d){}let x;throw a.status===404||u==="10001"?x="原文不存在或已删除".concat(c?"（".concat(c,"）"):""):a.status===401||a.status===403||u==="30016"||u==="30022"?x="无权访问该原文".concat(c?"（".concat(c,"）"):""):a.status>=500?x="原文服务异常（HTTP ".concat(a.status,"）").concat(c?"：".concat(c):""):x="原文地址签发失败（HTTP ".concat(a.status,"）").concat(c?"：".concat(c):""),new Error(x)}const n=await a.json(),l=(n==null?void 0:n.url)||((i=n==null?void 0:n.data)==null?void 0:i.url);if(!l)throw new Error("原文地址签发失败：服务端未返回地址");return l},qo=async({source:t,fileType:s,token:r})=>{const a=Gt(t);if(!a)throw new Error("缺少原文对象键，无法打开原文");const n=await Go(t,r);return zo(s)?{filePath:n,streamApiUrl:as}:lr(s)||$o(s)?{filePath:a,streamApiUrl:xr}:{filePath:a,streamApiUr
+
+-- 片段 C：qo() = resolvePreviewTarget（presign → 类型分支）--
+qo=async({source:t,fileType:s,token:r})=>{const a=Gt(t);if(!a)throw new Error("缺少原文对象键，无法打开原文");const n=await Go(t,r);return zo(s)?{filePath:n,streamApiUrl:as}:lr(s)||$o(s)?{filePath:a,streamApiUrl:xr}:{filePath:a,streamApiUrl:as}},Wo=t=>{const{convertedFilePath:s="",fileType:r,authorization:a,streamApiUrl:n,...l}=t,[i,c]=o.useState(null),[u,x]=o.useState(""),[d,g]=o.useState(0),h=o.useMemo(()=>{const f=/\/preview\/c
+
+-- 结构判定 --
+qo() 内 `await Go(` 偏移      : 104
+qo() 内第一个类型分支 return   : 118
+presign 在类型分支之前        : True
+判据：`await Go(t,r)` 的返回值赋给 n；随后才是 `return zo(s)?{...}:lr(s)||$o(s)?{...}:{...}`。
+      zo=isImageType, lr=isOfficePreviewType, $o=isSheetType；Go=getPresignedObjectUrl(Oo=presign 常量)。
+      即所有类型都会**先 await presign**，任一类型失败都不会再发取流请求。
+
+-- 片段 D：三态错误文案（包内常量，用于 S5-08 文案对照）--
+  原文不存在或已删除  命中=98279
+  无权访问该原文  命中=98381
+  原文服务异常（HTTP   命中=98438
+

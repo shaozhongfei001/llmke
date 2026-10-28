@@ -1,0 +1,559 @@
+{
+ "ts": "2026-10-28 11:31:49+0800",
+ "kb": "kb_36",
+ "name": "AG5-CONV2-doc.docx",
+ "marker": "AG5-CONV-MARK-9001",
+ "shared_query": "智造贷 适用对象 制造业中小微企业",
+ "A_version": {
+  "v0": {
+   "http": 200,
+   "file_id": "521",
+   "status": "解析成功",
+   "waited": 13.6,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "id": "521",
+      "kbId": "36",
+      "fileName": "AG5-CONV2-doc.docx",
+      "fileSize": 37544.0,
+      "size": "37544.0MB",
+      "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/AG5-CONV2-doc.docx/V0/AG5-CONV2-doc.docx",
+      "fullTextPath": null,
+      "convertedFilePath": null,
+      "status": 1,
+      "isEnable": 1,
+      "parseType": 1,
+      "chunkSize": 0,
+      "fileType": null,
+      "embeddingModelName": null,
+      "parsedFilePath": null,
+      "faqExtractStatus": 1,
+      "reviseDate": null,
+      "parentFileName": "AG5-CONV2-doc.docx",
+      "version": "V0",
+      "folderId": null,
+      "folderName": null,
+      "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+      "synLogs": [],
+      "kbFiles": null,
+      "isFolder": null,
+      "imagePaths": [],
+      "tableFilePaths": null,
+      "pdfPage": null,
+      "nodeCount": 0,
+      "edgeCount": 0,
+      "uid": "ag5-1793158309265-AG5-CONV2-do",
+      "graphParseStatus": 1,
+      "uploadStatus": 1,
+      "message": null,
+      "index": null,
+      "chunking": true,
+      "kbName": null,
+      "elementType": null,
+      "parentId": null,
+      "permission": null,
+      "fullFolderPath": null,
+      "groupId": "1361757027",
+      "label": "",
+      "chunkType": null,
+      "uploadTime": "2026-10-28 11:31:49",
+      "count": null
+     }
+    ]
+   }
+  },
+  "v0_es": {
+   "kb_36": [
+    {
+     "pk": 1096175992759922598,
+     "version": "V0",
+     "create_time": "2026-10-28 11:32:00.130646",
+     "update_time": "2026-10-28 11:32:00.130646"
+    }
+   ],
+   "table_chunks_kb_36": [],
+   "table_summary_kb_36": []
+  },
+  "q_shared_v0_only": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-INTR-112039.pptx/V0/AG5-INTR-112039.pptx",
+     "has_marker": false,
+     "score": 1.5285714285714285,
+     "text": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利"
+    },
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V0/AG5-CONV2-doc.docx",
+     "has_marker": false,
+     "score": 0.2361111111111111,
+     "text": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": false,
+   "http": 200,
+   "elapsed": 1.727
+  },
+  "v1": {
+   "http": 200,
+   "file_id": "522",
+   "status": "解析成功",
+   "waited": 12.1,
+   "resp": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": [
+     {
+      "id": "522",
+      "kbId": "36",
+      "fileName": "AG5-CONV2-doc(1).docx",
+      "fileSize": 36904.0,
+      "size": "36904.0MB",
+      "filePath": "http://127.0.0.1:19000/r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+      "fullTextPath": null,
+      "convertedFilePath": null,
+      "status": 1,
+      "isEnable": 1,
+      "parseType": 1,
+      "chunkSize": 0,
+      "fileType": null,
+      "embeddingModelName": null,
+      "parsedFilePath": null,
+      "faqExtractStatus": 1,
+      "reviseDate": null,
+      "parentFileName": "AG5-CONV2-doc.docx",
+      "version": "V1",
+      "folderId": null,
+      "folderName": null,
+      "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_36/",
+      "synLogs": [],
+      "kbFiles": null,
+      "isFolder": null,
+      "imagePaths": [],
+      "tableFilePaths": null,
+      "pdfPage": null,
+      "nodeCount": 0,
+      "edgeCount": 0,
+      "uid": "ag5-1793158324878-AG5-CONV2-do",
+      "graphParseStatus": 1,
+      "uploadStatus": null,
+      "message": null,
+      "index": null,
+      "chunking": true,
+      "kbName": null,
+      "elementType": null,
+      "parentId": null,
+      "permission": null,
+      "fullFolderPath": null,
+      "groupId": "199032601",
+      "label": "",
+      "chunkType": null,
+      "uploadTime": "2026-10-28 11:32:04",
+      "count": null
+     }
+    ]
+   }
+  },
+  "v1_es": {
+   "kb_36": [
+    {
+     "pk": 1135324722161532691,
+     "version": "V1",
+     "create_time": "2026-10-28 11:32:15.152299",
+     "update_time": "2026-10-28 11:32:15.152299"
+    }
+   ],
+   "table_chunks_kb_36": [],
+   "table_summary_kb_36": []
+  },
+  "v0_es_after_v1": {
+   "kb_36": [
+    {
+     "pk": 1096175992759922598,
+     "version": "V0",
+     "create_time": "2026-10-28 11:32:00.130646",
+     "update_time": "2026-10-28 11:32:00.130646"
+    }
+   ],
+   "table_chunks_kb_36": [],
+   "table_summary_kb_36": []
+  },
+  "q_marker_after_v1": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V1",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+     "has_marker": true,
+     "score": 0.6000000000000001,
+     "text": "智造贷 产品要点（AG5 收敛验证 V1）本文件用于验证同名新版本上传后的收敛行为，唯一标记：AG5-CONV-MARK"
+    },
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-BATCH3-xlsx-111942.xlsx/V0/AG5-BATCH3-xlsx-111942.xlsx",
+     "has_marker": false,
+     "score": 0.5428571428571429,
+     "text": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": false,
+   "http": 200,
+   "elapsed": 0.517
+  },
+  "q_shared_after_v1": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-INTR-112039.pptx/V0/AG5-INTR-112039.pptx",
+     "has_marker": false,
+     "score": 1.5285714285714285,
+     "text": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利"
+    },
+    {
+     "pk": null,
+     "version": "V1",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+     "has_marker": true,
+     "score": 0.25,
+     "text": "智造贷 产品要点（AG5 收敛验证 V1）本文件用于验证同名新版本上传后的收敛行为，唯一标记：AG5-CONV-MARK"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": false,
+   "http": 200,
+   "elapsed": 1.262
+  },
+  "q_shared_after_v1_rerank": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-INTR-112039.pptx/V0/AG5-INTR-112039.pptx",
+     "has_marker": false,
+     "score": 0.9946727156639099,
+     "text": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利"
+    },
+    {
+     "pk": null,
+     "version": "V1",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+     "has_marker": true,
+     "score": 0.9853664636611938,
+     "text": "智造贷 产品要点（AG5 收敛验证 V1）本文件用于验证同名新版本上传后的收敛行为，唯一标记：AG5-CONV-MARK"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": true,
+   "http": 200,
+   "elapsed": 4.174
+  },
+  "list_group": [
+   {
+    "group": "521",
+    "kbFiles": [
+     {
+      "id": "522",
+      "version": "V1",
+      "status": 3
+     },
+     {
+      "id": "521",
+      "version": "V0",
+      "status": 3
+     }
+    ]
+   }
+  ],
+  "shared_versions_returned": [
+   "V1"
+  ],
+  "old_version_still_recalled": false,
+  "marker_hits_v1": 1
+ },
+ "B_reparse": {
+  "file_id": "522",
+  "es_before": {
+   "kb_36": [
+    {
+     "pk": 1135324722161532691,
+     "version": "V1",
+     "create_time": "2026-10-28 11:32:15.152299",
+     "update_time": "2026-10-28 11:32:15.152299"
+    }
+   ],
+   "table_chunks_kb_36": [],
+   "table_summary_kb_36": []
+  },
+  "retrieval_before": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V1",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+     "has_marker": true,
+     "score": 0.6000000000000001,
+     "text": "智造贷 产品要点（AG5 收敛验证 V1）本文件用于验证同名新版本上传后的收敛行为，唯一标记：AG5-CONV-MARK"
+    },
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-BATCH3-xlsx-111942.xlsx/V0/AG5-BATCH3-xlsx-111942.xlsx",
+     "has_marker": false,
+     "score": 0.5428571428571429,
+     "text": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": false,
+   "http": 200,
+   "elapsed": 1.942
+  },
+  "reparse": {
+   "http": 200,
+   "body": {
+    "success": true,
+    "errorMsg": null,
+    "errorCode": null,
+    "data": true
+   },
+   "payload": {
+    "files": [
+     {
+      "folder_id": null,
+      "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc.docx",
+      "file_id": "522",
+      "parent_file_name": "AG5-CONV2-doc.docx"
+     }
+    ],
+    "folder_ids": [],
+    "knowledge_base_name": "kb_36",
+    "knowledge_base_id": "36",
+    "override": true,
+    "is_all": false
+   },
+   "req_time": "2026-10-28 11:32:25+0800"
+  },
+  "after_status": "解析成功",
+  "waited": 6.1,
+  "tasks": [
+   [
+    "570",
+    "SUCCESS",
+    "2026-10-28 11:32:15",
+    "2026-10-28 11:32:17"
+   ],
+   [
+    "571",
+    "SUCCESS",
+    "2026-10-28 11:32:30",
+    "2026-10-28 11:32:31"
+   ]
+  ],
+  "es_after": {
+   "kb_36": [
+    {
+     "pk": 1135324722161532691,
+     "version": null,
+     "create_time": "2026-10-28 11:32:30.107325",
+     "update_time": "2026-10-28 11:32:30.107325"
+    }
+   ],
+   "table_chunks_kb_36": [],
+   "table_summary_kb_36": []
+  },
+  "retrieval_after": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V1",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+     "has_marker": true,
+     "score": 0.6000000000000001,
+     "text": "智造贷 产品要点（AG5 收敛验证 V1）本文件用于验证同名新版本上传后的收敛行为，唯一标记：AG5-CONV-MARK"
+    },
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-BATCH3-xlsx-111942.xlsx/V0/AG5-BATCH3-xlsx-111942.xlsx",
+     "has_marker": false,
+     "score": 0.5428571428571429,
+     "text": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": false,
+   "http": 200,
+   "elapsed": 0.346
+  },
+  "pk_before": [
+   1135324722161532691
+  ],
+  "pk_after": [
+   1135324722161532691
+  ],
+  "ct_before": [
+   "2026-10-28 11:32:15.152299"
+  ],
+  "ct_after": [
+   "2026-10-28 11:32:30.107325"
+  ],
+  "pk_changed": false,
+  "ct_advanced": true,
+  "verdict": "FAIL"
+ },
+ "C_delete": {
+  "before_retrieval_marker": {
+   "n": 2,
+   "docs": [
+    {
+     "pk": null,
+     "version": "V1",
+     "file_path": "r12-rag/kb_36/AG5-CONV2-doc.docx/V1/AG5-CONV2-doc(1).docx",
+     "has_marker": true,
+     "score": 0.6000000000000001,
+     "text": "智造贷 产品要点（AG5 收敛验证 V1）本文件用于验证同名新版本上传后的收敛行为，唯一标记：AG5-CONV-MARK"
+    },
+    {
+     "pk": null,
+     "version": "V0",
+     "file_path": "r12-rag/kb_36/AG5-BATCH3-xlsx-111942.xlsx/V0/AG5-BATCH3-xlsx-111942.xlsx",
+     "has_marker": false,
+     "score": 0.5428571428571429,
+     "text": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零"
+    }
+   ],
+   "msg": "查询成功",
+   "rerank": false,
+   "http": 200,
+   "elapsed": 0.294
+  },
+  "before_es": {
+   "v0": {
+    "kb_36": [
+     {
+      "pk": 1096175992759922598,
+      "version": "V0",
+      "create_time": "2026-10-28 11:32:00.130646",
+      "update_time": "2026-10-28 11:32:00.130646"
+     }
+    ],
+    "table_chunks_kb_36": [],
+    "table_summary_kb_36": []
+   },
+   "v1": {
+    "kb_36": [
+     {
+      "pk": 1135324722161532691,
+      "version": null,
+      "create_time": "2026-10-28 11:32:30.107325",
+      "update_time": "2026-10-28 11:32:30.107325"
+     }
+    ],
+    "table_chunks_kb_36": [],
+    "table_summary_kb_36": []
+   }
+  },
+  "delete_calls": [
+   {
+    "file_id": "521",
+    "http": 200,
+    "success": true
+   },
+   {
+    "file_id": "522",
+    "http": 200,
+    "success": true
+   }
+  ],
+  "after": {
+   "retrieval_marker": {
+    "n": 2,
+    "docs": [
+     {
+      "pk": null,
+      "version": "V0",
+      "file_path": "r12-rag/kb_36/AG5-BATCH3-xlsx-111942.xlsx/V0/AG5-BATCH3-xlsx-111942.xlsx",
+      "has_marker": false,
+      "score": 1.1,
+      "text": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零"
+     },
+     {
+      "pk": null,
+      "version": "V0",
+      "file_path": "r12-rag/kb_36/AG5-LIVE-112518.docx/V0/AG5-LIVE-112518.docx",
+      "has_marker": false,
+      "score": 0.1111111111111111,
+      "text": "Plain DOCX第一段：客户访前准备。第二段：日均存款 2,983,333.33 元。"
+     }
+    ],
+    "msg": "查询成功",
+    "rerank": false,
+    "http": 200,
+    "elapsed": 1.063
+   },
+   "retrieval_shared": {
+    "n": 3,
+    "docs": [
+     {
+      "pk": null,
+      "version": "V0",
+      "file_path": "r12-rag/kb_36/AG5-INTR-112039.pptx/V0/AG5-INTR-112039.pptx",
+      "has_marker": false,
+      "score": 1.5285714285714285,
+      "text": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利"
+     },
+     {
+      "pk": null,
+      "version": "V0",
+      "file_path": "r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+      "has_marker": false,
+      "score": 0.125,
+      "text": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业"
+     },
+     {
+      "pk": null,
+      "version": "V0",
+      "file_path": "r12-rag/kb_36/AG5-BATCH3-xlsx-112039.xlsx/V0/AG5-BATCH3-xlsx-112039.xlsx",
+      "has_marker": false,
+      "score": 0.1111111111111111,
+      "text": "|客户名称|所属产业链|信用评级|授信额度(万元)|已用额度(万元)|五级分类|到期日|\n|华东精密制造有限公司|汽车零"
+     }
+    ],
+    "msg": "查询成功",
+    "rerank": false,
+    "http": 200,
+    "elapsed": 0.252
+   },
+   "es_v0": {
+    "kb_36": [],
+    "table_chunks_kb_36": [],
+    "table_summary_kb_36": []
+   },
+   "es_v1": {
+    "kb_36": [],
+    "table_chunks_kb_36": [],
+    "table_summary_kb_36": []
+   }
+  },
+  "still_in_file_list": false,
+  "verdict": "FAIL"
+ }
+}

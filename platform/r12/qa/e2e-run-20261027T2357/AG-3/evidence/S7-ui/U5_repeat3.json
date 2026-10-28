@@ -1,0 +1,26 @@
+{
+ "runs": [
+  {
+   "i": 1,
+   "done": true,
+   "elapsedMs": 23150,
+   "refs": "1",
+   "hit8000": true
+  },
+  {
+   "i": 2,
+   "done": true,
+   "elapsedMs": 21301,
+   "refs": "1",
+   "hit8000": true
+  },
+  {
+   "i": 3,
+   "done": true,
+   "elapsedMs": 23219,
+   "refs": "1",
+   "hit8000": true
+  }
+ ],
+ "allOk": true
+}

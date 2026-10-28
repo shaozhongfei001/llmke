@@ -1,0 +1,171 @@
+{
+ "time": "2026-10-28 11:45:11+0800",
+ "kb_id": "38",
+ "primitive": "kb_38",
+ "source": {
+  "file_id": "523",
+  "file_name": "R12FIX-product-loan.docx",
+  "file_path_key": "r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+  "faqExtractStatus_before": 1
+ },
+ "extract_endpoint": "POST /index/knowledgeBase/file/extractFQA",
+ "extract_http": 200,
+ "extract_body": {
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": true
+ },
+ "extract_elapsed": 0.075,
+ "extract_status_poll": {
+  "final": 3,
+  "waited": 39.2,
+  "samples": [
+   {
+    "t": 0.0,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 3.0,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 6.0,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 9.0,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 12.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 15.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 18.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 21.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 24.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 27.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 30.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 33.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 36.1,
+    "faqExtractStatus": 2
+   },
+   {
+    "t": 39.2,
+    "faqExtractStatus": 3
+   }
+  ]
+ },
+ "total_elapsed": 39.2,
+ "faq_total_before": 0,
+ "faq_total_after": 1,
+ "es_index": "faq_kb_38",
+ "es_before": {
+  "idx": "faq_kb_38",
+  "http": 404,
+  "error": "index_not_found_exception",
+  "reason": "no such index [faq_kb_38]"
+ },
+ "es_after": {
+  "idx": "faq_kb_38",
+  "http": 200,
+  "count": 18
+ },
+ "file_row_after": [
+  {
+   "id": "523",
+   "kbId": "38",
+   "fileName": "R12FIX-product-loan.docx",
+   "fileSize": 37544.0,
+   "size": "37544.0MB",
+   "filePath": "http://127.0.0.1:19000/r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "fullTextPath": null,
+   "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "status": 3,
+   "isEnable": 1,
+   "parseType": 1,
+   "chunkSize": 1,
+   "fileType": "naive",
+   "embeddingModelName": "bge-m3",
+   "parsedFilePath": "http://127.0.0.1:19000/r12-rag/kb_38/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+   "faqExtractStatus": 3,
+   "reviseDate": null,
+   "parentFileName": "R12FIX-product-loan.docx",
+   "version": "V0",
+   "folderId": null,
+   "folderName": null,
+   "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_38/",
+   "synLogs": [],
+   "kbFiles": null,
+   "isFolder": 0,
+   "imagePaths": null,
+   "tableFilePaths": null,
+   "pdfPage": 0,
+   "nodeCount": 0,
+   "edgeCount": 0,
+   "uid": "ag6-1793159038910-R12FIX-produ",
+   "graphParseStatus": 1,
+   "uploadStatus": null,
+   "message": null,
+   "index": null,
+   "chunking": true,
+   "kbName": null,
+   "elementType": null,
+   "parentId": null,
+   "permission": 3,
+   "fullFolderPath": "R12FIX-product-loan.docx",
+   "groupId": "614524213",
+   "label": "",
+   "chunkType": "naive",
+   "uploadTime": "2026-10-28 11:43:59",
+   "count": 0
+  }
+ ],
+ "faq_extracted_sample": [
+  {
+   "pk": null,
+   "relatedPk": null,
+   "question": null,
+   "answer": null,
+   "status": 3,
+   "sourceFile": null,
+   "pdfPages": 0,
+   "fileName": "R12FIX-product-loan.docx",
+   "fileId": "525",
+   "reviseDate": null,
+   "similarQuestions": [],
+   "faqType": null,
+   "folderId": null,
+   "folderName": null,
+   "dataType": 2,
+   "documentId": null,
+   "faqFileId": null,
+   "label": "",
+   "labels": [],
+   "permission": 3
+  }
+ ]
+}

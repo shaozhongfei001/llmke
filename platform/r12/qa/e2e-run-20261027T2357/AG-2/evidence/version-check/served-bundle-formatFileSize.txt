@@ -1,0 +1,7 @@
+线上 entry bundle 中的 formatFileSize（压缩为 qm），可直接对照 src/core/helps/index.ts:45-52：
+  if (s<1024) return s.toFixed(1)+" KB";
+  r=s/1024; return r<1024 ? r.toFixed(1)+" MB" : (r/1024).toFixed(1)+" GB";
+含义：包内把后端值当 KB（1024 进制），而后端 fileSize/fileTotalSize 实为字节 → 差 1024×。
+  → 该段代码【已进包】（src index.ts mtime 10:40 < dist 13:22），故 6.4 GB 不是旧包所致，是 r14-D 修复前提写错。
+
+Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/,Ae="支持8-20位密码，密码内需包含大小写字母、英文格式的特殊字符!@#$%^&*、数字",hs=t=>{if(!t)return"";const s="/minio";if(t.startsWith("/"))return t;const r=t.match(/^https?:\/\/[^/]+\/(.*)$/i);return r?"".concat(s,"/").concat(r[1]):"".concat(s,"/").concat(t.replace(/^\/+/,""))},qm=t=>{const s=typeof t=="number"?t:Number(t);if(!isFinite(s)||s<=0)return"-";if(s<1024)return"".concat(s.toFixed(1)," KB");const r=s/1024;return r<1024?"".concat(r.toFixed(1)," MB"):"".concat((r/1024).toFixed(1)," GB")},Ts="/preview",Gn=["docx","doc","pptx","ppt","odt","rtf","

@@ -1,0 +1,42 @@
+[
+ {
+  "at": 1793159291651,
+  "iso": "2026-10-28T03:48:11.651Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/faqService-DAQW_jrv.js",
+  "dur": null
+ },
+ {
+  "at": 1793159291651,
+  "iso": "2026-10-28T03:48:11.651Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/RepeatFaq-M57z0atZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793159294897,
+  "iso": "2026-10-28T03:48:14.897Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793159298355,
+  "iso": "2026-10-28T03:48:18.355Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=&fileId=525&folderId=525",
+  "dur": null
+ },
+ {
+  "at": 1793159301040,
+  "iso": "2026-10-28T03:48:21.040Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=3&pageSize=10&fuzzy=&fileId=525&folderId=525",
+  "dur": null
+ }
+]

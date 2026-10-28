@@ -1,0 +1,176 @@
+{
+ "build": "5161c957f19bb7f1ee825ca33d6771cc",
+ "login": {
+  "http": 200,
+  "success": true
+ },
+ "phaseA_uiClick": {
+  "pageText": {
+   "fail": "加载失败 | PDF请求失败: 500 | R12默认问答配置 | 清空对话 | 请输入您的问题，通过shift+回车换行，回车发送 | ﻿ | ",
+   "canvas": 0
+  },
+  "pairs": [
+   {
+    "request": {
+     "seq": 1,
+     "at": 1793158458597,
+     "method": "GET",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx",
+     "api": "presign",
+     "payloadRaw": "",
+     "headersSafe": {
+      "accept": "*/*",
+      "authorization": "(len=237)",
+      "user-agent": "Mozilla/5.0 (X11; Linux x86_64) R12E2E-AG2B-diag4-1793158426885",
+      "sec-ch-ua": "\"Chromium\";v=\"148\", \"HeadlessChrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"Linux\""
+     },
+     "hasAuthorization": true,
+     "hasXPlatform": false
+    },
+    "response": {
+     "seq": 1,
+     "api": "presign",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_9%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx",
+     "status": 200,
+     "contentType": "application/json",
+     "contentLength": "",
+     "server": "nginx/1.31.5",
+     "bytes": 0,
+     "magic": "",
+     "bodyHead": "(不可读)"
+    }
+   },
+   {
+    "request": {
+     "seq": 2,
+     "at": 1793158458645,
+     "method": "POST",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+     "api": "stream",
+     "payloadRaw": "{\"convertedFilePath\":\"r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx\",\"pageNo\":1,\"pageSize\":5}",
+     "headersSafe": {
+      "accept": "application/json, text/plain, */*",
+      "authorization": "(len=237)",
+      "content-type": "application/json",
+      "origin": "http://127.0.0.1:18088",
+      "user-agent": "Mozilla/5.0 (X11; Linux x86_64) R12E2E-AG2B-diag4-1793158426885",
+      "sec-ch-ua": "\"Chromium\";v=\"148\", \"HeadlessChrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"Linux\""
+     },
+     "hasAuthorization": true,
+     "hasXPlatform": false
+    },
+    "response": {
+     "seq": 2,
+     "api": "stream",
+     "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+     "status": 500,
+     "contentType": "application/json",
+     "contentLength": "74",
+     "server": "nginx/1.31.5",
+     "bytes": 0,
+     "magic": "",
+     "bodyHead": "(不可读)"
+    }
+   }
+  ],
+  "routeCaptured": [
+   {
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+    "payload": "{\"convertedFilePath\":\"r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx\",\"pageNo\":1,\"pageSize\":5}",
+    "status": 500,
+    "contentType": "application/json",
+    "responseBytes": 74,
+    "responseBodyText": "{\"success\":false,\"errorMsg\":\"参数非法\",\"errorCode\":\"5004\",\"data\":null}",
+    "responseMagic": "7b 22 73 75",
+    "passthrough": "未修改（route.fetch → 原样 fulfill）"
+   }
+  ],
+  "unresolved": 0
+ },
+ "phaseB_matrix": [
+  {
+   "label": "A stream + {convertedFilePath}",
+   "api": "stream",
+   "payload": {
+    "convertedFilePath": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx"
+   },
+   "status": 200,
+   "contentType": "application/octet-stream",
+   "bytes": 36716,
+   "magic": "50 4b 03 04",
+   "ascii": "PK..",
+   "bodyHead": ""
+  },
+  {
+   "label": "B stream + {convertedFilePath,pageNo,pageSize}",
+   "api": "stream",
+   "payload": {
+    "convertedFilePath": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+    "pageNo": 1,
+    "pageSize": 5
+   },
+   "status": 500,
+   "contentType": "application/json",
+   "bytes": 74,
+   "magic": "7b 22 73 75",
+   "ascii": "{\"su",
+   "bodyHead": "{\"success\":false,\"errorMsg\":\"参数非法\",\"errorCode\":\"5004\",\"data\":null}"
+  },
+  {
+   "label": "C stream + {filePath}",
+   "api": "stream",
+   "payload": {
+    "filePath": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx"
+   },
+   "status": 200,
+   "contentType": "application/json",
+   "bytes": 112,
+   "magic": "7b 22 73 75",
+   "ascii": "{\"su",
+   "bodyHead": "{\"success\":false,\"errorMsg\":\"NotBlank[convertedFilePath]文件地址不能为空\",\"errorCode\":\"999\",\"data\":null}"
+  },
+  {
+   "label": "D stream + {}",
+   "api": "stream",
+   "payload": {},
+   "status": 200,
+   "contentType": "application/json",
+   "bytes": 112,
+   "magic": "7b 22 73 75",
+   "ascii": "{\"su",
+   "bodyHead": "{\"success\":false,\"errorMsg\":\"NotBlank[convertedFilePath]文件地址不能为空\",\"errorCode\":\"999\",\"data\":null}"
+  },
+  {
+   "label": "E previewStream + {convertedFilePath}",
+   "api": "previewStream",
+   "payload": {
+    "convertedFilePath": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx"
+   },
+   "status": 200,
+   "contentType": "application/pdf",
+   "bytes": 29393,
+   "magic": "25 50 44 46",
+   "ascii": "%PDF",
+   "bodyHead": ""
+  },
+  {
+   "label": "F previewStream + {convertedFilePath,pageNo,pageSize}",
+   "api": "previewStream",
+   "payload": {
+    "convertedFilePath": "r12-rag/kb_9/docx-plain.docx/V0/docx-plain.docx",
+    "pageNo": 1,
+    "pageSize": 5
+   },
+   "status": 200,
+   "contentType": "application/pdf",
+   "bytes": 29393,
+   "magic": "25 50 44 46",
+   "ascii": "%PDF",
+   "bodyHead": ""
+  }
+ ]
+}

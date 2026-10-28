@@ -1,0 +1,18 @@
+[
+ {
+  "at": 1793159738714,
+  "iso": "2026-10-28T03:55:38.714Z",
+  "method": "POST",
+  "status": 200,
+  "url": "/proxy/qa/ai/question_re",
+  "dur": null
+ },
+ {
+  "at": 1793159740071,
+  "iso": "2026-10-28T03:55:40.071Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/qa/ai/recommendQuestion?queryId=query-4c9d605bdbb76c9bfdd9ce97dbf09147&configId=",
+  "dur": null
+ }
+]

@@ -1,0 +1,41 @@
+{
+ "time": "2026-10-28 11:54:06+0800",
+ "mark": "AG6-UNIQUE-115404",
+ "question": "AG6-UNIQUE-115404 蓝色独角兽保证金比例是多少？",
+ "answer": "AG6-UNIQUE-115404 蓝色独角兽保证金比例为 42.7%。",
+ "create_http": 200,
+ "create_resp": {
+  "pk": "2115290978382909441",
+  "relatedPk": "2115290978382909442",
+  "question": "AG6-UNIQUE-115404 蓝色独角兽保证金比例是多少？",
+  "answer": "AG6-UNIQUE-115404 蓝色独角兽保证金比例为 42.7%。",
+  "status": null,
+  "sourceFile": null,
+  "pdfPages": 0,
+  "fileName": null,
+  "fileId": null,
+  "reviseDate": null,
+  "similarQuestions": [],
+  "faqType": null,
+  "folderId": null,
+  "folderName": null,
+  "dataType": 3,
+  "documentId": null,
+  "faqFileId": null,
+  "label": "",
+  "labels": null,
+  "permission": null
+ },
+ "retrieval_before": {
+  "http": 200,
+  "faq_result_list": [
+   {
+    "faq_question": "ag6-unique-115404 蓝色独角兽保证金比例是多少？",
+    "faq_answer": "提前还款不收取违约金。",
+    "score": 0.34285714285714286
+   }
+  ],
+  "n_documents": 2
+ },
+ "hit_before": false
+}

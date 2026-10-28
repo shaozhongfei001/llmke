@@ -1,0 +1,53 @@
+{
+ "scenario": "S9-6 delete",
+ "kbId": "38",
+ "mark": "是否有违约金？",
+ "injectedSession": true,
+ "before": {
+  "rows": 1,
+  "texts": [
+   "Q: 是否有违约金？ 相似问0 转移到 启用 禁用 A: 提前还款不收取违约金。"
+  ]
+ },
+ "delBtnCount": 1,
+ "popconfirmText": "删除问答对 确认删除问答对吗？ 取 消 确 认",
+ "confirmCount": 1,
+ "http": 200,
+ "body": {
+  "success": true,
+  "errorMsg": null,
+  "errorCode": null,
+  "data": true
+ },
+ "request_payload": "{\"kbId\":\"38\",\"relatedPks\":[\"275195405320273198\"]}",
+ "toasts": [
+  {
+   "sel": ".ant-message-notice-content",
+   "text": "删除成功!"
+  },
+  {
+   "sel": ".ant-message",
+   "text": "删除成功!"
+  },
+  {
+   "sel": "[class*='message-notice']",
+   "text": "删除成功!"
+  },
+  {
+   "sel": "[class*='message-notice']",
+   "text": "删除成功!"
+  },
+  {
+   "sel": "[class*='message-notice']",
+   "text": "删除成功!"
+  }
+ ],
+ "after": {
+  "rows": 0,
+  "texts": []
+ },
+ "E": {
+  "gone_from_page": true
+ },
+ "bad": []
+}

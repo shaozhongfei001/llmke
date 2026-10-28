@@ -1,0 +1,59 @@
+{
+ "number_hits": {
+  "5000": [
+   {
+    "id": "1117439109309760356",
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+    "version": "V0",
+    "snippet": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：5000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理"
+   },
+   {
+    "id": "897762163454970252",
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "version": "V0",
+    "snippet": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-01（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业"
+   }
+  ],
+  "8000": [
+   {
+    "id": "626225001556669433",
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "version": "V1",
+    "snippet": "“智造贷”产品要点\n适用对象：制造业中小微企业\n最高额度：8000万元（信用部分不超过1000万元）\n最长期限：3年\n利率：1年期LPR加点30~100BP办理"
+   },
+   {
+    "id": "139363536840301567",
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "version": "V1",
+    "snippet": "“智造贷”企业流动资金贷款产品说明书文件编号：PRD-CORP-LOAN-2026-02（R12 验收测试夹具，非真实业务文件）一、适用对象面向制造业中小微企业"
+   }
+  ]
+ },
+ "per_file_sources": {
+  "R12FIX-product-loan.docx": [
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "docs": 1
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+    "docs": 1
+   }
+  ],
+  "R12FIX-product-intro.pptx": [
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+    "docs": 1
+   },
+   {
+    "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+    "docs": 1
+   }
+  ]
+ },
+ "total_count": {
+  "kb_9": null,
+  "table_chunks_kb_9": null,
+  "table_summary_kb_9": null
+ }
+}

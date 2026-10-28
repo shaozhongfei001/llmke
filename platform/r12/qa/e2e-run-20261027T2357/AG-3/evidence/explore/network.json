@@ -1,0 +1,30 @@
+[
+ {
+  "status": 500,
+  "method": "GET",
+  "url": "http://127.0.0.1:18088/proxy/qa/feedback/que/list",
+  "dur": null,
+  "at": "2026-10-28T02:24:53.008Z"
+ },
+ {
+  "console": "error",
+  "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ },
+ {
+  "pageerror": "AxiosError: tt$4"
+ },
+ {
+  "status": 500,
+  "method": "GET",
+  "url": "http://127.0.0.1:18088/proxy/qa/feedback/que/list",
+  "dur": null,
+  "at": "2026-10-28T02:24:54.890Z"
+ },
+ {
+  "console": "error",
+  "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ },
+ {
+  "pageerror": "AxiosError: tt$4"
+ }
+]

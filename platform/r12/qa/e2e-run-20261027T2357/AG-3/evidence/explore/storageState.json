@@ -1,0 +1,29 @@
+{
+  "cookies": [
+    {
+      "name": "rag_ai_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJHSUVOLVJBRyIsImF1ZCI6ImFkbWluIiwidXNlcklkIjoxLCJ1c2VyTmFtZSI6ImFkbWluIiwic3ViIjoibWl4ZWRRdWFudHVtIiwiZXhwIjoxNzkzMjQwNjMzLCJpYXQiOjE3OTMxNTQyMzN9.QYbSxuUh1ObMwIpuGZ35f9BTECa_2ZuYdHrab5qXH6Y",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:18088",
+      "localStorage": [
+        {
+          "name": "gitech_ril:rag_ai",
+          "value": "{\"appName\":\"rag_ai\",\"appInfo\":{\"name\":\"rag_ai\",\"authors\":\"\",\"version\":\"0.0.1\",\"theme\":\"light\",\"lang\":\"cn_zh\"},\"userInfo\":{\"userName\":\"admin\",\"email\":null,\"avatar\":null,\"phone\":null,\"realName\":\"系统管理员\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJHSUVOLVJBRyIsImF1ZCI6ImFkbWluIiwidXNlcklkIjoxLCJ1c2VyTmFtZSI6ImFkbWluIiwic3ViIjoibWl4ZWRRdWFudHVtIiwiZXhwIjoxNzkzMjQwNjMzLCJpYXQiOjE3OTMxNTQyMzN9.QYbSxuUh1ObMwIpuGZ35f9BTECa_2ZuYdHrab5qXH6Y\",\"id\":\"1\",\"hasSetSecurityQuestion\":null,\"hasAdminResetPassword\":null},\"lastupdate\":1793154292040,\"isLoggedIn\":true}"
+        },
+        {
+          "name": "r13_global_mode",
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}

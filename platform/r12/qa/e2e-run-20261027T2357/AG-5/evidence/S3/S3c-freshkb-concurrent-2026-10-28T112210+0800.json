@@ -1,0 +1,214 @@
+{
+ "ts": "2026-10-28 11:21:51+0800",
+ "kb_name": "R14-E2E-AG5-1121-C",
+ "kb_id": "37",
+ "create": {
+  "http": 200,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": {
+    "id": "37",
+    "kbName": "R14-E2E-AG5-1121-C",
+    "primitiveName": "kb_37",
+    "kbType": 1,
+    "kbDes": "R14 E2E AG-5 全新库并发上传窗口验收（用完即删）",
+    "sourceUrl": "http://127.0.0.1:19000/r12-rag/kb_37/",
+    "status": 1,
+    "fileTotalSize": null,
+    "fileCount": null,
+    "permission": null,
+    "chunkSize": 512,
+    "fileType": "naive",
+    "chunkOverlap": 50,
+    "splitRegex": null,
+    "embeddingModelName": "bge-m3",
+    "modelName": "qwen2.5-7b-instruct",
+    "multiModelName": "qwen2.5-vl-3b-instruct",
+    "faqModelName": "qwen2.5-7b-instruct",
+    "generateGraphModelName": "qwen2.5-7b-instruct",
+    "kbLabel": null,
+    "fileFaqMaxNums": 0,
+    "similarQuestionMaxNums": 1,
+    "enablePolish": false,
+    "graphPrompt": null,
+    "platform": "rag-qa",
+    "label": null,
+    "chunkType": null,
+    "privateKb": 0
+   }
+  }
+ },
+ "es_before": [
+  {
+   "idx": "kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [kb_37]"
+  },
+  {
+   "idx": "table_chunks_kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_chunks_kb_37]"
+  },
+  {
+   "idx": "table_summary_kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_summary_kb_37]"
+  }
+ ],
+ "note": "全新库：三个索引均未创建，首次上传才建",
+ "concurrent_elapsed": 0.14,
+ "es_after_upload_immediate": [
+  {
+   "idx": "kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [kb_37]"
+  },
+  {
+   "idx": "table_chunks_kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_chunks_kb_37]"
+  },
+  {
+   "idx": "table_summary_kb_37",
+   "http": 404,
+   "error": "index_not_found_exception",
+   "reason": "no such index [table_summary_kb_37]"
+  }
+ ],
+ "files": [
+  {
+   "fname": "AG5-CONC1-pdf-1121.pdf",
+   "http": 200,
+   "uid": "ag5-1793157711402-AG5-CONC1-pd",
+   "api_success": true,
+   "file_id": "514",
+   "resp": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"514\", \"kbId\": \"37\", \"fileName\": \"AG5-CONC1-pdf-1121.pdf\", \"fileSize\": 3577.0, \"size\": \"3577.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_37/AG5-CONC1-pdf-1121.pdf/V0/AG5-CONC1-pdf-1121.pdf\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-CONC1-pdf-1121.pdf\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"http://127.0.0.1:19000/r12-rag/kb_37/\", \"synLogs\": [], \"kbFiles\": null, \"isFolder\": null, \"imagePaths\": [], \"tableFilePaths\": null, \"pdfPage\": null, \"nodeCount\": 0, \"edgeCount\": 0, \"uid\": \"ag5-1793157711402-AG5-CONC1-pd\", \"graphParseStatus\": 1, \"uploadStatus\": 1, \"message\": null, \"index\": null, \"chunking\": true, \"kbName\": null, \"elementType\": null, \"parentId\": null, \"permission\": null, \"fullFolderPath\": null, \"groupId\": \"1181218969\", \"label\": \"\", \"chunkType\": null, \"uploadTime\": \"2026-10-28 11:21:51\", \"count\": null}]}",
+   "file_status": 3,
+   "status_name": "3(解析成功)",
+   "es": {
+    "kb_37": 2,
+    "table_chunks_kb_37": 0,
+    "table_summary_kb_37": 0
+   },
+   "es_total": 2,
+   "db_row": [
+    {
+     "id": "514",
+     "kb_id": "37",
+     "file_name": "AG5-CONC1-pdf-1121.pdf",
+     "status": "3",
+     "status_name": "解析成功",
+     "temp_status": "2",
+     "version": "V0",
+     "gmt_modified": "2026-10-28 11:22:04"
+    }
+   ],
+   "tasks": [
+    [
+     "558",
+     "SUCCESS",
+     ""
+    ]
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "fname": "AG5-CONC3-xlsx-1121.xlsx",
+   "http": 200,
+   "uid": "ag5-1793157711403-AG5-CONC3-xl",
+   "api_success": true,
+   "file_id": "515",
+   "resp": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"515\", \"kbId\": \"37\", \"fileName\": \"AG5-CONC3-xlsx-1121.xlsx\", \"fileSize\": 5340.0, \"size\": \"5340.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_37/AG5-CONC3-xlsx-1121.xlsx/V0/AG5-CONC3-xlsx-1121.xlsx\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-CONC3-xlsx-1121.xlsx\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"http://127.0.0.1:19000/r12-rag/kb_37/\", \"synLogs\": [], \"kbFiles\": null, \"isFolder\": null, \"imagePaths\": [], \"tableFilePaths\": null, \"pdfPage\": null, \"nodeCount\": 0, \"edgeCount\": 0, \"uid\": \"ag5-1793157711403-AG5-CONC3-xl\", \"graphParseStatus\": 1, \"uploadStatus\": 1, \"message\": null, \"index\": null, \"chunking\": true, \"kbName\": null, \"elementType\": null, \"parentId\": null, \"permission\": null, \"fullFolderPath\": null, \"groupId\": \"316749901\", \"label\": \"\", \"chunkType\": null, \"uploadTime\": \"2026-10-28 11:21:51\", \"count\": null}]}",
+   "file_status": 3,
+   "status_name": "3(解析成功)",
+   "es": {
+    "kb_37": 0,
+    "table_chunks_kb_37": 1,
+    "table_summary_kb_37": 1
+   },
+   "es_total": 2,
+   "db_row": [
+    {
+     "id": "515",
+     "kb_id": "37",
+     "file_name": "AG5-CONC3-xlsx-1121.xlsx",
+     "status": "3",
+     "status_name": "解析成功",
+     "temp_status": "2",
+     "version": "V0",
+     "gmt_modified": "2026-10-28 11:22:09"
+    }
+   ],
+   "tasks": [
+    [
+     "559",
+     "SUCCESS",
+     ""
+    ]
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "fname": "AG5-CONC2-docx-1121.docx",
+   "http": 200,
+   "uid": "ag5-1793157711403-AG5-CONC2-do",
+   "api_success": true,
+   "file_id": "516",
+   "resp": "{\"success\": true, \"errorMsg\": null, \"errorCode\": null, \"data\": [{\"id\": \"516\", \"kbId\": \"37\", \"fileName\": \"AG5-CONC2-docx-1121.docx\", \"fileSize\": 36944.0, \"size\": \"36944.0MB\", \"filePath\": \"http://127.0.0.1:19000/r12-rag/kb_37/AG5-CONC2-docx-1121.docx/V0/AG5-CONC2-docx-1121.docx\", \"fullTextPath\": null, \"convertedFilePath\": null, \"status\": 1, \"isEnable\": 1, \"parseType\": 1, \"chunkSize\": 0, \"fileType\": null, \"embeddingModelName\": null, \"parsedFilePath\": null, \"faqExtractStatus\": 1, \"reviseDate\": null, \"parentFileName\": \"AG5-CONC2-docx-1121.docx\", \"version\": \"V0\", \"folderId\": null, \"folderName\": null, \"sourceUrl\": \"http://127.0.0.1:19000/r12-rag/kb_37/\", \"synLogs\": [], \"kbFiles\": null, \"isFolder\": null, \"imagePaths\": [], \"tableFilePaths\": null, \"pdfPage\": null, \"nodeCount\": 0, \"edgeCount\": 0, \"uid\": \"ag5-1793157711403-AG5-CONC2-do\", \"graphParseStatus\": 1, \"uploadStatus\": 1, \"message\": null, \"index\": null, \"chunking\": true, \"kbName\": null, \"elementType\": null, \"parentId\": null, \"permission\": null, \"fullFolderPath\": null, \"groupId\": \"1549879676\", \"label\": \"\", \"chunkType\": null, \"uploadTime\": \"2026-10-28 11:21:51\", \"count\": null}]}",
+   "file_status": 3,
+   "status_name": "3(解析成功)",
+   "es": {
+    "kb_37": 1,
+    "table_chunks_kb_37": 1,
+    "table_summary_kb_37": 1
+   },
+   "es_total": 3,
+   "db_row": [
+    {
+     "id": "516",
+     "kb_id": "37",
+     "file_name": "AG5-CONC2-docx-1121.docx",
+     "status": "3",
+     "status_name": "解析成功",
+     "temp_status": "2",
+     "version": "V0",
+     "gmt_modified": "2026-10-28 11:22:09"
+    }
+   ],
+   "tasks": [
+    [
+     "560",
+     "SUCCESS",
+     ""
+    ]
+   ],
+   "verdict": "PASS"
+  }
+ ],
+ "sent": 3,
+ "ingested": 3,
+ "es_after": [
+  {
+   "idx": "kb_37",
+   "http": 200,
+   "count": 3
+  },
+  {
+   "idx": "table_chunks_kb_37",
+   "http": 200,
+   "count": 2
+  },
+  {
+   "idx": "table_summary_kb_37",
+   "http": 200,
+   "count": 2
+  }
+ ]
+}

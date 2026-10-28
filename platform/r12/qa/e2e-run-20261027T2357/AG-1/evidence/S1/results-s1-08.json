@@ -1,0 +1,14 @@
+[
+  {
+    "id": "S1-08",
+    "title": "输错验证码 → 200/400 + 可读提示 + 明确 errorCode，不得 500",
+    "verdict": "FAIL",
+    "detail": "真实登录表单提交错误验证码 \"zzzz\"：HTTP=500 success=false errorCode=30000 errorMsg=\"验证码错误！\"；前端 toast=\"验证码错误！ | 验证码错误！\"；停留 URL=http://127.0.0.1:18088/login（未登录成功）。归因：GlobalHandler 把业务异常（ApplicationException VERIFY_CODE_ERROR）统一映射为 HTTP 500，与「畸形 token → JWTDecodeException → 500」属同一族（可预期的用户输入/会话错误被当作系统故障），修复建议合并：可预期错误映射 4xx + 明确 errorCode，仅真实服务异常允许 500",
+    "evidence": [
+      "AG-1/evidence/S1/08-captcha-error.png",
+      "AG-1/evidence/S1/08-captcha-error-network.json",
+      "AG-1/evidence/S1/08-captcha-error.json"
+    ],
+    "at": "10:34:35"
+  }
+]

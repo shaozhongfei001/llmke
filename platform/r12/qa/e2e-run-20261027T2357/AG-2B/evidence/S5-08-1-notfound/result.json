@@ -1,0 +1,45 @@
+{
+ "id": "S5-08-1-notfound",
+ "mode": "bogusKey",
+ "kind": "真实服务端 404（注入仅限列表数据）",
+ "login": {
+  "http": 200,
+  "success": true
+ },
+ "securityModal": {
+  "present": true,
+  "bypass": "DOM removal (注入式绕行，未点击任何确定/保存)",
+  "kills": 1
+ },
+ "probe": {
+  "url": "http://127.0.0.1:18088/chats/knowledgeBase/9",
+  "drawerCount": 1,
+  "canvas": 0,
+  "errorBlock": "加载失败：原文不存在或已删除（知识库文件不存在） | 重试 | R12默认问答配置",
+  "failLine": "加载失败：原文不存在或已删除（知识库文件不存在）",
+  "raw": "加载失败：原文不存在或已删除（知识库文件不存在）\n重试\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n"
+ },
+ "timeline": [
+  {
+   "t": 31887,
+   "kind": "req",
+   "api": "presign",
+   "key": "r12-rag%2Fkb_9%2FAG2B-not-exist-fiction.pdf%2FV0%2FAG2B-not-exist-fiction.pdf"
+  },
+  {
+   "t": 31910,
+   "kind": "res",
+   "api": "presign",
+   "status": 404,
+   "body": "{\"success\":false,\"errorMsg\":\"知识库文件不存在\",\"errorCode\":\"10002\",\"data\":null}"
+  }
+ ],
+ "presignCalls": 1,
+ "presignStatuses": [
+  404
+ ],
+ "presignBeforeStream": false,
+ "streamGatedByPresign": true,
+ "streamCalls": [],
+ "matched": true
+}

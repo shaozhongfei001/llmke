@@ -1,0 +1,110 @@
+[
+  {
+    "kb": "R14-BASELINE-KB",
+    "apiRaw": 6679637,
+    "asBytesHuman": "6.4 MB",
+    "uiSize": "6.4 GB",
+    "expectIfKbUnit": "6.4 GB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "R14-P201-KB",
+    "apiRaw": 75889,
+    "asBytesHuman": "74.1 KB",
+    "uiSize": "74.1 MB",
+    "expectIfKbUnit": "74.1 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "graph-increment-split2",
+    "apiRaw": 147534,
+    "asBytesHuman": "144.1 KB",
+    "uiSize": "144.1 MB",
+    "expectIfKbUnit": "144.1 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "graph-increment-split",
+    "apiRaw": 147149,
+    "asBytesHuman": "143.7 KB",
+    "uiSize": "143.7 MB",
+    "expectIfKbUnit": "143.7 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "graph-increment-fixture",
+    "apiRaw": 110464,
+    "asBytesHuman": "107.9 KB",
+    "uiSize": "107.9 MB",
+    "expectIfKbUnit": "107.9 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "R14C-归组回归R14B",
+    "apiRaw": 192460,
+    "asBytesHuman": "187.9 KB",
+    "uiSize": "187.9 MB",
+    "expectIfKbUnit": "187.9 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "R14C-归组回归R14A",
+    "apiRaw": 192460,
+    "asBytesHuman": "187.9 KB",
+    "uiSize": "187.9 MB",
+    "expectIfKbUnit": "187.9 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "R14C-归组回归",
+    "apiRaw": 192460,
+    "asBytesHuman": "187.9 KB",
+    "uiSize": "187.9 MB",
+    "expectIfKbUnit": "187.9 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "qa_r12_final",
+    "apiRaw": 138393,
+    "asBytesHuman": "135.1 KB",
+    "uiSize": "135.1 MB",
+    "expectIfKbUnit": "135.1 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "R12验收主链",
+    "apiRaw": 6746568,
+    "asBytesHuman": "6.4 MB",
+    "uiSize": "6.4 GB",
+    "expectIfKbUnit": "6.4 GB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "R12业务主链",
+    "apiRaw": 6666847,
+    "asBytesHuman": "6.4 MB",
+    "uiSize": "6.4 GB",
+    "expectIfKbUnit": "6.4 GB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  },
+  {
+    "kb": "qa_r12_priv",
+    "apiRaw": 3577,
+    "asBytesHuman": "3.5 KB",
+    "uiSize": "3.5 MB",
+    "expectIfKbUnit": "3.5 MB",
+    "uiMatchesKbAssumption": true,
+    "plausibleAsBytes": false
+  }
+]

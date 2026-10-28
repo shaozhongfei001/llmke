@@ -1,0 +1,103 @@
+{
+ "time": "2026-10-28 11:56:28+0800",
+ "kb_id": "38",
+ "kb_list_count": 15,
+ "names": [
+  "R14-BASELINE-KB",
+  "R14-P201-KB",
+  "graph-increment-split2",
+  "graph-increment-split",
+  "graph-increment-fixture",
+  "R14C-归组回归R14B",
+  "R14C-归组回归R14A",
+  "R14C-归组回归",
+  "qa_r12_final",
+  "R12验收主链",
+  "R12业务主链",
+  "qa_r12_priv",
+  "R12主链",
+  "qa_r12_indep",
+  "R12验收知识库"
+ ],
+ "baseline": [
+  "R14-BASELINE-KB",
+  "R14-P201-KB",
+  "graph-increment-split2",
+  "graph-increment-split",
+  "graph-increment-fixture",
+  "R14C-归组回归R14B",
+  "R14C-归组回归R14A",
+  "R14C-归组回归",
+  "qa_r12_final",
+  "R12验收主链",
+  "R12业务主链",
+  "qa_r12_priv",
+  "R12主链",
+  "qa_r12_indep",
+  "R12验收知识库"
+ ],
+ "back_to_baseline": true,
+ "es": [
+  {
+   "idx": "kb_kb_38",
+   "r": {
+    "idx": "kb_kb_38",
+    "http": 404,
+    "error": "index_not_found_exception",
+    "reason": "no such index [kb_kb_38]"
+   }
+  },
+  {
+   "idx": "faq_kb_38",
+   "r": {
+    "idx": "faq_kb_38",
+    "http": 404,
+    "error": "index_not_found_exception",
+    "reason": "no such index [faq_kb_38]"
+   }
+  }
+ ],
+ "milvus": {
+  "_kb_38": {
+   "exists": false
+  },
+  "_table_chunks_kb_38": {
+   "exists": false
+  },
+  "_table_summary_kb_38": {
+   "exists": false
+  },
+  "_community_summary_kb_38": {
+   "exists": false
+  }
+ },
+ "mysql": {
+  "knowledge_base": [
+   [
+    "1"
+   ]
+  ],
+  "knowledge_base_list": [
+   [
+    "3"
+   ]
+  ],
+  "file_parse_task": [
+   [
+    "3"
+   ]
+  ],
+  "syn_log": [
+   [
+    "0"
+   ]
+  ]
+ },
+ "kb_row": [
+  [
+   "38",
+   "R14-E2E-AG6-1143",
+   "0"
+  ]
+ ]
+}

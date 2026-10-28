@@ -1,0 +1,74 @@
+[
+ {
+  "at": 1793159191367,
+  "iso": "2026-10-28T03:46:31.367Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/chats/knowledgeBase/38",
+  "dur": null
+ },
+ {
+  "at": 1793159192158,
+  "iso": "2026-10-28T03:46:32.158Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/faqService-DAQW_jrv.js",
+  "dur": null
+ },
+ {
+  "at": 1793159192158,
+  "iso": "2026-10-28T03:46:32.158Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/assets/RepeatFaq-M57z0atZ.js",
+  "dur": null
+ },
+ {
+  "at": 1793159192741,
+  "iso": "2026-10-28T03:46:32.741Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/getKbById?id=38",
+  "dur": null
+ },
+ {
+  "at": 1793159192783,
+  "iso": "2026-10-28T03:46:32.783Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=38&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793159196018,
+  "iso": "2026-10-28T03:46:36.018Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=2&kbId=38&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793159196033,
+  "iso": "2026-10-28T03:46:36.033Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/knowledgeBase/getKbById?id=38",
+  "dur": null
+ },
+ {
+  "at": 1793159196065,
+  "iso": "2026-10-28T03:46:36.065Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=",
+  "dur": null
+ },
+ {
+  "at": 1793159200946,
+  "iso": "2026-10-28T03:46:40.946Z",
+  "method": "GET",
+  "status": 200,
+  "url": "/proxy/index/faq/list?kbId=38&pageNo=1&pageSize=10&fuzzy=&fileId=525&folderId=525",
+  "dur": null
+ }
+]

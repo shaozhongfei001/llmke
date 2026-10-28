@@ -1,0 +1,11 @@
+# AG-3 自查：resolvePreviewTarget(nh) 反编译片段 + 字面量统计（只读）
+bundle: /tmp/served-AG3-end.js  md5=de2424501bd29e358043049876db2a75  bytes=305736
+## nh = resolvePreviewTarget（线上运行包真实实现）
+nh=async({source:t,fileType:s,token:r})=>{const a=It(t);if(!a)throw new Error("缺少原文对象键，无法打开原文");return xs(s)||Go(s)?{filePath:a,streamApiUrl:ns}:gr(s)?{filePath:await os(t,r),streamApiUrl:wt}:(await os(t,r),{filePath:a,streamApiUrl:wt})},qo=t=>{const{convertedFilePath:s="",fileType:r,authorization:a,streamApiUrl:n,...l}=t,[i,c]=o.useState(null),[u,x]=o.useState(""),[d,g]=o.useState(0),h=o.useMemo(()=>{const f=/\/prev
+
+结论：office(docx/pptx, xs) 或 sheet(xlsx/xls/csv, Go) 分支**直接 return {previewStream}，不调 presign**；      presign(os) 只在 image 分支与 else 分支。Go 数组存在 ≠ 该分支会走 presign。
+
+## 全量 chunk 字面量统计（entry + 874 chunk）
+- parsed/tables    命中文件数=0: []
+- file/presign     命中文件数=2: ['index-CpE2zvYY.js', 'index-legacy-BzZEqcv2.js']
+- ai/question      命中文件数=4: ['index-DXqX5agx.js', 'index-legacy-BKKVyeoP.js', 'ppt-legacy-DD6J8WLk.js', 'ppt-DjmKXWA0.js']

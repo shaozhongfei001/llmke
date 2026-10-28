@@ -1,0 +1,100 @@
+{
+ "question": "江南装备科技有限公司的信用评级是什么，按这个评级它适用的加点是多少，对应产品的最高授信额度又是多少？",
+ "on": [
+  {
+   "chunk_pk": 1095912197551331871,
+   "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "version": "V0",
+   "provenance_quality": null,
+   "recovered_by": null,
+   "identity_stability": null,
+   "search_type": [
+    "milvus",
+    "es",
+    "es",
+    "graph"
+   ],
+   "file_id": 329
+  },
+  {
+   "chunk_pk": 139363536840301567,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "version": "V1",
+   "provenance_quality": null,
+   "recovered_by": null,
+   "identity_stability": null,
+   "search_type": [
+    "milvus",
+    "es",
+    "es",
+    "graph"
+   ],
+   "file_id": 328
+  },
+  {
+   "chunk_pk": 626225001556669433,
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "version": "V1",
+   "provenance_quality": null,
+   "recovered_by": null,
+   "identity_stability": null,
+   "search_type": [
+    "milvus",
+    "graph"
+   ],
+   "file_id": 343
+  }
+ ],
+ "off": [
+  {
+   "chunk_pk": 1095912197551331871,
+   "source": "r12-rag/kb_9/R12FIX-credit-ledger.xlsx/V0/R12FIX-credit-ledger.xlsx",
+   "version": "V0",
+   "provenance_quality": null,
+   "recovered_by": null,
+   "identity_stability": null,
+   "search_type": [
+    "milvus",
+    "es",
+    "es"
+   ],
+   "file_id": 329
+  },
+  {
+   "chunk_pk": 139363536840301567,
+   "source": "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+   "version": "V1",
+   "provenance_quality": null,
+   "recovered_by": null,
+   "identity_stability": null,
+   "search_type": [
+    "milvus",
+    "es",
+    "es"
+   ],
+   "file_id": 328
+  },
+  {
+   "chunk_pk": 626225001556669433,
+   "source": "r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+   "version": "V1",
+   "provenance_quality": null,
+   "recovered_by": null,
+   "identity_stability": null,
+   "search_type": [
+    "milvus"
+   ],
+   "file_id": 343
+  }
+ ],
+ "pks": [
+  1095912197551331871,
+  139363536840301567,
+  626225001556669433
+ ],
+ "hit": [
+  "1095912197551331871",
+  "139363536840301567",
+  "626225001556669433"
+ ]
+}

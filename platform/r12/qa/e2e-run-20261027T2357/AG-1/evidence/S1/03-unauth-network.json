@@ -1,0 +1,51 @@
+[
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/assets/index-CQRVQFnh.js",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/assets/index-CvE_DmMk.js",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/resource/getMenusByUser",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/assets/index-CGllGpcb.js",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/assets/vendor-@ant-design/pro-card-Cg0vmEm4.js",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/assets/service-DVeKxRWG.js",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/kaptcha",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "image/jpeg"
+  }
+]

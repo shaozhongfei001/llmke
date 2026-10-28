@@ -1,0 +1,40 @@
+{
+ "id": "S5-01-pdf-digital",
+ "kind": "pdf",
+ "file": "pdf-digital.pdf",
+ "inject": false,
+ "net": [
+  {
+   "status": 200,
+   "method": "POST",
+   "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/stream",
+   "ms": 159,
+   "bytes": null,
+   "ct": "application/octet-stream"
+  }
+ ],
+ "bad": [],
+ "slow": [],
+ "consoleLog": [
+  "ERROR Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+ ],
+ "errors": [],
+ "totalMs": 9536,
+ "canvasCount": 1,
+ "canvases": [
+  {
+   "w": 595,
+   "h": 842
+  }
+ ],
+ "drawerText": "pdf-digital.pdf\npdf-digital.pdf\n1 / 1\n124%\nR12默认问答配置\n清空对话\n请输入您的问题，通过shift+回车换行，回车发送\n﻿\n",
+ "pageIndicator": {
+  "cur": 1,
+  "total": 1
+ },
+ "thCells": [],
+ "tableCells": [],
+ "hasTable": false,
+ "pdfBoxHtmlLen": 2378,
+ "failText": ""
+}

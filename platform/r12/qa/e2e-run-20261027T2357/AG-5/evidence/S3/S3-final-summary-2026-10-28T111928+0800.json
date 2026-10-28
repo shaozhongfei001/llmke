@@ -1,0 +1,554 @@
+{
+ "ts": "2026-10-28 11:19:28+0800",
+ "judge_version": "v2",
+ "kb_id": 36,
+ "cases": {
+  "docx-loan": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "499",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "543",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:16:32+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:16:45.171263",
+     "pks": [
+      373175319049028896
+     ]
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 1,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.14,
+   "poll_elapsed": 14.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "3(3(解析成功))@14.1s"
+   ]
+  },
+  "docx-plain": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "493",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "537",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:15:12+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:15:15.141392",
+     "pks": [
+      458976604060092941
+     ]
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 1,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.14,
+   "poll_elapsed": 6.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "2(2(解析中))@4.0s",
+    "3(3(解析成功))@6.1s"
+   ]
+  },
+  "docx-table": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "494",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "538",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:15:18+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:15:32.058311",
+     "pks": [
+      333667601163210755
+     ]
+    },
+    "table_chunks_kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:15:37.131055",
+     "pks": [
+      479584477223083315
+     ]
+    },
+    "table_summary_kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:15:34.120858",
+     "pks": [
+      561050442709828720
+     ]
+    }
+   },
+   "es_total_cross": 3,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.095,
+   "poll_elapsed": 22.2,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "2(2(解析中))@12.1s",
+    "3(3(解析成功))@22.2s"
+   ]
+  },
+  "neg-bad-docx": {
+   "verdict": "PASS",
+   "expect_fail": true,
+   "file_id": "502",
+   "http": 200,
+   "api_success": true,
+   "file_final": 4,
+   "file_final_name": "解析失败",
+   "task_status": [
+    [
+     "546",
+     "DEAL_FAIL"
+    ]
+   ],
+   "req_time": "2026-10-28 11:17:46+0800",
+   "resp_message": "",
+   "error_msg_tail": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":546,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":502,\"file_path\":\"r12-rag/kb_36/bad-renamed.docx/V0/bad-renamed.docx\",\"success\":false}]}",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 0,
+   "create_time_after_req": false,
+   "elapsed_upload": 0.131,
+   "poll_elapsed": 44.3,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "98(98(重试中))@14.1s",
+    "4(4(解析失败))@44.3s"
+   ]
+  },
+  "neg-bad-pdf": {
+   "verdict": "PASS",
+   "expect_fail": true,
+   "file_id": "501",
+   "http": 200,
+   "api_success": true,
+   "file_final": 4,
+   "file_final_name": "解析失败",
+   "task_status": [
+    [
+     "545",
+     "DEAL_FAIL"
+    ]
+   ],
+   "req_time": "2026-10-28 11:17:01+0800",
+   "resp_message": "",
+   "error_msg_tail": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":545,\"task_statuses\":[{\"fail_reason\":\"?????No /Root object! - Is this really a PDF?\",\"file_id\":501,\"file_path\":\"r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf\",\"success\":false}]}",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 0,
+   "create_time_after_req": false,
+   "elapsed_upload": 0.108,
+   "poll_elapsed": 44.3,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "98(98(重试中))@14.1s",
+    "4(4(解析失败))@44.3s"
+   ]
+  },
+  "neg-encrypted-pdf": {
+   "verdict": "PASS",
+   "expect_fail": true,
+   "file_id": "500",
+   "http": 200,
+   "api_success": true,
+   "file_final": 4,
+   "file_final_name": "解析失败",
+   "task_status": [
+    [
+     "544",
+     "DEAL_FAIL"
+    ]
+   ],
+   "req_time": "2026-10-28 11:16:47+0800",
+   "resp_message": "",
+   "error_msg_tail": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":544,\"task_statuses\":[{\"fail_reason\":\"?????\",\"file_id\":500,\"file_path\":\"r12-rag/kb_36/encrypted.pdf/V0/encrypted.pdf\",\"success\":false}]}",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 0,
+   "create_time_after_req": false,
+   "elapsed_upload": 0.135,
+   "poll_elapsed": 14.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "4(4(解析失败))@14.1s"
+   ]
+  },
+  "neg-truncated-docx": {
+   "verdict": "PASS",
+   "expect_fail": true,
+   "file_id": "503",
+   "http": 200,
+   "api_success": true,
+   "file_final": 4,
+   "file_final_name": "解析失败",
+   "task_status": [
+    [
+     "547",
+     "DEAL_FAIL"
+    ]
+   ],
+   "req_time": "2026-10-28 11:18:30+0800",
+   "resp_message": "",
+   "error_msg_tail": "{\"msg\":\"???????????????????? LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"?????File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 0,
+   "create_time_after_req": false,
+   "elapsed_upload": 0.129,
+   "poll_elapsed": 46.3,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "98(98(重试中))@16.1s",
+    "4(4(解析失败))@46.3s"
+   ]
+  },
+  "pdf-digital": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "497",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "541",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:16:03+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 2,
+     "got": 2,
+     "min_create_time": "2026-10-28 11:16:15.538016",
+     "pks": [
+      123548333196896072,
+      298974259142513990
+     ]
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 2,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.1,
+   "poll_elapsed": 14.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "2(2(解析中))@12.1s",
+    "3(3(解析成功))@14.1s"
+   ]
+  },
+  "pdf-scanned": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "498",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "542",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:16:18+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:16:30.696808",
+     "pks": [
+      620920596806383385
+     ]
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 1,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.319,
+   "poll_elapsed": 14.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "2(2(解析中))@12.1s",
+    "3(3(解析成功))@14.1s"
+   ]
+  },
+  "pptx-intro": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "496",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "540",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:15:55+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:16:00.162743",
+     "pks": [
+      313847144313943105
+     ]
+    },
+    "table_chunks_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_summary_kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    }
+   },
+   "es_total_cross": 1,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.158,
+   "poll_elapsed": 8.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "2(2(解析中))@6.1s",
+    "3(3(解析成功))@8.1s"
+   ]
+  },
+  "xlsx-ledger": {
+   "verdict": "PASS",
+   "expect_fail": false,
+   "file_id": "495",
+   "http": 200,
+   "api_success": true,
+   "file_final": 3,
+   "file_final_name": "解析成功",
+   "task_status": [
+    [
+     "539",
+     "SUCCESS"
+    ]
+   ],
+   "req_time": "2026-10-28 11:15:40+0800",
+   "resp_message": "",
+   "error_msg_tail": "",
+   "es_cross_index": {
+    "kb_36": {
+     "total": 0,
+     "got": 0,
+     "min_create_time": null,
+     "pks": []
+    },
+    "table_chunks_kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:15:52.161618",
+     "pks": [
+      551815513813976792
+     ]
+    },
+    "table_summary_kb_36": {
+     "total": 1,
+     "got": 1,
+     "min_create_time": "2026-10-28 11:15:50.296363",
+     "pks": [
+      206356838183062828
+     ]
+    }
+   },
+   "es_total_cross": 2,
+   "create_time_after_req": true,
+   "elapsed_upload": 0.091,
+   "poll_elapsed": 14.1,
+   "poll_timed_out": false,
+   "transitions": [
+    "99(99(解析排队中))@0.0s",
+    "2(2(解析中))@6.1s",
+    "3(3(解析成功))@14.1s"
+   ]
+  }
+ }
+}

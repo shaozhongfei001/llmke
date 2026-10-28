@@ -1,0 +1,185 @@
+[
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/kaptcha",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "image/jpeg"
+  },
+  {
+    "method": "POST",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/login",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/resource/getMenusByUser",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/kaptcha",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "image/jpeg"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/qa/feedback/que/list",
+    "status": 500,
+    "type": "xhr",
+    "contentType": "application/json",
+    "flag": "HTTP>=400"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/qa/dialogue/list?pageNo=1&pageSize=16&sysType=INT_SESSION",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/qa/search/config/helper/list?pageNo=1&pageSize=3000",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/qa/dialogue/getDialogBySessionId?sessionId=b2e6504bbd01143a5c8a1dd6b4283427",
+    "status": 0,
+    "flag": "REQUEST_FAILED",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/resource/getMenusByUser",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/kaptcha",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "image/jpeg"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/list?pageNo=1&pageSize=12&fuzzy=",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/list?pageNo=2&pageSize=12&fuzzy=",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/list?pageNo=1&pageSize=12&fuzzy=",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/resource/getMenusByUser",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/kaptcha",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "image/jpeg"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/bizLabel/historyOfKbLabel?kbId=34",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/getKbById?id=34",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=1",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=2",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/modelInfo/allPage?pageNum=1&pageSize=9999&status=1&type=4",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/file/folder/list?pageSize=10&pageNo=1&fileListType=1&kbId=34&fuzzy=",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/resource/getMenusByUser",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/auth/user/kaptcha",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "image/jpeg"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/list?pageNo=1&pageSize=12&fuzzy=",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/list?pageNo=2&pageSize=12&fuzzy=",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  },
+  {
+    "method": "GET",
+    "url": "http://127.0.0.1:18088/proxy/index/knowledgeBase/list?pageNo=1&pageSize=12&fuzzy=qa_r12",
+    "status": 200,
+    "type": "xhr",
+    "contentType": "application/json"
+  }
+]

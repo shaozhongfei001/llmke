@@ -1,0 +1,55 @@
+{
+ "http": 200,
+ "groups_n": 2,
+ "multi_n": 2,
+ "groups": [
+  {
+   "parentFileName": "R12FIX-product-loan.docx",
+   "groupId": "614524213",
+   "files": [
+    {
+     "id": "328",
+     "fileName": "R12FIX-product-loan(1).docx",
+     "version": "V1",
+     "status": 3,
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+     "parentFileName": "R12FIX-product-loan.docx"
+    },
+    {
+     "id": "290",
+     "fileName": "R12FIX-product-loan.docx",
+     "version": "V0",
+     "status": 3,
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "parentFileName": "R12FIX-product-loan.docx"
+    }
+   ]
+  },
+  {
+   "parentFileName": "R12FIX-product-intro.pptx",
+   "groupId": "1939665135",
+   "files": [
+    {
+     "id": "343",
+     "fileName": "R12FIX-product-intro(1).pptx",
+     "version": "V1",
+     "status": 3,
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V1/R12FIX-product-intro(1).pptx",
+     "parentFileName": "R12FIX-product-intro.pptx"
+    },
+    {
+     "id": "330",
+     "fileName": "R12FIX-product-intro.pptx",
+     "version": "V0",
+     "status": 3,
+     "filePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+     "convertedFilePath": "http://127.0.0.1:19000/r12-rag/kb_9/R12FIX-product-intro.pptx/V0/R12FIX-product-intro.pptx",
+     "parentFileName": "R12FIX-product-intro.pptx"
+    }
+   ]
+  }
+ ]
+}

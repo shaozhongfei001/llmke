@@ -1,0 +1,12 @@
+# §1.4 前端版本自证（AG-2，2026-10-28 00:16:35）
+entry=assets/index-CpE2zvYY.js
+served_bytes=315576
+--- md5sum ---
+de2424501bd29e358043049876db2a75  /tmp/served-AG-2.js
+de2424501bd29e358043049876db2a75  frontend/plateform/dist/assets/index-CpE2zvYY.js
+--- dist/源码/提交 时间线（用于判定测的是哪一版）---
+2026-10-27 13:22 frontend/plateform/dist/assets/index-CpE2zvYY.js
+2026-10-27 13:35 frontend/plateform/src/core/components/StreamReader.tsx
+2026-10-27 13:34 frontend/plateform/src/core/helps/fileAccess.ts
+HEAD=303b12e510cde94e64f0d97d10e88fb26d291fb0 2026-10-27 17:27:00 +0800 fix(r14-E): systemd 收敛到 r12.target + 离线包补 watchdog/target
+StreamReader 最后提交=4415ed31ae794ca9b44440eca65d8875e1058642 2026-10-27 16:19:36 +0800 fix(r14-D): 引用打开原文 + 失败文案三态 + KB 大小单位

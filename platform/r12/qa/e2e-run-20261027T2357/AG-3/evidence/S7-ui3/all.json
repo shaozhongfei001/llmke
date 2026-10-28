@@ -1,0 +1,154 @@
+{
+ "U3_multiturn": {
+  "turn1": {
+   "done": true,
+   "ms": 31207,
+   "tail": "R12默认问答配置\n10:41\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:39\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:39\n智造贷最高额度是多少？\nR12默认问答配置\n10:37\n华东精密制造的授信额度是多少？\nR12默认问答配置\n10:36\n智造贷最高额度是多少？\nR12默认问答配置\n10:36\n智造贷是什么类型的产品？\nR12默认问答配置\n10:36\n智造贷这款产品最多能给企业批多少授信额度\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:33\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:33\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:32\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:32\n智造贷是什么类型的产品？\n26-10-28 10:41:27\n智造贷是什么类型的产品？\n26-10-28 10:41:27\n思考完成\n(用时 31 秒)\n“智造贷”是面向制造业中小微企业的企业流动资金贷款产品。12主要用于支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。2\n知识溯源 2\n本次回答总计消耗 309 tokens, 等待总计耗时 31秒\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。"
+  },
+  "turn2": {
+   "done": true,
+   "ms": 26158,
+   "tail": "少？\nR12默认问答配置\n10:36\n智造贷最高额度是多少？\nR12默认问答配置\n10:36\n智造贷是什么类型的产品？\nR12默认问答配置\n10:36\n智造贷这款产品最多能给企业批多少授信额度\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n智造贷最高额度是多少？\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:35\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:33\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:33\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:32\n请详细介绍一下智造贷的适用对象、期限、利\nR12默认问答配置\n10:32\n智造贷是什么类型的产品？\n26-10-28 10:41:27\n智造贷是什么类型的产品？\n26-10-28 10:41:27\n思考完成\n(用时 31 秒)\n“智造贷”是面向制造业中小微企业的企业流动资金贷款产品。12主要用于支持汽车零部件、装备制造、电子信息三条产业链上的规模以上工业企业。2\n知识溯源 2\n本次回答总计消耗 309 tokens, 等待总计耗时 31秒\n26-10-28 10:41:59\n它的最高授信额度是多少？\n26-10-28 10:41:59\n思考完成\n(用时 26 秒)\n最高授信额度为人民币8000万元。1\n知识溯源 1\n本次回答总计消耗 99 tokens, 等待总计耗时 26秒\n联网搜索\n全局(GraphRAG)\n内容由AI生成，仅供参考，不代表本公司观点。"
+  },
+  "pronounResolved": true,
+  "ok": true
+ },
+ "U6_cancel": {
+  "stopButton": {
+   "x": 1392,
+   "y": 935,
+   "w": 46,
+   "html": "<svg width=\"46\" height=\"46\" viewBox=\"0 0 20 20\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" class=\"\"><circle cx=\"10\" cy=\"10\" r=\"9\" fill=\"none\" stroke=\"#fffff"
+  },
+  "before": {
+   "thinking": true,
+   "len": 676
+  },
+  "samples": [
+   {
+    "t": 1,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 2,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 3,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 4,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 5,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 6,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 7,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 8,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 9,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 10,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 11,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 12,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 13,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 14,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   },
+   {
+    "t": 15,
+    "len": 676,
+    "thinking": true,
+    "stopGone": true,
+    "stoppedWord": false,
+    "aiPlaceholder": true
+   }
+  ],
+  "streamAborted": true,
+  "stuckThinking": true,
+  "hasStoppedWord": false,
+  "askAfterCancelOk": true
+ }
+}

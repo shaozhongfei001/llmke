@@ -1,0 +1,84 @@
+{
+ "ts": "2026-10-28 11:33:35+0800",
+ "kb": "kb_36",
+ "file_id": 499,
+ "row": {
+  "id": "499",
+  "kb_id": "36",
+  "file_name": "R12FIX-product-loan.docx",
+  "status": "3",
+  "status_name": "解析成功",
+  "temp_status": "2",
+  "version": "V0",
+  "gmt_modified": "2026-10-28 11:16:47"
+ },
+ "es_before": {
+  "kb_36": [
+   {
+    "pk": 373175319049028896,
+    "version": "V0",
+    "file_path": "r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "create_time": "2026-10-28 11:16:45.171263"
+   }
+  ],
+  "table_chunks_kb_36": [],
+  "table_summary_kb_36": []
+ },
+ "reparse": {
+  "http": 200,
+  "body": {
+   "success": true,
+   "errorMsg": null,
+   "errorCode": null,
+   "data": true
+  },
+  "payload": {
+   "files": [
+    {
+     "folder_id": null,
+     "file_path": "r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+     "file_id": "499",
+     "parent_file_name": "R12FIX-product-loan.docx"
+    }
+   ],
+   "folder_ids": [],
+   "knowledge_base_name": "kb_36",
+   "knowledge_base_id": "36",
+   "override": true,
+   "is_all": false
+  },
+  "req_time": "2026-10-28 11:33:35+0800"
+ },
+ "status_after": "解析成功",
+ "tasks": [
+  [
+   "543",
+   "SUCCESS"
+  ],
+  [
+   "572",
+   "SUCCESS"
+  ]
+ ],
+ "es_after": {
+  "kb_36": [
+   {
+    "pk": 373175319049028896,
+    "version": null,
+    "file_path": "r12-rag/kb_36/R12FIX-product-loan.docx/V0/R12FIX-product-loan.docx",
+    "create_time": "2026-10-28 11:33:45.095689"
+   }
+  ],
+  "table_chunks_kb_36": [],
+  "table_summary_kb_36": []
+ },
+ "version_before": [
+  "V0"
+ ],
+ "version_after": [
+  null
+ ],
+ "version_lost": true,
+ "pk_same": true,
+ "create_time_advanced": true
+}

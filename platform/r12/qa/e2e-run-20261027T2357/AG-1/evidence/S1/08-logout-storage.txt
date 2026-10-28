@@ -1,0 +1,12 @@
+登出后客户端残留态（D-8/P3）
+实测时刻 2026-10-28 10:2x
+localStorage["gitech_ril:rag_ai"] =
+{"appName":"rag_ai","appInfo":{"authors":["hanfeng zhang"],"version":"0.0.1","theme":"light","lang":"cn_zh"},
+ "userInfo":{"userName":"未登录用户","email":"gitech@example.com","avatar":"www.example.com/placeholdAvator.png"},
+ "lastupdate":1793154656571,"isLoggedIn":true}
+cookie = （空）
+
+结论：token 已清除（userInfo.token 不存在，cookie 为空），不构成越权；
+但 isLoggedIn 仍为 true —— appPassport.tsx:149-151 `isLogined` 用 `token !== null`，
+而 token.ts:3-13 在无 token 时返回 undefined（undefined !== null 为 true），且 clear() 后
+AppPassportProvider 的 useEffect 会再次 init 重建该对象。

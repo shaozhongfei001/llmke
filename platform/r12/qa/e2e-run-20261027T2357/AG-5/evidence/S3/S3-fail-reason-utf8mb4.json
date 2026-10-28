@@ -1,0 +1,49 @@
+{
+ "note": "S3 阶段首次抓取 error_msg 时用了默认字符集客户端，中文显示为 ?（我方取证缺陷，非产品乱码）；此处用 --default-character-set=utf8mb4 复采",
+ "cases": {
+  "500": [
+   {
+    "task": "544",
+    "status": "DEAL_FAIL",
+    "retry": "1/3",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":544,\"task_statuses\":[{\"fail_reason\":\"解析失败：\",\"file_id\":500,\"file_path\":\"r12-rag/kb_36/encrypted.pdf/V0/encrypted.pdf\",\"success\":false}]}"
+   }
+  ],
+  "501": [
+   {
+    "task": "545",
+    "status": "DEAL_FAIL",
+    "retry": "3/3",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":545,\"task_statuses\":[{\"fail_reason\":\"解析失败：No /Root object! - Is this really a PDF?\",\"file_id\":501,\"file_path\":\"r12-rag/kb_36/bad-renamed.pdf/V0/bad-renamed.pdf\",\"success\":false}]}"
+   }
+  ],
+  "502": [
+   {
+    "task": "546",
+    "status": "DEAL_FAIL",
+    "retry": "3/3",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":546,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":502,\"file_path\":\"r12-rag/kb_36/bad-renamed.docx/V0/bad-renamed.docx\",\"success\":false}]}"
+   }
+  ],
+  "503": [
+   {
+    "task": "547",
+    "status": "DEAL_FAIL",
+    "retry": "3/3",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":547,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   },
+   {
+    "task": "562",
+    "status": "DEAL_FAIL",
+    "retry": "3/3",
+    "error_msg": "{\"msg\":\"有文件解析失败，成功解析的文件索引正常。 LOG_ID: 1543618\",\"success\":false,\"task_id\":562,\"task_statuses\":[{\"fail_reason\":\"解析失败：File is not a zip file\",\"file_id\":503,\"file_path\":\"r12-rag/kb_36/truncated.docx/V0/truncated.docx\",\"success\":false}]}"
+   },
+   {
+    "task": "564",
+    "status": "DEAL_ING",
+    "retry": "0/3",
+    "error_msg": ""
+   }
+  ]
+ }
+}

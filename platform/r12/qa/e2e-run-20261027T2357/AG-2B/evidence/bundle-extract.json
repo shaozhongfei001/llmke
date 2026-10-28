@@ -1,0 +1,14 @@
+{
+ "entry": "assets/index-fup9RT0c.js",
+ "md5": "5161c957f19bb7f1ee825ca33d6771cc",
+ "chars": 305649,
+ "resolvePreviewTarget": {
+  "presign_call_offset_in_fn": 104,
+  "first_type_branch_offset_in_fn": 118,
+  "presign_before_type_branch": true
+ },
+ "chunks_with_needle": [
+  "index-fup9RT0c.js",
+  "index-legacy-DRXPF9oJ.js"
+ ]
+}

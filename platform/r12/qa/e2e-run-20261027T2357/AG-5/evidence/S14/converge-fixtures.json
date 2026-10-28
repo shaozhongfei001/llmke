@@ -1,0 +1,15 @@
+{
+ "marker": "AG5-CONV-MARK-9001",
+ "v0": {
+  "path": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-5/evidence/fixtures/converge/v0/R12FIX-product-loan.docx",
+  "bytes": 37544,
+  "sha256": "aa8f26b94de1302f7a776a772e2af465d4b5f6a9241389051728b8d1ce4f9cb2",
+  "content_hint": "原件：最高额度 5000万元"
+ },
+ "v1": {
+  "path": "/home/szf/data/dev/llmke-r12/platform/r12/qa/e2e-run-20261027T2357/AG-5/evidence/fixtures/converge/v1/R12FIX-product-loan.docx",
+  "bytes": 36904,
+  "sha256": "9cf8239cf297134f65349486bb652d07611b2c82f96e2742a7aa79dbd629338b",
+  "content_hint": "改写件：最高额度 9000万元 + 标记 AG5-CONV-MARK-9001"
+ }
+}

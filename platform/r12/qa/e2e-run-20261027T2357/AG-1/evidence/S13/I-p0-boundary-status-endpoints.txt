@@ -1,0 +1,20 @@
+P0 边界探测：状态查询类接口是否同族缺授权（只读 GET，范围仅 3 个端点）
+采集时刻：2026-10-28 11:5x    主体：r13_noauth（无任何授权）    fileId=483（属 kb_34，该账号无任何授权）
+
+结果：
+  GET /index/knowledgeBase/file/getFileStatusById?fileId=483      → 200 {"success":true,"data":3}
+  GET /index/knowledgeBase/file/getFAQExtractStatusById?fileId=483 → 200 {"success":true,"data":1}
+  GET /index/knowledgeBase/file/getGraphParseStatus?fileId=483     → 200 {"success":true,"data":1}
+
+判读：
+- 三条均 **200 放行**，控制器层未见 assertRead（:290 / :301 / :307），与列表类接口同族。
+- 返回内容敏感度：**仅整数状态枚举**（3=解析成功 / 1=未解析·未提取），不含文件名、大小、路径、正文。
+  但配合已被放行的列表接口（可枚举出 fileId），等价于"可确认任意 fileId 是否存在及其解析状态"。
+- 因此 P0 边界应分两类：
+  A 类（实质信息泄露）：folder/list、list、flatList、flatFiles、queryList —— 返回文件名/大小/版本/MinIO 路径/synLogs 错误详情  → P0 主体
+  B 类（弱信息泄露）：getFileStatusById、getFAQExtractStatusById、getGraphParseStatus（另 multiple/version 无 assert 但接口自身 500）
+      —— 仅状态枚举，无法据此读取内容或文件名                                  → 同族缺口，敏感度低，建议随 A 类一并修，计数单列
+
+未探测（明确不越界）：upload :269、merge :277、extractFQA :327、uploadParsedFile :313、updateEnable :284、filesReviseDate :255、
+exist :127、precheck :137、check :260、getFileStatusByUids :295 —— 其中多个是写操作，本轮零写入；
+另一些"看到 controller 没有断言"不等于没有校验（可能在 service 层），不下结论，留"待确认范围"。

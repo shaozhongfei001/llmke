@@ -1,0 +1,21 @@
+const { chromium } = require('playwright');
+const fs=require('fs');
+const FE='http://127.0.0.1:18088';
+const TOKEN=fs.readFileSync('/tmp/ag2-token.txt','utf8').trim();
+(async()=>{
+  const b=await chromium.launch({headless:true});
+  const ctx=await b.newContext({viewport:{width:1600,height:1000}});
+  await ctx.addInitScript(([t])=>{localStorage.setItem('gitech_ril:rag_ai',JSON.stringify({userInfo:{token:t,userName:'admin',id:'1'}}));},[TOKEN]);
+  const p=await ctx.newPage();
+  const reqs=[];
+  ctx.on('request',r=>{const u=r.url(); if(/presign|stream|preview\/convert/.test(u)) reqs.push('REQ '+r.method()+' '+u);});
+  ctx.on('response',r=>{const u=r.url(); if(/presign|stream|preview\/convert/.test(u)) reqs.push('RES '+r.status()+' '+u);});
+  ctx.on('requestfailed',r=>{const u=r.url(); if(/presign|stream|preview\/convert/.test(u)) reqs.push('FAILED '+u+' '+r.failure()?.errorText);});
+  ctx.on('console',m=>{const t=m.text(); if(/presign|curData|content999|filePath|key=/.test(t)) reqs.push('LOG '+t.slice(0,300));});
+  await p.goto(FE+'/chats/knowledgeBase/9',{waitUntil:'domcontentloaded'});
+  await p.getByText('docx-plain.docx',{exact:true}).first().waitFor({timeout:30000});
+  await p.getByText('docx-plain.docx',{exact:true}).first().click();
+  await p.waitForTimeout(10000);
+  console.log(reqs.join('\n'));
+  await b.close();
+})().catch(e=>{console.error(e);process.exit(1)});
