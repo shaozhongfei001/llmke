@@ -154,7 +154,32 @@ public class FeedbackAppServiceImpl implements FeedbackAppService {
 
     @Override
     public List<JSONObject> queList() {
-        return JSON.parseArray(questionConf, JSONObject.class);
+        // R14-LIVE-08：question.conf 未配置时是 '{}'（空对象），而这里按数组解析，
+        // 于是每打开一次页面就 500 一条（fastjson syntax error : {）。
+        // 壳层接口的"没配置"不应该是一条服务端故障：空/空对象一律返回空列表，
+        // 真解析失败也只降级为空列表 + warn，不让页面被一个次要接口拖红。
+        if (questionConf == null || questionConf.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        String conf = questionConf.trim();
+        try {
+            if (conf.startsWith("[")) {
+                List<JSONObject> list = JSON.parseArray(conf, JSONObject.class);
+                return list == null ? new ArrayList<>() : list;
+            }
+            if ("{}".equals(conf)) {
+                return new ArrayList<>();
+            }
+            JSONObject single = JSON.parseObject(conf);
+            List<JSONObject> list = new ArrayList<>();
+            if (single != null && !single.isEmpty()) {
+                list.add(single);
+            }
+            return list;
+        } catch (Exception e) {
+            log.warn("question.conf 解析失败，按空列表返回：{}", e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
 

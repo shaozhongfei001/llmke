@@ -116,11 +116,17 @@ public class GlobalHandler implements ResponseBodyAdvice<Object> {
                 || ErrCodeEnum.KB_FILE_NOT_EXISTS_ERROR.getErrCode().equals(e.getErrCode());
         // R14-C-FIX-15：配置缺失是客户端可修正的前置条件问题（400），既不伪装成 5xx 也不伪装成 403。
         boolean badRequest = ErrCodeEnum.DEFAULT_ASSISTANT_NOT_CONFIGURED.getErrCode().equals(e.getErrCode());
+        // R14-LIVE-07：可预期的"用户输入/会话"错误必须是 4xx，不能伪装成 5xx。
+        // 实测：验证码输错抛 ApplicationException(30000) -> 500，前端控制台/监控都把它当服务故障；
+        // 同样 /file/stream 参数非法(5004) 也是 500，用户看到"PDF请求失败: 500"而非"参数不对"。
+        boolean clientInput = ErrCodeEnum.VERIFY_CODE_ERROR.getErrCode().equals(e.getErrCode())
+                || ErrCodeEnum.PARAM_ILLEGAL.getErrCode().equals(e.getErrCode())
+                || ErrCodeEnum.PARAM_IS_NULL.getErrCode().equals(e.getErrCode());
         if (denied) {
             response.setStatus(HttpStatus.FORBIDDEN.value());
         } else if (notFound) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
-        } else if (badRequest) {
+        } else if (badRequest || clientInput) {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         } else {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());

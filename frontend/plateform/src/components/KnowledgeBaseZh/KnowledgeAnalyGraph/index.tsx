@@ -10,8 +10,14 @@ import {
   getFilePath,
   getFileType,
   getInitialZoom,
-  useAppPassport
+  useAppPassport,
+  isOfficePreviewType
 } from "@root/src/core/helps";
+import {
+  PREVIEW_STREAM_API,
+  STREAM_API,
+  isSheetType
+} from "@root/src/core/helps/fileAccess";
 import jiantou from "../../../assets/img/jiantou.png";
 import { getFileIcon } from "../FolderDetail";
 import empty from "@/assets/knowledgebase/empty.png";
@@ -83,8 +89,14 @@ const KnowledgeAnalyBlock = () => {
       };
 
       const filePath = dealMinioUrl(getFilePath(content));
+      // R14-LIVE-10：getFileType 对 Office 一律返回 "pdf"，不能用来判分流；
+      // 这里与知识库文件抽屉保持同一口径：按对象键真实后缀决定 stream / previewStream。
+      const sourceType = (
+        String(getFilePath(content) || "").split("?")[0].split(".").pop() || ""
+      ).toLowerCase();
       return {
         filePath,
+        sourceType,
         fileName: getFileName(content),
         fileType: getFileType(content, filePath),
         totalPages: content.pdfPages || 0,
@@ -103,11 +115,19 @@ const KnowledgeAnalyBlock = () => {
       <GientechStreamReader
         convertedFilePath={curData.filePath}
         fileName={curData.fileName}
-        fileType={curData.fileType}
+        fileType={
+          isOfficePreviewType(curData.sourceType) || isSheetType(curData.sourceType)
+            ? "pdf"
+            : curData.fileType
+        }
         initialPage={1}
         totalPages={curData.totalPages}
         authorization={curData.token}
-        streamApiUrl="/proxy/index/knowledgeBase/file/stream"
+        streamApiUrl={
+          isOfficePreviewType(curData.sourceType) || isSheetType(curData.sourceType)
+            ? PREVIEW_STREAM_API
+            : STREAM_API
+        }
         eventsEmit={(name: string, data: any) => {
           switch (name) {
             case "pageChange":

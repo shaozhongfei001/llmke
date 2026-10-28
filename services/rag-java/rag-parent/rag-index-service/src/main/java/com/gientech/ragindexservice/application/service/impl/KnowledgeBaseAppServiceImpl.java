@@ -505,7 +505,7 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
                 FilesParseReq.File file = new FilesParseReq.File();
                 file.setFilePath(fileParse.getFilePath().substring(
                         fileParse.getFilePath().indexOf(storageProperties.getDefaultStorageProperties().getBucketName())));
-                file.setFileSize(fileParse.getFileSize() + "MB");
+                file.setFileSize(com.gientech.ragcommon.index.dto.KnowledgeBaseFileDTO.formatSize(fileParse.getFileSize()));
                 file.setFileId(fileParse.getId());
                 file.setParentFileName(fileParse.getParentFileName());
                 files.add(file);
@@ -543,7 +543,7 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
                 FilesParseReq.File file = new FilesParseReq.File();
                 file.setFilePath(faqParse.getFilePath().substring(
                         faqParse.getFilePath().indexOf(storageProperties.getDefaultStorageProperties().getBucketName())));
-                file.setFileSize(faqParse.getFileSize() + "MB");
+                file.setFileSize(com.gientech.ragcommon.index.dto.KnowledgeBaseFileDTO.formatSize(faqParse.getFileSize()));
                 file.setFileId(faqParse.getId());
                 file.setParentFileName(faqParse.getParentFileName());
                 files.add(file);
@@ -583,7 +583,7 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
                 FilesParseReq.File file = new FilesParseReq.File();
                 file.setFilePath(fileParse.getFilePath().substring(
                         fileParse.getFilePath().indexOf(storageProperties.getDefaultStorageProperties().getBucketName())));
-                file.setFileSize(fileParse.getFileSize() + "MB");
+                file.setFileSize(com.gientech.ragcommon.index.dto.KnowledgeBaseFileDTO.formatSize(fileParse.getFileSize()));
                 file.setFileId(fileParse.getId());
                 file.setParentFileName(fileParse.getParentFileName());
                 files.add(file);
@@ -616,7 +616,7 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
                 FilesParseReq.File file = new FilesParseReq.File();
                 file.setFilePath(faqParse.getFilePath().substring(
                         faqParse.getFilePath().indexOf(storageProperties.getDefaultStorageProperties().getBucketName())));
-                file.setFileSize(faqParse.getFileSize() + "MB");
+                file.setFileSize(com.gientech.ragcommon.index.dto.KnowledgeBaseFileDTO.formatSize(faqParse.getFileSize()));
                 file.setFileId(faqParse.getId());
                 file.setParentFileName(faqParse.getParentFileName());
                 files.add(file);

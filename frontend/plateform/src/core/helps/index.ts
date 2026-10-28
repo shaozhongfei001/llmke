@@ -38,17 +38,20 @@ export const dealMinioUrl = (url: string) => {
 };
 
 /**
- * R14-D-FIX-02：知识库 fileTotalSize 的单位是 KB（后端原始值），
- * 旧代码直接把数字后缀写死 "M"，导致 kb_9 显示 "6717181M"（实为 6.4GB）。
- * 此处按二进制换算到合适单位并保留 1 位小数。
+ * R14-LIVE-09：知识库 fileTotalSize 的单位是**字节**，不是 KB。
+ * 上一版按 KB 处理，于是 6,746,568 字节被算成 6.4 GB（实际 6.4 MB，偏大 1024 倍）——
+ * 数字看着"很合理"，所以连续几轮验收都没人怀疑它。
+ * 这里按 1024 进制从字节往上换算，四个档位各自带单位，避免再出现"数字对、量级错"。
  */
-export const formatFileSize = (kb?: number | string | null) => {
-  const n = typeof kb === "number" ? kb : Number(kb);
+export const formatFileSize = (bytes?: number | string | null) => {
+  const n = typeof bytes === "number" ? bytes : Number(bytes);
   if (!isFinite(n) || n <= 0) return "-";
-  if (n < 1024) return `${n.toFixed(1)} KB`;
-  const mb = n / 1024;
+  if (n < 1024) return `${n.toFixed(0)} B`;
+  const kb = n / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  const mb = kb / 1024;
   if (mb < 1024) return `${mb.toFixed(1)} MB`;
-  return `${(mb / 1024).toFixed(1)} GB`;
+  return `${(mb / 1024).toFixed(2)} GB`;
 };
 
 export const uniqArr2By = (array1: any[], array2: any[], key: string) => {

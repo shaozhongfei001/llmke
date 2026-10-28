@@ -194,7 +194,41 @@ public class KnowledgeBaseFileDTO {
     }
 
     public String getSize() {
-        return fileSize + "MB";
+        return formatSize(fileSize);
+    }
+
+    /**
+     * R14-LIVE-09：fileSize 是**字节**，原实现直接拼 "MB"，
+     * 于是 29KB 的 pptx 在列表里显示成 "29388.0MB"（数字对、量级错 1024 倍）。
+     * 统一按 1024 进制换算，四个档位各自带单位。
+     */
+    public static String formatSize(Object raw) {
+        Double bytes = null;
+        if (raw instanceof Number) {
+            bytes = ((Number) raw).doubleValue();
+        } else if (raw != null && !String.valueOf(raw).trim().isEmpty()) {
+            try {
+                bytes = Double.parseDouble(String.valueOf(raw).trim());
+            } catch (NumberFormatException ignore) {
+                return String.valueOf(raw);
+            }
+        }
+        if (bytes == null || bytes <= 0) {
+            return "0 B";
+        }
+        double v = bytes;
+        if (v < 1024) {
+            return String.format(java.util.Locale.ROOT, "%.0f B", v);
+        }
+        double kb = v / 1024;
+        if (kb < 1024) {
+            return String.format(java.util.Locale.ROOT, "%.1f KB", kb);
+        }
+        double mb = kb / 1024;
+        if (mb < 1024) {
+            return String.format(java.util.Locale.ROOT, "%.1f MB", mb);
+        }
+        return String.format(java.util.Locale.ROOT, "%.2f GB", mb / 1024);
     }
 
     @JsonIgnore

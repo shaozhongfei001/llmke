@@ -251,7 +251,7 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
             file.setFolderId(fileInfo.getFolderId());
             file.safeSetLabels(fileInfo.getLabel(), ",");
             file.setFileId(fileInfo.getId());
-            file.setFileSize(fileInfo.getFileSize() + "MB");
+            file.setFileSize(formatFileSize(fileInfo.getFileSize()));
             file.setParentFileName(fileInfo.getParentFileName());
             file.setFilePath(fileInfo.getFilePath());
             // R14-C-FIX-12：把 MySQL knowledge_base_list.version（V0/V1…）随解析请求下发。
@@ -642,7 +642,7 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
                 if (StringUtils.isNotEmpty(convertedFilePath)) {
                     file.setFilePath(convertedFilePath.replace(storageProperties.getDefaultStorageProperties().getEndPoint() + "/", ""));
                 }
-                file.setFileSize(kbFile.getFileSize() + "MB");
+                file.setFileSize(formatFileSize(kbFile.getFileSize()));
                 file.setParentFileName(kbFile.getParentFileName());
                 // R13-VER-10：把版本号带到解析侧，最终写进 chunk metadata
                 file.setVersion(kbFile.getVersion());
@@ -678,7 +678,7 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
             if (StringUtils.isNotBlank(kbFile.getFilePath())) {
                 file.setFilePath(kbFile.getFilePath().replace(endPoint + "/", ""));
             }
-            file.setFileSize(kbFile.getFileSize() + "MB");
+            file.setFileSize(formatFileSize(kbFile.getFileSize()));
             file.setParentFileName(kbFile.getParentFileName());
             // parse_type 是算法侧必填；此处沿用文件库里已有的解析类型，避免 422
             file.setParseType(Objects.isNull(kbFile.getParseType()) ? 1 : kbFile.getParseType());
@@ -701,7 +701,7 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
                 file.setFileId(kbFile.getId());
                 file.setFileName(kbFile.getFileName());
                 file.setFilePath(filePath.replace(storageProperties.getDefaultStorageProperties().getEndPoint() + "/", ""));
-                file.setFileSize(kbFile.getFileSize() + "MB");
+                file.setFileSize(formatFileSize(kbFile.getFileSize()));
                 file.setParentFileName(kbFile.getParentFileName());
                 files.add(file);
             });
@@ -2417,7 +2417,7 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
             else
                 filePath = kbFile.getConvertedFilePath().replace(storageProperties.getDefaultStorageProperties().getEndPoint() + "/", "");
             file.setFilePath(filePath);
-            file.setFileSize(kbFile.getFileSize() + "MB");
+            file.setFileSize(formatFileSize(kbFile.getFileSize()));
             file.setParentFileName(kbFile.getParentFileName());
             files.add(file);
         });
@@ -2904,7 +2904,7 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
             filePathDTO.setConvertedFilePath(parsedFilePath);
             filePathDTO.setName(file.getFileName());
             filePathDTO.setUid(file.getUid());
-            filePathDTO.setSize(file.getFileSize() + "MB");
+            filePathDTO.setSize(formatFileSize(file.getFileSize()));
             filePathDTOS.add(filePathDTO);
         });
         return filePathDTOS;
@@ -2954,6 +2954,42 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
         return chunks;
     }
 
+
+
+    /**
+     * R14-LIVE-09：fileSize 是**字节**，原实现直接拼 "MB"，于是 29KB 显示成 "29388.0MB"。
+     * 统一按 1024 进制换算并保留一位小数；null/0 给 "0 B"，不返回 "nullMB"。
+     */
+    private static String formatFileSize(Object raw) {
+        // 入参在几个 DTO 里类型不一致（Double / String），这里统一收口，
+        // 避免"改一处编译不过"或"某条链路仍显示 29388.0MB"。
+        Double bytes = null;
+        if (raw instanceof Number) {
+            bytes = ((Number) raw).doubleValue();
+        } else if (raw != null && !String.valueOf(raw).trim().isEmpty()) {
+            try {
+                bytes = Double.parseDouble(String.valueOf(raw).trim());
+            } catch (NumberFormatException ignore) {
+                return String.valueOf(raw);
+            }
+        }
+        if (bytes == null || bytes <= 0) {
+            return "0 B";
+        }
+        double b = bytes;
+        if (b < 1024) {
+            return String.format(java.util.Locale.ROOT, "%.0f B", b);
+        }
+        double kb = b / 1024;
+        if (kb < 1024) {
+            return String.format(java.util.Locale.ROOT, "%.1f KB", kb);
+        }
+        double mb = kb / 1024;
+        if (mb < 1024) {
+            return String.format(java.util.Locale.ROOT, "%.1f MB", mb);
+        }
+        return String.format(java.util.Locale.ROOT, "%.2f GB", mb / 1024);
+    }
 
     @Override
     public InputStream pageFileStream(PageFileStreamReq pageFileStreamReq, HttpHeaders httpHeaders) throws IOException, FileStorageException {
