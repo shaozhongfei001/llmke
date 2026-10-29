@@ -11,6 +11,7 @@
 import os
 import re
 import subprocess
+import time
 from datetime import datetime
 
 import common as C
@@ -19,17 +20,31 @@ ID = "A14"
 TITLE = "运行与恢复：运行中的进程/制品是当前候选（无 STALE）"
 WRITES = True
 
-PORTS = {"8088": "网关(Java)", "19529": "图解析服务(Python)"}
+PORTS = {"8088": ("网关(Java)", "rag-gateway-"),
+         "19529": ("图解析服务(Python)", "graph_api_start")}
 
 
-def _pid_on(port):
-    p = subprocess.run(["ss", "-lntp"], capture_output=True, text=True)
-    for line in p.stdout.splitlines():
-        if f":{port}" not in line:
-            continue
-        m = re.search(r"pid=(\d+)", line)
-        if m:
-            return m.group(1)
+def _pid_on(port, tries=3, wait=2.0):
+    """取端口 pid。服务可能正在重启（本轮实测被反复重启），所以重试几次。"""
+    for _ in range(tries):
+        p = subprocess.run(["ss", "-lntp"], capture_output=True, text=True)
+        for line in p.stdout.splitlines():
+            if f":{port}" not in line:
+                continue
+            m = re.search(r"pid=(\d+)", line)
+            if m:
+                return m.group(1), True
+        time.sleep(wait)
+    return None, False
+
+
+def _pid_by_cmd(marker):
+    """端口没起来时的兜底：按命令行找进程。
+    区分"进程在但没监听"（服务没就绪/启动失败）与"根本没有进程"两种情况。"""
+    p = subprocess.run(["pgrep", "-f", marker], capture_output=True, text=True)
+    for line in p.stdout.split():
+        if line.isdigit():
+            return line
     return None
 
 
@@ -65,11 +80,16 @@ def _artifact_mtime(pid):
 
 def run():
     checks = []
-    for port, name in PORTS.items():
-        pid = _pid_on(port)
+    for port, (name, marker) in PORTS.items():
+        pid, listening = _pid_on(port)
         if not pid:
-            checks.append(C.chk(f"N2 {name} 进程可定位", False, f"端口 {port} 未解析到 pid"))
-            continue
+            pid = _pid_by_cmd(marker)
+            if not pid:
+                checks.append(C.chk(f"N2 {name} 进程可定位", False,
+                                    f"端口 {port} 无监听且按 '{marker}' 找不到进程（服务未运行）"))
+                continue
+            checks.append(C.chk(f"N2 {name} 端口在监听", False,
+                                f"进程 pid={pid} 存在但端口 {port} 未监听（服务未就绪/启动失败）"))
         st = _start(pid)
         mt, path = _artifact_mtime(pid)
         if st is None or mt is None:

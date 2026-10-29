@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T22:40+08:00",
+  "updated": "2026-10-29T22:42+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -150,15 +150,16 @@
     "rebuild-w03": "完成 platform/r12/bin/graph-rebuild.sh + docs/r15/w03-rebuild.md"
   },
   "w01": {
-    "state": "PARTIAL",
+    "state": "PARTIAL_VERIFIED",
     "evidence": "docs/r15/w01-extract.md §5 真实样本（7 个数据点）",
     "verified": [
       "STATS 行可落盘可 grep",
       "正常块上重试零成本（llm_calls 恒 4）",
-      "超出型字段异常 3 次全为模型塞整串流程，救回策略有数据支持"
+      "超出型字段异常 3 次全为模型塞整串流程，救回策略有数据支持",
+      "修法1 截断判定：合法空反例先过(rels=0/retries=0/truncation_suspected=0)，正例 retries=2"
     ],
     "unverified": [
-      "重试分支未被生产触发：全部日志 '单块重试：最终失败'=0，7 样本 retries=0 → 仅 stub 证据"
+      "重试仍未在真实整库解析中自然触发（生产日志仍 0 次），但盲区已被修法1覆盖并有构造验证"
     ],
     "key_finding": [
       "耗时由输出行数驱动（9行4.6s/48行24.4s/138行73.1s），与输入字数无关 → 禁用按 chars 估预算",
@@ -176,21 +177,21 @@
     "note": "第一轮断言全PASS但指纹false被判'不可作代次对比'，重抽后再跑第二轮才可比；C4(主键种子)为F05前置未做"
   },
   "acceptance_baseline": {
-    "run_at": "2026-10-29T22:35:27",
+    "run_at": "2026-10-29T22:42（A06 单条复验）",
     "total": 16,
-    "PASS": 3,
-    "FAIL": 7,
+    "PASS": 4,
+    "FAIL": 6,
     "SKIP": 6,
     "pass": [
-      "A04 值保真(金额/区间/符号/日期)",
-      "A08 local/global 与两入口一致",
+      "A04 值保真",
+      "A06 零产出不再假成功（332 重解析后 1 条边）",
+      "A08 local/global 一致",
       "A11 引用可回指"
     ],
     "fail": [
       "A01 白名单外实体类型",
       "A02 同谓词双向伪反向事实",
       "A03 最高额度上出现分项1000万",
-      "A06 332 gps=3 但0边",
       "A07 社区覆盖不全(Σ60<93)",
       "A09 同一主体同一谓词两个互斥额度",
       "A12 无实体名主题问 金额未全部来自图事实"
@@ -203,6 +204,6 @@
       "A15 24h容量回归",
       "A16 干净环境+外部签收"
     ],
-    "delta": "首跑 PASS1/FAIL10/SKIP5 → 现 PASS3/FAIL7/SKIP6（A08/A04 转 PASS）"
+    "delta": "首跑 PASS1/FAIL10/SKIP5 → 现 PASS4/FAIL6/SKIP6（A04/A06/A08 转 PASS）"
   }
 }

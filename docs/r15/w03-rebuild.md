@@ -150,10 +150,16 @@ runtime_matches_content = 进程启动时间  >  max(上述文件 mtime)
 
 | 时刻 | 进程 | 内容文件最大 mtime | runtime_matches_content | 说明 |
 |---|---|---|---|---|
-| 22:28:37 | `PID 1333986` @22:21:25 | `graph_extract.py` @22:28:07 | **false** | 源码改了没重启 → 该次抽取跑的不是 22:28 那份实现 |
-| 22:33:25 | `PID 1404435` @22:32:44 | `graph_extract.py` @22:28:07 | **true** | 重启后内容一致 → §9 的第二轮 E2E 就是在这个窗口跑的 |
+| 22:28:37 | `PID 1333986` @22:21:25 | `graph_extract.py` @22:28:07 | **false** | 源码改了没重启 → 该次抽取跑的不是 22:28 那份实现（第一轮 E2E 因此标为不可比） |
+| 22:33:25 | `PID 1404435` @22:32:44 | `graph_extract.py` @22:28:07 | **true** | 重启后内容一致 → §9.6 第二轮 E2E 就在这个窗口 |
+| 22:36:37 | `PID 1404435` @22:32:44 | `graph_extract.py` @22:35:22 | **false** | 22:35:22 源码又被改（未重启）→ 判据再次翻面 |
+| 22:38:33 | `PID 1439817` @22:38:07 | `graph_extract.py` @22:35:22 | **true** | 又重启了一次 → 判据翻回 true |
 
-> 重启**不是**本脚本做的（本脚本全程不重启、不停服）；22:09 之后图服务被重启过至少 3 次，`watchdog.log` 里也有"启动宽限期内…缺 19529"的记录。本脚本只负责把"这一刻跑的是哪份字节"钉住，重启策略不在它职责内。
+四个读数在 10 分钟内 **true/false/true…** 来回翻，这本身就是要"每次现算"、不能缓存判定结果的最直接理由。
+
+> **2026-10-29 22:31 那次重启是 TL 做的**（TL 报告 `PID 1404211` @22:31:38；我实测该 PID 的 `etimes` 起点是 22:32:43，另有 `PID 1404435` @22:32:45——两个进程同时在跑，脚本取最新的那个判定）。TL 重启消除了 22:28 那处不一致；但 22:35:22 又有新改动进来，所以**"运行版本 == 工作树"只在某个窗口内成立，不是长期状态**。
+>
+> 本脚本全程不重启、不停服，只负责把"这一刻跑的是哪份字节"钉住；重启策略不在它职责内。
 
 ---
 
@@ -576,7 +582,8 @@ dry-run 的 `RESULT`：`edge_stale=6`、`edge_valid=2`、`verdict=PASS`（dry-ru
 
 1. **`community_summary_kb_1000` 与真实索引名一致**：脚本用 `community_summary_` + `primitive.strip().lower()` 计算（与 `graph_summary._idx()` 同规则），`es_before=0 / es_after=1` 与写入条数对得上，说明这个拼法对 `kb_*` 形态的 primitive 是正确的。
    但顺带观察到一处**既有的命名不一致**（与本脚本无关）：对 `rag_graph` 调 `generate_community` 后，ES 里真实索引名是 `community_summary_ragraph`（下划线被去掉），而不是 `community_summary_rag_graph`。原因未定位。**结论：本脚本只对 `kb_*` 形态实测过；primitive 里带额外下划线的 KB 需要先核对真实索引名。**
-2. **"合法空"分支没被触发**：删完 6 条边后空间只剩 2 条边 / 3 个顶点，`generate_community` 仍返回 `communities=1`（`size=3, edge_count=2`）。所以 `communities == 0` 的"合法空"分支本次**没有跑通证据**，只能按服务返回契约（`graph_summary.py::generate_community` 里 `if not communities: return code=200, msg="未检测到满足条件的社区（图可能过小）"`）实现。要覆盖它需要一个顶点数 <3 的空间，本轮没造（避免再写数据）。
+2. **"合法空"分支没被触发 → 记为 UNVERIFIED（有明确验证条件，本轮不造）**：删完 6 条边后空间只剩 2 条边 / 3 个顶点，`generate_community` 仍返回 `communities=1`（`size=3, edge_count=2`）。所以 `communities == 0` 的"合法空"分支本次**没有跑通证据**，只能按服务返回契约（`graph_summary.py::generate_community` 里 `if not communities: return code=200, msg="未检测到满足条件的社区（图可能过小）"`）实现。
+   **判据（TL 2026-10-29 明确）：该分支要验证，必须造一个顶点数 < 3 的空间**——例如只上传 1 个极短文件、使其抽不出 ≥3 个实体。本轮不造，状态记 **UNVERIFIED**；**不得为了让分支"有证据"而临时改判据**（例如把 `min_community_size` 调大后拿正常图冒充"合法空"，那是改被测条件，不是验证）。
 3. **服务进程没加载最新改动（新指纹块当场抓到）**：第一轮 `--apply` 那一步的指纹是
    `service_start=2026-10-29T22:21:25` / `content_max_mtime=2026-10-29T22:28:07`（`graph_extract.py`）→ `runtime_matches_content=false`。
    即：**那一轮抽取用的不是 22:28:07 那份实现**，所以第一轮 RESULT 标记为"不可作代次对比"（第二轮在重启后复跑，见 §9.6，那次 `comparable=true`）。
@@ -619,17 +626,95 @@ dry-run：`edge_stale=6 / edge_valid=2 / edges_total=8`，`fingerprint.comparabl
 
 两轮的差别只有指纹与"是否可比"，删除/守恒/对账三项断言结果完全一致。**第二轮这次才是可以拿去和别的代次对比的记录**（`content_fingerprint=ca93e3c025cfa3649734d92d4ae3bbb7152908e8a681d99712599cc19d789859`）。
 
-### 9.7 夹具现状与清理（本轮**不**执行删除）
+### 9.7 遗留夹具清单与清理单（本轮**不**执行；由 TL 收尾时逐条执行）
 
-- 新增：KB `r15-w03-probe`（`kbId=1000`，`primitive=kb_1000`）、Nebula 空间 `g_kb_1000`（现存 2 条边 / 3 个顶点）、ES `community_summary_kb_1000`（1 条）、Milvus `_community_summary_kb_1000`、ES `kb_1000`（2 条 chunk）。
-- 另有一处**副作用**：为验证"图太小"的返回形状，对 R13 测试空间 `rag_graph` 调了一次 `generate_community`，因此 ES 多出 `community_summary_ragraph`（1 条）。不在 kb_9，也不是业务库。
-- 保留原因：TL 未要求清理，删数据属不可逆操作，不自行执行。需要清理时（一条一条来，别 `git add`/别 `DROP SPACE` 生产空间）：
+**现状（2026-10-29 22:36 实测）**
+
+| # | 对象 | 位置/名字 | 规模 | 来源 |
+|---|---|---|---|---|
+| 1 | 夹具 KB | MySQL `gienrag.knowledge_base` `id=1000`，`kbName=r15-w03-probe`，`primitive_name=kb_1000` | 1 个库 + 2 个文件行（`999003` status=0、`999004` status=3） | §9.1 建的 |
+| 2 | 图空间 | Nebula `g_kb_1000` | 3 个 `entity` 顶点 / 2 条 `relationship` 边 | `generate_triple_data` 建的 |
+| 3 | 主索引 chunk | ES `kb_1000` | 2 条 | 上传解析写的 |
+| 4 | 社区摘要（ES） | ES `community_summary_kb_1000` | 1 条 | §9.3/§9.6 `generate_community` 写的 |
+| 5 | 社区摘要（Milvus） | `graph_base._community_summary_kb_1000` | 1 行 | 同上（双写） |
+| 6 | **副作用**：R13 测试空间摘要 | ES `community_summary_ragraph`（注意：真实名字里下划线被吞，见 §10） | 1 条 | 我为验证"图太小"的返回形状，对 `rag_graph` 调了一次 `generate_community` |
+
+**保留原因（TL 2026-10-29 裁决）**：① 复跑幂等还要用（22:29:14 dry-run `edge_stale=0` 已验证）；② 删除不可逆，由 TL 在收尾时统一执行。
+
+**清理单（逐条；每条都标影响面与不可逆性；执行前逐条确认对象仍是表里的那个）**
 
 ```bash
-# 1) 删夹具 KB（走产品接口，会联动它的 status/空间）
-#    先确认 kbId 仍是 r15-w03-probe 那个，不要照抄 1000
+# 前置：确认不是 kb_9、不是业务库。三条只读确认，先跑
+docker exec -e MYSQL_PWD -i r12-mysql mysql -uroot -N -e \
+  "select id,kb_name,primitive_name from gienrag.knowledge_base where id=1000;"
+curl -s 'http://127.0.0.1:19200/_cat/indices/community_summary_*?h=index,docs.count&format=json'
+
+# ① 删夹具 KB（走产品接口；连带 kb_list 行、索引与任务）
+#    影响面：该 KB 的文件记录/解析产物/检索数据；不可逆（无回收站）。
+#    先用 /index/knowledgeBase/list 确认 kbName=r15-w03-probe 且 id=1000，再执行。
 curl -s -X DELETE -H "Authorization: <token>" 'http://127.0.0.1:8088/index/knowledgeBase/delete?id=1000'
-# 2) 图空间（Nebula）：确认空间名是 g_kb_1000 再执行
-#    platform/r12/venvs/graph/bin/python -c "..."  DROP SPACE g_kb_1000
-# 3) 摘要索引/集合：走 graph_summary.del_community（ES del_index + Milvus del_collection 双写）
+
+# ② DROP 图空间 g_kb_1000（Nebula）
+#    影响面：3 顶点 / 2 边；不可逆。⚠ 必须带 g_ 前缀，且**只删 g_kb_1000**——
+#    传错名字不会报错（DROP SPACE IF EXISTS 幂等），所以先 SHOW SPACES 确认存在再删。
+platform/r12/venvs/graph/bin/python - <<'PY2'
+from nebula3.Config import Config
+from nebula3.gclient.net import ConnectionPool
+p=ConnectionPool(); p.init([('127.0.0.1',19669)],Config()); s=p.get_session('root','nebula')
+print("exists:", "g_kb_1000" in [s.execute("SHOW SPACES").row_values(i)[0].as_string()
+                                  for i in range(s.execute("SHOW SPACES").row_size())])
+# 确认上面是 True 再放开下一行
+# print(s.execute("DROP SPACE g_kb_1000").is_succeeded())
+s.release(); p.close()
+PY2
+
+# ③ 删社区摘要索引 + Milvus 集合（走服务接口，双写一起删）
+#    影响面：ES 1 条 + Milvus 1 行；不可逆。
+#    注意 del_collection 会自己加前导下划线，所以 collection_name 传不带下划线的名字。
+curl -s -X POST http://127.0.0.1:19529/del_community -H 'Content-Type: application/json' \
+  -d '{"space_name":"kb_1000"}'
+#    副作用那条（rag_graph）同样用这个接口，但 space_name 传 "rag_graph"：
+#    ⚠ 它会被服务端 replace("g_","") 改成 "ragraph" —— 恰好对上真实索引名，
+#      所以这条**能删对**；但如果你把它当"正常"用，就会误以为接口没问题（见 §10）。
 ```
+
+**不建议**用 `curl -X DELETE $ES/community_summary_kb_1000` 直接删索引：那样 Milvus 侧会留孤儿行（双写只删一半），下次重建时 `_visible_count` 还会把它当旧代。要么走 `/del_community`，要么 ES/Milvus 两边都删。
+
+---
+
+## 10. 边界缺陷记录：primitive 里含 `g_` 时 ES 社区摘要索引名会被改写（本轮不修）
+
+**状态**：已定位根因，**本轮不修**（属 `services/`，且不影响 kb_/现有业务 KB）；脚本已加只读核对与告警。
+
+**现象**（实测）：对 `rag_graph` 调 `generate_community` 后，ES 里真实索引名是 `community_summary_ragraph`，而不是按 `graph_summary._idx()`（只做 `strip().lower()`）推算的 `community_summary_rag_graph`。
+
+**根因**（2026-10-29 22:38 定位到具体语句）：
+
+```python
+# services/rag-alg/index_data_service/index_graph_service/graph_summary.py
+#   generate_community() 约 L377、del_community() 约 L958
+space_name = str(payload.get("space_name", "")).replace("g_", "")
+```
+
+`.replace("g_", "")` 是**全局替换**，本意是去掉图空间前缀 `g_`，但它会吃掉字符串里**任意位置**的 `g_`：
+
+```
+'rag_graph'.replace('g_','')      -> 'ragraph'        # 应为 rag_graph
+'rag_graph'.removeprefix('g_')    -> 'rag_graph'      # 正确写法
+```
+
+于是 `write_summary_indexes("ragraph")` 写出 `community_summary_ragraph`；`_load_summaries` 又用**原样 primitive** 去读（`f"community_summary_{_idx(kb)}"`），**写读两侧名字不一致**——这类 KB 的 global 会"写入成功但读不到摘要"。
+
+**影响面**：`primitive_name` 里含字面量 `g_` 的 KB（例如 `rag_graph`、`log_group`、`cfg_xx`）。`kb_9` / `kb_1000` 这类 `kb_<数字>` **不受影响**，因此不阻塞本轮。
+
+**本轮已做的（脚本侧，只读）**：`graph-rebuild.sh` 新增 `precheck_index_name()`——primitive 不是 `kb_<数字>` 时，去 `_cat/indices/community_summary_*` 核对真实名，并按服务端同一套 `replace("g_","")` 算出"服务端形态"：
+
+```
+正例 kb_9          -> 直接返回 community_summary_kb_9（不查 ES）
+反例 rag_graph     -> [!!] 按 _idx() 规则应写 community_summary_rag_graph，但服务端 replace("g_","")
+                      把 primitive 改成了 ragraph，真实索引是 community_summary_ragraph …
+```
+
+**临时规避（给运维/验收用）**：对非 `kb_<数字>` 形态的 primitive，**先** `GET /_cat/indices/community_summary_*?h=index&format=json` 核对真实索引名，再对照脚本第 [4/5] 步的"ES 摘要条数 == 本次摘要数"断言；对不上就说明命中了本缺陷，不要把它当成"重建失败"。
+
+**修复建议（留档，不在本轮）**：`graph_summary.py` 两处 `.replace("g_", "")` 改成 `.removeprefix("g_")`，并补一条回归：`primitive=rag_graph` 时写入与读取的索引名必须相同。改完需要清理一次已错名的 `community_summary_ragraph`（1 条），否则那批摘要会永久读不到。
