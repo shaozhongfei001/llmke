@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T21:56+08:00",
+  "updated": "2026-10-29T22:35+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -43,10 +43,12 @@
     "F05": {
       "state": "PARTIAL",
       "evidence": "qa/evidence/r15/n6-n7-n9",
-      "note": "generation 维度已通（边可写 V1），但查询/统计未按代次过滤、历史边未回填、社区/响应未带代次"
+      "note": "边已全量带代次(V0 26/V1 68)，孤儿边已清；查询侧仍未按 generation 过滤"
     },
     "F06": {
-      "state": "OPEN"
+      "state": "PARTIAL",
+      "evidence": "新边 chunk_ref 14 条；旧边为空",
+      "note": "写入侧已具备块级锚点；查询/响应未把 chunk_ref 透出给引用卡片"
     },
     "F07": {
       "state": "OPEN"
@@ -141,5 +143,45 @@
   "n9": {
     "state": "CLOSED_NO_CHANGE",
     "evidence": "统计口径 show_flag=1 且只算 relationship（122条），similar 432条不计入；同源缺陷已修（查询侧补 show_flag 过滤）"
+  },
+  "team": {
+    "extract-w01": "完成 graph_extract.py 单块重试/字段校验/诊断统计 + docs/r15/w01-extract.md",
+    "accept-f12": "完成 platform/r15/acceptance 16 条反例断言 + 首跑基线",
+    "rebuild-w03": "完成 platform/r12/bin/graph-rebuild.sh + docs/r15/w03-rebuild.md"
+  },
+  "w01": {
+    "state": "PARTIAL",
+    "evidence": "docs/r15/w01-extract.md",
+    "note": "重试与统计已加；抽取产物量仍不稳（0–155 条）"
+  },
+  "w03": {
+    "state": "PARTIAL",
+    "evidence": "日志 22:15:25 自动重建成功；脚本 graph-rebuild.sh 已就位",
+    "note": "自动触发已通；原子发布（alias 切换）未做，重建期间 query 会读到新旧混合"
+  },
+  "acceptance_baseline": {
+    "run_at": "2026-10-29T22:20",
+    "PASS": 1,
+    "FAIL": 10,
+    "SKIP": 5,
+    "fail": [
+      "A01 白名单外实体类型",
+      "A02 同谓词双向伪反向事实(残留)",
+      "A03 最高额度上出现分项1000万",
+      "A04 区间被压成单值",
+      "A05 同事实来源未按并集累积",
+      "A06 332 gps=3 但0边",
+      "A07 社区未覆盖全部可见边(Σ60 < 93)",
+      "A08 local图检索对已存在实体返空",
+      "A09 同一主体同一谓词两个互斥额度",
+      "A14 网关STALE(已重启,待复验)"
+    ],
+    "skip": [
+      "A10 写操作",
+      "A12 改配置",
+      "A13 第二套授权夹具",
+      "A15 24h容量",
+      "A16 干净环境+外部签收"
+    ]
   }
 }
