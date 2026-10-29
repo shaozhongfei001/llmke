@@ -548,11 +548,15 @@ def update_triples_data(server_config, collection_name_triples, triples_source_d
                     milvus_pk = mdl["metadata"]["pk"]
                     milvus_file_id = mdl["metadata"]["file_id"]
                     milvus_page_num = mdl["metadata"]["page_num"]
-                    update_data = update_data_fun(milvus_chunk_pk_list, triples_source_dict[milvus_text]["chunk_pk_list"], "chunk_pk_list", milvus_pk,
+                    # R15 W01：Milvus 里可能已有同名三元组，而本次 source 字典没有该键
+                    #（归一化改名或历史数据）→ 原来直接下标会 KeyError，整任务失败。
+                    _src = triples_source_dict.setdefault(
+                        milvus_text, {"chunk_pk_list": "", "file_id": "", "title": "", "page_num": ""})
+                    update_data = update_data_fun(milvus_chunk_pk_list, _src["chunk_pk_list"], "chunk_pk_list", milvus_pk,
                                                   update_data)
-                    update_data = update_data_fun(milvus_file_id, triples_source_dict[milvus_text]["file_id"], "file_id", milvus_pk, update_data)
-                    update_data = update_data_fun(milvus_file_id, triples_source_dict[milvus_text]["title"], "title", milvus_pk, update_data)
-                    update_data = update_data_fun(milvus_page_num, triples_source_dict[milvus_text]["page_num"], "page_num", milvus_pk, update_data)
+                    update_data = update_data_fun(milvus_file_id, _src["file_id"], "file_id", milvus_pk, update_data)
+                    update_data = update_data_fun(milvus_file_id, _src["title"], "title", milvus_pk, update_data)
+                    update_data = update_data_fun(milvus_page_num, _src["page_num"], "page_num", milvus_pk, update_data)
                     if update_data and milvus_pk in update_data:
                         if "chunk_pk_list" in update_data[milvus_pk]:
                             triples_source_dict[milvus_text]["chunk_pk_list"] = update_data[milvus_pk]["chunk_pk_list"]

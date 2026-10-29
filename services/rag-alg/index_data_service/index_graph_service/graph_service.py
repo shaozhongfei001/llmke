@@ -358,7 +358,19 @@ def batch_insert_vertex(insert_param: InsertModel):
             edge_queries.append(insert_edge)
     error_edge_data_list = batch_to_graph(session, edge_queries, space_name)
     return_nacos_model().close_session(session)
-    return BaseResponse(code=200, msg=f'添加图数据成功', data={"error_edge_data_list": error_edge_data_list, "error_tag_data_list": error_tag_data_list})
+    # R15 W06 / A06：把"想写多少、失败多少"显式回传。
+    # 原来只回 error 列表，调用方无法区分"全写成功"与"一条都没写成"——
+    # 实测 file 343 的 gps=3（成功）但图里零条边，正是这个盲区。
+    edges_total = len(edge_queries)
+    edges_failed = len(error_edge_data_list or [])
+    return BaseResponse(code=200, msg=f'添加图数据成功', data={
+        "error_edge_data_list": error_edge_data_list,
+        "error_tag_data_list": error_tag_data_list,
+        "triples_total": len(triples_data_list),
+        "edges_total": edges_total,
+        "edges_failed": edges_failed,
+        "edges_written": edges_total - edges_failed,
+    })
 
 
 # def generate_ner_data(passage, model_name, server_config):
@@ -577,16 +589,29 @@ def generate_triple_data(query_docu: QueryDocChunk):
     triples_insert_data = []
     for name in milvus_triples_list:
         tris = name.split(TRIPLE_SEP)
+        if len(tris) != 3:
+            logger.warning(f"三元组字段数不是 3（{len(tris)}），跳过：{name!r}")
+            continue
+        # R15 W01：normalize_graph_data 会清洗实体名/关系名（去引号、去尾缀），
+        # 而 triples_source_dict 仍以**归一化前**的三元组做键 → 这里直接下标会 KeyError
+        # （实测：KeyError '放款\x1f放款期限-\x1f3个工作日'），整个解析任务 500、
+        # 文件被标 gps=4，但此时图数据其实已经写进去一半，属于"半成功被记成失败"。
+        # 这里降级为"无溯源"并留日志，保证任务可完成；真正的修复在归一化侧
+        # （让 normalize 同时改写 source 键），已登记 T-F02。
+        _src = triples_source_dict.get(name)
+        if _src is None:
+            logger.warning(f"三元组溯源缺失（归一化改名？）：{name!r}")
+            _src = {}
         # page_content 用逗号展示（给人看），键用 \x1f（给程序用），两者不再混用
         insert_data = {"page_content": ",".join(tris),
                        "metadata": {
                            "source_entity": str(tris[0]),
                            "relationship": str(tris[1]),
                            "target_entity": str(tris[2]),
-                           "chunk_pk_list": triples_source_dict[name]["chunk_pk_list"],
-                           "title": triples_source_dict[name]["title"],
-                           "file_id": triples_source_dict[name]["file_id"],
-                           "page_num": triples_source_dict[name]["page_num"]
+                           "chunk_pk_list": _src.get("chunk_pk_list", ""),
+                           "title": _src.get("title", ""),
+                           "file_id": _src.get("file_id", ""),
+                           "page_num": _src.get("page_num", "")
                        }
                        }
         triples_insert_data.append(insert_data)

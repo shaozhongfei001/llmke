@@ -605,6 +605,19 @@ public class FileAppServiceImpl implements FileAppService {
             respJson = JSONObject.parseObject(resp);
             if (!Objects.equals(respJson.getInteger("code"), 200))
                 throw new ApplicationException(ErrCodeEnum.GRAPH_PARSE_ERROR);
+            // R15 W06 / A06：零产出不得记成功。
+            // 实测 file 343 曾 gps=3（成功）但图里 0 条边——写边全失败却没校验，
+            // 结果"解析成功"的文件在问答里永远召不回。这里用算法侧回传的写入统计设闸门。
+            JSONObject graphData = respJson.getJSONObject("data");
+            int edgesTotal = graphData == null ? 0 : graphData.getIntValue("edges_total");
+            int edgesWritten = graphData == null ? 0 : graphData.getIntValue("edges_written");
+            if (edgesTotal <= 0 || edgesWritten <= 0) {
+                log.error("图解析零产出，判失败：fileId={} triples_total={} edges_total={} edges_written={}",
+                        fileId,
+                        graphData == null ? -1 : graphData.getIntValue("triples_total"),
+                        edgesTotal, edgesWritten);
+                throw new ApplicationException(ErrCodeEnum.GRAPH_PARSE_ERROR);
+            }
             //修改数据库图解析状态为成功
             knowledgeBaseFile.setGraphParseStatus(GraphParseStatusEnums.PARSE_SUCCESS.getValue());
             knowledgeBaseFileDomainService.update(knowledgeBaseFile);

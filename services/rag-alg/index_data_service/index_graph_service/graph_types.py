@@ -270,11 +270,31 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
     # 重写三元组
     new_triples = []
     dropped_triples = 0
+    dropped_junk = 0
+
+    def _junk(rel, a, b):
+        """R15 W01：明显不是三元组形态的抽取产物。
+
+        实测脏样例：'1000万元 -[最高额度-信用部分不超过->8000万元]-> 信用部分最高额度为1000万元…'
+        特征：关系名里塞了值/箭头/逗号，或实体名是整句话。
+        这些进图后会污染社区摘要与推导，宁可在落库前丢弃。
+        """
+        if "->" in rel or "，" in rel or "," in rel or len(rel) > 20:
+            return True
+        if len(a) > 30 or len(b) > 30:
+            return True
+        return False
+
     for td in triples_data_list:
         try:
             src, rel, dst = clean_name(td[0]), clean_name(td[1]), clean_name(td[2])
         except Exception:
             dropped_triples += 1
+            continue
+        # 先判形态再判实体：垃圾条目通常连实体都不合法，
+        # 若先判实体，审计里会被记成"实体未登记"，掩盖真正原因（关系名塞值/实体是整句）。
+        if _junk(rel, src, dst):
+            dropped_junk += 1
             continue
         if src not in name_map or dst not in name_map:
             dropped_triples += 1
@@ -285,13 +305,32 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
             continue
         new_triples.append((src, rel, dst))
 
-    # triples_source 的 key 是 "src,rel,dst"
+    # R15 W02：逆否去重。抽取模型会把同一事实正反各输出一次
+    #（实测 '智造贷 -最高额度-> 8000万元' 与 '8000万元 -最高额度-> 智造贷' 并存），
+    # 进图后社区摘要会重复计数、reduce 也会把方向说反。
+    # 同一 (关系, 无序实体对) 只保留首次出现的方向；方向是否正确由抽取与证据回指保证，
+    # 这里不做业务猜测。
+    deduped, seen_pairs, dropped_reverse = [], set(), 0
+    for src, rel, dst in new_triples:
+        pair = (rel, tuple(sorted((src, dst))))
+        if pair in seen_pairs:
+            dropped_reverse += 1
+            continue
+        seen_pairs.add(pair)
+        deduped.append((src, rel, dst))
+    new_triples = deduped
+
+    # triples_source 的 key 是 "src\x1frel\x1fdst"
     new_triples_source = {}
     for key, val in (triples_source_dict or {}).items():
         parts = str(key).split(TRIPLE_SEP)
         if len(parts) != 3:
             continue
-        s0, r0, d0 = clean_name(parts[0]), parts[1], clean_name(parts[2])
+        # R15 W01：这里的关系名必须和上面三元组用同一个 clean_name，
+        # 否则 new_triples 用清洗后的 rel、source 却用原样 r0，键对不上 →
+        # graph_service 写 Milvus 时 KeyError（实测 '放款\x1f放款期限-\x1f3个工作日'），
+        # 整个解析任务 500、文件被标失败，而图数据其实已经写了一半。
+        s0, r0, d0 = clean_name(parts[0]), clean_name(parts[1]), clean_name(parts[2])
         if s0 not in name_map or d0 not in name_map:
             continue
         new_key = f"{name_map[s0]}{TRIPLE_SEP}{r0}{TRIPLE_SEP}{name_map[d0]}"
@@ -304,5 +343,7 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
         "merged": merged,
         "unclassified": unclassified,
         "dropped_triples": dropped_triples,
+        "dropped_junk": dropped_junk,
+        "dropped_reverse": dropped_reverse,
     }
     return new_triples, kept, new_triples_source, report

@@ -1,53 +1,58 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T20:38+08:00",
+  "updated": "2026-10-29T20:56+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
-    "head": "本轮 2 个提交（第一批 F01/F02/F10/F04 + 台账；第二批 F08 社区覆盖 + 证据）",
-    "note": "状态分级：COMPONENT=组件/存储级；INTEGRATION=过网关真实链路；UI=真实页面。COMPONENT 不得充抵 UI 正例"
+    "head": "本轮 3 个提交（F01/F02/F10/F04、F08 社区覆盖、N1-N3 归一化与闸门）",
+    "note": "状态分级：COMPONENT / INTEGRATION / UI；COMPONENT 不得充抵 UI 正例"
   },
+  "corrections": [
+    {
+      "item": "graphParse 10001 知识库不存在",
+      "was": "记为 blocker（产品缺陷）",
+      "now": "我方参数名错误：接口契约是 file_ids / knowledge_base_id（snake_case），传 camelCase 导致未绑定",
+      "action": "从 blocker 移除"
+    },
+    {
+      "item": "file_parse_task status=4",
+      "was": "读作失败，据此判断成功被记成失败",
+      "now": "ParseTaskStatusEnums: 4=SUCESS（处理成功），5 才是失败",
+      "action": "相关结论作废，改为如实记录"
+    }
+  ],
   "f_findings": {
-    "F01": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02", "note": "断言 rank 派生：同端点不同谓词可共存（旧 1 条 / 新 2 条）" },
-    "F02": { "state": "PARTIAL", "evidence": "qa/evidence/r15/a02, a08", "note": "写边不再造反向边、消费者改用实体名；但抽取模型自身输出反向三元组，需在归一化层去重" },
-    "F03": { "state": "BLOCKED", "evidence": "qa/evidence/r15/a08", "note": "Java graphParse 对 kb_9 恒 10001；本次用 Python /generate_triple_data 直连完成抽取（343 边数 0→26）" },
-    "F04": { "state": "INTEGRATION_VERIFIED", "evidence": "qa/evidence/r15/a09", "note": "question_re 消费 global_answer：3.0s 失败 → 2.0s status=2" },
-    "F05": { "state": "PARTIAL", "evidence": "qa/evidence/r15/a08", "note": "已清理 94 条仅来自已删文件的边（204→110）；generation 维度仍未建" },
-    "F06": { "state": "OPEN", "note": "断言到 SourceRef 未落地" },
-    "F07": { "state": "OPEN", "note": "类型体系仍为实施方 16 类" },
-    "F08": { "state": "INTEGRATION_VERIFIED", "evidence": "qa/evidence/r15/a08", "note": "小簇不再丢弃：社区 3→4，额度事实进入摘要；global 由\"未提及\"变为答出 8000 万" },
-    "F09": { "state": "OPEN", "evidence": "qa/evidence/r15/a09", "note": "343 的 gps=3 但零边；成功判定仍缺闸门" },
-    "F10": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a03", "note": "适用产品前提 + 减项符号 + 歧义不推导" },
-    "F11": { "state": "OPEN", "note": "检索预算未实测" },
-    "F12": { "state": "OPEN", "note": "反例法断言待建" },
-    "F13": { "state": "PARTIAL", "evidence": "qa/evidence/r15/a08", "note": "社区覆盖已修；分项约束（信用方式 1000 万）仍未随总额度一并输出" }
+    "F01": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02" },
+    "F02": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02, n2-n4", "note": "写边不再造反向边 + 归一化层逆否去重（dropped_reverse=1 验证）" },
+    "F03": { "state": "PARTIAL", "evidence": "qa/evidence/r15/n2-n4", "note": "graphParse 参数名澄清后接口可用；但任务成功后 gps 未收敛到 3" },
+    "F04": { "state": "INTEGRATION_VERIFIED", "evidence": "qa/evidence/r15/a09" },
+    "F05": { "state": "PARTIAL", "evidence": "qa/evidence/r15/a08", "note": "已清理 94 条仅来自已删文件的边；generation 仍未建" },
+    "F06": { "state": "OPEN" },
+    "F07": { "state": "OPEN" },
+    "F08": { "state": "INTEGRATION_VERIFIED", "evidence": "qa/evidence/r15/a08" },
+    "F09": { "state": "PARTIAL", "evidence": "qa/evidence/r15/n2-n4", "note": "零产出闸门已加（edges_written>0）；但 gps 与 task 状态不同源，343 成功后 gps 仍为 1" },
+    "F10": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a03" },
+    "F11": { "state": "OPEN" },
+    "F12": { "state": "OPEN" },
+    "F13": { "state": "PARTIAL", "evidence": "qa/evidence/r15/n2-n4", "note": "语义反转已消除；global 对总额度问题不主动带出分项约束" }
   },
   "acceptance": {
     "A01": "NOT_RUN", "A02": "COMPONENT", "A03": "PARTIAL", "A04": "COMPONENT",
-    "A05": "NOT_RUN", "A06": "NOT_RUN", "A07": "NOT_RUN", "A08": "PARTIAL_IMPROVED",
+    "A05": "NOT_RUN", "A06": "PARTIAL", "A07": "NOT_RUN", "A08": "PARTIAL",
     "A09": "FAIL_FOUND", "A10": "NOT_RUN", "A11": "NOT_RUN", "A12": "PARTIAL",
     "A13": "NOT_RUN", "A14": "NOT_RUN", "A15": "NOT_RUN",
     "A16-ENG": "NOT_RUN", "A16-REL": "NOT_RUN"
   },
-  "key_improvement": {
-    "before": "global: 智造贷最高额度是人民币1000万元（语义反转，1.1s，事实中未提及）",
-    "after": "global: 智造贷最高额度是8000万元 [L0-8ebd15fe]（1.3s，status=2）",
-    "still_missing": "未同时给出「其中信用方式不超过1000万元」的分项约束"
-  },
-  "blockers": [
-    "Java graphParse 对 kb_9 恒返回 10001「知识库不存在」（4 种入参组合均失败），产品链路的整库重建仍不可用",
-    "抽取层产出垃圾三元组（关系名塞值、实体名整句）与自造反向三元组，需在 W01 归一化层处理"
+  "n4_matrix": [
+    { "q": "智造贷最高额度是多少？", "global": "8000万元（未带分项）", "local": "8000万元 + 信用方式不超过1000万元" },
+    { "q": "智造贷信用方式最高多少？", "global": "1000万元", "local": "1000万元" }
   ],
   "next_actions": [
-    "N1 修 graphParse 的 findByKbId 入参/条件，恢复产品链路整库重建",
-    "N2 归一化层逆否去重 + 关系名含值/实体名含整句的过滤规则",
-    "N3 零产出闸门：gps=3 但 0 三元组判失败/待复核",
-    "N4 A08 端到端验收：答案需同时给出总额度与分项约束，且引用可打开"
+    "N5 修 gps 状态收敛：doSuccess→generateGraph 为 @Async，任务成功与文件状态不同源",
+    "N6 global 完整性：总额度问题需同时带出分项约束（prompt/事实选择）",
+    "N7 generation 维度（F05 剩余）",
+    "N8 零产出闸门在真实失败场景下的反例验证（构造 edges_written=0）"
   ],
-  "release": {
-    "engineering_delivery": "IN_PROGRESS",
-    "target_release": "NOT_STARTED",
-    "external_signoff": "NOT_AVAILABLE"
-  },
+  "release": { "engineering_delivery": "IN_PROGRESS", "target_release": "NOT_STARTED", "external_signoff": "NOT_AVAILABLE" },
   "evidence_root": "platform/r12/qa/evidence/r15/"
 }
