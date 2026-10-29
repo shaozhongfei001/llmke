@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T22:47+08:00",
+  "updated": "2026-10-29T22:52+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -177,38 +177,43 @@
     "note": "第一轮断言全PASS但指纹false被判'不可作代次对比'，重抽后再跑第二轮才可比；C4(主键种子)为F05前置未做"
   },
   "acceptance_baseline": {
-    "run_at": "2026-10-29T22:42（A06 单条复验）",
-    "total": 16,
-    "PASS": 4,
-    "FAIL": 6,
-    "SKIP": 6,
-    "pass": [
+    "merged_from": [
+      "accept-f12 全量 22:38:28–22:40:55（PASS2/FAIL7/SKIP7）",
+      "TL A06 单条复验 22:42（转 PASS）"
+    ],
+    "PASS": [
       "A04 值保真",
-      "A06 零产出不再假成功（332 重解析后 1 条边）",
-      "A08 local/global 一致",
+      "A06 零产出不假成功（332 重解析后 1 条边）",
       "A11 引用可回指"
     ],
-    "fail": [
-      "A01 白名单外实体类型",
-      "A02 同谓词双向伪反向事实",
-      "A03 最高额度上出现分项1000万",
-      "A07 社区覆盖不全(Σ60<93)",
-      "A09 同一主体同一谓词两个互斥额度",
-      "A12 无实体名主题问 金额未全部来自图事实"
+    "PARTIAL": [
+      "A08 local 通路已修通，但 N6『两入口都保留分项』4 次里 2 次不成立 → 需 k>=3 采样定论"
     ],
-    "skip": [
-      "A05 多来源累积(需写操作)",
-      "A10 删除/重解析/权限(写)",
-      "A13 多KB并发(第二套夹具)",
-      "A14 重启/恢复(写)",
-      "A15 24h容量回归",
-      "A16 干净环境+外部签收"
+    "FAIL_PRODUCT": [
+      "A01 类型体系无契约（含白名单外类型'时间'/合法评级'正常'被停用词丢弃/unclassified 38%）",
+      "A02 show_flag=1 的同谓词双向仍可见（1年期LPR -利率基准-> 智造贷 与反向）",
+      "A03 存储层反转：智造贷 -最高额度-> 1000万 与 8000万 并存（file_id=343）",
+      "A07 社区覆盖 Σ60 < 可见边 93，至少 33 条边无归属",
+      "A09 (智造贷,最高额度) 同时有 8000万/1000万；graph_summary 中 generation 出现 0 次"
     ],
-    "delta": "首跑 PASS1/FAIL10/SKIP5 → 现 PASS4/FAIL6/SKIP6（A04/A06/A08 转 PASS）"
+    "FAIL_ASSERTION_TODO": [
+      "A12 N2 需分三档：逐字在图内 / 可派生且标注推导 / 真凭空（7000万=8000-1000 属第二档）",
+      "A08 N6 需固定 k>=3 重复采样，单次采样不能定生死"
+    ],
+    "SKIP": [
+      "A05",
+      "A10",
+      "A13",
+      "A14",
+      "A15",
+      "A16"
+    ],
+    "note": "接受 A08/A12 两条为'断言待修'，不改成 PASS；稳定产品缺陷为 A01/A02/A03/A07/A09 五条"
   },
   "new_findings": [
     "删KB是软删且不联动下层：knowledge_base.status=0 但 knowledge_base_list 仍 status=3，图空间/摘要不回收 → A10 不能只看接口返回",
     "del_community 在图服务未监听时静默不可用（curl 000），必须回读 _cat/indices + has_collection 才算删成功",
-    "SHOW SPACES 同时存在 g_rag_graph 与 rag_graph，命名异常需人工确认归属"
+    "SHOW SPACES 同时存在 g_rag_graph 与 rag_graph，命名异常需人工确认归属",
+    "V0 边 +1 的真相：332 本身 version=V0，写入 V0 正确 —— 否证了'写入口径 bug'的推断（成员的否证路径生效）"
   ]
 }

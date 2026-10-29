@@ -693,6 +693,30 @@ dry-run：`edge_stale=6 / edge_valid=2 / edges_total=8`，`fingerprint.comparabl
 | MySQL `knowledge_base_list` where kb_id=1000 | 不存在 | **仍有 2 行，且 `999004` 仍是 `status=3`** | ⚠️ 见 §9.7.2 |
 | **kb_9（要求不动）** | 94 边 / 11 摘要 | 边 **94**（V1=71 / V0=23，`show_flag='1'` 94，与清理前**逐项相同**）；ES `community_summary_kb_9` **11** 条；Milvus `_community_summary_kb_9` 存在 | ✅ 未被动到 |
 
+**第 ⑤ 步：硬删 DB 残留行（2026-10-29T22:42:31，TL 授权"删 KB 记录（或先软删再硬删）"）**
+
+产品接口只做软删（`status=0`），所以补做一次显式硬删。删前先扫了所有含 `kb_id` 列的 12 张表，只有 3 张有残留：
+
+```
+BEFORE   knowledge_base=1  knowledge_base_list=2  file_parse_task=2
+AFTER    knowledge_base=0  knowledge_base_list=0  file_parse_task=0
+KB9_UNTOUCHED  kb_9 status=3 文件数 = 11（删前后相同）
+```
+
+其余表（`folder_info` / `dialogue` / `kb_label_his` / `re_embedding_*` / `syn_log`）本来就是 0 行。
+
+**最终全对象回读（22:42:5x）**
+
+| 对象 | 最终状态 |
+|---|---|
+| MySQL `knowledge_base` id=1000 | `count=0` ✅ |
+| MySQL `knowledge_base_list` kb_id=1000 | `count=0` ✅ |
+| MySQL `file_parse_task` kb_id=1000 | `count=0` ✅ |
+| Nebula `g_kb_1000` | 不存在（`SHOW SPACES` = `g_kb_22 g_kb_26 g_kb_9 g_rag_graph rag_graph`）✅ |
+| ES `community_summary_kb_1000` / `kb_1000` / `community_summary_ragraph` | 全部 404；`_cat/indices/community_summary_*` 只剩 `community_summary_kb_9` ✅ |
+| Milvus `_community_summary_kb_1000` / `_community_summary_ragraph` | `has_collection=false`；community 相关只剩 `_community_summary_kb_9` ✅ |
+| **kb_9** | 边 **94**（V1=71 / V0=23）、ES 摘要 **11** 条、Milvus 集合在 —— 三次清理动作前后**逐项同值** ✅ |
+
 ### 9.7.2 清理时发现的两件事（都不是本脚本能修的）
 
 1. **产品侧"删 KB"是软删，且不联动下层**：`DELETE /index/knowledgeBase/delete` 返回成功、用户列表里确实消失、ES 主索引也删了，但：
@@ -752,39 +776,47 @@ curl -s -X POST http://127.0.0.1:19529/del_community -H 'Content-Type: applicati
 
 ---
 
-## 10. 边界缺陷记录：primitive 里含 `g_` 时 ES 社区摘要索引名会被改写（本轮不修）
+## 10. 边界缺陷记录：primitive 含 `g_` 时 ES 社区摘要索引名被改写（**已修 e2bfa24**）
 
-**状态**：已定位根因，**本轮不修**（属 `services/`，且不影响 kb_/现有业务 KB）；脚本已加只读核对与告警。
+**状态**：2026-10-29 由 TL 修复（`removeprefix` 替换全部 3 处）；本节保留**定位过程与影响面**，并把"我最初判断错的地方"一并纠正，避免后来人按错误结论做事。
 
-**现象**（实测）：对 `rag_graph` 调 `generate_community` 后，ES 里真实索引名是 `community_summary_ragraph`，而不是按 `graph_summary._idx()`（只做 `strip().lower()`）推算的 `community_summary_rag_graph`。
+### 10.1 现象（实测）
 
-**根因**（2026-10-29 22:38 定位到具体语句）：
+对 `rag_graph` 调 `generate_community` 后，ES 里真实索引名是 `community_summary_ragraph`，而按 `graph_summary._idx()`（只做 `strip().lower()`）推算应是 `community_summary_rag_graph`。
+
+### 10.2 根因（3 处，含读侧）
 
 ```python
-# services/rag-alg/index_data_service/index_graph_service/graph_summary.py
-#   generate_community() 约 L377、del_community() 约 L958
-space_name = str(payload.get("space_name", "")).replace("g_", "")
+# services/rag-alg/index_data_service/index_graph_service/graph_summary.py（修复前）
+generate_community() ~L377   space_name = str(payload.get("space_name","")).replace("g_", "")
+query_community()    ~L844   space_name = str(payload.get("space_name","")).replace("g_", "")   # 读侧
+del_community()      ~L958   kb         = str(payload.get("space_name","")).replace("g_", "")
 ```
 
-`.replace("g_", "")` 是**全局替换**，本意是去掉图空间前缀 `g_`，但它会吃掉字符串里**任意位置**的 `g_`：
+`.replace("g_", "")` 是**全局替换**，本意去掉图空间前缀 `g_`，但会吃掉任意位置的 `g_`：
 
 ```
-'rag_graph'.replace('g_','')      -> 'ragraph'        # 应为 rag_graph
-'rag_graph'.removeprefix('g_')    -> 'rag_graph'      # 正确写法
+'rag_graph'.replace('g_','')   -> 'ragraph'        # 错
+'rag_graph'.removeprefix('g_') -> 'rag_graph'      # 对
 ```
 
-于是 `write_summary_indexes("ragraph")` 写出 `community_summary_ragraph`；`_load_summaries` 又用**原样 primitive** 去读（`f"community_summary_{_idx(kb)}"`），**写读两侧名字不一致**——这类 KB 的 global 会"写入成功但读不到摘要"。
+### 10.3 影响面（**我最初的判断是错的，这里纠正**）
 
-**影响面**：`primitive_name` 里含字面量 `g_` 的 KB（例如 `rag_graph`、`log_group`、`cfg_xx`）。`kb_9` / `kb_1000` 这类 `kb_<数字>` **不受影响**，因此不阻塞本轮。
+我最初写的是"写侧写 `ragraph`、读侧按 `rag_graph` 读 → global 读不到摘要"。**这是错的**：读侧 `query_community` 用的是**同一套错误写法**，所以服务内部"写 `ragraph` / 读 `ragraph`"是**自洽的**，功能不断（kb_9 回归验证通过）。TL 纠正了这一点。
 
-**本轮已做的（脚本侧，只读）**：`graph-rebuild.sh` 新增 `precheck_index_name()`——primitive 不是 `kb_<数字>` 时，去 `_cat/indices/community_summary_*` 核对真实名，并按服务端同一套 `replace("g_","")` 算出"服务端形态"：
+真实后果比它轻一档，但仍有实际危害：
 
-```
-正例 kb_9          -> 直接返回 community_summary_kb_9（不查 ES）
-反例 rag_graph     -> [!!] 按 _idx() 规则应写 community_summary_rag_graph，但服务端 replace("g_","")
-                      把 primitive 改成了 ragraph，真实索引是 community_summary_ragraph …
-```
+| 后果 | 具体表现 |
+|---|---|
+| **外部视角不一致** | 运维/审计按 `primitive_name` 算索引名（如 `community_summary_rag_graph`）→ 找不到数据，误判"重建失败/摘要丢了" |
+| **迁移/清理会打偏** | 按名字删索引会删不到（或删错），留下孤儿集合；本脚本因此专门加了只读核对（10.4） |
+| **契约层不一致** | 索引名与 `primitive_name` 的对应关系不再可推导，"名字即身份"的假设失效 |
 
-**临时规避（给运维/验收用）**：对非 `kb_<数字>` 形态的 primitive，**先** `GET /_cat/indices/community_summary_*?h=index&format=json` 核对真实索引名，再对照脚本第 [4/5] 步的"ES 摘要条数 == 本次摘要数"断言；对不上就说明命中了本缺陷，不要把它当成"重建失败"。
+**影响 KB 范围**：`primitive_name` 里含字面量 `g_` 的（`rag_graph`、`log_group` 这类）。`kb_9` / `kb_1000` 这类 `kb_<数字>` 不受影响。
 
-**修复建议（留档，不在本轮）**：`graph_summary.py` 两处 `.replace("g_", "")` 改成 `.removeprefix("g_")`，并补一条回归：`primitive=rag_graph` 时写入与读取的索引名必须相同。改完需要清理一次已错名的 `community_summary_ragraph`（1 条），否则那批摘要会永久读不到。
+### 10.4 修复与遗留
+
+- **已修（e2bfa24）**：3 处统一改成 `.removeprefix("g_")`。修完后 `primitive=rag_graph` 的写入与读取都落在 `community_summary_rag_graph`。
+- **迁移项（未做）**：修复前写出的 `community_summary_ragraph`（1 条，在 R13 测试空间上）需要**重建一次**该 KB 的社区摘要，否则这批旧数据永久留在错名索引里。本轮清理夹具时已顺手把这个索引与 Milvus 集合删掉（§9.7.1），所以该迁移项在**这个空间上**已自然消解；但**生产/其它环境若也有错名索引，需要走同一条迁移**。
+- **脚本侧（本轮已做，只读）**：`precheck_index_name()` 对非 `kb_<数字>` 的 primitive 去 `_cat/indices` 核对；若只存在"旧写法算出来的名字"，会明确报**"发现旧命名遗留索引 X（缺陷已修，该索引是修复前的写入），对账会与遗留数据对不上，需重建一次"**——**不改写名字**（改名等于猜，猜错会删错索引）。
+- **回归建议**：补一条 `primitive=rag_graph` 时"写入索引名 == 读取索引名"的断言，否则这个缺陷会以别的形式复发（例如以后有人再写 `.replace`）。

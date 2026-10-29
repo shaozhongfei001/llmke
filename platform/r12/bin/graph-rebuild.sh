@@ -270,12 +270,12 @@ def precheck_index_name(primitive, es_index):
     """
     if re.fullmatch(r"kb_\d+", str(primitive or "")):
         return es_index
-    # 根因（2026-10-29 22:38 定位）：graph_summary.generate_community / del_community 里
-    #   space_name = str(payload.get("space_name","")).replace("g_", "")
-    # 是**全局替换**而不是去前缀，`rag_graph` -> `ragraph`（吃掉 "g_"），于是写入的索引名
-    # 变成 community_summary_ragraph。正确写法应是 removesuffix/removeprefix。
-    # 这条只影响 primitive 里含字面量 "g_" 的 KB；kb_<数字> 不受影响。
-    service_form = "community_summary_" + str(primitive).replace("g_", "").strip().lower()
+    # 背景（2026-10-29）：服务端曾用 `.replace("g_","")` 去图空间前缀，全局替换把
+    # `rag_graph` 变成 `ragraph`，写出 community_summary_ragraph。读侧当时是同一个错误写法，
+    # 所以服务内部自洽（不是"读不到摘要"），但**外部按 primitive 算名会对不上**，运维/审计
+    # 会误判"重建失败"。TL 已在 c9b2afb 前的 e2bfa24 用 removeprefix 修掉全部 3 处。
+    # 下面把"旧写法算出来的名字"只当**遗留索引**来识别，并明确它需要重建/迁移。
+    legacy = "community_summary_" + str(primitive).replace("g_", "").strip().lower()
     try:
         code, js = http_json("GET", "%s/_cat/indices/community_summary_*?h=index&format=json" % ES, timeout=30)
     except Exception as exc:  # noqa: BLE001
@@ -285,14 +285,13 @@ def precheck_index_name(primitive, es_index):
     if es_index in names:
         ok("索引名核对：%s 存在" % es_index)
         return es_index
-    if service_form != es_index and service_form in names:
-        warn("索引名不一致：按 _idx() 规则应写 %s，但服务端 `replace(\"g_\",\"\")` 把 primitive 改成了"
-             " %s，真实索引是 %s。本脚本不改写名字，第 4 步摘要条数对账会按 %s 执行，"
-             "大概率对不上——请人工确认（这是 services/ 侧缺陷，本脚本无权修）"
-             % (es_index, str(primitive).replace("g_", ""), service_form, es_index))
+    if legacy != es_index and legacy in names:
+        warn("发现旧命名遗留索引 %s（服务端 replace(\"g_\",\"\") 缺陷已修，该索引是修复前的写入）；"
+             "本脚本不改写名字，第 4 步摘要对账按 %s 执行，会与遗留数据对不上——"
+             "需按迁移项重建一次该 KB 的社区摘要" % (legacy, es_index))
         return es_index
-    warn("索引名核对：既没有 %s 也没有服务端形态 %s（该 KB 可能还没写过社区摘要）"
-         % (es_index, service_form))
+    warn("索引名核对：既没有 %s 也没有旧命名遗留 %s（该 KB 可能还没写过社区摘要）"
+         % (es_index, legacy))
     return es_index
 
 
