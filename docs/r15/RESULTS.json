@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T21:16+08:00",
+  "updated": "2026-10-29T21:42+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -58,7 +58,7 @@
     "F09": {
       "state": "INTEGRATION_VERIFIED",
       "evidence": "qa/evidence/r15/n5",
-      "note": "任务4(成功)与gps=3一致；零产出闸门已通统计透传；失败反例待 N8"
+      "note": "任务4(成功)与gps=3一致；零产出有两道拦截，第一道真实数据验证通过，第二道冗余人未独立触发"
     },
     "F10": {
       "state": "COMPONENT_VERIFIED",
@@ -110,7 +110,6 @@
   "next_actions": [
     "N6 global 完整性：总额度问题需同时带出分项约束",
     "N7 generation 维度（F05 剩余）",
-    "N8 零产出闸门的失败反例（构造真正 0 边场景）",
     "N9 列表'关系数'口径：similar 辅助边是否应计入"
   ],
   "release": {
@@ -118,5 +117,15 @@
     "target_release": "NOT_STARTED",
     "external_signoff": "NOT_AVAILABLE"
   },
-  "evidence_root": "platform/r12/qa/evidence/r15/"
+  "evidence_root": "platform/r12/qa/evidence/r15/",
+  "n8": {
+    "first_gate": {
+      "state": "VERIFIED",
+      "evidence": "pdf-scanned.pdf -> code=500 -> gps=4（task=4）"
+    },
+    "second_gate": {
+      "state": "PARTIAL",
+      "evidence": "仅 21:08:48 一次执行记录，且当时为统计缺失导致的误判（已修）"
+    }
+  }
 }
