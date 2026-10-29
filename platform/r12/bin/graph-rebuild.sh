@@ -260,6 +260,35 @@ def _sha256_file(path):
     return rel, h.hexdigest()
 
 
+def precheck_index_name(primitive, es_index):
+    """primitive 不是 `kb_<数字>` 时，`community_summary_<lower(primitive)>` 可能对不上真实索引名。
+
+    实测（2026-10-29 22:24）：对 `rag_graph` 调 generate_community 后，ES 里真实索引名是
+    `community_summary_ragraph`（下划线被上游吞掉），而不是 `community_summary_rag_graph`；
+    `graph_summary._idx()` 只做 strip+lower，所以丢失发生在更上游的索引创建侧，根因未定位。
+    这里**只核对与告警，不自动改写名字**——改名等于猜，猜错会删错索引/对错数。
+    """
+    if re.fullmatch(r"kb_\d+", str(primitive or "")):
+        return es_index
+    try:
+        code, js = http_json("GET", "%s/_cat/indices/community_summary_*?h=index&format=json" % ES, timeout=30)
+    except Exception as exc:  # noqa: BLE001
+        warn("索引名核对跳过（ES 不可达: %s）" % type(exc).__name__)
+        return es_index
+    names = [x.get("index") for x in (js if isinstance(js, list) else []) if isinstance(x, dict)]
+    if es_index in names:
+        ok("索引名核对：%s 存在（primitive 不是 kb_<数字> 形态，已逐个核对）" % es_index)
+        return es_index
+    close = [n for n in names if n and n.replace("_", "") == es_index.replace("_", "")]
+    if close:
+        warn("索引名不一致：按代码规则应写 %s，但 ES 里真实存在的是 %s"
+             "（下划线被上游吞掉，known defect，根因未定位）。本脚本不改写名字，"
+             "第 4 步的摘要条数对账会按 %s 执行，可能对不上——请人工确认后再看 [5/5]" % (es_index, close[0], es_index))
+    else:
+        warn("索引名核对：既没有 %s 也没有近似名（该 KB 可能还没写过社区摘要）" % es_index)
+    return es_index
+
+
 def build_fingerprint():
     """W03-2 版本绑定：content_fingerprint（TL 2026-10-29 裁决 = 内容哈希）。
 
@@ -758,6 +787,8 @@ def main():
         result.update({"primitive": primitive, "space": space})
         ok("primitive_name=%s  Nebula space=%s" % (primitive, space))
         result["fingerprint"] = build_fingerprint()
+        result["es_community_index"] = precheck_index_name(
+            primitive, "community_summary_" + primitive.strip().lower())
 
         valid, st_map = step_files(primitive)
 
