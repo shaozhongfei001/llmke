@@ -693,13 +693,13 @@ def execute_query(session, entity_set, query_type):
     if query_type == 'hippo':
         query = f'''
                     MATCH (v)-[e:relationship]-(v2)
-                    RETURN id(v) AS src, properties(e) AS props, id(v2) AS dst;
+                    RETURN v.entity.name AS src, properties(e) AS props, v2.entity.name AS dst;
             '''
     else:
         query = f'''
                     MATCH (v)-[e:relationship]-(v2)
                     WHERE v.entity.name IN {entity_set}
-                    RETURN id(v) AS src, properties(e) AS props, id(v2) AS dst;
+                    RETURN v.entity.name AS src, properties(e) AS props, v2.entity.name AS dst;
                 '''
         logger.info(f"查询语句:{query}")
     result = session.execute(query)
@@ -720,9 +720,12 @@ def execute_query(session, entity_set, query_type):
         res_dict_list.append({"src": src, "dst": dst, "props": props})
     if res_dict_list:
         for rd in res_dict_list:
-            src = rd["src"].split("_")[-1]
+            # R15 W02：原来用 id(v).split("_")[-1] 当实体名，实体名本身含下划线
+            # （如 "AAA级_客户"）会被截断成 "客户"，问答与证据都会指向错实体。
+            # 现在查询直接返回 v.entity.name，这里不再猜。
+            src = rd["src"]
             rep = rd["props"].get("name", "") if isinstance(rd.get("props"), dict) else ""
-            dst = rd["dst"].split("_")[-1]
+            dst = rd["dst"]
             triples_set.add((src, rep, dst))
             if src not in triples_entity_dict:
                 triples_entity_dict[src] = []

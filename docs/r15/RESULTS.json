@@ -1,0 +1,48 @@
+{
+  "run_id": "R15-TL-20261029",
+  "updated": "2026-10-29T20:22+08:00",
+  "candidate": {
+    "worktree": "/home/szf/data/dev/llmke-r12",
+    "branch": "feature/R12-real-rag",
+    "head": "本轮 4 个提交（F01/F02、F10、F04、台账）",
+    "note": "状态分级：COMPONENT=组件/存储级；INTEGRATION=过网关真实链路；UI=真实页面。COMPONENT 不得充抵 UI 正例"
+  },
+  "f_findings": {
+    "F01": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02", "note": "断言 rank 派生，同端点不同谓词可共存（旧 1 条 / 新 2 条）" },
+    "F02": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02", "note": "不再写伪反向边；消费者改用 v.entity.name，不再截 VID" },
+    "F03": { "state": "OPEN", "note": "整库构建链未接入产品任务链" },
+    "F04": { "state": "PARTIAL", "evidence": "qa/evidence/r15/a09", "note": "消费链路已通（2.0s / status=2 / 日志 R15-F04）；答案仍错，根因在 F05" },
+    "F05": { "state": "OPEN", "evidence": "qa/evidence/r15/a09", "note": "已定位：g_kb_9 边全部来自已删 V0 文件；有效文件 328/343 零边；无 generation" },
+    "F06": { "state": "OPEN", "note": "断言到 SourceRef 未落地" },
+    "F07": { "state": "OPEN", "note": "类型体系仍为实施方 16 类" },
+    "F08": { "state": "OPEN", "note": "社区层级/范围/代次字段不全" },
+    "F09": { "state": "OPEN", "evidence": "qa/evidence/r15/a09", "note": "343 的 gps=3 但零边 → 成功判定缺闸门" },
+    "F10": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a03", "note": "适用产品前提 + 减项符号 + 歧义不推导" },
+    "F11": { "state": "OPEN", "note": "检索预算未实测" },
+    "F12": { "state": "OPEN", "note": "反例法断言待建" },
+    "F13": { "state": "OPEN", "evidence": "qa/evidence/r15/a09", "note": "reduce 把分项 1000 万当最高额度，摘要未区分主项/分项" }
+  },
+  "acceptance": {
+    "A01": "NOT_RUN", "A02": "COMPONENT", "A03": "COMPONENT", "A04": "COMPONENT",
+    "A05": "NOT_RUN", "A06": "NOT_RUN", "A07": "NOT_RUN", "A08": "PARTIAL",
+    "A09": "FAIL_FOUND", "A10": "NOT_RUN", "A11": "NOT_RUN", "A12": "NOT_RUN",
+    "A13": "NOT_RUN", "A14": "NOT_RUN", "A15": "NOT_RUN",
+    "A16-ENG": "NOT_RUN", "A16-REL": "NOT_RUN"
+  },
+  "blockers": [
+    "Java graphParse 对 kb_9 恒返回 10001「知识库不存在」（4 种入参组合均失败），阻塞重解析与重建路径",
+    "g_kb_9 现有边全部来自已删 V0 文件，重建前 A03/A09 的任何通过结论都不成立"
+  ],
+  "next_actions": [
+    "N1 用 /generate_triple_data 直连 Python 服务对 file 343 抽取，证明新写边逻辑在真实链路产出单向带 rank 的边",
+    "N2 修 graphParse 的 findByKbId 入参/条件",
+    "N3 零产出闸门：gps=3 但 0 三元组判失败/待复核",
+    "N4 重建 g_kb_9（丢弃 status=0 文件边），先导出回退点"
+  ],
+  "release": {
+    "engineering_delivery": "IN_PROGRESS",
+    "target_release": "NOT_STARTED",
+    "external_signoff": "NOT_AVAILABLE"
+  },
+  "evidence_root": "platform/r12/qa/evidence/r15/"
+}

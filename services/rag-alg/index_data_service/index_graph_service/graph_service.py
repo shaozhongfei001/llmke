@@ -3,6 +3,7 @@
 # @Time    : 2024/6/03 15:14
 # @Author  : yuxj
 # @File    : fulltext_es_api_start.py
+import hashlib
 import os
 import time
 
@@ -18,6 +19,19 @@ from graph_fun_tool import clean_entity, generate_entity_data, get_document_chun
 from graph_p_array import cal_ppr_fun
 from utils import return_nacos_model
 from operators.common.log import logger
+
+def _edge_rank(src: str, predicate: str, dst: str) -> int:
+    """为业务断言派生稳定边 rank（R15 W02 / F01+F02）。
+
+    Nebula 边的唯一键是 (src, dst, rank, type)。原实现不指定 rank（恒 0），
+    而谓词只作为边属性，于是同一对端点上的不同谓词互相覆盖，只剩最后一条；
+    写边处还人为补一条反向边，制造"同谓词伪反向事实"。
+    这里用 (src, 谓词, dst) 的 SHA1 前 60 位作 rank：
+      · 不同谓词 -> 不同 rank -> 可共存
+      · 同一断言重试 -> 同 rank -> 幂等覆盖
+    """
+    digest = hashlib.sha1(f"{src}\x1f{predicate}\x1f{dst}".encode("utf-8")).hexdigest()
+    return int(digest[:15], 16)
 
 
 def check_space_exists(space_name):
@@ -330,11 +344,17 @@ def batch_insert_vertex(insert_param: InsertModel):
             else:
                 file_id = ""
                 page_num = ""
-            insert_edge = f'INSERT EDGE  {insert_param.edge_name}(name,file_id,show_flag,page_num) VALUES "{ed[0]}" ->"{ed[2]}":' \
-                          f'("{ed[1]}","{file_id}","1","{page_num}");'
-            edge_queries.append(insert_edge)
-            insert_edge = f'INSERT EDGE  {insert_param.edge_name}(name,file_id,show_flag,page_num) VALUES "{ed[2]}" ->"{ed[0]}":' \
-                          f'("{ed[1]}","{file_id}","0","{page_num}");'
+            # R15 W02 / F01+F02：断言身份进 rank，且不再补伪反向边。
+            # 原来两条语句都无 rank（Nebula 默认 0）、谓词只作属性，
+            # 同端点不同谓词会互相覆盖；第二条还凭空造出 A<-B 的反向事实。
+            # 反向可达由查询侧的无向 MATCH (v)-[e:relationship]-(v2) 承担，不需要写反边。
+            rank = _edge_rank(ed[0], ed[1], ed[2])
+            insert_edge = (
+                f'INSERT EDGE {insert_param.edge_name}'
+                f'(name,file_id,show_flag,page_num) VALUES '
+                f'"{ed[0]}"->"{ed[2]}"@{rank}:'
+                f'("{ed[1]}","{file_id}","1","{page_num}");'
+            )
             edge_queries.append(insert_edge)
     error_edge_data_list = batch_to_graph(session, edge_queries, space_name)
     return_nacos_model().close_session(session)

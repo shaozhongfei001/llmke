@@ -613,7 +613,33 @@ def _project_facts(query, s):
 
 
 GRADE_RE = re.compile(r"^([A-Z]{1,3})级")
-BP_RE = re.compile(r"(\d+)\s*个基点")
+# R15 W02 / A04：负号必须进捕获，否则"减 30 个基点"会被读成"加 30"，
+# 与 A03"不套 B 的减 30"直接冲突。
+BP_RE = re.compile(r"(-?\d+(?:\.\d+)?)\s*个基点")
+# R15 W02 / F10：主体 -> 适用产品。抽取侧可能产出多种写法，统一在这里收口。
+APPLY_REL_NAMES = ("适用产品", "适用于", "适用", "产品适用")
+# 规则实体名里的产品标识（"产品B-AAA加点" -> "产品B"）
+PRODUCT_RE = re.compile(r"(产品[0-9A-Za-z]{1,4})")
+
+
+def _product_of_rule(rule_entity, product_names):
+    """规则实体名里属于哪个产品。
+
+    规则在产品语料里通常写成"产品B-AAA加点"，产品名是规则名的一部分。
+    优先用"产品X"模式直接提取——否则只能识别主体**已声明**过的产品，
+    会把"产品B 不适用"误判成"规则未标产品"（审计原因错，语义也不同）。
+    提取不到时回落到已知产品名的最长匹配；仍没有则返回 None，
+    由调用方按"缺前提不推导"处理。
+    """
+    m = PRODUCT_RE.search(rule_entity or "")
+    if m:
+        return m.group(1)
+    hit = None
+    for p in product_names or []:
+        if p and p in rule_entity and (hit is None or len(p) > len(hit)):
+            hit = p
+    return hit
+
 
 
 def _join_grade_rules(map_outputs):
@@ -624,7 +650,7 @@ def _join_grade_rules(map_outputs):
     这个连接是图内两条事实的组合，不引入任何外部知识，因此由代码算、模型只负责表述。
     返回 [(fact_line, community_id)]。
     """
-    grade_of, rules = {}, []
+    grade_of, applies, rules = {}, {}, []
     for s, facts in map_outputs:
         for f in facts:
             if " -" not in f or "-> " not in f:
@@ -637,22 +663,59 @@ def _join_grade_rules(map_outputs):
             a, r, b = a.strip(), r.strip(), b.strip()
             if r == "信用评级" and re.fullmatch(r"[A-Z]{1,3}", b):
                 grade_of.setdefault(a, b)
+            elif r in APPLY_REL_NAMES and a and b:
+                # R15 W02 / F10：主体的"适用产品"前提。原来只比等级不看产品，
+                # 产品B 的 AAA 减 30BP 会被套到只适用产品A 的主体上（反之亦然），
+                # 表现为同一主体同时得到 +30 与 -30 两条互相矛盾的推导。
+                applies.setdefault(a, set()).add(b)
             m = GRADE_RE.match(r)
             if m and BP_RE.search(b):
-                rules.append((m.group(1), b, a, s["community_id"]))
-    derived, seen = [], set()
+                # 符号归一：规则名常写"AAA级减点幅度"、值却只有"30个基点"，
+                # 直接当正数会把"减 30"推导成"加 30"。值已带负号则不重复处理。
+                bp_text = b
+                if re.search(r"减|下调", f"{a} {r}") and not bp_text.strip().startswith("-"):
+                    bp_text = "-" + bp_text.lstrip()
+                rules.append((m.group(1), bp_text, a, s["community_id"]))
+    products = sorted({p for ps in applies.values() for p in ps}, key=len, reverse=True)
+    derived, seen, audit = [], set(), []
     for ent, g in grade_of.items():
-        for gg, bp, _prod, cid in rules:
+        ents_products = applies.get(ent) or set()
+        matched = []
+        for gg, bp, rule_ent, cid in rules:
             if gg == g:
-                key = (ent, g, bp)
-                if key in seen:
+                matched.append((bp, rule_ent, cid, _product_of_rule(rule_ent, products)))
+        known_products = {rp for _bp, _re_, _cid, rp in matched if rp}
+        # 主体没有"适用产品"事实、而规则又分属多个产品时，任何单值都可能被错套
+        #（产品A 加 30BP / 产品B 减 30BP 会同时推出两条互相矛盾的结论）。
+        # 这种歧义下按任务书"缺前提则不推导"处理，并留下可审计原因。
+        ambiguous = (not ents_products) and len(known_products) >= 2
+        for bp, rule_ent, cid, rp in matched:
+            base = {"entity": ent, "grade": g, "rule": rule_ent, "bp": bp, "product": rp}
+            if ents_products:
+                if rp is None:
+                    audit.append({**base, "decision": "skip",
+                                  "reason": "规则未标产品，无法确认适用性"})
                     continue
-                seen.add(key)
-                derived.append((f"{ent} -{g}级加点幅度-> {bp}", cid))
-    return derived
+                if rp not in ents_products:
+                    audit.append({**base, "applicable": sorted(ents_products),
+                                  "decision": "skip", "reason": "该产品不适用于此主体"})
+                    continue
+            elif ambiguous:
+                audit.append({**base, "applicable": sorted(known_products),
+                              "decision": "skip",
+                              "reason": "主体缺少适用产品事实，且规则分属多个产品，无法确定"})
+                continue
+            key = (ent, g, bp, rp)
+            if key in seen:
+                continue
+            seen.add(key)
+            derived.append((f"{ent} -{g}级加点幅度-> {bp}", cid))
+            audit.append({**base, "decision": "derive",
+                          "reason": "" if ents_products else "图中无适用产品事实，未校验"})
+    return derived, audit
 
 
-DERIVED_RE = re.compile(r"^(?P<ent>.+?) -(?P<grade>[A-Z]{1,3})级加点幅度-> (?P<bp>\d+)\s*个基点$")
+DERIVED_RE = re.compile(r"^(?P<ent>.+?) -(?P<grade>[A-Z]{1,3})级加点幅度-> (?P<bp>-?\d+(?:\.\d+)?)\s*个基点$")
 
 
 def _fix_bp_citations(answer, derived):
@@ -770,7 +833,7 @@ def query_community(payload: dict) -> BaseResponse:
         lines.append(head + "\n" + "\n".join(f"- {f}" for f in facts))
     # R14-B3：评级 → 加点 这类"属性 + 规则"的连接由代码算定，模型只做表述。
     # 实测把它交给 7B：同一批事实换问法会答出 0 基点 / 60 基点 等不一致结果。
-    _derived = _join_grade_rules(map_outputs)
+    _derived, _join_audit = _join_grade_rules(map_outputs)
     if _derived:
         lines.append("【代码推导：由图内两条事实组合，非外部知识】\n" +
                      "\n".join(f"- [{cid}] {f}" for f, cid in _derived))
@@ -791,7 +854,9 @@ def query_community(payload: dict) -> BaseResponse:
                               "map_used": len(selected), "map_hit": len(map_outputs),
                               # 审计：哪些行的社区号被纠正到规则社区（可逐条核对）
                               "cite_fixes": _cite_fixes,
-                              "derived_facts": [f for f, _c in _derived]})
+                              "derived_facts": [f for f, _c in _derived],
+                              # 审计：每条"推导/不推导"的判定原因（A03 可逐条核对前提）
+                              "join_audit": _join_audit})
 
 
 def del_community(payload: dict) -> BaseResponse:

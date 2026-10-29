@@ -378,6 +378,34 @@ public class AiServiceImpl implements AiService {
                 return ReplyDTO.fastRepseRe(sessionId, queryId, answer, JSON.toJSONString(getCurrentFiles(aiRequest.getFileUids(), filePathDTOS)), resultType, repseTime);
             }
 
+            // R15 W05 / F04：question_re 与 question 必须消费同一个 global 结果。
+            // retrieveRecall(ExtendedConfig) 在 global 模式下确实走了社区摘要接口，
+            // RetrievedData 也带了 global_answer，但本方法**从不读它** ——
+            // reduce 算好的答案被丢弃，又把社区摘要当原文让模型二次生成，
+            // 实测表现为 3 秒内失败、或吐出"信用方式 1000 万"这类语义反转的半句。
+            String reduceAnswer = retrievedData == null ? null : retrievedData.getGlobalAnswer();
+            boolean reqGlobalMode = Boolean.TRUE.equals(aiRequest.getGlobalMode());
+            if (StringUtils.isNotBlank(reduceAnswer)) {
+                Long respTime = System.currentTimeMillis() - llmChatRequstTime;
+                String reference = CollectionUtils.isEmpty(filePathDTOS) ? "[]" : JSONObject.toJSONString(filePathDTOS);
+                log.info("R15-F04 question_re 采用 global reduce 答案，跳过二次生成 len={}", reduceAnswer.length());
+                addQuestionAndAnswerRe(alParams, dialogueId, aiRequest, reduceAnswer, reference,
+                        AIResultTypeEnum.LLM.getCode(), respTime);
+                return ReplyDTO.fastRepseRe(sessionId, queryId, reduceAnswer, reference,
+                        AIResultTypeEnum.LLM.getCode(), respTime);
+            }
+            if (reqGlobalMode) {
+                // 与 publicQuestion 的 FIX-10 对齐：global 且 reduce 没给答案时不得回落生成。
+                // 无上下文生成会产出"精确但编造"的数字，比明确说不知道更有害。
+                Long respTime = System.currentTimeMillis() - llmChatRequstTime;
+                String noAnswer = "现有社区摘要不足以回答该问题，未生成推测性答案。";
+                log.info("R15-F04 reason=global_no_answer, queryId={}", queryId);
+                addQuestionAndAnswerRe(alParams, dialogueId, aiRequest, noAnswer, "[]",
+                        AIResultTypeEnum.LLM.getCode(), respTime);
+                return ReplyDTO.fastRepseRe(sessionId, queryId, noAnswer, "[]",
+                        AIResultTypeEnum.LLM.getCode(), respTime);
+            }
+
             alParams = modelBasedInferenceParamToJsonRe(dialogueId, extendedConfig, filePathDTOS, webRsDocuments, webDocumentList, sqlMetaData);
             String docs = extendedConfig.getNeedRecall() ? alParams.removeFieldAndGetDos() : "[]";
 

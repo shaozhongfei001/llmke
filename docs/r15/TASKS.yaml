@@ -1,0 +1,186 @@
+# R15 任务台账（真实施工状态，不以勾选替代测试）
+# 字段：id / parent / loop / owner / depends_on / state / next_action / acceptance / evidence / blocker / artifacts
+# state: TODO | DOING | BLOCKED | VERIFIED（VERIFIED 需实现+迁移+正反例+消费者集成+TL验收）
+
+meta:
+  run_id: R15-TL-20261029
+  taskbook: docs/r15/TASK.md
+  base_commit: b068e7e
+  worktree: /home/szf/data/dev/llmke-r12
+  updated: "2026-10-29T20:05+08:00"
+
+# ── 施工项：评审发现 F01–F13（任务书 §3 W01–W08 展开）
+tasks:
+  - id: T-L0
+    parent: L0
+    loop: L0
+    owner: TL
+    depends_on: []
+    state: VERIFIED
+    next_action: "转 N1（F01/F02 复现）"
+    note: "工作树/HEAD/运行制品已核对；见 NEXT.md §2；已排除 ss 无 pid 与网关根路径 000 两处误判"
+
+  - id: T-F01F02
+    parent: W02
+    loop: L1
+    owner: A
+    depends_on: [T-L0]
+    state: COMPONENT_VERIFIED
+    next_action: "Nebula 对照实验 PASS（旧 1 条/新 2 条）；UI 级 A02 待整库重建后执行"
+    acceptance: [A02, A05]
+    evidence: "待生成：r15/a02-multipredicate"
+    blocker: ""
+    artifacts: ["index_graph_service/graph_service.py", "index_graph_service/graph_fun_tool.py"]
+
+  - id: T-F03
+    parent: W03
+    loop: L2
+    owner: B
+    depends_on: [T-F01F02]
+    state: TODO
+    next_action: "确认产物是否按权限域+代次隔离，定义构建清单与完成屏障"
+    acceptance: [A07, A09]
+    evidence: ""
+    blocker: ""
+    artifacts: ["index_graph_service/graph_service.py", "Java index service"]
+
+  - id: T-F04
+    parent: W05
+    loop: L3
+    owner: C
+    depends_on: [T-L0]
+    state: PARTIAL
+    next_action: "消费链路已通（2.0s status=2，日志 R15-F04）；答案正确性受阻于 F05 代次混存"
+    acceptance: [A08]
+    evidence: ""
+    blocker: ""
+    artifacts: ["rag-qa-service AiServiceImpl.java"]
+
+  - id: T-F05
+    parent: W03
+    loop: L2
+    owner: B
+    depends_on: [T-F03]
+    state: DOING
+    next_action: "已定位：g_kb_9 的边全部来自已删 V0 文件；有效文件 328/343 零边"
+    acceptance: [A09]
+    evidence: ""
+    blocker: "generation 生命周期合同需先确认现有条款"
+    artifacts: ["contracts/schema/llmke-core.json"]
+
+  - id: T-F06
+    parent: W05
+    loop: L3
+    owner: C
+    depends_on: [T-F04]
+    state: TODO
+    next_action: "让断言写入真实 SourceRef；社区 finding 映射到断言"
+    acceptance: [A11]
+    evidence: ""
+    blocker: ""
+    artifacts: ["graph_extract.py", "graph_summary.py"]
+
+  - id: T-F07
+    parent: W01
+    loop: L1
+    owner: A
+    depends_on: [T-L0]
+    state: TODO
+    next_action: "核对 16 类替代是否有批准；无则落 M1 的 6 大类 27 码为受控配置"
+    acceptance: [A01]
+    evidence: "已有：docs/upstream M1 方案；当前 graph_types.py 为实施方 16 类"
+    blocker: "需确认 M1 27 码清单的准确内容（仓库内 docx 需解析）"
+    artifacts: ["graph_types.py", "contracts/ontology/"]
+
+  - id: T-F08
+    parent: W04
+    loop: L2
+    owner: B
+    depends_on: [T-F03]
+    state: TODO
+    next_action: "检查 max_level 与实际层级是否一致，补父子关系与范围字段"
+    acceptance: [A07, A12]
+    evidence: "已核实：graph_community.max_level=1；ES 仅 community_summary_kb_9 7 条"
+    blocker: ""
+    artifacts: ["graph_community.py", "graph_summary.py"]
+
+  - id: T-F09
+    parent: W06
+    loop: L4
+    owner: C
+    depends_on: [T-F04]
+    state: TODO
+    next_action: "分离 HTTP/业务/任务/内容四类状态；空结果与依赖故障不得都返 200"
+    acceptance: [A06, A13]
+    evidence: ""
+    blocker: ""
+    artifacts: ["GlobalHandler", "graph_api_start.py"]
+
+  - id: T-F10
+    parent: W02
+    loop: L1
+    owner: A
+    depends_on: [T-L0]
+    state: COMPONENT_VERIFIED
+    next_action: "组件反例 PASS：甲+30 / 丙-30 / 乙 0；依赖抽取产出适用产品关系"
+    acceptance: [A03]
+    evidence: ""
+    blocker: ""
+    artifacts: ["graph_fun_tool.py", "graph_summary.py"]
+
+  - id: T-F11
+    parent: W06
+    loop: L4
+    owner: C
+    depends_on: [T-F09]
+    state: TODO
+    next_action: "检索预算落到真实 depth/top_k/超时；多 KB 并发隔离"
+    acceptance: [A13]
+    evidence: ""
+    blocker: ""
+    artifacts: ["retrieval_*_view.py", "graph_fun_tool.py"]
+
+  - id: T-F12
+    parent: W08
+    loop: L4
+    owner: D
+    depends_on: [T-F01F02, T-F10, T-F04]
+    state: TODO
+    next_action: "先固定题目与断言，再做反例（错值/错源/旧代/空/失前提）"
+    acceptance: [A01, A02, A03, A04, A05, A06]
+    evidence: ""
+    blocker: ""
+    artifacts: ["platform/r15/"]
+
+  - id: T-F13
+    parent: W04
+    loop: L3
+    owner: B
+    depends_on: [T-F08]
+    state: TODO
+    next_action: "区分聚焦社区检索与广域综合；Map 分批 + Reduce 消费真实报告"
+    acceptance: [A12]
+    evidence: ""
+    blocker: ""
+    artifacts: ["graph_summary.py", "retrieval_global_view.py"]
+
+  - id: T-W07
+    parent: W07
+    loop: L5
+    owner: E
+    depends_on: [T-F12]
+    state: TODO
+    next_action: "STALE_JAR 服务重启并复验；制品-源码-模型版本映射"
+    acceptance: [A14, A15, A16-ENG]
+    evidence: ""
+    blocker: "A16-REL 需真实目标与外部签收，单列"
+    artifacts: ["platform/r12/bin/", "platform/r12/dist/offline"]
+
+# ── Loop 状态
+loops:
+  L0: {state: VERIFIED, exit: "环境与制品事实已固定，首批任务已派发（TL 自兼 A/C）"}
+  L1: {state: DOING, exit: "A01–A06 事实类在真实存储验证"}
+  L2: {state: TODO, exit: "A07/A09/A10 通过"}
+  L3: {state: TODO, exit: "A08/A11/A12/A13 通过"}
+  L4: {state: TODO, exit: "A15 与故障/并发/预算回归通过"}
+  L5: {state: TODO, exit: "A14–A16 与 §9 终态"}
