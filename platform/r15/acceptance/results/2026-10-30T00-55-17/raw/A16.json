@@ -1,0 +1,35 @@
+{
+ "id": "A16",
+ "title": "离线与发布：A16-ENG / A16-REL 分项如实记录",
+ "status": "SKIP",
+ "reason": "A16-ENG 需干净环境离线复建+实装，A16-REL 需真实目标与外部签收；两者均未执行，不得以只读清点充抵",
+ "checks": [
+  {
+   "check": "P1 MANIFEST.sha256 存在",
+   "ok": true,
+   "detail": "path=/home/szf/data/dev/llmke-r12/MANIFEST.sha256 size=37529"
+  },
+  {
+   "check": "P1 BUILD-INFO.txt 存在",
+   "ok": true,
+   "detail": "path=/home/szf/data/dev/llmke-r12/BUILD-INFO.txt size=1586"
+  },
+  {
+   "check": "P1 VERSION 存在",
+   "ok": true,
+   "detail": "path=/home/szf/data/dev/llmke-r12/VERSION size=6"
+  },
+  {
+   "check": "P2 离线包目录存在且有文件",
+   "ok": true,
+   "detail": "dir=/home/szf/data/dev/llmke-r12/platform/r12/dist/offline 文件数=87920"
+  },
+  {
+   "check": "N1 反例：不把制品存在当已发布签收",
+   "ok": true,
+   "detail": "签收材料 /home/szf/data/dev/llmke-r12/platform/r12/dist/RELEASE-SIGNOFF.json 存在=False；当前 A16-REL=NOT_AVAILABLE（无真实外部签收）"
+  }
+ ],
+ "writes_required": true,
+ "elapsed": 0.8
+}

@@ -18,28 +18,90 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 
 import requests
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 
+# ───────────────────────────────────────────── 环境参数（R15 可转让性改造）
+# 目的：断言集必须能在**别人的环境**里跑出同样的判定。所以所有环境绑定项
+# （地址/库名/空间名/口令/模型）都从环境变量取，默认值只用于本机演示栈。
+# 口令类只从环境变量或包内 .env 读，源码里不再写死；取不到就返回空，
+# 由使用处报明确错误（静默用默认口令会让"复现失败"变得难以解释）。
+ENV_FILE = os.environ.get("R15_ENV_FILE", os.path.join(ROOT, "platform/r12/.env"))
+_SECRET_KEYS = ("R15_MYSQL_PWD", "R12_MYSQL_ROOT_PASSWORD", "MYSQL_ROOT_PASSWORD")
+
+
+def _from_env_file(keys, path=None):
+    """从 .env 读第一个命中的键。只返回值，绝不打印。"""
+    p = path or ENV_FILE
+    if not os.path.isfile(p):
+        return ""
+    want = set(keys)
+    try:
+        with open(p, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                if k.strip() in want:
+                    return v.strip().strip('"').strip("'")
+    except OSError:
+        return ""
+    return ""
+
+
+def _secret(name, *fallback):
+    """口令取值顺序：环境变量 → 包内 .env。找不到返回空串。"""
+    v = os.environ.get(name)
+    if v:
+        return v
+    keys = [name] + list(fallback)
+    return _from_env_file(keys)
+
+
 GATEWAY = os.environ.get("R15_GW", "http://127.0.0.1:8088")
 GRAPH = os.environ.get("R15_GRAPH", "http://127.0.0.1:19529")
 ES = os.environ.get("R15_ES", "http://127.0.0.1:19200")
-KB = "kb_9"
-SPACE = "g_kb_9"
-CONFIG_ID = 1                      # search_config.id=1，knowledge_base_name=kb_9（实测）
+
+NEBULA_HOST = os.environ.get("R15_NEBULA_HOST", "127.0.0.1")
+NEBULA_PORT = int(os.environ.get("R15_NEBULA_PORT", "19669"))
+NEBULA_USER = os.environ.get("R15_NEBULA_USER", "root")
+NEBULA_PASS = _secret("R15_NEBULA_PASS") or "nebula"
+
+KB = os.environ.get("R15_KB", "kb_9")
+SPACE = os.environ.get("R15_SPACE", "g_kb_9")
+CONFIG_ID = int(os.environ.get("R15_CONFIG_ID", "1"))
 UA = "Mozilla/5.0 (X11; Linux x86_64) R15-Acceptance/1.0"
 AES_KEY = b"1234567890123456"
 
-MYSQL_PWD = os.environ.get("R15_MYSQL_PWD", "R12r00t#2026local")
-VENV_PY = os.path.join(ROOT, "platform/r12/venvs/graph/bin/python")
+MYSQL_CONTAINER = os.environ.get("R15_MYSQL_CONTAINER", "r12-mysql")
+MYSQL_PWD = _secret("R15_MYSQL_PWD")
+VENV_PY = os.environ.get("R15_VENV_PY", os.path.join(ROOT, "platform/r12/venvs/graph/bin/python"))
 GRAPH_SVC = os.path.join(ROOT, "services/rag-alg/index_data_service/index_graph_service")
 
-MODEL_INFO = {"model_id": "qwen2.5-7b-instruct",
-              "url": "http://127.0.0.1:18092/v1/chat/completions",
-              "key": "sk-r12-local"}
+MODEL_ID = os.environ.get("R15_MODEL_ID", "qwen2.5-7b-instruct")
+MODEL_URL = os.environ.get("R15_MODEL_URL", "http://127.0.0.1:18092/v1/chat/completions")
+MODEL_KEY = _secret("R15_MODEL_KEY") or "sk-r12-local"
+MODEL_INFO = {"model_id": MODEL_ID, "url": MODEL_URL, "key": MODEL_KEY}
+
+
+def env_fingerprint():
+    """本次运行的环境指纹，随证据一起落盘：没有它，结果无法被判断"在什么环境上成立"。"""
+    def _mask(v):
+        return "" if not v else ("*" * min(len(v), 8))
+    return {
+        "gateway": GATEWAY, "graph": GRAPH, "es": ES,
+        "nebula": f"{NEBULA_HOST}:{NEBULA_PORT}", "nebula_user": NEBULA_USER,
+        "kb": KB, "space": SPACE, "config_id": CONFIG_ID,
+        "mysql_container": MYSQL_CONTAINER, "mysql_pwd_len": len(MYSQL_PWD or ""),
+        "model_id": MODEL_ID, "model_url": MODEL_URL,
+        "py": sys.version.split()[0], "cwd": os.getcwd(),
+        "env_file": ENV_FILE if os.path.isfile(ENV_FILE) else "<absent>",
+    }
 
 # ────────────────────────────────────────────────────────── 断言结果容器
 PASS, FAIL, SKIP = "PASS", "FAIL", "SKIP"
@@ -190,8 +252,12 @@ import json, sys
 from nebula3.Config import Config
 from nebula3.gclient.net import ConnectionPool
 space, ngql = sys.argv[1], sys.argv[2]
-cfg = Config(); pool = ConnectionPool(); pool.init([("127.0.0.1", 19669)], cfg)
-s = pool.get_session("root", "nebula")
+import os
+cfg = Config(); pool = ConnectionPool()
+pool.init([(os.environ.get("R15_NEBULA_HOST", "127.0.0.1"),
+            int(os.environ.get("R15_NEBULA_PORT", "19669")))], cfg)
+s = pool.get_session(os.environ.get("R15_NEBULA_USER", "root"),
+                     os.environ.get("R15_NEBULA_PASS", "nebula"))
 r = s.execute("USE " + space)
 if not r.is_succeeded():
     print(json.dumps({"error": "USE failed: " + str(r.error_msg())})); sys.exit(0)
@@ -244,9 +310,14 @@ def edges():
 
 # ────────────────────────────────────────────────────────── MySQL（只读台账）
 def mysql(sql):
+    if not MYSQL_PWD:
+        # 明确失败胜过静默用内置口令：换一台机器跑不通时，原因必须一眼看到
+        raise RuntimeError(
+            "缺少 MySQL 口令：请设置 R15_MYSQL_PWD，或在 "
+            f"{ENV_FILE} 提供 R12_MYSQL_ROOT_PASSWORD")
     env = dict(os.environ)
     env["MYSQL_PWD"] = MYSQL_PWD
-    p = subprocess.run(["docker", "exec", "-e", "MYSQL_PWD", "r12-mysql", "mysql",
+    p = subprocess.run(["docker", "exec", "-e", "MYSQL_PWD", MYSQL_CONTAINER, "mysql",
                         "-uroot", "-N", "-B", "--default-character-set=utf8mb4", "-e", sql],
                        capture_output=True, text=True, env=env, timeout=120)
     if p.returncode != 0:

@@ -1,5 +1,8 @@
 # A09/F05 代次混存与"解析成功但零产出"（INTEGRATION，真实库 kb_9）
 
+> **证据等级 ASSERTION**：本结论由 `platform/r15/verify.sh --only A09` 复跑，判定与原始数据见 `platform/r15/acceptance/results/<run_id>/raw/A09.json`。
+
+
 - 时间：2026-10-29 20:12
 - 触发：修完 F04（question_re 消费 global_answer）后，同一问题答案仍错，逐层回查
 

@@ -1,0 +1,35 @@
+{
+ "id": "A13",
+ "title": "安全/预算：越权被拒且非 200、超量参数有真实上界",
+ "status": "SKIP",
+ "reason": "多 KB 并发隔离与流式取消/持久化需第二套授权夹具，本轮不执行",
+ "checks": [
+  {
+   "check": "N1 反例：无 token 被拒且不是 200",
+   "ok": true,
+   "detail": "http=401 body='{\"errorCode\":\"30022\",\"errorMsg\":\"没有token\",\"success\":false}'"
+  },
+  {
+   "check": "N1 反例：伪造 token 被拒且不是 200",
+   "ok": true,
+   "detail": "http=401 body='{\"errorCode\":\"30022\",\"errorMsg\":\"没有token\",\"success\":false}'"
+  },
+  {
+   "check": "N2 反例：无授权提问被拒且不返回答案正文",
+   "ok": true,
+   "detail": "http=401 body='{\"errorCode\":\"30022\",\"errorMsg\":\"没有token\",\"success\":false}'"
+  },
+  {
+   "check": "N3 反例：top_k 放大 1000 倍后返回量不膨胀",
+   "ok": true,
+   "detail": "top_k=5 → (200, 1, 72)；top_k=5000 → (200, 1, 72)（code, 社区数, 答案长度）"
+  },
+  {
+   "check": "N4 反例：超量请求耗时在预算内（<60s）",
+   "ok": true,
+   "detail": "耗时 top_k=5:1.3s / top_k=5000:1.2s"
+  }
+ ],
+ "writes_required": false,
+ "elapsed": 2.5
+}

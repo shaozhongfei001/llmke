@@ -1,0 +1,20 @@
+{
+ "id": "A14",
+ "title": "运行与恢复：运行中的进程/制品是当前候选（无 STALE）",
+ "status": "SKIP",
+ "reason": "重启/断连/worker 退出/恢复副本回退属写操作，本轮不执行",
+ "checks": [
+  {
+   "check": "N1 反例：网关(Java) 未 STALE（制品早于进程启动）",
+   "ok": true,
+   "detail": "pid=1563278 启动=2026-10-29 22:57:08 制品=/home/szf/data/dev/llmke-r12/services/rag-java/rag-parent/rag-gateway/target/rag-gateway-0.0.1-SNAPSHOT.jar mtime=2026-10-28 23:51:04.326046 → 一致"
+  },
+  {
+   "check": "N1 反例：图解析服务(Python) 未 STALE（制品早于进程启动）",
+   "ok": true,
+   "detail": "pid=1936692 启动=2026-10-29 23:56:40 制品=/home/szf/data/dev/llmke-r12/services/rag-alg/index_data_service/index_graph_service/graph_service.py mtime=2026-10-29 23:10:27.580157 → 一致"
+  }
+ ],
+ "writes_required": true,
+ "elapsed": 0.2
+}

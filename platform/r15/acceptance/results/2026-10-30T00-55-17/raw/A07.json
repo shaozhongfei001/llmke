@@ -1,0 +1,40 @@
+{
+ "id": "A07",
+ "title": "自动整库社区：社区覆盖全部可见边且跨文档连通",
+ "status": "PASS",
+ "reason": "全部正例与反例检查成立",
+ "checks": [
+  {
+   "check": "P1 社区摘要存在",
+   "ok": true,
+   "detail": "community_summary_kb_9 文档数=11"
+  },
+  {
+   "check": "N1 反例：可见边分类完备且无两端无归属",
+   "ok": true,
+   "detail": "无向可见边=69（有向95去重），社区内=69，跨社区=0，两端无归属=0，Σedge_count=61（含level1超边，仅参考）"
+  },
+  {
+   "check": "N2 分类完备：intra+cross+orphan==无向可见边",
+   "ok": true,
+   "detail": "69+0+0 vs 69"
+  },
+  {
+   "check": "N3 旧求和判据（仅记录，恒真）",
+   "ok": true,
+   "detail": "Σedge_count=61，可见边=95，差=34 条（跨社区边不属于任何 subgraph，该差是正常划分的必然结果）"
+  },
+  {
+   "check": "P2 每个社区都有成员与边",
+   "ok": true,
+   "detail": "空社区=[]"
+  },
+  {
+   "check": "N2 反例：社区不是单文件孤岛",
+   "ok": true,
+   "detail": "社区来源文件分布={'343': 5, '329': 4, '328': 3, '333': 2, '332': 1}（≥2 个来源文件才算跨文档连通）"
+  }
+ ],
+ "writes_required": false,
+ "elapsed": 0.0
+}

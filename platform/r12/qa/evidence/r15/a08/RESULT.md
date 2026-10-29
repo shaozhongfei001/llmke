@@ -1,5 +1,8 @@
 # A08/A12 global 从"未提及"到正确答案（INTEGRATION，过网关 + 真实社区）
 
+> **证据等级 ASSERTION**：本结论由 `platform/r15/verify.sh --only A08` 复跑，判定与原始数据见 `platform/r15/acceptance/results/<run_id>/raw/A08.json`。
+
+
 - 时间：2026-10-29 20:35
 - 环境：网关 8088 → qa 18083 → 图服务 19529 → Nebula/ES，全部真实链路
 

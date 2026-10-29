@@ -1,0 +1,30 @@
+{
+ "id": "A02",
+ "title": "多关系与方向：同端点多谓词都保留、无双向伪反向、辅助边不计业务事实",
+ "status": "PASS",
+ "reason": "全部正例与反例检查成立",
+ "checks": [
+  {
+   "check": "P1 同端点存在 ≥2 个谓词（多关系都保留）",
+   "ok": true,
+   "detail": "可见边 95 条，多谓词端点对 19 组，示例=[(('1年期LPR', '30~100BP'), {'利率基准', '加点幅度-'}), (('8000万元', '1000万元'), {'额度限制', '信用额度上限-'})]"
+  },
+  {
+   "check": "N1 反例：无同谓词双向伪反向事实",
+   "ok": true,
+   "detail": "双向可见谓词对 0 组：[]"
+  },
+  {
+   "check": "N2 反例：事实查询按 show_flag='1' 过滤",
+   "ok": true,
+   "detail": "execute_query 体长度=3279；隐藏边(show_flag=0)=0 条"
+  },
+  {
+   "check": "N3 反例：事实查询只走 relationship，不遍历 * / 相似边",
+   "ok": true,
+   "detail": "用 relationship 限定=True；函数体提到 relationship_similar=False"
+  }
+ ],
+ "writes_required": false,
+ "elapsed": 0.1
+}
