@@ -1,0 +1,13 @@
+{
+ "answer": "江南装备科技有限公司的信用评级是AAA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是30个基点 [L0-3af0d4bc] [L0-18625408]。 \n\n华东精密制造有限公司的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-18625408]。\n\n北方重工配件厂的信用评级是AA，按智造贷的评级加点规则，其执行利率相对一年期LPR的加点是60个基点 [L0-18625408]。",
+ "sources": [
+  "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx",
+  "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx"
+ ],
+ "configId": 1,
+ "infra": {
+  "graph_pid": "1461792",
+  "es_ok": true,
+  "es_ms": 7.9
+ }
+}

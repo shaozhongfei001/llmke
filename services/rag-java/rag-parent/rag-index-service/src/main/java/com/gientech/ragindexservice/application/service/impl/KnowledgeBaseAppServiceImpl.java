@@ -109,6 +109,9 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
 
     @Autowired
     private ModelInfoAppService modelInfoAppService;
+
+    @Autowired
+    private com.gientech.ragindexservice.domain.mapper.FileParseTaskMapper fileParseTaskMapper;
     @Autowired
     private KnowledgeBaseAppService knowledgeBaseAppService;
 
@@ -127,6 +130,17 @@ public class KnowledgeBaseAppServiceImpl implements KnowledgeBaseAppService {
     public Boolean deleteById(Long id) {
         KnowledgeBase knowledgeBase = knowledgeBaseDomainService.findByKbId(id);
         if (knowledgeBaseDomainService.deleteById(id) > 0 && !Objects.isNull(knowledgeBase)) {
+            // R14-LIVE-11：先把它名下未完成的任务作废，再做后续清理。
+            // 顺序有意为之：任务作废是"语义上必须发生"的，后面的表/图空间清理即使失败，
+            // 也不应该让队列里留下一批永远派发不出去的 PENDING 任务。
+            try {
+                int cancelled = fileParseTaskMapper.cancelOpenTasksByKb(id, "所属知识库已删除，任务作废");
+                if (cancelled > 0) {
+                    log.warn("知识库 {} 删除，作废未完成任务 {} 条", id, cancelled);
+                }
+            } catch (Exception e) {
+                log.error("作废知识库 {} 的未完成任务失败: {}", id, e.getMessage());
+            }
             Integer kbType = knowledgeBase.getKbType();
             //正常的知识库需要删除算法端的相关数据,文档上传问答不需要删除,因为不需要文本分块
             if (KbTypeEnums.KB.getCode().equals(kbType)) {

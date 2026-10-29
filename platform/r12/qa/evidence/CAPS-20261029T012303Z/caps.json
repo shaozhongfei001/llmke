@@ -1,0 +1,8 @@
+[
+ {
+  "cap": "PARSE_QUEUE_STALL",
+  "ok": true,
+  "neutral": false,
+  "detail": "队列分布={'PENDING(1)':0,'DEAL_ING(2)':0,'RETRY_ING(3)':0,'成功(4)':475,'失败(5)':77} status=99合计=0 其中超5分钟未推进=0 最老PENDING=None分钟 判定=队列健康"
+ }
+]

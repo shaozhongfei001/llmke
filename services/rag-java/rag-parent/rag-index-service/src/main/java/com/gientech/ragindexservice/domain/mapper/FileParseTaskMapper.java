@@ -27,5 +27,15 @@ public interface FileParseTaskMapper extends BaseMapper<FileParseTaskDO> {
 
     void deleteByKbIds(@Param("kbIds") List<Long> kbIds);
 
+    /**
+     * R14-LIVE-11：知识库删除时，把它名下仍处于 PENDING(1)/DEAL_ING(2)/RETRY_ING(3) 的任务
+     * 一并作废，写清原因。
+     *
+     * 不这么做的后果（实测）：E2E 测试库 R14-E2E-AG5-1111 被"用完即删"后，它名下的 2 个
+     * PENDING 任务永久留在队列里——所属知识库已不存在，永远不会被派发，也不会超时。
+     * 表现是队列检查里"最老 PENDING 已等 1321 分钟"的假红，且这些任务长期占用待处理名额。
+     */
+    int cancelOpenTasksByKb(@Param("kbId") Long kbId, @Param("msg") String msg);
+
     Long getSequenceByFileId(@Param("fileId") Long fileId);
 }

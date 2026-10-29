@@ -1075,8 +1075,14 @@ def cap_parse_queue_stall(s):
         # 注意枚举语义（TL 明确）：`knowledge_base_list.status` 里 **1=正常**、99=解析中，
         # 1 不是"待处理"；真正的"待派发"是 `file_parse_task.status=1(PENDING)`。
         # 第一版我误用 knowledge_base_list.status=1 取最老等待时间，得 3409 分钟 → 假红，已修正。
-        pend_old = _mysql("select max(timestampdiff(minute, gmt_create, now())) "
-                          "from gienrag.file_parse_task where status=1;")
+        # R14-LIVE-11：只统计"文件仍然存在"的任务。
+        # 所属文件已被删掉的任务永远不会被派发（派发时取不到文件），把它算进"队列卡住"
+        # 会让判据永久假红——实测 R14-E2E-AG5-1111 被删库后留下 2 条，报"已等 1321 分钟"。
+        pend_old = _mysql("select max(timestampdiff(minute, t.gmt_create, now())) "
+                          "from gienrag.file_parse_task t where t.status=1 "
+                          "and exists (select 1 from gienrag.knowledge_base_list f where f.id = t.file_id);")
+        orphan = int(_mysql("select count(*) from gienrag.file_parse_task t where t.status in (1,2,3) "
+                            "and not exists (select 1 from gienrag.knowledge_base_list f where f.id = t.file_id);") or 0)
         pend_age = int(pend_old) if (pend_old and pend_old != "NULL") else None
         total99 = int(_mysql("select count(*) from gienrag.knowledge_base_list where status=99;") or 0)
         ok, why = stall_verdict(stale99, pend_age, dist.get("3", 0), limit)
@@ -1088,12 +1094,46 @@ def cap_parse_queue_stall(s):
            f"队列分布={{'PENDING(1)':{dist.get('1',0)},'DEAL_ING(2)':{dist.get('2',0)},"
            f"'RETRY_ING(3)':{dist.get('3',0)},'成功(4)':{dist.get('4',0)},'失败(5)':{dist.get('5',0)}}} "
            f"status=99合计={total99} 其中超{limit}分钟未推进={stale99} 最老PENDING={pend_age}分钟 "
-           f"判定={why}",
-           {"dist": dist, "stale99": stale99, "pending_age_min": pend_age, "limit": limit})
+           f"孤儿任务={orphan}（所属文件已删，不计入卡住判定，见 PARSE_ORPHAN_TASK） 判定={why}",
+           {"dist": dist, "stale99": stale99, "pending_age_min": pend_age,
+            "limit": limit, "orphan": orphan})
+
+
+def cap_parse_orphan_task(s):
+    """R14-LIVE-11：孤儿任务——所属文件已删，任务却还停在 PENDING/DEAL_ING/RETRY_ING。
+
+    它和"队列卡住"必须分开判：
+      · 队列卡住 = 有活任务派不出去，是调度问题；
+      · 孤儿任务 = 任务的对象已经不存在，是**清理问题**（删文件/删库时没作废任务）。
+    混成一条会让真正的调度故障被脏数据稀释，也会让每次 E2E（用完即删库）都留下一条假红。
+    """
+    try:
+        rows = _mysql("select t.kb_id, count(*) from gienrag.file_parse_task t "
+                      "where t.status in (1,2,3) "
+                      "and not exists (select 1 from gienrag.knowledge_base_list f where f.id = t.file_id) "
+                      "group by t.kb_id;")
+        pairs = []
+        total = 0
+        for line in rows.splitlines():
+            parts = line.split()
+            if len(parts) == 2:
+                pairs.append(f"kb={parts[0]}:{parts[1]}条")
+                total += int(parts[1])
+    except Exception as e:                                   # noqa: BLE001
+        record("PARSE_ORPHAN_TASK", False,
+               f"无法查询孤儿任务：{type(e).__name__}: {e} ← 观测失败本身也要暴露")
+        return
+    ok = total == 0
+    record("PARSE_ORPHAN_TASK", ok,
+           ("无孤儿任务（未完成任务都能找到所属文件）" if ok else
+            f"存在 {total} 条孤儿任务（所属文件已删，永远不会被派发）：{'、'.join(pairs)} "
+            f"← 删文件/删库时应一并作废任务；清理见 R14-LIVE-11"),
+           {"total": total, "by_kb": pairs})
 
 
 CAPS = {
     "PARSE_QUEUE_STALL": cap_parse_queue_stall,
+    "PARSE_ORPHAN_TASK": cap_parse_orphan_task,
     "NORMAL": cap_normal,
     "FAQ": cap_faq,
     # GLOBAL 拆三层（见 cap_global 上方注释）；--only GLOBAL 由 main() 展开成这三项

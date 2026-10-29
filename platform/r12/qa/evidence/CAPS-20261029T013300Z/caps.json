@@ -1,0 +1,14 @@
+[
+ {
+  "cap": "PARSE_QUEUE_STALL",
+  "ok": true,
+  "neutral": false,
+  "detail": "队列分布={'PENDING(1)':0,'DEAL_ING(2)':0,'RETRY_ING(3)':0,'成功(4)':482,'失败(5)':78} status=99合计=0 其中超5分钟未推进=0 最老PENDING=None分钟 孤儿任务=0（所属文件已删，不计入卡住判定，见 PARSE_ORPHAN_TASK） 判定=队列健康"
+ },
+ {
+  "cap": "PARSE_ORPHAN_TASK",
+  "ok": true,
+  "neutral": false,
+  "detail": "无孤儿任务（未完成任务都能找到所属文件）"
+ }
+]

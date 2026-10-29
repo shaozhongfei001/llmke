@@ -64,6 +64,17 @@
         where id = #{id}
           and status in <foreach collection="fromStatus" item="s" separator="," open="(" close=")">#{s}</foreach>
     </update>
+    <!-- R14-LIVE-11：见 FileParseTaskMapper.cancelOpenTasksByKb 的注释 -->
+    <update id="cancelOpenTasksByKb">
+        UPDATE file_parse_task
+        SET status = 5,
+            end_time = NOW(),
+            error_msg = #{msg},
+            gmt_modified = NOW()
+        WHERE kb_id = #{kbId}
+          AND status IN (1, 2, 3)
+    </update>
+
     <select id="getTaskList" resultType="com.gientech.ragindexservice.domain.model.FileParseTaskDO">
         select
         <include refid="Base_Column_List"/>
