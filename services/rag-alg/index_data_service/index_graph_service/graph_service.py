@@ -632,6 +632,12 @@ def generate_triple_data(query_docu: QueryDocChunk):
     return BaseResponse(code=200, msg=f'添加成功，新增和更新{len(full_triples_list)}条图数据,新增{len(entity_list)}条实体',
                         data={"error_edge_data_list": res_v.data["error_edge_data_list"],
                               "error_tag_data_list": res_v.data["error_tag_data_list"],
+                              # R15：写入统计必须透传到这一层，否则 Java 侧零产出闸门
+                              # 只能看到 0 —— 会把"写了 97 条边"的成功判成零产出失败。
+                              "triples_total": (res_v.data or {}).get("triples_total", 0),
+                              "edges_total": (res_v.data or {}).get("edges_total", 0),
+                              "edges_failed": (res_v.data or {}).get("edges_failed", 0),
+                              "edges_written": (res_v.data or {}).get("edges_written", 0),
                               "type_report": type_report})
 
 

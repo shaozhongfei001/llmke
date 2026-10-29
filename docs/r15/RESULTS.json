@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T20:56+08:00",
+  "updated": "2026-10-29T21:16+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -22,37 +22,101 @@
     }
   ],
   "f_findings": {
-    "F01": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02" },
-    "F02": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a02, n2-n4", "note": "写边不再造反向边 + 归一化层逆否去重（dropped_reverse=1 验证）" },
-    "F03": { "state": "PARTIAL", "evidence": "qa/evidence/r15/n2-n4", "note": "graphParse 参数名澄清后接口可用；但任务成功后 gps 未收敛到 3" },
-    "F04": { "state": "INTEGRATION_VERIFIED", "evidence": "qa/evidence/r15/a09" },
-    "F05": { "state": "PARTIAL", "evidence": "qa/evidence/r15/a08", "note": "已清理 94 条仅来自已删文件的边；generation 仍未建" },
-    "F06": { "state": "OPEN" },
-    "F07": { "state": "OPEN" },
-    "F08": { "state": "INTEGRATION_VERIFIED", "evidence": "qa/evidence/r15/a08" },
-    "F09": { "state": "PARTIAL", "evidence": "qa/evidence/r15/n2-n4", "note": "零产出闸门已加（edges_written>0）；但 gps 与 task 状态不同源，343 成功后 gps 仍为 1" },
-    "F10": { "state": "COMPONENT_VERIFIED", "evidence": "qa/evidence/r15/a03" },
-    "F11": { "state": "OPEN" },
-    "F12": { "state": "OPEN" },
-    "F13": { "state": "PARTIAL", "evidence": "qa/evidence/r15/n2-n4", "note": "语义反转已消除；global 对总额度问题不主动带出分项约束" }
+    "F01": {
+      "state": "COMPONENT_VERIFIED",
+      "evidence": "qa/evidence/r15/a02"
+    },
+    "F02": {
+      "state": "COMPONENT_VERIFIED",
+      "evidence": "qa/evidence/r15/a02, n2-n4",
+      "note": "写边不再造反向边 + 归一化层逆否去重（dropped_reverse=1 验证）"
+    },
+    "F03": {
+      "state": "PARTIAL",
+      "evidence": "qa/evidence/r15/n2-n4",
+      "note": "graphParse 参数名澄清后接口可用；但任务成功后 gps 未收敛到 3"
+    },
+    "F04": {
+      "state": "INTEGRATION_VERIFIED",
+      "evidence": "qa/evidence/r15/a09"
+    },
+    "F05": {
+      "state": "PARTIAL",
+      "evidence": "qa/evidence/r15/a08",
+      "note": "已清理 94 条仅来自已删文件的边；generation 仍未建"
+    },
+    "F06": {
+      "state": "OPEN"
+    },
+    "F07": {
+      "state": "OPEN"
+    },
+    "F08": {
+      "state": "INTEGRATION_VERIFIED",
+      "evidence": "qa/evidence/r15/a08"
+    },
+    "F09": {
+      "state": "INTEGRATION_VERIFIED",
+      "evidence": "qa/evidence/r15/n5",
+      "note": "任务4(成功)与gps=3一致；零产出闸门已通统计透传；失败反例待 N8"
+    },
+    "F10": {
+      "state": "COMPONENT_VERIFIED",
+      "evidence": "qa/evidence/r15/a03"
+    },
+    "F11": {
+      "state": "OPEN"
+    },
+    "F12": {
+      "state": "OPEN"
+    },
+    "F13": {
+      "state": "PARTIAL",
+      "evidence": "qa/evidence/r15/n2-n4",
+      "note": "语义反转已消除；global 对总额度问题不主动带出分项约束"
+    }
   },
   "acceptance": {
-    "A01": "NOT_RUN", "A02": "COMPONENT", "A03": "PARTIAL", "A04": "COMPONENT",
-    "A05": "NOT_RUN", "A06": "PARTIAL", "A07": "NOT_RUN", "A08": "PARTIAL",
-    "A09": "FAIL_FOUND", "A10": "NOT_RUN", "A11": "NOT_RUN", "A12": "PARTIAL",
-    "A13": "NOT_RUN", "A14": "NOT_RUN", "A15": "NOT_RUN",
-    "A16-ENG": "NOT_RUN", "A16-REL": "NOT_RUN"
+    "A01": "NOT_RUN",
+    "A02": "COMPONENT",
+    "A03": "PARTIAL",
+    "A04": "COMPONENT",
+    "A05": "NOT_RUN",
+    "A06": "PARTIAL",
+    "A07": "NOT_RUN",
+    "A08": "PARTIAL",
+    "A09": "FAIL_FOUND",
+    "A10": "NOT_RUN",
+    "A11": "NOT_RUN",
+    "A12": "PARTIAL",
+    "A13": "NOT_RUN",
+    "A14": "NOT_RUN",
+    "A15": "NOT_RUN",
+    "A16-ENG": "NOT_RUN",
+    "A16-REL": "NOT_RUN"
   },
   "n4_matrix": [
-    { "q": "智造贷最高额度是多少？", "global": "8000万元（未带分项）", "local": "8000万元 + 信用方式不超过1000万元" },
-    { "q": "智造贷信用方式最高多少？", "global": "1000万元", "local": "1000万元" }
+    {
+      "q": "智造贷最高额度是多少？",
+      "global": "8000万元（未带分项）",
+      "local": "8000万元 + 信用方式不超过1000万元"
+    },
+    {
+      "q": "智造贷信用方式最高多少？",
+      "global": "1000万元",
+      "local": "1000万元"
+    }
   ],
   "next_actions": [
-    "N5 修 gps 状态收敛：doSuccess→generateGraph 为 @Async，任务成功与文件状态不同源",
-    "N6 global 完整性：总额度问题需同时带出分项约束（prompt/事实选择）",
+    "N6 global 完整性：总额度问题需同时带出分项约束",
     "N7 generation 维度（F05 剩余）",
-    "N8 零产出闸门在真实失败场景下的反例验证（构造 edges_written=0）"
+    "N8 零产出闸门的失败反例（构造真正 0 边场景）",
+    "N9 列表'关系数'口径：similar 辅助边是否应计入"
   ],
-  "release": { "engineering_delivery": "IN_PROGRESS", "target_release": "NOT_STARTED", "external_signoff": "NOT_AVAILABLE" },
+  "release": {
+    "engineering_delivery": "IN_PROGRESS",
+    "target_release": "NOT_STARTED",
+    "external_signoff": "NOT_AVAILABLE"
+  },
   "evidence_root": "platform/r12/qa/evidence/r15/"
 }
