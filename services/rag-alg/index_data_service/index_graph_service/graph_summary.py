@@ -42,7 +42,9 @@ REDUCE_PROMPT = """你是企业知识库的分析助手。下面是若干"社区
    再到事实里找**同名规则行**逐条对应，不得套用其它实体或其它等级那一行；
 5) 凡数值来自【代码推导】段落，社区号必须用推导行前标的那个 [L0-xxx]（数值所在规则社区），
    不得改用"实体所属社区"的编号——否则读者按编号回指会找不到该数值；
-6) 不要输出格式说明或免责声明，直接给结论。
+6) 若【代码推导】里出现"总额度 … ；其中 …（分项）"的行，必须**完整转述总额度与全部分项**，
+   不得只答其中一个，也不得把分项数值当成总额度；
+7) 不要输出格式说明或免责声明，直接给结论。
 
 问题：{question}
 
@@ -715,7 +717,76 @@ def _join_grade_rules(map_outputs):
     return derived, audit
 
 
+LIMIT_REL_RE = re.compile(r"(额度|限额|上限)")
+LIMIT_TOTAL_HINTS = ("最高", "总额", "单户")
+LIMIT_ITEM_HINTS = ("信用", "分项", "其中", "不超过", "单笔")
+
+
+def _join_limits(map_outputs):
+    """R15 W02 / F13：把同一主体的"总额度"与"分项上限"配成一行，交给模型完整表述。
+
+    实测：kb_9 里同时存在
+        `智造贷 -单户最高授信额度-> 5000万元`（旧代，已清理）
+        `智造贷 -信用方式上限-> 1000万元`
+    reduce 要么只答总额度、要么把分项当总额度（早期出现过"最高额度=1000万"的语义反转）。
+    这里由代码做确定性配对，模型只表述，避免二选一。
+    返回 [(fact_line, community_id)]。
+    """
+    totals, items = {}, []
+    for s, facts in map_outputs:
+        cid = s["community_id"]
+        for f in facts:
+            if " -" not in f or "-> " not in f:
+                continue
+            try:
+                a, rest = f.split(" -", 1)
+                r, b = rest.split("-> ", 1)
+            except ValueError:
+                continue
+            a, r, b = a.strip(), r.strip(), b.strip()
+            if not b or not LIMIT_REL_RE.search(r):
+                continue
+            # 抽取产物的关系名常带类型后缀（"最高额度->金额"），展示时去掉，
+            # 否则答案里会出现"信用部分最高额度->金额 1000万元"这种机器味文本。
+            r_show = re.sub(r"->.*$", "", r).strip(" -") or r
+            if any(h in r for h in LIMIT_ITEM_HINTS):
+                items.append((a, r_show, b, cid))
+            elif any(h in r for h in LIMIT_TOTAL_HINTS):
+                totals.setdefault(a, []).append((r_show, b, cid))
+    derived = []
+    for ent, rows in totals.items():
+        parts = sorted({(r2, b2) for a2, r2, b2, _c in items if a2 == ent})
+        for r, b, cid in rows:
+            line = f"{ent} 总额度 {b}（{r}）"
+            for r2, b2 in parts:
+                line += f"；其中 {r2} {b2}（分项，不得当成总额度）"
+            derived.append((line, cid))
+    return derived
+
+
 DERIVED_RE = re.compile(r"^(?P<ent>.+?) -(?P<grade>[A-Z]{1,3})级加点幅度-> (?P<bp>-?\d+(?:\.\d+)?)\s*个基点$")
+
+LIMIT_ITEM_RE = re.compile(r"其中 (\S+) (\S+?)（分项")
+
+
+def _ensure_limit_completeness(answer, limits):
+    """R15 W02 / F13：额度类问题必须同时给出总额度与分项。
+
+    实测 7B 即使拿到了【代码推导：额度构成】行，也只肯答总额度（"必须完整转述"这条
+    约束被忽略）。分项数值本来就在事实里，这里只把漏掉的分项补到答案末尾，
+    不生成任何新信息，并标注同一 community_id 保证可回指。
+    """
+    if not answer or not limits:
+        return answer, []
+    appended = []
+    for line, cid in limits:
+        missing = [(r2, b2) for r2, b2 in LIMIT_ITEM_RE.findall(line) if b2 not in answer]
+        if not missing:
+            continue
+        seg = "；".join(f"{r2} {b2}" for r2, b2 in missing)
+        answer = answer.rstrip() + f"\n其中 {seg}（分项，不属于总额度）[{cid}]"
+        appended.append(line)
+    return answer, appended
 
 
 def _fix_bp_citations(answer, derived):
@@ -834,9 +905,13 @@ def query_community(payload: dict) -> BaseResponse:
     # R14-B3：评级 → 加点 这类"属性 + 规则"的连接由代码算定，模型只做表述。
     # 实测把它交给 7B：同一批事实换问法会答出 0 基点 / 60 基点 等不一致结果。
     _derived, _join_audit = _join_grade_rules(map_outputs)
+    _limits = _join_limits(map_outputs)
     if _derived:
         lines.append("【代码推导：由图内两条事实组合，非外部知识】\n" +
                      "\n".join(f"- [{cid}] {f}" for f, cid in _derived))
+    if _limits:
+        lines.append("【代码推导：额度构成（总额与分项）】\n" +
+                     "\n".join(f"- [{cid}] {f}" for f, cid in _limits))
     prompt = REDUCE_PROMPT.format(question=query, summaries="\n\n".join(lines))
     # 贪心解码 + 固定 seed：同一问题、同一事实必须可复现，否则"效果好坏"取决于采样运气
     answer = requests_llm(prompt, model_info, server_config, prompt_flag=True,
@@ -844,6 +919,7 @@ def query_community(payload: dict) -> BaseResponse:
     if not answer:
         return BaseResponse(code=500, msg="社区摘要汇总失败（模型未返回内容）", data={"communities": selected})
     answer, _cite_fixes = _fix_bp_citations(answer, _derived)
+    answer, _limit_appended = _ensure_limit_completeness(answer, _limits)
     cited = [s for s, _e in map_outputs if s["community_id"] and s["community_id"] in answer]
     return BaseResponse(code=200,
                         msg=f"global 汇总完成（社区 {len(summaries)} 个，命中 {len(selected)} 个，"
@@ -855,6 +931,9 @@ def query_community(payload: dict) -> BaseResponse:
                               # 审计：哪些行的社区号被纠正到规则社区（可逐条核对）
                               "cite_fixes": _cite_fixes,
                               "derived_facts": [f for f, _c in _derived],
+                              "limit_facts": [f for f, _c in _limits],
+                              # 审计：哪些额度构成行被补进了答案（模型漏答分项时）
+                              "limit_appended": _limit_appended,
                               # 审计：每条"推导/不推导"的判定原因（A03 可逐条核对前提）
                               "join_audit": _join_audit})
 

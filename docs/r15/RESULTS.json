@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T21:42+08:00",
+  "updated": "2026-10-29T21:56+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -29,7 +29,7 @@
     "F02": {
       "state": "COMPONENT_VERIFIED",
       "evidence": "qa/evidence/r15/a02, n2-n4",
-      "note": "写边不再造反向边 + 归一化层逆否去重（dropped_reverse=1 验证）"
+      "note": "写边不造反向边 + 归一化逆否去重 + 查询侧按 show_flag=1 过滤"
     },
     "F03": {
       "state": "PARTIAL",
@@ -42,8 +42,8 @@
     },
     "F05": {
       "state": "PARTIAL",
-      "evidence": "qa/evidence/r15/a08",
-      "note": "已清理 94 条仅来自已删文件的边；generation 仍未建"
+      "evidence": "qa/evidence/r15/n6-n7-n9",
+      "note": "generation 维度已通（边可写 V1），但查询/统计未按代次过滤、历史边未回填、社区/响应未带代次"
     },
     "F06": {
       "state": "OPEN"
@@ -71,20 +71,20 @@
       "state": "OPEN"
     },
     "F13": {
-      "state": "PARTIAL",
-      "evidence": "qa/evidence/r15/n2-n4",
-      "note": "语义反转已消除；global 对总额度问题不主动带出分项约束"
+      "state": "PARTIAL_IMPROVED",
+      "evidence": "qa/evidence/r15/n6-n7-n9",
+      "note": "额度构成配对+代码兜底，global 已同时给出总额度与分项；广义汇总仍为词法打分"
     }
   },
   "acceptance": {
     "A01": "NOT_RUN",
     "A02": "COMPONENT",
-    "A03": "PARTIAL",
+    "A03": "PARTIAL_IMPROVED",
     "A04": "COMPONENT",
     "A05": "NOT_RUN",
     "A06": "PARTIAL",
     "A07": "NOT_RUN",
-    "A08": "PARTIAL",
+    "A08": "PARTIAL_IMPROVED",
     "A09": "FAIL_FOUND",
     "A10": "NOT_RUN",
     "A11": "NOT_RUN",
@@ -108,9 +108,11 @@
     }
   ],
   "next_actions": [
-    "N6 global 完整性：总额度问题需同时带出分项约束",
-    "N7 generation 维度（F05 剩余）",
-    "N9 列表'关系数'口径：similar 辅助边是否应计入"
+    "W01 抽取稳定性：单块重试 + JSON schema 约束 + 耗时/产出分布监控",
+    "W03 整库构建：文档增删后自动触发社区重建并原子发布",
+    "F05 剩余：查询/统计按 generation 过滤 + 历史边回填 + 社区/响应带代次",
+    "F06 断言到 SourceRef 的精确回指",
+    "F12 反例法验收断言集"
   ],
   "release": {
     "engineering_delivery": "IN_PROGRESS",
@@ -127,5 +129,17 @@
       "state": "PARTIAL",
       "evidence": "仅 21:08:48 一次执行记录，且当时为统计缺失导致的误判（已修）"
     }
+  },
+  "n6": {
+    "state": "VERIFIED",
+    "evidence": "global 0.8s：8000万 + 分项1000万 + 双引用"
+  },
+  "n7": {
+    "state": "PARTIAL",
+    "evidence": "边 generation='V1' 22条；历史46条未回填；查询未过滤"
+  },
+  "n9": {
+    "state": "CLOSED_NO_CHANGE",
+    "evidence": "统计口径 show_flag=1 且只算 relationship（122条），similar 432条不计入；同源缺陷已修（查询侧补 show_flag 过滤）"
   }
 }

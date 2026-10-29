@@ -597,6 +597,9 @@ public class FileAppServiceImpl implements FileAppService {
                 }
             }
             graphReq.put("col_values", Arrays.asList(matchTitle));
+            // R15 W03 / F05：代次（V0/V1…）随请求下传，落到边的 generation 属性，
+            // 供按代次过滤/回滚/审计使用；为空时行为与旧版本一致。
+            graphReq.put("generation", knowledgeBaseFile.getVersion());
             String graphPrompt = knowledgeBase.getGraphPrompt();
             if (StringUtils.isNotBlank(graphPrompt))
                 graphReq.put("entity_types", Arrays.asList(graphPrompt.split(",")));

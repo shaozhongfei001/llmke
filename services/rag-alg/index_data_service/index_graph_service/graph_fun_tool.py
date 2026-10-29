@@ -694,15 +694,19 @@ def execute_query(session, entity_set, query_type):
     # R13-FIX-GRAPH-03：原实现用 result.dict_for_vis()["edges"]，nebula3 客户端在
     # "边属性存在但不整齐"时会抛 KeyError（add_to_nodes_or_edges），导致整个图检索 500。
     # 这里改为直接取 id + properties(e)，绕开该客户端缺陷，语义等价且更可控。
+    # R15 W02：show_flag=0 是历史写入的"伪反向边"（早期为补齐反向可达而人为补的边）。
+    # 统计接口已经按 show_flag='1' 过滤，但这里没有，于是同一事实会被读成两条方向相反的
+    # 事实喂给下游。方向语义必须只来自真实断言，所以查询侧与统计侧统一按 show_flag='1'。
     if query_type == 'hippo':
         query = f'''
                     MATCH (v)-[e:relationship]-(v2)
+                    WHERE properties(e).show_flag = '1'
                     RETURN v.entity.name AS src, properties(e) AS props, v2.entity.name AS dst;
             '''
     else:
         query = f'''
                     MATCH (v)-[e:relationship]-(v2)
-                    WHERE v.entity.name IN {entity_set}
+                    WHERE properties(e).show_flag = '1' AND v.entity.name IN {entity_set}
                     RETURN v.entity.name AS src, properties(e) AS props, v2.entity.name AS dst;
                 '''
         logger.info(f"查询语句:{query}")

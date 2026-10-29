@@ -33,6 +33,10 @@ class GraphModel(BaseModel):
     space_name: str
     partition_num: int = 10
     replica_factor: int = 1
+    # R15 W03 / F05：代次（V0/V1…）。契约把 generation 列为 required，
+    # 但实现此前完全没有这一维，导致新旧文档的实体/关系混在同一张图里、
+    # 无法按代次回滚或审计。默认空串表示"未标注"，行为与旧版本一致。
+    generation: str = ""
 
 
 class GraphAttributeModel(GraphModel):

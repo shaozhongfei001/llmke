@@ -226,7 +226,7 @@ def create_space_attribute(ceshi: GraphModel):
     logger.info(res_attribute)
     res_edge = create_attribute(
         GraphAttributeModel(space_name=space_name, attribute_type="EDGE", field_name="relationship",
-                            field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string"}))
+                            field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string", "generation": "string"}))
     if res_edge.code != 200:
         logger.error(res_edge.msg)
         return BaseResponse(code=500, msg=f'创建EDGE属性失败,{str(res_edge.msg)}')
@@ -267,7 +267,7 @@ def batch_insert_vertex(insert_param: InsertModel):
         logger.info(res_attribute)
         res_edge = create_attribute(
             GraphAttributeModel(space_name=space_name, attribute_type="EDGE", field_name="relationship",
-                                field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string"}))
+                                field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string", "generation": "string"}))
         if res_edge.code != 200:
             logger.error(res_edge.msg)
             return BaseResponse(code=500, msg=f'创建EDGE属性失败,{str(res_edge.msg)}')
@@ -324,6 +324,8 @@ def batch_insert_vertex(insert_param: InsertModel):
             continue
     error_tag_data_list = batch_to_graph(session, vertex_queries, space_name)
     edge_queries = []
+    # R15 W03 / F05：代次随边落库，供按代次过滤/回滚/审计使用。
+    _generation = str(getattr(insert_param, "generation", "") or "")
     for ed in process_triples_data_list:
         if ed[2] == ed[0]:
             continue
@@ -351,9 +353,9 @@ def batch_insert_vertex(insert_param: InsertModel):
             rank = _edge_rank(ed[0], ed[1], ed[2])
             insert_edge = (
                 f'INSERT EDGE {insert_param.edge_name}'
-                f'(name,file_id,show_flag,page_num) VALUES '
+                f'(name,file_id,show_flag,page_num,generation) VALUES '
                 f'"{ed[0]}"->"{ed[2]}"@{rank}:'
-                f'("{ed[1]}","{file_id}","1","{page_num}");'
+                f'("{ed[1]}","{file_id}","1","{page_num}","{_generation}");'
             )
             edge_queries.append(insert_edge)
     error_edge_data_list = batch_to_graph(session, edge_queries, space_name)
@@ -552,7 +554,9 @@ def generate_triple_data(query_docu: QueryDocChunk):
     t4 = time.time()
     graph_entity_source_dict = {name: values for name, values in entity_source_dict.items() if values["entity_type"] == "1"}
     dc = InsertModel(space_name=space_name, triples_data=full_triples_list, entity_attribute=graph_entity_source_dict,
-                     triples_attribute=triples_source_dict)
+                     triples_attribute=triples_source_dict,
+                     # R15 W03 / F05：代次随事实落库（Java 侧由文件 version 传入）
+                     generation=str(getattr(query_docu, "generation", "") or ""))
     res_v = batch_insert_vertex(dc)
     if res_v.code == 500:
         logger.error(f'添加图数据库失败，请重试.{res_v.msg}')
