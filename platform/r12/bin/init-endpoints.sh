@@ -100,3 +100,12 @@ for row in "${ENDPOINTS[@]}"; do
 done
 printf '  [..] 新增 interface=%s 新增映射=%s 已存在跳过=%s\n' "$added" "$mapped" "$skipped"
 ok "接口注册表补齐完成（幂等，可重复执行）"
+
+# R14-LIVE-12：补完之后再做一次**代码 vs 注册表**的对账。
+# 前面这一步只保证"清单里的接口都在"，对账保证"代码里的接口都在清单里"——
+# 前者防漏配，后者防"新加了接口忘了加清单"。装机时只告警不失败（--warn-only），
+# 发布前用不带 --warn-only 的方式跑，缺失即失败。
+if [ -x "$(dirname "${BASH_SOURCE[0]}")/check-endpoints-sync.py" ]; then
+  R12_MYSQL_ROOT_PASSWORD="$ROOT_PW" "$(dirname "${BASH_SOURCE[0]}")/check-endpoints-sync.py" --warn-only \
+    || warn "接口对账脚本执行异常（不阻断装机，但请人工确认）"
+fi
