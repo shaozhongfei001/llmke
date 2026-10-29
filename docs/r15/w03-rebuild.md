@@ -641,6 +641,23 @@ dry-run：`edge_stale=6 / edge_valid=2 / edges_total=8`，`fingerprint.comparabl
 
 **保留原因（TL 2026-10-29 裁决）**：① 复跑幂等还要用（22:29:14 dry-run `edge_stale=0` 已验证）；② 删除不可逆，由 TL 在收尾时统一执行。
 
+### 9.7.1 清理记录（TL 已授权的执行）
+
+**清理前盘点（2026-10-29T22:39:17+0800，只读）**
+
+| 对象 | 清理前 |
+|---|---|
+| MySQL `knowledge_base` id=1000 | 存在：`r15-w03-probe` / `primitive_name=kb_1000` |
+| MySQL `knowledge_base_list` where kb_id=1000 | 2 行 |
+| Nebula `g_kb_1000` | 存在；`relationship` 边 2 条（`generation=''` 2 条、`show_flag='1'` 2 条） |
+| ES `kb_1000` | 存在，2 条 |
+| ES `community_summary_kb_1000` | 存在，1 条 |
+| Milvus `graph_base._community_summary_kb_1000` | 存在，可见行 1 行（`num_entities` 报 2 —— 删除最终一致，**盘存以 `query` 可见行为准，不能看 `num_entities`**） |
+| ES `community_summary_ragraph`（副作用） | 存在，1 条 |
+| **kb_9 基线（要求不动）** | 边 **94** 条（`generation` V1=71 / V0=23，`show_flag='1'` 94）；ES `community_summary_kb_9` **11** 条；Milvus `_community_summary_kb_9` 存在 |
+
+> kb_9 的边数从本文前面记录的 93 变成 94（又多 1 条 V0 边），是别人在写，不是本次清理造成的——清理前后各取一次快照就是为了把这件事分清。
+
 **清理单（逐条；每条都标影响面与不可逆性；执行前逐条确认对象仍是表里的那个）**
 
 ```bash

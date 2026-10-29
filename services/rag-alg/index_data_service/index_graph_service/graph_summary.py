@@ -374,7 +374,11 @@ def resolve_chunk_refs(kb, members, limit=CHUNK_REFS_LIMIT):
 def generate_community(payload: dict) -> BaseResponse:
     """检测社区 → 生成摘要 → 双写索引。"""
     from utils import return_nacos_model
-    space_name = str(payload.get("space_name", "")).replace("g_", "")
+    # R15 W04 / F13：这里原本是 .replace("g_", "")，全局替换会吃掉任意位置的 g_：
+    #   "rag_graph".replace("g_","") -> "ragraph"，导致索引名与 primitive 不一致
+    #   （运维按 primitive 算名字会对不上，审计误判为"重建失败"）。
+    # 只去前缀用 removeprefix。已写错的 community_summary_ragraph 需重建一次。
+    space_name = str(payload.get("space_name", "")).removeprefix("g_")
     model_info = payload.get("model_info") or {}
     max_level = int(payload.get("max_level", 1))
     min_size = int(payload.get("min_community_size", 3))
@@ -841,7 +845,7 @@ def _fix_bp_citations(answer, derived):
 def query_community(payload: dict) -> BaseResponse:
     """mode=global：对社区摘要做 reduce；mode=local：按实体命中的社区返回摘要。"""
     from utils import return_nacos_model
-    space_name = str(payload.get("space_name", "")).replace("g_", "")
+    space_name = str(payload.get("space_name", "")).removeprefix("g_")
     query = payload.get("query", "")
     mode = payload.get("mode", "global")
     top_k = int(payload.get("top_k", 5))
@@ -955,7 +959,7 @@ def query_community(payload: dict) -> BaseResponse:
 
 def del_community(payload: dict) -> BaseResponse:
     """删除社区摘要索引（补 del_space_data 不联动 Milvus 的缺口）。"""
-    kb = str(payload.get("space_name", "")).replace("g_", "")
+    kb = str(payload.get("space_name", "")).removeprefix("g_")
     # 同 write_summary_indexes：ES 名 lower，Milvus 集合名保持原样。
     # 注意（A-data 2026-10-27）：Milvus 侧 `del_collection` 会自己加前导下划线
     # （`generate_collection_name_uuid()`），所以这里**只能传不带下划线的名字**——
