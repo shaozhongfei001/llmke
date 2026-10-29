@@ -1,0 +1,16 @@
+{
+ "provenance_quality": [
+  "exact_chunk"
+ ],
+ "dangling": [],
+ "stale_blocks": [],
+ "latest_version": {
+  "R12FIX-product-loan.docx": "V1"
+ },
+ "probe": {
+  "query": "智造贷 授信额度 票据贴现",
+  "top_k": 5,
+  "kb": "kb_9"
+ },
+ "strict": false
+}

@@ -1,0 +1,11 @@
+{
+ "answer": "事实中未提及 [L0-18625408]",
+ "sources": [
+  "r12-rag/kb_9/R12FIX-product-loan.docx/V1/R12FIX-product-loan(1).docx"
+ ],
+ "infra": {
+  "graph_pid": "1461792",
+  "es_ok": true,
+  "es_ms": 8.6
+ }
+}
