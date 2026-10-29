@@ -7,6 +7,9 @@ from graph_fun_tool import requests_llm, clean_entity
 from operators.common.log import logger
 from prompts.entity_extraction import system_prompt, user_prompt, LOOP_PROMPT, CONTINUE_PROMPT
 from prompts.query_extraction import ner_prompts
+# R15-W02/A02：反向重复判定（同一事实正反两种写法）与 pair 索引构建。
+# 判定函数放在 graph_types（纯函数、不依赖存储），这里只负责"标记 + 不交付给写入侧"。
+from graph_types import as_pair_index, pair_key
 
 
 # 单轮抽取的输出预算（token）。原实现不传该参数，等于吃服务端默认值，
@@ -27,6 +30,10 @@ EXTRACT_RETRY_BACKOFF = tuple(
 # 所以第 2 次起只递增 seed（不改 prompt / max_tokens / temperature）。
 # 需要"严格同参重试"时置 GRAPH_EXTRACT_RETRY_VARY_SEED=0。
 EXTRACT_RETRY_VARY_SEED = os.environ.get("GRAPH_EXTRACT_RETRY_VARY_SEED", "1") not in ("0", "false", "False", "")
+
+# R15-W02/A02：反向重复去重开关（默认开）。
+# 关掉只用于对照实验（证明"旧行为会产出双向边"），生产不应关闭。
+EXTRACT_REVERSE_DEDUP = os.environ.get("GRAPH_EXTRACT_REVERSE_DEDUP", "1") not in ("0", "false", "False", "")
 
 # R15-W01：输出结构约束（去掉首尾括号后按 "::" 切分）。
 # 实体行必须**恰好 3 段**：tag + 名称 + 类型（原实现靠解包异常兜底，报错信息里看不出是几段）。
@@ -112,7 +119,7 @@ def _classify_attempt(response_text, attempt_stats, truncated=None):
     return None
 
 
-def generate_graph_relations(passage, model_info, server_config, entity_types=None):
+def generate_graph_relations(passage, model_info, server_config, entity_types=None, exclude_pairs=None):
     """
     生成图谱三元组
     Args:
@@ -120,8 +127,13 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
         passage:
         model_info:
         server_config:
+        exclude_pairs: R15-W02/A02（可选）存储里**已存在**的三元组/pair 索引。
+            传入后，与已有事实"同关系名 + 同无序端点对"的关系会被标记
+            `reverse_duplicate=True, skip_write=True` 且**不出现在返回值里**，
+            调用方无需改动写入循环即可不写反向边。形态见 graph_types.as_pair_index()。
 
     Returns:
+        (relations, entity_dict)；relations 已剔除 skip_write 的条目（形状与旧版一致）。
 
     """
     if entity_types is None:
@@ -146,6 +158,8 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
         "parse_failed_lines": 0,
         "description_overflow": 0,
         "truncation_suspected": 0,
+        # R15-W02/A02：被判定为反向重复（同 rel + 同无序端点对）而未交付写入的条数
+        "reverse_dup_skipped": 0,
     }
 
     messages = [{"role": "system", "content": system_prompt},
@@ -190,11 +204,15 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
                                                  max_tokens=EXTRACT_MAX_TOKENS,
                                                  temperature=0, seed=_seed)
 
-                entity_dict, relation_dict, filtered_output = process_relation_response(llm_response_text,
-                                                                                        entity_dict=entity_dict,
-                                                                                        relation_dict=relation_dict,
-                                                                                        debug=True,
-                                                                                        stats=_att)
+                entity_dict, relation_dict, filtered_output = process_relation_response(
+                    llm_response_text,
+                    entity_dict=entity_dict,
+                    relation_dict=relation_dict,
+                    debug=True,
+                    stats=_att,
+                    # R15-W02/A02：把"存储里已存在的事实"透传到解析层，
+                    # 反向重复在这里就被标记，不必等 normalize 之后（那是另一个批次）。
+                    existing_pairs=exclude_pairs)
                 # R15-W01 修法 1：每次尝试单独判一次"末行是否闭合"，既用于分类也计入总账，
                 # 这样 STATS 能回答"这次 0 边到底是模型没写关系，还是被截断在写关系之前"。
                 _truncated = _looks_truncated(llm_response_text)
@@ -268,7 +286,8 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
             if _looks_truncated(extra):
                 _bump(_stats, "truncation_suspected")
             entity_dict, relation_dict, _ = process_relation_response(
-                extra, entity_dict=entity_dict, relation_dict=relation_dict, debug=False, stats=_stats)
+                extra, entity_dict=entity_dict, relation_dict=relation_dict, debug=False, stats=_stats,
+                existing_pairs=exclude_pairs)
         except Exception as e:
             logger.error(f"补充采样 {_i} 失败（不影响已有结果）: {str(e)[:80]}")
 
@@ -281,13 +300,16 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
         "R15-W01 EXTRACT_STATS passage={} passage_chars={} llm_calls={} rounds={} retries={} "
         "candidate_lines={} parse_failed_lines={} field_anomalies={} "
         "valid_entities={} valid_triples={} elapsed_ms={} description_overflow={} "
-        "truncation_suspected={}".format(
+        "truncation_suspected={} reverse_dup_skipped={}".format(
             _stats["passage"], _stats["passage_chars"], _stats["llm_calls"], _stats["rounds"],
             _stats["retries_used"], _stats["candidate_lines"], _stats["parse_failed_lines"],
             _stats["field_anomalies"], len(entity_dict), len(relation_dict),
             int((time.time() - _t_start) * 1000), _stats["description_overflow"],
-            _stats["truncation_suspected"]))
-    return list(relation_dict.values()), entity_dict
+            _stats["truncation_suspected"], _stats["reverse_dup_skipped"]))
+    # R15-W02/A02：带 skip_write 标记的关系**不交付**给写入侧。
+    # 保留在 relation_dict 里是为了可审计（谁、以哪个方向被判定为反向重复），
+    # 返回值的形状仍是 list[relation]，调用方循环无需改动。
+    return [r for r in relation_dict.values() if not r.get("skip_write")], entity_dict
 
 
 def _strip_wrapper(line):
@@ -304,7 +326,7 @@ def _strip_wrapper(line):
 
 
 def process_relation_response(response_text, entity_dict=None, relation_dict=None, debug=False,
-                              stats=None):
+                              stats=None, existing_pairs=None):
     entity_dict = entity_dict or {}
     relation_dict = relation_dict or {}
     visited_entity = set()
@@ -313,6 +335,17 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
     relation_lines = []
     # R15-W01：stats 为可选出参（默认 None 保持原调用方式不变）。传入 dict 时累计
     # 候选行/实体行/关系行/解析失败/字段数异常/有效三元组计数，供上层汇总。
+    #
+    # R15-W02/A02：反向重复判定的"已见集合"。
+    # 组成 = 存储里已存在的事实（existing_pairs，跨批次）∪ 本次调用已被接受的键
+    # （跨轮次/跨补充采样，因为 relation_dict 在多轮之间是复用的）。
+    _existing_index = as_pair_index(existing_pairs)
+    _seen_pairs = set(_existing_index)
+    for _k in relation_dict:
+        try:
+            _seen_pairs.add(pair_key(_k[1], _k[0], _k[2]))
+        except Exception:
+            continue
 
     def _generate_filtered_response():
         """将抽取出有效的关系、实体，生成符合prompt 要求的格式，后面再输给大模型判断抽取是否完整"""
@@ -321,6 +354,10 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
             filtered_response.append(f'("entity"::{entity["name"]}::{entity["type"]})')
 
         for relation in relation_dict.values():
+            # R15-W02/A02：被判定为反向重复的关系不反馈给模型当作"已抽取"，
+            # 否则下一轮"还有遗漏吗"会把它当成既成事实继续强化。
+            if relation.get("skip_write"):
+                continue
             filtered_response.append(
                 f'("relationship"::{relation["name"]}::{relation["src_entity"]["name"]}::{relation["dest_entity"]["name"]}::{relation["description"]})')
         return "\n".join(filtered_response)
@@ -410,12 +447,40 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
                 dest_entity = {"name": dest_ent, "type": "其他"}
                 entity_dict[dest_ent] = dest_entity
 
+            # R15-W02/A02：反向重复判定。
+            # 同一 (关系名, 无序端点对) 一旦已有事实存在（存储里的 existing_pairs，
+            # 或本次调用前几轮已接受的关系），这条就不再作为新事实交付写入。
+            # 方向是否正确不由本函数裁决：先写的方向即被认定为该事实的自然方向，
+            # 后来者一律视为重复 —— 存储因此不会同时出现 A->B 与 B->A 两个 show_flag=1。
+            _rel_name = clean_entity(relation_name)
+            _rel_key = pair_key(_rel_name, src_ent, dest_ent)
+            if EXTRACT_REVERSE_DEDUP and _rel_key in _seen_pairs:
+                _scope = "existing" if _rel_key in _existing_index else "batch"
+                relation_dict[(src_ent, relation_name, dest_ent)] = {
+                    "name": _rel_name,
+                    "src_entity": src_entity,
+                    "dest_entity": dest_entity,
+                    "description": description,
+                    "reverse_duplicate": True,
+                    "reverse_duplicate_scope": _scope,
+                    "skip_write": True,
+                }
+                _bump(stats, "reverse_dup_skipped")
+                logger.info(f"反向重复已跳过(scope={_scope}): {src_ent} -{_rel_name}-> {dest_ent}")
+                visited_entity.add(src_entity["name"])
+                visited_entity.add(dest_entity["name"])
+                # 记为"-"（未落地），让 debug 快照与落库结果一致
+                verified_strings.append("- " + line + f"  # 反向重复({_scope})")
+                continue
+
             relation_dict[(src_ent, relation_name, dest_ent)] = {
                 "name": clean_entity(relation_name),
                 "src_entity": src_entity,
                 "dest_entity": dest_entity,
                 "description": description
             }
+            # 接受即入"已见集合"：同一 passage 后续再出现反方向也会被判定为重复
+            _seen_pairs.add(_rel_key)
             if _description_overflow:
                 # TL 裁决 b：只加侧车标记，不改 name/src_entity/dest_entity/description。
                 # 现有消费者（graph_service.llm_generate_triple、_generate_filtered_response）

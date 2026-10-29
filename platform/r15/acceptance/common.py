@@ -96,10 +96,14 @@ RETRIEVE_ID_RE = re.compile(r'retrive-tag\s+id="(\d+)"')
 L_CITE_RE = re.compile(r"\[(L\d+-[0-9a-fA-F]+)\]")
 
 
-def ask(content, endpoint="/qa/ai/question_re", timeout=300):
-    """SSE 问答。返回 answer/frames/refs/http/elapsed；同一 (端点,问题) 进程内复用，避免重复打模型。"""
+def ask(content, endpoint="/qa/ai/question_re", timeout=300, nocache=False):
+    """SSE 问答。返回 answer/frames/refs/http/elapsed；同一 (端点,问题) 进程内复用，避免重复打模型。
+
+    nocache=True 时既不读也不写进程内缓存 —— 供"固定 k 次重复采样"用（README §8.2）：
+    重复采样必须是独立模型采样，不能是缓存重放，否则采样次数是假的。
+    """
     key = (endpoint, content)
-    if key in _ASK_CACHE:
+    if key in _ASK_CACHE and not nocache:
         return _ASK_CACHE[key]
     token = login()
     payload = {"sessionId": f"r15acc-{int(time.time() * 1000)}",
@@ -114,7 +118,8 @@ def ask(content, endpoint="/qa/ai/question_re", timeout=300):
     except requests.exceptions.RequestException as e:
         out = {"answer": "", "frames": [], "refs": [], "http": 0,
                "error": f"{type(e).__name__}: {str(e)[:200]}", "elapsed": 0.0}
-        _ASK_CACHE[key] = out
+        if not nocache:
+            _ASK_CACHE[key] = out
         return out
     texts, frames, stream_err, cumulative = [], [], "", False
     # 只认 data: 行；按 bytes 逐行解码，避免跨块多字节 UTF-8 被撕裂（R12 踩过）
@@ -169,7 +174,8 @@ def ask(content, endpoint="/qa/ai/question_re", timeout=300):
            "http": r.status_code, "elapsed": round(time.time() - t0, 1),
            "stream_error": stream_err,
            "frame_semantics": "cumulative" if cumulative else "incremental"}
-    _ASK_CACHE[key] = out
+    if not nocache:
+        _ASK_CACHE[key] = out
     return out
 
 

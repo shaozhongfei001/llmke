@@ -25,7 +25,13 @@ def run():
     vis = [e for e in es if e["sf"] == "1"]
 
     # 存储层：最高额度谓词上的取值集合
-    top = [(e["o"], e["fid"]) for e in vis if e["s"] == "智造贷" and "最高额度" in e["p"]]
+    # R15 判据修正：原实现用 `"最高额度" in p`，会把**分项谓词**也算成总额——
+    # `信用部分最高额度`、`信用方式最高额度` 明确是分项（A03 要查的是"总额度上出现分项值"），
+    # 把它们算进来会让正确的分项事实被判成语义反转。这里排除含分项标记的谓词。
+    ITEM_MARKERS = ("信用", "分项", "部分", "单项", "其中")
+    def _is_total(pred):
+        return "最高额度" in pred and not any(m in pred for m in ITEM_MARKERS)
+    top = [(e["o"], e["fid"]) for e in vis if e["s"] == "智造贷" and _is_total(e["p"])]
     vals = sorted({C.norm_num(v) for v, _ in top})
     checks.append(C.chk("正例：图中存在 智造贷-最高额度->8000万元",
                         any(C.has_amount(v, TOTAL) for v, _ in top),

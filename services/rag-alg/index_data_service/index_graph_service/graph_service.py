@@ -11,7 +11,7 @@ import requests
 
 from base import GraphModel, GraphAttributeModel, InsertModel, QueryDocChunk, BaseResponse, QueryGraphData, DelModel
 from graph_extract import generate_graph_relations, generate_query_entities
-from graph_types import normalize_graph_data, TRIPLE_SEP
+from graph_types import normalize_graph_data, TRIPLE_SEP, filter_reverse_duplicates, build_pair_index
 from graph_fun_tool import clean_entity, generate_entity_data, get_document_chunk, \
     vectorization_data_similarity, query_like_entity, query_milvus_api, pool_query_milvus, execute_query, \
     query_milvus_by_condition, remove_duplicates_by_pk, attribute_assignment, update_triples_data, split_array, \
@@ -241,6 +241,33 @@ def create_space_attribute(ceshi: GraphModel):
     return BaseResponse(code=200, msg=f'成功')
 
 
+def _query_existing_pairs(session, names):
+    """R15 第二轮：查本批涉及实体在**图上已有的边**，用于跨次解析的反向判重。
+
+    为什么需要：normalize 里的 dropped_reverse 只在单次调用内存里生效；
+    同一文件被解析多次时，第二次看不到第一次写进 Nebula 的边，
+    于是把 A->B 的反向 B->A 又写一遍（实测 343 解析 4 次后出现 1 对同谓词双向）。
+    """
+    names = [n for n in names if n]
+    if not names:
+        return set()
+    out = []
+    for i in range(0, len(names), 200):
+        chunk = names[i:i + 200]
+        lit = ", ".join('"' + str(x).replace('"', '\\"') + '"' for x in chunk)
+        q = (f'MATCH (v:entity)-[e:relationship]->(v2:entity) '
+             f'WHERE id(v) IN [{lit}] OR id(v2) IN [{lit}] '
+             f'RETURN id(v) AS a, properties(e).name AS r, id(v2) AS b')
+        res = session.execute(q)
+        if not res.is_succeeded():
+            logger.warning(f"查询既有边失败（跳过反向判重）：{res.error_msg()}")
+            return set()
+        for j in range(res.row_size()):
+            row = res.row_values(j)
+            out.append((row[0].as_string(), row[1].as_string(), row[2].as_string()))
+    return build_pair_index(out)
+
+
 def batch_insert_vertex(insert_param: InsertModel):
     """
     批量保存服务
@@ -323,6 +350,21 @@ def batch_insert_vertex(insert_param: InsertModel):
             logger.error(f"属性获取失败或值类型错误：{e}")
             continue
     error_tag_data_list = batch_to_graph(session, vertex_queries, space_name)
+    # R15 第二轮 / A02：跨次解析的反向判重（内存去重管不到上一次写进 Nebula 的边）
+    _names = set()
+    for _ed in process_triples_data_list:
+        _names.add(_ed[0])
+        _names.add(_ed[2])
+    if _names:
+        _existing = _query_existing_pairs(session, list(_names))
+        _before = len(process_triples_data_list)
+        # 注意：filter_reverse_duplicates 返回 (kept, skipped)，不是单个列表。
+        _kept, _skipped = filter_reverse_duplicates(process_triples_data_list, _existing)
+        process_triples_data_list = _kept
+        if _skipped:
+            logger.info(f"跨次反向判重：{_before} -> {len(_kept)}（跳过 {len(_skipped)} 条，"
+                        f"既有边对 {len(_existing)} 个）")
+
     edge_queries = []
     # R15 W03 / F05：代次随边落库，供按代次过滤/回滚/审计使用。
     _generation = str(getattr(insert_param, "generation", "") or "")

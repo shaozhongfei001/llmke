@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T23:05+08:00",
+  "updated": "2026-10-29T23:20+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -184,15 +184,15 @@
     "PASS": [
       "A04 值保真",
       "A06 零产出不假成功（332 重解析后 1 条边）",
-      "A11 引用可回指"
+      "A11 引用可回指",
+      "A02 同谓词双向已消除（跨次判重+清存量）",
+      "A03 分项不再当总额度（谓词纠错+清错误边+判据排除分项谓词）"
     ],
     "PARTIAL": [
       "A08 local 通路已修通，但 N6『两入口都保留分项』4 次里 2 次不成立 → 需 k>=3 采样定论"
     ],
     "FAIL_PRODUCT": [
       "A01 类型体系无契约（含白名单外类型'时间'/合法评级'正常'被停用词丢弃/unclassified 38%）",
-      "A02 show_flag=1 的同谓词双向仍可见（1年期LPR -利率基准-> 智造贷 与反向）",
-      "A03 存储层反转：智造贷 -最高额度-> 1000万 与 8000万 并存（file_id=343）",
       "A09 (智造贷,最高额度) 同时有 8000万/1000万；graph_summary 中 generation 出现 0 次"
     ],
     "FAIL_ASSERTION_TODO": [
@@ -208,7 +208,7 @@
       "A15",
       "A16"
     ],
-    "note": "稳定产品缺陷降为 4 条：A01/A02/A03/A09；A07 转判据缺陷"
+    "note": "稳定产品缺陷剩 2 条：A01 类型契约、A09 代次仅在写入侧；A07 判据待改"
   },
   "new_findings": [
     "删KB是软删且不联动下层：knowledge_base.status=0 但 knowledge_base_list 仍 status=3，图空间/摘要不回收 → A10 不能只看接口返回",
@@ -221,5 +221,25 @@
     "tll_independent_recheck": "有向94/无向69/社区11/Σ61/跨社区11/两端无归属0 —— 与成员数字逐项一致",
     "decomposition": "33 = 25(有向→无向折叠) + 11(跨社区) − 3(level1超边混合量纲)",
     "side_finding": "18 组端点对有重复写边，折叠25条，全属 343/V1 → 写入侧幂等缺失，与 A02 同源"
+  },
+  "round2": {
+    "a02": {
+      "state": "PASS",
+      "fix": "graph_service 写入前查既有边(filter_reverse_duplicates)+删存量1条",
+      "evidence": "判重日志 157->123 跳过34"
+    },
+    "a03": {
+      "state": "PASS",
+      "fix": "is_total_predicate 归一 + 删'最高额度->1000万' + A03 判据排除分项谓词",
+      "note": "信用部分最高额度/信用方式最高额度 属分项，原 contains 判据过宽"
+    },
+    "a09": {
+      "state": "PARTIAL",
+      "remaining": "generation 只在写入侧，graph_summary 0 处引用"
+    },
+    "a07": {
+      "state": "ASSERT_TODO",
+      "evidence": "TL 独立复核 94/69/11/61/11/0 与成员一致"
+    }
   }
 }

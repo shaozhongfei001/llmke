@@ -189,10 +189,260 @@ def canonical_of(name, all_names, alias_map=None):
     return s
 
 
-def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_dict):
+# ─────────────────────────────────────────────────────────────────────────────
+# R15-W02 / A02：反向重复判定（跨写入批次可见）
+#
+# 问题：`normalize_graph_data` 里的 `dropped_reverse` 只在**本次调用的内存**里生效
+# （seen_pairs 是局部 set）。落库侧 `graph_service.batch_insert_vertex` 不做任何
+# 已有数据回读，`_edge_rank(src,rel,dst)` 又把方向算进 rank —— 于是
+# `1年期LPR -利率基准-> 智造贷` 与 `智造贷 -利率基准-> 1年期LPR` 是两个 rank，
+# 两条都能 INSERT 成功、show_flag 都是 1（实测 g_kb_9，两条 file_id 都是 343）。
+# 只要"写这批"与"写那批"不是同一次 normalize 调用，内存去重就永远看不见对方。
+#
+# 因此把判定抽成可复用纯函数：调用方（graph_service）在**写入前**把存储里已存在的
+# 三元组索引传进来，由本模块判定"这条是不重复/是重复"，本模块不认识 Nebula/Milvus。
+# ─────────────────────────────────────────────────────────────────────────────
+
+def pair_key(rel, src, dst):
+    """(关系名, 无序端点对) 的稳定键 —— 方向无关，是"同一条业务事实"的身份。
+
+    刻意不含方向：反向边 `A -rel-> B` 与 `B -rel-> A` 是同一事实的两种写法，
+    而 `A -rel1-> B` 与 `A -rel2-> B` 是不同事实（D7 同端点两谓词必须都保留）。
+    """
+    return (clean_name(rel), tuple(sorted((clean_name(src), clean_name(dst)))))
+
+
+def as_pair_index(existing_pairs):
+    """把多种形态的"已有三元组"统一成 pair 索引（set of pair_key）。
+
+    接受：
+      - None / 空           -> 空索引（等于只做批内去重，行为与旧版一致）
+      - 三元组序列           -> [(src, rel, dst), ...] 或 [[src, rel, dst], ...]
+      - 字典行               -> {"src|source": .., "rel|relationship": .., "dst|dest": ..}
+      - 已构建的 pair 索引   -> {(rel, (a, b)), ...}（幂等，可反复传入）
+
+    刻意 **fail-closed**：遇到无法识别的元素直接抛 ValueError，而不是跳过。
+    理由：静默跳过会让索引变空 -> 去重全程空转却仍报"去重已启用"，
+    正是本项目反复出现的"假绿"形态（断言恒真、门禁全绿而结论为空）。
+    """
+    if not existing_pairs:
+        return set()
+    index = set()
+    for item in existing_pairs:
+        if isinstance(item, dict):
+            src = item.get("src", item.get("source"))
+            rel = item.get("rel", item.get("relationship"))
+            dst = item.get("dst", item.get("dest", item.get("target")))
+        elif isinstance(item, (tuple, list)):
+            if len(item) == 3:
+                src, rel, dst = item[0], item[1], item[2]
+            elif len(item) == 2 and isinstance(item[1], (tuple, list, set, frozenset)):
+                # 已是 pair_key 形态：(rel, (a, b))
+                rel, ends = item[0], tuple(item[1])
+                if len(ends) != 2:
+                    raise ValueError(f"pair 索引端点不是 2 个: {item!r}")
+                src, dst = ends[0], ends[1]
+            else:
+                raise ValueError(f"无法识别的已有三元组形态: {item!r}")
+        else:
+            raise ValueError(f"无法识别的已有三元组形态: {item!r}")
+        if rel is None or src is None or dst is None:
+            raise ValueError(f"已有三元组缺字段(src/rel/dst): {item!r}")
+        index.add(pair_key(rel, src, dst))
+    return index
+
+
+def is_reverse_duplicate(src, rel, dst, existing_pairs):
+    """该三元组是否与 existing_pairs 中已有事实"同关系名 + 同无序端点对"。
+
+    existing_pairs 可以是 as_pair_index() 的结果，也可以直接传原始三元组序列。
+    方向是否相反由证据/原文决定，本函数不做业务猜测 —— 它只回答
+    "同一个 (关系, 无序对) 是否已经被写过"，避免同一事实在存储里出现两个方向。
+    """
+    if not existing_pairs:
+        return False
+    if isinstance(existing_pairs, (set, frozenset)):
+        # set 里可能是已构建的 pair_key（2 元组），也可能是原始三元组（3 元组）
+        first = next(iter(existing_pairs), None)
+        index = existing_pairs if (first is not None and len(first) == 2) else as_pair_index(existing_pairs)
+    else:
+        index = as_pair_index(existing_pairs)
+    return pair_key(rel, src, dst) in index
+
+
+def build_pair_index(triples):
+    """从三元组序列构建 pair 索引（写入前给 is_reverse_duplicate / filter 用）。"""
+    return as_pair_index(triples)
+
+
+def filter_reverse_duplicates(triples, existing_pairs=None):
+    """按"同关系名 + 同无序端点对"过滤三元组，返回 (kept, skipped)。
+
+    - existing_pairs：存储里已存在的三元组（跨批次）；不传则等价于"只去批内重复"。
+    - skipped 原样返回被跳过的三元组，供调用方记录/审计，**不静默丢弃**。
+    """
+    seen = as_pair_index(existing_pairs)
+    kept, skipped = [], []
+    for triple in triples or []:
+        try:
+            src, rel, dst = triple[0], triple[1], triple[2]
+        except Exception:
+            kept.append(triple)   # 形态不合法的交给下游既有校验，不在这里吞掉
+            continue
+        key = pair_key(rel, src, dst)
+        if key in seen:
+            skipped.append(triple)
+            continue
+        seen.add(key)
+        kept.append(triple)
+    return kept, skipped
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# R15-W02 / A03+A09：总额/最高 类谓词不得被"分项值"冒充
+#
+# 实测（g_kb_9，file_id=343，同一 chunk）：
+#   智造贷 -最高额度-> 8000万元
+#   智造贷 -最高额度-> 1000万元        ← 原文是"8000万元（信用部分不超过1000万元）"
+# 两条 show_flag 都是 1，于是任何按 (主体, 谓词) 取值的地方都会撞上互斥双值；
+# 答案层即使把两者配对输出，存储层仍然是"两个最高额度"。
+#
+# 处理顺序（确定性、可解释、不丢事实优先）：
+#   规则 A（端点自证）：端点含"信用/分项/其中/部分/单项/专项"等强分项标记
+#                       -> 关系名改写为分项谓词（信用方式上限 / 分项上限）。
+#   规则 B（数值裁决）：同一 (主体, 总额类谓词) 出现 ≥2 个不同金额值
+#                       -> 最大值保留为总额，其余（必然是分项）改写为分项谓词。
+# 两条规则都**只改关系名，不改端点、不改方向、不丢三元组**，全部写进 report。
+# ─────────────────────────────────────────────────────────────────────────────
+
+# "总额/最高"类谓词的语义域：额度、授信、金额、规模、敞口
+TOTAL_PREDICATE_DOMAIN = re.compile(r"(额度|授信|金额|规模|敞口)")
+# 同一语义域里表示"总额/上限"的词
+TOTAL_PREDICATE_HEAD = re.compile(r"(最高|总额|最大|上限|不超过)")
+# 强分项标记：出现即足以判定"这是分项，不是总额"。
+# 刻意**不**把裸"不超过"放进来 —— "不超过8000万元"本身可以是总额（上限语义），
+# 单靠它判定会把总额误改成"分项上限"，属于用规则制造错误事实。
+ITEM_STRONG_MARKERS = re.compile(r"(信用|分项|其中|部分|单项|专项)")
+AMOUNT_PARSE = re.compile(r"([\d,]+(?:\.\d+)?)\s*(亿元|万元|元)")
+_AMOUNT_UNIT = {"亿元": 100000000.0, "万元": 10000.0, "元": 1.0}
+
+ITEM_PREDICATE_CREDIT = "信用方式上限"
+ITEM_PREDICATE_GENERIC = "分项上限"
+
+
+def is_total_predicate(rel):
+    """关系名是否"总额/最高"类谓词（语义上单值，不允许第二个值并存）。"""
+    s = clean_name(rel)
+    if not s:
+        return False
+    return bool(TOTAL_PREDICATE_DOMAIN.search(s)) and bool(TOTAL_PREDICATE_HEAD.search(s))
+
+
+def parse_amount(text):
+    """把"8000万元 / 1,000万元 / 3亿元"解析成以"元"为单位的浮点；解析不到返回 None。"""
+    s = clean_name(text)
+    m = AMOUNT_PARSE.search(s)
+    if not m:
+        return None
+    try:
+        value = float(m.group(1).replace(",", ""))
+    except ValueError:
+        return None
+    return value * _AMOUNT_UNIT[m.group(2)]
+
+
+def item_predicate_of(text):
+    """端点文本若自证是"分项"，返回对应分项谓词名；否则返回空串。"""
+    s = clean_name(text)
+    if not s or not ITEM_STRONG_MARKERS.search(s):
+        return ""
+    return ITEM_PREDICATE_CREDIT if "信用" in s else ITEM_PREDICATE_GENERIC
+
+
+def split_total_predicate(triples):
+    """把"总额谓词吞并分项"的三元组改写成分项谓词。
+
+    返回 (new_triples, conflicts, rel_map)：
+      - new_triples：与输入等长（只改关系名，顺序/端点/方向不变）
+      - conflicts：每处改写的审计记录（含触发规则、数值证据）
+      - rel_map：{(src, 旧rel, dst): 新rel}，供 triples_source 的键同步改写
+    """
+    triples = list(triples or [])
+    new_rel_of = {}
+    conflicts = []
+
+    # 规则 A：端点自证分项
+    for idx, (src, rel, dst) in enumerate(triples):
+        if not is_total_predicate(rel):
+            continue
+        item_rel = item_predicate_of(dst) or item_predicate_of(src)
+        if not item_rel or item_rel == rel:
+            continue
+        _hit = ITEM_STRONG_MARKERS.search(clean_name(dst)) or ITEM_STRONG_MARKERS.search(clean_name(src))
+        new_rel_of[idx] = item_rel
+        conflicts.append({
+            "src": src, "rel": rel, "dst": dst, "new_rel": item_rel,
+            "rule": "item_marker", "action": "rewrite",
+            "reason": f"端点自证分项（标记={_hit.group(1) if _hit else ''}）",
+        })
+
+    # 规则 B：同一 (主体, 总额谓词) 多值 -> 最大值是总额，其余是分项
+    groups = {}
+    for idx, (src, rel, dst) in enumerate(triples):
+        if idx in new_rel_of or not is_total_predicate(rel):
+            continue
+        src_val, dst_val = parse_amount(src), parse_amount(dst)
+        if dst_val is not None and src_val is None:
+            subject, value = src, dst_val
+        elif src_val is not None and dst_val is None:
+            subject, value = dst, src_val
+        else:
+            # 两端都是金额（值的值）或都不是金额 -> 不做数值裁决，避免瞎猜
+            continue
+        groups.setdefault((subject, rel), []).append((idx, value))
+
+    for (subject, rel), members in groups.items():
+        values = {round(v, 2) for _i, v in members}
+        if len(values) < 2:
+            continue
+        total = max(values)
+        for idx, value in members:
+            if round(value, 2) == total:
+                continue
+            src, _r, dst = triples[idx]
+            item_rel = item_predicate_of(dst) or item_predicate_of(src) or ITEM_PREDICATE_GENERIC
+            if item_rel == rel:
+                continue
+            new_rel_of[idx] = item_rel
+            conflicts.append({
+                "src": src, "rel": rel, "dst": dst, "new_rel": item_rel,
+                "rule": "value_conflict", "action": "rewrite",
+                "reason": f"同主体同总额谓词出现 {len(values)} 个金额值，最大值 {total:,.0f} 元保留为总额",
+            })
+
+    if not new_rel_of:
+        return triples, conflicts, {}
+
+    rel_map = {}
+    out = []
+    for idx, (src, rel, dst) in enumerate(triples):
+        new_rel = new_rel_of.get(idx, rel)
+        if new_rel != rel:
+            rel_map[(clean_name(src), clean_name(rel), clean_name(dst))] = new_rel
+        out.append((src, new_rel, dst))
+    return out, conflicts, rel_map
+
+
+def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_dict,
+                         existing_pairs=None):
     """
     返回 (triples, entities, triples_source, report)。
     report 里带 schema_version、被过滤实体及原因、合并映射、未分类实体。
+
+    existing_pairs（R15-W02，可选）：存储里**已存在**的三元组（跨写入批次），
+    形态见 as_pair_index()。传入后，与已有事实"同关系名 + 同无序端点对"的新三元组
+    会被跳过并记入 report['dropped_reverse_existing'] / report['reverse_dup_skipped']。
+    不传时行为与旧版一致（只做批内去重），调用方无需改动即可保持兼容。
     """
     alias_map = load_alias_map()
     raw_names = [n for n, v in entity_source_dict.items() if v.get("entity_type") == "1"]
@@ -305,16 +555,35 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
             continue
         new_triples.append((src, rel, dst))
 
+    # R15 W02 / A03+A09：总额/最高 类谓词不得被"分项值"冒充（改写关系名，不丢事实）。
+    # 必须在逆否去重**之前**做：改写后 `最高额度->1000万元` 变 `分项上限->1000万元`，
+    # 它和 `最高额度->8000万元` 不再同键，不会在下一步被误当重复丢掉。
+    new_triples, predicate_conflicts, rel_map = split_total_predicate(new_triples)
+
     # R15 W02：逆否去重。抽取模型会把同一事实正反各输出一次
     #（实测 '智造贷 -最高额度-> 8000万元' 与 '8000万元 -最高额度-> 智造贷' 并存），
     # 进图后社区摘要会重复计数、reduce 也会把方向说反。
     # 同一 (关系, 无序实体对) 只保留首次出现的方向；方向是否正确由抽取与证据回指保证，
     # 这里不做业务猜测。
-    deduped, seen_pairs, dropped_reverse = [], set(), 0
+    #
+    # R15-W02/A02：seen_pairs 预置 existing_pairs（存储里已存在的三元组），
+    # 于是"本批已写过的"与"历史批次已写过的"用同一套判定 —— 内存窗口之外的反向事实
+    # 也能在这里被拦住（前提是调用方把存储回读传进来）。
+    existing_index = as_pair_index(existing_pairs)
+    deduped, seen_pairs = [], set(existing_index)
+    dropped_reverse = 0            # 批内重复
+    dropped_reverse_existing = 0   # 与存储已有事实重复（跨批次）
+    reverse_dup_skipped = []
     for src, rel, dst in new_triples:
-        pair = (rel, tuple(sorted((src, dst))))
+        pair = pair_key(rel, src, dst)
         if pair in seen_pairs:
-            dropped_reverse += 1
+            if pair in existing_index:
+                dropped_reverse_existing += 1
+            else:
+                dropped_reverse += 1
+            if len(reverse_dup_skipped) < 50:   # 审计用，不无限增长
+                reverse_dup_skipped.append({"src": src, "rel": rel, "dst": dst,
+                                            "scope": "existing" if pair in existing_index else "batch"})
             continue
         seen_pairs.add(pair)
         deduped.append((src, rel, dst))
@@ -322,6 +591,7 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
 
     # triples_source 的 key 是 "src\x1frel\x1fdst"
     new_triples_source = {}
+    rel_renamed = 0
     for key, val in (triples_source_dict or {}).items():
         parts = str(key).split(TRIPLE_SEP)
         if len(parts) != 3:
@@ -333,7 +603,14 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
         s0, r0, d0 = clean_name(parts[0]), clean_name(parts[1]), clean_name(parts[2])
         if s0 not in name_map or d0 not in name_map:
             continue
-        new_key = f"{name_map[s0]}{TRIPLE_SEP}{r0}{TRIPLE_SEP}{name_map[d0]}"
+        _s, _d = name_map[s0], name_map[d0]
+        # R15-W02/A03：关系名被 split_total_predicate 改写时，source 键必须同步改写，
+        # 否则 graph_service 按 (src, 新rel, dst) 查 triples_attribute 查不到 ->
+        # 边的 file_id/chunk_ref 变空（正是 R14-LIVE-16 踩过的"边写进去但没有来源"）。
+        _r = rel_map.get((_s, r0, _d), r0)
+        if _r != r0:
+            rel_renamed += 1
+        new_key = f"{_s}{TRIPLE_SEP}{_r}{TRIPLE_SEP}{_d}"
         new_triples_source[new_key] = val
 
     report = {
@@ -345,5 +622,12 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
         "dropped_triples": dropped_triples,
         "dropped_junk": dropped_junk,
         "dropped_reverse": dropped_reverse,
+        # R15-W02 新增（只在行尾追加 key，既有消费方按 key 取值不受影响）
+        "dropped_reverse_existing": dropped_reverse_existing,
+        "reverse_dup_skipped": reverse_dup_skipped,
+        "predicate_conflict": predicate_conflicts,
+        "predicate_rewritten": len(predicate_conflicts),
+        "triples_source_rel_renamed": rel_renamed,
+        "existing_pairs_loaded": len(existing_index),
     }
     return new_triples, kept, new_triples_source, report
