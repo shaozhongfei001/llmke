@@ -697,16 +697,20 @@ def execute_query(session, entity_set, query_type):
     # R15 W02：show_flag=0 是历史写入的"伪反向边"（早期为补齐反向可达而人为补的边）。
     # 统计接口已经按 show_flag='1' 过滤，但这里没有，于是同一事实会被读成两条方向相反的
     # 事实喂给下游。方向语义必须只来自真实断言，所以查询侧与统计侧统一按 show_flag='1'。
+    # R15 修正：show_flag 不能在 MATCH 的 WHERE 里用 properties(e).xxx 过滤——
+    # Nebula 的 MATCH 对边属性过滤要求 <alias>.<type>.<prop> 形式且需索引，
+    # 写成 properties(e).show_flag 会让整个 MATCH 静默返回空（实测：连"智造贷"
+    # 这种必然存在的实体都报 no_vertex_matched，local 图检索整条通路失效）。
+    # 因此 WHERE 只保留顶点过滤，show_flag 改在取回 props 后于客户端过滤。
     if query_type == 'hippo':
         query = f'''
                     MATCH (v)-[e:relationship]-(v2)
-                    WHERE properties(e).show_flag = '1'
                     RETURN v.entity.name AS src, properties(e) AS props, v2.entity.name AS dst;
             '''
     else:
         query = f'''
                     MATCH (v)-[e:relationship]-(v2)
-                    WHERE properties(e).show_flag = '1' AND v.entity.name IN {entity_set}
+                    WHERE v.entity.name IN {entity_set}
                     RETURN v.entity.name AS src, properties(e) AS props, v2.entity.name AS dst;
                 '''
         logger.info(f"查询语句:{query}")
@@ -725,6 +729,9 @@ def execute_query(session, entity_set, query_type):
                 props = {k: (v.as_string() if v.is_string() else str(v)) for k, v in vals[1].as_map().items()}
         except Exception:
             props = {}
+        # 客户端剔除 show_flag=0 的历史伪反向边（见上方注释：不能放进 MATCH）
+        if str(props.get("show_flag", "1")) != "1":
+            continue
         res_dict_list.append({"src": src, "dst": dst, "props": props})
     if res_dict_list:
         for rd in res_dict_list:

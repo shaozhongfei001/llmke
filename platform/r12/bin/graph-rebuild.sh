@@ -14,12 +14,16 @@
 #
 # 步骤（每步打印 [ok]/[!!]/[FAIL]，任一步失败非零退出）：
 #   0 环境前置：.env 口令 / docker 容器 / graph venv / 并发守卫
+#     构建指纹：HEAD + 服务源码脏文件 + 进程启动时间 vs 源码 mtime
+#               （工作树有未提交改动时，运行中的进程加载的不是 HEAD——只记 commit 会绑错代次）
 #   1 有效文件集合：MySQL knowledge_base_list.status=3
 #   2 边来源统计：全图边数 / 仅来自已删文件 / 混合来源 / 无法判定
 #   3 [--apply] 删除"仅来自已删文件"的边（逐条 DELETE EDGE type "src"->"dst"@rank）
 #   4 [--apply] 调 /generate_community 重建社区摘要，打印 社区数/摘要数/失败数，并按新代
 #              社区 id 清理 ES 里已经消失的旧摘要（Milvus 侧写入方本身是整代替换）
 #   5 一致性校验：删除前后边数守恒、ES 摘要条数 == 本次摘要条数
+#     附：抽取侧可复现性提示（grep R15-W01 EXTRACT_STATS / "单块重试：最终失败"），
+#         只提示不改退出码——那行日志属于 W01 的工作包，硬绑会把本脚本拖成假红
 #
 # 安全边界（逐条都有理由，改之前先看 docs/r15/w03-rebuild.md）：
 #   · 默认 dry-run；只有显式 --apply 才写。没有 --yes、没有隐式开关。
@@ -35,6 +39,7 @@
 set -uo pipefail
 
 R12="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO="$(cd "$R12/../.." && pwd)"
 PY_BIN="$R12/venvs/graph/bin/python"
 ENV_FILE="${R12_ENV_FILE:-$R12/.env}"
 MYSQL_CONTAINER="${MYSQL_CONTAINER:-r12-mysql}"
@@ -123,9 +128,12 @@ KB_ID="$KB_ID" \
 MODE="$MODE" \
 FORCE_COMMUNITY="$FORCE_COMMUNITY" \
 MYSQL_CONTAINER="$MYSQL_CONTAINER" \
+REPO="$REPO" \
 "$PY_BIN" - <<'PY'
+import glob
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -139,6 +147,9 @@ MODE = os.environ["MODE"]
 FORCE_COMMUNITY = os.environ.get("FORCE_COMMUNITY", "0") == "1"
 APPLY = MODE == "APPLY"
 CONTAINER = os.environ.get("MYSQL_CONTAINER", "r12-mysql")
+REPO = os.environ.get("REPO", "")
+SVC_DIR = "services/rag-alg/index_data_service/index_graph_service"
+GRAPH_SRC = ("graph_extract.py", "graph_service.py", "graph_summary.py")
 
 GRAPH = os.environ.get("GRAPH", "http://127.0.0.1:19529")
 ES = os.environ.get("ES", "http://127.0.0.1:19200")
@@ -193,6 +204,146 @@ def ngql_str(s):
     out = str(s).replace("\\", "\\\\").replace('"', '\\"')
     out = out.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
     return '"' + out + '"'
+
+
+def _run(cmd, timeout=30):
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return p.returncode, (p.stdout or "").strip(), (p.stderr or "").strip()
+    except Exception as exc:  # noqa: BLE001
+        return 1, "", "%s: %s" % (type(exc).__name__, exc)
+
+
+def build_fingerprint():
+    """记录"打底跑的是哪份代码"。W03-2 要求构建清单绑定版本，但只记 commit 是有坑的：
+    工作树有未提交改动时，运行中的进程加载的是工作树内容，与 HEAD 不是一回事。"""
+    print("  -- 构建指纹（进程实际加载的代码 vs HEAD）--", flush=True)
+    fp = {"dirty": [], "service_pid": None, "service_start": None,
+          "src_max_mtime": None, "runtime_matches_worktree": None, "runtime_matches_head": None}
+    if not REPO:
+        warn("未设置 REPO，跳过构建指纹")
+        return fp
+
+    rc, head, _ = _run(["git", "-C", REPO, "rev-parse", "HEAD"])
+    fp["head"] = head if rc == 0 and head else None
+    if fp["head"]:
+        _rc, desc, _ = _run(["git", "-C", REPO, "log", "-1", "--format=%s"])
+        ok("HEAD=%s %s" % (head[:7], desc[:80]))
+    else:
+        warn("读不到 git HEAD（仓库不完整？），本次无法做版本绑定")
+
+    def _dirty(pathspec):
+        # 不能用 ln[3:]：git status 首行的 " M " 前缀被整体 strip 后错位一格，会截出 "latform/..."
+        rc, out, _ = _run(["git", "-C", REPO, "status", "--porcelain", "--"] + pathspec)
+        if rc != 0 or not out:
+            return []
+        return [ln.split(None, 1)[-1].strip() for ln in out.splitlines() if ln.strip()]
+
+    # 只有服务源码影响"运行中的进程到底加载了什么"；本脚本自己的脏不构成版本风险
+    svc_dirty = _dirty([SVC_DIR])
+    fp["dirty"] = svc_dirty
+    fp["script_dirty"] = _dirty(["platform/r12/bin"])
+    if svc_dirty:
+        warn("服务源码有未提交改动 %d 个: %s -> 运行代码 != HEAD，只记 commit 会把代次绑错"
+             % (len(svc_dirty), ", ".join(os.path.basename(d) for d in svc_dirty[:6])))
+        fp["runtime_matches_head"] = False
+    else:
+        ok("服务源码工作树干净：运行代码 == HEAD")
+        fp["runtime_matches_head"] = True
+    if fp["script_dirty"]:
+        warn("本脚本自身有未提交改动 %s（不影响运行版本，仅记录）"
+             % ", ".join(os.path.basename(d) for d in fp["script_dirty"][:3]))
+
+    mts = [(os.path.getmtime(os.path.join(REPO, SVC_DIR, f)), f)
+           for f in GRAPH_SRC if os.path.exists(os.path.join(REPO, SVC_DIR, f))]
+    if mts:
+        mt, mt_name = max(mts)
+        fp["src_max_mtime"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(mt))
+        fp["src_max_file"] = mt_name
+    else:
+        mt = None
+
+    rc, out, _ = _run(["pgrep", "-af", "graph_api_start"])
+    pids = [int(ln.split()[0]) for ln in out.splitlines() if ln.strip() and ln.split()[0].isdigit()]
+    if not pids:
+        warn("没有 graph_api_start 进程在跑（第 4 步会失败）")
+        return fp
+    pid = min(pids)
+    _rc, et, _ = _run(["ps", "-o", "etimes=", "-p", str(pid)])
+    start = time.time() - int(et.strip()) if et.strip().isdigit() else None
+    fp["service_pid"] = pid
+    if start is None:
+        warn("拿不到 graph 服务启动时间（PID %d）" % pid)
+        return fp
+    fp["service_start"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(start))
+    if mt and start < mt:
+        # 改了源码但没重启：进程里跑的仍是旧内容，任何"当前候选"断言都不成立
+        warn("graph 服务(PID %d) 启动于 %s，早于 %s 的 mtime %s -> 进程加载的可能是旧代码，需重启后再验收"
+             % (pid, fp["service_start"], fp["src_max_file"], fp["src_max_mtime"]))
+        fp["runtime_matches_worktree"] = False
+    else:
+        ok("graph 服务(PID %d) 启动于 %s，晚于源码最新 mtime %s -> 加载的是当前工作树版本"
+           % (pid, fp["service_start"], fp["src_max_mtime"]))
+        fp["runtime_matches_worktree"] = True
+    return fp
+
+
+def extract_stats_advisory():
+    """抽取侧可复现性提示（来自 R15-W01 的单行 stats）。**只提示，不改退出码**。
+
+    为什么不当硬闸门：那行日志格式属于 W01 的工作包，把本脚本的成败绑在别人的日志
+    文本上，一旦该行改名/下线就会红得莫名其妙。真正的判据是第 [5/5] 步的边数守恒与
+    摘要对数；这里只负责把"边数变了"拆成"抽取侧不可复现"还是"替换逻辑有问题"。
+    """
+    print("  -- 抽取侧可复现性（R15-W01 EXTRACT_STATS，仅提示）--", flush=True)
+    d = os.environ.get("GRAPH_LOG_DIR") or os.path.join(REPO, SVC_DIR, "logs", "graph_service")
+    # 只读当天的 loguru 文件；**不要**扫 platform/r12/logs/index_graph_service.log（同一行会重复计）
+    cand = os.path.join(d, "graph_info_%s.log" % time.strftime("%Y-%m-%d"))
+    files = [cand] if os.path.exists(cand) else sorted(glob.glob(os.path.join(d, "graph_info_*.log")))[-1:]
+    if not files:
+        warn("找不到 graph_info_*.log（%s），跳过" % d)
+        return {}
+    pat = re.compile(r"R15-W01 EXTRACT_STATS(.*)$")
+    kv = re.compile(r"(\w+)=(-?\d+)")
+    seen, agg, fails = set(), {}, 0
+    for path in files:
+        try:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    if "单块重试：最终失败" in line:
+                        fails += 1
+                    m = pat.search(line)
+                    if not m:
+                        continue
+                    d2 = dict((k, int(v)) for k, v in kv.findall(m.group(1)))
+                    sig = (d2.get("passage"), d2.get("elapsed_ms"))   # 两个 sink 会写同一行，去重
+                    if sig in seen:
+                        continue
+                    seen.add(sig)
+                    for k, v in d2.items():
+                        agg[k] = agg.get(k, 0) + v
+        except Exception as exc:  # noqa: BLE001
+            warn("读 %s 失败: %s" % (path, exc))
+    if not seen:
+        warn("%s 里没有 R15-W01 EXTRACT_STATS（该工作包未生效或日志已轮转），跳过" % os.path.basename(files[0]))
+        return {"log": os.path.basename(files[0]), "passages": 0}
+    per = (agg.get("elapsed_ms", 0) / 1000.0 / agg["llm_calls"]) if agg.get("llm_calls") else 0
+    ok("passage %d 个：llm_calls=%d retries=%d parse_failed_lines=%d field_anomalies=%d "
+       "valid_triples=%d，平均 %.1fs/次调用"
+       % (len(seen), agg.get("llm_calls", 0), agg.get("retries", 0), agg.get("parse_failed_lines", 0),
+          agg.get("field_anomalies", 0), agg.get("valid_triples", 0), per))
+    if fails:
+        warn("'单块重试：最终失败' %d 次 -> 该 passage 贡献 0 事实，边数不可复现，"
+             "不要用它做代次对比，先重跑该 passage" % fails)
+    if agg.get("parse_failed_lines") or agg.get("field_anomalies"):
+        warn("parse_failed_lines=%d / field_anomalies=%d：抽取输出有结构问题，边数会漂"
+             % (agg.get("parse_failed_lines", 0), agg.get("field_anomalies", 0)))
+    return {"log": os.path.basename(files[0]), "passages": len(seen), "retry_final_fail": fails,
+            "llm_calls": agg.get("llm_calls", 0), "retries": agg.get("retries", 0),
+            "parse_failed_lines": agg.get("parse_failed_lines", 0),
+            "field_anomalies": agg.get("field_anomalies", 0),
+            "valid_triples": agg.get("valid_triples", 0),
+            "secs_per_call": round(per, 1)}
 
 
 def mysql_rows(sql):
@@ -509,6 +660,7 @@ def main():
         space = primitive if primitive.startswith("g_") else "g_" + primitive
         result.update({"primitive": primitive, "space": space})
         ok("primitive_name=%s  Nebula space=%s" % (primitive, space))
+        result["fingerprint"] = build_fingerprint()
 
         valid, st_map = step_files(primitive)
 
@@ -601,6 +753,7 @@ def main():
             warn("dry-run：跳过'边数守恒/陈旧边归零/摘要条数'三项校验（需 --apply 才有写入）")
             print("  将校验: 边数守恒(%d 条) / 陈旧边归零 / ES 摘要条数 == 本次摘要数"
                   % len(edges), flush=True)
+        result["extract_stats"] = extract_stats_advisory()
         result["verdict"] = "PASS"
         print("RESULT " + json.dumps(result, ensure_ascii=False, sort_keys=True), flush=True)
         return 0

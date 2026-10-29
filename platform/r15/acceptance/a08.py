@@ -59,13 +59,23 @@ def run():
 
     # N4：local 图检索。智造贷在 Nebula 里确实存在（前面已核对 VID=名称），
     # 因此 local 通路返回空不能解释为"库里没有"，只能算通路不通。
-    code, body = C.graph_post("/query_graph_data",
-                              {"space_name": C.KB, "query": "智造贷", "model_info": C.MODEL_INFO,
-                               "depth": 2, "top_k": 5}, timeout=120)
-    data = (body or {}).get("data") or {}
-    blocks = data.get("result_data") or []
-    checks.append(C.chk("N4 反例：local 图检索能取到已存在实体的事实", len(blocks) > 0,
-                        f"http={code} 返回块={len(blocks)} reason={(data or {}).get('reason')} "
-                        f"msg={str((body or {}).get('msg'))[:80]!r}"))
+    # 重试一次：图服务可能正在重启（本轮实测就遇到 22:21 重启），
+    # 不能把"连接没通"当成"业务空"，也不能反过来把"业务空"当成"服务没起"。
+    code, body, blocks, reason = 0, {}, [], None
+    for _ in range(2):
+        code, body = C.graph_post("/query_graph_data",
+                                  {"space_name": C.KB, "query": "智造贷", "model_info": C.MODEL_INFO,
+                                   "depth": 2, "top_k": 5}, timeout=120)
+        data = (body or {}).get("data") or {}
+        blocks, reason = data.get("result_data") or [], data.get("reason")
+        if code == 200:
+            break
+    if code != 200:
+        checks.append(C.chk("N4 反例：local 图检索可用", False,
+                            f"两次请求均未打通 http={code}（图服务不可用，不能据此判业务语义）"))
+    else:
+        checks.append(C.chk("N4 反例：local 图检索能取到已存在实体的事实", len(blocks) > 0,
+                            f"http={code} 返回块={len(blocks)} reason={reason} "
+                            f"msg={str((body or {}).get('msg'))[:80]!r}"))
 
     return C.verdict(ID, TITLE, checks, writes=WRITES)
