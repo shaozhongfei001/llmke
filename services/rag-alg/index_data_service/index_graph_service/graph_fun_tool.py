@@ -15,6 +15,7 @@ import time
 import requests
 
 from base import BaseResponse, QueryDocChunk
+from graph_types import TRIPLE_SEP
 from config.conf import DEFAULT_EMBEDDING_MAX_TOKENS, EMBED_MAX_TOKEN_DELTA_DEFAULT
 from utils import return_nacos_model
 from operators.utils.token_utils import truncate_text_by_tokens
@@ -527,7 +528,7 @@ def update_triples_data(server_config, collection_name_triples, triples_source_d
     Returns:
 
     """
-    triples_list = [",".join(tl) for tl in triples_data_list]
+    triples_list = [TRIPLE_SEP.join(tl) for tl in triples_data_list]
     milvus_payload = {
         "db_name": server_config["graph_conn_config"]["graph_milvus_database"],
         "collection_name": collection_name_triples,

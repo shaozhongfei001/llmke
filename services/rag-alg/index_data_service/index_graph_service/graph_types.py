@@ -17,6 +17,12 @@ import re
 
 SCHEMA_VERSION = "v1"
 
+# R14-LIVE-15：三元组内部键的分隔符。
+# 原来用逗号拼 "src,rel,dst"，而实体名本身可能含逗号（金额 "2,983,333.33"），
+# 于是 split(",") 切出 5 段、triples_source_dict 找不到键 —— 实测 KeyError
+# '日均存款,指标值,2,983,333.33' 直接把整个解析打成失败。改用不可出现在实体名里的 \x1f。
+TRIPLE_SEP = "\x1f"
+
 # 业务类型表（v1）：与知识库的 graphPrompt/entity_types 同口径，作为"合法类型"白名单
 ALLOWED_TYPES = [
     "机构", "客户", "产品", "金额", "期限", "指标", "日期",
@@ -47,7 +53,11 @@ STOPWORDS = {
     "下表", "上表", "表格", "表头", "table", "document", "docx", "xlsx", "pptx", "pdf",
     "文本", "内容", "数据", "天数", "业务日", "序号", "备注", "合计", "小计", "单位",
     "正常", "无", "其他", "如下", "上述", "以上", "以下", "说明",
-    "客户", "用户", "供应商", "公司", "企业", "项目", "产品", "申请人", "借款人",
+    # R14-LIVE-15：业务实体词不能当停用词。
+    # 原实现把 客户/用户/供应商/公司/企业/项目/产品/申请人/借款人 一并过滤，
+    # 而贷款知识库的主实体恰恰是"客户/产品/借款人"；过滤掉它们，
+    # 以它们为端点的三元组会被 normalize 整条丢弃（src/dst 不在 name_map 就 drop）。
+    # 只保留真正的结构性词（下表/合计/单位/序号…），业务名词交给类型体系判定。
     # R14-M1-R1（TL 2026-10-27 批准）：单位词与泛指标词不该成为实体。
     # 实测 g_kb_9 里 `万元`、`额度`、`已用额度` 都成了节点，`万元` 更是纯单位。
     "万元", "亿元", "元", "个基点", "基点", "BP", "额度", "额度上限", "已用额度",
@@ -58,6 +68,11 @@ RULE_AMOUNT = re.compile(r"(人民币)?\s*[\d,.]+\s*(万元|亿元|元)")
 DOC_TITLE = re.compile(r"^(docx|xlsx|pptx|pdf|word|excel)[\s_\-.]*", re.I)
 CJK_OR_ALNUM = re.compile(r"[\u4e00-\u9fa5A-Za-z0-9]")
 PURE_NUMBER = re.compile(r"^[\d,.\-%]+$")
+# R14-LIVE-15：金额型纯数字（千分位或两位小数）不丢。
+# 实测：模型抽出 ("relationship"::金额::日均存款::2,983,333.33::...) 时把"元"省掉了，
+# PURE_NUMBER 判成纯数字 -> 该实体被过滤 -> 以它为端点的三元组整条丢弃 -> 全库 0 条图数据。
+# 判断依据是"长得像金额"（有千分位或固定两位小数），不是"包含数字"，避免把年份/序号也放进来。
+AMOUNT_LIKE = re.compile(r"^\d{1,3}(,\d{3})+(\.\d+)?$|^\d+\.\d{2}$")
 COMPANY_SUFFIX = re.compile(r"(股份有限公司|有限责任公司|有限公司|集团有限公司|集团|公司|银行|中心)$")
 
 _ALIAS_CACHE = None
@@ -102,6 +117,8 @@ def is_valid_entity(name):
         return False, "stopword"
     # 日期要保留（是业务实体），不能因为形如数字带连字符被当成纯数字过滤
     if RULE_DATE.match(s) or RULE_AMOUNT.match(s):
+        return True, ""
+    if AMOUNT_LIKE.match(s):
         return True, ""
     if PURE_NUMBER.match(s):
         return False, "pure_number"
@@ -271,13 +288,13 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
     # triples_source 的 key 是 "src,rel,dst"
     new_triples_source = {}
     for key, val in (triples_source_dict or {}).items():
-        parts = str(key).split(",")
+        parts = str(key).split(TRIPLE_SEP)
         if len(parts) != 3:
             continue
         s0, r0, d0 = clean_name(parts[0]), parts[1], clean_name(parts[2])
         if s0 not in name_map or d0 not in name_map:
             continue
-        new_key = f"{name_map[s0]},{r0},{name_map[d0]}"
+        new_key = f"{name_map[s0]}{TRIPLE_SEP}{r0}{TRIPLE_SEP}{name_map[d0]}"
         new_triples_source[new_key] = val
 
     report = {

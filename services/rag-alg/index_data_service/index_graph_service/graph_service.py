@@ -10,7 +10,7 @@ import requests
 
 from base import GraphModel, GraphAttributeModel, InsertModel, QueryDocChunk, BaseResponse, QueryGraphData, DelModel
 from graph_extract import generate_graph_relations, generate_query_entities
-from graph_types import normalize_graph_data
+from graph_types import normalize_graph_data, TRIPLE_SEP
 from graph_fun_tool import clean_entity, generate_entity_data, get_document_chunk, \
     vectorization_data_similarity, query_like_entity, query_milvus_api, pool_query_milvus, execute_query, \
     query_milvus_by_condition, remove_duplicates_by_pk, attribute_assignment, update_triples_data, split_array, \
@@ -373,6 +373,11 @@ def _resolve_entity_types(requested):
     """
     from graph_types import ALLOWED_TYPES
     req = [str(x).strip() for x in (requested or []) if str(x).strip()]
+    # R14-LIVE-15：老客户端/默认参数仍可能把"通用 8 类"原样传上来，那不是业务语义。
+    # 判定为"未指定"统一升级到业务类型表——否则两个入口（不传 / 传默认）行为不一致，
+    # 排障时看到的类型表取决于调用方，而不是取决于业务。
+    if req and set(req).issubset(GENERIC_DEFAULT_TYPES):
+        return list(ALLOWED_TYPES), "business_default(generic_request)"
     # 实测（B，6 次）：业务类型表反而**更差**（AAA 有、30/60/100 基点 0/6）；
     # 真正有效的是"表格逐项抽取"提示（见 prompts/entity_extraction.py 2.1）。
     # 所以这里只做"记录"，不擅自升级类型表，避免又一处静默改变行为。
@@ -411,7 +416,7 @@ def llm_generate_triple(json_data, entity_types: [str], model_info, server_confi
                     s_e = relation["src_entity"]["name"]
                     r_p = relation["name"]
                     t_e = relation["dest_entity"]["name"]
-                    td_s = s_e + "," + r_p + "," + t_e
+                    td_s = TRIPLE_SEP.join([s_e, r_p, t_e])
                     triples_data_set.add((s_e, r_p, t_e))
                 except Exception as e:
                     logger.error(f"元组转换错误：{relation},{e}")
@@ -469,8 +474,18 @@ def generate_triple_data(query_docu: QueryDocChunk):
                 f"丢弃三元组{type_report['dropped_triples']}条 (schema={type_report['schema_version']})")
     logger.info(f"共生成{len(triples_data_list)}条图数据")
     if not triples_data_list:
-        logger.error(f'数据未生成三元组数据，请检查数据或重试')
-        return BaseResponse(code=500, msg=f'数据未生成三元组数据，请检查数据或重试')
+        # R14-LIVE-15：零结果必须可诊断。原来只回"数据未生成三元组数据"，
+        # 排查时无法区分"模型没抽出来""类型不符被过滤""三元组端点被丢弃"。
+        # 这里把归一化报告里最有用的三项带回 msg，任务失败原因直接可读。
+        _filt = type_report['filtered'][:4]
+        _filt_txt = "；".join(
+            (f"{x.get('name')}<{x.get('reason')}>" if isinstance(x, dict) else str(x)) for x in _filt)
+        _detail = (f"实体保留{type_report['kept_entities']}个/过滤{len(type_report['filtered'])}个/"
+                   f"未分类{len(type_report['unclassified'])}个，丢弃三元组{type_report['dropped_triples']}条，"
+                   f"类型表来源={types_source}"
+                   + (f"，被过滤示例：{_filt_txt}" if _filt_txt else ""))
+        logger.error(f'数据未生成三元组数据：{_detail}')
+        return BaseResponse(code=500, msg=f'数据未生成三元组数据（{_detail}），请检查数据或重试')
     entity_list = [en for en, va in entity_source_dict.items() if va["entity_type"] == "1"]
     logger.info(f"共生成{len(entity_list)}个实体信息")
     # 相似实体计算
@@ -537,8 +552,9 @@ def generate_triple_data(query_docu: QueryDocChunk):
             logger.info('本次无可写入的实体向量，跳过实体向量库写入')
     triples_insert_data = []
     for name in milvus_triples_list:
-        tris = name.split(',')
-        insert_data = {"page_content": str(name),
+        tris = name.split(TRIPLE_SEP)
+        # page_content 用逗号展示（给人看），键用 \x1f（给程序用），两者不再混用
+        insert_data = {"page_content": ",".join(tris),
                        "metadata": {
                            "source_entity": str(tris[0]),
                            "relationship": str(tris[1]),

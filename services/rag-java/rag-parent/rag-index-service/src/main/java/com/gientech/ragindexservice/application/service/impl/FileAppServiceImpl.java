@@ -570,7 +570,17 @@ public class FileAppServiceImpl implements FileAppService {
             ModelSimpDTO modelInfo = modelInfoAppService.getSimpByModeName(param.getGenerateGraphModelName());
             if (!Objects.isNull(modelInfo) && StringUtils.isEmpty(modelInfo.getApiKey()))
                 modelInfo.setApiKey("");
-            String spaceName = param.getKnowledgeBaseName();
+            // R14-LIVE-14：这里必须用**原始名**（kb_9），不能用中文展示名。
+            // Python 侧 graph_fun_tool.get_document_chunk 直接拿 space_name 当 ES 索引名：
+            //   index_name = [space_name, "table_chunks_" + space_name]
+            // 传 "R12验收主链" 时索引不存在 → es 查询报 'NoneType' object is not subscriptable
+            // → 上层只看到"该知识库未查询到相关文本"，任务被置为解析失败(4)。
+            // 实测：kb_9 的 10 个文件 graph_parse_status 全是 1(未做) 或 4(失败)，从来没有 3(成功)。
+            // Nebula 空间名也一并按原始名拼（g_kb_9），与磁盘上已有的图保持一致。
+            String spaceName = knowledgeBase.getPrimitiveName();
+            if (StringUtils.isBlank(spaceName)) {
+                spaceName = param.getKnowledgeBaseName();
+            }
             JSONObject graphReq = new JSONObject();
             graphReq.put("space_name", spaceName);
             graphReq.put("embedding_model_name", param.getEmbeddingModelName());

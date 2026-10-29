@@ -66,7 +66,12 @@ class QueryDocChunk(GraphModel):
     embed_model_name: str = "bge-large-zh-v1.5"  # nacos配置
     top_k: int = 30  # 生成三元组返回数量
     system_prompt: Optional[str] = None  # 默认的prompt
-    entity_types: List[str] = ["人", "机构", "位置", "时间", "角色", "疾病", "药品", "项目"]
+    # R14-LIVE-15：默认值必须是"未指定"，不能是通用 NER 8 类。
+    # 原实现把 8 类写死在模型字段上，导致 graph_service._resolve_entity_types 里
+    # "请求为空 -> 升级为业务类型表" 的分支**永远走不到**（请求永远看起来带了类型）。
+    # 实测日志：抽取类型表（source=request）：['人','机构','位置','时间','角色','疾病','药品','项目']
+    # 一个贷款产品知识库里出现"疾病/药品"这种类型，模型只能把业务实体判成"未分类"或被过滤。
+    entity_types: Optional[List[str]] = None
 
 
 class QueryGraphData(GraphModel):
