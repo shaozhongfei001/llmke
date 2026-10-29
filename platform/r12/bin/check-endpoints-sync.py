@@ -98,6 +98,36 @@ def mysql_write(sql):
         capture_output=True, text=True)
 
 
+# tools-database 这类是"库"，本身没有 application.yml，被 rag-index-service 打进同一个进程，
+# 因此它的 context-path 取宿主服务的（实测 /index/database/** 走的就是 index 服务）。
+CONTEXT_OVERRIDES = {"tools-database": "index"}
+
+
+def discover_modules():
+    """发现所有含 src/main/java 的模块，支持 rag-parent/tools/* 这一层。
+
+    第一版只扫 rag-parent 的直接子目录，于是 tools-database 下 22 条 /index/database/**
+    全被当成"注册表里的残留"。**扫不全会把活接口误判成死接口**，这和漏登记一样危险。
+    """
+    found = []
+    for name in sorted(os.listdir(JAVA_PARENT)):
+        if name == "target":
+            continue
+        path = os.path.join(JAVA_PARENT, name, "src", "main", "java")
+        if os.path.isdir(path):
+            found.append(name)
+            continue
+        nested = os.path.join(JAVA_PARENT, name)
+        if not os.path.isdir(nested):
+            continue
+        for sub in sorted(os.listdir(nested)):
+            if sub == "target":
+                continue
+            if os.path.isdir(os.path.join(nested, sub, "src", "main", "java")):
+                found.append(sub)
+    return found
+
+
 def context_path(module_dir):
     """从外部配置覆盖目录或 jar 内配置取 server.servlet.context-path。"""
     candidates = [
@@ -113,7 +143,7 @@ def context_path(module_dir):
         m = re.search(r"context-path:\s*([^\s#]+)", text)
         if m:
             return m.group(1).strip("'\"")
-    return ""
+    return CONTEXT_OVERRIDES.get(module_dir, "")
 
 
 def join_path(*parts):
@@ -142,10 +172,22 @@ def strip_comments(text):
     return "\n".join(lines)
 
 
+def java_root(module_dir):
+    """模块的源码根：先按 rag-parent/<mod> 找，再按 rag-parent/<组>/<mod> 找。"""
+    direct = os.path.join(JAVA_PARENT, module_dir, "src", "main", "java")
+    if os.path.isdir(direct):
+        return direct
+    for group in sorted(os.listdir(JAVA_PARENT)):
+        nested = os.path.join(JAVA_PARENT, group, module_dir, "src", "main", "java")
+        if os.path.isdir(nested):
+            return nested
+    return ""
+
+
 def scan_module(module_dir):
     """返回 [(url, method, file:line)]。"""
-    base = os.path.join(JAVA_PARENT, module_dir, "src", "main", "java")
-    if not os.path.isdir(base):
+    base = java_root(module_dir)
+    if not base:
         return []
     ctx = context_path(module_dir)
     found = []
@@ -156,16 +198,17 @@ def scan_module(module_dir):
             path = os.path.join(root, name)
             with open(path, encoding="utf-8", errors="ignore") as fh:
                 text = strip_comments(fh.read())
-            cm = re.search(r'@RequestMapping\(\s*(?:value\s*=\s*)?"([^"]*)"', text)
+            cm = re.search(r'@RequestMapping\s*\(\s*(?:value\s*=\s*)?"([^"]*)"', text)
             class_path = cm.group(1) if cm else ""
-            for m in re.finditer(r'@(Get|Post|Put|Delete|Patch)Mapping\(([^)]*)\)', text):
+            for m in re.finditer(r'@(Get|Post|Put|Delete|Patch)Mapping\s*(?:\(([^)]*)\))?', text):
                 method = METHODS[m.group(1)]
-                pm = re.search(r'"([^"]*)"', m.group(2))
+                args = m.group(2) or ""
+                pm = re.search(r'"([^"]*)"', args)
                 method_path = pm.group(1) if pm else ""
                 line = text[:m.start()].count("\n") + 1
                 found.append((join_path(ctx, class_path, method_path), method, f"{name}:{line}"))
             # @RequestMapping(method = RequestMethod.X) 的写法
-            for m in re.finditer(r'@RequestMapping\(([^)]*RequestMethod\.[A-Z]+[^)]*)\)', text):
+            for m in re.finditer(r'@RequestMapping\s*\(([^)]*RequestMethod\.[A-Z]+[^)]*)\)', text):
                 body = m.group(1)
                 mm = re.search(r'RequestMethod\.([A-Z]+)', body)
                 pm = re.search(r'"([^"]*)"', body)
@@ -185,19 +228,31 @@ def main():
     ap.add_argument("--warn-only", action="store_true", help="永远退出 0（装机/巡检用）")
     args = ap.parse_args()
 
-    modules = sorted([d for d in os.listdir(JAVA_PARENT)
-                      if os.path.isdir(os.path.join(JAVA_PARENT, d, "src", "main", "java"))])
+    modules = sorted(discover_modules())
     code = []
     for mod in modules:
         for url, method, where in scan_module(mod):
             code.append({"url": url, "method": method, "module": mod, "where": where})
 
-    rows = mysql("select url, method, app_name from interface_info;")
+    rows = mysql("select url, method, app_name, app_name_abbreviate from interface_info;")
     db = {}
+    bucket_bad = []
     for line in rows.splitlines():
         parts = line.split("\t")
-        if len(parts) >= 2:
-            db[(parts[0].strip(), parts[1].strip().upper())] = parts[2].strip() if len(parts) > 2 else ""
+        if len(parts) < 2:
+            continue
+        url, method = parts[0].strip(), parts[1].strip().upper()
+        app = parts[2].strip() if len(parts) > 2 else ""
+        abbr = parts[3].strip() if len(parts) > 3 else ""
+        db[(url, method)] = app
+        # R14-LIVE-13：网关的 authenticate() 用 **URL 首段** 作为权限缓存的 hash field
+        # （AuthenticateAppServiceImpl: appName = url.substring(1, url.indexOf("/",1))）。
+        # 若登记时的 app_name_abbreviate 与首段不一致，接口会被放进错误的桶，
+        # 缓存里明明有这条、鉴权却永远 false —— 实测 /index/database/** 挂成 "database"
+        # 时，请求表现为 401/30021，和"没登记"一模一样。
+        seg = url.strip("/").split("/")[0]
+        if abbr and seg and abbr != seg:
+            bucket_bad.append((url, method, app, abbr, seg))
 
     missing = [c for c in code if (c["url"], c["method"]) not in db]
     openapi = [c for c in missing if "/api/" in c["url"]]
@@ -229,6 +284,16 @@ def main():
     else:
         print("  [ok] 无")
 
+    if bucket_bad:
+        print(f"\n-- 分桶不一致（{len(bucket_bad)} 条：app_name_abbreviate ≠ URL 首段）--")
+        for url, method, app, abbr, seg in bucket_bad[:8]:
+            print(f"  [BUCKET] {method:6s} {url}  app={app} abbr={abbr} 首段={seg}")
+        if len(bucket_bad) > 8:
+            print(f"  ... 另有 {len(bucket_bad) - 8} 条")
+        print("  影响：权限缓存按首段分桶，桶名不对 => 缓存里有这条也查不到 => 401/30021。")
+    else:
+        print("\n-- 分桶一致性 --\n  [ok] 无")
+
     if stale:
         print(f"\n-- 注册表有、代码无（{len(stale)} 条，可能是历史残留或跨服务声明）--")
         for url, method in sorted(stale)[:8]:
@@ -239,6 +304,8 @@ def main():
         print("\n-- 注册表有、代码无 --\n  [ok] 无")
 
     fail_items = runtime + (openapi if args.include_api else [])
+    if bucket_bad:
+        fail_items = fail_items + [{"url": b[0], "method": b[1], "module": b[2]} for b in bucket_bad]
 
     if args.fix and fail_items:
         print("\n-- 自动补登记 --")

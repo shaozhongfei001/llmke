@@ -46,6 +46,10 @@ ENDPOINTS=(
   "/graph/search/cypherSearch|POST|rag-graph-service|graph|cypher 检索|8"
   "/graph/search/canSearchNodeOneStep|GET|rag-graph-service|graph|可单跳判定|8"
   "/graph/search/ping|GET|rag-graph-service|graph|连通性探针|8"
+  # R14-LIVE-12：check-endpoints-sync.py 扫出来的真实缺口（同为 /database/dataTable 家族，
+  # 但路径段数不同：注册表里只有单段 {fileId}，代码里还有一个两段 {databaseId}/{tableId}）。
+  # 未登记 => 401/30021，前端如果调用会得到"没有足够的权限"。
+  "/index/database/dataTable/queryTableFileData/{databaseId}/{tableId}|GET|rag-index-service|index|按表查文件数据|8"
 )
 
 # 口令解析顺序与 init-db.sh 保持一致（否则两个脚本对"没配 .env"的反应不同，装机时更难判）
