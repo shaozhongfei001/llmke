@@ -58,21 +58,57 @@ def _retry_delay(attempt):
     return EXTRACT_RETRY_BACKOFF[min(attempt - 1, len(EXTRACT_RETRY_BACKOFF) - 1)]
 
 
-def _classify_attempt(response_text, attempt_stats):
+def _last_output_line(response_text):
+    """返回输出里最后一个非空行（去掉行首尾空白）。"""
+    lines = [ln.strip() for ln in str(response_text or "").split("\n") if ln.strip()]
+    return lines[-1] if lines else ""
+
+
+def _looks_truncated(response_text):
+    """末行未闭合 -> 疑似被 max_tokens / 服务端截断（修法 1，TL 2026-10-29 裁决）。
+
+    依据（实测）：三档人为压低 max_tokens 的输出，`finish_reason` 全是 `length`，
+    且末行分别止于 `贷` / `最` / `高` 这类非 `)` 字符；而完整输出的每一行（实体行、
+    关系行）都以 `)` 收尾，提示词要求的 `########` 终止符模型经常不写，不能用它判定。
+
+    刻意保守，只在"末行确实是候选行但没闭合"时判截断：
+    - 末行空                       -> 不判截断
+    - 末行以 `########` 开头        -> 不判截断（模型给了结束标记）
+    - 末行不是以 `("` 开头的候选行   -> 不判截断（可能是说明性文字，不能被误判成截断）
+    - 末行以 `)` 结尾              -> 不判截断（闭合）
+    其余（以 `("` 开头且不以 `)` 结尾）-> 判截断。
+    """
+    last = _last_output_line(response_text)
+    if not last:
+        return False
+    if last.startswith("#"):
+        return False
+    if not last.startswith('("'):
+        return False
+    return not last.endswith(")")
+
+
+def _classify_attempt(response_text, attempt_stats, truncated=None):
     """判断本次 LLM 输出是否"拿不到可用结果"，返回原因串；可用时返回 None。
 
     R15-W01：这里刻意区分"合法空"与"解析失败"，只对后者重试——
     - 文本为空/全空白：请求失败或模型没有输出，值得重发；
     - 完全没有 entity/relationship 候选行：模型跑题（只输出说明文字或"无"），值得重发；
-    - 有候选关系行但一条都没落地：整批丢弃，是"边为 0"的直接原因，值得重发。
-    只要有实体、或至少一条关系落地就算可用，不重试（避免为正常块额外付 2 次调用）。
+    - 有候选关系行但一条都没落地：整批丢弃，是"边为 0"的直接原因，值得重发；
+    - **关系块整段缺失且末行未闭合**（修法 1）：模型被截断在写关系之前，此时输出里
+      一条关系行都没有，与"合法无关系资料"形状相同，原实现判可用 -> 盲区，现在判截断重试。
+    只要有实体、或至少一条关系落地，且末行闭合，就算可用，不重试。
     """
     if not str(response_text or "").strip():
         return "空响应"
+    if truncated is None:
+        truncated = _looks_truncated(response_text)
     if attempt_stats.get("candidate_lines", 0) == 0:
-        return "无可解析行"
+        return "无可解析行(末行未闭合,疑似截断)" if truncated else "无可解析行"
     if attempt_stats.get("relation_lines", 0) > 0 and attempt_stats.get("relations_parsed", 0) == 0:
         return "关系行全部丢弃"
+    if truncated:
+        return "关系块缺失且末行未闭合(疑似截断)"
     return None
 
 
@@ -109,6 +145,7 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
         "field_anomalies": 0,
         "parse_failed_lines": 0,
         "description_overflow": 0,
+        "truncation_suspected": 0,
     }
 
     messages = [{"role": "system", "content": system_prompt},
@@ -158,8 +195,13 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
                                                                                         relation_dict=relation_dict,
                                                                                         debug=True,
                                                                                         stats=_att)
+                # R15-W01 修法 1：每次尝试单独判一次"末行是否闭合"，既用于分类也计入总账，
+                # 这样 STATS 能回答"这次 0 边到底是模型没写关系，还是被截断在写关系之前"。
+                _truncated = _looks_truncated(llm_response_text)
+                if _truncated:
+                    _bump(_att, "truncation_suspected")
                 _accumulate_stats(_stats, _att)
-                _reason = _classify_attempt(llm_response_text, _att)
+                _reason = _classify_attempt(llm_response_text, _att, truncated=_truncated)
                 if _reason is None:
                     if attempt:
                         # "第几次成功"——重试生效时必须在日志里留痕，否则下次仍要靠复放判断。
@@ -167,8 +209,20 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
                                        f"（passage_chars={_stats['passage_chars']}, "
                                        f"首次失败原因={_last_reason}, seed={_seed}, "
                                        f"本轮落库三元组={_att.get('relations_parsed', 0)}）")
+                    elif _att.get("relation_lines", 0) == 0:
+                        # TL 要求：两种"无关系行"必须在日志里可区分，不能都静默放过。
+                        logger.info(f"无关系行且输出完整（末行以)结尾）→ 判可用（合法空, 不重试）: "
+                                    f"passage_chars={_stats['passage_chars']}, "
+                                    f"candidate_lines={_att.get('candidate_lines', 0)}, "
+                                    f"entities={_att.get('entities_parsed', 0)}")
                     break
                 _last_reason = _reason
+                if _truncated and _att.get("relation_lines", 0) == 0:
+                    # TL 要求的明确日志：这一种"无关系行"是截断，不是合法空。
+                    logger.warning(f"无关系行且疑似截断（末行不以)结尾）→ 重试: "
+                                   f"passage_chars={_stats['passage_chars']}, "
+                                   f"candidate_lines={_att.get('candidate_lines', 0)}, "
+                                   f"末行={_last_output_line(llm_response_text)[:40]!r}")
                 if attempt >= EXTRACT_MAX_RETRIES or _stats["retries_used"] >= EXTRACT_MAX_RETRIES:
                     _final_failed = True
                     logger.error(f"单块重试：最终失败（共尝试{attempt + 1}次, 原因={_reason}, "
@@ -211,6 +265,8 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
             extra = requests_llm(messages, model_info, server_config,
                                  max_tokens=EXTRACT_MAX_TOKENS,
                                  temperature=0.3, seed=42 + _i)
+            if _looks_truncated(extra):
+                _bump(_stats, "truncation_suspected")
             entity_dict, relation_dict, _ = process_relation_response(
                 extra, entity_dict=entity_dict, relation_dict=relation_dict, debug=False, stats=_stats)
         except Exception as e:
@@ -219,15 +275,18 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
     # R15-W01：一次调用一次的汇总行（固定格式、单行、k=v），用于 grep 与做分布监控。
     # passage 数固定为 1（本函数按 passage 调用），保留字段是为了和批量侧口径一致。
     # 字段契约（R15-W01，对 W03 的 graph-rebuild.sh 生效）：前缀 `R15-W01 EXTRACT_STATS` 不改名，
-    # 已有 k=v 的位置不变，新字段**只在行尾追加**（description_overflow 即按此追加）。
+    # 已有 k=v 的位置不变，新字段**只在行尾追加**（description_overflow / truncation_suspected
+    # 均按此规则追加，W03 的解析器无需改动）。
     logger.info(
         "R15-W01 EXTRACT_STATS passage={} passage_chars={} llm_calls={} rounds={} retries={} "
         "candidate_lines={} parse_failed_lines={} field_anomalies={} "
-        "valid_entities={} valid_triples={} elapsed_ms={} description_overflow={}".format(
+        "valid_entities={} valid_triples={} elapsed_ms={} description_overflow={} "
+        "truncation_suspected={}".format(
             _stats["passage"], _stats["passage_chars"], _stats["llm_calls"], _stats["rounds"],
             _stats["retries_used"], _stats["candidate_lines"], _stats["parse_failed_lines"],
             _stats["field_anomalies"], len(entity_dict), len(relation_dict),
-            int((time.time() - _t_start) * 1000), _stats["description_overflow"]))
+            int((time.time() - _t_start) * 1000), _stats["description_overflow"],
+            _stats["truncation_suspected"]))
     return list(relation_dict.values()), entity_dict
 
 

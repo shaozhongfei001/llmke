@@ -204,6 +204,24 @@ def stepfail(m):
 _CLEANUP = []
 
 
+def conclusion(result):
+    """结论块放在 python 里：只有它知道 runtime_matches_content，能让"是否可作代次对比"
+    直接出现在结论行（TL 要求），而不是靠 bash 再去 grep 一遍 RESULT。"""
+    print("== 结论 ==", flush=True)
+    if result.get("verdict") == "PASS":
+        print("  [ok] graph-rebuild 通过（mode=%s kb=%s）" % (MODE, KB_ID), flush=True)
+    else:
+        print("  [FAIL] graph-rebuild 未通过（mode=%s kb=%s）：%s"
+              % (MODE, KB_ID, str(result.get("reason"))[:200]), flush=True)
+    fp = result.get("fingerprint") or {}
+    if fp.get("comparable") is False:
+        print("  [!!] 本次结果不作为代次对比依据（runtime_matches_content=false）", flush=True)
+    elif fp.get("comparable") is True:
+        print("  [ok] 本次结果可作为代次对比依据（runtime_matches_content=true）", flush=True)
+    if not APPLY:
+        print("  [!!] 本次是 dry-run，未写任何数据；确认上面的数字后再加 --apply", flush=True)
+
+
 def _cleanup():
     """会话先 release 再关池，否则 nebula3 会打 'Closing a connection that is in use'。"""
     for obj in reversed(_CLEANUP):
@@ -380,7 +398,10 @@ def extract_stats_advisory():
                     if not m:
                         continue
                     d2 = dict((k, int(v)) for k, v in kv.findall(m.group(1)))
-                    sig = (d2.get("passage"), d2.get("elapsed_ms"))   # 两个 sink 会写同一行，去重
+                    # 去重键取"时间戳 + elapsed_ms + valid_triples + llm_calls"：
+                    # 只用 (passage, elapsed_ms) 有理论碰撞（W01 提醒），且两 sink 的同一行
+                    # 时间戳完全相同，所以它既能挡双写、又不会误合并两次真实抽取。
+                    sig = (line[:32], d2.get("elapsed_ms"), d2.get("valid_triples"), d2.get("llm_calls"))
                     if sig in seen:
                         continue
                     seen.add(sig)
@@ -832,20 +853,32 @@ def main():
             print("  将校验: 边数守恒(%d 条) / 陈旧边归零 / ES 摘要条数 == 本次摘要数"
                   % len(edges), flush=True)
         result["extract_stats"] = extract_stats_advisory()
+        es_stats = result["extract_stats"] or {}
+        if STRICT_EXTRACT:
+            # 严格模式只断言一条（W01 承诺的格式契约：前缀不改名、字段只追加）。
+            # 找不到 STATS 行 = SKIP 不是 FAIL（老日志/换机器/该行未上线都属此列）。
+            if not es_stats.get("passages"):
+                warn("--strict-extract：没有 EXTRACT_STATS 行 -> SKIP（不判失败）")
+            elif es_stats.get("retry_final_fail", 0) > 0:
+                stepfail("--strict-extract：'单块重试：最终失败' %d 次 -> 该 passage 贡献 0 事实，"
+                         "边数不可复现" % es_stats["retry_final_fail"])
         result["verdict"] = "PASS"
         print("RESULT " + json.dumps(result, ensure_ascii=False, sort_keys=True), flush=True)
+        conclusion(result)
         return 0
     except StepFail as exc:
         result["verdict"] = "FAIL"
         result["reason"] = str(exc)
         print("  [FAIL] %s" % exc, flush=True)
         print("RESULT " + json.dumps(result, ensure_ascii=False, sort_keys=True), flush=True)
+        conclusion(result)
         return 1
     except Exception as exc:  # noqa: BLE001
         result["verdict"] = "FAIL"
         result["reason"] = "%s: %s" % (type(exc).__name__, str(exc)[:300])
         print("  [FAIL] 未预期异常 %s: %s" % (type(exc).__name__, str(exc)[:300]), flush=True)
         print("RESULT " + json.dumps(result, ensure_ascii=False, sort_keys=True), flush=True)
+        conclusion(result)
         return 1
     finally:
         _cleanup()
@@ -854,13 +887,4 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 PY
-rc=$?
-
-echo "== 结论 =="
-if [ "$rc" -eq 0 ]; then
-  ok "graph-rebuild 通过（mode=$MODE kb=$KB_ID）"
-  [ "$APPLY" -eq 0 ] && warn "本次是 dry-run，未写任何数据；确认上面的数字后再加 --apply"
-else
-  printf '  [FAIL] graph-rebuild 未通过（mode=%s kb=%s rc=%s）\n' "$MODE" "$KB_ID" "$rc" >&2
-fi
-exit "$rc"
+exit $?

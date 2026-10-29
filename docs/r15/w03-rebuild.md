@@ -17,7 +17,7 @@
 | **端到端（隔离 KB 1000）** | 造 6+2 条边 → 把 6 条来源文件标记已删 → `--apply` 删掉 6 条、有效 2 条不变、边数守恒 8-6=2、社区 1 个摘要 1 条、`RESULT` 可解析、rc=0；kb 9 全程 93 条未动（§9） |
 | **与派工背景的差异** | 派工单给的「204 条边中 94 条只来自已删文件」**当前环境不能复现**（详见 §1.2）。不是脚本没实现，是这份数据现在不带陈旧边 |
 | 并发写入（持续） | 同一份图的实测读数：94 → 97 → 93，全部来自有效文件。**这不是一次性抖动，是持续在变**（§1.3） |
-| 运行代码 ≠ HEAD（且判定会翻面） | 服务进程加载的是**工作树**版本；HEAD 在我工作期间推进两次（`3469699`→`5f1df93`→`68fcfb1`）；`runtime_matches_head` 在 95 秒内从 `false` 翻成 `true`。只记 commit 做代次绑定会绑错（§1.4，脚本已把指纹打进 `RESULT`） |
+| 版本绑定（已按裁决实现） | `content_fingerprint` = 9 py + rag-index-service **jar** + 部署态 yml（整文件 hash）的内容哈希；硬判据 `runtime_matches_content = 进程启动 > 内容最大 mtime`。实测同一天出现过 `false`（22:28，改了没重启）与 `true`（22:33）；`false` 时结论行直接写"本次结果不作为代次对比依据"（§1.4） |
 | 原子发布 | 现在只能做到「重建前后一致性校验」；真正的 alias 原子切换**需要改 7 处代码**（C1–C7），本轮未改（§6） |
 
 ---
@@ -99,26 +99,61 @@
 
 因此脚本的三条设计是必需而不是洁癖：**每步现算**（不复用 dry-run 结果）、**apply 前并发守卫**、**删后重新枚举比对**。22:22–22:23 再测已经变成 93 条，说明"读一次然后据此删除"的做法本身就不可靠。
 
-### 1.4 运行中的进程加载的不是 HEAD（W03-2 版本绑定的真实坑）
+### 1.4 版本绑定（已按 TL 2026-10-29 裁决落地：方案 c = 内容哈希）
 
-实测（只读操作）：
+#### 1.4.1 为什么不用 commit
 
-| 事实 | 值 |
+实测（只读）：`worktree == HEAD` 这个判定在 **95 秒内翻过面**——22:23:07 是 `false`（`graph_fun_tool.py` 脏），22:24:42 变 `true`（该文件被提交），而**进程一次都没重启**。HEAD 在我工作期间也被推进两次（`3469699` → `5f1df93` → `68fcfb1` → …）。
+
+结论：commit 只代表"仓库某一刻的样子"，不代表"进程加载的字节"。因此 **HEAD 降为参考字段**（`RESULT.fingerprint.head` / `dirty` / `script_dirty`），**不作判据**。
+
+#### 1.4.2 content_fingerprint（判据本体）
+
+文件集合由 TL 指定，**不自行扩**（扩了历史 fingerprint 就不可比）：
+
+| 类别 | 文件 |
 |---|---|
-| 图服务进程 | `PID 1333986`，启动 `2026-10-29T22:21:25`（22:12:47 / 22:18 也各有一次重启，**重启不是本脚本或本人做的**） |
-| `graph_extract.py` mtime | `2026-10-29T22:09:27` |
-| HEAD | 我工作期间被推进**两次**：`3469699`（开工时）→ `5f1df93`（`docs(r15): 验收基线入账…`）→ `68fcfb1`（`fix(r15-a08): 修我自己引入的 local 图检索回归…`，22:24:42 实测） |
-| 工作树脏文件 | 22:23:07 时是 `services/.../graph_fun_tool.py`；22:24:42 已提交，工作树变干净（**同一个脚本 95 秒内打出相反的判定**，见下） |
+| Python（`services/rag-alg/index_data_service/index_graph_service/`） | `graph_extract.py` `graph_service.py` `graph_summary.py` `graph_types.py` `graph_fun_tool.py` `graph_community.py` `base.py` `prompt_config.py` `utils.py` |
+| Java | `services/rag-java/rag-parent/rag-index-service/target/rag-index-service-*.jar` 的 sha256（**取 jar 不取源码**：源码改了没重编，源码 hash 代表不了运行版本） |
+| 配置 | `platform/r12/conf/rag-index-service/application-r12.yml`，**整文件 hash**（不是只 hash `remote.*` 段，已在字段上标注） |
 
-结论（这两句要分开看，别混）：
+算法（照裁决实现）：
 
-1. **进程 vs 工作树**：进程启动时间晚于源码最新 mtime → 进程加载的是**当前工作树内容**，不是某个更早的磁盘快照。这一条成立。
-2. **工作树 vs HEAD**：22:23:07 时 `graph_fun_tool.py` 有未提交改动 → 运行代码 **≠ HEAD**；22:24:42 该文件被提交，同一脚本打出 `runtime_matches_head=true`。
-   即：**"运行代码 == HEAD 吗"这个判定本身也是一秒一变的事实**，95 秒内翻了面。所以任何"按 commit 登记代次指纹"的做法，只要读取一次就下结论，都会在某个窗口里绑到一个没在跑的实现上。
+```
+items = [ sha256( 相对路径 + "|" + 文件字节 ) for 文件 in sorted(集合) ]
+content_fingerprint = sha256( "\n".join(items) )
+```
 
-这正是 W03-2「固定不可变构建清单」要解决的问题，本脚本只能把事实记下来：第 [0/5] 步打印 `HEAD` + 服务源码脏文件 + `进程启动时间 vs 源码 mtime`，并写进 `RESULT.fingerprint`（`head` / `dirty` / `script_dirty` / `service_pid` / `service_start` / `src_max_mtime` / `runtime_matches_head` / `runtime_matches_worktree`）。**它不判断"该不该发版"，只保证事后能对上"当时跑的是什么"。**
+实测值（2026-10-29T22:33，11 项）：
 
-留给 TL 的决策（脚本不自己定）：构建清单到底绑哪一档——(a) `HEAD` 的 commit、(b) 进程启动时的 `HEAD`（=`runtime_matches_head` 为真那一刻）、还是 (c) `graph_{extract,service,summary}.py` 的 content hash。选 (a) 在本环境当前是不安全的（工作树会在提交间隙与 HEAD 不一致）；选 (c) 最稳但要扩到全部影响语义的文件（含 `prompt_config` 与 Java 侧调用链）。
+```
+content_fingerprint=ca93e3c025cfa3649734d92d4ae3bbb7152908e8a681d99712599cc19d789859
+逐项: application-r12.yml=242d3762062c, base.py=28b63696c42a, graph_community.py=1517e0dd9199,
+     graph_extract.py=3438a51ac201, graph_fun_tool.py=7dd6d563c783, graph_service.py=19bc69512cff,
+     graph_summary.py=0e471007664d, graph_types.py=19daa6acd86d, prompt_config.py=76c8a5090939,
+     rag-index-service-0.0.1-SNAPSHOT.jar=d055e62e8d9f, utils.py=5a93d9a2b94c
+```
+
+#### 1.4.3 硬判据 `runtime_matches_content`
+
+```
+runtime_matches_content = 进程启动时间  >  max(上述文件 mtime)
+```
+
+- 用 **`>` 不用 `>=`**：同一秒内重启可能读到半写文件，相等必须判 false。
+- `true` → 该次 `RESULT` **可用于代次对比**；结论行打印 `[ok] 本次结果可作为代次对比依据`。
+- `false` → `RESULT.fingerprint.comparable=false`，结论行打印
+  `[!!] 本次结果不作为代次对比依据（runtime_matches_content=false）`。
+- 缺文件（jar 不在、yml 不在、某个 py 被改名）→ 逐项 `[!!]` 报出来并**跳过该项**，不静默缩小口径；同时 `comparable` 仍按实际算出的集合判定，读的人能看到"这次指纹少了几项"。
+
+实测两个方向都出现过，都在同一天：
+
+| 时刻 | 进程 | 内容文件最大 mtime | runtime_matches_content | 说明 |
+|---|---|---|---|---|
+| 22:28:37 | `PID 1333986` @22:21:25 | `graph_extract.py` @22:28:07 | **false** | 源码改了没重启 → 该次抽取跑的不是 22:28 那份实现 |
+| 22:33:25 | `PID 1404435` @22:32:44 | `graph_extract.py` @22:28:07 | **true** | 重启后内容一致 → §9 的第二轮 E2E 就是在这个窗口跑的 |
+
+> 重启**不是**本脚本做的（本脚本全程不重启、不停服）；22:09 之后图服务被重启过至少 3 次，`watchdog.log` 里也有"启动宽限期内…缺 19529"的记录。本脚本只负责把"这一刻跑的是哪份字节"钉住，重启策略不在它职责内。
 
 ---
 
@@ -133,6 +168,9 @@ platform/r12/bin/graph-rebuild.sh 9 --apply
 
 # 3) 0 条陈旧边也想强制重建社区（默认会跳过，省 LLM 且不动索引）
 platform/r12/bin/graph-rebuild.sh 9 --apply --force-community
+
+# 4) 抽取侧严格模式：`单块重试：最终失败 > 0` 也算失败（默认关）
+platform/r12/bin/graph-rebuild.sh 9 --apply --strict-extract
 ```
 
 退出码：`0` 全通；`1` 有步骤失败（此时已发生的写入**不回滚**，见 §5）；`2` 前置/用法错误（**未产生任何写入**）。
@@ -170,6 +208,7 @@ platform/r12/bin/graph-rebuild.sh 9 --apply --force-community
 补充规则：
 
 - 只处理 `relationship`。`relationship_similar` 没有 `file_id` 属性（`DESCRIBE EDGE` 实测只有 `name, show_flag`），是遍历辅助边，不参与（W02-4 要求"社区与问答排除辅助边"）。
+- **计数口径 = 全部 `relationship` 边，不按 `show_flag` / `generation` 过滤**。所以本脚本报的边数与"页面/查询侧过滤后看到的边数"可能不同。实测（22:34）：`g_kb_9` 93 条**全部** `show_flag='1'`（`generation` 分布 V1=71 / V0=22），`g_kb_1000` 2 条也全是 `'1'`——即当前不存在"过滤前 97 / 过滤后 93"的口径差，97→93 是**真的删了 4 条**（TL 已确认：他删的 4 条 `show_flag=0` 残留伪反向边）。这个口径差异在别的 KB 上仍可能出现，届时先量 `show_flag` 分布再对比数字。
 - 顶点一律不动：脚本不 `DROP SPACE`、不删顶点、不碰 Milvus 图集合。`--apply` 只发 `DELETE EDGE` 单语句。
 - `--apply` 且陈旧边为 0 时**跳过** `/generate_community`（图没变，重建只会白烧 LLM 并制造一次索引窗口）；需要强制用 `--force-community`。
 
@@ -191,10 +230,10 @@ DELETE EDGE ...（不带 @rank）后: []                              <- 不带 
 
 ## 4. 实测输出
 
-### 4.1 dry-run（kb 9，原始输出，未删改；抓取时刻 22:23:07）
+### 4.1 dry-run（kb 9，原始输出，未删改；抓取时刻 22:35:27）
 
 ```
-$ platform/r12/bin/graph-rebuild.sh 9
+$ platform/r12/bin/graph-rebuild.sh 9   # 抓取时刻 22:35:27
 == W03 graph-rebuild ==
   [..] kb=9  mode=DRY-RUN  script=./platform/r12/bin/graph-rebuild.sh
 == [0/5] 环境前置 ==
@@ -203,11 +242,11 @@ $ platform/r12/bin/graph-rebuild.sh 9
   [ok] MySQL 容器 r12-mysql 运行中
   [ok] dry-run：并发守卫不生效（本模式只读）
   [ok] primitive_name=kb_9  Nebula space=g_kb_9
-  -- 构建指纹（进程实际加载的代码 vs HEAD）--
-  [ok] HEAD=5f1df93 docs(r15): 验收基线入账（PASS1/FAIL10/SKIP5）与团队分工记录
-  [!!] 服务源码有未提交改动 1 个: graph_fun_tool.py -> 运行代码 != HEAD，只记 commit 会把代次绑错
-  [!!] 本脚本自身有未提交改动 graph-rebuild.sh（不影响运行版本，仅记录）
-  [ok] graph 服务(PID 1333986) 启动于 2026-10-29T22:21:25，晚于源码最新 mtime 2026-10-29T22:09:27 -> 加载的是当前工作树版本
+  -- 内容指纹（版本绑定硬判据：进程加载的字节）--
+  [ok] content_fingerprint=3d8dce3218b2bf5c…（11 项：9 py + jar + yml(整文件 hash)）
+      逐项: application-r12.yml=242d3762062c, base.py=28b63696c42a, graph_community.py=1517e0dd9199, graph_extract.py=f1a63001a042, graph_fun_tool.py=7dd6d563c783, graph_service.py=19bc69512cff, graph_summary.py=0e471007664d, graph_types.py=19daa6acd86d, prompt_config.py=76c8a5090939, rag-index-service-0.0.1-SNAPSHOT.jar=d055e62e8d9f, utils.py=5a93d9a2b94c
+  [!!] runtime_matches_content=false：进程(PID 1404435) 启动于 2026-10-29T22:32:45，不晚于 graph_extract.py 的 mtime 2026-10-29T22:35:22 -> 进程加载的不是当前内容；本次结果不作为代次对比依据
+      [参考] HEAD=509d41d feat(r15-w01/w03/f12): description_overflow 标记、W03 端到端证据、验收脚；服务源码脏=1 项：graph_extract.py（仅供参考，不作判据）
 == [1/5] 有效文件集合（MySQL knowledge_base_list.status=3）==
   [ok] 文件行 274 条，按 status 分布 0=262, 3=11, 4=1
   [ok] 有效文件 11 个: 127,290,328,329,330,331,332,333,334,343,999002
@@ -228,10 +267,11 @@ $ platform/r12/bin/graph-rebuild.sh 9
   [!!] dry-run：跳过'边数守恒/陈旧边归零/摘要条数'三项校验（需 --apply 才有写入）
   将校验: 边数守恒(93 条) / 陈旧边归零 / ES 摘要条数 == 本次摘要数
   -- 抽取侧可复现性（R15-W01 EXTRACT_STATS，仅提示）--
-  [ok] passage 1 个：llm_calls=4 retries=0 parse_failed_lines=0 field_anomalies=0 valid_triples=29，平均 7.6s/次调用
-RESULT {"edge_mixed": 0, "edge_pending": 0, "edge_stale": 0, "edge_stale_after": 0, "edge_unknown": 0, "edge_valid": 93, "edges_after": 93, "edges_total": 93, "extract_stats": {"field_anomalies": 0, "llm_calls": 4, "log": "graph_info_2026-10-29.log", "parse_failed_lines": 0, "passages": 1, "retries": 0, "retry_final_fail": 0, "secs_per_call": 7.6, "valid_triples": 29}, "fingerprint": {"dirty": ["services/rag-alg/index_data_service/index_graph_service/graph_fun_tool.py"], "head": "5f1df9339fd39e44cc76fbddaef4f96cf78f64f0", "runtime_matches_head": false, "runtime_matches_worktree": true, "script_dirty": ["platform/r12/bin/graph-rebuild.sh"], "service_pid": 1333986, "service_start": "2026-10-29T22:21:25", "src_max_file": "graph_extract.py", "src_max_mtime": "2026-10-29T22:09:27"}, "kb": "9", "mode": "DRY-RUN", "primitive": "kb_9", "space": "g_kb_9", "ts": "2026-10-29T22:23:07+0800", "verdict": "PASS"}
+  [ok] passage 4 个：llm_calls=24 retries=0 parse_failed_lines=0 field_anomalies=0 valid_triples=44，平均 2.9s/次调用
+RESULT {"edge_mixed": 0, "edge_pending": 0, "edge_stale": 0, "edge_stale_after": 0, "edge_unknown": 0, "edge_valid": 93, "edges_after": 93, "edges_total": 93, "extract_stats": {"field_anomalies": 0, "llm_calls": 24, "log": "graph_info_2026-10-29.log", "parse_failed_lines": 0, "passages": 4, "retries": 0, "retry_final_fail": 0, "secs_per_call": 2.9, "valid_triples": 44}, "fingerprint": {"comparable": false, "config": "platform/r12/conf/rag-index-service/application-r12.yml", "content_files": 11, "content_fingerprint": "3d8dce3218b2bf5cd7c35f4cb5605d06ea13520960c174f5af5361a9633784f3", "content_max_file": "graph_extract.py", "content_max_mtime": "2026-10-29T22:35:22", "dirty": ["services/rag-alg/index_data_service/index_graph_service/graph_extract.py"], "head": "509d41de9c9565da01a728e0cecdf51a9dcdd0a7", "jar": "services/rag-java/rag-parent/rag-index-service/target/rag-index-service-0.0.1-SNAPSHOT.jar", "per_file": {"application-r12.yml": "242d3762062c", "base.py": "28b63696c42a", "graph_community.py": "1517e0dd9199", "graph_extract.py": "f1a63001a042", "graph_fun_tool.py": "7dd6d563c783", "graph_service.py": "19bc69512cff", "graph_summary.py": "0e471007664d", "graph_types.py": "19daa6acd86d", "prompt_config.py": "76c8a5090939", "rag-index-service-0.0.1-SNAPSHOT.jar": "d055e62e8d9f", "utils.py": "5a93d9a2b94c"}, "runtime_matches_content": false, "script_dirty": ["platform/r12/bin/graph-rebuild.sh"], "service_pid": 1404435, "service_start": "2026-10-29T22:32:45"}, "kb": "9", "mode": "DRY-RUN", "primitive": "kb_9", "space": "g_kb_9", "ts": "2026-10-29T22:35:27+0800", "verdict": "PASS"}
 == 结论 ==
   [ok] graph-rebuild 通过（mode=DRY-RUN kb=9）
+  [!!] 本次结果不作为代次对比依据（runtime_matches_content=false）
   [!!] 本次是 dry-run，未写任何数据；确认上面的数字后再加 --apply
 ```
 
@@ -288,6 +328,17 @@ $ 有并发 acceptance.py 时 --apply -> [FAIL] 检测到可能的并发重建/�
 
 并发守卫用 `pgrep -af 'rebuild_kb9|generate_triple|acceptance\.py'`（`pgrep` 不自匹配；用 `ps|grep` 会被自己的命令替换子 shell 命中，实测过，已换掉）。
 
+`--strict-extract` 也做了"闸门会不会响"的验证（把 `GRAPH_LOG_DIR` 指向 `/tmp` 里一份构造日志，不碰真实日志）：
+
+```
+构造: R15-W01 EXTRACT_STATS ... retries=2 parse_failed_lines=3 valid_triples=0
+      单块重试：最终失败 passage=1
+默认模式   -> [ok] passage 1 个 …／[!!] '单块重试：最终失败' 1 次 -> 边数不可复现      verdict=PASS rc=0
+--strict   -> [FAIL] --strict-extract：'单块重试：最终失败' 1 次 …                  verdict=FAIL rc=1
+```
+
+证明两条：① 严格模式确实会翻成失败（不是只在文档里写着）；② 默认模式不会因为别人的日志文本变红（W01 承诺的契约之外的情况也不误伤）。
+
 ---
 
 ## 5. 一致性校验与失败语义
@@ -302,15 +353,23 @@ $ 有并发 acceptance.py 时 --apply -> [FAIL] 检测到可能的并发重建/�
 
 ### 5.2 构建指纹与抽取侧提示（不参与退出码，只落证据）
 
-| 块 | 内容 | 为什么不给硬闸门 |
+| 块 | 内容 | 是否参与退出码 |
 |---|---|---|
-| 构建指纹（第 [0/5] 步） | `HEAD` + 服务源码脏文件 + 图服务 `PID`/启动时间 + `graph_{extract,service,summary}.py` 最新 mtime，判定 `runtime_matches_head` / `runtime_matches_worktree` | 它是**事实登记**，不是质量判据。当前环境 `runtime_matches_head=false` 是常态（工作树有未提交改动），若设成硬闸门，脚本会一直红，红久了就没人看 |
-| 抽取侧可复现性（第 [5/5] 步末） | 从 `graph_info_<date>.log` 聚合 `R15-W01 EXTRACT_STATS`：`llm_calls` / `retries` / `parse_failed_lines` / `field_anomalies` / `valid_triples` / 平均每次调用耗时；并数 `单块重试：最终失败` | 那行日志格式属于 W01 的工作包。把本脚本的成败绑在别人的日志文本上，一旦改名/下线就"红得莫名其妙"。所以只提示，`RESULT.extract_stats` 落盘，人工按需升格为闸门 |
+| **内容指纹（第 [0/5] 步）** | `content_fingerprint`（§1.4.2）+ 硬判据 `runtime_matches_content`（§1.4.3）+ HEAD/脏文件作**参考** | 不改退出码，但**决定 `RESULT.fingerprint.comparable` 与结论行**：`false` 时明确写"本次结果不作为代次对比依据"。这是 TL 定的硬判据——它管的是"这份结果能不能用"，不是"这次跑成功没有" |
+| 抽取侧可复现性（第 [5/5] 步末） | 从 `graph_info_<date>.log` 聚合 `R15-W01 EXTRACT_STATS`：`llm_calls` / `retries` / `parse_failed_lines` / `field_anomalies` / `valid_triples` / 单次调用耗时；并数 `单块重试：最终失败` | 默认**不参与**（假红风险，见下）；仅 `--strict-extract` 时把 `单块重试：最终失败 > 0` 升格为失败 |
+
+`--strict-extract` 按 W01 承诺的格式契约实现（对方保证：前缀 `R15-W01 EXTRACT_STATS` 不改名、字段只允许行尾追加）：
+
+1. 只断言一条：`单块重试：最终失败` 计数 == 0；
+2. `parse_failed_lines` / `field_anomalies` 非 0 **只提示**（实测 343 块常见"超出"型异常但关系仍落地，非 0 不等于坏）；
+3. **找不到 STATS 行 = SKIP，不是 FAIL**（老日志/换机器/该行未上线都属此列）。
+
+工时估算的单位成本（W01 提供，我采纳）：同一天三个真实样本 `27.4s→20 条`、`234.59s→22 条`、`30.6s→14 条`，**单 passage 上界按 235s 算，不是 30s**——耗时与输出行数相关、波动接近一个数量级。按"passage 数 × 30s"估整库重建会严重低估；本次夹具实测 `2.9s/次调用 × 24 次` 是小文本的下限，不能当通则。
 
 两个实现细节（都踩过）：
 
 - **只读当天的 loguru 文件**（`logs/graph_service/graph_info_<date>.log`），**不要**同时扫 `platform/r12/logs/index_graph_service.log`——同一条 stats 行会被两个 sink 各写一次，扫两处会把 `llm_calls`/`valid_triples` 翻倍。脚本内部再按 `(passage, elapsed_ms)` 去重兜底。
-- 脏文件解析**不能用 `ln[3:]`**：命令输出的整体 `strip()` 会把首行的 `" M "` 前缀吃掉一格，截出 `latform/r12/...`（实测踩到）。改用 `ln.split(None, 1)[-1]`；并且只把**服务源码目录**的脏算进 `runtime_matches_head`，本脚本自身的脏单列 `script_dirty`（它不是运行版本风险）。
+- 脏文件解析**不能用 `ln[3:]`**：命令输出的整体 `strip()` 会把首行的 `" M "` 前缀吃掉一格，截出 `latform/r12/...`（实测踩到）。改用 `ln.split(None, 1)[-1]`。另外脏文件现在**只是参考字段**（`dirty` / `script_dirty`），不再参与 `runtime_matches_content` 判定——判定看的是内容哈希 + 进程启动时间（§1.4.3）。
 
 ### 5.3 失败语义
 
@@ -360,6 +419,17 @@ $ 有并发 acceptance.py 时 --apply -> [FAIL] 检测到可能的并发重建/�
 配套但不是本次范围：`generation` 生命周期合同（`contracts/` 已登记）里要加"社区摘要物理产物的代次绑定"，以及 A10 的"撤权立即围栏"要在别名层面按可见集判定。
 
 顺序建议：C4（主键种子）→ C5（ES alias 路由）→ C1/C2/C3 → C6（Milvus alias）→ C7（编排）。**C4 必须先做**，否则后面所有切换都会制造一次全量 `_id` 变更。
+
+### 6.3 C4 是本轮的**阻塞项**，不是待办（TL 2026-10-29 裁决）
+
+TL 认了 C4 的问题，但**本轮不实施**，理由与处置已确认：
+
+- 理由：C4 改主键种子会让已有 `community_summary_kb_9` 的**全部 `_id` / `pk` 整体换一代**，必须配套"旧摘要清理 + 引用重写"，本质是一次数据迁移。在"代次还没闭环"的时候先做迁移，等于把一个可回滚的窗口变成不可回滚的窗口。
+- 影响：**C1–C7（即 §6.2 全部原子发布改造）在本轮都不交付**，`community_summary_<kb>` 继续是真实索引名、无法原子切换。W03 的"同代发布"仍只能靠 §5 的前后一致性校验。
+- 登记：C4 记为 **W03 阻塞项**与 **F05 的前置**。F05 要动，必须先完成 C4 的数据迁移方案（含回滚点与旧摘要清理脚本），且该方案要单独评审。
+- 本轮只交付设计（§6.2），**未改 `services/` 任何代码**。
+
+也就是说：读这份文档的人不要以为 §6.2 是"下一步就能开工"。**下一步是 C4 的迁移方案评审，不是写 alias 代码。**
 
 ---
 
@@ -412,7 +482,7 @@ pgrep -af graph_api_start
 
 ---
 
-## 9. 端到端验证（隔离 KB，2026-10-29 22:27–22:29）
+## 9. 端到端验证（隔离 KB，2026-10-29 22:27–22:34，两轮）
 
 目的：证明 `--apply` 的删除路径在**真实图数据**上成立——kb 9 现在陈旧边为 0，拿它验证不了删除。全过程不碰 kb 9、不重启服务。
 
@@ -507,11 +577,49 @@ dry-run 的 `RESULT`：`edge_stale=6`、`edge_valid=2`、`verdict=PASS`（dry-ru
 1. **`community_summary_kb_1000` 与真实索引名一致**：脚本用 `community_summary_` + `primitive.strip().lower()` 计算（与 `graph_summary._idx()` 同规则），`es_before=0 / es_after=1` 与写入条数对得上，说明这个拼法对 `kb_*` 形态的 primitive 是正确的。
    但顺带观察到一处**既有的命名不一致**（与本脚本无关）：对 `rag_graph` 调 `generate_community` 后，ES 里真实索引名是 `community_summary_ragraph`（下划线被去掉），而不是 `community_summary_rag_graph`。原因未定位。**结论：本脚本只对 `kb_*` 形态实测过；primitive 里带额外下划线的 KB 需要先核对真实索引名。**
 2. **"合法空"分支没被触发**：删完 6 条边后空间只剩 2 条边 / 3 个顶点，`generate_community` 仍返回 `communities=1`（`size=3, edge_count=2`）。所以 `communities == 0` 的"合法空"分支本次**没有跑通证据**，只能按服务返回契约（`graph_summary.py::generate_community` 里 `if not communities: return code=200, msg="未检测到满足条件的社区（图可能过小）"`）实现。要覆盖它需要一个顶点数 <3 的空间，本轮没造（避免再写数据）。
-3. **服务进程没加载最新改动（新指纹块当场抓到）**：`--apply` 那一步的指纹是
-   `service_start=2026-10-29T22:21:25` / `src_max_mtime=2026-10-29T22:28:07`（`graph_extract.py`）→ `runtime_matches_worktree=false`。
-   即：**刚才这次抽取用的不是 22:28:07 那份实现**。这不是本脚本能修的（需要重启服务，而重启不在本任务授权内），但它说明"跑过一次就代表当前代码"在本环境不成立——这条已作为 `[!!]` 打印出来，可作为 A14「运行版本正确」的证据入口。
+3. **服务进程没加载最新改动（新指纹块当场抓到）**：第一轮 `--apply` 那一步的指纹是
+   `service_start=2026-10-29T22:21:25` / `content_max_mtime=2026-10-29T22:28:07`（`graph_extract.py`）→ `runtime_matches_content=false`。
+   即：**那一轮抽取用的不是 22:28:07 那份实现**，所以第一轮 RESULT 标记为"不可作代次对比"（第二轮在重启后复跑，见 §9.6，那次 `comparable=true`）。
+   这不是本脚本能修的（需要重启服务，而重启不在本任务授权内），但它说明"跑过一次就代表当前代码"在本环境不成立——这条已作为 `[!!]` 打印，可作为 A14「运行版本正确」的证据入口。同一现象在 22:35:27 又出现一次（`graph_extract.py` 被再次修改，mtime 22:35:22 > 进程启动 22:32:45）——**这个环境里源码改动比服务重启频繁得多**，所以判据必须是"每次现算"，不能缓存。
 
-### 9.6 夹具现状与清理（本轮**不**执行删除）
+### 9.6 第二轮：在 `runtime_matches_content=true` 窗口复跑（结果可用于代次对比）
+
+第一轮（§9.2–9.3）跑在 22:28，当时指纹是 `runtime_matches_content=false`（进程 22:21:25 早于 `graph_extract.py` 的 mtime 22:28:07）——按 §1.4.3 的硬判据，**那一轮的 RESULT 不能用于代次对比**。所以服务重启后（`PID 1404435` @22:32:44）又做了一遍完整流程：
+
+1. `status` 999003 恢复为 3 → 重新 `generate_triple_data`（`edges_written=8`，6+2 与第一轮一致，说明同一输入可复现）
+2. 再次置 `status=0`（造陈旧边）
+3. dry-run → `--apply`
+
+```
+-- 内容指纹（版本绑定硬判据：进程加载的字节）--
+  [ok] content_fingerprint=ca93e3c025cfa364…（11 项：9 py + jar + yml(整文件 hash)）
+  [ok] runtime_matches_content=true：进程(PID 1404435, 2026-10-29T22:32:44) 晚于 graph_extract.py 的 mtime
+       2026-10-29T22:28:07 -> 本次结果可用于代次对比
+      [参考] HEAD=509d41d …；服务源码脏=0 项（仅供参考，不作判据）
+```
+
+dry-run：`edge_stale=6 / edge_valid=2 / edges_total=8`，`fingerprint.comparable=true`。
+
+`--apply`（rc=0）：
+
+```
+  [ok] 已删除 6 条陈旧边
+  重建前 ES community_summary_kb_1000 摘要 1 条
+  http=200 用时 9.5s  msg=社区 1 个，摘要 1 条，失败 0 条
+  [ok] ES 按新代 community_id 清理：命中新代 1 条，删除旧代 0 条
+  删后 relationship 边合计 2 条（进场时 8）
+  [ok] 边数守恒：8 - 6 = 2
+  [ok] 陈旧边已归零
+  [ok] 有效来源边数不变：2
+  [ok] ES 摘要条数 == 本次摘要数 == 1；社区数 1；失败 0
+== 结论 ==
+  [ok] graph-rebuild 通过（mode=APPLY kb=1000）
+  [ok] 本次结果可作为代次对比依据（runtime_matches_content=true）
+```
+
+两轮的差别只有指纹与"是否可比"，删除/守恒/对账三项断言结果完全一致。**第二轮这次才是可以拿去和别的代次对比的记录**（`content_fingerprint=ca93e3c025cfa3649734d92d4ae3bbb7152908e8a681d99712599cc19d789859`）。
+
+### 9.7 夹具现状与清理（本轮**不**执行删除）
 
 - 新增：KB `r15-w03-probe`（`kbId=1000`，`primitive=kb_1000`）、Nebula 空间 `g_kb_1000`（现存 2 条边 / 3 个顶点）、ES `community_summary_kb_1000`（1 条）、Milvus `_community_summary_kb_1000`、ES `kb_1000`（2 条 chunk）。
 - 另有一处**副作用**：为验证"图太小"的返回形状，对 R13 测试空间 `rag_graph` 调了一次 `generate_community`，因此 ES 多出 `community_summary_ragraph`（1 条）。不在 kb_9，也不是业务库。
