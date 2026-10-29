@@ -133,6 +133,34 @@ def detect_communities(g, resolution=1.0, min_community_size=3, max_level=1, nam
     return communities
 
 
+def community_generations(space_name: str, members):
+    """R15 W03/F05：该社区成员边上的代次分布。
+
+    契约把 generation 列为 required，但实现此前只在写入侧有代次，
+    社区摘要/响应都不带 —— 于是"这条结论属于哪一代"无法回答，
+    新旧文档冲突时也无法按代次隔离。这里把代次分布随摘要一起落库/返回。
+    """
+    space = "g_" + space_name
+    session = user_connect_space(space)
+    if session is None:
+        return []
+    member_set = set(members or [])
+    query = ('MATCH (a:entity)-[e:relationship]->(b:entity) '
+             'RETURN id(a) AS src, id(b) AS dst, properties(e).generation AS g')
+    try:
+        result = session.execute(query)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"读取社区代次失败: {e}")
+        return []
+    gens = set()
+    for i in range(result.row_size()):
+        v = result.row_values(i)
+        if v[0].as_string() not in member_set or v[1].as_string() not in member_set:
+            continue
+        gens.add(v[2].as_string() if v[2].is_string() else "")
+    return sorted(x for x in gens if x)
+
+
 def community_triples(space_name: str, members):
     """取某社区内部的边，用于摘要事实来源（只给模型看到社区内事实，避免编造）。"""
     space = "g_" + space_name

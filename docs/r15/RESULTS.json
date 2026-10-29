@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T23:20+08:00",
+  "updated": "2026-10-29T23:40+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -186,14 +186,14 @@
       "A06 零产出不假成功（332 重解析后 1 条边）",
       "A11 引用可回指",
       "A02 同谓词双向已消除（跨次判重+清存量）",
-      "A03 分项不再当总额度（谓词纠错+清错误边+判据排除分项谓词）"
+      "A03 分项不再当总额度（谓词纠错+清错误边+判据排除分项谓词）",
+      "A09 代次在写入侧与消费侧都可见"
     ],
     "PARTIAL": [
       "A08 local 通路已修通，但 N6『两入口都保留分项』4 次里 2 次不成立 → 需 k>=3 采样定论"
     ],
     "FAIL_PRODUCT": [
-      "A01 类型体系无契约（含白名单外类型'时间'/合法评级'正常'被停用词丢弃/unclassified 38%）",
-      "A09 (智造贷,最高额度) 同时有 8000万/1000万；graph_summary 中 generation 出现 0 次"
+      "A01 类型体系无契约（含白名单外类型'时间'/合法评级'正常'被停用词丢弃/unclassified 38%）"
     ],
     "FAIL_ASSERTION_TODO": [
       "A12 N2 需分三档：逐字在图内 / 可派生且标注推导 / 真凭空（7000万=8000-1000 属第二档）",
@@ -208,7 +208,7 @@
       "A15",
       "A16"
     ],
-    "note": "稳定产品缺陷剩 2 条：A01 类型契约、A09 代次仅在写入侧；A07 判据待改"
+    "note": "稳定产品缺陷仅剩 A01（契约已交付、实现未接入）；A07/A12 判据待修"
   },
   "new_findings": [
     "删KB是软删且不联动下层：knowledge_base.status=0 但 knowledge_base_list 仍 status=3，图空间/摘要不回收 → A10 不能只看接口返回",
@@ -241,5 +241,17 @@
       "state": "ASSERT_TODO",
       "evidence": "TL 独立复核 94/69/11/61/11/0 与成员一致"
     }
+  },
+  "a01": {
+    "state": "CONTRACT_DELIVERED",
+    "evidence": "contracts/ontology/{entity-types.v1.json,relations.v1.json,README.md}",
+    "content": "6 大类 27 码 + 18 谓词（symmetric 仅 相似/关联）+ 命名规范 4 条",
+    "not_done": "graph_types.py 仍用硬编码 16 类，未读契约 → A01 断言仍 FAIL（这是正确状态）",
+    "known": "5 个码位无真实样例待业务确认；unclassified 44%；STOPWORDS 含'正常'与评级规则冲突"
+  },
+  "a09": {
+    "state": "PASS",
+    "evidence": "社区摘要落 generations；query_community 返回 ['V0','V1']",
+    "note": "多代并存被显式暴露（这正是'一请求固定同代'尚未做到的可见标记）"
   }
 }

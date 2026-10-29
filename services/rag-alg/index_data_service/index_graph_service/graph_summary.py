@@ -13,7 +13,8 @@ import time
 import requests
 
 from base import BaseResponse
-from graph_community import detect_communities, load_graph, community_triples, community_file_ids
+from graph_community import (detect_communities, load_graph, community_triples,
+                             community_file_ids, community_generations)
 from graph_fun_tool import requests_llm
 from operators.common.log import logger
 
@@ -409,6 +410,8 @@ def generate_community(payload: dict) -> BaseResponse:
             _sources_by = "entity_content" if _sources else ""
         # C15：同时落 chunk 级引用（pk + source + offset），global 引用卡片取第一条
         _chunk_refs, _chunk_stats = resolve_chunk_refs(space_name, c["members"])
+        # R15 W03/F05：社区涉及的代次（消费侧要能回答"这条结论属于哪一代"）
+        _generations = community_generations(space_name, c["members"])
         if text is None:
             failures.append({"community_id": c["community_id"], "reason": info})
             continue
@@ -432,6 +435,9 @@ def generate_community(payload: dict) -> BaseResponse:
                 # 引用卡片取第一条即为"可打开的具体块"，不再只有社区摘要。
                 "chunk_refs": _chunk_refs,
                 "chunk_refs_stats": _chunk_stats,
+                # 代次：该社区成员边上的 generation 集合（可为多代，说明新旧混存）
+                "generations": _generations,
+                "generation_primary": (_generations[0] if len(_generations) == 1 else ""),
                 "create_time": time.strftime("%Y-%m-%d %H:%M:%S"),
             },
         })
@@ -498,6 +504,9 @@ def _load_summaries(kb, with_triples=False):
         out.append({
             "community_id": community_id,
             "level": md.get("level"),
+            # R15 W03/F05：代次随摘要一起读出，供响应与审计使用
+            "generations": md.get("generations") or [],
+            "generation_primary": md.get("generation_primary") or "",
             "members": members,
             "file_ids": file_ids,
             # 审计：原始（可能是旧代）file_ids 一并回传，便于判断"是数据旧"还是"逻辑丢"
@@ -951,6 +960,11 @@ def query_community(payload: dict) -> BaseResponse:
                               "cite_fixes": _cite_fixes,
                               "derived_facts": [f for f, _c in _derived],
                               "limit_facts": [f for f, _c in _limits],
+                              # R15 W03/F05：本次汇总涉及的代次集合（多代说明新旧混存，
+                              # 这是"一请求固定同代"尚未做到的可见标记）
+                              # map_outputs 的元素是 (summary_dict, facts) 元组，必须解包
+                              "generations": sorted({g for _s, _f in map_outputs
+                                                     for g in (_s.get("generations") or [])}),
                               # 审计：哪些额度构成行被补进了答案（模型漏答分项时）
                               "limit_appended": _limit_appended,
                               # 审计：每条"推导/不推导"的判定原因（A03 可逐条核对前提）
