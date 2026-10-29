@@ -63,10 +63,34 @@ def detect_communities(g, resolution=1.0, min_community_size=3, max_level=1, nam
 
     parts = nx.community.louvain_communities(g, weight="weight", resolution=resolution, seed=42)
 
-    level0 = []
+    # R15 W04 / F08：小分块不能直接丢弃。
+    # 原实现 `len(members) < min_community_size: continue` 会把 Louvain 切出来的
+    # 小簇整块扔掉——实测 kb_9：智造贷被切成「利率/时限」与「额度」两簇，
+    # 额度簇只有 {智造贷, 8000万元}，被丢弃后**全图 110 条边里额度事实一条都不在社区里**，
+    # global 只能答"事实中未提及"，而同一问题 local 却答对了 8000 万。
+    # 修法：小簇并入连接数最多的相邻社区；完全孤立的簇单独成社区（size 可以是 1–2），
+    # 保证"所有实体都有归属"，社区覆盖率 100% 才谈得上广域汇总。
+    big, small = [], []
     for members in parts:
         members = sorted(members)
-        if len(members) < min_community_size:
+        (big if len(members) >= min_community_size else small).append(members)
+    for members in small:
+        member_set = set(members)
+        best_idx, best_links = None, 0
+        for i, block in enumerate(big):
+            block_set = set(block)
+            links = sum(1 for u in member_set for v in g.neighbors(u) if v in block_set)
+            if links > best_links:
+                best_idx, best_links = i, links
+        if best_idx is None:
+            big.append(members)          # 与任何社区都不相连：保留为独立社区
+        else:
+            big[best_idx] = sorted(set(big[best_idx]) | member_set)
+
+    level0 = []
+    for members in big:
+        members = sorted(members)
+        if not members:
             continue
         sub = g.subgraph(members)
         level0.append({
