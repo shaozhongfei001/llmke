@@ -108,6 +108,7 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
         "relations_parsed": 0,
         "field_anomalies": 0,
         "parse_failed_lines": 0,
+        "description_overflow": 0,
     }
 
     messages = [{"role": "system", "content": system_prompt},
@@ -217,14 +218,16 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
 
     # R15-W01：一次调用一次的汇总行（固定格式、单行、k=v），用于 grep 与做分布监控。
     # passage 数固定为 1（本函数按 passage 调用），保留字段是为了和批量侧口径一致。
+    # 字段契约（R15-W01，对 W03 的 graph-rebuild.sh 生效）：前缀 `R15-W01 EXTRACT_STATS` 不改名，
+    # 已有 k=v 的位置不变，新字段**只在行尾追加**（description_overflow 即按此追加）。
     logger.info(
         "R15-W01 EXTRACT_STATS passage={} passage_chars={} llm_calls={} rounds={} retries={} "
         "candidate_lines={} parse_failed_lines={} field_anomalies={} "
-        "valid_entities={} valid_triples={} elapsed_ms={}".format(
+        "valid_entities={} valid_triples={} elapsed_ms={} description_overflow={}".format(
             _stats["passage"], _stats["passage_chars"], _stats["llm_calls"], _stats["rounds"],
             _stats["retries_used"], _stats["candidate_lines"], _stats["parse_failed_lines"],
             _stats["field_anomalies"], len(entity_dict), len(relation_dict),
-            int((time.time() - _t_start) * 1000)))
+            int((time.time() - _t_start) * 1000), _stats["description_overflow"]))
     return list(relation_dict.values()), entity_dict
 
 
@@ -304,6 +307,7 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
             # 实测同一块一轮里能丢 5~8 条，正好落在"评级加点"这类长描述上。
             _parts = _strip_wrapper(line).split("::")
             _n_fields = len(_parts)
+            _description_overflow = False
             if _n_fields < RELATION_MIN_FIELDS:
                 # R15-W01：不足 -> 记 字段数异常 并计数（原来只有一条 error 日志、没有汇总）。
                 # 实测来源就是模型把输出截断在半行上：("relationship"::评级授信
@@ -313,9 +317,17 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
             if _n_fields > RELATION_MAX_FIELDS:
                 # R15-W01：超出通常是描述里自带 "::"（如"口径::按日"），不是脏数据，
                 # 所以只计数 + 告警，仍按"描述=剩余段拼接"落地，不把有效关系一起丢掉。
+                # R15-W01 / TL 裁决 b（2026-10-29）：真实的"超出"多是模型把多实体串成一行
+                # （如 9 段：办理流程-> / 受理 / 资料审核 / 评级授信 / …），救回后 description
+                # 会混入本应是端点的名词。保留关系但**必须可追溯**：打 description_overflow=true，
+                # 并在关系字典上带同名标记，供社区摘要/引用侧识别"这条描述不可靠"。
+                # 不改三元组本身的 name/src/dest/description，也不改成"丢弃+要求重写"（语义变更，超出本轮）。
+                _description_overflow = True
                 _bump(stats, "field_anomalies")
+                _bump(stats, "description_overflow")
                 logger.warning(f"字段数异常(关系行超出: 期望<={RELATION_MAX_FIELDS}段,"
-                               f"实际{_n_fields}段,描述含'::'),已按描述拼接: {line[:80]}")
+                               f"实际{_n_fields}段,描述含'::'),已按描述拼接,"
+                               f"description_overflow=true: {line[:80]}")
             relation_name, src_ent, dest_ent = _parts[1], _parts[2], _parts[3]
             description = "::".join(_parts[4:]) if _n_fields > 4 else ""
             src_ent = clean_entity(src_ent)
@@ -345,6 +357,11 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
                 "dest_entity": dest_entity,
                 "description": description
             }
+            if _description_overflow:
+                # TL 裁决 b：只加侧车标记，不改 name/src_entity/dest_entity/description。
+                # 现有消费者（graph_service.llm_generate_triple、_generate_filtered_response）
+                # 都按字段名取值，多一个键不影响；要落库需 graph_service 侧消费该键（他人文件，本包不越界）。
+                relation_dict[(src_ent, relation_name, dest_ent)]["description_overflow"] = True
             visited_entity.add(src_entity["name"])
             visited_entity.add(dest_entity["name"])
             response_strings.append(f'("relationship"::{relation_name}::{src_entity["name"]}::{dest_entity["name"]}::{description})')

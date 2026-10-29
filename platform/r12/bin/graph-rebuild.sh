@@ -14,8 +14,11 @@
 #
 # 步骤（每步打印 [ok]/[!!]/[FAIL]，任一步失败非零退出）：
 #   0 环境前置：.env 口令 / docker 容器 / graph venv / 并发守卫
-#     构建指纹：HEAD + 服务源码脏文件 + 进程启动时间 vs 源码 mtime
-#               （工作树有未提交改动时，运行中的进程加载的不是 HEAD——只记 commit 会绑错代次）
+#     内容指纹（TL 裁决的版本绑定口径）：content_fingerprint = sha256(排序后逐文件
+#       sha256("路径|内容"))，范围 = 9 个 index_graph_service py + rag-index-service **jar** +
+#       部署态 application-r12.yml（整文件 hash）。HEAD 只作参考，不作判据。
+#     硬判据 runtime_matches_content = 进程启动时间 **>** 内容文件最大 mtime（严格大于）；
+#       为 false 时结论行会写"本次结果不作为代次对比依据"。
 #   1 有效文件集合：MySQL knowledge_base_list.status=3
 #   2 边来源统计：全图边数 / 仅来自已删文件 / 混合来源 / 无法判定
 #   3 [--apply] 删除"仅来自已删文件"的边（逐条 DELETE EDGE type "src"->"dst"@rank）
@@ -53,16 +56,19 @@ usage() {
   graph-rebuild.sh <kbId>                              # 默认 dry-run，只统计不写
   graph-rebuild.sh <kbId> --apply                      # 删陈旧边 + 重建社区摘要
   graph-rebuild.sh <kbId> --apply --force-community    # 0 条陈旧边也强制重建社区
+  graph-rebuild.sh <kbId> --apply --strict-extract     # 抽取侧"重试最终失败>0"也算失败
 EOF
 }
 
 KB_ID=""
 APPLY=0
 FORCE_COMMUNITY=0
+STRICT_EXTRACT=0
 for a in "$@"; do
   case "$a" in
     --apply)           APPLY=1 ;;
     --force-community) FORCE_COMMUNITY=1 ;;
+    --strict-extract)  STRICT_EXTRACT=1 ;;
     -h|--help)         usage; exit 0 ;;
     -*)                printf '未知参数: %s\n' "$a" >&2; usage; exit 2 ;;
     *)                 [ -z "$KB_ID" ] || { printf '只接受一个 kbId\n' >&2; usage; exit 2; }
@@ -127,10 +133,12 @@ fi
 KB_ID="$KB_ID" \
 MODE="$MODE" \
 FORCE_COMMUNITY="$FORCE_COMMUNITY" \
+STRICT_EXTRACT="$STRICT_EXTRACT" \
 MYSQL_CONTAINER="$MYSQL_CONTAINER" \
 REPO="$REPO" \
 "$PY_BIN" - <<'PY'
 import glob
+import hashlib
 import json
 import os
 import re
@@ -149,7 +157,16 @@ APPLY = MODE == "APPLY"
 CONTAINER = os.environ.get("MYSQL_CONTAINER", "r12-mysql")
 REPO = os.environ.get("REPO", "")
 SVC_DIR = "services/rag-alg/index_data_service/index_graph_service"
-GRAPH_SRC = ("graph_extract.py", "graph_service.py", "graph_summary.py")
+# W03-2 版本绑定（TL 2026-10-29 裁决 = 方案 c：内容哈希）。
+# 文件集合**由 TL 指定，不要自己扩**；扩了会让所有历史 fingerprint 不可比。
+CONTENT_PY = ("base.py", "graph_community.py", "graph_extract.py", "graph_fun_tool.py",
+              "graph_service.py", "graph_summary.py", "graph_types.py",
+              "prompt_config.py", "utils.py")
+# Java 取 **构建产物 jar** 的 sha256：源码改了没重编，源码 hash 代表不了运行版本
+JAR_GLOB = "services/rag-java/rag-parent/rag-index-service/target/rag-index-service-*.jar"
+# 配置只取部署态那份：进程读的是它（源码树里的 resources 副本只作参考，不进指纹）
+CFG_FILE = "platform/r12/conf/rag-index-service/application-r12.yml"
+STRICT_EXTRACT = os.environ.get("STRICT_EXTRACT", "0") == "1"
 
 GRAPH = os.environ.get("GRAPH", "http://127.0.0.1:19529")
 ES = os.environ.get("ES", "http://127.0.0.1:19200")
@@ -214,77 +231,124 @@ def _run(cmd, timeout=30):
         return 1, "", "%s: %s" % (type(exc).__name__, exc)
 
 
+def _sha256_file(path):
+    """sha256(路径|内容) 的分项：前缀写路径，再流式喂内容（jar 225MB，不整读进内存）。"""
+    h = hashlib.sha256()
+    rel = os.path.relpath(path, REPO).replace(os.sep, "/")
+    h.update(rel.encode("utf-8")); h.update(b"|")
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return rel, h.hexdigest()
+
+
 def build_fingerprint():
-    """记录"打底跑的是哪份代码"。W03-2 要求构建清单绑定版本，但只记 commit 是有坑的：
-    工作树有未提交改动时，运行中的进程加载的是工作树内容，与 HEAD 不是一回事。"""
-    print("  -- 构建指纹（进程实际加载的代码 vs HEAD）--", flush=True)
-    fp = {"dirty": [], "service_pid": None, "service_start": None,
-          "src_max_mtime": None, "runtime_matches_worktree": None, "runtime_matches_head": None}
-    if not REPO:
-        warn("未设置 REPO，跳过构建指纹")
+    """W03-2 版本绑定：content_fingerprint（TL 2026-10-29 裁决 = 内容哈希）。
+
+    为什么不用 commit：实测 95 秒内 `worktree == HEAD` 就翻面（文件被提交），而进程根本没重启；
+    commit 只代表"仓库某一刻的样子"，不代表"进程加载的字节"。所以：
+      · 判据 = content_fingerprint（9 个 py + jar + 部署态 yml）
+      · 硬判据 = runtime_matches_content = 进程启动时间 **>** 内容文件最大 mtime（严格大于：
+        同一秒重启可能读到半写文件）
+      · HEAD / worktree 脏只作参考字段，不作判据
+    算法：按路径排序，逐文件算 sha256("相对路径|内容")，把这些 hex 用 "\\n" 连接后再 sha256。
+    """
+    print("  -- 内容指纹（版本绑定硬判据：进程加载的字节）--", flush=True)
+    fp = {"service_pid": None, "service_start": None, "content_files": 0,
+          "runtime_matches_content": None, "content_max_mtime": None, "content_max_file": None}
+
+    # 1) 收集文件集合（集合由 TL 定；缺文件要显式报，不能静默缩小指纹口径）
+    paths = []
+    for name in CONTENT_PY:
+        p = os.path.join(REPO, SVC_DIR, name)
+        if os.path.exists(p):
+            paths.append(p)
+        else:
+            warn("内容指纹缺文件（跳过，指纹口径变小）: %s/%s" % (SVC_DIR, name))
+    jars = sorted(glob.glob(os.path.join(REPO, JAR_GLOB)))
+    if jars:
+        jar = max(jars, key=os.path.getmtime)
+        paths.append(jar)
+        fp["jar"] = os.path.relpath(jar, REPO)
+    else:
+        warn("找不到 rag-index-service 的 jar（%s）：Java 侧运行版本无法绑定" % JAR_GLOB)
+    cfg = os.path.join(REPO, CFG_FILE)
+    if os.path.exists(cfg):
+        paths.append(cfg)
+        fp["config"] = CFG_FILE
+    else:
+        warn("找不到部署态配置 %s" % CFG_FILE)
+
+    if not paths:
+        warn("一个内容文件都没找到，无法计算 content_fingerprint")
         return fp
 
-    rc, head, _ = _run(["git", "-C", REPO, "rev-parse", "HEAD"])
-    fp["head"] = head if rc == 0 and head else None
-    if fp["head"]:
-        _rc, desc, _ = _run(["git", "-C", REPO, "log", "-1", "--format=%s"])
-        ok("HEAD=%s %s" % (head[:7], desc[:80]))
-    else:
-        warn("读不到 git HEAD（仓库不完整？），本次无法做版本绑定")
+    # 2) 逐项 sha256(路径|内容) → 排序拼接 → 再 sha256
+    items, per, mts = [], {}, []
+    for p in sorted(paths, key=lambda x: os.path.relpath(x, REPO)):
+        rel, h = _sha256_file(p)
+        items.append(h)
+        per[os.path.basename(rel)] = h[:12]
+        mts.append((os.path.getmtime(p), os.path.basename(rel)))
+    fp["content_fingerprint"] = hashlib.sha256("\n".join(items).encode("utf-8")).hexdigest()
+    fp["content_files"] = len(items)
+    fp["per_file"] = per
+    ok("content_fingerprint=%s（%d 项：%d py + %s + %s）"
+       % (fp["content_fingerprint"][:16] + "…", len(items), len(CONTENT_PY),
+          "jar" if fp.get("jar") else "无 jar", "yml(整文件 hash)" if fp.get("config") else "无 yml"))
+    print("      逐项: %s" % ", ".join("%s=%s" % (k, v) for k, v in sorted(per.items())), flush=True)
 
-    def _dirty(pathspec):
-        # 不能用 ln[3:]：git status 首行的 " M " 前缀被整体 strip 后错位一格，会截出 "latform/..."
-        rc, out, _ = _run(["git", "-C", REPO, "status", "--porcelain", "--"] + pathspec)
-        if rc != 0 or not out:
-            return []
-        return [ln.split(None, 1)[-1].strip() for ln in out.splitlines() if ln.strip()]
-
-    # 只有服务源码影响"运行中的进程到底加载了什么"；本脚本自己的脏不构成版本风险
-    svc_dirty = _dirty([SVC_DIR])
-    fp["dirty"] = svc_dirty
-    fp["script_dirty"] = _dirty(["platform/r12/bin"])
-    if svc_dirty:
-        warn("服务源码有未提交改动 %d 个: %s -> 运行代码 != HEAD，只记 commit 会把代次绑错"
-             % (len(svc_dirty), ", ".join(os.path.basename(d) for d in svc_dirty[:6])))
-        fp["runtime_matches_head"] = False
-    else:
-        ok("服务源码工作树干净：运行代码 == HEAD")
-        fp["runtime_matches_head"] = True
-    if fp["script_dirty"]:
-        warn("本脚本自身有未提交改动 %s（不影响运行版本，仅记录）"
-             % ", ".join(os.path.basename(d) for d in fp["script_dirty"][:3]))
-
-    mts = [(os.path.getmtime(os.path.join(REPO, SVC_DIR, f)), f)
-           for f in GRAPH_SRC if os.path.exists(os.path.join(REPO, SVC_DIR, f))]
-    if mts:
-        mt, mt_name = max(mts)
-        fp["src_max_mtime"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(mt))
-        fp["src_max_file"] = mt_name
-    else:
-        mt = None
+    # 3) 硬判据：进程启动 > 内容文件最大 mtime
+    mt, mt_name = max(mts)
+    fp["content_max_mtime"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(mt))
+    fp["content_max_file"] = mt_name
 
     rc, out, _ = _run(["pgrep", "-af", "graph_api_start"])
     pids = [int(ln.split()[0]) for ln in out.splitlines() if ln.strip() and ln.split()[0].isdigit()]
     if not pids:
-        warn("没有 graph_api_start 进程在跑（第 4 步会失败）")
+        warn("没有 graph_api_start 进程在跑：runtime_matches_content 无法判定（第 4 步也会失败）")
+        fp["runtime_matches_content"] = False
+        fp["comparable"] = False
         return fp
-    pid = min(pids)
+    pid = max(pids)   # 多个 PID 时取最新那个（父子进程同时匹配时，子进程才是真正干活的）
     _rc, et, _ = _run(["ps", "-o", "etimes=", "-p", str(pid)])
-    start = time.time() - int(et.strip()) if et.strip().isdigit() else None
-    fp["service_pid"] = pid
-    if start is None:
+    if not et.strip().isdigit():
         warn("拿不到 graph 服务启动时间（PID %d）" % pid)
+        fp["runtime_matches_content"] = False
+        fp["comparable"] = False
         return fp
+    start = time.time() - int(et.strip())
+    fp["service_pid"] = pid
     fp["service_start"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(start))
-    if mt and start < mt:
-        # 改了源码但没重启：进程里跑的仍是旧内容，任何"当前候选"断言都不成立
-        warn("graph 服务(PID %d) 启动于 %s，早于 %s 的 mtime %s -> 进程加载的可能是旧代码，需重启后再验收"
-             % (pid, fp["service_start"], fp["src_max_file"], fp["src_max_mtime"]))
-        fp["runtime_matches_worktree"] = False
+    fp["runtime_matches_content"] = bool(start > mt)
+    fp["comparable"] = fp["runtime_matches_content"]
+    if fp["runtime_matches_content"]:
+        ok("runtime_matches_content=true：进程(PID %d, %s) 晚于 %s 的 mtime %s -> 本次结果可用于代次对比"
+           % (pid, fp["service_start"], mt_name, fp["content_max_mtime"]))
     else:
-        ok("graph 服务(PID %d) 启动于 %s，晚于源码最新 mtime %s -> 加载的是当前工作树版本"
-           % (pid, fp["service_start"], fp["src_max_mtime"]))
-        fp["runtime_matches_worktree"] = True
+        warn("runtime_matches_content=false：进程(PID %d) 启动于 %s，不晚于 %s 的 mtime %s "
+             "-> 进程加载的不是当前内容；本次结果不作为代次对比依据"
+             % (pid, fp["service_start"], mt_name, fp["content_max_mtime"]))
+
+    # 4) HEAD / 工作树只作参考（实测会翻面，不能当判据）
+    rc, head, _ = _run(["git", "-C", REPO, "rev-parse", "HEAD"])
+    fp["head"] = head if rc == 0 and head else None
+    if fp["head"]:
+        _rc, desc, _ = _run(["git", "-C", REPO, "log", "-1", "--format=%s"])
+
+        def _dirty(pathspec):
+            # 不能用 ln[3:]：git status 首行的 " M " 前缀被整体 strip 后错位一格，会截出 "latform/..."
+            rc2, out2, _ = _run(["git", "-C", REPO, "status", "--porcelain", "--"] + pathspec)
+            if rc2 != 0 or not out2:
+                return []
+            return [ln.split(None, 1)[-1].strip() for ln in out2.splitlines() if ln.strip()]
+
+        fp["dirty"] = _dirty([SVC_DIR])
+        fp["script_dirty"] = _dirty(["platform/r12/bin"])
+        print("      [参考] HEAD=%s %s；服务源码脏=%d 项%s（仅供参考，不作判据）"
+              % (head[:7], desc[:60], len(fp["dirty"]),
+                 "" if not fp["dirty"] else "：" + ", ".join(os.path.basename(d) for d in fp["dirty"][:4])),
+              flush=True)
     return fp
 
 
@@ -596,6 +660,16 @@ def rebuild_community(primitive):
     failures = payload.get("failures") or []
     ok("社区数 %d / 摘要数 %d / 失败数 %d（es_ok=%s milvus_ok=%s）"
        % (communities, summaries, len(failures), payload.get("es_ok"), payload.get("milvus_ok")))
+
+    if communities == 0:
+        # 合法空：图太小/边太少，服务直接回 code=200 + "未检测到满足条件的社区（图可能过小）"。
+        # 这不是故障（A06「合法空资料不冒充故障」），保留旧摘要、不判失败，只把事实记进 RESULT。
+        warn("本次未检测到满足条件的社区（图可能过小）：属合法空，保留旧摘要不动，不判失败")
+        after_docs = es_count(es_index)
+        print("  重建后 ES %s 摘要 %d 条（重建前 %d，未改动）" % (es_index, after_docs, before_docs), flush=True)
+        return {"communities": 0, "summaries": 0, "failures": 0, "empty_graph": True,
+                "es_index": es_index, "es_before": before_docs, "es_after": after_docs,
+                "es_removed": 0, "secs": round(secs, 1)}
     if failures:
         warn("摘要失败明细（前 3 条）: %s"
              % json.dumps([{"community_id": f.get("community_id"), "reason": f.get("reason")}
@@ -604,7 +678,9 @@ def rebuild_community(primitive):
         stepfail("摘要索引写入失败（es_ok=%s milvus_ok=%s）：%s"
                  % (payload.get("es_ok"), payload.get("milvus_ok"), str(js.get("msg"))[:200]))
     if summaries == 0:
-        stepfail("本次未生成任何摘要（社区数 %d）：保留旧摘要不动，但本次重建不算成功" % communities)
+        # 检测到社区却一条摘要都没写出来 = 这一步真失败了（LLM 全挂/写入全失败），不能当"图太小"
+        stepfail("检测到 %d 个社区但摘要 0 条（LLM 或索引写入失败）：保留旧摘要不动，本次重建不算成功"
+                 % communities)
 
     # ES 侧残留清理：Milvus 写入方对社区集合是"整代替换"，ES 侧只按派生 _id 覆盖，
     # 社区变少时旧摘要会留下（global 仍会读到上一代的社区）。这里按本次新代的
@@ -743,7 +819,9 @@ def main():
                          % (len(buckets["valid"]), len(b2["valid"])))
             ok("有效来源边数不变：%d" % len(b2["valid"]))
             cm = result.get("community")
-            if cm:
+            if cm and cm.get("empty_graph"):
+                warn("社区摘要未重建（合法空）：ES 仍为上一代 %d 条，本次不做条数对账" % cm["es_after"])
+            elif cm:
                 if cm["es_after"] != cm["summaries"]:
                     stepfail("ES 摘要条数 %d != 本次摘要数 %d（新旧代混杂或写入丢失）"
                              % (cm["es_after"], cm["summaries"]))

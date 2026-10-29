@@ -116,7 +116,7 @@ def ask(content, endpoint="/qa/ai/question_re", timeout=300):
                "error": f"{type(e).__name__}: {str(e)[:200]}", "elapsed": 0.0}
         _ASK_CACHE[key] = out
         return out
-    texts, frames, stream_err = [], [], ""
+    texts, frames, stream_err, cumulative = [], [], "", False
     # 只认 data: 行；按 bytes 逐行解码，避免跨块多字节 UTF-8 被撕裂（R12 踩过）
     try:
         for raw in r.iter_lines(decode_unicode=False):
@@ -135,7 +135,16 @@ def ask(content, endpoint="/qa/ai/question_re", timeout=300):
             frames.append(obj)
             rep = obj.get("reply") or {}
             if isinstance(rep, dict) and rep.get("content"):
-                texts.append(rep["content"])
+                piece = rep["content"]
+                # 两个入口的 SSE 语义不同（实测 question_re=逐帧增量、question=逐帧累计）。
+                # 判定必须拿"累计串"比而不是拿"上一片"比：中文增量的下一片常以上一片开头
+                # （'额' → '额度'），拿上一片比会把它误判成累计帧并丢掉前半句。
+                joined = "".join(texts)
+                if joined and piece.startswith(joined) and len(piece) >= len(joined):
+                    texts = [piece]
+                    cumulative = True
+                else:
+                    texts.append(piece)
     except Exception as e:
         # 流在中途断掉（网关重启/连接被切）必须如实记录：半截答案不能当完整答案
         stream_err = f"{type(e).__name__}: {str(e)[:160]}"
@@ -158,7 +167,8 @@ def ask(content, endpoint="/qa/ai/question_re", timeout=300):
             refs = parsed
     out = {"answer": "".join(texts), "frames": frames, "refs": refs,
            "http": r.status_code, "elapsed": round(time.time() - t0, 1),
-           "stream_error": stream_err}
+           "stream_error": stream_err,
+           "frame_semantics": "cumulative" if cumulative else "incremental"}
     _ASK_CACHE[key] = out
     return out
 

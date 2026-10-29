@@ -12,11 +12,13 @@
 | 项 | 状态 |
 |---|---|
 | 脚本 | `platform/r12/bin/graph-rebuild.sh`，`bash -n` 通过；默认 dry-run，`--apply` 才写 |
-| 对 kb 9 的实测 | `relationship` 边 **97** 条，**全部**来自 `status=3` 有效文件（329/333/343）；**0 条陈旧边** |
-| 本机 `--apply` 结果 | 0 删除、0 写入（ES `community_summary_kb_9` 前后都是 11 条，边数前 97 后 97） |
+| 对 kb 9 的实测 | `relationship` 边 **93 条**（22:23:07 那一刻），**全部**来自 `status=3` 有效文件（329/333/343）；**0 条陈旧边** |
+| 本机 `--apply` 结果 | 0 删除、0 写入（ES `community_summary_kb_9` 前后都是 11 条，边数 97→97，见 §4.2） |
+| **端到端（隔离 KB 1000）** | 造 6+2 条边 → 把 6 条来源文件标记已删 → `--apply` 删掉 6 条、有效 2 条不变、边数守恒 8-6=2、社区 1 个摘要 1 条、`RESULT` 可解析、rc=0；kb 9 全程 93 条未动（§9） |
 | **与派工背景的差异** | 派工单给的「204 条边中 94 条只来自已删文件」**当前环境不能复现**（详见 §1.2）。不是脚本没实现，是这份数据现在不带陈旧边 |
-| 并发写入 | 实测环境有其它写入方：同一份图在 78 秒内 94 → 97 条边（都来自有效文件 343） |
-| 原子发布 | 现在只能做到「重建前后一致性校验」；真正的 alias 原子切换**需要改 5 处代码**，清单与最小方案见 §6，本轮未改 |
+| 并发写入（持续） | 同一份图的实测读数：94 → 97 → 93，全部来自有效文件。**这不是一次性抖动，是持续在变**（§1.3） |
+| 运行代码 ≠ HEAD（且判定会翻面） | 服务进程加载的是**工作树**版本；HEAD 在我工作期间推进两次（`3469699`→`5f1df93`→`68fcfb1`）；`runtime_matches_head` 在 95 秒内从 `false` 翻成 `true`。只记 commit 做代次绑定会绑错（§1.4，脚本已把指纹打进 `RESULT`） |
+| 原子发布 | 现在只能做到「重建前后一致性校验」；真正的 alias 原子切换**需要改 7 处代码**（C1–C7），本轮未改（§6） |
 
 ---
 
@@ -34,7 +36,7 @@
 | valid 集合（status=3） | `127,290,328,329,330,331,332,333,334,343,999002` | 同上 |
 | Nebula 空间 | `g_kb_9`（`DESCRIBE SPACE`：`vid_type=FIXED_STRING(500)`，partition=10） | 同上 |
 | `entity` 顶点 | 133 | 同上 |
-| `relationship` 边 | **94**（22:13–22:14）→ **97**（22:15:32 起） | 见 §1.3 |
+| `relationship` 边 | **94**（22:13–22:14）→ **97**（22:15:32–22:17）→ **93**（22:22 起） | 见 §1.2/§1.3 |
 | `relationship_similar` 边 | 432（`SHOW STATS` 快照记 438，统计任务本身有时滞） | 22:13 |
 | 边的 `file_id` 分布 | 343=68/71、329=18、333=8（随写入变化） | — |
 | ES `community_summary_kb_9` | 11 条 | 22:15 |
@@ -62,7 +64,8 @@
 | 22:13:0x（同一语句，数秒后） | 94 | 343/329/333 | `SUBMIT JOB STATS` + `SHOW STATS` 同刻也报 94 |
 | 22:14:21（dry-run） | 94 | 343/329/333 | 脚本第 [2/5] 步 |
 | 22:15:32（--apply） | 97 | 343=71/329/333 | 边数在增加 |
-| 22:17:25（复核） | 97 | 343=71/329/333 | 已稳定 |
+| 22:17:25（复核） | 97 | 343=71/329/333 | 暂稳 |
+| 22:22:31 / 22:23:07 | 93 | 343/329/333 | 又降了 4 条 |
 
 判读（事实与推断分开）：
 
@@ -80,9 +83,42 @@
 ```
 （`platform/r12/logs/watchdog.log`；22:13 起恢复可达，dry-run 第 [3/5] 步实测 `openapi.json` 返回 200。）
 
-同一时间点 `git status` 里另有三处未提交改动：`graph_extract.py`、`graph_service.py`、`graph_summary.py`（其它工作包）。**这只是"同期存在改动"的事实，未证明与上面的边数变化有因果关系**，但对本脚本的影响是确定的：图的数字随时会变。
+同一时间点 `git status` 里另有三处未提交改动：`graph_extract.py`、`graph_service.py`、`graph_summary.py`（其它工作包）。之后这三个文件被提交进 HEAD `5f1df93`，工作树只剩下 `graph_fun_tool.py`——**工作树自身的状态也在变**。
 
-因此脚本的三条设计是必需而不是洁癖：**每步现算**（不复用 dry-run 结果）、**apply 前并发守卫**、**删后重新枚举比对**。
+**关于 94→97 那 3 条边的归因，抽取侧给了比"同期改动"更强的证据**（`extract-w01` 提供，我已复核日志原文）：
+
+```
+2026-10-29T22:14:48.388641+0800 INFO R15-W01 EXTRACT_STATS passage=1 passage_chars=123
+  llm_calls=4 rounds=1 retries=0 candidate_lines=73 parse_failed_lines=0
+  field_anomalies=0 valid_entities=25 valid_triples=29 elapsed_ms=30568 | PID:1278581
+```
+
+- **事实**：该窗口内只有 1 个 passage 完成抽取（全日志仅 1 条 stats 行）；`retries=0`、`parse_failed_lines=0`、`field_anomalies=0`；`grep -c "单块重试：最终失败"` = 0，即重试路径一次都没进。
+- **判读**：抽取在旧代码与新代码下的执行路径等价，`valid_triples=29` → 去重后净增 3 条边属正常增量抽取。这是**推断**，但依据是"路径未触发"而不是时间相邻。
+- **对 W03 的影响**：边数变化不必归因于 W03 的替换逻辑；反过来，**"重建后边数应稳定"这类断言从现在起多了一个变量**，所以脚本把抽取侧统计做成提示项（§5.2），并在 `RESULT` 里落 `extract_stats`。
+
+因此脚本的三条设计是必需而不是洁癖：**每步现算**（不复用 dry-run 结果）、**apply 前并发守卫**、**删后重新枚举比对**。22:22–22:23 再测已经变成 93 条，说明"读一次然后据此删除"的做法本身就不可靠。
+
+### 1.4 运行中的进程加载的不是 HEAD（W03-2 版本绑定的真实坑）
+
+实测（只读操作）：
+
+| 事实 | 值 |
+|---|---|
+| 图服务进程 | `PID 1333986`，启动 `2026-10-29T22:21:25`（22:12:47 / 22:18 也各有一次重启，**重启不是本脚本或本人做的**） |
+| `graph_extract.py` mtime | `2026-10-29T22:09:27` |
+| HEAD | 我工作期间被推进**两次**：`3469699`（开工时）→ `5f1df93`（`docs(r15): 验收基线入账…`）→ `68fcfb1`（`fix(r15-a08): 修我自己引入的 local 图检索回归…`，22:24:42 实测） |
+| 工作树脏文件 | 22:23:07 时是 `services/.../graph_fun_tool.py`；22:24:42 已提交，工作树变干净（**同一个脚本 95 秒内打出相反的判定**，见下） |
+
+结论（这两句要分开看，别混）：
+
+1. **进程 vs 工作树**：进程启动时间晚于源码最新 mtime → 进程加载的是**当前工作树内容**，不是某个更早的磁盘快照。这一条成立。
+2. **工作树 vs HEAD**：22:23:07 时 `graph_fun_tool.py` 有未提交改动 → 运行代码 **≠ HEAD**；22:24:42 该文件被提交，同一脚本打出 `runtime_matches_head=true`。
+   即：**"运行代码 == HEAD 吗"这个判定本身也是一秒一变的事实**，95 秒内翻了面。所以任何"按 commit 登记代次指纹"的做法，只要读取一次就下结论，都会在某个窗口里绑到一个没在跑的实现上。
+
+这正是 W03-2「固定不可变构建清单」要解决的问题，本脚本只能把事实记下来：第 [0/5] 步打印 `HEAD` + 服务源码脏文件 + `进程启动时间 vs 源码 mtime`，并写进 `RESULT.fingerprint`（`head` / `dirty` / `script_dirty` / `service_pid` / `service_start` / `src_max_mtime` / `runtime_matches_head` / `runtime_matches_worktree`）。**它不判断"该不该发版"，只保证事后能对上"当时跑的是什么"。**
+
+留给 TL 的决策（脚本不自己定）：构建清单到底绑哪一档——(a) `HEAD` 的 commit、(b) 进程启动时的 `HEAD`（=`runtime_matches_head` 为真那一刻）、还是 (c) `graph_{extract,service,summary}.py` 的 content hash。选 (a) 在本环境当前是不安全的（工作树会在提交间隙与 HEAD 不一致）；选 (c) 最稳但要扩到全部影响语义的文件（含 `prompt_config` 与 Java 侧调用链）。
 
 ---
 
@@ -111,6 +147,8 @@ platform/r12/bin/graph-rebuild.sh 9 --apply --force-community
 | `GRAPH` / `ES` | `http://127.0.0.1:19529` / `:19200` | 图服务 / ES |
 | `NEBULA_HOST`/`NEBULA_PORT` | `127.0.0.1`/`19669` | Nebula |
 | `GRAPH_LLM_MODEL`/`_URL`/`_KEY` | 与 `probe_community_twice.py` 同值 | 社区摘要用的模型（换模型必须同步那份证据脚本，否则两边社区数不可比） |
+| `GRAPH_LOG_DIR` | `<repo>/services/rag-alg/index_data_service/index_graph_service/logs/graph_service` | 抽取侧 stats 提示读哪里的日志（只读当天 `graph_info_<date>.log`） |
+| `REPO` | 由脚本位置推出（`platform/r12/../..`） | 构建指纹取 `git` 的仓库根 |
 | `GRAPH_REBUILD_FORCE=1` | 未设 | 越过 `--apply` 的并发守卫（后果自负，会打印 `[!!]`） |
 
 口令处理：只从 `.env` 的 `R12_MYSQL_ROOT_PASSWORD`（或环境变量）读，**脚本内不写死任何口令**；传入 MySQL 用 `docker exec -e MYSQL_PWD`（不带 `=值`，从宿主环境转发），**口令不出现在 argv**，`ps` 看不到。读不到就 `[FAIL]` 退出 2，不静默回退默认值。
@@ -153,11 +191,10 @@ DELETE EDGE ...（不带 @rank）后: []                              <- 不带 
 
 ## 4. 实测输出
 
-### 4.1 dry-run（kb 9，原始输出，未删改）
+### 4.1 dry-run（kb 9，原始输出，未删改；抓取时刻 22:23:07）
 
 ```
 $ platform/r12/bin/graph-rebuild.sh 9
-
 == W03 graph-rebuild ==
   [..] kb=9  mode=DRY-RUN  script=./platform/r12/bin/graph-rebuild.sh
 == [0/5] 环境前置 ==
@@ -166,14 +203,19 @@ $ platform/r12/bin/graph-rebuild.sh 9
   [ok] MySQL 容器 r12-mysql 运行中
   [ok] dry-run：并发守卫不生效（本模式只读）
   [ok] primitive_name=kb_9  Nebula space=g_kb_9
+  -- 构建指纹（进程实际加载的代码 vs HEAD）--
+  [ok] HEAD=5f1df93 docs(r15): 验收基线入账（PASS1/FAIL10/SKIP5）与团队分工记录
+  [!!] 服务源码有未提交改动 1 个: graph_fun_tool.py -> 运行代码 != HEAD，只记 commit 会把代次绑错
+  [!!] 本脚本自身有未提交改动 graph-rebuild.sh（不影响运行版本，仅记录）
+  [ok] graph 服务(PID 1333986) 启动于 2026-10-29T22:21:25，晚于源码最新 mtime 2026-10-29T22:09:27 -> 加载的是当前工作树版本
 == [1/5] 有效文件集合（MySQL knowledge_base_list.status=3）==
   [ok] 文件行 274 条，按 status 分布 0=262, 3=11, 4=1
   [ok] 有效文件 11 个: 127,290,328,329,330,331,332,333,334,343,999002
   [!!] 非有效状态: 0=已删 262 条, 4=解析失败 1 条 —— 其中只有 0 与'行不存在'算已删，1/2/4 不会被删除
   [ok] Nebula 127.0.0.1:19669 空间 g_kb_9 已选中
 == [2/5] 边来源统计 ==
-  全图 relationship 边合计 97 条
-  [ok] 仅来自有效文件(status=3)             : 97  保留
+  全图 relationship 边合计 93 条
+  [ok] 仅来自有效文件(status=3)             : 93  保留
   [ok] 仅来自已删文件(0/行不存在)               : 0  无陈旧边
   [ok] 混合来源(有效+已删)                   : 0  不删：另一来源仍支持该事实
   [ok] 待确认(status 1/2/4 或 file_id 非法): 0  不删：文件行还在，需人工判定
@@ -182,18 +224,22 @@ $ platform/r12/bin/graph-rebuild.sh 9
   [ok] 图服务可达（http 200）：--apply 时会调 /generate_community 重建社区摘要
 == [4/5] 重建社区摘要：dry-run 跳过 ==
 == [5/5] 一致性校验 ==
-  当前 relationship 边合计 97 条（进场时 97）
+  当前 relationship 边合计 93 条（进场时 93）
   [!!] dry-run：跳过'边数守恒/陈旧边归零/摘要条数'三项校验（需 --apply 才有写入）
-  将校验: 边数守恒(97 条) / 陈旧边归零 / ES 摘要条数 == 本次摘要数
-RESULT {"edge_mixed": 0, "edge_pending": 0, "edge_stale": 0, "edge_stale_after": 0, "edge_unknown": 0, "edge_valid": 97, "edges_after": 97, "edges_total": 97, "kb": "9", "mode": "DRY-RUN", "primitive": "kb_9", "space": "g_kb_9", "ts": "2026-10-29T22:15:52+0800", "verdict": "PASS"}
+  将校验: 边数守恒(93 条) / 陈旧边归零 / ES 摘要条数 == 本次摘要数
+  -- 抽取侧可复现性（R15-W01 EXTRACT_STATS，仅提示）--
+  [ok] passage 1 个：llm_calls=4 retries=0 parse_failed_lines=0 field_anomalies=0 valid_triples=29，平均 7.6s/次调用
+RESULT {"edge_mixed": 0, "edge_pending": 0, "edge_stale": 0, "edge_stale_after": 0, "edge_unknown": 0, "edge_valid": 93, "edges_after": 93, "edges_total": 93, "extract_stats": {"field_anomalies": 0, "llm_calls": 4, "log": "graph_info_2026-10-29.log", "parse_failed_lines": 0, "passages": 1, "retries": 0, "retry_final_fail": 0, "secs_per_call": 7.6, "valid_triples": 29}, "fingerprint": {"dirty": ["services/rag-alg/index_data_service/index_graph_service/graph_fun_tool.py"], "head": "5f1df9339fd39e44cc76fbddaef4f96cf78f64f0", "runtime_matches_head": false, "runtime_matches_worktree": true, "script_dirty": ["platform/r12/bin/graph-rebuild.sh"], "service_pid": 1333986, "service_start": "2026-10-29T22:21:25", "src_max_file": "graph_extract.py", "src_max_mtime": "2026-10-29T22:09:27"}, "kb": "9", "mode": "DRY-RUN", "primitive": "kb_9", "space": "g_kb_9", "ts": "2026-10-29T22:23:07+0800", "verdict": "PASS"}
 == 结论 ==
   [ok] graph-rebuild 通过（mode=DRY-RUN kb=9）
   [!!] 本次是 dry-run，未写任何数据；确认上面的数字后再加 --apply
 ```
 
+> 边数是某一时刻的快照，不是基线：同一份图在 40 分钟内测到过 94 / 97 / 93（§1.2）。验收请以当次 `RESULT` 为准，不要复制这里的数字。
+
 末尾 `RESULT {...}` 是给上层聚合用的机器行（`acceptance.sh` / 证据归档直接 grep `^RESULT `）。
 
-### 4.2 `--apply` 的 0 写入验证
+### 4.2 `--apply` 的 0 写入验证（22:15:32，当时 97 条）
 
 在 kb 9 上跑了 `--apply`（陈旧边 0，因此不进第 3/4 步的写分支），用于验证 apply 分支的**守恒校验**数学与跳过逻辑：
 
@@ -246,11 +292,27 @@ $ 有并发 acceptance.py 时 --apply -> [FAIL] 检测到可能的并发重建/�
 
 ## 5. 一致性校验与失败语义
 
+### 5.1 三项硬校验（参与退出码）
+
 `--apply` 的第 [5/5] 步做三项硬校验，任一不成立即 `[FAIL]` 退出 1：
 
 1. **边数守恒**：`进场边数 - 实际删除数 == 删后边数`。不等说明有并发写入或 `DELETE` 没落地。
 2. **陈旧边归零**：删后重枚举，`stale` 桶必须为 0（`DELETE` 返回 `SUCCEEDED` 不等于边没了，必须回读）。
 3. **有效来源边数不变** + **ES 摘要条数 == 本次摘要数**。后者是防"新旧代摘要混在一起"：ES 侧写入是派生 `_id` 覆盖，社区变少时旧摘要不会被自动清掉（§6.2），所以第 4 步按本次响应的 `community_detail[].community_id` 反向清理，清完再对数。
+
+### 5.2 构建指纹与抽取侧提示（不参与退出码，只落证据）
+
+| 块 | 内容 | 为什么不给硬闸门 |
+|---|---|---|
+| 构建指纹（第 [0/5] 步） | `HEAD` + 服务源码脏文件 + 图服务 `PID`/启动时间 + `graph_{extract,service,summary}.py` 最新 mtime，判定 `runtime_matches_head` / `runtime_matches_worktree` | 它是**事实登记**，不是质量判据。当前环境 `runtime_matches_head=false` 是常态（工作树有未提交改动），若设成硬闸门，脚本会一直红，红久了就没人看 |
+| 抽取侧可复现性（第 [5/5] 步末） | 从 `graph_info_<date>.log` 聚合 `R15-W01 EXTRACT_STATS`：`llm_calls` / `retries` / `parse_failed_lines` / `field_anomalies` / `valid_triples` / 平均每次调用耗时；并数 `单块重试：最终失败` | 那行日志格式属于 W01 的工作包。把本脚本的成败绑在别人的日志文本上，一旦改名/下线就"红得莫名其妙"。所以只提示，`RESULT.extract_stats` 落盘，人工按需升格为闸门 |
+
+两个实现细节（都踩过）：
+
+- **只读当天的 loguru 文件**（`logs/graph_service/graph_info_<date>.log`），**不要**同时扫 `platform/r12/logs/index_graph_service.log`——同一条 stats 行会被两个 sink 各写一次，扫两处会把 `llm_calls`/`valid_triples` 翻倍。脚本内部再按 `(passage, elapsed_ms)` 去重兜底。
+- 脏文件解析**不能用 `ln[3:]`**：命令输出的整体 `strip()` 会把首行的 `" M "` 前缀吃掉一格，截出 `latform/r12/...`（实测踩到）。改用 `ln.split(None, 1)[-1]`；并且只把**服务源码目录**的脏算进 `runtime_matches_head`，本脚本自身的脏单列 `script_dirty`（它不是运行版本风险）。
+
+### 5.3 失败语义
 
 失败语义：
 
@@ -307,7 +369,11 @@ $ 有并发 acceptance.py 时 --apply -> [FAIL] 检测到可能的并发重建/�
 2. **ES `community_summary_<kb>` 目前是"真实索引名"而非 alias**，无法原子切换（§6）。另外 ES 名 lower、Milvus 集合名保持原大小写、Nebula 空间名 `g_<primitive>` 原样——三处归一规则不同（`graph_summary._idx()` 注释里有原因），排查时不要想当然。
 3. **并发写入未受控**：`pgrep` 守卫只认 `rebuild_kb9|generate_triple|acceptance.py` 三类驱动，认不出别的写入方（§1.3 实测就有一个）。真正解决要靠 W03-5 的任务/事件屏障，不是靠 `ps`。
 4. **删除不可撤销**：脚本只打印语句示例与条数，没有内置 dump。批量前建议先跑 `platform/r12/graph/backup_graph.py` 或把 `[2/5]` 输出的 `stale` 明细 `--apply` 前导成 JSON 存档。
-5. **端到端删除未验证**：kb 9 当前 0 条陈旧边。要端到端验收，最小造法：挑一个只被 1 个文件支持的少量边，把该文件行 `status` 改成 0（或复制一条边指向一个不存在的 id），跑 `--apply` 看 `边数守恒` + `陈旧边归零`；**造数据必须在隔离 KB/空间做**，不要动 kb 9。
+5. **端到端删除已在隔离 KB 验证**（§9），kb 9 本身仍是 0 条陈旧边、不宜拿来做破坏性验证。
+   **未验证的分支**：`communities == 0` 的"合法空"分支本次没触发（实测 1 条边 / 3 个顶点仍产出 1 个社区，见 §9.5），代码按服务返回契约实现但**没有跑通证据**。
+6. **计数随时在变**：本文所有边数都带时间戳（94 / 97 / 93 三个读数），因为环境里有其它写入方在跑。任何把"边数 = N"写成验收基线的做法都会第二天就红。
+7. **运行代码 ≠ HEAD 是当前常态**：服务加载工作树内容、HEAD 在 22:19:45 还被推进了一次。本脚本已经把指纹落进 `RESULT.fingerprint`，但**"构建清单该绑到哪个版本"需要 TL 决定**（绑工作树 content hash？绑进程启动时的源码指纹？），这不是运维脚本能自己定的。
+8. **重启不是本脚本做的**：22:09 之后图服务至少重启过 3 次（有实测启动时间的两次：`PID 1278581` @22:12:47、`PID 1333986` @22:21:25；更早一次在 22:09 前后，`watchdog.log` 里有"启动宽限期内…缺 19529"的记录）。`graph-rebuild.sh` 全程不重启、不停服。
 
 ---
 
@@ -332,4 +398,130 @@ PY
 
 # 摘要条数
 curl -s http://127.0.0.1:19200/community_summary_kb_9/_count
+
+# 抽取侧统计（脚本第 [5/5] 步读的就是这里；注意不要再扫 platform/r12/logs/ 那份，会双计）
+SVC=services/rag-alg/index_data_service/index_graph_service/logs/graph_service
+grep -h "R15-W01 EXTRACT_STATS" "$SVC/graph_info_$(date +%F).log" | tail -5
+grep -c "单块重试：最终失败" "$SVC"/graph_info_*.log
+
+# 运行版本指纹（脚本第 [0/5] 步做的同一件事）
+git -C . rev-parse HEAD; git -C . status --porcelain -- services/rag-alg/index_data_service/index_graph_service
+ls -l --time-style=+%FT%T services/rag-alg/index_data_service/index_graph_service/graph_extract.py
+pgrep -af graph_api_start
+```
+
+---
+
+## 9. 端到端验证（隔离 KB，2026-10-29 22:27–22:29）
+
+目的：证明 `--apply` 的删除路径在**真实图数据**上成立——kb 9 现在陈旧边为 0，拿它验证不了删除。全过程不碰 kb 9、不重启服务。
+
+### 9.1 夹具怎么造出来的（可复现）
+
+走真实产品入口（登录 → 建库 → 上传 → 解析），再走真实抽取入口（`POST /generate_triple_data`）：
+
+| 步骤 | 实际结果 |
+|---|---|
+| 登录 `POST /auth/user/simpleLogin` | 200 |
+| 建库 `POST /index/knowledgeBase/create`，`kbName=r15-w03-probe` | 200，`kbId=1000`，`primitiveName=kb_1000`（Nebula 空间 `g_kb_1000`） |
+| 上传 2 个夹具 docx（`R14FIX-graph-01-project.docx` / `R14FIX-graph-02-dept.docx`） | 均 200，`kb_list.id` = `999003` / `999004`，解析后 `status=3`，ES `kb_1000` 2 条 |
+| 图抽取 `POST 19529/generate_triple_data`（`col_name=file_id`, `col_values=[999003,999004]`） | 200，74s，`edges_written=8` |
+| 边分布 | `999003 → 6 条`、`999004 → 2 条`（合计 8） |
+| **造"已删"** | `update knowledge_base_list set status=0 where kb_id=1000 and id=999003` → 该文件 6 条边变成"仅来自已删文件"，另 2 条仍有效 |
+
+> 关于造数据方式：只把 `status` 改成 0，**没有**同时删 ES 文档/向量。理由是脚本的唯一判据就是 `status`（§3）；真删 ES 会让这个夹具失去"另一文件仍有效"的对照，反而削弱断言。这一点如实写明，不冒充"完整删除链路"。
+
+### 9.2 dry-run（真实输出，节选）
+
+```
+== [1/5] 有效文件集合（MySQL knowledge_base_list.status=3）==
+  [ok] 文件行 2 条，按 status 分布 0=1, 3=1
+  [ok] 有效文件 1 个: 999004
+  [!!] 非有效状态: 0=已删 1 条 —— 其中只有 0 与'行不存在'算已删，1/2/4 不会被删除
+== [2/5] 边来源统计 ==
+  全图 relationship 边合计 8 条
+  [ok] 仅来自有效文件(status=3)             : 2  保留
+  [!!] 仅来自已删文件(0/行不存在)               : 6  --apply 时逐条 DELETE EDGE
+  [ok] 混合来源(有效+已删)                   : 0  不删：另一来源仍支持该事实
+  [ok] 待确认(status 1/2/4 或 file_id 非法): 0  不删：文件行还在，需人工判定
+  [ok] 来源未知(file_id 为空)              : 0  不删：删了无据可依
+== [3/5] 删除陈旧边：dry-run 跳过（加 --apply 才执行）==
+  将删除 6 条；示例语句：
+    DELETE EDGE relationship "启明计划"->"恒星项目一期"@607488791311432274
+    DELETE EDGE relationship "启明计划"->"恒星项目一期"@788103995677433323
+    DELETE EDGE relationship "恒星项目一期"->"2026年9月"@284590625794598767
+    DELETE EDGE relationship "恒星项目一期"->"2026年9月"@1000820877368422334
+    DELETE EDGE relationship "装备制造板块"->"三家配套企业"@393601861127176005
+```
+
+dry-run 的 `RESULT`：`edge_stale=6`、`edge_valid=2`、`verdict=PASS`（dry-run 不改数据，`edges_after` 仍是 8）。
+
+### 9.3 `--apply`（真实输出，节选）
+
+```
+== [3/5] 删除陈旧边（逐条 DELETE EDGE，无批量、无 DROP SPACE）==
+  [ok] 已删除 6 条陈旧边
+== [4/5] 重建社区摘要（POST /generate_community）==
+  重建前 ES community_summary_kb_1000 摘要 0 条
+  http=200 用时 5.8s  msg=社区 1 个，摘要 1 条，失败 0 条
+  [ok] 社区数 1 / 摘要数 1 / 失败数 0（es_ok=True milvus_ok=True）
+  [ok] ES 按新代 community_id 清理：命中新代 1 条，删除旧代 0 条
+  重建后 ES community_summary_kb_1000 摘要 1 条（重建前 0）
+== [5/5] 一致性校验 ==
+  删后 relationship 边合计 2 条（进场时 8）
+  [ok] 边数守恒：8 - 6 = 2
+  [ok] 陈旧边已归零
+  [ok] 有效来源边数不变：2
+  [ok] ES 摘要条数 == 本次摘要数 == 1；社区数 1；失败 0
+== 结论 ==
+  [ok] graph-rebuild 通过（mode=APPLY kb=1000）
+```
+`rc=0`。`RESULT` 行可 `json.loads`；下面是为便于阅读删掉了 `extract_stats` / `fingerprint` 两段后的样子（原行是单行 JSON，两段都在）：
+
+```json
+{"community": {"communities": 1, "es_after": 1, "es_before": 0, "es_index": "community_summary_kb_1000",
+  "es_removed": 0, "failures": 0, "secs": 5.8, "summaries": 1},
+ "deleted": 6, "edge_mixed": 0, "edge_pending": 0, "edge_stale": 6, "edge_stale_after": 0,
+ "edge_unknown": 0, "edge_valid": 2, "edges_after": 2, "edges_total": 8,
+ "kb": "1000", "mode": "APPLY", "primitive": "kb_1000", "space": "g_kb_1000",
+ "ts": "2026-10-29T22:28:43+0800", "verdict": "PASS"}
+```
+
+### 9.4 断言逐条对账
+
+| # | 断言 | 期望 | 实际 | 结果 |
+|---|---|---|---|---|
+| 1 | dry-run 报告陈旧边 | 派工单写"1 条" | **6 条**（该文件产出 6 条边，全部仅来自它） | PASS（数量以数据为准，见下） |
+| 2 | `--apply` 后陈旧边消失 | 0 | `edge_stale_after=0`，回读 `g_kb_1000` 只剩 2 条 | PASS |
+| 3 | 有效边不变 | 2 | 2（`edge_valid=2` 前后一致） | PASS |
+| 4 | 边数守恒 | 8-6=2 | 8-6=2 | PASS |
+| 5 | `RESULT` 行可解析 | JSON | `json.loads` 成功，字段齐全 | PASS |
+| 6 | 重复执行幂等（额外） | 0 陈旧边、0 写入 | `22:29:14` 复跑 dry-run：`edge_stale=0`、`edges_total=2`，跳过 `/generate_community` | PASS |
+| 7 | kb 9 未被触碰（额外） | 93 条边 / 11 条摘要不变 | 前：`g_kb_9 edges=93`；后：`93`；`community_summary_kb_9` 仍 11 条 | PASS |
+| 8 | 未重启服务（额外） | PID 不变 | 全程 `PID 1333986` | PASS |
+
+关于断言 1 的期望值：派工单预期"1 条陈旧边"，实际是 6 条——因为一次抽取对该文件产出 6 条边，脚本删的是**全部 6 条**（按设计逐条删，不做"删一条示意"）。这不是偏差，是把期望值写细了。
+
+### 9.5 这轮 E2E 暴露/确认的三件事
+
+1. **`community_summary_kb_1000` 与真实索引名一致**：脚本用 `community_summary_` + `primitive.strip().lower()` 计算（与 `graph_summary._idx()` 同规则），`es_before=0 / es_after=1` 与写入条数对得上，说明这个拼法对 `kb_*` 形态的 primitive 是正确的。
+   但顺带观察到一处**既有的命名不一致**（与本脚本无关）：对 `rag_graph` 调 `generate_community` 后，ES 里真实索引名是 `community_summary_ragraph`（下划线被去掉），而不是 `community_summary_rag_graph`。原因未定位。**结论：本脚本只对 `kb_*` 形态实测过；primitive 里带额外下划线的 KB 需要先核对真实索引名。**
+2. **"合法空"分支没被触发**：删完 6 条边后空间只剩 2 条边 / 3 个顶点，`generate_community` 仍返回 `communities=1`（`size=3, edge_count=2`）。所以 `communities == 0` 的"合法空"分支本次**没有跑通证据**，只能按服务返回契约（`graph_summary.py::generate_community` 里 `if not communities: return code=200, msg="未检测到满足条件的社区（图可能过小）"`）实现。要覆盖它需要一个顶点数 <3 的空间，本轮没造（避免再写数据）。
+3. **服务进程没加载最新改动（新指纹块当场抓到）**：`--apply` 那一步的指纹是
+   `service_start=2026-10-29T22:21:25` / `src_max_mtime=2026-10-29T22:28:07`（`graph_extract.py`）→ `runtime_matches_worktree=false`。
+   即：**刚才这次抽取用的不是 22:28:07 那份实现**。这不是本脚本能修的（需要重启服务，而重启不在本任务授权内），但它说明"跑过一次就代表当前代码"在本环境不成立——这条已作为 `[!!]` 打印出来，可作为 A14「运行版本正确」的证据入口。
+
+### 9.6 夹具现状与清理（本轮**不**执行删除）
+
+- 新增：KB `r15-w03-probe`（`kbId=1000`，`primitive=kb_1000`）、Nebula 空间 `g_kb_1000`（现存 2 条边 / 3 个顶点）、ES `community_summary_kb_1000`（1 条）、Milvus `_community_summary_kb_1000`、ES `kb_1000`（2 条 chunk）。
+- 另有一处**副作用**：为验证"图太小"的返回形状，对 R13 测试空间 `rag_graph` 调了一次 `generate_community`，因此 ES 多出 `community_summary_ragraph`（1 条）。不在 kb_9，也不是业务库。
+- 保留原因：TL 未要求清理，删数据属不可逆操作，不自行执行。需要清理时（一条一条来，别 `git add`/别 `DROP SPACE` 生产空间）：
+
+```bash
+# 1) 删夹具 KB（走产品接口，会联动它的 status/空间）
+#    先确认 kbId 仍是 r15-w03-probe 那个，不要照抄 1000
+curl -s -X DELETE -H "Authorization: <token>" 'http://127.0.0.1:8088/index/knowledgeBase/delete?id=1000'
+# 2) 图空间（Nebula）：确认空间名是 g_kb_1000 再执行
+#    platform/r12/venvs/graph/bin/python -c "..."  DROP SPACE g_kb_1000
+# 3) 摘要索引/集合：走 graph_summary.del_community（ES del_index + Milvus del_collection 双写）
 ```

@@ -40,8 +40,10 @@ def run():
 
     checks.append(C.chk("N2 反例：两入口关键数值一致（都答 8000万）",
                         C.has_amount(rep["answer"], TOTAL) and C.has_amount(qq["answer"], TOTAL),
-                        f"question_re 含8000万={C.has_amount(rep['answer'], TOTAL)}；"
-                        f"question 含8000万={C.has_amount(qq['answer'], TOTAL)}"))
+                        f"question_re 含8000万={C.has_amount(rep['answer'], TOTAL)}"
+                        f"（{rep['frame_semantics']}帧）；"
+                        f"question 含8000万={C.has_amount(qq['answer'], TOTAL)}"
+                        f"（{qq['frame_semantics']}帧）"))
 
     checks.append(C.chk("N1 反例：两入口都未把 1000万 当最高额度",
                         not _reversal(rep["answer"]) and not _reversal(qq["answer"]),
@@ -52,6 +54,12 @@ def run():
            if C.has_amount(r["answer"], OLD) and "最高" in r["answer"]]
     checks.append(C.chk("N5 反例：答案未使用旧代数值 5000万 作最高额度", not old,
                         f"出现旧值的入口={old}"))
+
+    # N6：两入口必须给出同等关键约束（分项 1000万）。只答总额 = 限制条件在一条通路上丢了。
+    checks.append(C.chk("N6 反例：两入口都保留信用分项这一关键约束",
+                        C.has_amount(rep["answer"], SUB) and C.has_amount(qq["answer"], SUB),
+                        f"question_re 含分项={C.has_amount(rep['answer'], SUB)}；"
+                        f"question 含分项={C.has_amount(qq['answer'], SUB)}"))
 
     tagged = bool(C.cited_ids(rep["answer"])) or bool(rep["refs"])
     checks.append(C.chk("N3 反例：通路可证（检索标记或引用非空）", tagged,
