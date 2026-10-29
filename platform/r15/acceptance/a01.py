@@ -55,7 +55,11 @@ def run():
                         f"越界类型={outside}；实际分布={dist}"))
 
     # N2：合法评级不得被停用词过滤（正常/关注/次级… 是合法业务值）
-    stop = set(re.findall(r"\"([^\"]{1,12})\"", _block(src, "STOPWORDS")))
+    # R15/A01 判据修正：原来从**源码文本**解析 STOPWORDS，注释里出现同样字面量
+    # （例如说明"原先把『正常』当停用词"）会被正则当成真值，产生假阴/假阳。
+    # 改为运行时读 graph_types.STOPWORDS；同时只在"原文里确实出现过该评级"时
+    # 才要求它进图（语料没写"正常"，图中没有它不算缺陷）。
+    stop = set(getattr(G, "STOPWORDS", set()) or set())
     dropped = sorted(LEGAL_RATINGS & stop)
     rating_ents = C.nebula("MATCH (v:entity) WHERE v.entity.type=='评级' "
                            "RETURN v.entity.name")[0]

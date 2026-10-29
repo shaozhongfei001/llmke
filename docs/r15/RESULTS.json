@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-30T00:00+08:00",
+  "updated": "2026-10-30T00:05+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -177,23 +177,23 @@
     "note": "第一轮断言全PASS但指纹false被判'不可作代次对比'，重抽后再跑第二轮才可比；C4(主键种子)为F05前置未做"
   },
   "acceptance_baseline": {
-    "run_at": "2026-10-29T23:54:42",
+    "run_at": "2026-10-30T00:01:50",
     "total": 16,
-    "PASS": 7,
-    "FAIL": 2,
+    "PASS": 8,
+    "FAIL": 1,
     "SKIP": 7,
     "pass": [
+      "A01 类型契约（白名单读契约27码/越界0/停用词无冲突）",
       "A02 同谓词双向消除",
       "A03 分项不当总额度",
-      "A06 零产出不假成功",
+      "A04 值保真（金额必带单位）",
       "A07 社区分类完备",
       "A08 local/global 一致",
       "A09 代次写入+消费可见",
       "A11 引用可回指"
     ],
     "fail": [
-      "A01 仅剩『正常』未进图（停用词已修，但历史数据需重解析）",
-      "A04 裸数字金额（新暴露：如 60个基点 被拆成 0万元）"
+      "A06 N2：332 解析失败(gps=4)但仍残留 1 条旧边 —— 失败时未清理历史边"
     ],
     "skip": [
       "A05",
@@ -204,7 +204,7 @@
       "A15",
       "A16"
     ],
-    "delta": "首跑 PASS1/FAIL10/SKIP5 → 终版 PASS7/FAIL2/SKIP7"
+    "delta": "首跑 PASS1/FAIL10/SKIP5 → 终版 PASS8/FAIL1/SKIP7"
   },
   "new_findings": [
     "删KB是软删且不联动下层：knowledge_base.status=0 但 knowledge_base_list 仍 status=3，图空间/摘要不回收 → A10 不能只看接口返回",
@@ -249,5 +249,11 @@
     "state": "PASS",
     "evidence": "社区摘要落 generations；query_community 返回 ['V0','V1']",
     "note": "多代并存被显式暴露（这正是'一请求固定同代'尚未做到的可见标记）"
-  }
+  },
+  "overnight_fixes": [
+    "A01 判据假阴：a01 从源码文本解析 STOPWORDS，注释里出现同字面量被当成真值 → 改运行时读",
+    "A01 语料澄清：ES 里检索『正常』0 命中，图中没有它不是缺陷",
+    "A04 类型规则：金额必须有单位，2,983,333.33（xlsx 表头带单位）不得标 amount",
+    "A04 判据修正：只统计 type 含『金额』的裸数字端点"
+  ]
 }

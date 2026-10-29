@@ -27,7 +27,17 @@ def run():
 
     money = sorted({e["o"] for e in vis if MONEY_RE.search(e["o"])} |
                    {e["s"] for e in vis if MONEY_RE.search(e["s"])})
-    bare = sorted({e["o"] for e in vis if BARE_NUM_RE.match(C.norm_num(e["o"]))})
+    # R15/A04 判据修正：原实现把所有裸数字端点都算"丢失单位"，但
+    #   · "2,983,333.33" 是 xlsx 表格里的指标值（单位在表头"元"），它**不是金额**，
+    #     实现侧已把它从"金额"降级为 unclassified（金额必须有单位）；
+    #   · 真正要防的是"金额类型却没有单位"。
+    # 所以这里只统计 type 含"金额"的裸数字端点。
+    _type_of = {}
+    for row in (C.nebula("MATCH (v:entity) RETURN v.entity.name, v.entity.type")[0] or []):
+        _type_of[row[0]] = row[1] or ""
+    bare = sorted({e["o"] for e in vis
+                   if BARE_NUM_RE.match(C.norm_num(e["o"]))
+                   and "金额" in _type_of.get(e["o"], "")})
     checks.append(C.chk("正例：金额实体带单位", len(money) > 0,
                         f"带单位金额 {len(money)} 个，示例={money[:5]}"))
     checks.append(C.chk("N1 反例：不存在丢失单位的裸数字金额", not bare,

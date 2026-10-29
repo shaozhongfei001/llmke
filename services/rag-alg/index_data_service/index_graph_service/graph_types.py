@@ -555,6 +555,12 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
         # 类型推断
         llm_type = next((t for t in bucket["e_type"] if t), "")
         typ, source = infer_type(canon, llm_type)
+        # R15/A04：金额必须有单位。实测 xlsx 表格里的 "2,983,333.33"（单位在表头"元"）
+        # 被标成"金额"直接进图 → A04 的"裸数字金额"反例。
+        # 无单位数值本身是有效指标值，不丢弃，但不允许冒充金额（否则 A03 的
+        # "总额度/分项"比对会把它当成一个额度取值）。
+        if typ == "金额" and not RULE_AMOUNT.search(canon):
+            typ, source = "unclassified", "amount_without_unit"
         bucket["e_type"] = [typ]
         if typ == "unclassified":
             unclassified.append(canon)
