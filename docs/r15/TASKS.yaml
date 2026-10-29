@@ -279,3 +279,15 @@
     }
   }
 }
+
+  - id: T-A17
+    parent: W09
+    loop: L2
+    owner: B/C
+    depends_on: [T-F03, T-F05]
+    state: BLOCKED
+    next_action: "夹具已真实上传并建图，三份文档只产出 2 条边且无共享实体；先修抽取率再谈库级组织"
+    acceptance: [A17]
+    evidence: "qa/evidence/r15/a17/RESULT.md"
+    blocker: "① 350字结构化定价规则只抽1条边；② txt上传必失败；③ isGraphParse=true 不自动建图"
+    artifacts: ["index_graph_service/graph_extract.py", "frontend/plateform/src/components/KnowledgeBaseZh/GraphBox.tsx"]
