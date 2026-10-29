@@ -472,7 +472,50 @@ def _resolve_entity_types(requested):
     return req, "request"
 
 
-def llm_generate_triple(json_data, entity_types: [str], model_info, server_config):
+def fetch_known_entities(space_name, limit=None):
+    """R15-W09：取本知识库已有实体名，供抽取时复用（entity linking 的输入）。
+
+    为什么从图里取而不是从向量库取：图里的顶点名就是最终落库名，
+    用它做"复用建议"不会引入第二套命名体系。
+
+    返回空列表是**正常情况**（首次解析、空库、Nebula 不可用），
+    此时抽取行为与改造前完全一致，不会因为拿不到清单就失败。
+    """
+    limit = limit or int(os.environ.get("R15_KNOWN_ENTITY_LIMIT", "80"))
+    try:
+        session = return_nacos_model().session_client()
+    except Exception as e:
+        logger.warning(f"取已知实体：无法建立会话（不影响抽取）{e}")
+        return []
+    try:
+        r = session.execute(f"USE `g_{space_name}`")
+        if not r.is_succeeded():
+            # 空间还不存在＝这个库第一次建图，没有可复用实体
+            return []
+        r = session.execute(
+            f"MATCH (v:entity) RETURN id(v), properties(v).type LIMIT {limit}")
+        if not r.is_succeeded():
+            logger.warning(f"取已知实体查询失败：{r.error_msg()[:120]}")
+            return []
+        out = []
+        for i in range(r.row_size()):
+            name = r.row_values(i)[0].as_string()
+            if name:
+                out.append(name)
+        logger.info(f"抽取注入已有实体 {len(out)} 个（space=g_{space_name}）")
+        return out
+    except Exception as e:
+        logger.warning(f"取已知实体异常（不影响抽取）{type(e).__name__}: {e}")
+        return []
+    finally:
+        try:
+            return_nacos_model().close_session(session)
+        except Exception:
+            pass
+
+
+def llm_generate_triple(json_data, entity_types: [str], model_info, server_config,
+                        known_entities=None):
     """
     生成三元组
     Args:
@@ -495,7 +538,9 @@ def llm_generate_triple(json_data, entity_types: [str], model_info, server_confi
             if len(content) > max_char_length:
                 content = content[:max_char_length]
             # 生成实体
-            relations, entity_dict = generate_graph_relations(content, model_info, server_config, entity_types=entity_types)
+            relations, entity_dict = generate_graph_relations(
+                content, model_info, server_config, entity_types=entity_types,
+                known_entities=known_entities)
             for relation in relations:
                 td_s = ""
                 try:
@@ -550,7 +595,11 @@ def generate_triple_data(query_docu: QueryDocChunk):
     # R14-P1-03：类型表兜底 + **打日志**（原来日志里看不到用了哪些类型，下次还得靠复放）
     entity_types, types_source = _resolve_entity_types(getattr(query_docu, "entity_types", None))
     logger.info(f"抽取类型表（source={types_source}）：{entity_types}")
-    triples_data_list, entity_source_dict, triples_source_dict = llm_generate_triple(json_data, entity_types, model_info, server_config)
+    # R15-W09：抽取前先取本库已有实体，注入提示词让模型复用名称。
+    # 这是"跨文件关联"的根子——事后归一只补救写法差异，补不出模型根本不知道的名字。
+    known_entities = fetch_known_entities(space_name)
+    triples_data_list, entity_source_dict, triples_source_dict = llm_generate_triple(
+        json_data, entity_types, model_info, server_config, known_entities=known_entities)
     logger.info(f"生成数据所需时间是：{time.time() - t1}")
     # R13 类型体系 / 实体过滤 / canonical 归一（落库前统一收敛）
     triples_data_list, entity_source_dict, triples_source_dict, type_report = normalize_graph_data(

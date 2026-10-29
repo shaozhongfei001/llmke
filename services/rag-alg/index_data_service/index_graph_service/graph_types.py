@@ -170,11 +170,14 @@ def sentence_like(s):
     """
     if len(s) <= 8:
         return False
-    has_pred = re.search(r"(是|为|属于|包括|包含|不超过|需要|应当)", s)
-    has_mod = re.search(r"(的|之一|一部分|对象|额度|上限|条件|环节|周期|范围)", s)
+    has_pred = re.search(r"(是|为|属于|包括|包含|不超过|需要|应当|提出|申请)", s)
+    # 限定语尾：重解析 343 后仍漏出"办理流程包含评级授信步骤""提前十五个工作日提出书面申请"，
+    # 说明原尾词表太窄（缺 步骤/书面/时限/工作日 这类），按实测补全。
+    has_mod = re.search(r"(的|之一|一部分|对象|额度|上限|条件|环节|周期|范围|步骤|时限|书面|申请|规定|要求)", s)
     if has_pred and has_mod:
         return True
-    return len(s) > 14 and bool(re.search(r"(的|不超过|最高)", s))
+    # 长句兜底：>=12 字且含限定语（原为 >14，漏掉 14 字整句）
+    return len(s) >= 12 and bool(re.search(r"(的|不超过|最高|步骤|申请|时限)", s))
 
 
 def is_valid_entity(name):

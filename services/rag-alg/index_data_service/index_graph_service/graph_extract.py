@@ -119,7 +119,35 @@ def _classify_attempt(response_text, attempt_stats, truncated=None):
     return None
 
 
-def generate_graph_relations(passage, model_info, server_config, entity_types=None, exclude_pairs=None):
+def _known_entities_section(known_entities):
+    """R15-W09：把本知识库**已有实体**注入抽取提示词（entity linking）。
+
+    为什么必须做在抽取侧：
+      kb_9 实测 64 个有边实体里只有 1 个跨文件，图是 4 个互不相连的碎片。
+      根因是每个文件独立抽取，模型看不到库里已有什么：
+      同一个事物在文件 A 叫"智造贷"，在文件 B 可能叫"该产品""此贷款"，
+      于是长成不同顶点，永远不会连起来。事后归一只能补救写法差异，
+      补不出"模型根本不知道有这个名字"的情况。
+
+    约束（避免把图搞坏）：
+      · 只做**建议**不做强制：明确说"同一个事物才复用"，不同事物不要硬并；
+      · 清单只给名字，不给类型，避免类型判断被上一个文件的结论带跑；
+      · 为空时完全不插入该段，prompt 与改造前逐字一致（可回归对比）。
+    """
+    if not known_entities:
+        return ""
+    names = [n for n in known_entities if n]
+    if not names:
+        return ""
+    return ("Known_entities（本知识库中**已存在**的实体名）：\n"
+            + "、".join(names) + "\n"
+            "规则：若文本中出现的确实是上述某一个事物，请**原样复用该名称**"
+            "（不要另造同义写法、不要加前后缀）；若文本讲的是不同事物，"
+            "照常按文本命名，不要勉强套用。\n")
+
+
+def generate_graph_relations(passage, model_info, server_config, entity_types=None,
+                             exclude_pairs=None, known_entities=None):
     """
     生成图谱三元组
     Args:
@@ -162,8 +190,14 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
         "reverse_dup_skipped": 0,
     }
 
+    # R15-W09：已有实体清单插在 Text 之前。为空时 user_content 与改造前逐字相同，
+    # 便于用同一夹具做"注入前/注入后"的对照，而不用担心 prompt 被无关改动污染。
+    user_content = user_prompt.format(passage=passage, entity_types=",".join(entity_types))
+    _known = _known_entities_section(known_entities)
+    if _known:
+        user_content = user_content.replace("Text: ", _known + "Text: ", 1)
     messages = [{"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt.format(passage=passage, entity_types=",".join(entity_types))}]
+                {"role": "user", "content": user_content}]
 
     response_message = {"role": "assistant", "content": ""}
     continue_message = {'role': "user", "content": CONTINUE_PROMPT}
