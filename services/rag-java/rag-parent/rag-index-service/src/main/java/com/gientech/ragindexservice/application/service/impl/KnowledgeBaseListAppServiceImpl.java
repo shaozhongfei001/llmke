@@ -2055,6 +2055,15 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
                 kbId = result.getRecords().get(0).getKbId();
             }
             KnowledgeBase knowledgeBase = knowledgeBaseDomainService.findByKbId(kbId);
+            // R14-LIVE-16：知识库被删（status=0，findByKbId 查不到）时它的文件行可能还在。
+            // 原实现直接 getPrimitiveName() -> 空指针 -> 整个列表 500：
+            // 实测 kb 34（R14-BASELINE-KB，status=0）查图谱列表必 500。
+            // 列表是只读壳层接口，缺知识库元信息时应降级（不补计数），而不是把查询打成故障。
+            if (knowledgeBase == null) {
+                log.warn("知识库 {} 不存在或已删除，跳过列表统计信息补充", kbId);
+                result.getRecords().forEach(item -> item.setPermission(basicPermission));
+                return;
+            }
             String primitiveName = knowledgeBase.getPrimitiveName();
 
             List<Long> fileIds = result.getRecords().stream().map(KnowledgeBaseFileDTO::getId).collect(Collectors.toList());

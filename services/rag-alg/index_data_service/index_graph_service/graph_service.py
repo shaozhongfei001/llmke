@@ -319,7 +319,11 @@ def batch_insert_vertex(insert_param: InsertModel):
             insert_edge_re = f'INSERT EDGE IF NOT EXISTS relationship_similar(name,show_flag) VALUES "{ed[2]}"->"{ed[0]}":("{ed[1]}","0");'
             edge_queries.append(insert_edge_re)
         else:
-            ed_v = ",".join(ed)
+            # R14-LIVE-16：与 triples_source 的键保持同一分隔符。
+            # 原来这里用逗号拼，而 key 侧改用 \x1f 后两边对不上 -> 查不到 file_id
+            # -> 边写进 Nebula 但 file_id 为空 -> 图实例统计 "按文件查边数" 恒为 0，
+            # 表现为列表里"节点数 41 / 关系数 0"而子图实际有 50 条边。
+            ed_v = TRIPLE_SEP.join(ed)
             if ed_v in triples_attribute:
                 file_id = ",".join(triples_attribute[ed_v]["file_id"])
                 page_num = ",".join(triples_attribute[ed_v]["page_num"])
