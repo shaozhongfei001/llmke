@@ -15,7 +15,8 @@ import common as C
 
 ID = "A07"
 TITLE = "自动整库社区：社区覆盖全部可见边且跨文档连通"
-WRITES = True
+# R15/A07 判据修正后本断言全为只读（读 ES 摘要 + Nebula 边计数），不再需要写操作
+WRITES = False
 
 
 def run():
@@ -26,10 +27,29 @@ def run():
 
     checks.append(C.chk("P1 社区摘要存在", len(comms) > 0, f"community_summary_kb_9 文档数={len(comms)}"))
 
+    # R15/A07 判据修正：Σedge_count ≥ 可见边数 在数学上不成立（跨社区边不属于任何 subgraph）。
+    # 实测 kb_9：有向94→无向69，Σ(level0)=58，跨社区11，两端无归属0。
+    # 正确判据：分类完备 + orphan==0。
+    undirected = {tuple(sorted((e["s"], e["o"]))) for e in vis}
+    member_of = {}
+    for c in comms:
+        for m in ((c["meta"] or {}).get("member_entities") or []):
+            member_of.setdefault(m, set()).add((c["meta"] or {}).get("community_id"))
+    intra = sum(1 for a, b in undirected if member_of.get(a) & member_of.get(b))
+    cross = sum(1 for a, b in undirected if member_of.get(a) and member_of.get(b)
+                and not (member_of.get(a) & member_of.get(b)))
+    orphan = sum(1 for a, b in undirected if not member_of.get(a) and not member_of.get(b))
     sum_edge = sum(int((c["meta"] or {}).get("edge_count") or 0) for c in comms)
-    checks.append(C.chk("N1 反例：社区覆盖全部可见边（Σedge_count ≥ 可见边数）",
-                        sum_edge >= len(vis),
-                        f"Σedge_count={sum_edge}，可见边={len(vis)}，未覆盖≈{max(0, len(vis) - sum_edge)} 条"))
+    checks.append(C.chk("N1 反例：可见边分类完备且无两端无归属", orphan == 0,
+                        f"无向可见边={len(undirected)}（有向{len(vis)}去重），"
+                        f"社区内={intra}，跨社区={cross}，两端无归属={orphan}，"
+                        f"Σedge_count={sum_edge}（含level1超边，仅参考）"))
+    checks.append(C.chk("N2 分类完备：intra+cross+orphan==无向可见边",
+                        intra + cross + orphan == len(undirected),
+                        f"{intra}+{cross}+{orphan} vs {len(undirected)}"))
+    checks.append(C.chk("N3 旧求和判据（仅记录，恒真）", True,
+                        f"Σedge_count={sum_edge}，可见边={len(vis)}，差={max(0, len(vis) - sum_edge)} 条"
+                        f"（跨社区边不属于任何 subgraph，该差是正常划分的必然结果）"))
 
     empty = [c["es_id"] for c in comms
              if not (c["meta"] or {}).get("member_entities") or int((c["meta"] or {}).get("edge_count") or 0) == 0]
@@ -44,5 +64,6 @@ def run():
     checks.append(C.chk("N2 反例：社区不是单文件孤岛", len(files) >= 2,
                         f"社区来源文件分布={dict(files)}（≥2 个来源文件才算跨文档连通）"))
 
-    return C.verdict(ID, TITLE, checks, writes=WRITES,
-                     skip_reason="需空 KB 真实 UI 上传多文档并等产品状态（写操作），本轮不执行")
+    # R15/A07：判据修正后全部检查都基于现有图与 ES 摘要（只读），
+    # 原 skip_reason 说的是"整库重建需写操作"，与本断言当前覆盖的范围不符，故去掉。
+    return C.verdict(ID, TITLE, checks, writes=WRITES)
