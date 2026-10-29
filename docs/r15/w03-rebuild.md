@@ -215,6 +215,17 @@ platform/r12/bin/graph-rebuild.sh 9 --apply --strict-extract
 
 - 只处理 `relationship`。`relationship_similar` 没有 `file_id` 属性（`DESCRIBE EDGE` 实测只有 `name, show_flag`），是遍历辅助边，不参与（W02-4 要求"社区与问答排除辅助边"）。
 - **计数口径 = 全部 `relationship` 边，不按 `show_flag` / `generation` 过滤**。所以本脚本报的边数与"页面/查询侧过滤后看到的边数"可能不同。实测（22:34）：`g_kb_9` 93 条**全部** `show_flag='1'`（`generation` 分布 V1=71 / V0=22），`g_kb_1000` 2 条也全是 `'1'`——即当前不存在"过滤前 97 / 过滤后 93"的口径差，97→93 是**真的删了 4 条**（TL 已确认：他删的 4 条 `show_flag=0` 残留伪反向边）。这个口径差异在别的 KB 上仍可能出现，届时先量 `show_flag` 分布再对比数字。
+- **三个口径必须分开记，不能用一个数当全部**（TL 与 W01 一致要求；本脚本只负责第一个数，另两个记在证据里）：
+
+  | 口径 | 定义 | 用途 | 实测（`g_kb_9` 22:40） |
+  |---|---|---|---|
+  | `total_edges` | 全部 `relationship` 边（本脚本报的就是这个） | 报数、趋势、可复现 | **94** |
+  | `per_generation_edges` | 按 `generation` 分组 | **A09（一请求固定同代、不混代）只能用这个** | V1=**71** / V0=**23** |
+  | `effective_edges` | 叠加 `show_flag='1'` | W01 的 A09 双口径 | **94**（当前全部为 `'1'`） |
+
+  为什么 A09 不能用 `total_edges`：拿总数做代次前后对比时，"代次变化"和"真实增删"会混成一个数字，正是 A09 要避免的。
+
+- **待办（W03 阻塞项候选，交 TL 判）**：`g_kb_9` 里 **V0 代次仍有 23 条边**，而 V1 已经存在（71 条）。若按"V1 为现行代"的口径，这 23 条属**陈旧边非 0**，与 R14「重建只抽有效版本」的结论不一致——需要确认它们是"V0 输入本应排除但没排掉"还是"generation 属性写入口径不同"。**本脚本按 §3 判定规则不会删它们**（它们的 `file_id` 都是 status=3 的文件，属"仅来自有效文件"桶），所以这是一个必须由 A09/F05 侧解决的语义问题，不是删除策略问题。
 - 顶点一律不动：脚本不 `DROP SPACE`、不删顶点、不碰 Milvus 图集合。`--apply` 只发 `DELETE EDGE` 单语句。
 - `--apply` 且陈旧边为 0 时**跳过** `/generate_community`（图没变，重建只会白烧 LLM 并制造一次索引窗口）；需要强制用 `--force-community`。
 
@@ -626,7 +637,7 @@ dry-run：`edge_stale=6 / edge_valid=2 / edges_total=8`，`fingerprint.comparabl
 
 两轮的差别只有指纹与"是否可比"，删除/守恒/对账三项断言结果完全一致。**第二轮这次才是可以拿去和别的代次对比的记录**（`content_fingerprint=ca93e3c025cfa3649734d92d4ae3bbb7152908e8a681d99712599cc19d789859`）。
 
-### 9.7 遗留夹具清单与清理单（本轮**不**执行；由 TL 收尾时逐条执行）
+### 9.7 遗留夹具清单与清理单（已于 2026-10-29 22:39–22:41 授权执行，回读见 9.7.1）
 
 **现状（2026-10-29 22:36 实测）**
 
@@ -657,6 +668,48 @@ dry-run：`edge_stale=6 / edge_valid=2 / edges_total=8`，`fingerprint.comparabl
 | **kb_9 基线（要求不动）** | 边 **94** 条（`generation` V1=71 / V0=23，`show_flag='1'` 94）；ES `community_summary_kb_9` **11** 条；Milvus `_community_summary_kb_9` 存在 |
 
 > kb_9 的边数从本文前面记录的 93 变成 94（又多 1 条 V0 边），是别人在写，不是本次清理造成的——清理前后各取一次快照就是为了把这件事分清。
+
+**清理执行（2026-10-29T22:39:5x–22:40:5x）**
+
+| 步 | 动作 | 结果 |
+|---|---|---|
+| ① | 产品接口 `DELETE /index/knowledgeBase/delete?id=1000` | http=200 `data=true`；ES `kb_1000` 已被删（前后各查一次确认） |
+| ② | Nebula `DROP SPACE g_kb_1000`（先 `SHOW SPACES` 确认存在） | `is_succeeded=true`；5 秒后 `SHOW SPACES` 里已消失 |
+| ③ | 删社区摘要（ES 索引 + Milvus 集合），对 `kb_1000` 与 `rag_graph` 各一次 | ES 两个索引 `{"acknowledged":true}`；Milvus 两个集合 `dropped=true` |
+
+③ 有一处**必须记录的执行偏差**：原计划走 `POST 19529/del_community`（服务侧双写删除），但当时图服务**进程在跑、19529 不监听**（`del_community:000`；`watchdog.log` 同时刻写"启动宽限期内（启动于 144s 前，缺 19529）"），所以改为**等价直连**：ES 侧 `DELETE /community_summary_<kb>`（即 `del_index` 的效果）+ Milvus 侧 `POST 19526/del_collection`（名字不带前导下划线，服务端自己加）。**没有重启服务**。
+
+**清理后回读（2026-10-29T22:40:53，只读）**
+
+| 对象 | 期望 | 回读 | 结论 |
+|---|---|---|---|
+| Nebula `g_kb_1000` | 不存在 | `ABSENT`（`SHOW SPACES`: `g_kb_22 g_kb_26 g_kb_9 g_rag_graph rag_graph`） | ✅ |
+| ES `community_summary_kb_1000` | 不存在 | `_cat/indices` 无该名，`_count` 404 | ✅ |
+| ES `kb_1000` | 不存在 | 同上 | ✅ |
+| ES `community_summary_ragraph`（副作用） | 不存在 | 同上 | ✅ |
+| Milvus `_community_summary_kb_1000` | 不存在 | `utility.has_collection=false` | ✅ |
+| Milvus `_community_summary_ragraph` | 不存在 | `has_collection=false`；`list_collections` 里 community 相关只剩 `_community_summary_kb_9` | ✅ |
+| MySQL `knowledge_base` id=1000 | 不存在 | **仍存在，`status=0`**（软删） | ⚠️ 见 §9.7.2 |
+| MySQL `knowledge_base_list` where kb_id=1000 | 不存在 | **仍有 2 行，且 `999004` 仍是 `status=3`** | ⚠️ 见 §9.7.2 |
+| **kb_9（要求不动）** | 94 边 / 11 摘要 | 边 **94**（V1=71 / V0=23，`show_flag='1'` 94，与清理前**逐项相同**）；ES `community_summary_kb_9` **11** 条；Milvus `_community_summary_kb_9` 存在 | ✅ 未被动到 |
+
+### 9.7.2 清理时发现的两件事（都不是本脚本能修的）
+
+1. **产品侧"删 KB"是软删，且不联动下层**：`DELETE /index/knowledgeBase/delete` 返回成功、用户列表里确实消失、ES 主索引也删了，但：
+   - `knowledge_base` 行还在（`status=0`）；
+   - **`knowledge_base_list` 的文件行完全没动**——`999004` 仍然 `status=3`（"解析成功"）。
+
+   这意味着：**图空间、社区摘要、kb_list 的 status 都不会因为"删了知识库"而自动收回。** 这正是 `graph-rebuild.sh` 存在的理由；同时也说明 A10「删除/撤权」若只看产品接口返回会误判"已清理干净"。
+   本轮**没有**直接 SQL 硬删这两张表的行——那是绕开产品的写操作，不属于"清理夹具"的授权范围。若 TL 要彻底抹掉，需要单独授权并确认是否影响软删审计链。
+
+**清理后再跑一次脚本（22:41:24）**：对已删的 kb 1000 执行 dry-run，脚本 **fail-closed**：
+```
+[FAIL] graph-rebuild 未通过（mode=DRY-RUN kb=1000）：
+       Nebula 空间 g_kb_1000 不存在或不可用: SpaceNotFound: SpaceName `g_kb_1000`
+```
+即"KB 已经没了"不会让脚本静默跑成 PASS——这条顺带验证了第 [0/5] 步的空间存在性检查。
+
+2. **`del_community` 端点在服务未监听时静默不可用**：`curl` 直接 `000`（连接拒绝），不会有业务错误码。所以**不能只凭"调用过 del_community"就认为摘要删了**，必须回读 ES `_cat/indices` 与 Milvus `has_collection`。本次就是靠回读才发现要走等价直连。
 
 **清理单（逐条；每条都标影响面与不可逆性；执行前逐条确认对象仍是表里的那个）**
 

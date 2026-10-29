@@ -1,6 +1,6 @@
 {
   "run_id": "R15-TL-20261029",
-  "updated": "2026-10-29T22:42+08:00",
+  "updated": "2026-10-29T22:47+08:00",
   "candidate": {
     "worktree": "/home/szf/data/dev/llmke-r12",
     "branch": "feature/R12-real-rag",
@@ -147,7 +147,7 @@
   "team": {
     "extract-w01": "完成 graph_extract.py 单块重试/字段校验/诊断统计 + docs/r15/w01-extract.md",
     "accept-f12": "完成 platform/r15/acceptance 16 条反例断言 + 首跑基线",
-    "rebuild-w03": "完成 platform/r12/bin/graph-rebuild.sh + docs/r15/w03-rebuild.md"
+    "rebuild-w03": "完成 graph-rebuild.sh(790行文档)+两轮端到端+夹具清理回读"
   },
   "w01": {
     "state": "PARTIAL_VERIFIED",
@@ -205,5 +205,10 @@
       "A16 干净环境+外部签收"
     ],
     "delta": "首跑 PASS1/FAIL10/SKIP5 → 现 PASS4/FAIL6/SKIP6（A04/A06/A08 转 PASS）"
-  }
+  },
+  "new_findings": [
+    "删KB是软删且不联动下层：knowledge_base.status=0 但 knowledge_base_list 仍 status=3，图空间/摘要不回收 → A10 不能只看接口返回",
+    "del_community 在图服务未监听时静默不可用（curl 000），必须回读 _cat/indices + has_collection 才算删成功",
+    "SHOW SPACES 同时存在 g_rag_graph 与 rag_graph，命名异常需人工确认归属"
+  ]
 }
