@@ -25,6 +25,12 @@ PY="$R12/venvs/parse/bin/python"
 ok()   { printf '  [ok] %s\n' "$1"; }
 warn() { printf '  [!!] %s\n' "$1"; }
 die()  { printf '  [FAIL] %s\n' "$1"; exit 1; }
+# R14-SEC：口令只从环境变量或包内 .env 取，不在公开仓库写死默认值。
+R12_ENV_FILE="${R12_ENV_FILE:-$R12/.env}"
+ROOT_PW="${R12_MYSQL_ROOT_PASSWORD:-${MYSQL_ROOT_PASSWORD:-}}"
+if [ -z "$ROOT_PW" ] && [ -f "$R12_ENV_FILE" ]; then
+  ROOT_PW=$(grep -hE '^(R12_MYSQL_ROOT_PASSWORD|MYSQL_ROOT_PASSWORD)=' "$R12_ENV_FILE" | head -1 | sed 's/^[^=]*=//' | tr -d '\r')
+fi
 
 # 与 docker-compose.infra.yml 保持一致；更新编排时必须同步这里
 IMAGES=(
@@ -228,7 +234,8 @@ cmd_pack() {
       warn "沿用已有 db/gienrag.sql，但**缺少** uk_search_config_default 补丁（C 的默认助手唯一性修复会丢）"
     fi
   elif docker ps --format '{{.Names}}' | grep -qx 'r12-mysql'; then
-    docker exec r12-mysql mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD:-${R12_MYSQL_ROOT_PASSWORD:-R12r00t#2026local}}" \
+    [ -n "${ROOT_PW:-}" ] || die "缺少 MySQL root 口令：请设置 R12_MYSQL_ROOT_PASSWORD 或在 $R12_ENV_FILE 提供"
+    docker exec r12-mysql mysqldump -uroot -p"$ROOT_PW" \
       --single-transaction --routines --triggers --databases gienrag 2>/dev/null > "$P/db/gienrag.sql" \
       && ok "db/gienrag.sql $(du -sh "$P/db/gienrag.sql" | cut -f1)"
     if grep -q 'uk_search_config_default' "$P/db/gienrag.sql"; then

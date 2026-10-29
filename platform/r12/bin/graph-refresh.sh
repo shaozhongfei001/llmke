@@ -18,11 +18,23 @@ ES="${ES:-http://127.0.0.1:19200}"
 LLM_URL="${LLM_URL:-http://127.0.0.1:18092/v1/chat/completions}"
 LLM_KEY="${LLM_KEY:-sk-r12-local}"
 
+# R14-SEC：口令从包内 .env 或环境变量读取，不在公开仓库写死。
+R12_ENV_FILE="${R12_ENV_FILE:-$R12/.env}"
+if [ -f "$R12_ENV_FILE" ]; then
+  while IFS= read -r line; do
+    case "$line" in ''|\#*) continue ;; esac
+    key="${line%%=*}"; val="${line#*=}"
+    case "$key" in R12_MYSQL_ROOT_PASSWORD|MYSQL_ROOT_PASSWORD) [ -n "${!key:-}" ] || export "$key=$val" ;; esac
+  done < "$R12_ENV_FILE"
+fi
+
 ok()  { printf '  [ok] %s\n' "$1"; }
 die() { printf '  [FAIL] %s\n' "$1"; exit 1; }
+ROOT_PW="${R12_MYSQL_ROOT_PASSWORD:-${MYSQL_ROOT_PASSWORD:-}}"
+[ -n "$ROOT_PW" ] || die "缺少 MySQL root 口令（.env: $R12_ENV_FILE）"
 
 # 1) 取该知识库下已解析完成的文件 id（直连 MySQL，避免依赖登录）
-IDS=$(docker exec r12-mysql mysql -uroot -p"${MYSQL_ROOT_PASSWORD:-R12r00t#2026local}" -N -e \
+IDS=$(docker exec r12-mysql mysql -uroot -p"$ROOT_PW" -N -e \
   "select group_concat(id order by id) from gienrag.knowledge_base_list where kb_id=${KB_ID} and status=3" 2>/dev/null | tr -d '\r')
 [ -n "${IDS:-}" ] && [ "$IDS" != "NULL" ] || die "kb ${KB_ID} 下没有已解析文件"
 ok "待刷新文件: $IDS"

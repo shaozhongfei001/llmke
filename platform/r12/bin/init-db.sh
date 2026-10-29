@@ -24,7 +24,9 @@ if [ -f "$R12_ENV_FILE" ]; then
     esac
   done < "$R12_ENV_FILE"
 fi
-ROOT_PW="${R12_MYSQL_ROOT_PASSWORD:-${MYSQL_ROOT_PASSWORD:-R12r00t#2026local}}"
+ROOT_PW="${R12_MYSQL_ROOT_PASSWORD:-${MYSQL_ROOT_PASSWORD:-}}"
+# R14-SEC：公开仓库不得写死数据库口令；读不到就明确失败，不静默回退到内置默认。
+[ -n "$ROOT_PW" ] || { printf '  [FAIL] 缺少 MySQL root 口令：请在 %s 提供 R12_MYSQL_ROOT_PASSWORD，或导出同名环境变量\n' "$R12_ENV_FILE" >&2; exit 2; }
 
 ok()   { printf '  [ok] %s\n' "$1"; }
 warn() { printf '  [!!] %s\n' "$1"; }
