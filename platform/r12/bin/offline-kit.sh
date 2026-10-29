@@ -107,6 +107,7 @@ collect_payload() {
   echo "nacos"
   echo ".env.template"
   echo "docs/R13-STATUS.md"
+  echo "src/contracts/ontology"
   echo "venvs"
   echo "models"
 }
@@ -216,6 +217,14 @@ cmd_pack() {
     else warn "缺源码 services/rag-alg/$d"; fi
   done
   cp "$SRC_ROOT/docs/r12/R13-STATUS.md" "$P/docs/" 2>/dev/null || true
+  # R15/A01：本体契约随包发布。服务在运行时向上查找 contracts/ontology，
+  # 找不到会回退内置 16 类（不崩，但 A01 的类型约束失效），所以必须进包。
+  if [ -d "$SRC_ROOT/contracts/ontology" ]; then
+    mkdir -p "$P/src/contracts" && rm -rf "$P/src/contracts/ontology"
+    cp -a "$SRC_ROOT/contracts/ontology" "$P/src/contracts/ontology" && ok "contracts/ontology 已打包"
+  else
+    warn "contracts/ontology 不存在：类型契约将缺失，服务回退内置16类"
+  fi
   # 附加 SQL（如 r14_group_audit.sql）：随包但不自动执行——本轮 group 审计只留日志、不建表
   if [ -d "$R12/sql" ] && ls "$R12/sql"/*.sql >/dev/null 2>&1; then
     mkdir -p "$P/sql"; cp "$R12/sql"/*.sql "$P/sql/" && ok "附加 SQL: $(ls "$R12/sql"/*.sql | xargs -n1 basename | paste -sd, -)（不自动执行）"

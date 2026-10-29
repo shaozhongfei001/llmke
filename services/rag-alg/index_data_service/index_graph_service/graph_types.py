@@ -12,6 +12,7 @@
   - 归一只做**确定可解释**的规则（别名表 + 全称包含关系），不做不可复现的猜测。
 """
 import json
+import logging
 import os
 import re
 
@@ -24,10 +25,49 @@ SCHEMA_VERSION = "v1"
 TRIPLE_SEP = "\x1f"
 
 # 业务类型表（v1）：与知识库的 graphPrompt/entity_types 同口径，作为"合法类型"白名单
-ALLOWED_TYPES = [
+_BUILTIN_ALLOWED_TYPES = [
     "机构", "客户", "产品", "金额", "期限", "指标", "日期",
     "业务动作", "单证", "条款", "评级", "地点", "担保", "编号", "口径", "其他",
 ]
+
+
+def _load_contract_types():
+    """从 contracts/ontology 读受控类型表（R15 W01/A01）。
+
+    为什么：类型表原本是源码字面量，改一次要改代码、无法评审、也无法审计。
+    契约是 `entity-types.v1.json`，每个码带 `legacy`（现有中文名）与 `label`；
+    白名单取 `legacy or label`，**保持中文**，避免改动下游已入库的 v.type 取值。
+
+    健壮性：向上最多找 6 级目录；找不到/解析失败一律回退内置 16 类，
+    不允许因为契约文件缺失导致服务起不来（部署路径与开发路径不同）。
+    返回 (types, source_path, reason)。
+    """
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    for _ in range(6):
+        cand = _os.path.join(here, "contracts", "ontology", "entity-types.v1.json")
+        if _os.path.isfile(cand):
+            try:
+                with open(cand, encoding="utf-8") as fh:
+                    spec = json.load(fh)
+                names = []
+                for t in spec.get("types", []):
+                    nm = (t.get("legacy") or t.get("label") or "").strip()
+                    if nm and nm not in names:
+                        names.append(nm)
+                if names:
+                    return names, cand, "contract"
+                return list(_BUILTIN_ALLOWED_TYPES), cand, "contract_empty_types"
+            except Exception as e:  # noqa: BLE001
+                return list(_BUILTIN_ALLOWED_TYPES), cand, f"contract_invalid:{e}"
+        here = _os.path.dirname(here)
+    return list(_BUILTIN_ALLOWED_TYPES), "", "contract_not_found"
+
+
+ALLOWED_TYPES, _TYPES_SOURCE, _TYPES_REASON = _load_contract_types()
+# 此处是模块级导入期，业务 logger 还没就绪，用标准 logging 记录来源（可 grep 定位兜底是否生效）
+logging.getLogger(__name__).info(
+    f"类型白名单来源={_TYPES_REASON} 共{len(ALLOWED_TYPES)}类 path={_TYPES_SOURCE}")
 
 # 规则推断：LLM 没给出合法类型时，按名称形态兜底
 RULES = [
@@ -52,7 +92,9 @@ RULES = [
 STOPWORDS = {
     "下表", "上表", "表格", "表头", "table", "document", "docx", "xlsx", "pptx", "pdf",
     "文本", "内容", "数据", "天数", "业务日", "序号", "备注", "合计", "小计", "单位",
-    "正常", "无", "其他", "如下", "上述", "以上", "以下", "说明",
+    "无", "其他", "如下", "上述", "以上", "以下", "说明",
+    # R15/A01：原先把"正常"当停用词，但 RULES 又把它判为评级(grade) ——
+    # 结果"正常"这个合法风险分类永远进不了图。停用词只收结构性词，业务取值交给类型体系。
     # R14-LIVE-15：业务实体词不能当停用词。
     # 原实现把 客户/用户/供应商/公司/企业/项目/产品/申请人/借款人 一并过滤，
     # 而贷款知识库的主实体恰恰是"客户/产品/借款人"；过滤掉它们，

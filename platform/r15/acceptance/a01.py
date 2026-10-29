@@ -29,9 +29,23 @@ def _block(src, name):
 def run():
     checks = []
     src = C.read_src("services/rag-alg/index_data_service/index_graph_service/graph_types.py")
-    allowed = [x.strip().strip("\"'") for x in _block(src, "ALLOWED_TYPES").split(",") if x.strip()]
+    # R15/A01 判据修正：a01 原来用**源码文本**解析 ALLOWED_TYPES，实现改为从契约加载后
+    # `ALLOWED_TYPES, _TYPES_SOURCE, _TYPES_REASON = _load_contract_types()`，
+    # 文本解析拿不到真实结果（会得到空列表/误判）。改为**运行时 import** 取真实值，
+    # 这才是"服务实际用哪套类型表"的判据。
+    allowed, types_source, types_reason = [], "", "import_failed"
+    try:
+        import sys
+        import os as _os
+        sys.path.insert(0, _os.path.join(C.ROOT, "services/rag-alg/index_data_service/index_graph_service"))
+        import graph_types as G  # noqa: E402
+        allowed = list(getattr(G, "ALLOWED_TYPES", []) or [])
+        types_source = getattr(G, "_TYPES_SOURCE", "") or ""
+        types_reason = getattr(G, "_TYPES_REASON", "") or ""
+    except Exception as e:  # noqa: BLE001
+        types_reason = f"import_failed:{e}"
     checks.append(C.chk("运行时类型白名单可读取", len(allowed) > 0,
-                        f"ALLOWED_TYPES={len(allowed)} 项: {allowed}"))
+                        f"来源={types_reason} 共{len(allowed)}项: {allowed}"))
 
     # N1：白名单外类型（unclassified 是显式兜底类型，不算越界）
     rows = C.nebula("MATCH (v:entity) RETURN v.entity.type, count(v)")[0]
@@ -51,7 +65,8 @@ def run():
     # N3：M1 受控配置存在且被生产代码读取（不是源码里写死一张 16 类表）
     onto = [p for p in glob.glob(os.path.join(C.ROOT, "contracts/ontology/**/*"), recursive=True)
             if os.path.isfile(p) and not p.endswith(".md")]
-    loads_cfg = bool(re.search(r"ALLOWED_TYPES\s*=\s*(json\.load|_load|load_|read_)", src))
+    # 同上：用运行时来源判定，而不是正则匹配源码写法
+    loads_cfg = (types_reason == "contract")
     checks.append(C.chk("N3 反例：类型体系来自受控配置而非硬编码",
                         bool(onto) and loads_cfg,
                         f"contracts/ontology 受控文件={len(onto)}；运行时从配置加载={loads_cfg}"
