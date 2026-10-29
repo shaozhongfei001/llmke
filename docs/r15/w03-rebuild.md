@@ -1,0 +1,335 @@
+# W03 整库图重建：运维脚本 `graph-rebuild.sh` 与原子发布方案
+
+版本：V1.0（2026-10-29）
+范围：`platform/r12/bin/graph-rebuild.sh`（本文件是它的设计与实测记录）
+对应任务：W03「同代、按权限的整库构建与原子发布」→ F03/F05 的运维侧切片
+本文件只描述**运维脚本**与**发布方案的代码改动清单**；`services/` 下任何代码本轮未改。
+
+---
+
+## 0. 一页结论
+
+| 项 | 状态 |
+|---|---|
+| 脚本 | `platform/r12/bin/graph-rebuild.sh`，`bash -n` 通过；默认 dry-run，`--apply` 才写 |
+| 对 kb 9 的实测 | `relationship` 边 **97** 条，**全部**来自 `status=3` 有效文件（329/333/343）；**0 条陈旧边** |
+| 本机 `--apply` 结果 | 0 删除、0 写入（ES `community_summary_kb_9` 前后都是 11 条，边数前 97 后 97） |
+| **与派工背景的差异** | 派工单给的「204 条边中 94 条只来自已删文件」**当前环境不能复现**（详见 §1.2）。不是脚本没实现，是这份数据现在不带陈旧边 |
+| 并发写入 | 实测环境有其它写入方：同一份图在 78 秒内 94 → 97 条边（都来自有效文件 343） |
+| 原子发布 | 现在只能做到「重建前后一致性校验」；真正的 alias 原子切换**需要改 5 处代码**，清单与最小方案见 §6，本轮未改 |
+
+---
+
+## 1. 事实基线（全部实测，带时间）
+
+测量方式：MySQL 走 `docker exec r12-mysql`；Nebula 走 `platform/r12/venvs/graph/bin/python` + `nebula3` 直连 `127.0.0.1:19669`（**没有**用 nebula-console）；ES 走 `127.0.0.1:19200`。
+
+### 1.1 数据面
+
+| 事实 | 值 | 时间 |
+|---|---|---|
+| `knowledge_base.id=9` | `primitive_name=kb_9` | 2026-10-29T22:13 |
+| `knowledge_base_list`（kb 9）行数 | 274 | 同上 |
+| 按 status | `0=262`（已删）、`3=11`（解析成功）、`4=1`（解析失败） | 同上 |
+| valid 集合（status=3） | `127,290,328,329,330,331,332,333,334,343,999002` | 同上 |
+| Nebula 空间 | `g_kb_9`（`DESCRIBE SPACE`：`vid_type=FIXED_STRING(500)`，partition=10） | 同上 |
+| `entity` 顶点 | 133 | 同上 |
+| `relationship` 边 | **94**（22:13–22:14）→ **97**（22:15:32 起） | 见 §1.3 |
+| `relationship_similar` 边 | 432（`SHOW STATS` 快照记 438，统计任务本身有时滞） | 22:13 |
+| 边的 `file_id` 分布 | 343=68/71、329=18、333=8（随写入变化） | — |
+| ES `community_summary_kb_9` | 11 条 | 22:15 |
+
+两条容易踩错的点，脚本按实测处理：
+
+1. **`knowledge_base_list.file_id` 列在 kb 9 全是 `NULL`**；图边上的 `file_id` 属性存的是 `knowledge_base_list.id`（主键）。
+   证据：边属性出现 `343`/`329`/`333`，对应表行 `343=R12FIX-product-intro(1).pptx`、`329=R12FIX-credit-ledger.xlsx`、`333=docx-table.docx`，都是 status=3。
+   所以"有效文件集合"必须取 `id`，不是 `file_id` 列；脚本取 `id`。
+2. **`status` 语义**（源码 `KnowledgeBaseListDO.java:53`）：`0:删除 1:正常 2:解析中 3:解析成功 4:解析失败`。
+   派工单只说"status=3"，但把 `4:解析失败` 当已删会误删仍然可见资料的事实；脚本把 0 与"行不存在"判为已删，1/2/4 单列为「待确认」不删（§3）。
+
+### 1.2 与派工背景数字的差异（必须记录）
+
+派工单背景：「kb_9：status=0（已删）262 个文件、status=3（有效）11 个；图里 204 条边中 94 条只来自已删文件」。
+
+- 262 / 11 **完全复现**（实测 262 / 11，另有 1 条 status=4 派工单未提）。
+- 「204 条边中 94 条只来自已删文件」**不可复现**：当前 `relationship` 边 94→97 条，`file_id` 只有 329/333/343，**全部**是 status=3 有效文件，**陈旧边 = 0**。
+
+多次独立测量（同一语句 `MATCH (a)-[e:relationship]->(b) RETURN e.file_id`）：
+
+| 时刻 | 行数 | `file_id` 分布 | 备注 |
+|---|---|---|---|
+| 22:12:5x（首次探测，仅取 `e.file_id` 一列） | **170** | `""=70`、`343=68`、`329=18`、`333=8`、`226=6` | `226` 在 kb 9 表中**不存在**（更早已整行删除） |
+| 22:13:0x（同一语句，数秒后） | 94 | 343/329/333 | `SUBMIT JOB STATS` + `SHOW STATS` 同刻也报 94 |
+| 22:14:21（dry-run） | 94 | 343/329/333 | 脚本第 [2/5] 步 |
+| 22:15:32（--apply） | 97 | 343=71/329/333 | 边数在增加 |
+| 22:17:25（复核） | 97 | 343=71/329/333 | 已稳定 |
+
+判读（事实与推断分开）：
+
+- **事实**：首次探测到 170 行，其中 `file_id` 为空 70 条 + 指向已不存在行 6 条 = **76 条**；这个 76 恰好等于 R14 记录过的旧代残留数（`platform/r12/graph/rebuild_kb9_full.py` 头注释："55 个旧代顶点、76/126 条旧代边全部留存"）。
+- **事实**：同一语句在数秒后稳定返回 94，且 `SHOW STATS`、`LOOKUP ON entity | GO`、`MATCH` 三种口径一致。
+- **推断（未定论）**：76 条旧代边在两次探测之间被并发进程清掉了（22:15 那次还观察到边从 94 涨到 97）；也不排除首次查询命中了未完全收敛的读路径。**没有证据支持"脚本读错了"**——三口径一致 + `SHOW STATS` 都对得上 94。
+- **结论**：派工单的「94 条只来自已删文件」与「全图 204 条」都不成立（204 = 94+110 或 170+34 都对不上任何实测口径）。**不要用这两个数字做验收基线**；以脚本每次现算的 `RESULT {...}` 为准。
+
+### 1.3 并发写入未受控
+
+22:14:21（94 条）→ 22:15:32（97 条），增量全部来自 `file_id=343`，说明**有其它进程在往 `g_kb_9` 写三元组**（本轮其它工作包）。同一时间段图服务 `19529` 还出现过一次"进程存活但不监听"：
+
+```
+[2026-10-29T22:12:30+08:00] [graphsvc] 启动宽限期内（启动于 161s 前，宽限 180s，缺 19529），本轮不判死
+```
+（`platform/r12/logs/watchdog.log`；22:13 起恢复可达，dry-run 第 [3/5] 步实测 `openapi.json` 返回 200。）
+
+同一时间点 `git status` 里另有三处未提交改动：`graph_extract.py`、`graph_service.py`、`graph_summary.py`（其它工作包）。**这只是"同期存在改动"的事实，未证明与上面的边数变化有因果关系**，但对本脚本的影响是确定的：图的数字随时会变。
+
+因此脚本的三条设计是必需而不是洁癖：**每步现算**（不复用 dry-run 结果）、**apply 前并发守卫**、**删后重新枚举比对**。
+
+---
+
+## 2. 用法
+
+```bash
+# 1) 只看（默认，只读，不写任何数据）
+platform/r12/bin/graph-rebuild.sh 9
+
+# 2) 真删 + 重建社区摘要
+platform/r12/bin/graph-rebuild.sh 9 --apply
+
+# 3) 0 条陈旧边也想强制重建社区（默认会跳过，省 LLM 且不动索引）
+platform/r12/bin/graph-rebuild.sh 9 --apply --force-community
+```
+
+退出码：`0` 全通；`1` 有步骤失败（此时已发生的写入**不回滚**，见 §5）；`2` 前置/用法错误（**未产生任何写入**）。
+
+环境变量（都可选，默认值即本机实测值）：
+
+| 变量 | 默认 | 用途 |
+|---|---|---|
+| `R12_ENV_FILE` | `platform/r12/.env` | 口令来源文件 |
+| `MYSQL_CONTAINER` | `r12-mysql` | MySQL 容器名 |
+| `W03_MYSQL_DB` | `gienrag` | 库名 |
+| `GRAPH` / `ES` | `http://127.0.0.1:19529` / `:19200` | 图服务 / ES |
+| `NEBULA_HOST`/`NEBULA_PORT` | `127.0.0.1`/`19669` | Nebula |
+| `GRAPH_LLM_MODEL`/`_URL`/`_KEY` | 与 `probe_community_twice.py` 同值 | 社区摘要用的模型（换模型必须同步那份证据脚本，否则两边社区数不可比） |
+| `GRAPH_REBUILD_FORCE=1` | 未设 | 越过 `--apply` 的并发守卫（后果自负，会打印 `[!!]`） |
+
+口令处理：只从 `.env` 的 `R12_MYSQL_ROOT_PASSWORD`（或环境变量）读，**脚本内不写死任何口令**；传入 MySQL 用 `docker exec -e MYSQL_PWD`（不带 `=值`，从宿主环境转发），**口令不出现在 argv**，`ps` 看不到。读不到就 `[FAIL]` 退出 2，不静默回退默认值。
+
+---
+
+## 3. 判定规则（改这里必须同步本节）
+
+`relationship` 边按 `file_id`（逗号分隔，可多来源）分 5 桶：
+
+| 桶 | 判定 | 动作 | 理由 |
+|---|---|---|---|
+| **仅有效** | 所有来源都在 `status=3` | 保留 | 来源仍然有效 |
+| **仅已删** | 所有来源都是 `status=0` **或该行已不存在** | `--apply` 时逐条 `DELETE EDGE` | 唯一真正该收回的"幽灵事实" |
+| **混合** | 同时含有效来源与已删来源 | **不删**，报 `[!!]` | 另一个来源仍然支持这条事实；删了会丢有效结论（A05「仍有合法支持的事实不误删」） |
+| **待确认** | 来源是 `status 1/2/4`，或 `file_id` 非数字 | **不删**，报 `[!!]` 并给示例 | `4=解析失败` 的文件行还在、页面仍可见；把"解析失败"当"已删"是误删高发点。需要人判定 |
+| **来源未知** | `file_id` 为空 | **不删**，报 `[!!]` | 删了无据可依、无法回滚 |
+
+补充规则：
+
+- 只处理 `relationship`。`relationship_similar` 没有 `file_id` 属性（`DESCRIBE EDGE` 实测只有 `name, show_flag`），是遍历辅助边，不参与（W02-4 要求"社区与问答排除辅助边"）。
+- 顶点一律不动：脚本不 `DROP SPACE`、不删顶点、不碰 Milvus 图集合。`--apply` 只发 `DELETE EDGE` 单语句。
+- `--apply` 且陈旧边为 0 时**跳过** `/generate_community`（图没变，重建只会白烧 LLM 并制造一次索引窗口）；需要强制用 `--force-community`。
+
+### 3.1 `DELETE EDGE ... @rank` 语法已单独验证
+
+rank 是本空间真实的主键之一（实测现存边 rank 是 313735900797098165 这类随机 i64，不是 0），语句不能省 `@rank`。在**临时空间** `zz_w03_probe`（建了立刻 `DROP SPACE`，不触碰任何既有数据）实测：
+
+```
+INSERT EDGE relationship(name,file_id) VALUES 'a'->'b'@0:('r0','1'),
+   'a'->'b'@123456789:('rbig','1'), 'a'->'b':('rdefault','1')
+MATCH 结果:            [[0,"rdefault"], [123456789,"rbig"]]      <- 默认 rank == 0，@0 那条被覆盖
+DELETE EDGE ...@123456789 后: [[0,"rdefault"]]                   <- 只删该 rank
+DELETE EDGE ...（不带 @rank）后: []                              <- 不带 rank 删的是 rank 0
+```
+
+结论：`DELETE EDGE relationship "src"->"dst"@rank` 语义正确；**不带 `@rank` 会删错边**（删成 rank 0），所以脚本强制带 rank。vid 用 `ngql_str()` 转义（`"`、`\`、换行、中文），有单测（§4.3）。
+
+---
+
+## 4. 实测输出
+
+### 4.1 dry-run（kb 9，原始输出，未删改）
+
+```
+$ platform/r12/bin/graph-rebuild.sh 9
+
+== W03 graph-rebuild ==
+  [..] kb=9  mode=DRY-RUN  script=./platform/r12/bin/graph-rebuild.sh
+== [0/5] 环境前置 ==
+  [ok] python: /home/szf/data/dev/llmke-r12/platform/r12/venvs/graph/bin/python
+  [ok] MySQL 口令已从 /home/szf/data/dev/llmke-r12/platform/r12/.env 读取（值不打印）
+  [ok] MySQL 容器 r12-mysql 运行中
+  [ok] dry-run：并发守卫不生效（本模式只读）
+  [ok] primitive_name=kb_9  Nebula space=g_kb_9
+== [1/5] 有效文件集合（MySQL knowledge_base_list.status=3）==
+  [ok] 文件行 274 条，按 status 分布 0=262, 3=11, 4=1
+  [ok] 有效文件 11 个: 127,290,328,329,330,331,332,333,334,343,999002
+  [!!] 非有效状态: 0=已删 262 条, 4=解析失败 1 条 —— 其中只有 0 与'行不存在'算已删，1/2/4 不会被删除
+  [ok] Nebula 127.0.0.1:19669 空间 g_kb_9 已选中
+== [2/5] 边来源统计 ==
+  全图 relationship 边合计 97 条
+  [ok] 仅来自有效文件(status=3)             : 97  保留
+  [ok] 仅来自已删文件(0/行不存在)               : 0  无陈旧边
+  [ok] 混合来源(有效+已删)                   : 0  不删：另一来源仍支持该事实
+  [ok] 待确认(status 1/2/4 或 file_id 非法): 0  不删：文件行还在，需人工判定
+  [ok] 来源未知(file_id 为空)              : 0  不删：删了无据可依
+== [3/5] 删除陈旧边：dry-run 跳过（加 --apply 才执行）==
+  [ok] 图服务可达（http 200）：--apply 时会调 /generate_community 重建社区摘要
+== [4/5] 重建社区摘要：dry-run 跳过 ==
+== [5/5] 一致性校验 ==
+  当前 relationship 边合计 97 条（进场时 97）
+  [!!] dry-run：跳过'边数守恒/陈旧边归零/摘要条数'三项校验（需 --apply 才有写入）
+  将校验: 边数守恒(97 条) / 陈旧边归零 / ES 摘要条数 == 本次摘要数
+RESULT {"edge_mixed": 0, "edge_pending": 0, "edge_stale": 0, "edge_stale_after": 0, "edge_unknown": 0, "edge_valid": 97, "edges_after": 97, "edges_total": 97, "kb": "9", "mode": "DRY-RUN", "primitive": "kb_9", "space": "g_kb_9", "ts": "2026-10-29T22:15:52+0800", "verdict": "PASS"}
+== 结论 ==
+  [ok] graph-rebuild 通过（mode=DRY-RUN kb=9）
+  [!!] 本次是 dry-run，未写任何数据；确认上面的数字后再加 --apply
+```
+
+末尾 `RESULT {...}` 是给上层聚合用的机器行（`acceptance.sh` / 证据归档直接 grep `^RESULT `）。
+
+### 4.2 `--apply` 的 0 写入验证
+
+在 kb 9 上跑了 `--apply`（陈旧边 0，因此不进第 3/4 步的写分支），用于验证 apply 分支的**守恒校验**数学与跳过逻辑：
+
+```
+ES_before={"count":11,...}                    # curl /community_summary_kb_9/_count
+  [ok] 0 条陈旧边，无需删除
+  [!!] 0 条陈旧边且未加 --force-community：图没变，跳过 /generate_community（省 LLM 且不动索引）
+  删后 relationship 边合计 97 条（删前 97）
+  [ok] 边数守恒：97 - 0 = 97
+  [ok] 陈旧边已归零
+  [ok] 有效来源边数不变：97
+RESULT {"deleted": 0, ..., "mode": "APPLY", "verdict": "PASS"}      rc=0
+ES_after={"count":11,...}                     # 前后一致，确认零写入
+```
+
+**这不是"验证了删除能跑通"**：kb 9 现在没有陈旧边，真删除路径只能靠 §3.1 的临时空间语法验证 + §4.3 的分桶逻辑单测覆盖。要端到端验证删除，需要先造一条"仅来自已删文件"的边（见 §7 建议）。
+
+### 4.3 负例与单测（证明断言不空转）
+
+分桶是"删什么"的唯一判据，所以对它做了 11 条正反例（`classify()` 抽出来单独喂合成数据，`st_map={100:3,101:3,200:0,300:4,301:1,302:2}`）：
+
+| 用例 | 期望 | 结果 |
+|---|---|---|
+| `file_id=100` | valid | PASS |
+| `file_id=200`（status 0） | stale | PASS |
+| `file_id=999`（行不存在） | stale | PASS |
+| `file_id=100,200`（混合） | mixed | PASS |
+| `file_id=200,999`（逗号全已删） | stale | PASS |
+| `file_id=300`（status 4 解析失败） | pending | PASS |
+| `file_id=301`（status 1 正常） | pending | PASS |
+| `file_id=302`（status 2 解析中） | pending | PASS |
+| `file_id=""` | unknown | PASS |
+| `file_id=abc` | pending | PASS |
+| `file_id=100,300`（有效+待确认） | pending | PASS |
+
+转义单测：`ngql_str('智造贷"引号"') == '"智造贷\"引号\""'`、`a\b → "a\\b"`、`含\n换行 → "含\n换行"`。
+
+前置失败路径（全部非零退出、不写入）：
+
+```
+$ graph-rebuild.sh abc            -> [FAIL] kbId 必须是数字，收到: abc            rc=2
+$ graph-rebuild.sh 999            -> [FAIL] knowledge_base 里找不到 kb 999 ...     rc=1
+$ R12_ENV_FILE=/tmp/empty.env ... -> [FAIL] 里没有 R12_MYSQL_ROOT_PASSWORD ...     rc=2
+$ 有并发 acceptance.py 时 --apply -> [FAIL] 检测到可能的并发重建/验收进程 ...        rc=2
+```
+
+并发守卫用 `pgrep -af 'rebuild_kb9|generate_triple|acceptance\.py'`（`pgrep` 不自匹配；用 `ps|grep` 会被自己的命令替换子 shell 命中，实测过，已换掉）。
+
+---
+
+## 5. 一致性校验与失败语义
+
+`--apply` 的第 [5/5] 步做三项硬校验，任一不成立即 `[FAIL]` 退出 1：
+
+1. **边数守恒**：`进场边数 - 实际删除数 == 删后边数`。不等说明有并发写入或 `DELETE` 没落地。
+2. **陈旧边归零**：删后重枚举，`stale` 桶必须为 0（`DELETE` 返回 `SUCCEEDED` 不等于边没了，必须回读）。
+3. **有效来源边数不变** + **ES 摘要条数 == 本次摘要数**。后者是防"新旧代摘要混在一起"：ES 侧写入是派生 `_id` 覆盖，社区变少时旧摘要不会被自动清掉（§6.2），所以第 4 步按本次响应的 `community_detail[].community_id` 反向清理，清完再对数。
+
+失败语义：
+
+- 第 3 步部分失败 → 打印失败明细（最多 5 条）并 `[FAIL]`，**不回滚**（已删的边是删对了的，回滚反而制造二次不一致），需人工复核。
+- 第 4 步失败但边已删 → 额外打 `[!!]` 提示"图与社区摘要现在不同代，需要重跑脚本（重跑幂等）"。这条是本轮**唯一**需要人看的中间态。
+- `generate_community` 返回 `code != 200`（ES/Milvus 写入异常时服务返回 500）→ 不当成功（W06-3「社区摘要全部失败不得标已就绪」）。
+- `summaries == 0` → 保留旧摘要不动，但本次重建判失败（避免把可用摘要删空）。
+
+---
+
+## 6. 原子发布
+
+### 6.1 现在能做到什么（不改代码）
+
+- **重建前后一致性校验**（可执行、已实现）：`边数守恒` / `陈旧边归零` / `有效边不变` / `ES 摘要条数 == 本次摘要数`，外加打印社区数、失败数、Milvus 双写状态（`es_ok`/`milvus_ok`）。
+- **回滚靠数据事实而不是切换**：脚本不 DROP SPACE、不整体替换图；删边是逐条可枚举的（`RESULT` 里有条数，`[3/5]` 打印语句示例；批量场景建议先 `dump` 一遍要删的边再执行）。
+- **重建是幂等的**：`generate_community` 的 `community_id = L<level>-sha1(kb|level|sorted(members))[:8]`，主键由它派生，重复调用不累积（R14-A 证据 `community_twice_after.json`：两次调用 ES 7 条 / Milvus 7 行，`community_ids` 与 `pks` 逐项相同）。
+
+**做不到的**：重建期间没有原子切换点。窗口有三段，都是真实存在的：
+
+| 窗口 | 现状 | 后果 |
+|---|---|---|
+| 删边 → 重建社区之间 | 图已经变了，摘要还是上一代的 | global 会引用已不存在的边/实体（引用点不开） |
+| `generate_community` 内部 | Milvus 侧对社区集合是**先删旧代再写新代**（`milvus_kb_service.py:669-683`：`_visible_count` → `coll.delete(expr="pk >= 0")` → `_wait_until_deleted` → 插入） | 该集合在这段时间**为空**（删除是最终一致的，代码要等到不可见才写），global 可能读到"没有摘要" |
+| ES 侧 | 没有整代替换，只按派生 `_id` 覆盖（`es.py:536-538` 明确把 `community_summary_` 排除在"写后按 source 剪枝"之外） | 社区数变少时旧摘要残留，global 读到上一代的社区 |
+
+即：**现在的一致性靠"脚本前后对数"，不靠"发布切换"**。对验收口径（A09/A10）够用于工程验证，对"构建失败不破坏仍安全有效的旧代"不够。
+
+### 6.2 要做真正的原子发布：改哪些代码（最小方案，本轮不改）
+
+前提是 W03-2 的**不可变构建清单**：物理索引/集合名带代次 `g<generation>`（不是时间戳，时间戳无法与构建记录绑定）。读侧只认别名，别名名保持现在的 `community_summary_<kb>`（这样读侧零改动）。
+
+> 行号按 2026-10-29 22:1x 的工作树状态记录。此时 `graph_summary.py` 已有其它工作包的**未提交改动**，行号可能漂移——**定位请以函数名为准**（`write_summary_indexes` / `_load_summaries` / `del_community` / `generate_community` / `community_doc_id` / `insert_vector_documents_custom`）。
+
+| # | 文件 / 函数 | 现在 | 最小改法 |
+|---|---|---|---|
+| C1 | `services/rag-alg/index_data_service/index_graph_service/graph_summary.py` `write_summary_indexes()`（L73-84） | `es_index = f"community_summary_{_idx(kb)}"`、`mv_collection = f"community_summary_{kb}"` 固定名 | 增加参数 `generation`：写 `community_summary_<kb>_g<gen>`；写完不切别名，交给 C5 统一切 |
+| C2 | 同上 `_load_summaries()`（L446-449） | 读固定名 | **不改**：继续读 `community_summary_<kb>`，由 C5 把它做成 alias |
+| C3 | 同上 `del_community()`（L956-978） | 删固定名 | 改为"解析 alias → 删其指向的物理索引/集合"，并保留"只允许删非 active 代"的守卫 |
+| C4 | `index_data_service/index_fulltext_service/src/index_fulltext_service_pactera/controller/es.py` `community_doc_id()`（L48-55）/ `derive_doc_id()`（L38-45） | 主键种子含**物理**索引名 → 物理名一换代，所有 `_id` 就变 | 种子改用**逻辑基名** `community_summary_<kb>`（不含 `_g<gen>`）。**这条是原子切换的前提**：否则每次切代 `_id` 全变，历史引用/`chunk_doc_id` 全失效 |
+| C5 | `index_fulltext_service` 新增 `/alias_switch`（`es.py` 同级，仿 `del_index` 路由） | 无 | `POST _aliases`：`{"actions":[{"remove":{"index":"<old>","alias":"community_summary_<kb>"}},{"add":{"index":"<new>","alias":"community_summary_<kb>"}}]}`，**一次请求原子生效**；同名 alias 已存在时先移除再加 |
+| C6 | `index_data_service/index_vector_service/src/index_vector_service_pactera/milvus_kb_service.py` `insert_vector_documents_custom()`（L471 前缀判定、L669-683 整代替换）+ 新增 `/create_alias` | 社区集合"先删后写"、无别名 | ①`_g<gen>` 集合写新代，**不删旧代**；②`utility.create_alias(collection=<new>, alias=community_summary_<kb>)` 切别名；③主键种子同样改用逻辑基名（与 C4 同一算法，两处必须同步，注释已写明"改一处必须同步另一侧"） |
+| C7 | `index_graph_service/graph_summary.py::generate_community()`（L374-443） | 检测→摘要→双写→返回 | 末尾插入"校验 → 切别名 → 标记 active 代 → 释放上一代"四步；任一步失败则不切别名（旧代继续服务），并把失败按 W06-3 语义返回 |
+
+配套但不是本次范围：`generation` 生命周期合同（`contracts/` 已登记）里要加"社区摘要物理产物的代次绑定"，以及 A10 的"撤权立即围栏"要在别名层面按可见集判定。
+
+顺序建议：C4（主键种子）→ C5（ES alias 路由）→ C1/C2/C3 → C6（Milvus alias）→ C7（编排）。**C4 必须先做**，否则后面所有切换都会制造一次全量 `_id` 变更。
+
+---
+
+## 7. 已知限制与后续动作
+
+1. **`status=3` ≠ "有效版本"**。`290`（V0 loan）与 `330`（V0 intro）在表里仍是 `status=3`，但按 R14 口径（同 `parent_file_name` 取最大 `version`）它们是旧稿。本脚本按派工单用 `status=3`，所以"V0 旧稿抽出的边"会算作"保留"。当前 `g_kb_9` 没有 290/330 的边（只有 329/333/343），所以今天无影响；要按版本口径清理需新增判定，脚本未做（避免自创口径）。
+2. **ES `community_summary_<kb>` 目前是"真实索引名"而非 alias**，无法原子切换（§6）。另外 ES 名 lower、Milvus 集合名保持原大小写、Nebula 空间名 `g_<primitive>` 原样——三处归一规则不同（`graph_summary._idx()` 注释里有原因），排查时不要想当然。
+3. **并发写入未受控**：`pgrep` 守卫只认 `rebuild_kb9|generate_triple|acceptance.py` 三类驱动，认不出别的写入方（§1.3 实测就有一个）。真正解决要靠 W03-5 的任务/事件屏障，不是靠 `ps`。
+4. **删除不可撤销**：脚本只打印语句示例与条数，没有内置 dump。批量前建议先跑 `platform/r12/graph/backup_graph.py` 或把 `[2/5]` 输出的 `stale` 明细 `--apply` 前导成 JSON 存档。
+5. **端到端删除未验证**：kb 9 当前 0 条陈旧边。要端到端验收，最小造法：挑一个只被 1 个文件支持的少量边，把该文件行 `status` 改成 0（或复制一条边指向一个不存在的 id），跑 `--apply` 看 `边数守恒` + `陈旧边归零`；**造数据必须在隔离 KB/空间做**，不要动 kb 9。
+
+---
+
+## 8. 复现命令
+
+```bash
+cd /home/szf/data/dev/llmke-r12
+
+bash -n platform/r12/bin/graph-rebuild.sh          # 语法
+platform/r12/bin/graph-rebuild.sh 9                # dry-run（只读）
+platform/r12/bin/graph-rebuild.sh 9 --apply        # 真删+重建（本机当前是 0 写入）
+
+# 图侧计数（不用 console）
+platform/r12/venvs/graph/bin/python - <<'PY'
+from nebula3.Config import Config
+from nebula3.gclient.net import ConnectionPool
+p=ConnectionPool(); p.init([('127.0.0.1',19669)],Config()); s=p.get_session('root','nebula')
+s.execute('USE g_kb_9')
+print(s.execute('MATCH (a)-[e:relationship]->(b) RETURN e.file_id AS f').row_size())
+s.release(); p.close()
+PY
+
+# 摘要条数
+curl -s http://127.0.0.1:19200/community_summary_kb_9/_count
+```

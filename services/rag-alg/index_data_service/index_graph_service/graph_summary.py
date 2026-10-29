@@ -722,7 +722,7 @@ LIMIT_TOTAL_HINTS = ("最高", "总额", "单户")
 LIMIT_ITEM_HINTS = ("信用", "分项", "其中", "不超过", "单笔")
 
 
-def _join_limits(map_outputs):
+def _join_limits(map_outputs, extra_facts=None):
     """R15 W02 / F13：把同一主体的"总额度"与"分项上限"配成一行，交给模型完整表述。
 
     实测：kb_9 里同时存在
@@ -732,10 +732,17 @@ def _join_limits(map_outputs):
     这里由代码做确定性配对，模型只表述，避免二选一。
     返回 [(fact_line, community_id)]。
     """
+    # R15 W02：分项不一定和总额度落在同一个社区（社区重划后实测被拆开：
+    # 8000万 在 L1 社区、1000万 在 L0 社区），只在命中事实里配对会漏掉分项。
+    # 因此总额度从"与问题相关的命中事实"取，分项放宽到"本次命中的全部社区事实"。
     totals, items = {}, []
+    pools = []
     for s, facts in map_outputs:
-        cid = s["community_id"]
         for f in facts:
+            pools.append((f, s["community_id"]))
+    for f, cid in (extra_facts or []):
+        pools.append((f, cid))
+    for f, cid in pools:
             if " -" not in f or "-> " not in f:
                 continue
             try:
@@ -905,7 +912,15 @@ def query_community(payload: dict) -> BaseResponse:
     # R14-B3：评级 → 加点 这类"属性 + 规则"的连接由代码算定，模型只做表述。
     # 实测把它交给 7B：同一批事实换问法会答出 0 基点 / 60 基点 等不一致结果。
     _derived, _join_audit = _join_grade_rules(map_outputs)
-    _limits = _join_limits(map_outputs)
+    _extra_facts = []
+    for _s in summaries:
+        _cid = _s.get("community_id")
+        for _t in (_s.get("triples") or []):
+            try:
+                _extra_facts.append((f"{_t[0]} -{_t[1]}-> {_t[2]}", _cid))
+            except Exception:
+                continue
+    _limits = _join_limits(map_outputs, _extra_facts)
     if _derived:
         lines.append("【代码推导：由图内两条事实组合，非外部知识】\n" +
                      "\n".join(f"- [{cid}] {f}" for f, cid in _derived))

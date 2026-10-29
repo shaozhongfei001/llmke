@@ -21,6 +21,9 @@ public class RemoteGraphUtils {
     @Value("${remote.generate-graph.url}")
     private String remoteGenerateGraphUrl;
 
+    @Value("${remote.generate-community.url:}")
+    private String remoteGenerateCommunityUrl;
+
     /**
      * 图删除(删除整个图空间或者删除图空间下的某个文件中的数据)
      */
@@ -45,6 +48,14 @@ public class RemoteGraphUtils {
 
     public String generateGraph(String requestPara) {
         return doExchange(requestPara, remoteGenerateGraphUrl, HttpMethod.POST).getBody();
+    }
+
+    /** R15 W03：图数据变更后重建社区摘要；未配置地址时返回 null（保持旧行为）。 */
+    public String generateCommunity(String requestPara) {
+        if (remoteGenerateCommunityUrl == null || remoteGenerateCommunityUrl.trim().isEmpty()) {
+            return null;
+        }
+        return doExchange(requestPara, remoteGenerateCommunityUrl, HttpMethod.POST).getBody();
     }
 
     public String delSpaceEntity(String requestPara) {

@@ -226,7 +226,7 @@ def create_space_attribute(ceshi: GraphModel):
     logger.info(res_attribute)
     res_edge = create_attribute(
         GraphAttributeModel(space_name=space_name, attribute_type="EDGE", field_name="relationship",
-                            field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string", "generation": "string"}))
+                            field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string", "generation": "string", "chunk_ref": "string"}))
     if res_edge.code != 200:
         logger.error(res_edge.msg)
         return BaseResponse(code=500, msg=f'创建EDGE属性失败,{str(res_edge.msg)}')
@@ -267,7 +267,7 @@ def batch_insert_vertex(insert_param: InsertModel):
         logger.info(res_attribute)
         res_edge = create_attribute(
             GraphAttributeModel(space_name=space_name, attribute_type="EDGE", field_name="relationship",
-                                field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string", "generation": "string"}))
+                                field_dict={"name": "string", "file_id": "string", "show_flag": "string", "page_num": "string", "generation": "string", "chunk_ref": "string"}))
         if res_edge.code != 200:
             logger.error(res_edge.msg)
             return BaseResponse(code=500, msg=f'创建EDGE属性失败,{str(res_edge.msg)}')
@@ -343,9 +343,15 @@ def batch_insert_vertex(insert_param: InsertModel):
             if ed_v in triples_attribute:
                 file_id = ",".join(triples_attribute[ed_v]["file_id"])
                 page_num = ",".join(triples_attribute[ed_v]["page_num"])
+                # R15 W05 / F06：断言要能回指到**具体文本块**，不能只到文件。
+                # chunk_pk_list 是抽取时刻的 ES 文档 _id（Milvus pk 同源），
+                # 取第一条作为该断言的 SourceRef 锚点；其余块仍可从三元组向量库取。
+                _chunks = triples_attribute[ed_v].get("chunk_pk_list") or []
+                chunk_ref = str(_chunks[0]) if _chunks else ""
             else:
                 file_id = ""
                 page_num = ""
+                chunk_ref = ""
             # R15 W02 / F01+F02：断言身份进 rank，且不再补伪反向边。
             # 原来两条语句都无 rank（Nebula 默认 0）、谓词只作属性，
             # 同端点不同谓词会互相覆盖；第二条还凭空造出 A<-B 的反向事实。
@@ -353,9 +359,9 @@ def batch_insert_vertex(insert_param: InsertModel):
             rank = _edge_rank(ed[0], ed[1], ed[2])
             insert_edge = (
                 f'INSERT EDGE {insert_param.edge_name}'
-                f'(name,file_id,show_flag,page_num,generation) VALUES '
+                f'(name,file_id,show_flag,page_num,generation,chunk_ref) VALUES '
                 f'"{ed[0]}"->"{ed[2]}"@{rank}:'
-                f'("{ed[1]}","{file_id}","1","{page_num}","{_generation}");'
+                f'("{ed[1]}","{file_id}","1","{page_num}","{_generation}","{chunk_ref}");'
             )
             edge_queries.append(insert_edge)
     error_edge_data_list = batch_to_graph(session, edge_queries, space_name)

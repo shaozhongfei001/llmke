@@ -92,6 +92,9 @@ remote:
     url: http://127.0.0.1:19529/del_doc_entity
   generate-graph:
     url: http://127.0.0.1:19529/generate_triple_data
+  # R15 W03：图数据变更后自动重建社区摘要（否则 global 仍按旧社区回答）
+  generate-community:
+    url: http://127.0.0.1:19529/generate_community
   faq-extract:
     url: http://127.0.0.1:19996/llm_faq_generate
   faq-polish:

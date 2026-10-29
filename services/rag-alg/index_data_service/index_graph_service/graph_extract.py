@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import traceback
 
 from graph_fun_tool import requests_llm, clean_entity
@@ -11,6 +12,68 @@ from prompts.query_extraction import ner_prompts
 # 单轮抽取的输出预算（token）。原实现不传该参数，等于吃服务端默认值，
 # 在多事实块上会中途截断；459 字块实测需要 >1200 才能把实体+关系写完。
 EXTRACT_MAX_TOKENS = int(os.environ.get("GRAPH_EXTRACT_MAX_TOKENS", "2048"))
+
+# R15-W01：单块重试配置。
+# 实测同一文件连续解析四次得到 155 条 / 0 边 / 59 条 / 200s+ 未结束，日志反复出现
+# `关系行字段不足: ("relationship"::评级授信`——模型有时把输出截断在半行上（只吐出
+# tag + 关系名，没有源/目标实体）。原实现在这种行解析失败时直接跳过、不重试、不计数，
+# 一个 passage 的整批关系就这么静默丢了。
+# 这里只对"拿不到可用结果"的那一次请求重发**完全相同的 messages**（prompt 语义不变）。
+EXTRACT_MAX_RETRIES = int(os.environ.get("GRAPH_EXTRACT_RETRY_TIMES", "2"))
+EXTRACT_RETRY_BACKOFF = tuple(
+    float(_x) for _x in os.environ.get("GRAPH_EXTRACT_RETRY_BACKOFF", "1,3").split(",") if _x.strip()
+)
+# temperature=0 + 固定 seed 实测会稳定复现同一处截断，原样重发等于空转，
+# 所以第 2 次起只递增 seed（不改 prompt / max_tokens / temperature）。
+# 需要"严格同参重试"时置 GRAPH_EXTRACT_RETRY_VARY_SEED=0。
+EXTRACT_RETRY_VARY_SEED = os.environ.get("GRAPH_EXTRACT_RETRY_VARY_SEED", "1") not in ("0", "false", "False", "")
+
+# R15-W01：输出结构约束（去掉首尾括号后按 "::" 切分）。
+# 实体行必须**恰好 3 段**：tag + 名称 + 类型（原实现靠解包异常兜底，报错信息里看不出是几段）。
+ENTITY_FIELDS = 3
+# 关系行：tag + 三元组核心 3 段（关系名 / 源实体 / 目标实体），描述段可选。
+RELATION_CORE_FIELDS = 3
+RELATION_MIN_FIELDS = 1 + RELATION_CORE_FIELDS
+RELATION_MAX_FIELDS = RELATION_MIN_FIELDS + 1
+
+
+def _bump(stats, key, n=1):
+    """统计计数（stats 为 None 时静默跳过，便于单独调用解析函数）。"""
+    if stats is not None:
+        stats[key] = stats.get(key, 0) + n
+
+
+def _accumulate_stats(total, part):
+    """把一个 passage 内多次解析（多轮 / 重试 / 补充采样）的计数合并进总账。"""
+    for _k, _v in (part or {}).items():
+        if isinstance(_v, int):
+            total[_k] = total.get(_k, 0) + _v
+    return total
+
+
+def _retry_delay(attempt):
+    """第 attempt 次重试前的等待秒数（默认 1s、3s）。"""
+    if not EXTRACT_RETRY_BACKOFF:
+        return 1.0
+    return EXTRACT_RETRY_BACKOFF[min(attempt - 1, len(EXTRACT_RETRY_BACKOFF) - 1)]
+
+
+def _classify_attempt(response_text, attempt_stats):
+    """判断本次 LLM 输出是否"拿不到可用结果"，返回原因串；可用时返回 None。
+
+    R15-W01：这里刻意区分"合法空"与"解析失败"，只对后者重试——
+    - 文本为空/全空白：请求失败或模型没有输出，值得重发；
+    - 完全没有 entity/relationship 候选行：模型跑题（只输出说明文字或"无"），值得重发；
+    - 有候选关系行但一条都没落地：整批丢弃，是"边为 0"的直接原因，值得重发。
+    只要有实体、或至少一条关系落地就算可用，不重试（避免为正常块额外付 2 次调用）。
+    """
+    if not str(response_text or "").strip():
+        return "空响应"
+    if attempt_stats.get("candidate_lines", 0) == 0:
+        return "无可解析行"
+    if attempt_stats.get("relation_lines", 0) > 0 and attempt_stats.get("relations_parsed", 0) == 0:
+        return "关系行全部丢弃"
+    return None
 
 
 def generate_graph_relations(passage, model_info, server_config, entity_types=None):
@@ -27,6 +90,25 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
     """
     if entity_types is None:
         entity_types = []
+
+    # R15-W01：一次调用的可诊断统计。原实现解析失败只打单条 error 日志、没有汇总，
+    # "同一块四次 155/0/59 条"这种抖动无法从日志复算。这里在调用内累计，
+    # 返回前输出一行固定格式 EXTRACT_STATS（k=v，便于 grep 与后续做分布监控）。
+    _t_start = time.time()
+    _stats = {
+        "passage": 1,
+        "passage_chars": len(passage or ""),
+        "llm_calls": 0,
+        "rounds": 0,
+        "retries_used": 0,
+        "candidate_lines": 0,
+        "entity_lines": 0,
+        "entities_parsed": 0,
+        "relation_lines": 0,
+        "relations_parsed": 0,
+        "field_anomalies": 0,
+        "parse_failed_lines": 0,
+    }
 
     messages = [{"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt.format(passage=passage, entity_types=",".join(entity_types))}]
@@ -50,23 +132,66 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
             else:
                 extract_message = messages + [response_message, continue_message]
             logger.info(extract_message)
-            # R14-P1-03：首轮未传 max_tokens，落到 LLM 服务端默认值 —— 459 字多事实块
-            # 的输出会在 ~20 行实体处被硬截断（实测：最后一行停在"十五个工作日"，
-            # 尾部的评级加点表永远抽不到）。这里显式给足输出预算。
-            # 温度 0 + 固定 seed：抽取是"照文抄写"的任务，不需要创造性；
-            # 实测 0.1 时同一块三次跑出 17/20/27 个实体，评级档位时有时无。
-            llm_response_text = requests_llm(extract_message, model_info, server_config,
-                                             max_tokens=EXTRACT_MAX_TOKENS,
-                                             temperature=0, seed=42)
+            # R15-W01：单块重试。重试仍发送同一条 extract_message（prompt 语义不变），
+            # 最多 EXTRACT_MAX_RETRIES 次、退避 1s/3s，且重试预算按 **passage** 记
+            # （不是按轮次），所以最坏情况只多 2 次调用，不会把 200s+ 的耗时再放大。
+            attempt = 0
+            _last_reason = ""
+            _final_failed = False
+            filtered_output = ""
+            while True:
+                _att = {}
+                _seed = 42 + attempt if (attempt and EXTRACT_RETRY_VARY_SEED) else 42
+                _stats["llm_calls"] += 1
+                # R14-P1-03：首轮未传 max_tokens，落到 LLM 服务端默认值 —— 459 字多事实块
+                # 的输出会在 ~20 行实体处被硬截断（实测：最后一行停在"十五个工作日"，
+                # 尾部的评级加点表永远抽不到）。这里显式给足输出预算。
+                # 温度 0 + 固定 seed：抽取是"照文抄写"的任务，不需要创造性；
+                # 实测 0.1 时同一块三次跑出 17/20/27 个实体，评级档位时有时无。
+                llm_response_text = requests_llm(extract_message, model_info, server_config,
+                                                 max_tokens=EXTRACT_MAX_TOKENS,
+                                                 temperature=0, seed=_seed)
 
-            entity_dict, relation_dict, filtered_output = process_relation_response(llm_response_text,
-                                                                                    entity_dict=entity_dict,
-                                                                                    relation_dict=relation_dict,
-                                                                                    debug=True)
+                entity_dict, relation_dict, filtered_output = process_relation_response(llm_response_text,
+                                                                                        entity_dict=entity_dict,
+                                                                                        relation_dict=relation_dict,
+                                                                                        debug=True,
+                                                                                        stats=_att)
+                _accumulate_stats(_stats, _att)
+                _reason = _classify_attempt(llm_response_text, _att)
+                if _reason is None:
+                    if attempt:
+                        # "第几次成功"——重试生效时必须在日志里留痕，否则下次仍要靠复放判断。
+                        logger.warning(f"单块重试：第{attempt + 1}次尝试成功"
+                                       f"（passage_chars={_stats['passage_chars']}, "
+                                       f"首次失败原因={_last_reason}, seed={_seed}, "
+                                       f"本轮落库三元组={_att.get('relations_parsed', 0)}）")
+                    break
+                _last_reason = _reason
+                if attempt >= EXTRACT_MAX_RETRIES or _stats["retries_used"] >= EXTRACT_MAX_RETRIES:
+                    _final_failed = True
+                    logger.error(f"单块重试：最终失败（共尝试{attempt + 1}次, 原因={_reason}, "
+                                 f"passage_chars={_stats['passage_chars']}, "
+                                 f"已重试{_stats['retries_used']}次）")
+                    break
+                _delay = _retry_delay(attempt + 1)
+                _stats["retries_used"] += 1
+                attempt += 1
+                logger.warning(f"单块重试：第{attempt}次尝试不可用（{_reason}），"
+                               f"{_delay}s 后重发同一请求（prompt 不变, 已重试"
+                               f"{_stats['retries_used']}/{EXTRACT_MAX_RETRIES}）")
+                time.sleep(_delay)
+
             response_message["content"] = filtered_output
+            _stats["rounds"] += 1
+            if _final_failed:
+                # 这一轮重试预算已用尽仍无可用结果：继续用"还有遗漏吗"追问只会放大耗时，
+                # 直接结束本 passage 的多轮循环，交给后面的补充采样兜底。
+                break
             # R14-P1-03：原为 max_tokens=1 + `== "Y"` 精确匹配。
             # max_tokens=1 时模型很可能只吐出空白或 "Y\n"，精确比较会判 False -> 永不续写。
             # 改为给 4 个 token，并把判定做归一化（去空白/大小写/取首字符）。
+            _stats["llm_calls"] += 1
             continue_response = requests_llm(messages + [response_message, loop_message],
                                              model_info, server_config, max_tokens=4)
             _ans = str(continue_response or "").strip().upper()
@@ -81,23 +206,51 @@ def generate_graph_relations(passage, model_info, server_config, entity_types=No
     samples = int(os.environ.get("GRAPH_EXTRACT_SAMPLES", "3"))
     for _i in range(1, samples):
         try:
+            _stats["llm_calls"] += 1
             extra = requests_llm(messages, model_info, server_config,
                                  max_tokens=EXTRACT_MAX_TOKENS,
                                  temperature=0.3, seed=42 + _i)
             entity_dict, relation_dict, _ = process_relation_response(
-                extra, entity_dict=entity_dict, relation_dict=relation_dict, debug=False)
+                extra, entity_dict=entity_dict, relation_dict=relation_dict, debug=False, stats=_stats)
         except Exception as e:
             logger.error(f"补充采样 {_i} 失败（不影响已有结果）: {str(e)[:80]}")
+
+    # R15-W01：一次调用一次的汇总行（固定格式、单行、k=v），用于 grep 与做分布监控。
+    # passage 数固定为 1（本函数按 passage 调用），保留字段是为了和批量侧口径一致。
+    logger.info(
+        "R15-W01 EXTRACT_STATS passage={} passage_chars={} llm_calls={} rounds={} retries={} "
+        "candidate_lines={} parse_failed_lines={} field_anomalies={} "
+        "valid_entities={} valid_triples={} elapsed_ms={}".format(
+            _stats["passage"], _stats["passage_chars"], _stats["llm_calls"], _stats["rounds"],
+            _stats["retries_used"], _stats["candidate_lines"], _stats["parse_failed_lines"],
+            _stats["field_anomalies"], len(entity_dict), len(relation_dict),
+            int((time.time() - _t_start) * 1000)))
     return list(relation_dict.values()), entity_dict
 
 
-def process_relation_response(response_text, entity_dict=None, relation_dict=None, debug=False):
+def _strip_wrapper(line):
+    """去掉模型输出行首的 "(" 与行尾的 ")"。
+
+    R15-W01：原实现固定用 line[1:-1]，遇到被截断的行（缺尾部 ")"，例如
+    `("relationship"::评级授信`）会把最后一个真实字符也切掉，字段值莫名少一位。
+    这里只在确实以 ")" 结尾时才去掉尾部字符。
+    """
+    body = line[1:] if line.startswith("(") else line
+    if body.endswith(")"):
+        body = body[:-1]
+    return body
+
+
+def process_relation_response(response_text, entity_dict=None, relation_dict=None, debug=False,
+                              stats=None):
     entity_dict = entity_dict or {}
     relation_dict = relation_dict or {}
     visited_entity = set()
     response_strings = []
     verified_strings = []
     relation_lines = []
+    # R15-W01：stats 为可选出参（默认 None 保持原调用方式不变）。传入 dict 时累计
+    # 候选行/实体行/关系行/解析失败/字段数异常/有效三元组计数，供上层汇总。
 
     def _generate_filtered_response():
         """将抽取出有效的关系、实体，生成符合prompt 要求的格式，后面再输给大模型判断抽取是否完整"""
@@ -114,18 +267,33 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
         line = line.strip()
         if len(line) == 0:
             continue
+        if line.startswith('("entity"::') or line.startswith('("relationship"::'):
+            _bump(stats, "candidate_lines")
         try:
             if line.startswith('("entity"::'):
-                _, name, ent_type = line[1:-1].split("::")
+                _bump(stats, "entity_lines")
+                # R15-W01：实体行必须**恰好 3 段**（tag + 名称 + 类型）。
+                # 原实现靠解包异常兜底，报错里只有原文、看不出是几段/缺哪段。
+                _entity_parts = _strip_wrapper(line).split("::")
+                if len(_entity_parts) != ENTITY_FIELDS:
+                    _bump(stats, "field_anomalies")
+                    _bump(stats, "parse_failed_lines")
+                    logger.error(f"数据处理失败,字段数异常(实体行期望{ENTITY_FIELDS}段,"
+                                 f"实际{len(_entity_parts)}段),{line[:80]}")
+                    continue
+                _, name, ent_type = _entity_parts
                 name = clean_entity(name)
                 ent_type = clean_entity(ent_type)
                 if not ent_type:
                     ent_type = '其他'
                 entity_dict[name] = {"name": name, "type": ent_type}
+                _bump(stats, "entities_parsed")
                 verified_strings.append("+ " + line)
             elif line.startswith('("relationship"::'):
+                _bump(stats, "relation_lines")
                 relation_lines.append(line)
         except Exception as e:
+            _bump(stats, "parse_failed_lines")
             logger.error(f"数据处理失败,{line}，{e}")
             pass  # 抽取不符合要求
     for line in relation_lines:
@@ -134,14 +302,31 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
             # R14-P1-03：原为严格 5 段解包，模型只要少写一段 description
             # （或 description 里多一个 "::"）就抛 "not enough values to unpack" 并**丢整条关系**。
             # 实测同一块一轮里能丢 5~8 条，正好落在"评级加点"这类长描述上。
-            _parts = line[1:-1].split("::")
-            if len(_parts) < 4:
-                raise ValueError(f"关系行字段不足: {line[:60]}")
+            _parts = _strip_wrapper(line).split("::")
+            _n_fields = len(_parts)
+            if _n_fields < RELATION_MIN_FIELDS:
+                # R15-W01：不足 -> 记 字段数异常 并计数（原来只有一条 error 日志、没有汇总）。
+                # 实测来源就是模型把输出截断在半行上：("relationship"::评级授信
+                _bump(stats, "field_anomalies")
+                raise ValueError(f"字段数异常(关系行字段不足: 期望>={RELATION_MIN_FIELDS}段"
+                                 f"[tag+{RELATION_CORE_FIELDS}段三元组],实际{_n_fields}段): {line[:60]}")
+            if _n_fields > RELATION_MAX_FIELDS:
+                # R15-W01：超出通常是描述里自带 "::"（如"口径::按日"），不是脏数据，
+                # 所以只计数 + 告警，仍按"描述=剩余段拼接"落地，不把有效关系一起丢掉。
+                _bump(stats, "field_anomalies")
+                logger.warning(f"字段数异常(关系行超出: 期望<={RELATION_MAX_FIELDS}段,"
+                               f"实际{_n_fields}段,描述含'::'),已按描述拼接: {line[:80]}")
             relation_name, src_ent, dest_ent = _parts[1], _parts[2], _parts[3]
-            description = "::".join(_parts[4:]) if len(_parts) > 4 else ""
+            description = "::".join(_parts[4:]) if _n_fields > 4 else ""
             src_ent = clean_entity(src_ent)
             dest_ent = clean_entity(dest_ent)
             if not src_ent or not dest_ent:
+                # R15-W01：三元组核心 3 段有空值 -> 端点不确定，原实现静默 continue，
+                # 这里补计数与日志，否则"少了很多边"在日志里看不到原因。
+                _bump(stats, "field_anomalies")
+                _bump(stats, "parse_failed_lines")
+                logger.error(f"字段数异常(关系行核心字段为空: 关系名={relation_name[:20]},"
+                             f"源实体={src_ent[:20]},目标实体={dest_ent[:20]}): {line[:80]}")
                 continue
             if src_ent in entity_dict:
                 src_entity = entity_dict[src_ent]
@@ -163,8 +348,10 @@ def process_relation_response(response_text, entity_dict=None, relation_dict=Non
             visited_entity.add(src_entity["name"])
             visited_entity.add(dest_entity["name"])
             response_strings.append(f'("relationship"::{relation_name}::{src_entity["name"]}::{dest_entity["name"]}::{description})')
+            _bump(stats, "relations_parsed")
             flag = True
         except Exception as e:
+            _bump(stats, "parse_failed_lines")
             logger.error(e)
             pass
 

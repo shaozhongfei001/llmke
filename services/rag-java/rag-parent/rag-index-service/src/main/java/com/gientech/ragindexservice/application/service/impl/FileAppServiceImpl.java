@@ -624,6 +624,24 @@ public class FileAppServiceImpl implements FileAppService {
             //修改数据库图解析状态为成功
             knowledgeBaseFile.setGraphParseStatus(GraphParseStatusEnums.PARSE_SUCCESS.getValue());
             knowledgeBaseFileDomainService.update(knowledgeBaseFile);
+            // R15 W03：图数据变了，社区摘要必须跟着重建，否则 global 仍按旧社区回答
+            //（实测：清掉旧代边并重新解析后，不重建社区时 global 会答"事实中未提及"）。
+            // 这里在异步线程内同步调用；失败只告警，不回滚图解析状态——图本身是好的。
+            try {
+                JSONObject communityReq = new JSONObject();
+                communityReq.put("space_name", spaceName);
+                communityReq.put("max_level", 2);
+                communityReq.put("min_community_size", 3);
+                communityReq.put("resolution", 1.0);
+                communityReq.put("with_summary", true);
+                communityReq.put("model_info", modelInfo);
+                String communityResp = remoteGraphUtils.generateCommunity(JSONObject.toJSONString(communityReq));
+                log.info("R15-W03 社区重建完成 fileId={} resp={}", fileId,
+                        communityResp == null ? "skipped(no url)" :
+                                communityResp.substring(0, Math.min(180, communityResp.length())));
+            } catch (Exception ce) {
+                log.warn("R15-W03 社区重建失败（不影响图解析状态）fileId={} err={}", fileId, ce.getMessage());
+            }
         } catch (Exception e) {
             log.error("图生成失败【" + file.getFilePath() + "】,异常原因【" + e.getMessage() + "】");
             //更新数据库表状态extract status
