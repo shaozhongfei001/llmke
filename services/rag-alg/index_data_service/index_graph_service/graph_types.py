@@ -150,6 +150,33 @@ def clean_name(name):
     return s
 
 
+def sentence_like(s):
+    """R15-W09：整句被当成实体。
+
+    实测脏样例（kb_9 现网）：
+        "放款是智造贷办理流程的一部分"
+        "制造业中小微企业是智造贷的适用对象"
+        "审批是办理流程的一部分"
+        "信用部分的最高额度为1000万元"
+        "8000万元中的信用部分不超过1000万元"
+    这些是三元组/整句被反序列化成了实体，进图后既不能参与推理，
+    又把社区摘要污染成"一句话一个节点"。它不是"实体名长"的问题，
+    而是**含判断/关系谓语**，所以不能只靠长度阈值。
+
+    判定：短名放行（<=8 字基本是专名）；否则要求同时出现
+      · 关系/判断词（是/为/属于/包括/包含/不超过/需要）
+      · 限定语尾（的/之一/一部分/对象/额度/上限/条件/环节/周期）
+    或长于 14 字且带限定语（覆盖"信用部分最高额度为1000万元，不超过8000万元"）。
+    """
+    if len(s) <= 8:
+        return False
+    has_pred = re.search(r"(是|为|属于|包括|包含|不超过|需要|应当)", s)
+    has_mod = re.search(r"(的|之一|一部分|对象|额度|上限|条件|环节|周期|范围)", s)
+    if has_pred and has_mod:
+        return True
+    return len(s) > 14 and bool(re.search(r"(的|不超过|最高)", s))
+
+
 def is_valid_entity(name):
     """过滤纯数字、纯符号、结构词、过短/过长。返回 (bool, reason)。"""
     s = clean_name(name)
@@ -157,6 +184,11 @@ def is_valid_entity(name):
         return False, "empty"
     if s.lower() in STOPWORDS:
         return False, "stopword"
+    # R15-W09：句子判定必须在金额/日期放行**之前**。
+    # "8000万元中的信用部分不超过1000万元" 开头就是合法金额，会被 RULE_AMOUNT.match
+    # 提前放行，从而绕过句子过滤（实测就漏了这一类）。
+    if sentence_like(s):
+        return False, "sentence_entity"
     # 日期要保留（是业务实体），不能因为形如数字带连字符被当成纯数字过滤
     if RULE_DATE.match(s) or RULE_AMOUNT.match(s):
         return True, ""

@@ -1,0 +1,35 @@
+{
+ "id": "A09",
+ "title": "代次和版本：无旧代混存、边带代次、查询按代次过滤",
+ "status": "PASS",
+ "reason": "全部正例与反例检查成立",
+ "checks": [
+  {
+   "check": "N1 反例：可见边全部来自生效文件(status=3)",
+   "ok": true,
+   "detail": "来自失效文件的可见边={}（生效文件集合大小=11）"
+  },
+  {
+   "check": "N2 反例：同一主体同一谓词不出现两个互斥额度",
+   "ok": true,
+   "detail": "(主体=智造贷, 谓词=最高额度) 取值=['8000万元']；原始事实=[('智造贷', '8000万元')]"
+  },
+  {
+   "check": "N2b 反例：5000万与8000万不同时作为最高额度",
+   "ok": true,
+   "detail": "最高额度取值=['8000万元']"
+  },
+  {
+   "check": "N3 反例：无缺代次的边",
+   "ok": true,
+   "detail": "缺 generation 的可见边=0；代次分布={'V1': 63, 'V0': 23, '__NULL__': 3}"
+  },
+  {
+   "check": "N4 反例：查询/社区侧按 generation 过滤",
+   "ok": true,
+   "detail": "graph_service.py generation 出现 8 次；graph_summary.py 出现 15 次（0 = 只在写入侧有代次）"
+  }
+ ],
+ "writes_required": false,
+ "elapsed": 0.1
+}

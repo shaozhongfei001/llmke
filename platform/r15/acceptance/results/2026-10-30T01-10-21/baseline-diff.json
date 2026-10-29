@@ -1,0 +1,44 @@
+{
+ "baseline": "/home/szf/data/dev/llmke-r12/platform/r15/baseline/expect.json",
+ "baseline_run_at": "2026-10-30T00:55:17+0800",
+ "baseline_commit": "7e057cb",
+ "regressed": [],
+ "recovered": [],
+ "still_fail": [],
+ "new": [],
+ "missing": [
+  {
+   "id": "A05",
+   "was": "SKIP"
+  },
+  {
+   "id": "A06",
+   "was": "FAIL"
+  },
+  {
+   "id": "A10",
+   "was": "SKIP"
+  },
+  {
+   "id": "A12",
+   "was": "SKIP"
+  },
+  {
+   "id": "A13",
+   "was": "SKIP"
+  },
+  {
+   "id": "A14",
+   "was": "SKIP"
+  },
+  {
+   "id": "A15",
+   "was": "SKIP"
+  },
+  {
+   "id": "A16",
+   "was": "SKIP"
+  }
+ ],
+ "skipped": []
+}
