@@ -151,8 +151,24 @@
   },
   "w01": {
     "state": "PARTIAL",
-    "evidence": "docs/r15/w01-extract.md",
-    "note": "重试与统计已加；抽取产物量仍不稳（0–155 条）"
+    "evidence": "docs/r15/w01-extract.md §5 真实样本（7 个数据点）",
+    "verified": [
+      "STATS 行可落盘可 grep",
+      "正常块上重试零成本（llm_calls 恒 4）",
+      "超出型字段异常 3 次全为模型塞整串流程，救回策略有数据支持"
+    ],
+    "unverified": [
+      "重试分支未被生产触发：全部日志 '单块重试：最终失败'=0，7 样本 retries=0 → 仅 stub 证据"
+    ],
+    "key_finding": [
+      "耗时由输出行数驱动（9行4.6s/48行24.4s/138行73.1s），与输入字数无关 → 禁用按 chars 估预算",
+      "不稳定源是要点式短文本块（343: 16/25/29），表格块稳定（329: 24/25 ±4%）",
+      "每条三元组成本 1.5~3.0s；单次 LLM 调用 1.1~18.3s"
+    ],
+    "decisions": [
+      "a) 准做 GRAPH_EXTRACT_MAX_TOKENS=200 的真实截断复现（2 次，无写回，标注人为构造）",
+      "b) 超出型维持救回，但须带 description_overflow=true 标记"
+    ]
   },
   "w03": {
     "state": "PARTIAL",
