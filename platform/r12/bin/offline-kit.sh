@@ -53,7 +53,7 @@ REQUIRED_FILES=(
   "bin/up.sh" "bin/r12ctl.sh" "bin/offline-kit.sh" "bin/init-db.sh" "bin/init-nacos.sh" "bin/install-paths.sh" "bin/check-bind.sh"
   # R14-F07：自愈与暴露面门禁脚本必须随包（否则目标机装完没有自愈）
   "bin/r12-watchdog.sh" "bin/r12-wait-ready.sh" "bin/es-single-node.sh"
-  "bin/check-exposure.sh" "bin/offline-build-manifest.py"
+  "bin/check-exposure.sh" "bin/offline-build-manifest.py" "bin/check-endpoints-sync.py"
   "bin/init-endpoints.sh" "bin/check-units.sh" "bin/gates-selftest.sh" "bin/boot-timing.sh"
   "run/algctl.sh" "run/doc-parse.env"
   "models/start-all.sh"
@@ -184,7 +184,7 @@ cmd_pack() {
   put "$R12/conf" "conf"
   for f in up.sh r12ctl.sh offline-kit.sh init-db.sh init-nacos.sh install-paths.sh check-bind.sh \
            r12-watchdog.sh r12-wait-ready.sh es-single-node.sh check-exposure.sh offline-build-manifest.py \
-           init-endpoints.sh check-units.sh gates-selftest.sh boot-timing.sh \
+           init-endpoints.sh check-units.sh gates-selftest.sh boot-timing.sh check-endpoints-sync.py \
            recover-stuck-tasks.sh r12-change.sh r12-kill-port.sh pack-verify.sh; do
     [ -f "$R12/bin/$f" ] && cp "$R12/bin/$f" "$P/bin/" || warn "bin/$f 不存在"
   done
