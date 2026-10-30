@@ -141,3 +141,53 @@ status = OK
    并部署验证；二者都需要改动运行栈，先做补丁 + 单测，部署待窗口。
 2. C1：固定 HippoRAG 版本、独立环境安装、native_id→input_unit→SourceRef 映射（与 D-01 无依赖，可并行）。
 3. A2：MinerU/OCR 路线核实（本机 `magic_pdf` 未安装，日志已确认；查离线包/许可）。
+
+## 6. D-01 拆成两个缺陷（补测后更正）
+
+上一版把上传失败整体归给 LibreOffice，**不完整**。异常栈显示 docx 的失败点在别处：
+
+```
+ApplicationException: Cannot parse null string
+  at FeignErrorDecode.decode(FeignErrorDecode.java:41)
+  at ModelInfoAppServiceImpl.allPage(ModelInfoAppServiceImpl.java:164)   <- userClient.getUserType()
+  at ModelInfoAppServiceImpl.getSimpByModeName(:434)
+  at FileAppServiceImpl.setModel(:317)
+  at FileAppServiceImpl.filesParse(:155)
+  at FileParseTaskAppServiceImpl.execTask(:216)
+  at FileParseTaskScheduler.scheduleTaskWithCronExpression(:38)          <- 定时线程
+```
+
+### D-01a：LibreOffice 缺 Writer（环境）
+见 §3。docx/pptx 有回落，txt 等无回落 → 直接失败；已确认安装需 root 且源上 deb 404。
+
+### D-01b：调度线程无用户令牌，模型解析 Feign 返回 500 空体（代码/契约）
+- `FeginTokenRequestInterceptor` 只从**当前 HTTP 请求头**取 `Authorization` 再透传
+  （`rag-common/.../FeginTokenRequestInterceptor.java:42,53,67`）；
+- 定时线程 `FileParseTaskScheduler` 里没有请求头 → 调 auth `getUserType` 时无令牌；
+- 实测 `GET http://127.0.0.1:18081/auth/user/getUserType`（不带令牌）= **HTTP 500 且响应体为空**；
+- Feign 错误解码器对空体解析失败 → `Cannot parse null string`，把真实原因（未授权）掩盖成解析错误；
+- 该异常发生在 `setModel()`，**早于** `/parse` 调用 → 解析服务从未收到请求（与日志一致）。
+
+修复选项（均需重启验证，**本轮未改码**，因涉及权限语义，不猜）：
+
+| 选项 | 做法 | 风险 |
+|---|---|---|
+| A | 调度线程按任务的 `create_by` 注入用户上下文并透传令牌 | 需令牌可用性；改上下文传播面 |
+| B | 内部服务令牌（已有 `internal-token`）允许 auth 内部端点 | 需两端契约变更，最小面可控 |
+| C | 调度路径 `needAuth=false` | 绕过模型级授权，**不可在未授权下采用** |
+| D | 仅修 Feign 解码器，让 500 展示真实原因 | 只改善可观测性，不解除阻断 |
+
+建议顺序：D（立刻做，零语义变化）→ B（契约化内部调用）→ A（如仍需用户级权限）。
+
+## 7. 重复解析幂等（可靠性实测）
+
+对同一文件、同一 payload 再次 `POST /parse`，等待两轮完整跑完（含表格总结 46s）后计数：
+
+```
+ES   kb_10（该文件）           6  -> 6
+ES   table_chunks_kb_10（该文件）23 -> 23
+Milvus _kb_10（该文件）        6  -> 6
+```
+
+结论：**同一 payload 重复解析不产生重复块**（写入按稳定 id 覆盖）。
+边界：这不是"代次隔离"证据——换了 chunk 参数/解析器后的新旧共存未测。
