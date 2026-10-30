@@ -52,3 +52,11 @@
 **新增合同边界**：V2 合同 `x-lifecycle=DESIGN_REVISED_NOT_IMPLEMENTED`，登记≠实现≠批准；旧 v1 18 份合同的冻结与业务证据状态未变；新错误码 PARSE-20x/PIPELINE-20x 只在 V2 域内定义，不塞进 v1 闭集。
 
 **工具纪律（本次新增）**：`make generate/check` 的 OpenAPI 校验只做仓内 `$ref` 解析并在校验期禁网；任何未知外部引用直接失败。改 `contracts/**` 或 `scripts/contract_*.py` 后必须重新 `make generate`，否则 `make check` 以 DRIFT 失败，不得手改 `generated/`。
+
+**持续实施授权（2026-10-30，用户书面授权，主任务书 `docs/r15/V2-CONTINUOUS-TASK.md`）**：
+
+- 授权范围：在**隔离候选**中持续做工程实现、实测、制品准备与交付准备，不等"下一步"指令；取代旧文档中"仅吸收设计""本次不启动业务实施""实施另行派工"的范围限制。
+- **不改变**的语义：原四项业务 P0 保持真实状态（不得改 CLOSED、不得改名绕过、不得删断言、不得写虚假 waiver）；L1–L4 的正式进入/合入/发布门槛、独立 QA 签署、生产发布授权仍按原真实语义执行。
+- 三类状态必须分开记录：**工程候选通过 / 正式门禁通过 / 独立 QA 与发布**。候选分支上的实现与自测不等于门禁通过。
+- 主工作树 `~/data/dev/llmke` 的 405 项未提交修改与 R12 工作树成果受保护，不得 reset/clean 覆盖。
+- 续跑机制：宿主无 Goal/Stop hook 与 CLI；已启用本地 Automation `llmke-v2`（每小时，ACTIVE，读取本任务书与 `docs/NEXT.md` 续跑）。跨进程自动恢复为 **MANUAL_RESUME_ONLY**（见 NEXT）。

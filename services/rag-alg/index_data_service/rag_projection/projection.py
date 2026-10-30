@@ -90,6 +90,32 @@ def mode_from_env(env=None):
     return mode
 
 
+def _table_pk(index_name, file_id, ordinal):
+    """表格通道主键：table|index|file_id|ordinal（与正文通道分开，避免互相覆盖）。"""
+    seed = "|".join(["table", str(index_name).lower(), str(file_id), str(ordinal)])
+    return int(hashlib.sha1(seed.encode("utf-8")).hexdigest()[:15], 16)
+
+
+def _render_table(table):
+    """把 IR 表格矩阵渲染成可检索文本（保留表头行与合并格锚点）。"""
+    n_rows, n_cols = int(table.get("n_rows") or 0), int(table.get("n_cols") or 0)
+    if n_rows <= 0 or n_cols <= 0:
+        return ""
+    grid = [["" for _ in range(n_cols)] for _ in range(n_rows)]
+    for cell in table.get("cells") or []:
+        row, col = int(cell["row"]), int(cell["col"])
+        rowspan, colspan = int(cell.get("rowspan") or 1), int(cell.get("colspan") or 1)
+        if not (0 <= row < n_rows and 0 <= col < n_cols):
+            continue
+        grid[row][col] = str(cell.get("text") or "")
+        # 合并格：把锚点文本铺到覆盖位置，避免渲染出空洞（结构仍由 IR 承载）
+        for r in range(row, min(row + rowspan, n_rows)):
+            for c in range(col, min(col + colspan, n_cols)):
+                if (r, c) != (row, col) and not grid[r][c]:
+                    grid[r][c] = grid[row][col]
+    return "\n".join(" | ".join(cell for cell in row) for row in grid).strip()
+
+
 def _chunk_pk(index_name, file_id, seq, text):
     """与线上同一套种子规则：chunk|index|file_id|seq|sha1(text)。
 
@@ -172,10 +198,29 @@ def project(artifact_dir, policy, mode=None):
     if not artifact_id:
         raise ProjectionRefused("ARTIFACT_ID_MISSING", str(artifact_dir))
 
-    spans = _windows(text, policy.chunk_chars, policy.overlap_chars)
-    _check_coverage(text, spans)
-
     blocks = list((ir or {}).get("blocks") or [])
+    if ir is not None:
+        # 有 IR：正文块来自 IR 的 text_span（表格区域由 table_ref 承载，不再进正文通道），
+        # 每个正文块一块，跨度就是它自己的真实切片；不合并，避免把表格文字又包进正文。
+        spans = []
+        for block in blocks:
+            ref = block.get("content_ref") or {}
+            if ref.get("kind") != "text_span":
+                continue
+            start, end = ref.get("start_offset"), ref.get("end_offset")
+            if not (isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(text)):
+                raise ProjectionRefused("ARTIFACT_SPAN_OUT_OF_RANGE", f"{block.get('block_id')} {start}..{end}")
+            if text[start:end] != ref.get("text"):
+                raise ProjectionRefused("ARTIFACT_SPAN_MISMATCH", str(block.get("block_id")))
+            spans.append((start, end))
+        for (a_start, a_end), (b_start, _b_end) in zip(spans, spans[1:]):
+            if b_start < a_end:
+                raise ProjectionRefused("ARTIFACT_SPAN_OVERLAP", f"{a_start}..{a_end} / {b_start}")
+    else:
+        # 无 IR（text-only 快照）：对整篇 MD 做窗口投影，并强制非空白全覆盖。
+        spans = _windows(text, policy.chunk_chars, policy.overlap_chars)
+        _check_coverage(text, spans)
+
     chunks = []
     for seq, (start, end) in enumerate(spans):
         body = text[start:end]
@@ -185,6 +230,7 @@ def project(artifact_dir, policy, mode=None):
             raise ProjectionRefused("PROJECTION_TEXT_MISMATCH", f"seq={seq}")
         chunks.append({
             "seq": seq,
+            "channel": "text",
             "pk": _chunk_pk(policy.index_name, policy.file_id, seq, body),
             "text": body,
             "locator": {"kind": "text_span", "source": "parsed_text.md",
@@ -193,6 +239,26 @@ def project(artifact_dir, policy, mode=None):
             "content_uid": artifact.get("content_uid"),
             "block_ids": [b.get("block_id") for b in blocks],
         })
+
+    # 表格通道：结构来自 IR 的 table 定义，不把表格当普通正文塞回文本通道。
+    table_chunks = []
+    for ordinal, table in enumerate((ir or {}).get("tables") or []):
+        body = _render_table(table)
+        if not body.strip():
+            continue                      # 空表不产出空块（IR 里仍保留该表）
+        table_chunks.append({
+            "seq": len(chunks) + len(table_chunks),
+            "channel": "table",
+            "pk": _table_pk(policy.index_name, policy.file_id, ordinal),
+            "text": body,
+            "locator": {"kind": "table_ref", "table_id": table.get("table_id"),
+                        "block_id": table.get("block_id")},
+            "parse_artifact_id": artifact_id,
+            "content_uid": artifact.get("content_uid"),
+            "rows": int(table.get("n_rows") or 0),
+            "cols": int(table.get("n_cols") or 0),
+        })
+    chunks.extend(table_chunks)
 
     quality = artifact.get("quality") or {}
     status = "EMPTY" if not text.strip() else ("SHADOW" if mode == "shadow" else "READY")
@@ -206,8 +272,11 @@ def project(artifact_dir, policy, mode=None):
             "artifact_capabilities": quality.get("capabilities"),
             "ir_present": ir is not None,
             "ir_blocks": len(blocks),
+            "ir_tables": len((ir or {}).get("tables") or []),
             "chars": len(text),
             "chunks": len(chunks),
+            "chunks_text": sum(1 for c in chunks if c["channel"] == "text"),
+            "chunks_table": len(table_chunks),
             "policy_digest": policy.digest(),
             "chunk_chars": policy.chunk_chars,
             "overlap_chars": policy.overlap_chars,

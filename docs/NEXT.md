@@ -1,7 +1,39 @@
-# NEXT 检查点（2026-10-30，V2 设计与契约接入后）
+# NEXT 检查点（持续模式）
 
-> 恢复会话时按本文件顺序读：本文件 → `docs/design/unified-documents-v2/ADOPTION_REPORT_20261030.md`
-> → `docs/design/unified-documents-v2/IMPLEMENTATION-QUEUE-V2.md` → 实际 `git status`。
+> 恢复会话时按本文件顺序读：本文件 → `docs/r15/V2-CONTINUOUS-TASK.md`（主任务书）
+> → `docs/design/unified-documents-v2/IMPLEMENTATION-QUEUE-V2.md` → 双仓库实际 `git status`。
+
+## 0. 持续实施检查点（2026-10-31 更新）
+
+```
+任务书路径/版本：docs/r15/V2-CONTINUOUS-TASK.md（2026-10-30，sha256 697649d1b734…3309）
+双仓库：llmke-v2 @ design/v2-input-engine-adoption-20261030-2101（干净）
+        doc2md    @ fix/017-ir-emission-wiring（干净，main 未动）
+续跑机制：宿主无 Goal/Stop hook、无 codebuddy CLI 可注册 → 已启用本地 Automation
+        id=llmke-v2（每小时，ACTIVE，读本文件+任务书续跑）；
+        跨进程自动恢复 = MANUAL_RESUME_ONLY（无宿主原生恢复入口，不声称无人值守）
+当前环境：llmke 工具 venv（3.10.12，合同检查）；doc2md 工具 venv（3.11.7 + markitdown 0.1.9
+        + openpyxl）；真实模型：llmke 栈 18092 端点；doc2md 只用 markitdown/原生读取器
+已验证能力（本候选，非门禁）：合同生成联动、ParseArtifact 仓、doc2md 适配器、
+        DOCX/XLSX 原生表格进 IR、快照投影（正文/表格双通道）、线上只读对照
+当前失败/根因：无阻断性失败；既有 5 项 doc2md CLI-help 失败（typer 版本）待修
+活作业：无
+真实外部阻塞：HippoRAG 版本/离线依赖（U-03）；真实生产 DDL 与恢复副本权限（U-07）；
+        P0/正式门禁/独立QA/发布授权（保持真实状态）
+下一精确动作（按任务书 A→B→C→D→Q）：
+  B1 实时链路接入：把投影接到上传→解析任务，先在隔离 V2 测试库启用 snapshot 并验证回退
+  A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office
+  C1 选定并固定 HippoRAG 版本，独立环境安装 + native_id→input_unit→SourceRef 映射
+  D1 取真实 DDL（只导结构）→ 隔离恢复副本 → 迁移草案验证 parse_artifact_id
+  Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
+成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层
+副作用/回退：doc2md dev 库 gits_ke 新增 3 条 content/instance（未删改既有）；
+        产物在 /tmp/doc2md-ws（可重建）；未改任何线上索引
+暂停与授权：用户已书面授权持续实施；P0/QA/发布语义不变
+```
+
+---
+
 
 ## 1. 现场
 
