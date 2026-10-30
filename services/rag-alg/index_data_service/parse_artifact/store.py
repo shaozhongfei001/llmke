@@ -43,6 +43,15 @@ SINGLETON_FILES = {
     "document_ir.json": "document_ir",
 }
 SINGLETON_ROLES = tuple(SINGLETON_FILES.values())
+
+# doc2md 产物目录里"不是证据基准"的派生文件：只用于展示，不进证据集。
+# 依据：doc2md `app/core/parsed_paths.py` 声明 parsed_dir 下含 rendered_md（派生展示轨），
+# 而 V2 设计要求 parsed_text.md 才是不可变证据基准（01_UNIFIED_DESIGN_V2.md:15,76）。
+DISPLAY_ONLY_FILES = {"rendered.md"}
+
+# 解析器的结构化中间件目录（doc2md 017 additive，仅 MinerU 路径会写）。
+# 合同 ArtifactPart.role 已定义 ir_source，因此收录为独立角色而不是当 asset。
+IR_SOURCE_DIR = "ir_source"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
@@ -118,8 +127,12 @@ def collect_parts(source_dir):
     for rel, path in entries:
         if rel in SINGLETON_FILES:
             role = SINGLETON_FILES[rel]
+        elif rel in DISPLAY_ONLY_FILES:
+            continue          # 派生展示轨，不进证据集
         elif rel.startswith("assets/") and rel != "assets/":
             role = "asset"
+        elif rel.startswith(IR_SOURCE_DIR + "/") and rel != IR_SOURCE_DIR + "/":
+            role = "ir_source"
         else:
             raise ArtifactRefused("UNKNOWN_TOP_LEVEL_FILE", rel)
         seen_roles.setdefault(role, []).append(rel)

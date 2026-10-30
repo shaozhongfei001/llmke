@@ -74,6 +74,11 @@
 - 复用与改造：保留 doc2md 冻结三件套与 IR 字节；平台只加 adapter + `parser_fingerprint`。doc2md 自身的登记库与 LLMKE 业务库隔离。
 - 合同：ParseArtifact + `rules` DP-01…DP-06（产物完整性、不可变、MD 基准）。
 - 依赖：VL1-01（已完成候选）、U-02（**部分解除**：doc2md 源码在本机工作区可用，HEAD `d9e4f98`，设计记载的交接基线 `52a63ec` 是其祖先；统一批量入口 `backend/app/extensions/intake/batch.py`；尚未登记制品 hash、未跑真实四格式）。
+- **状态（2026-10-30）：适配器候选已提交；真实运行被上游缺口阻塞（U-08），不做降级。**
+  - 代码：`services/rag-alg/alg_doc_parse_service/adapter_doc2md/adapter.py`（命令模板 + `locate_artifact` 按 `parsed_paths` 约定定位 + `capability_report` 如实探测 + `producer_inputs` 对真实文件算 hash）
+  - 测试：`tests/test_doc2md_adapter.py`（7 项，含 stub 上游子进程、非零退出、缺入口、缺 IR 不降级、rendered/ir_source 归类）
+  - 关键判定：**不把 text-only 产物塞成 ParseArtifact**。上游缺 `document_ir.json` 时抛 `UPSTREAM_IR_MISSING` 并附能力报告，且**不写快照**
+  - 真实运行证据（只读，未解析）：`PYTHONPATH=backend python -m app.cli.main parse-markitdown --limit 1 --dry-run` → `Candidates: 2 / In-scope: 0 / Skipped: 2`，说明注册库有内容但当前无 markitdown 范围内候选；本机唯一可用解释器（conda base）缺 `markitdown` 包，且共享环境不许装
 - 独占范围：`services/rag-alg/alg_doc_parse_service/adapter_doc2md/**`（新建）；不改 `loader.py` 既有分支（并行期保留回退开关）。
 - 验收：docx/pdf/xlsx/txt 四类真实文件各 1 份，产出四件套齐全且 `parsed_text.md` hash 与 manifest 一致；反例：txt 不得再走 LibreOffice 转 PDF 老路径（`docs/r15/HANDOFF-20261030.md` 坑 ⑤）。
 - 失败下一步：先看适配器与 doc2md 之间的中间产物落盘，区分"doc2md 未出 IR"与"平台未取到"；不允许在 RAG/图侧重解析原件兜底。
