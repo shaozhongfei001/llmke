@@ -37,6 +37,13 @@
    - 代码：`store.commit(..., mode="text_only")` / `build_text_only_artifact()`；CLI 增 `--mode {v2,text_only}`；适配器增 `parse_to_legacy_artifact()`
    - 硬约束：目录里有 `document_ir.json` 时拒绝 text-only（`IR_PRESENT_USE_V2_PATH`）；声明结构性能力会被 schema 拒
    - 实测：`--mode text_only --validate` → `COMMITTED`，`PARTIAL`，3 件，合同 PASS；`make contract-all` / `contract-v2-check`（95 passed）仍 PASS
+10. **VL1 真实上游实证**（2026-10-30，详见 `EVIDENCE-VL1-REAL-UPSTREAM-20261030.md`）：
+   - 从既有 LLMKE 库 `kb_9` 取真实文件（`docx-table.docx` 36944B、`R12FIX-credit-ledger.xlsx` 5340B），经 MinIO S3 接口只读取件
+   - 用 doc2md `d9e4f98` + 仓外独立 venv（Python 3.11.7、`markitdown 0.1.9`）跑通 scan→copy-to-vault→route-parsers→parse-markitdown
+   - 真实产物只有三件套、**无 `document_ir.json`**、metadata 无 `content_uid`（U-08 由推断变实测）
+   - 两份都经 text-only 通路登记成功：`COMMITTED` / `PARTIAL` / 合同 `PASS`；快照 `parsed_text.md` 与上游**逐字节一致**
+   - PDF 路径仍未通：`pdf-digital.pdf` 路由到 MinerU，本机无 `magic_pdf`
+   - 副作用：doc2md dev 库 `gits_ke` 新增 3 条 content/instance 与对应 route/parse 记录（未删改既有行）；产物在 `/tmp/doc2md-ws`（未入仓）
 
 ## 3. 失败/未通过（如实保留，未绕过）
 
@@ -45,14 +52,15 @@
 | `make trace-check` | FAIL：`planned/actual loop set mismatch`（`loops/R12-real-rag` 未登记进 `PROJECT-PLAN.yaml`） | 既有，U-04 |
 | `make baseline-check` | FAIL：冻结控制面漂移（既有 `.gitignore`；本次追加 `contracts/*`） | 需授权重冻结，U-05 |
 | `make security-check` | FAIL 1861 条（R12 平台配置含真实连接串/口令/个人路径） | 既有，本次新增 0 |
-| `pytest tests/` | 257 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
+| `pytest tests/` | 258 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
 
 ## 4. 待定（阻塞后继，不影响本分支其他工作）
 
 - ~~U-01 `relations.v1.json` `reverse_dedup` 与 B01 domain/range 判定矛盾~~ → **已关闭**：CR `BL-2.0.0-01` ADOPTED，合同已改写并新增 `direction_resolution`；`make contract-all` 与 `make contract-v2-check` 复跑 PASS。
 - U-02 doc2md 制品/授权 → **部分解除**：doc2md 源码在本机工作区可读（HEAD `d9e4f98`，设计记载的交接基线 `52a63ec` 为其祖先）。仍缺：制品/源码 hash 登记、四类格式真实运行、与包内 `doc2md.zip SHA 63eede32…` 的对应关系。
 - **U-08 上游缺 IR 出口**：doc2md 两条解析路径都不产出 `document_ir.json`，`parsed_metadata.json` 也没有 `content_uid`。**部分处置**：CR `BL-2.0.0-02` 已给 text-only 产物合法登记位（`LegacyTextArtifact`，PARTIAL、不得声明结构能力）；要真正走 `ParseArtifact` 仍需 doc2md 补 IR 出口。
-- **U-09 真实解析依赖缺口**：本机唯一可用解释器缺 `markitdown`，共享算法环境不许装；需指定独立 venv 或提供真实产物样本。
+- ~~U-09 真实解析依赖缺口~~ → **已解除（2026-10-30）**：仓外独立 venv（Python 3.11.7 + `markitdown 0.1.9`）已装机，doc2md 四步 CLI 真跑通；共享算法环境未改。
+- **PDF/MinerU 路径仍缺**：`pdf-digital.pdf` 被路由到 MinerU，本机无 `magic_pdf`；PDF 结构化解析需另装重依赖（与 U-03 同类）。
 - U-03 HippoRAG 版本/离线依赖（VL3 前置）。
 - U-07 真实 DDL 与恢复副本（VL5-02 前置）。
 
@@ -68,10 +76,10 @@
 
 1. ~~为 U-01 出 CR~~ 已完成（`BL-2.0.0-01`）。
 2. ~~启动 VL1-01~~ 已完成实现候选（见 §2.7），待 loop 登记决定后再补门禁证据。
-3. ~~启动 VL1-02~~ 适配器候选已完成（§2.8/§2.9）。下一步：
-   - **3a（可立即做）**：用 text-only 通路把**一份真实 doc2md 产物**（三件套）登记进快照，证明真实字节能入仓（当前环境需先解除 U-09：独立 venv 装 `markitdown`，或用 doc2md 维护方给的产物目录）。
-   - **3b（需上游）**：doc2md 补 IR 出口后，同一份产物改走 `ParseArtifact` 并重跑 26 项；这是"结构化能力真正上线"的判据。
-   - 之后开 **VL1-03**（RAG 投影消费快照）。**不要**先开图引擎，也不要在 RAG/图侧重新解析原件兜底。
+3. ~~VL1-02 适配器 + 真实上游实证~~ 已完成（§2.8/§2.9/§2.10）。下一步：
+   - **3a（可立即做）**：开 **VL1-03 RAG 投影消费快照** —— 把 `index_fulltext_service`/`index_vector_service` 的输入从"重新解析原件"改为消费已提交快照，chunk 记录 `parse_artifact_id`。这是贯通切片里第一个真正的业务改动，需要先定"v1 双写与快照路径如何并存"。
+   - **3b（需上游/需裁定）**：doc2md 补 IR 出口（U-08）后，同一份产物改走 `ParseArtifact` 并重跑；在此之前表格/图表的坐标与数值都拿不到，不得声称结构化能力。
+   - **不要**先开图引擎，也不要在 RAG/图侧重新解析原件兜底。
 4. 合入 B01 实现时按 CR `BL-2.0.0-01` 复核四项判据（已在接入报告 §2.3 记录一次实测）。
 5. 若要正式计门禁：需业主/流程所有者先决定 L1–L4 的 P0 阻塞如何处置（U-04 同类问题），再由 `make new-loop` 建 `VL1-*` 并登记进 `docs/PROJECT-PLAN.yaml`（否则 trace-check 会新增一条 loop 漂移）。
 

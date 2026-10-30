@@ -30,6 +30,8 @@ def main(argv=None):
     parser.add_argument("--runtime-lock-hash", required=True)
     parser.add_argument("--config-hash", required=True)
     parser.add_argument("--model-fingerprint", action="append", default=[])
+    parser.add_argument("--parser-profile", default=None,
+                        help="平台侧解析档位（doc2md metadata 不含该键时必须显式给）")
     parser.add_argument("--mode", choices=["v2", "text_only"], default="v2",
                         help="v2=ParseArtifact（需 document_ir）；text_only=LegacyTextArtifact（CR BL-2.0.0-02）")
     parser.add_argument("--validate", action="store_true", help="用 V2 合同复核产物形状")
@@ -42,6 +44,8 @@ def main(argv=None):
         "config_hash": args.config_hash,
         "model_fingerprints": args.model_fingerprint,
     }
+    if args.parser_profile:
+        producer["parser_profile"] = args.parser_profile
     try:
         artifact, target = commit(args.source, args.store, producer,
                                   artifact_id=args.artifact_id, mode=args.mode)

@@ -82,6 +82,13 @@ def test_adapter_runs_upstream_then_commits(tmp_path):
     assert A.capability_report(A.locate_artifact(parsed, UID))["v2_artifact_ready"] is True
 
 
+def test_producer_profile_is_platform_supplied(tmp_path):
+    """doc2md metadata 没有 parser_profile：必须由平台显式给，不静默编造。"""
+    inputs = A.producer_inputs("doc2md@d9e4f98", parser_profile="default_v1")
+    assert inputs["parser_profile"] == "default_v1"
+    assert "parser_profile" not in A.producer_inputs("doc2md@d9e4f98")
+
+
 def test_missing_ir_reported_and_not_committed(tmp_path):
     adapter, _ = make_adapter(tmp_path, "--no-ir")
     store_root = tmp_path / "store"

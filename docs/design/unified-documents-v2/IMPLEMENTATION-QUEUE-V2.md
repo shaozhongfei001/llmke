@@ -80,6 +80,7 @@
   - 关键判定：**不把 text-only 产物塞成 ParseArtifact**。上游缺 `document_ir.json` 时抛 `UPSTREAM_IR_MISSING` 并附能力报告，且**不写快照**
   - 真实运行证据（只读，未解析）：`PYTHONPATH=backend python -m app.cli.main parse-markitdown --limit 1 --dry-run` → `Candidates: 2 / In-scope: 0 / Skipped: 2`，说明注册库有内容但当前无 markitdown 范围内候选；本机唯一可用解释器（conda base）缺 `markitdown` 包，且共享环境不许装
   - **text-only 通路（CR BL-2.0.0-02）**：上游无 IR 时不伪造 ParseArtifact，改为登记 `LegacyTextArtifact`（`--mode text_only`）；`quality.state` 只能 `PARTIAL`，`capabilities` 只能 `text/source_alignment`，有 IR 时拒绝走这条路（`IR_PRESENT_USE_V2_PATH`）。图构建必须拒绝该对象（无 IR 即无结构）—— 该拒绝断言在 VL2-06 落地时补
+  - **真实上游实证（2026-10-30）**：用 LLMKE `kb_9` 的两份真实文件（docx 含表格 / xlsx）跑通 doc2md 四步 CLI，产物只有三件套（无 IR）、metadata 无 `content_uid`；两份均登记成功且快照与上游**逐字节一致**。详见 `EVIDENCE-VL1-REAL-UPSTREAM-20261030.md`。PDF 仍被路由到 MinerU（本机无 `magic_pdf`）
 - 独占范围：`services/rag-alg/alg_doc_parse_service/adapter_doc2md/**`（新建）；不改 `loader.py` 既有分支（并行期保留回退开关）。
 - 验收：docx/pdf/xlsx/txt 四类真实文件各 1 份，产出四件套齐全且 `parsed_text.md` hash 与 manifest 一致；反例：txt 不得再走 LibreOffice 转 PDF 老路径（`docs/r15/HANDOFF-20261030.md` 坑 ⑤）。
 - 失败下一步：先看适配器与 doc2md 之间的中间产物落盘，区分"doc2md 未出 IR"与"平台未取到"；不允许在 RAG/图侧重解析原件兜底。

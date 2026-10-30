@@ -91,10 +91,18 @@ def capability_report(artifact_dir):
     }
 
 
-def producer_inputs(source_revision, runtime_lock=None, config=None, model_fingerprints=None):
-    """构造 ParseArtifact.producer 的输入指纹；hash 一律对实际文件算，不填占位值。"""
+def producer_inputs(source_revision, runtime_lock=None, config=None, model_fingerprints=None,
+                    parser_profile=None):
+    """构造 ParseArtifact.producer 的输入指纹；hash 一律对实际文件算，不填占位值。
+
+    `parser_profile` 是**平台侧的解析档位**，doc2md 的 metadata 里没有这个键（实测 d9e4f98
+    的 markitdown 路径只写 parser_name/parser_adapter_version/route_type）。所以它必须由调用方
+    显式给出（通常取 doc2md 配置里的 parser.default_parser_profile），不做静默默认。
+    """
     inputs = {"source_revision": source_revision,
               "model_fingerprints": list(model_fingerprints or [])}
+    if parser_profile:
+        inputs["parser_profile"] = parser_profile
     if runtime_lock is not None:
         inputs["runtime_lock_hash"] = _sha256_file(runtime_lock)
     if config is not None:
@@ -161,7 +169,7 @@ class Doc2mdAdapter:
 
     def parse_to_legacy_artifact(self, content_uid, store_root, source_revision,
                                  config=None, runtime_lock=None, model_fingerprints=None,
-                                 artifact_id=None):
+                                 artifact_id=None, parser_profile=None):
         """上游只有三件套时的登记路径：LegacyTextArtifact（PARTIAL，只声明文本能力）。
 
         这不是"ParseArtifact 降级版"：它是另一种对象，图构建必须拒绝它。
@@ -174,6 +182,7 @@ class Doc2mdAdapter:
         if not report["text_only_ready"]:
             raise AdapterFailed("ARTIFACT_INCOMPLETE", str(report))
         inputs = producer_inputs(source_revision, runtime_lock=runtime_lock, config=config,
-                                 model_fingerprints=model_fingerprints)
+                                 model_fingerprints=model_fingerprints,
+                                 parser_profile=parser_profile)
         return store.commit(artifact_dir, store_root, inputs,
                             artifact_id=artifact_id, mode="text_only")
