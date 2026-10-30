@@ -15,14 +15,15 @@
 当前环境：llmke 工具 venv（3.10.12，合同检查）；doc2md 工具 venv（3.11.7 + markitdown 0.1.9
         + openpyxl）；真实模型：llmke 栈 18092 端点；doc2md 只用 markitdown/原生读取器
 已验证能力（本候选，非门禁）：合同生成联动、ParseArtifact 仓、doc2md 适配器、
-        DOCX/XLSX 原生表格进 IR、快照投影（正文/表格双通道）、线上只读对照
+        DOCX/XLSX 原生表格进 IR、快照投影（正文/表格双通道）、线上只读对照、
+        摄取集成层 + 解析任务影子钩子（默认不动作）、临时索引回环（v2rt_* 写读删，已清理）
 当前失败/根因：无阻断性失败；既有 5 项 doc2md CLI-help 失败（typer 版本）待修
 活作业：无
 真实外部阻塞：HippoRAG 版本/离线依赖（U-03）；真实生产 DDL 与恢复副本权限（U-07）；
         P0/正式门禁/独立QA/发布授权（保持真实状态）
 下一精确动作（按任务书 A→B→C→D→Q）：
-  B1 实时链路接入：集成层与影子钩子已落地（见下），下一步是**在隔离 V2 测试库启用 snapshot 写入**
-     并验证回退；需要先决定测试 ES/Milvus 索引命名与清理方式（不得污染 kb_9 基准）
+  B1 下一步：向量通道（Milvus + embedding）隔离验证 + 在解析任务里真正启用 snapshot 写入
+     （当前只到影子对照与 ES 回环；Milvus 未测，切换未启用）
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
      + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
   A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office

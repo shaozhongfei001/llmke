@@ -146,7 +146,23 @@ doc2md 回归：`backend` 全量 **5 failed / 1492 passed / 133 skipped**，改�
 - 即：直接切到 `snapshot` 会让表格内容从"独立表格通道"变成"正文里的文本"，检索行为会变。
   所以 `snapshot` 不能直接上线，必须先补表格通道（依赖 MinerU IR 的 `table_ref`/表格矩阵）。
 
-## 8. 仍未解决（不许当成已完成）
+## 8. 隔离索引回环（2026-10-31）
+
+`scripts/v2_es_roundtrip_check.py`：把 `ingest_pipeline` 产出的 chunk 写进**临时索引**、按
+`metadata.parse_artifact_id` 查回来、再删除。只允许 `v2rt_` 前缀，不碰 `kb_9` / `table_chunks_kb_9`。
+
+实测（333 docx 快照，只读线上数据）：
+
+```json
+{"status":"OK",
+ "channels":{"v2rt_kb_9":{"source_index":"kb_9","expected":2,"count":2,"by_artifact":2},
+             "v2rt_table_chunks_kb_9":{"source_index":"table_chunks_kb_9","expected":1,"count":1,"by_artifact":1}}}
+```
+
+跑完 `_cat/indices/v2rt*` 为空（临时索引已删）。结论只到"载荷形状能被 ES 接收并可检索回"，
+不等于线上切换已验证；Milvus/embedding 通道未测。
+
+## 9. 仍未解决（不许当成已完成）
 
 1. **U-08 只关闭了"有没有 IR"这一半**：markitdown 路径现在产出 IR，但它是**文本降级 IR**
    （block 全 `inline_text`），表格仍然只剩 Markdown 三行文本，没有单元格坐标与表头路径。
