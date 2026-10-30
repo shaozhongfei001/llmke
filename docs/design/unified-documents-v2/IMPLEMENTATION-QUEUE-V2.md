@@ -62,13 +62,18 @@
 - 验收：`examples/artifact/` 与 `examples/multimodal/` 两组样例灌入适配器后产出 ParseArtifact，用 `document_pipeline_v2_validate.py` 的校验器判定 PASS；反例：复制期间源文件变更必须拒绝提交而非混合两次解析。
 - 失败下一步：先只读比对源目录与快照差异，定位是复制竞态还是摘要算法不一致；不得放宽为"接受最大努力快照"。
 - 角色：python-engineer 实现，integration-agent 接线，TL 验收。
+- **状态（2026-10-30）：实现候选已提交，未起 loop、未过独立 QA。**
+  - 代码：`services/rag-alg/index_data_service/parse_artifact/{__init__,store,__main__}.py`
+  - 测试：`tests/test_parse_artifact_store.py`（19 项：4 正例 + 15 反例），`make parse-artifact-test`
+  - 实测：两组样例均提交成功并通过 V2 schema（`/$defs/ParseArtifact`）校验；multimodal 出 5 件含 asset 且 `figure_assets` 能力被推导出来
+  - 反例覆盖：缺件 / 未识别顶层文件 / 符号链接 / BOM / `status=FAILED` / content_uid 不一致 / 文本 hash 不符 / IR span 不符 / 资产清单不符 / 复制前源变（COPY_MISMATCH）/ 复制后源变（SOURCE_CHANGED 且不落盘）/ artifact_id 冲突不覆盖 / 快照被篡改可检出 / 不安全 ID / producer 缺字段
 
 #### VL1-02 doc2md 解析适配器接线
 - 用户结果：上传的约定格式文件真的经 doc2md 解析，不再由旧 loader 按后缀挑解析器。
 - 当前依据：`loader.py:232-320` 仍按后缀分支调用 PDFParser 等；`/services` 下 `doc2md` 0 命中。
 - 复用与改造：保留 doc2md 冻结三件套与 IR 字节；平台只加 adapter + `parser_fingerprint`。doc2md 自身的登记库与 LLMKE 业务库隔离。
 - 合同：ParseArtifact + `rules` DP-01…DP-06（产物完整性、不可变、MD 基准）。
-- 依赖：VL1-01、U-02（doc2md 制品/授权）。
+- 依赖：VL1-01（已完成候选）、U-02（**部分解除**：doc2md 源码在本机工作区可用，HEAD `d9e4f98`，设计记载的交接基线 `52a63ec` 是其祖先；统一批量入口 `backend/app/extensions/intake/batch.py`；尚未登记制品 hash、未跑真实四格式）。
 - 独占范围：`services/rag-alg/alg_doc_parse_service/adapter_doc2md/**`（新建）；不改 `loader.py` 既有分支（并行期保留回退开关）。
 - 验收：docx/pdf/xlsx/txt 四类真实文件各 1 份，产出四件套齐全且 `parsed_text.md` hash 与 manifest 一致；反例：txt 不得再走 LibreOffice 转 PDF 老路径（`docs/r15/HANDOFF-20261030.md` 坑 ⑤）。
 - 失败下一步：先看适配器与 doc2md 之间的中间产物落盘，区分"doc2md 未出 IR"与"平台未取到"；不允许在 RAG/图侧重解析原件兜底。

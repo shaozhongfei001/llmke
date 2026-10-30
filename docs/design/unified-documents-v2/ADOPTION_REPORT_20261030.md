@@ -146,7 +146,7 @@ doc2md 最新源码/制品与全格式出口、HippoRAG 锁定版本与离线依
 | 编号 | 未决内容 | 影响 | 下一动作 |
 |---|---|---|---|
 | ~~U-01~~ | ~~relations.v1.json `reverse_dedup` 与 B01 domain/range 判定的矛盾~~ | **已关闭 2026-10-30**：CR `BL-2.0.0-01` 定稿（status ADOPTED），合同改为按对称性分流并新增 `direction_resolution`；四项验收判据对候选实现实测全 PASS | 随 VL2-01 合入 B01 实现 |
-| U-02 | doc2md 源码/制品未入库、未验证当前版本与全格式出口 | VL1 切片的前置 | 由业主提供 doc2md 制品或授权读取其仓库；先跑 4 格式样例 |
+| U-02 | doc2md 源码/制品未入库、未验证当前版本与全格式出口 | VL1 切片的前置 | **部分解除（2026-10-30）**：doc2md 源码在本机工作区可读，HEAD `d9e4f98`，交接基线 `52a63ec` 为其祖先，统一批量入口 `backend/app/extensions/intake/batch.py`。仍缺：制品与依赖 hash 登记、四类格式真实运行、与包内 `doc2md.zip SHA 63eede32…` 的对应关系 |
 | U-03 | HippoRAG 锁定 commit/依赖/模型 | VL3 无法开工 | 选定版本 + 离线 wheel + 模型端点，登记制品 hash |
 | U-04 | `loops/R12-real-rag` 未登记进 `docs/PROJECT-PLAN.yaml` | trace-check 恒红 | 由流程所有者决定是否登记 R12 loop；TL 不代改计划 |
 | U-05 | `FROZEN-MANIFEST.json` 未含 V2 合同 | baseline-check 恒红 | 待 V2 合同通过评审后按冻结流程重冻结（需授权人字段） |
