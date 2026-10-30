@@ -472,6 +472,25 @@ def _resolve_entity_types(requested):
     return req, "request"
 
 
+def _relevant_known(known, passage, limit=20):
+    """R15-A17：只保留**在当前文本里出现过**的已有实体，再注入。
+
+    为什么必须做相关性过滤（实测证据）：
+      对 129 字的定价规则块，注入库里全部 80 个实体后，模型明显格式漂移——
+      把整句当实体输出（"星航贷AAA档加点幅度为加30个基点"），
+      导致 3 档加点全部被 sentence_like 判为句子实体丢弃，
+      日志出现 "关系行全部丢弃，重试 3 次仍失败"，最终该文件只落 1 条边。
+      同一文本不注入时能正常产出 10 条关系、0 过滤。
+    结论：注入无关实体（给产品说明书注入客户表里的客户名）不是"帮助"，是干扰。
+    """
+    if not known or not passage:
+        return []
+    hit = [k for k in known if k and k in passage]
+    # 长的优先（"制造业中小微企业" 优先于 "制造业"），同长度的保持原序
+    hit.sort(key=len, reverse=True)
+    return hit[:limit]
+
+
 def fetch_known_entities(space_name, limit=None):
     """R15-W09：取本知识库已有实体名，供抽取时复用（entity linking 的输入）。
 
@@ -538,9 +557,11 @@ def llm_generate_triple(json_data, entity_types: [str], model_info, server_confi
             if len(content) > max_char_length:
                 content = content[:max_char_length]
             # 生成实体
+            # 每块只注入与该块文本相关的已有实体（见 _relevant_known 的实测依据）
+            _known_for_block = _relevant_known(known_entities, content)
             relations, entity_dict = generate_graph_relations(
                 content, model_info, server_config, entity_types=entity_types,
-                known_entities=known_entities)
+                known_entities=_known_for_block)
             for relation in relations:
                 td_s = ""
                 try:
@@ -597,7 +618,11 @@ def generate_triple_data(query_docu: QueryDocChunk):
     logger.info(f"抽取类型表（source={types_source}）：{entity_types}")
     # R15-W09：抽取前先取本库已有实体，注入提示词让模型复用名称。
     # 这是"跨文件关联"的根子——事后归一只补救写法差异，补不出模型根本不知道的名字。
-    known_entities = fetch_known_entities(space_name)
+    # R15-A17：注入要**相关**才有效。默认 relevant（只给文本里出现过的），
+    # 设 R15_KNOWN_ENTITY_MODE=all 才注入全量（对照实验用），off 关闭。
+    _kmode = os.environ.get("R15_KNOWN_ENTITY_MODE", "relevant").lower()
+    known_entities = [] if _kmode == "off" else fetch_known_entities(space_name)
+    logger.info(f"已知实体注入模式={_kmode} 候选={len(known_entities)}")
     triples_data_list, entity_source_dict, triples_source_dict = llm_generate_triple(
         json_data, entity_types, model_info, server_config, known_entities=known_entities)
     logger.info(f"生成数据所需时间是：{time.time() - t1}")

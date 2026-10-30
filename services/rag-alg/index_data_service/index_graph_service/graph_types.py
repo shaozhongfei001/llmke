@@ -605,14 +605,30 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
     dropped_triples = 0
     dropped_junk = 0
 
+    def _clean_rel(rel):
+        """R15-A17：关系名里塞了箭头时，取箭头前的谓词主体，而不是丢掉整条事实。
+
+        实测（A17 夹具，同一段 129 字文本、同一模型）：
+          不注入时模型输出 '星航贷AAA档 -[加点幅度对应]-> 30个基点'  → 保留，3 档齐全
+          注入时  模型输出 '星航贷AAA档 -[加点幅度->加30个基点]-> 30个基点' → 含 "->"，
+                  被原 _junk 整条丢弃 → 3 档加点全部消失，该文件最终只剩 1 条边
+        差别只在模型表述的随机性，不该由它决定一条业务事实的存亡。
+        所以：先清洗成 '加点幅度'，清洗后仍然脏（含逗号/过长）才丢弃。
+        """
+        if "->" in rel:
+            head = rel.split("->", 1)[0].strip()
+            if head:
+                return head
+        return rel
+
     def _junk(rel, a, b):
         """R15 W01：明显不是三元组形态的抽取产物。
 
         实测脏样例：'1000万元 -[最高额度-信用部分不超过->8000万元]-> 信用部分最高额度为1000万元…'
         特征：关系名里塞了值/箭头/逗号，或实体名是整句话。
-        这些进图后会污染社区摘要与推导，宁可在落库前丢弃。
+        箭头已在 _clean_rel 里处理；这里只拦清洗后仍然不可用的。
         """
-        if "->" in rel or "，" in rel or "," in rel or len(rel) > 20:
+        if "，" in rel or "," in rel or len(rel) > 20:
             return True
         if len(a) > 30 or len(b) > 30:
             return True
@@ -626,6 +642,7 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
             continue
         # 先判形态再判实体：垃圾条目通常连实体都不合法，
         # 若先判实体，审计里会被记成"实体未登记"，掩盖真正原因（关系名塞值/实体是整句）。
+        rel = _clean_rel(rel)
         if _junk(rel, src, dst):
             dropped_junk += 1
             continue
