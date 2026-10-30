@@ -1,293 +1,285 @@
-{
-  "run_id": "R15-TL-20261029",
-  "updated": "2026-10-30T00:05+08:00",
-  "candidate": {
-    "worktree": "/home/szf/data/dev/llmke-r12",
-    "branch": "feature/R12-real-rag",
-    "head": "本轮 3 个提交（F01/F02/F10/F04、F08 社区覆盖、N1-N3 归一化与闸门）",
-    "note": "状态分级：COMPONENT / INTEGRATION / UI；COMPONENT 不得充抵 UI 正例"
-  },
-  "corrections": [
-    {
-      "item": "graphParse 10001 知识库不存在",
-      "was": "记为 blocker（产品缺陷）",
-      "now": "我方参数名错误：接口契约是 file_ids / knowledge_base_id（snake_case），传 camelCase 导致未绑定",
-      "action": "从 blocker 移除"
-    },
-    {
-      "item": "file_parse_task status=4",
-      "was": "读作失败，据此判断成功被记成失败",
-      "now": "ParseTaskStatusEnums: 4=SUCESS（处理成功），5 才是失败",
-      "action": "相关结论作废，改为如实记录"
-    }
-  ],
-  "f_findings": {
-    "F01": {
-      "state": "COMPONENT_VERIFIED",
-      "evidence": "qa/evidence/r15/a02"
-    },
-    "F02": {
-      "state": "COMPONENT_VERIFIED",
-      "evidence": "qa/evidence/r15/a02, n2-n4",
-      "note": "写边不造反向边 + 归一化逆否去重 + 查询侧按 show_flag=1 过滤"
-    },
-    "F03": {
-      "state": "PARTIAL",
-      "evidence": "qa/evidence/r15/n2-n4",
-      "note": "graphParse 参数名澄清后接口可用；但任务成功后 gps 未收敛到 3"
-    },
-    "F04": {
-      "state": "INTEGRATION_VERIFIED",
-      "evidence": "qa/evidence/r15/a09"
-    },
-    "F05": {
-      "state": "PARTIAL",
-      "evidence": "qa/evidence/r15/n6-n7-n9",
-      "note": "边已全量带代次(V0 26/V1 68)，孤儿边已清；查询侧仍未按 generation 过滤"
-    },
-    "F06": {
-      "state": "PARTIAL",
-      "evidence": "新边 chunk_ref 14 条；旧边为空",
-      "note": "写入侧已具备块级锚点；查询/响应未把 chunk_ref 透出给引用卡片"
-    },
-    "F07": {
-      "state": "OPEN"
-    },
-    "F08": {
-      "state": "INTEGRATION_VERIFIED",
-      "evidence": "qa/evidence/r15/a08"
-    },
-    "F09": {
-      "state": "INTEGRATION_VERIFIED",
-      "evidence": "qa/evidence/r15/n5",
-      "note": "任务4(成功)与gps=3一致；零产出有两道拦截，第一道真实数据验证通过，第二道冗余人未独立触发"
-    },
-    "F10": {
-      "state": "COMPONENT_VERIFIED",
-      "evidence": "qa/evidence/r15/a03"
-    },
-    "F11": {
-      "state": "OPEN"
-    },
-    "F12": {
-      "state": "OPEN"
-    },
-    "F13": {
-      "state": "PARTIAL_IMPROVED",
-      "evidence": "qa/evidence/r15/n6-n7-n9",
-      "note": "额度构成配对+代码兜底，global 已同时给出总额度与分项；广义汇总仍为词法打分"
-    }
-  },
-  "acceptance": {
-    "A01": "NOT_RUN",
-    "A02": "COMPONENT",
-    "A03": "PARTIAL_IMPROVED",
-    "A04": "COMPONENT",
-    "A05": "NOT_RUN",
-    "A06": "PARTIAL",
-    "A07": "NOT_RUN",
-    "A08": "PARTIAL_IMPROVED",
-    "A09": "FAIL_FOUND",
-    "A10": "NOT_RUN",
-    "A11": "NOT_RUN",
-    "A12": "PARTIAL",
-    "A13": "NOT_RUN",
-    "A14": "NOT_RUN",
-    "A15": "NOT_RUN",
-    "A16-ENG": "NOT_RUN",
-    "A16-REL": "NOT_RUN"
-  },
-  "n4_matrix": [
-    {
-      "q": "智造贷最高额度是多少？",
-      "global": "8000万元（未带分项）",
-      "local": "8000万元 + 信用方式不超过1000万元"
-    },
-    {
-      "q": "智造贷信用方式最高多少？",
-      "global": "1000万元",
-      "local": "1000万元"
-    }
-  ],
-  "next_actions": [
-    "W01 抽取稳定性：单块重试 + JSON schema 约束 + 耗时/产出分布监控",
-    "W03 整库构建：文档增删后自动触发社区重建并原子发布",
-    "F05 剩余：查询/统计按 generation 过滤 + 历史边回填 + 社区/响应带代次",
-    "F06 断言到 SourceRef 的精确回指",
-    "F12 反例法验收断言集"
-  ],
-  "release": {
-    "engineering_delivery": "IN_PROGRESS",
-    "target_release": "NOT_STARTED",
-    "external_signoff": "NOT_AVAILABLE"
-  },
-  "evidence_root": "platform/r12/qa/evidence/r15/",
-  "n8": {
-    "first_gate": {
-      "state": "VERIFIED",
-      "evidence": "pdf-scanned.pdf -> code=500 -> gps=4（task=4）"
-    },
-    "second_gate": {
-      "state": "PARTIAL",
-      "evidence": "仅 21:08:48 一次执行记录，且当时为统计缺失导致的误判（已修）"
-    }
-  },
-  "n6": {
-    "state": "VERIFIED",
-    "evidence": "global 0.8s：8000万 + 分项1000万 + 双引用"
-  },
-  "n7": {
-    "state": "PARTIAL",
-    "evidence": "边 generation='V1' 22条；历史46条未回填；查询未过滤"
-  },
-  "n9": {
-    "state": "CLOSED_NO_CHANGE",
-    "evidence": "统计口径 show_flag=1 且只算 relationship（122条），similar 432条不计入；同源缺陷已修（查询侧补 show_flag 过滤）"
-  },
-  "team": {
-    "extract-w01": "完成 graph_extract.py 单块重试/字段校验/诊断统计 + docs/r15/w01-extract.md",
-    "accept-f12": "完成 platform/r15/acceptance 16 条反例断言 + 首跑基线",
-    "rebuild-w03": "完成 graph-rebuild.sh(790行文档)+两轮端到端+夹具清理回读"
-  },
-  "w01": {
-    "state": "PARTIAL_VERIFIED",
-    "evidence": "docs/r15/w01-extract.md §5 真实样本（7 个数据点）",
-    "verified": [
-      "STATS 行可落盘可 grep",
-      "正常块上重试零成本（llm_calls 恒 4）",
-      "超出型字段异常 3 次全为模型塞整串流程，救回策略有数据支持",
-      "修法1 截断判定：合法空反例先过(rels=0/retries=0/truncation_suspected=0)，正例 retries=2"
-    ],
-    "unverified": [
-      "重试仍未在真实整库解析中自然触发（生产日志仍 0 次），但盲区已被修法1覆盖并有构造验证"
-    ],
-    "key_finding": [
-      "耗时由输出行数驱动（9行4.6s/48行24.4s/138行73.1s），与输入字数无关 → 禁用按 chars 估预算",
-      "不稳定源是要点式短文本块（343: 16/25/29），表格块稳定（329: 24/25 ±4%）",
-      "每条三元组成本 1.5~3.0s；单次 LLM 调用 1.1~18.3s"
-    ],
-    "decisions": [
-      "a) 准做 GRAPH_EXTRACT_MAX_TOKENS=200 的真实截断复现（2 次，无写回，标注人为构造）",
-      "b) 超出型维持救回，但须带 description_overflow=true 标记"
-    ]
-  },
-  "w03": {
-    "state": "VERIFIED_SCRIPT",
-    "evidence": "docs/r15/w03-rebuild.md §9 两轮端到端",
-    "note": "第一轮断言全PASS但指纹false被判'不可作代次对比'，重抽后再跑第二轮才可比；C4(主键种子)为F05前置未做"
-  },
-  "acceptance_baseline": {
-    "run_at": "2026-10-30T00:01:50",
-    "total": 16,
-    "PASS": 8,
-    "FAIL": 1,
-    "SKIP": 7,
-    "pass": [
-      "A01 类型契约（白名单读契约27码/越界0/停用词无冲突）",
-      "A02 同谓词双向消除",
-      "A03 分项不当总额度",
-      "A04 值保真（金额必带单位）",
-      "A07 社区分类完备",
-      "A08 local/global 一致",
-      "A09 代次写入+消费可见",
-      "A11 引用可回指"
-    ],
-    "fail": [
-      "A06 N2：332 解析失败(gps=4)但仍残留 1 条旧边 —— 失败时未清理历史边"
-    ],
-    "skip": [
-      "A05",
-      "A10",
-      "A12",
-      "A13",
-      "A14",
-      "A15",
-      "A16"
-    ],
-    "delta": "首跑 PASS1/FAIL10/SKIP5 → 终版 PASS8/FAIL1/SKIP7"
-  },
-  "new_findings": [
-    "删KB是软删且不联动下层：knowledge_base.status=0 但 knowledge_base_list 仍 status=3，图空间/摘要不回收 → A10 不能只看接口返回",
-    "del_community 在图服务未监听时静默不可用（curl 000），必须回读 _cat/indices + has_collection 才算删成功",
-    "SHOW SPACES 同时存在 g_rag_graph 与 rag_graph，命名异常需人工确认归属",
-    "V0 边 +1 的真相：332 本身 version=V0，写入 V0 正确 —— 否证了'写入口径 bug'的推断（成员的否证路径生效）"
-  ],
-  "a07": {
-    "verdict": "判据错，非产品缺口",
-    "tll_independent_recheck": "有向94/无向69/社区11/Σ61/跨社区11/两端无归属0 —— 与成员数字逐项一致",
-    "decomposition": "33 = 25(有向→无向折叠) + 11(跨社区) − 3(level1超边混合量纲)",
-    "side_finding": "18 组端点对有重复写边，折叠25条，全属 343/V1 → 写入侧幂等缺失，与 A02 同源"
-  },
-  "round2": {
-    "a02": {
-      "state": "PASS",
-      "fix": "graph_service 写入前查既有边(filter_reverse_duplicates)+删存量1条",
-      "evidence": "判重日志 157->123 跳过34"
-    },
-    "a03": {
-      "state": "PASS",
-      "fix": "is_total_predicate 归一 + 删'最高额度->1000万' + A03 判据排除分项谓词",
-      "note": "信用部分最高额度/信用方式最高额度 属分项，原 contains 判据过宽"
-    },
-    "a09": {
-      "state": "PARTIAL",
-      "remaining": "generation 只在写入侧，graph_summary 0 处引用"
-    },
-    "a07": {
-      "state": "ASSERT_TODO",
-      "evidence": "TL 独立复核 94/69/11/61/11/0 与成员一致"
-    }
-  },
-  "a01": {
-    "state": "CONTRACT_DELIVERED",
-    "evidence": "contracts/ontology/{entity-types.v1.json,relations.v1.json,README.md}",
-    "content": "6 大类 27 码 + 18 谓词（symmetric 仅 相似/关联）+ 命名规范 4 条",
-    "not_done": "graph_types.py 仍用硬编码 16 类，未读契约 → A01 断言仍 FAIL（这是正确状态）",
-    "known": "5 个码位无真实样例待业务确认；unclassified 44%；STOPWORDS 含'正常'与评级规则冲突"
-  },
-  "a09": {
-    "state": "PASS",
-    "evidence": "社区摘要落 generations；query_community 返回 ['V0','V1']",
-    "note": "多代并存被显式暴露（这正是'一请求固定同代'尚未做到的可见标记）"
-  },
-  "overnight_fixes": [
-    "A01 判据假阴：a01 从源码文本解析 STOPWORDS，注释里出现同字面量被当成真值 → 改运行时读",
-    "A01 语料澄清：ES 里检索『正常』0 命中，图中没有它不是缺陷",
-    "A04 类型规则：金额必须有单位，2,983,333.33（xlsx 表头带单位）不得标 amount",
-    "A04 判据修正：只统计 type 含『金额』的裸数字端点"
-  ],
-  "completion_audit": {
-    "audited_at": "2026-10-30T00:20+08:00",
-    "verdict": "未达 DELIVERY_VERIFIED；§9.1 九条中 0 条完全满足",
-    "by_9_conditions": {
-      "1_F01F13修复验证": "3/13（F01F02与F10为COMPONENT，F04为PARTIAL，其余10项TODO）",
-      "2_A01A15_A16ENG": "PASS8/FAIL1/SKIP7",
-      "3_C01C20": "未执行",
-      "4_页面全链路": "未完成（代次混存阻塞：边来自已删V0文件）",
-      "5_五类契约进生产": "1/5（类型契约刚修，代次/证据/授权/状态未做）",
-      "6_干净复建实装": "未做",
-      "7_版本关系明确": "未做（T-W07 TODO）",
-      "8_无开放阻断": "2个开放：F05代次、A06失败残留边",
-      "9_QA复核": "未做"
-    },
-    "f05_gap_measured": {
-      "contract": "BuildRun 需 8 字段：kb_id/generation/manifest_hash/status/created_at/artifact_results/resource_version/fencing_token",
-      "mysql": "无 generation/build/manifest 表；knowledge_base 无 version/generation 列",
-      "es": "kb_9 单索引 267 条，无代次后缀",
-      "nebula": "g_kb_9 单空间，无代次；另有 g_kb_22/g_kb_26/g_rag_graph/rag_graph 历史残留",
-      "conclusion": "不是补字段，是整套代次机制缺失（构建记录/staging-active切换/fencing均无）"
-    }
-  }
-}
+# R15 任务台账（真实施工状态，不以勾选替代测试）
+# 字段：id / parent / loop / owner / depends_on / state / next_action / acceptance / evidence / blocker / artifacts
+# state: TODO | DOING | BLOCKED | VERIFIED（VERIFIED 需实现+迁移+正反例+消费者集成+TL验收）
 
+meta:
+  run_id: R15-TL-20261029
+  taskbook: docs/r15/TASK.md
+  base_commit: b068e7e
+  worktree: /home/szf/data/dev/llmke-r12
+  updated: "2026-10-29T20:05+08:00"
+
+# ── 施工项：评审发现 F01–F13（任务书 §3 W01–W08 展开）
+tasks:
+  - id: T-L0
+    parent: L0
+    loop: L0
+    owner: TL
+    depends_on: []
+    state: VERIFIED
+    next_action: "转 N1（F01/F02 复现）"
+    note: "工作树/HEAD/运行制品已核对；见 NEXT.md §2；已排除 ss 无 pid 与网关根路径 000 两处误判"
+
+  - id: T-F01F02
+    parent: W02
+    loop: L1
+    owner: A
+    depends_on: [T-L0]
+    state: COMPONENT_VERIFIED
+    next_action: "Nebula 对照实验 PASS（旧 1 条/新 2 条）；UI 级 A02 待整库重建后执行"
+    acceptance: [A02, A05]
+    evidence: "待生成：r15/a02-multipredicate"
+    blocker: ""
+    artifacts: ["index_graph_service/graph_service.py", "index_graph_service/graph_fun_tool.py"]
+
+  - id: T-F03
+    parent: W03
+    loop: L2
+    owner: B
+    depends_on: [T-F01F02]
+    state: TODO
+    next_action: "确认产物是否按权限域+代次隔离，定义构建清单与完成屏障"
+    acceptance: [A07, A09]
+    evidence: ""
+    blocker: ""
+    artifacts: ["index_graph_service/graph_service.py", "Java index service"]
+
+  - id: T-F04
+    parent: W05
+    loop: L3
+    owner: C
+    depends_on: [T-L0]
+    state: PARTIAL
+    next_action: "消费链路已通（2.0s status=2，日志 R15-F04）；答案正确性受阻于 F05 代次混存"
+    acceptance: [A08]
+    evidence: ""
+    blocker: ""
+    artifacts: ["rag-qa-service AiServiceImpl.java"]
+
+  - id: T-F05
+    parent: W03
+    loop: L2
+    owner: B
+    depends_on: [T-F03]
+    state: DOING
+    next_action: "已定位：g_kb_9 的边全部来自已删 V0 文件；有效文件 328/343 零边"
+    acceptance: [A09]
+    evidence: ""
+    blocker: "generation 生命周期合同需先确认现有条款"
+    artifacts: ["contracts/schema/llmke-core.json"]
+
+  - id: T-F06
+    parent: W05
+    loop: L3
+    owner: C
+    depends_on: [T-F04]
+    state: TODO
+    next_action: "让断言写入真实 SourceRef；社区 finding 映射到断言"
+    acceptance: [A11]
+    evidence: ""
+    blocker: ""
+    artifacts: ["graph_extract.py", "graph_summary.py"]
+
+  - id: T-F07
+    parent: W01
+    loop: L1
+    owner: A
+    depends_on: [T-L0]
+    state: TODO
+    next_action: "核对 16 类替代是否有批准；无则落 M1 的 6 大类 27 码为受控配置"
+    acceptance: [A01]
+    evidence: "已有：docs/upstream M1 方案；当前 graph_types.py 为实施方 16 类"
+    blocker: "需确认 M1 27 码清单的准确内容（仓库内 docx 需解析）"
+    artifacts: ["graph_types.py", "contracts/ontology/"]
+
+  - id: T-F08
+    parent: W04
+    loop: L2
+    owner: B
+    depends_on: [T-F03]
+    state: TODO
+    next_action: "检查 max_level 与实际层级是否一致，补父子关系与范围字段"
+    acceptance: [A07, A12]
+    evidence: "已核实：graph_community.max_level=1；ES 仅 community_summary_kb_9 7 条"
+    blocker: ""
+    artifacts: ["graph_community.py", "graph_summary.py"]
+
+  - id: T-F09
+    parent: W06
+    loop: L4
+    owner: C
+    depends_on: [T-F04]
+    state: TODO
+    next_action: "分离 HTTP/业务/任务/内容四类状态；空结果与依赖故障不得都返 200"
+    acceptance: [A06, A13]
+    evidence: ""
+    blocker: ""
+    artifacts: ["GlobalHandler", "graph_api_start.py"]
+
+  - id: T-F10
+    parent: W02
+    loop: L1
+    owner: A
+    depends_on: [T-L0]
+    state: COMPONENT_VERIFIED
+    next_action: "组件反例 PASS：甲+30 / 丙-30 / 乙 0；依赖抽取产出适用产品关系"
+    acceptance: [A03]
+    evidence: ""
+    blocker: ""
+    artifacts: ["graph_fun_tool.py", "graph_summary.py"]
+
+  - id: T-F11
+    parent: W06
+    loop: L4
+    owner: C
+    depends_on: [T-F09]
+    state: TODO
+    next_action: "检索预算落到真实 depth/top_k/超时；多 KB 并发隔离"
+    acceptance: [A13]
+    evidence: ""
+    blocker: ""
+    artifacts: ["retrieval_*_view.py", "graph_fun_tool.py"]
+
+  - id: T-F12
+    parent: W08
+    loop: L4
+    owner: D
+    depends_on: [T-F01F02, T-F10, T-F04]
+    state: TODO
+    next_action: "先固定题目与断言，再做反例（错值/错源/旧代/空/失前提）"
+    acceptance: [A01, A02, A03, A04, A05, A06]
+    evidence: ""
+    blocker: ""
+    artifacts: ["platform/r15/"]
+
+  - id: T-F13
+    parent: W04
+    loop: L3
+    owner: B
+    depends_on: [T-F08]
+    state: TODO
+    next_action: "区分聚焦社区检索与广域综合；Map 分批 + Reduce 消费真实报告"
+    acceptance: [A12]
+    evidence: ""
+    blocker: ""
+    artifacts: ["graph_summary.py", "retrieval_global_view.py"]
+
+  - id: T-W07
+    parent: W07
+    loop: L5
+    owner: E
+    depends_on: [T-F12]
+    state: TODO
+    next_action: "STALE_JAR 服务重启并复验；制品-源码-模型版本映射"
+    acceptance: [A14, A15, A16-ENG]
+    evidence: ""
+    blocker: "A16-REL 需真实目标与外部签收，单列"
+    artifacts: ["platform/r12/bin/", "platform/r12/dist/offline"]
   - id: T-A17
     parent: W09
     loop: L2
     owner: B/C
     depends_on: [T-F03, T-F05]
     state: BLOCKED
-    next_action: "夹具已真实上传并建图，三份文档只产出 2 条边且无共享实体；先修抽取率再谈库级组织"
+    next_action: >-
+      夹具已真实上传建图；修复 B01-B05 后重跑九条检查。三份文档当前仅围绕星航贷产生 12 条边，
+      且边 file_id 为空（B04 所致）
     acceptance: [A17]
-    evidence: "qa/evidence/r15/a17/RESULT.md"
-    blocker: "① 350字结构化定价规则只抽1条边；② txt上传必失败；③ isGraphParse=true 不自动建图"
+    evidence: "platform/r12/qa/evidence/r15/a17/RESULT.md"
+    blocker: >-
+      B01 反向去重/B02 总额推定/B03 符号抹除/B04 无来源降级/B05 社区漏孤点 均未修
     artifacts: ["index_graph_service/graph_extract.py", "frontend/plateform/src/components/KnowledgeBaseZh/GraphBox.tsx"]
+
+  - id: T-B01
+    parent: W10
+    loop: L2
+    owner: TL
+    depends_on: []
+    state: TODO
+    priority: P0
+    next_action: >-
+      修 graph_types.py:283-289 pair_key：按本体对称性分流，只有明确的对称谓词才用无序端点；
+      补反例「甲担保乙且乙担保甲」「互相持股不同有效期」
+    acceptance: [A02]
+    evidence: "docs/reviews/R15-ARCH-GRAPHRAG-ASSESSMENT-20261030.md 13.2"
+    blocker: ""
+    desc: >-
+      pair_key 用 sorted() 把有向关系当无向事实，甲担保乙与乙担保甲成同一键只保留先到者；
+      无向投影仅供社区算法，不回写业务事实
+
+  - id: T-B02
+    parent: W10
+    loop: L2
+    owner: TL
+    depends_on: []
+    state: TODO
+    priority: P0
+    next_action: >-
+      删除 graph_types.py:487-490 的 max(values) 总额裁决与「主体名含信用即分项」规则；
+      改为必须从原文抽明确限定（适用对象/有效期/版本/方式/角色），无法判定时保留候选与冲突状态
+    acceptance: [A03]
+    evidence: "docs/reviews/R15-ARCH-GRAPHRAG-ASSESSMENT-20261030.md 13.2"
+    blocker: ""
+    desc: >-
+      用最大值推定总额、其余改写成「分项」；旧政策5000万+新政策8000万会被改造成
+      「8000万是总额、5000万是分项」，凭空造语义
+
+  - id: T-B03
+    parent: W10
+    loop: L2
+    owner: TL
+    depends_on: []
+    state: TODO
+    priority: P0
+    next_action: >-
+      数值/单位/正负/基准/条件分字段保存；币种转结构化而非抹除；缺字段前不得合并数值断言；
+      用「基准+30bp / 基准-30bp」验证图、摘要、答案均不混淆
+    acceptance: [A03, A04]
+    evidence: "docs/reviews/R15-ARCH-GRAPHRAG-ASSESSMENT-20261030.md 13.2"
+    blocker: ""
+    desc: >-
+      graph_types.py:228 NUMERIC_PREFIX=(人民币|加|减) 把加30个基点与减30个基点归一成同一值，
+      符号在归一阶段消失；下游 BP_RE 修符号无效
+
+  - id: T-B04
+    parent: W10
+    loop: L2
+    owner: TL
+    depends_on: []
+    state: TODO
+    priority: P0
+    next_action: >-
+      断言与来源集合用一个对象一次性转换；同源合并取并集不覆盖；缺来源或支持不足的断言
+      不进可发布图与报告，保留失败原因与可重试任务
+    acceptance: [A05, A11]
+    evidence: "docs/reviews/R15-ARCH-GRAPHRAG-ASSESSMENT-20261030.md 13.2"
+    blocker: ""
+    desc: >-
+      graph_service.py:731-734 溯源键缺失时 _src={} 降级通过，写入空 file_id/chunk_pk，
+      无来源断言进图（A17 夹具边 file_id 为空即此因），A11 假绿
+
+  - id: T-B05
+    parent: W10
+    loop: L2
+    owner: TL
+    depends_on: []
+    state: TODO
+    priority: P1
+    next_action: >-
+      从已授权同代有效顶点/断言快照建投影；孤点显式保留为 singleton；
+      社区用无向加权投影，与有向事实账本分开存储
+    acceptance: [A07, A17]
+    evidence: "docs/reviews/R15-ARCH-GRAPHRAG-ASSESSMENT-20261030.md 13.2"
+    blocker: ""
+    desc: >-
+      graph_community.py:38-40 load_graph 只 MATCH 有边实体。实测 g_kb_9 顶点137/有边71/孤立66(48%)，
+      含全部评级档位，社区视野缺事实
+
+# ── Loop 状态
+loops:
+  L0: {state: VERIFIED, exit: "环境与制品事实已固定，首批任务已派发（TL 自兼 A/C）"}
+  L1: {state: DOING, exit: "A01–A06 事实类在真实存储验证"}
+  L2: {state: TODO, exit: "A07/A09/A10 通过"}
+  L3: {state: TODO, exit: "A08/A11/A12/A13 通过"}
+  L4: {state: TODO, exit: "A15 与故障/并发/预算回归通过"}
+  L5: {state: TODO, exit: "A14–A16 与 §9 终态"}
