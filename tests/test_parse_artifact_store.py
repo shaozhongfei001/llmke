@@ -221,6 +221,24 @@ def test_tampered_committed_snapshot_detected(tmp_path):
     assert err.value.code == "VERIFY_FAILED"
 
 
+def test_text_degraded_ir_is_partial_not_complete():
+    """有 document_ir 但只有 inline_text（doc2md markitdown 降级路径）→ PARTIAL。"""
+    ir = {"blocks": [{"block_id": "b0001", "content_ref": {"kind": "inline_text", "text": "x"}}],
+          "tables": [], "figures": [],
+          "provenance": {"ir_source": "markitdown_text_only"}}
+    quality = S.derive_quality(ir, "x", ir["blocks"])
+    assert quality["state"] == "PARTIAL"
+    assert "document_ir" in quality["capabilities"]
+    assert "table_cells" not in quality["capabilities"]
+    assert quality["warnings"]
+    # 对照：真正带坐标的 IR 才是 COMPLETE
+    good = {"blocks": [{"block_id": "b0001",
+                        "content_ref": {"kind": "text_span", "source": "parsed_text.md",
+                                        "start_offset": 0, "end_offset": 1, "text": "x"}}],
+            "tables": [], "figures": [], "provenance": {"ir_source": "mineru_content_list"}}
+    assert S.derive_quality(good, "x", good["blocks"])["state"] == "COMPLETE"
+
+
 def test_unsafe_artifact_id_refused(tmp_path):
     with pytest.raises(S.ArtifactRefused) as err:
         S.build_artifact(sample(tmp_path), PRODUCER, artifact_id="../escape")

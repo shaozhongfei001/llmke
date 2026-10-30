@@ -97,10 +97,40 @@ PYTHONPATH=services/rag-alg/index_data_service python -m parse_artifact \
 | "是不是环境里没跑过 doc2md" | 跑过：真实 CLI 四步全通（docs 有表格被转写成 MD） |
 | "text-only 会不会被悄悄当成结构化" | 不会：`state=PARTIAL`，能力枚举不含 `document_ir/table_cells/figure_assets`，schema 层拒绝 |
 
-## 6. 仍未解决（不许当成已完成）
+## 6. 过程中的 doc2md 修复（U-08 的直接原因）
 
-1. **U-08 未关闭**：doc2md 仍不产 IR，所以表格结构、单元格坐标、图表数据都拿不到；
-   上面那份 docx 的表格只剩 Markdown 三行文本，**不能**当"表格解析已完成"。
+跑真实产物时确认：`document_ir_builder` 早就存在，但**没有任何解析路径调用它**，所以下游拿不到 IR。
+按"发现即修"处理，改动在 doc2md 仓新分支 `fix/017-ir-emission-wiring`（commit `28ec528`，未动其 `main`）：
+
+| 项 | 改动 |
+|---|---|
+| IR 出口 | `_write_success_artifacts` 内调 `build_from_markitdown_text()` → `validate_document_ir(ir, parsed_text=text)` 自校验 → 写 `document_ir.json`（不自洽就不落盘） |
+| 身份字段 | `parsed_metadata.json` 增 `content_uid`（与 manifest/IR 三方一致） |
+| 清单 | `parse_manifest.json` 追加 `document_ir_path`、`ir_schema_version`（纯追加） |
+| 三件套 | `parsed_text.md` 字节语义未动（仍是证据基准） |
+
+重跑同一份 docx 后：
+
+```
+document_ir.json  parsed_metadata.json  parsed_text.md  parse_manifest.json   ← 3 件变 4 件
+schema_version=document-ir/1.0，document_uid=doc_a846ab142d8d24af_005_mvp_v1
+validate_document_ir(ir, parsed_text=...) → PASS（用 doc2md 自己的纯校验器）
+```
+
+登记结果随之升级：`--mode v2` → `llmke-parse-artifact/2.0`，4 件，合同 `PASS`；
+但 `quality.state` 被压到 **`PARTIAL`**，因为 markitdown 的 IR 全部是 `inline_text`
+（无 bbox、无表格矩阵、block 无页码）—— 平台据此拒绝把它当"结构化完整"。
+
+doc2md 回归：`backend` 全量 **5 failed / 1492 passed / 133 skipped**，改动前后完全一致
+（5 项均为既有 typer/click CLI help 版本问题）。新增断言写在 `test_parse_in_scope_success`，
+本机因 MySQL 夹具不可用而 skip，需在有库环境执行。
+
+## 7. 仍未解决（不许当成已完成）
+
+1. **U-08 只关闭了"有没有 IR"这一半**：markitdown 路径现在产出 IR，但它是**文本降级 IR**
+   （block 全 `inline_text`），表格仍然只剩 Markdown 三行文本，没有单元格坐标与表头路径。
+   要真正拿到表格结构，需要 **MinerU 路径的 IR 接线**（`build_from_mineru_content_list` 已存在但同样未被调用）
+   \+ 本机装 `magic_pdf`；这一半仍未做。
 2. **PDF 路径未通**：`pdf-digital.pdf` 被路由到 MinerU，本机缺 `magic_pdf`（GPU/重依赖），
    属于 U-03/U-09 同类缺口。
 3. `parser_profile` 是平台侧补的档位（取自 doc2md 配置 `default_v1`），

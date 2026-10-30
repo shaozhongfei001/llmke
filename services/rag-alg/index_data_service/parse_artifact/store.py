@@ -284,12 +284,23 @@ def derive_quality(ir, text, blocks):
         capabilities.append("table_cells")
     if any(f.get("asset_path") for f in (ir.get("figures") or [])):
         capabilities.append("figure_assets")
+    # 文本降级 IR：文件里有 IR，但没有任何"带位置的引用"（text_span 偏移 / table_ref /
+    # figure_ref / asset），即纯文本切段落。设计 §4.4 明确不得把它标作结构化完整，
+    # 所以状态压到 PARTIAL 并留警告。
+    # 判据只看**引用类型**，不看 provenance 名字：合成样例声明 text-only 却带真实
+    # table_ref/figure_ref 与偏移，用名字判断会误判（实测过）。
+    located_kinds = {"text_span", "table_ref", "figure_ref", "asset"}
+    has_located = any((b.get("content_ref") or {}).get("kind") in located_kinds for b in blocks)
+    degraded = bool(blocks) and not has_located
     if not text.strip():
         state = "EMPTY"
         warnings.append("正文为空（合法空文件需上游给出证明）")
     elif not blocks:
         state = "PARTIAL"
         warnings.append("IR 无块：结构化能力不足，不能当表格/图片解析已完成")
+    elif degraded:
+        state = "PARTIAL"
+        warnings.append("上游 IR 为文本降级路径（inline_text，无坐标/表格结构）：不得当结构化完整")
     else:
         state = "COMPLETE"
     return {"state": state, "capabilities": capabilities, "warnings": warnings}

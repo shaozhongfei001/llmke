@@ -44,6 +44,11 @@
    - 两份都经 text-only 通路登记成功：`COMMITTED` / `PARTIAL` / 合同 `PASS`；快照 `parsed_text.md` 与上游**逐字节一致**
    - PDF 路径仍未通：`pdf-digital.pdf` 路由到 MinerU，本机无 `magic_pdf`
    - 副作用：doc2md dev 库 `gits_ke` 新增 3 条 content/instance 与对应 route/parse 记录（未删改既有行）；产物在 `/tmp/doc2md-ws`（未入仓）
+11. **过程中修 doc2md（U-08 的一半）**（2026-10-30）：
+   - doc2md 仓新分支 `fix/017-ir-emission-wiring`，commit `28ec528`（未动其 `main`）：markitdown 写盘路径接上 `build_from_markitdown_text` + `validate_document_ir` 自校验 + 写 `document_ir.json`；`parsed_metadata.json` 补 `content_uid`；manifest 追加 `document_ir_path/ir_schema_version`
+   - 真实产物由 3 件变 4 件，过 doc2md 自带 IR 校验；平台改走 `--mode v2`（`llmke-parse-artifact/2.0`），合同 PASS
+   - 但 IR 是文本降级（block 全 `inline_text`）→ 平台把 `quality.state` 压到 `PARTIAL` 并留警告；`derive_quality` 的降级判据只看**引用类型**（不看 provenance 名字，合成样例会误判）
+   - doc2md 回归：5 failed / 1492 passed / 133 skipped，改动前后一致（5 项为既有 typer CLI help 问题）
 
 ## 3. 失败/未通过（如实保留，未绕过）
 
@@ -52,7 +57,7 @@
 | `make trace-check` | FAIL：`planned/actual loop set mismatch`（`loops/R12-real-rag` 未登记进 `PROJECT-PLAN.yaml`） | 既有，U-04 |
 | `make baseline-check` | FAIL：冻结控制面漂移（既有 `.gitignore`；本次追加 `contracts/*`） | 需授权重冻结，U-05 |
 | `make security-check` | FAIL 1861 条（R12 平台配置含真实连接串/口令/个人路径） | 既有，本次新增 0 |
-| `pytest tests/` | 258 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
+| `pytest tests/` | 259 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
 
 ## 4. 待定（阻塞后继，不影响本分支其他工作）
 
