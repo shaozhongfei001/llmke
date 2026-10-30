@@ -119,3 +119,62 @@ D-A17-1  图服务对 999008 抛 HTTP 500 且无任何堆栈可查（loguru 未�
 D-A17-2  999010 出现"实体 7 个、三元组 0 条、丢弃 0 条"，零产出闸门的诊断信息
          只说"数据未生成三元组数据"，无法区分"模型没抽关系"与"关系被静默丢弃"
 ```
+
+---
+
+# 追加：D-A17-1 修复与 A17 关键突破（2026-10-30 上午）
+
+## 修的三个可诊断性缺陷
+
+```
+① loguru 的 sink 在相对路径 logs/graph_service/，不在 journal 也不在 logs/*.log
+   → 任何"服务没日志"的判断都会误判；实际有日志，只是路径反直觉
+
+② 接口异常裸奔：generate_triple_data 抛异常时 FastAPI 直接回 HTTP 500 + 空 body
+   Java 侧只能记 "500 Internal Server Error"，失败原因彻底丢失
+   → 加 _safe_entry 包装，统一返回 BaseResponse(code=500, msg=异常类型+摘要) + 完整堆栈入日志
+
+③ 多处 resp.json() 无保护（Milvus 读写、embedding）
+   实测真正触发点：graph_service.py:751 res_t.json()（Milvus 写入三元组向量）
+   Milvus 返回非 JSON → JSONDecodeError 冒泡 → 500
+   → 加 _safe_json(resp, ctx)：解析失败返回 {} 并记录 status + body 前 300 字
+```
+
+> 附带修一个细节：loguru 不支持 `logger.error("%s", a, b)` 这种标准 logging 写法，
+> 参数不会替换，日志里只剩 `%s 未捕获异常 %s: %s`。必须用 f-string。
+> 这个问题会让"我刚加的诊断日志"本身失效，属于典型的"以为修了其实没修"。
+
+## 修复后的直接效果
+
+```
+file 999008 修复前：HTTP 500 Internal Server Error（空 body）
+file 999008 修复中：code=500 "JSONDecodeError: Expecting value: line 1 column 1"
+file 999008 修复后：code=200 新增和更新44条图数据  triples_total=44 edges_total=70 edges_written=70
+                    kept_entities=14  dropped_triples=1  dropped_junk=0
+```
+
+## A17 第 2 条出现实质进展
+
+```
+星航贷 关联边 12 条，其中：
+  最高授信额度 -> 8000万元          （丙-额度分项）
+  信用方式上限 -> 1000万元          （丙-额度分项）
+  担保方式上限 -> 7000万元          （丙-额度分项）
+  AAA级加30个基点 / AA级加60个基点 / A级加100个基点   （甲-产品定价 3 档）
+  执行利率 -> 1年期LPR / 定价基准 -> 1年期LPR        （甲）
+
+跨文件实体：星航贷  files=['999008','999009']
+```
+
+即：三份文档第一次围绕同一产品节点形成了来自不同文档的事实。
+
+## 仍然存在的问题（下一步）
+
+```
+P1  边属性 file_id 为空（查询结果里 fid= 空）
+    影响：按文件过滤、来源追溯、A17 第 4 条"切换来源只高亮对应证据"全部失效
+P2  加点事实的 target 仍是整句
+    "星航贷AAA档加点幅度为加30个基点" 被当作实体，而不是 30个基点
+    说明 _clean_rel 只清洗了关系名，没有处理 target 侧的句子
+P3  file 999010（丙）本轮未重跑，需重新验证其 gps 状态
+```

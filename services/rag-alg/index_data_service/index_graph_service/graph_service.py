@@ -12,7 +12,7 @@ import requests
 from base import GraphModel, GraphAttributeModel, InsertModel, QueryDocChunk, BaseResponse, QueryGraphData, DelModel
 from graph_extract import generate_graph_relations, generate_query_entities
 from graph_types import normalize_graph_data, TRIPLE_SEP, filter_reverse_duplicates, build_pair_index
-from graph_fun_tool import clean_entity, generate_entity_data, get_document_chunk, \
+from graph_fun_tool import _safe_json, clean_entity, generate_entity_data, get_document_chunk, \
     vectorization_data_similarity, query_like_entity, query_milvus_api, pool_query_milvus, execute_query, \
     query_milvus_by_condition, remove_duplicates_by_pk, attribute_assignment, update_triples_data, split_array, \
     remove_duplicates_relation_name, query_light_fun, user_connect_space, generate_collection_name_uuid
@@ -748,9 +748,13 @@ def generate_triple_data(query_docu: QueryDocChunk):
     }
     if triples_insert_data:
         res_t = query_milvus_api(server_config, 'insert_vector_documents_custom', triples_milvus_data)
-        if res_t.json()["code"] == 500:
-            logger.error(f'添加三元组向量库失败，请重试，三元组表错误：{res_t.json()["msg"]}')
-            return BaseResponse(code=500, msg=f'添加三元组向量库失败，请重试，三元组表错误：{res_t.json()["msg"]}')
+        # R15-A17/D-A17-1：Milvus 可能返回非 JSON（空响应/网关错误页）。
+        # 原来这里直接 .json()，一旦失败就抛 JSONDecodeError 冒泡成 HTTP 500，
+        # 调用方只看到 "Internal Server Error"——file 999008 的失败原因就是这样丢的。
+        _rt = _safe_json(res_t, "milvus insert triples")
+        if _rt.get("code") == 500:
+            logger.error(f'添加三元组向量库失败，请重试，三元组表错误：{_rt.get("msg")}')
+            return BaseResponse(code=500, msg=f'添加三元组向量库失败，请重试，三元组表错误：{_rt.get("msg")}')
     else:
         # 只抽到实体、没有三元组属于正常情况（例如表格/短文本块），不应判失败
         logger.info('本次无可写入的三元组向量，跳过三元组向量库写入')

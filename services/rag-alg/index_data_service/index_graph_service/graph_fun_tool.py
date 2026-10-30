@@ -173,7 +173,7 @@ def xinference_embedding_request(model_name, page_content_list, server_config):
     embed_url = server_config["online_embedding_model"][model_name]["server_url"]
     embed_result = requests.post(embed_url, json=embed_request, headers=headers)
     if embed_result.status_code == 200:
-        return embed_result.json()["data"]
+        return _safe_json(embed_result, "embedding").get("data")
     else:
         logger.info(f'embed参数{embed_request}')
         logger.error(embed_result.text)
@@ -466,6 +466,24 @@ def pool_query_milvus(space_name, server_config, entity_list, top_k, expr=""):
         return []
 
 
+def _safe_json(resp, ctx=""):
+    """R15-A17/D-A17-1：HTTP 响应解析保护。
+
+    实测（file 999008 抽取）：接口返回 HTTP 500，页面/调用方只能看到
+    "Internal Server Error"，服务端堆栈落在 requests 的 .json()——
+    Milvus 代理返回了非 JSON（空响应/网关错误页），直接 json() 抛
+    JSONDecodeError，冒泡出 ASGI 后就丢失了全部上下文。
+    这里返回 {}，让调用方按"code 不对"走既定失败分支，
+    同时把响应片段打进日志，失败才可诊断。
+    """
+    try:
+        return resp.json()
+    except Exception:
+        logger.error(f"响应不是合法 JSON（{ctx}）：status={getattr(resp, 'status_code', '?')} "
+                     f"body={str(getattr(resp, 'text', ''))[:300]}")
+        return {}
+
+
 def query_milvus_api(server_config, fun_name, milvus_data):
     """
     查询
@@ -535,13 +553,13 @@ def update_triples_data(server_config, collection_name_triples, triples_source_d
     }
     # 判断集合是否存在
     response_m = query_milvus_api(server_config, 'static_count', milvus_payload)
-    if response_m.json()["code"] == 200:
+    if _safe_json(response_m, "milvus triples static_count").get("code") == 200:
         triples_chunk_list = split_array(triples_list, 50)
         update_data = {}
         for tcl in triples_chunk_list:
             res_m = query_col_values(server_config, collection_name_triples, tcl)
-            if res_m.json()["code"] == 200:
-                milvus_data_list = res_m.json()['data']['result_data']
+            if _safe_json(res_m, "milvus triples query").get("code") == 200:
+                milvus_data_list = (_safe_json(res_m, "milvus triples query").get('data') or {}).get('result_data') or []
                 for mdl in milvus_data_list:
                     milvus_text = mdl["page_content"]
                     milvus_chunk_pk_list = mdl["metadata"]["chunk_pk_list"]
@@ -571,7 +589,7 @@ def update_triples_data(server_config, collection_name_triples, triples_source_d
         if update_data:
             # milvus 修改接口
             res_u = update_milvus_api(server_config, collection_name_triples, update_data)
-            if res_u.json()["code"] != 200:
+            if _safe_json(res_u, "milvus triples update").get("code") != 200:
                 logger.error(f'修改向量三元组表失败，修改向量数据库字段出错.{res_u.json()["msg"]}')
                 return BaseResponse(code=500, msg=f'修改向量三元组表失败，修改向量数据库字段出错.{res_u.json()["msg"]}')
     return triples_list, triples_source_dict
@@ -584,7 +602,7 @@ def query_like_entity(server_config, collection_name_entity, entity_list, entity
     }
     # 判断集合是否存在
     response_m = query_milvus_api(server_config, 'static_count', milvus_payload)
-    if response_m.json()["code"] == 200:
+    if _safe_json(response_m, "milvus triples static_count").get("code") == 200:
         # 实体点查询相似和去重
         entity_chunk_list = split_array(entity_list, 50)  # 设置batch
         update_data = {}
@@ -626,7 +644,7 @@ def query_like_entity(server_config, collection_name_entity, entity_list, entity
         if update_data:
             # milvus 修改接口
             res_u = update_milvus_api(server_config, collection_name_entity, update_data)
-            if res_u.json()["code"] != 200:
+            if _safe_json(res_u, "milvus triples update").get("code") != 200:
                 logger.error(f'修改向量实体表失败，修改向量数据库字段出错.{res_u.json()["msg"]}')
                 return BaseResponse(code=500, msg=f'修改向量实体表失败，修改向量数据库字段出错.{res_u.json()["msg"]}')
     return entity_list, synonymous_set, entity_pk_dict

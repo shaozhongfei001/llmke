@@ -3,8 +3,10 @@
 # @Time    : 2024/6/03 15:14
 # @Author  : yuxj
 # @File    : es_kb_service.py
+import functools
 import os
 import sys
+import traceback
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -19,6 +21,28 @@ from operators.common.log import logger
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+
+def _safe_entry(fn, name):
+    """R15-A17/D-A17-1：接口级异常兜底。
+
+    原来函数体抛异常时 FastAPI 直接回 HTTP 500 且 body 为空，
+    调用方（Java 侧）只能记下 "500 Internal Server Error"，失败原因彻底丢失。
+    实测 file 999008 就是这样：既没有可读原因，也没有结构化返回，
+    排查只能靠翻 Python 栈——而 loguru 的 sink 在相对路径 logs/graph_service/ 下，
+    不看代码根本找不到。
+
+    这里统一转成 BaseResponse(code=500, msg=异常类型+摘要)，
+    同时把堆栈写进服务日志（含文件名/行号），失败必须可定位。
+    """
+    @functools.wraps(fn)
+    def wrapper(*a, **kw):
+        try:
+            return fn(*a, **kw)
+        except Exception as e:
+            tb = traceback.format_exc()
+            logger.error(f"{name} 未捕获异常 {type(e).__name__}: {e}\n{tb[-1500:]}")
+            return BaseResponse(code=500, msg=f"{name} 执行异常 {type(e).__name__}: {str(e)[:180]}")
+    return wrapper
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -80,7 +104,7 @@ graph_app.post('/generate_triple_data',
                tags=['generate_triple_data'],
                response_model=BaseResponse,
                summary='生成图数据'
-               )(generate_triple_data)
+               )(_safe_entry(generate_triple_data, "generate_triple_data"))
 
 graph_app.post('/query_graph_data',
                tags=['query_graph_data'],
