@@ -49,6 +49,15 @@
    - 真实产物由 3 件变 4 件，过 doc2md 自带 IR 校验；平台改走 `--mode v2`（`llmke-parse-artifact/2.0`），合同 PASS
    - 但 IR 是文本降级（block 全 `inline_text`）→ 平台把 `quality.state` 压到 `PARTIAL` 并留警告；`derive_quality` 的降级判据只看**引用类型**（不看 provenance 名字，合成样例会误判）
    - doc2md 回归：5 failed / 1492 passed / 133 skipped，改动前后一致（5 项为既有 typer CLI help 问题）
+12. **VL1-03 第一步：快照投影 + 线上只读对照**（2026-10-30）：
+   - `services/rag-alg/index_data_service/rag_projection/`：确定性窗口分块（段落边界、MD 码点区间、
+     `parse_artifact_id` 随 chunk、主键沿用 `chunk|index|file_id|seq|sha1(text)`）；不写任何存储
+   - 开关 `INGEST_PROJECTION_MODE=legacy|snapshot|shadow`，默认 legacy，未知值 fail-closed
+   - 11 项测试（slice 精确、覆盖完整、确定性、篡改/覆盖缺口拒绝、empty→EMPTY、text-only 快照可投影）
+   - 真实对照（只读 `_count`）：333 docx 快照 1 vs 线上正文 1 + 表格 1 → 差 **-1**；
+     329 xlsx 快照 1 vs 线上 0 + 表格 1 → 差 0
+   - 结论：线上是**双通道**（正文 + `table_chunks_*`），本投影目前单通道，表格整段留在正文里；
+     因此 `snapshot` 不能直接切，必须先补表格通道（依赖 MinerU IR）
 
 ## 3. 失败/未通过（如实保留，未绕过）
 
@@ -57,7 +66,7 @@
 | `make trace-check` | FAIL：`planned/actual loop set mismatch`（`loops/R12-real-rag` 未登记进 `PROJECT-PLAN.yaml`） | 既有，U-04 |
 | `make baseline-check` | FAIL：冻结控制面漂移（既有 `.gitignore`；本次追加 `contracts/*`） | 需授权重冻结，U-05 |
 | `make security-check` | FAIL 1861 条（R12 平台配置含真实连接串/口令/个人路径） | 既有，本次新增 0 |
-| `pytest tests/` | 259 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
+| `pytest tests/` | 270 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
 
 ## 4. 待定（阻塞后继，不影响本分支其他工作）
 
@@ -81,10 +90,11 @@
 
 1. ~~为 U-01 出 CR~~ 已完成（`BL-2.0.0-01`）。
 2. ~~启动 VL1-01~~ 已完成实现候选（见 §2.7），待 loop 登记决定后再补门禁证据。
-3. ~~VL1-02 适配器 + 真实上游实证~~ 已完成（§2.8/§2.9/§2.10）。下一步：
-   - **3a（可立即做）**：开 **VL1-03 RAG 投影消费快照** —— 把 `index_fulltext_service`/`index_vector_service` 的输入从"重新解析原件"改为消费已提交快照，chunk 记录 `parse_artifact_id`。这是贯通切片里第一个真正的业务改动，需要先定"v1 双写与快照路径如何并存"。
-   - **3b（需上游/需裁定）**：doc2md 补 IR 出口（U-08）后，同一份产物改走 `ParseArtifact` 并重跑；在此之前表格/图表的坐标与数值都拿不到，不得声称结构化能力。
-   - **不要**先开图引擎，也不要在 RAG/图侧重新解析原件兜底。
+3. ~~VL1-02 适配器 + 真实上游实证~~ 已完成（§2.8–§2.11）。~~VL1-03 第一步~~ 已完成（§2.12）。下一步：
+   - **4a（可立即做）**：补**表格通道**投影 —— 从 IR 的 `table_ref`/表格矩阵产出 `table_chunks_*` 等价单元，并让 shadow 对照变成"正文 + 表格"两通道同时比。当前 IR 是文本降级，需要先接 MinerU 路径。
+   - **4b（可并行）**：把投影接进解析服务实时链路 + `parse_artifact_id` 落库（需迁移草案，先在恢复副本验证，不直接动生产库）。
+   - **4c（需上游/需裁定）**：MinerU 路径 IR 接线 + `magic_pdf` 依赖（表格坐标/表头路径只能从这条拿）。
+   - **不要**先开图引擎，也不要在 RAG/图侧重新解析原件兜底；`snapshot` 模式在 4a 完成前不得切换。
 4. 合入 B01 实现时按 CR `BL-2.0.0-01` 复核四项判据（已在接入报告 §2.3 记录一次实测）。
 5. 若要正式计门禁：需业主/流程所有者先决定 L1–L4 的 P0 阻塞如何处置（U-04 同类问题），再由 `make new-loop` 建 `VL1-*` 并登记进 `docs/PROJECT-PLAN.yaml`（否则 trace-check 会新增一条 loop 漂移）。
 

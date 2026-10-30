@@ -24,7 +24,7 @@ module-test:
 # 为什么单列：这两个脚本覆盖 V2 新增的 schema/API/来源/规则/验收合同与合成样例，
 # 而通用 contract_toolchain 只做 registry 驱动的语义+联动，不校验样例一致性。
 ingest-slice-test:
-	@$(PY) -m pytest tests/test_parse_artifact_store.py tests/test_doc2md_adapter.py -q
+	@$(PY) -m pytest tests/test_parse_artifact_store.py tests/test_doc2md_adapter.py tests/test_rag_projection.py -q
 contract-v2-check:
 	@$(PY) scripts/document_pipeline_v2_offline_check.py
 	@$(PY) scripts/document_pipeline_v2_validate.py

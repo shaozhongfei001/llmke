@@ -97,6 +97,13 @@
 - 验收：同一快照重建两次，chunk 主键集合与 `parse_artifact_id` 完全一致；改分块策略不触发重解析。
 - 失败下一步：比对两次投影的 chunk 主键差集，先判定是分块参数漂移还是时间戳进入主键。
 - 角色：python-engineer。
+- **状态（2026-10-30，第一步完成）**：`services/rag-alg/index_data_service/rag_projection/`
+  已实现确定性窗口投影（MD 码点区间、`parse_artifact_id` 随 chunk、主键沿用平台 seed 规则），
+  并存开关 `INGEST_PROJECTION_MODE=legacy|snapshot|shadow`（默认 legacy，未知值拒绝）；
+  11 项测试（含 slice 精确、覆盖完整、确定性、篡改拒绝、text-only 快照可投影）。
+  真实对照（只读）：333 快照 1 vs 线上 1+1（正文+表格双通道，差 -1）；329 快照 1 vs 线上 0+1（差 0）。
+  **未完成**：表格通道（线上 `table_chunks_*` 的对应产出）缺失，故 `snapshot` 模式不得直接切换；
+  也还没接进解析服务的实时链路与 `parse_artifact_id` 落库（需迁移）。
 
 #### VL1-04 引用可反查（证据闭环）
 - 用户结果：点开答案里的引用，能定位到原文文件、版本、MD 字符区间，且 hash 复核通过。

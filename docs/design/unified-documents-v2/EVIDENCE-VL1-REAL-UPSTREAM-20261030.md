@@ -125,7 +125,28 @@ doc2md 回归：`backend` 全量 **5 failed / 1492 passed / 133 skipped**，改�
 （5 项均为既有 typer/click CLI help 版本问题）。新增断言写在 `test_parse_in_scope_success`，
 本机因 MySQL 夹具不可用而 skip，需在有库环境执行。
 
-## 7. 仍未解决（不许当成已完成）
+## 7. VL1-03 第一步：快照投影与线上 chunk 只读对照
+
+新增 `services/rag-alg/index_data_service/rag_projection/`：消费已提交快照 → 确定性窗口分块
+（段落边界优先、MD 码点区间、`parse_artifact_id` 随每个 chunk），**不写** ES/Milvus/MySQL。
+并存开关 `INGEST_PROJECTION_MODE=legacy|snapshot|shadow`，默认 `legacy`，未知值直接拒绝。
+
+真实对照（只读 `_count`，chunk_chars=400、overlap=0）：
+
+| file_id | 文件 | 快照 chunk | 线上 kb_9 | 线上 table_chunks_kb_9 | 差 |
+|---|---|---|---|---|---|
+| 333 | docx-table.docx | 1（144 字符） | 1 | 1 | **-1** |
+| 329 | R12FIX-credit-ledger.xlsx | 1（343 字符） | 0 | 1 | 0 |
+
+差异是**结构性的，不是数量噪声**：
+
+- 线上是**双通道**（正文 chunk 在 `kb_9`、表格块在 `table_chunks_kb_9`）；本投影目前只产出单通道。
+- 333 的线上正文 chunk 内容是 `DOCX with table下表为多指标对账口径。`（26 字符，表格内容被切到表格通道）；
+  快照正文是 144 字符，**Markdown 表格整段留在正文里**。
+- 即：直接切到 `snapshot` 会让表格内容从"独立表格通道"变成"正文里的文本"，检索行为会变。
+  所以 `snapshot` 不能直接上线，必须先补表格通道（依赖 MinerU IR 的 `table_ref`/表格矩阵）。
+
+## 8. 仍未解决（不许当成已完成）
 
 1. **U-08 只关闭了"有没有 IR"这一半**：markitdown 路径现在产出 IR，但它是**文本降级 IR**
    （block 全 `inline_text`），表格仍然只剩 Markdown 三行文本，没有单元格坐标与表头路径。
