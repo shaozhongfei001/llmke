@@ -25,8 +25,11 @@
         P0/正式门禁/独立QA/发布授权（保持真实状态）
 下一精确动作（按任务书 A→B→C→D→Q）：
   B1 状态：隔离候选写入/回退已成立（v2cand_*，基线未变）；真实上传被 D-01 阻断（缺 libreoffice-writer，需 root）
-  C1 状态：hipporag 2.0.0a4 已装成并真跑 index/retrieve（本地 LLM+embedding），chunk 键=chunk-md5(text)，
-     同文异源由 SourceMap 保 3→1 不掉来源；跨文档/社区/断网 wheelhouse 未做
+  C1 状态：hipporag 2.0.0a4 已装成并真跑 index/retrieve（本地 LLM+embedding）；66 个真实块
+     197 实体/253 事实、跨文件命中可回指；引擎按 chunk-md5(text) 合并、SourceMap 保多来源；
+     已修引擎持久化目录污染（沿用旧 save_dir 会捞出历史 chunk）；社区/断网 wheelhouse 未做
+  D-01b 状态：根因=定时线程无令牌 -> auth getUserType 500 空体 -> Feign 掩盖；已修解码器（真实执行验证），
+     fat jar 需重打包；真正解除需 A/B 方案（权限语义，待授权）
   A2 状态：magic-pdf 1.3.12 可装、GPU 6GB 可用；HF 不可达、ModelScope 可达（权重改走此源）；未装未跑
   B1/C1 下一步：D-01 的候选补丁（跳过 LibreOffice 转换）＋部署验证；C1 扩到 333/329 全量与跨文档路径
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
