@@ -77,3 +77,31 @@
    `graph_base` 现有三元组的关系（不得双写两套事实）；
 3. 社区/global 仍未消费任何真实产物；
 4. 断网安装：目前是联网 pip 装成，尚无 wheelhouse；184 个包 + torch/vllm 体积需单独打包验证。
+
+## 6. 扩量到真实投影块（同一轮补）
+
+`scripts/v2_hipporag_crossdoc.py`：输入改用 `ingest_pipeline` 的真实 payload（999011 的 63 块 + 333 的 3 块 = 66 块），
+跨文件查询并回指来源。
+
+```
+{"status":"OK","save_dir":"/tmp/hippo-cross-015610",
+ "entities":197,"facts":253,
+ "input":{"chunks":66,"unique_texts":66,"engine_chunks":66,"merged":0},
+ "mapping":{"units":66,"engine_chunks":66,"shared_chunks":0,"max_sources_per_chunk":1},
+ "queries":[{"query":"实体类型体系里对别名的处理规则是什么","hits":3,"resolved":3,"unmapped":[],"files":["999011"]},
+            {"query":"产品的最高额度和利率基准","hits":3,"resolved":3,"unmapped":[],"files":["999011"]},
+            {"query":"额度分项与总额度的关系","hits":3,"resolved":3,"unmapped":[],"files":["333","999011"]}]}
+```
+
+**发现并修掉一个真陷阱**：引擎是持久化存储，沿用旧 `save_dir` 会把历史 chunk 一起检索出来。
+第一次跑 66 块却得到 68 个 chunk、且 2 条命中无法回指——不是引擎错，是数据混了。
+现在默认每次新建目录，并把命中里"不在当前映射表"的键显式记进 `unmapped`，不静默丢弃。
+
+**仍未解决**：`phrase_weights /= number_of_occurs` 的除零警告在 3 块时出现、66 块两轮未见，
+但未在更大规模复现/排除；跨文档查询在 66 块规模下"相关性排序"仍偏弱（query2 只回到单文件），
+属检索质量问题，不作通过结论。
+
+## 7. 小样本上的诚实结论
+
+5 块时三个查询都返回两个文件的命中——**这是图太小、候选几乎全覆盖**，不能当作"跨文档检索准确"。
+真正的判别力要在 333/329/999011 全量 + 多主题语料上测，目前只到"链路通、来源可回指"。
