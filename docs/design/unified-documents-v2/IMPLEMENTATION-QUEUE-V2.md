@@ -109,12 +109,12 @@
 
 ### VL2 正确性与抽取窗口
 
-#### VL2-01 B01 无向去重（已实现待合入 + 合同 CR）
+#### VL2-01 B01 无向去重（实现已在 R12 工作树，合同口径已定稿）
 - 用户结果：`甲担保乙` 与 `乙担保甲` 两条事实都保留；`A-利率基准->B` 的反向伪边被拒绝。
 - 当前依据：R12 工作树 `graph_types.py` 已按 symmetric/domain/range 改造（**未提交**）；`pair_key` 旧址 `:283-289`。
-- 复用与改造：直接复用该实现；同时按 U-01 出 CR 修 `relations.v1.json` 的 `reverse_dedup` 措辞。
-- 合同：`ontology/relations.v1.json`（symmetric/domain/range）+ 新 CR。
-- 依赖：VL0（合同先定稿）。
+- 复用与改造：直接复用该实现；合同措辞已由 CR `BL-2.0.0-01`（ADOPTED，2026-10-30）改写，四项判据对候选实现实测全 PASS。
+- 合同：`ontology/relations.v1.json`（symmetric/domain/range + `direction_resolution`，CR `BL-2.0.0-01`）。
+- 依赖：VL0（已完成）。
 - 独占范围：`contracts/ontology/relations.v1.json`（仅 CR 批准后）、`index_graph_service/graph_types.py`。
 - 验收：两条反例（互相担保、互相持股不同有效期）逐条 PASS；`--only A02` 不回退。
 - 失败下一步：若 A02 的 N1 与"保留双向事实"冲突，先判该谓词是否已登记，再决定登记谓词还是保留冲突。

@@ -34,7 +34,7 @@
 
 ## 4. 待定（阻塞后继，不影响本分支其他工作）
 
-- U-01 `relations.v1.json` `reverse_dedup` 与 B01 domain/range 判定矛盾 → 需 CR。
+- ~~U-01 `relations.v1.json` `reverse_dedup` 与 B01 domain/range 判定矛盾~~ → **已关闭**：CR `BL-2.0.0-01` ADOPTED，合同已改写并新增 `direction_resolution`；`make contract-all` 与 `make contract-v2-check` 复跑 PASS。
 - U-02 doc2md 制品/授权（VL1-02 前置）。
 - U-03 HippoRAG 版本/离线依赖（VL3 前置）。
 - U-07 真实 DDL 与恢复副本（VL5-02 前置）。
@@ -49,9 +49,10 @@
 
 按 `IMPLEMENTATION-QUEUE-V2.md`：
 
-1. 为 U-01 出 CR（改 `contracts/ontology/relations.v1.json` 的 `reverse_dedup` 措辞），改后**必须**重跑 `make contract-all` 与 `make contract-v2-check`。
-2. 拿到 doc2md 制品/授权后启动 **VL1-01**（ParseArtifact 产物仓），这是贯通切片的第一步。
-3. VL1-01 完成后再开 VL1-02（doc2md 适配器），**不要**先开图引擎。
+1. ~~为 U-01 出 CR~~ 已完成（`BL-2.0.0-01`）。
+2. 启动 **VL1-01**（ParseArtifact 产物仓与不可变快照）：这是贯通切片的第一步，不依赖 doc2md 制品，可用 `docs/design/unified-documents-v2/examples/` 两组合成样例做首个验收。
+3. VL1-01 完成后再开 VL1-02（doc2md 适配器，需 U-02 解除），**不要**先开图引擎。
+4. 合入 B01 实现时按 CR `BL-2.0.0-01` 复核四项判据（已在接入报告 §2.3 记录一次实测）。
 
 ## 7. 恢复条件
 

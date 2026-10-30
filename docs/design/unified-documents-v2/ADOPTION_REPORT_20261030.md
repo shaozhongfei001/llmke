@@ -54,12 +54,22 @@
 | M-5 | 包内说 R15/R15L 任务书"仅作历史记录" | `docs/r15/TASKS.yaml` 的 20 项仍是 `docs/PROJECT-PLAN.yaml` 中 L1/L2 loop 的在册任务 | **不采纳"作废"**：改为统一队列里的映射关系（见 IMPLEMENTATION-QUEUE-V2.md §2），不重置未完成任务 |
 | M-6 | 图解析"未实现/无调用" | 现网已有调用与零产出闸门（`FileAppServiceImpl.java:611-623`、`:630-644`） | 保留现状，不重复建设 |
 
-### 2.3 发现的合同内部矛盾（**未擅自改合同**，登记待 CR）
+### 2.3 发现的合同内部矛盾（已出 CR 定稿，2026-10-30 补记）
 
-- `contracts/ontology/relations.v1.json` 的 `consumer_contract.reverse_dedup` 写："symmetric=false 的谓词反向是不同事实，**不得互相覆盖**"。
-- 但外部评审 B01 的修法要求"按本体 symmetric/inverse/**domain/range** 分流"，即当端点类型不满足 domain/range 时，反向是**伪反向边**应被拒绝。二者对"非对称谓词的反向"给出不同结论。
-- 现状：B01 已在 R12 工作树按 domain/range 实现（未提交、未合入本分支）。该合同行需随 B01 一并出 CR 定稿，否则实现与合同将长期不一致。
-- 处置：登记为未决项 U-01，本分支不改本体合同（payload 保持逐值不变，只增登记元信息）。
+- 原 `contracts/ontology/relations.v1.json` 的 `consumer_contract.reverse_dedup` 写："symmetric=false 的谓词反向是不同事实，**不得互相覆盖**"。
+- 但外部评审 B01 的修法要求"按本体 symmetric/inverse/**domain/range** 分流"，即端点类型不满足 domain/range 时反向是**伪反向边**应被拒绝。二者对"非对称谓词的反向"给出不同结论。
+- **处置（已执行）**：登记 CR `BL-2.0.0-01`（`docs/policies/CHANGE-REQUESTS.yaml`，status ADOPTED，owner tech-lead），并把合同改为按对称性分流 + 新增机器可读 `direction_resolution` 块（含 `forbidden: [sorted_undirected_key_for_all_predicates, first_writer_wins]`）。
+- 兼容边界：谓词清单、symmetric 取值、类型码与 payload 语义均未变；只补齐"非对称谓词反向如何处置"，并显式禁止旧的"一律无序键 + 先到者"。存量边不迁移。
+- 验收实测（对 R12 工作树的 B01 候选实现逐条跑，2026-10-30）：
+
+  | CR 验收项 | 结果 |
+  |---|---|
+  | 甲担保乙 与 乙担保甲 两条都在（未登记谓词 → 方向不可裁决） | PASS（2 条，`direction_unresolved_count=1`） |
+  | `A-利率基准->B` 反向被拒（端点类型违反 product→metric） | PASS（保留 1 条，`spurious_direction_count=1`） |
+  | 相似/关联 双写只留一条 | PASS（`symmetric_dedup=1`） |
+  | 合同 `direction_resolution.forbidden` 含两项禁止规则 | PASS |
+
+  改动后复跑：`make contract-all` PASS、`make contract-v2-check` PASS（95 passed）、`generated/` 未受影响（本体不参与生成）。
 
 ### 2.4 未决（材料不足，不能宣称）
 
@@ -135,7 +145,7 @@ doc2md 最新源码/制品与全格式出口、HippoRAG 锁定版本与离线依
 
 | 编号 | 未决内容 | 影响 | 下一动作 |
 |---|---|---|---|
-| U-01 | relations.v1.json `reverse_dedup` 与 B01 domain/range 判定的矛盾 | 图方向语义可能实现与合同不一致 | 随 B01 出 CR，明确"非对称谓词仅在端点类型不满足 domain/range 时视反向为伪边" |
+| ~~U-01~~ | ~~relations.v1.json `reverse_dedup` 与 B01 domain/range 判定的矛盾~~ | **已关闭 2026-10-30**：CR `BL-2.0.0-01` 定稿（status ADOPTED），合同改为按对称性分流并新增 `direction_resolution`；四项验收判据对候选实现实测全 PASS | 随 VL2-01 合入 B01 实现 |
 | U-02 | doc2md 源码/制品未入库、未验证当前版本与全格式出口 | VL1 切片的前置 | 由业主提供 doc2md 制品或授权读取其仓库；先跑 4 格式样例 |
 | U-03 | HippoRAG 锁定 commit/依赖/模型 | VL3 无法开工 | 选定版本 + 离线 wheel + 模型端点，登记制品 hash |
 | U-04 | `loops/R12-real-rag` 未登记进 `docs/PROJECT-PLAN.yaml` | trace-check 恒红 | 由流程所有者决定是否登记 R12 loop；TL 不代改计划 |

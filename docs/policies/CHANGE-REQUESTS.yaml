@@ -81,3 +81,28 @@ changes:
   - 改脚本 -> manual check command changed
   - 非 0 退出 -> 失效
   - 日志被篡改 -> hash mismatch
+- id: BL-2.0.0-01
+  title: 非对称谓词的反向判定与 reverse_dedup 口径对齐（B01）
+  status: ADOPTED
+  owner: tech-lead
+  carrier: contracts/ontology/relations.v1.json
+  problem: >-
+    relations.v1.json 的 consumer_contract.reverse_dedup 原文写"symmetric=false 的谓词反向是不同事实，
+    不得互相覆盖"。这与外部评审 B01 的修法（按 symmetric/inverse/domain/range 分流，端点类型不满足
+    domain/range 时反向是伪反向边）在"非对称谓词的反向"上给出不同结论；同时旧实现用 sorted() 无序键
+    对**所有**谓词去重、只留先到者，会把"甲担保乙"与"乙担保甲"压成一条（R15 B01 实测缺陷）。
+    合同与实现长期不一致，下游无法据合同判断该保留几条。
+  proposal: >-
+    把 reverse_dedup 改写为按对称性分流：symmetric=true 用无序键只留一条；symmetric=false 用有向键，
+    仅当端点类型不满足该谓词 domain/range 时反向判为伪反向并要求拒绝；谓词未登记、端点类型未判定或
+    domain==range 时方向不可裁决，正反两条都保留并记 direction_unresolved。同时在合同里增加机器可读的
+    direction_resolution 块（含 forbidden: sorted_undirected_key_for_all_predicates / first_writer_wins）。
+  compat: >-
+    类型码、谓词清单、symmetric 取值与 payload 语义均未变；只补齐"非对称谓词反向如何处置"的判定规则，
+    并显式禁止旧的"一律无序键 + 先到者"。已有边不迁移：方向不可裁决的存量反向边按新规则不再被新边覆盖。
+  acceptance:
+  - 甲担保乙 与 乙担保甲 两条都在（未登记谓词，方向不可裁决）
+  - A-利率基准->B 的反向被拒（端点类型违反 product→metric）
+  - 相似/关联 双写只留一条
+  - 合同 direction_resolution.forbidden 含 sorted_undirected_key_for_all_predicates 与 first_writer_wins
+  - make contract-all 与 make contract-v2-check 在改动后仍 PASS（generated 重新生成）
