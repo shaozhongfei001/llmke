@@ -162,7 +162,37 @@ doc2md 回归：`backend` 全量 **5 failed / 1492 passed / 133 skipped**，改�
 跑完 `_cat/indices/v2rt*` 为空（临时索引已删）。结论只到"载荷形状能被 ES 接收并可检索回"，
 不等于线上切换已验证；Milvus/embedding 通道未测。
 
-## 9. 仍未解决（不许当成已完成）
+## 9. 隔离向量回环 + 字段覆盖测量（2026-10-31）
+
+`scripts/v2_milvus_roundtrip_check.py`：真实 bge-m3（18090）编码 → 建**克隆生产 schema 的临时集合**
+（`--template _kb_9`，同类型/同 dim/同 ARRAY element_type）→ 写入 → 自检索 top1 → 删除。
+
+实测（生产 Milvus `19630 / rag_knowledge_base`）：
+
+| 文件 | v2rt_kb_9 | v2rt_table_chunks_kb_9 | status |
+|---|---|---|---|
+| 333 docx | inserted 2 / recall@1 2 | inserted 1 / recall@1 1 | OK |
+| 329 xlsx | inserted 1 / recall@1 1 | inserted 1 / recall@1 1 | OK |
+
+跑完 `list_collections()` 无 `v2rt_*` 残留；ES 侧同样已清理。
+
+**顺带量出的真实缺口**：`_kb_9` 共 33 个字段，投影载荷只能映射 10 个，**23 个只能给空值**：
+
+```
+folder_id title title_path pic_offset_list labels position page_number knowledge_base_name
+file_path image_path file_size page_size order_num parent_file_name revise_date create_time
+update_time table_name pic_url_list pic_children_id_list text_parent_id_list att_id main_id
+```
+
+结论：向量通道"写得进、查得回"成立；但**投影载荷还不足以替代 legacy 的元数据面**（标题路径、
+页码、图片链接、父子块、时间戳）。这些字段正是检索侧过滤/展示/引用所需，切 snapshot 前必须补齐，
+否则"能检索到但展示与引用退化"——属于功能回退，不是性能问题。
+
+另：`MilvusClient(uri=..., db_name=...)` 在同一进程内多次构造会复用连接别名，**先建的客户端会吞掉
+后续 db_name**（本次排查时一度误判"生产库为空"）。做多库巡检必须每个 db 单独进程或显式指定连接别名，
+否则会得到假阴性。
+
+## 10. 仍未解决（不许当成已完成）
 
 1. **U-08 只关闭了"有没有 IR"这一半**：markitdown 路径现在产出 IR，但它是**文本降级 IR**
    （block 全 `inline_text`），表格仍然只剩 Markdown 三行文本，没有单元格坐标与表头路径。
