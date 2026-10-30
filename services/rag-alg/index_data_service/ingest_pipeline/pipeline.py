@@ -25,6 +25,8 @@ from pathlib import Path
 from parse_artifact import store
 from rag_projection import projection as P
 
+from .enrich import build_payload
+
 MODES = ("legacy", "shadow", "snapshot")
 
 
@@ -35,25 +37,20 @@ class IngestRefused(RuntimeError):
         super().__init__(f"{code}: {detail}" if detail else code)
 
 
-def _chunk_payload(chunk, index_name, file_id):
-    """把投影块转成索引层能直接吃的形状（字段沿用现有 ES 文档的元数据命名）。"""
+def _chunk_payload(chunk, index_name, file_id, ctx):
+    """把投影块转成索引层能直接吃的形状（覆盖生产集合 33 字段，见 enrich.py）。"""
     channel = chunk["channel"]
-    meta = {
-        "file_id": file_id,
-        "chunk_index": chunk["seq"],
-        "parse_artifact_id": chunk["parse_artifact_id"],
-        "content_uid": chunk["content_uid"],
-        "channel": channel,
-        "source": "parsed_text.md" if channel == "text" else f"table:{chunk['locator'].get('table_id')}",
-    }
-    if channel == "text":
-        loc = chunk["locator"]
-        meta["start_offset"], meta["end_offset"] = loc["start_offset"], loc["end_offset"]
-    else:
-        meta["table_id"] = chunk["locator"].get("table_id")
+    meta, fill = build_payload(chunk, index_name=index_name, file_id=file_id,
+                               file_name=ctx.get("file_name"), file_path=ctx.get("file_path"),
+                               file_size=ctx.get("file_size"))
+    # 溯源写法按 V2 契约（parsed_text.md / table:<id>），与 legacy 的 MinIO 源对象键不同：
+    # legacy 的 source 是解析产物对象键，投影必须指向 doc2md 的 parsed_text.md 才可回指原文。
+    meta["source"] = ("parsed_text.md" if channel == "text"
+                      else f"table:{chunk['locator'].get('table_id')}")
+    if channel == "table":
         meta["n_rows"], meta["n_cols"] = chunk.get("rows"), chunk.get("cols")
     return {"index": index_name if channel == "text" else f"table_chunks_{index_name}",
-            "page_content": chunk["text"], "metadata": meta, "pk": chunk["pk"]}
+            "page_content": chunk["text"], "metadata": meta, "pk": chunk["pk"], "_fill": fill}
 
 
 def compare_channels(legacy, projected):
@@ -68,8 +65,8 @@ def compare_channels(legacy, projected):
 
 
 def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
-           chunk_chars=800, overlap_chars=0):
-    """返回 {'status', 'mode', 'artifact_id', 'channels', 'counts', 'chunks', 'refusals'}。"""
+           chunk_chars=800, overlap_chars=0, file_name=None, file_path=None, file_size=None):
+    """返回 {'status','mode','artifact_id','channels','counts','chunks','refusals','field_fill'}。"""
     mode = (mode or P.mode_from_env()).strip().lower()
     if mode not in MODES:
         raise IngestRefused("INGEST_MODE_INVALID", f"{mode!r}，允许 {MODES}")
@@ -86,7 +83,18 @@ def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
     if result.status == "NOT_APPLICABLE":
         return {"status": "NOT_APPLICABLE", "mode": mode, "reason": result.stats.get("reason")}
 
-    payloads = [_chunk_payload(c, index_name, file_id) for c in result.chunks]
+    ctx = {"file_name": file_name, "file_path": file_path, "file_size": file_size}
+    payloads = [_chunk_payload(c, index_name, file_id, ctx) for c in result.chunks]
+    fill = {"filled": [], "placeholder": [], "empty_by_design": [], "layout": "unavailable"}
+    for item in payloads:
+        part = item.pop("_fill")
+        for key in ("placeholder", "empty_by_design"):
+            for name in part[key]:
+                if name not in fill[key]:
+                    fill[key].append(name)
+        for name in part["filled"]:
+            if name not in fill["filled"]:
+                fill["filled"].append(name)
     counts = {}
     for item in payloads:
         counts[item["index"]] = counts.get(item["index"], 0) + 1
@@ -99,5 +107,6 @@ def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
         "channels": {"text": result.stats.get("chunks_text"),
                      "table": result.stats.get("chunks_table")},
         "chunks": payloads,
+        "field_fill": fill,
         "refusals": result.refusals,
     }

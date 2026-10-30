@@ -17,14 +17,15 @@
 已验证能力（本候选，非门禁）：合同生成联动、ParseArtifact 仓、doc2md 适配器、
         DOCX/XLSX 原生表格进 IR、快照投影（正文/表格双通道）、线上只读对照、
         摄取集成层 + 解析任务影子钩子（默认不动作）、临时索引/集合回环（v2rt_* 写读删，已清理）、
-        向量通道（真实 bge-m3 + 克隆 _kb_9 schema）recall@1 全中
+        向量通道（真实 bge-m3 + 克隆 _kb_9 schema）recall@1 全中、
+        投影载荷按生产 33 字段补齐（10 必填给值、13 恒空显式空、版面占位并标 unavailable）
 当前失败/根因：无阻断性失败；既有 5 项 doc2md CLI-help 失败（typer 版本）待修
 活作业：无
 真实外部阻塞：HippoRAG 版本/离线依赖（U-03）；真实生产 DDL 与恢复副本权限（U-07）；
         P0/正式门禁/独立QA/发布授权（保持真实状态）
 下一精确动作（按任务书 A→B→C→D→Q）：
-  B1 下一步：补齐投影载荷对 _kb_9 的 23 个空值字段（标题路径/页码/图片链接/父子块/时间戳），
-     否则切 snapshot 会造成展示与引用退化；补齐后再启用 snapshot 写入并演练回退
+  B1 下一步：确认检索侧对 source 语义变更（legacy 对象键 → parsed_text.md/table:<id>）的兼容，
+     然后启用 snapshot 写入 + 回退演练；字段面已按实测填充率补齐
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
      + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
   A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office

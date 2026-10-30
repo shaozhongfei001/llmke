@@ -53,37 +53,46 @@ def _clone_schema(client, template, DataType):
     return schema, spec["fields"]
 
 
+def _coerce(value, ftype, element_type, DataType):
+    """按目标字段类型转换；转换不了就抛错 —— 宁可失败也不静默写错类型。"""
+    if ftype == DataType.ARRAY:
+        items = value if isinstance(value, (list, tuple)) else []
+        if element_type == DataType.INT64:
+            return [int(x) for x in items]
+        if element_type == DataType.FLOAT:
+            return [float(x) for x in items]
+        return [str(x) for x in items]
+    if ftype == DataType.INT64:
+        return int(value or 0)
+    if ftype == DataType.BOOL:
+        return bool(value)
+    if ftype == DataType.FLOAT_VECTOR:
+        return value
+    return str(value if value is not None else "")
+
+
 def _row(chunk, vector, fields, DataType, pk):
-    """把投影块映射到生产字段名；未映射字段按类型给空值。"""
-    meta = chunk["metadata"]
-    loc = chunk.get("locator") or {}
-    mapped = {
-        "text": chunk["page_content"],
-        "vector": vector,
-        "file_id": str(meta["file_id"]),
-        "chunk_index": int(meta["chunk_index"]),
-        "chunk_doc_id": str(chunk["pk"]),
-        "document_id": str(meta["file_id"]),
-        "source": meta.get("source", ""),
-        "offset": (f"{loc['start_offset']}-{loc['end_offset']}" if "start_offset" in loc
-                   else f"table:{loc.get('table_id')}"),
-        "type": meta.get("channel", ""),
-    }
+    """投影 metadata 已覆盖生产字段名，这里按 schema 类型落字段。
+
+    只补三项 metadata 里没有的：pk（临时主键）、text（正文）、vector（向量）。
+    """
+    meta = dict(chunk["metadata"])
+    meta["text"] = chunk["page_content"]
+    meta["vector"] = vector
     row = {}
     for f in fields:
         name, ftype = f["name"], f["type"]
+        if ftype == DataType.FLOAT_VECTOR:
+            row[name] = vector
+            continue
+        value = meta.get(name)
         if f.get("is_primary"):
             row[name] = pk
-        elif name in mapped:
-            row[name] = mapped[name]
-        elif ftype == DataType.ARRAY:
-            row[name] = []
-        elif ftype == DataType.INT64:
-            row[name] = 0
-        elif ftype == DataType.BOOL:
-            row[name] = False
+        elif value is None:
+            row[name] = _coerce([], ftype, f.get("element_type"), DataType) if ftype == DataType.ARRAY \
+                else _coerce("", ftype, None, DataType)
         else:
-            row[name] = ""
+            row[name] = _coerce(value, ftype, f.get("element_type"), DataType)
     return row
 
 

@@ -22,13 +22,17 @@ def main(argv=None):
     parser.add_argument("--mode", default=None, choices=list(MODES))
     parser.add_argument("--apply", action="store_true", help="仅 snapshot 模式允许")
     parser.add_argument("--chunk-chars", type=int, default=800)
+    parser.add_argument("--file-name", default=None, help="原始文件名（title / parent_file_name）")
+    parser.add_argument("--file-path", default=None, help="原对象键（file_path）")
+    parser.add_argument("--file-size", default=None, help="展示用大小，如 47.3 MB")
     parser.add_argument("--out", default=None)
     args = parser.parse_args(argv)
 
     try:
         result = ingest(args.artifact_dir, index_name=args.index, file_id=args.file_id,
                         mode=args.mode, apply_index=args.apply,
-                        chunk_chars=args.chunk_chars)
+                        chunk_chars=args.chunk_chars, file_name=args.file_name,
+                        file_path=args.file_path, file_size=args.file_size)
     except IngestRefused as exc:
         print(json.dumps({"status": "REFUSED", "code": exc.code, "detail": exc.detail},
                          ensure_ascii=False))

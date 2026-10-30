@@ -42,7 +42,9 @@ def test_shadow_routes_channels_to_separate_indexes(artifact_dir):
         assert item["index"] in {"kb_9", "table_chunks_kb_9"}
         if item["metadata"]["channel"] == "text":
             assert item["index"] == "kb_9"
-            assert item["metadata"]["start_offset"] < item["metadata"]["end_offset"]
+            offset = item["metadata"]["offset"]
+            assert isinstance(offset, list) and len(offset) == 1 and len(offset[0]) == 2
+            assert offset[0][0] < offset[0][1]      # 旧链路是 [[start, end]]，不是字符串
         else:
             assert item["index"].startswith("table_chunks_")
     assert result["counts"] == {"kb_9": result["channels"]["text"],
@@ -67,6 +69,33 @@ def test_unknown_mode_is_refused(artifact_dir):
     with pytest.raises(IngestRefused) as err:
         ingest(artifact_dir, index_name="kb_9", file_id="333", mode="snapshot2")
     assert err.value.code == "INGEST_MODE_INVALID"
+
+
+def test_payload_covers_all_production_fields_and_flags_placeholders(artifact_dir):
+    """生产 _kb_9 的 33 字段必须全在；版面字段只能标 placeholder，不许冒充真实坐标。"""
+    production = ['pk', 'text', 'vector', 'source', 'chunk_doc_id', 'document_id', 'folder_id',
+                  'title', 'title_path', 'pic_offset_list', 'labels', 'position', 'page_number',
+                  'knowledge_base_name', 'file_path', 'image_path', 'file_size', 'page_size',
+                  'order_num', 'parent_file_name', 'revise_date', 'create_time', 'update_time',
+                  'table_name', 'pic_url_list', 'pic_children_id_list', 'text_parent_id_list',
+                  'att_id', 'main_id', 'type', 'offset', 'file_id', 'chunk_index']
+    result = ingest(artifact_dir, index_name="kb_9", file_id="333", mode="shadow",
+                    file_name="docx-table.docx", file_path="r12-rag/kb_9/docx-table.docx",
+                    file_size="47.3 MB")
+    for payload in result["chunks"]:
+        missing = [f for f in production
+                   if f not in payload["metadata"] and f not in {"pk", "text", "vector"}]
+        assert not missing, missing
+        meta = payload["metadata"]
+        assert meta["knowledge_base_name"] == "kb_9"
+        assert meta["title"] == "docx-table.docx"
+        assert meta["file_size"] == "47.3 MB"
+        assert meta["create_time"] and meta["update_time"]
+    fill = result["field_fill"]
+    # 版面三件套必须显式标成占位，不能让下游当真实坐标去做高亮
+    assert set(fill["placeholder"]) >= {"page_number", "page_size", "position"}
+    assert fill["layout"] == "unavailable"
+    assert {"title", "knowledge_base_name", "file_path", "file_size"} <= set(fill["filled"])
 
 
 def test_compare_channels_reports_diff_without_forcing_equality():

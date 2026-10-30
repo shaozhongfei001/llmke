@@ -176,17 +176,40 @@ doc2md 回归：`backend` 全量 **5 failed / 1492 passed / 133 skipped**，改�
 
 跑完 `list_collections()` 无 `v2rt_*` 残留；ES 侧同样已清理。
 
-**顺带量出的真实缺口**：`_kb_9` 共 33 个字段，投影载荷只能映射 10 个，**23 个只能给空值**：
+**字段缺口的两次测量（第一次是我数错了，记录在此）**
+
+第一次只按"载荷里有没有这个键"数，得到 23 个空值 —— 这个数**不能**当作缺口。
+按 `_kb_9` 全量 270 行逐字段统计填充率后才看出真实结构：
 
 ```
-folder_id title title_path pic_offset_list labels position page_number knowledge_base_name
-file_path image_path file_size page_size order_num parent_file_name revise_date create_time
-update_time table_name pic_url_list pic_children_id_list text_parent_id_list att_id main_id
+270/270（必须补）：title position page_number knowledge_base_name file_path
+                  file_size page_size parent_file_name create_time update_time
+  0/270（本来就空）：folder_id title_path labels pic_url_list pic_offset_list
+                  text_parent_id_list table_name order_num revise_date image_path
+                  att_id main_id pic_children_id_list
 ```
 
-结论：向量通道"写得进、查得回"成立；但**投影载荷还不足以替代 legacy 的元数据面**（标题路径、
-页码、图片链接、父子块、时间戳）。这些字段正是检索侧过滤/展示/引用所需，切 snapshot 前必须补齐，
-否则"能检索到但展示与引用退化"——属于功能回退，不是性能问题。
+同文件对照（file_id=333 是 docx）：生产里 `position=[[], []]`、`page_number=[0, 0]`、
+`page_size=[[], []]` —— Office 文件本来就只有占位值，没有真实版面坐标。
+
+**已补（`ingest_pipeline/enrich.py`）**：10 个必填字段全部给值；13 个恒空字段显式写空值保证
+类型/对齐；版面三项写与旧链路同形的占位，并在 `field_fill.layout` 标 `unavailable`、
+`field_fill.placeholder` 列出，**不许下游把占位当真实坐标做高亮**。
+`offset` 也改成旧链路的 `[[start, end]]` 形状（原先给的是裸整数对）。
+
+补完再跑一次生产 schema 回环（克隆 `_kb_9` 33 字段，写入走 metadata → 字段名直落）：
+
+| 文件 | v2rt_kb_9 | v2rt_table_chunks_kb_9 |
+|---|---|---|
+| 333 | 2 inserted / recall@1 2 | 1 / 1 |
+| 329 | 1 / 1 | 1 / 1 |
+
+`field_fill.filled` = title, parent_file_name, knowledge_base_name, file_path, file_size,
+create_time, update_time, offset。
+
+**仍未对齐的一处**：`source`。legacy 写的是解析产物对象键（`r12-rag/kb_9/<file>/V0/<file>`），
+投影按 V2 契约写 `parsed_text.md` / `table:<id>`。消费者若拿 `source` 直接展示/拼链接，
+切 snapshot 后行为会变——这属于契约变更，需要检索侧确认，不是能靠补字段消掉的差异。
 
 另：`MilvusClient(uri=..., db_name=...)` 在同一进程内多次构造会复用连接别名，**先建的客户端会吞掉
 后续 db_name**（本次排查时一度误判"生产库为空"）。做多库巡检必须每个 db 单独进程或显式指定连接别名，
