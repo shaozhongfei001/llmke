@@ -207,13 +207,31 @@ doc2md 回归：`backend` 全量 **5 failed / 1492 passed / 133 skipped**，改�
 `field_fill.filled` = title, parent_file_name, knowledge_base_name, file_path, file_size,
 create_time, update_time, offset。
 
-**仍未对齐的一处**：`source`。legacy 写的是解析产物对象键（`r12-rag/kb_9/<file>/V0/<file>`），
-投影按 V2 契约写 `parsed_text.md` / `table:<id>`。消费者若拿 `source` 直接展示/拼链接，
-切 snapshot 后行为会变——这属于契约变更，需要检索侧确认，不是能靠补字段消掉的差异。
+**`source` 的结论（我上一版写错了，这里更正）**
 
-另：`MilvusClient(uri=..., db_name=...)` 在同一进程内多次构造会复用连接别名，**先建的客户端会吞掉
-后续 db_name**（本次排查时一度误判"生产库为空"）。做多库巡检必须每个 db 单独进程或显式指定连接别名，
-否则会得到假阴性。
+上一版按 V2 契约把 `source` 写成 `parsed_text.md`，理由"要能回指原文"。查消费点后确认这是**错的**：
+在本栈里 `source` 是**文件身份键 + URL 片段**，不是解析产物路径。
+
+证据：
+
+| 消费点 | 用法 |
+|---|---|
+| `alg_retrieval_service/app/retrieval_service.py:309` | `index_dict[metadata.source].add(chunk_index)` —— 按 source 聚合 |
+| 同上 `:318` | `query_max_index(metadata.source, ...)` —— 求该文件最大块号 |
+| 同上 `:321,326` | `query_es_file_index(metadata.source, index, pos)` —— 查**同文件**相邻块 |
+| 同上 `:336` | 按 `(source, chunk_index)` 去重 |
+| `app/view/api/retrieval_global_view.py:37` | 注释明确：Java 侧一律 `endPoint + "/" + source` 拼 URL |
+
+若 `source` 写成固定的 `parsed_text.md`，后果不是"展示退化"而是**跨文件串台**：相邻块扩展会
+把别的文件的块拉进来、去重会把不同文件的同号块判成重复、所有引用 URL 指向同一个假路径。
+
+**已改成**：`source` = 每文件唯一的对象键（`r12-rag/kb_9/<file>/V0/<file>`，由调用方传入）；
+V2 的原文回指另放 `parsed_text_ref`（`parsed_text.md` / `table:<id>`），不动既有语义。
+未传 source 时 `field_fill.source_from=MISSING` 并把 source 记进 placeholder —— 显式暴露，
+不静默留空（留空会让相邻块检索按空串匹配到所有文件）。
+
+回归测试 `test_source_is_a_per_file_identity_key_not_a_fixed_path` 钉住这条：
+两个文件产出的 source 必须不同且互不相交，且不得等于 `parsed_text.md`。
 
 ## 10. 仍未解决（不许当成已完成）
 

@@ -25,6 +25,8 @@ def main(argv=None):
     parser.add_argument("--file-name", default=None, help="原始文件名（title / parent_file_name）")
     parser.add_argument("--file-path", default=None, help="原对象键（file_path）")
     parser.add_argument("--file-size", default=None, help="展示用大小，如 47.3 MB")
+    parser.add_argument("--source", default=None,
+                        help="文件对象键（source 是文件身份键，不是解析产物路径）")
     parser.add_argument("--out", default=None)
     args = parser.parse_args(argv)
 
@@ -32,7 +34,8 @@ def main(argv=None):
         result = ingest(args.artifact_dir, index_name=args.index, file_id=args.file_id,
                         mode=args.mode, apply_index=args.apply,
                         chunk_chars=args.chunk_chars, file_name=args.file_name,
-                        file_path=args.file_path, file_size=args.file_size)
+                        file_path=args.file_path, file_size=args.file_size,
+                        source=args.source)
     except IngestRefused as exc:
         print(json.dumps({"status": "REFUSED", "code": exc.code, "detail": exc.detail},
                          ensure_ascii=False))

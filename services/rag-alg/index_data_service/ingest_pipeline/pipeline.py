@@ -43,10 +43,19 @@ def _chunk_payload(chunk, index_name, file_id, ctx):
     meta, fill = build_payload(chunk, index_name=index_name, file_id=file_id,
                                file_name=ctx.get("file_name"), file_path=ctx.get("file_path"),
                                file_size=ctx.get("file_size"))
-    # 溯源写法按 V2 契约（parsed_text.md / table:<id>），与 legacy 的 MinIO 源对象键不同：
-    # legacy 的 source 是解析产物对象键，投影必须指向 doc2md 的 parsed_text.md 才可回指原文。
-    meta["source"] = ("parsed_text.md" if channel == "text"
-                      else f"table:{chunk['locator'].get('table_id')}")
+    # `source` 在本栈里不是"解析产物路径"，而是**文件身份键**（实测消费点）：
+    #   · alg_retrieval_service/retrieval_service.py:309-336 用 source 查同文件相邻块、
+    #     算该文件最大 chunk_index、按 (source, chunk_index) 去重；
+    #   · retrieval_global_view.py:37 记录 Java 侧一律 `endPoint + "/" + source` 拼 URL。
+    # 所以这里必须写**每个文件唯一的对象键**。写成 parsed_text.md 会让所有文件共享同一身份：
+    # 相邻块扩展到别的文件、跨文件去重、引用 URL 全部指向同一个假路径。
+    # V2 的原文回指另行放 parsed_text_ref，不动 source 的既有语义。
+    meta["source"] = ctx.get("source") or ctx.get("file_path") or ""
+    meta["parsed_text_ref"] = ("parsed_text.md" if channel == "text"
+                               else f"table:{chunk['locator'].get('table_id')}")
+    fill["source_from"] = "object_key" if meta["source"] else "MISSING"
+    if not meta["source"]:
+        fill["placeholder"].append("source")
     if channel == "table":
         meta["n_rows"], meta["n_cols"] = chunk.get("rows"), chunk.get("cols")
     return {"index": index_name if channel == "text" else f"table_chunks_{index_name}",
@@ -65,7 +74,8 @@ def compare_channels(legacy, projected):
 
 
 def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
-           chunk_chars=800, overlap_chars=0, file_name=None, file_path=None, file_size=None):
+           chunk_chars=800, overlap_chars=0, file_name=None, file_path=None, file_size=None,
+           source=None):
     """返回 {'status','mode','artifact_id','channels','counts','chunks','refusals','field_fill'}。"""
     mode = (mode or P.mode_from_env()).strip().lower()
     if mode not in MODES:
@@ -83,11 +93,13 @@ def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
     if result.status == "NOT_APPLICABLE":
         return {"status": "NOT_APPLICABLE", "mode": mode, "reason": result.stats.get("reason")}
 
-    ctx = {"file_name": file_name, "file_path": file_path, "file_size": file_size}
+    ctx = {"file_name": file_name, "file_path": file_path, "file_size": file_size,
+           "source": source}
     payloads = [_chunk_payload(c, index_name, file_id, ctx) for c in result.chunks]
     fill = {"filled": [], "placeholder": [], "empty_by_design": [], "layout": "unavailable"}
     for item in payloads:
         part = item.pop("_fill")
+        fill["source_from"] = part.get("source_from")
         for key in ("placeholder", "empty_by_design"):
             for name in part[key]:
                 if name not in fill[key]:

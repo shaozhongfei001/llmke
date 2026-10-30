@@ -98,6 +98,34 @@ def test_payload_covers_all_production_fields_and_flags_placeholders(artifact_di
     assert {"title", "knowledge_base_name", "file_path", "file_size"} <= set(fill["filled"])
 
 
+def test_source_is_a_per_file_identity_key_not_a_fixed_path(artifact_dir):
+    """回归：source 是文件身份键（相邻块检索/去重/引用 URL 都靠它），不得写成固定值。
+
+    消费点：alg_retrieval_service/retrieval_service.py:309-336（按 source 查相邻块、
+    算最大 chunk_index、按 (source, chunk_index) 去重）、retrieval_global_view.py:37
+    （Java 一律 endPoint + "/" + source 拼 URL）。写成 parsed_text.md 会把所有文件
+    并成一个身份，相邻块会跨文件串台、引用全部指向同一个假路径。
+    """
+    one = ingest(artifact_dir, index_name="kb_9", file_id="333", mode="shadow",
+                 file_path="r12-rag/kb_9/a.docx/V0/a.docx")
+    two = ingest(artifact_dir, index_name="kb_9", file_id="334", mode="shadow",
+                 file_path="r12-rag/kb_9/b.docx/V0/b.docx")
+    src_one = {c["metadata"]["source"] for c in one["chunks"]}
+    src_two = {c["metadata"]["source"] for c in two["chunks"]}
+    assert src_one == {"r12-rag/kb_9/a.docx/V0/a.docx"}
+    assert src_two == {"r12-rag/kb_9/b.docx/V0/b.docx"}
+    assert src_one.isdisjoint(src_two)
+    for payload in one["chunks"]:
+        assert payload["metadata"]["source"] != "parsed_text.md"
+        assert payload["metadata"]["parsed_text_ref"].startswith(("parsed_text.md", "table:"))
+
+
+def test_missing_source_is_reported_not_silently_blank(artifact_dir):
+    result = ingest(artifact_dir, index_name="kb_9", file_id="333", mode="shadow")
+    assert result["field_fill"]["source_from"] == "MISSING"
+    assert "source" in result["field_fill"]["placeholder"]
+
+
 def test_compare_channels_reports_diff_without_forcing_equality():
     from ingest_pipeline import compare_channels
 

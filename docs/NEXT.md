@@ -24,8 +24,8 @@
 真实外部阻塞：HippoRAG 版本/离线依赖（U-03）；真实生产 DDL 与恢复副本权限（U-07）；
         P0/正式门禁/独立QA/发布授权（保持真实状态）
 下一精确动作（按任务书 A→B→C→D→Q）：
-  B1 下一步：确认检索侧对 source 语义变更（legacy 对象键 → parsed_text.md/table:<id>）的兼容，
-     然后启用 snapshot 写入 + 回退演练；字段面已按实测填充率补齐
+  B1 下一步：启用 snapshot 写入（隔离索引）+ 回退演练；source 已确认是文件身份键并保持
+     对象键语义（parsed_text_ref 另存），字段面按实测填充率补齐
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
      + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
   A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office
