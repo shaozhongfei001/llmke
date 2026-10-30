@@ -191,3 +191,34 @@ Milvus _kb_10（该文件）        6  -> 6
 
 结论：**同一 payload 重复解析不产生重复块**（写入按稳定 id 覆盖）。
 边界：这不是"代次隔离"证据——换了 chunk 参数/解析器后的新旧共存未测。
+
+## 8. 修复选项 D 已实施并真实执行（Feign 空体不再掩盖真实原因）
+
+改动：`rag-common/.../feign/FeignErrorDecode.java`（**零权限语义变化**，只改错误呈现）
+
+- 空体 / 空白体：返回 `下游服务返回空响应体: <methodKey> HTTP <status>`；
+- 非 JSON 体（HTML 错误页等）：返回 `下游响应非 JSON: <methodKey> HTTP <status>`，
+  不再让 fastjson 的 `JSONException` 盖掉真实状态码；
+- 正常 JSON 错误体：仍原样保留下游 `errorCode/errorMsg`。
+
+验证方式（离线编译 + 真实执行，不是只看编译过）：
+
+```
+mvn -o -q -pl rag-common -DskipTests compile      # exit 0
+javac -cp <rag-common/target/classes>:<BOOT-INF/lib/*.jar> Probe.java
+java  -cp .:<同上> Probe
+```
+
+实测五个分支：
+
+```
+body=<null>   -> ApplicationException: 下游服务返回空响应体: UserClient#getUserType() HTTP 500
+body=''       -> ApplicationException: 下游服务返回空响应体: UserClient#getUserType() HTTP 500
+body='  '     -> ApplicationException: 下游服务返回空响应体: UserClient#getUserType() HTTP 500
+body=not-json -> ApplicationException: 下游响应非 JSON: UserClient#getUserType() HTTP 500
+json-body     -> ApplicationException: 没有token          （下游 errorMsg 保留）
+```
+
+边界：该修复**不解除** D-01b 阻断（调度线程仍然无令牌），只让下一次上传失败时显式显示"未授权"而不是
+"解析失败"；要真正恢复"上传→自动解析"，仍需 A/B 选项之一（涉及权限语义，等授权）。
+部署提示：rag-index-service 是 fat jar，`rag-common` 变更后必须重新打包该服务才生效，本轮未重启运行栈。
