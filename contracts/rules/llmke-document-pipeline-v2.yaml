@@ -1,0 +1,169 @@
+{
+  "rules": {
+    "name": "llmke-document-pipeline-invariants-v2",
+    "version": "2.0.0",
+    "invariants": [
+      {
+        "id": "DP-01",
+        "requirement": "all file ingestion through actual doc2md; downstream never reparses raw files",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "DP-02",
+        "requirement": "preserve doc2md three-file bytes and document-ir/1.0 semantics",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "DP-03",
+        "requirement": "all required parts present; path safe; SHA256/size match actual stored bytes",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "DP-04",
+        "requirement": "same scope snapshot and artifact bindings across related builds/releases",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "DP-05",
+        "requirement": "text offsets left-closed right-open in immutable parsed_text.md; exact quote hash",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "DP-06",
+        "requirement": "table/header/unit/footnote and image semantics verified against original evidence",
+        "verification_class": "SEMANTIC"
+      },
+      {
+        "id": "DP-07",
+        "requirement": "same logical file has one effective binding in CURRENT snapshot",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "DP-08",
+        "requirement": "graph/community require CURRENT snapshot and validated same-domain input",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "DP-09",
+        "requirement": "worker lease/fencing, CAS pointer and outbox commit protect publication",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "DP-10",
+        "requirement": "latest auth/resource versions fence stale releases before reads/stream emission",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "DP-11",
+        "requirement": "no unauthorized content participates in community/report construction",
+        "verification_class": "RUNTIME_NONINTERFERENCE"
+      },
+      {
+        "id": "DP-12",
+        "requirement": "valid singleton vertices retained; no fabricated cross-document edges",
+        "verification_class": "SEMANTIC_AND_RUNTIME"
+      },
+      {
+        "id": "DP-13",
+        "requirement": "all claims resolve one complete supported premise group; missing source blocks publication",
+        "verification_class": "MECHANICAL_AND_SEMANTIC"
+      },
+      {
+        "id": "DP-14",
+        "requirement": "RAG-only readiness may publish while graph is pending; global returns NOT_READY",
+        "verification_class": "MECHANICAL_AND_RUNTIME"
+      },
+      {
+        "id": "DP-15",
+        "requirement": "event id same payload is idempotent; same id different payload is conflict",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "DP-16",
+        "requirement": "legacy imports explicitly classified; cannot label unknown parser output doc2md",
+        "verification_class": "MECHANICAL_AND_RUNTIME"
+      },
+      {
+        "id": "DP-17",
+        "requirement": "graph reads immutable parse artifacts without ES or RAG build dependency",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "DP-18",
+        "requirement": "graph extraction covers source blocks using token-bounded windows; no silent tail truncation",
+        "verification_class": "MECHANICAL_AND_RUNTIME"
+      },
+      {
+        "id": "DP-19",
+        "requirement": "KB-wide identity linking and community detection happen after per-window extraction",
+        "verification_class": "SEMANTIC_AND_RUNTIME"
+      },
+      {
+        "id": "DP-20",
+        "requirement": "ES removal preserves lexical/exact/hybrid retrieval through a verified replacement profile",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "DP-21",
+        "requirement": "v2 route budgets use logical capabilities rather than backend product names",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "DP-22",
+        "requirement": "engine-neutral input binds canonical MD/IR/assets/typed semantic companions; no native engine IDs in source identity",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "DP-23",
+        "requirement": "engine swaps preserve public API/source refs; engine indexes can rebuild from standard bundles",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "DP-24",
+        "requirement": "native content deduplication retains all distinct platform source identities in a multimap",
+        "verification_class": "MECHANICAL_AND_RUNTIME"
+      },
+      {
+        "id": "DP-25",
+        "requirement": "engine capability does not imply community/global availability; dense fallback is explicit",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "DP-26",
+        "requirement": "image model interpretations remain candidates unless supported; cannot become literal source text",
+        "verification_class": "SEMANTIC_AND_RUNTIME"
+      }
+    ],
+    "errors": [
+      {
+        "code": "PARSE-201",
+        "meaning": "doc2md dependency/capability unavailable"
+      },
+      {
+        "code": "PARSE-202",
+        "meaning": "artifact hash/part or path invalid"
+      },
+      {
+        "code": "PARSE-203",
+        "meaning": "document IR invalid"
+      },
+      {
+        "code": "PARSE-204",
+        "meaning": "structure or span alignment insufficient"
+      },
+      {
+        "code": "PARSE-205",
+        "meaning": "source version became stale"
+      },
+      {
+        "code": "PIPELINE-201",
+        "meaning": "requested projection is not ready"
+      },
+      {
+        "code": "PIPELINE-202",
+        "meaning": "binding/release/lineage conflict"
+      }
+    ],
+    "error_namespace": "v2-only; legacy v1 error enum unchanged; new endpoints use v2 Error"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-30",
+  "llmke_base_commit": "3fea44e58b3e3a59a9796bf7f914fc34e4d8ddd7",
+  "input_archives": [
+    {
+      "file_name": "RAG重构开发设计-评审包.zip",
+      "sha256": "e9f3b0522b45621769d7c6dc059fd7edb25cc05a7bfefb04b8579bd67593bbf7",
+      "size_bytes": 730386,
+      "archive_members": 30,
+      "file_members": 30
+    },
+    {
+      "file_name": "doc2md-交接包-2026-10-17.tar.gz",
+      "sha256": "507221ec1e6bde071dd52bc50d5e560583ef184564c991ea0f3d536fdfa2994b",
+      "size_bytes": 99557,
+      "archive_members": 25,
+      "file_members": 23
+    },
+    {
+      "file_name": "doc2md.zip",
+      "sha256": "63eede32164a0c1c919428ef5cb6deadf19c8e76073841dc3aad61db0da32f26",
+      "size_bytes": 7524629,
+      "archive_members": 1280,
+      "file_members": 958
+    },
+    {
+      "file_name": "doc2md_19项能力_SDD与Loop工程契约包_V1.0_20261017.zip",
+      "sha256": "f196a238b203e272a23a4a9c4e1485edf3d233ea329f340eb6e6ee7a30ccfc51",
+      "size_bytes": 173102,
+      "archive_members": 71,
+      "file_members": 71
+    }
+  ],
+  "material_read": [
+    "RAG重构开发设计-评审包/00-评审导读.md",
+    "RAG重构开发设计-评审包/01-主设计/平台重构开发设计.md",
+    "external-refactor-2026-10-17/00-READ-ME-FIRST.md",
+    "external-refactor-2026-10-17/02-design-decisions.md",
+    "external-refactor-2026-10-17/05-data-contracts.md",
+    "external-refactor-2026-10-17/08-refactor-guide.md",
+    "doc2md/backend/app/services/document_ir_schema.py (targeted reading plus pure validator execution)",
+    "doc2md/backend/app/services/document_ir_builder.py (targeted)",
+    "doc2md/backend/app/services/parser_router.py (targeted)",
+    "doc2md/backend/app/services/markitdown_parser.py (targeted)",
+    "doc2md/backend/app/services/mineru_pdf_parser.py (targeted)",
+    "doc2md/backend/app/cli/main.py (IR wiring search)",
+    "doc2md/docs/architecture/DOCUMENT_IR_DESIGN_V1.md (targeted; actual source/rulings prevail)",
+    "LLMKE contracts at pinned base (registry and schema/API/evidence/semantic/rules/evaluation)",
+    "LLMKE services/rag-alg/alg_doc_parse_service/server/loader.py (targeted; blob checked against base)"
+  ],
+  "not_claimed": "Not all archive members read; no latest doc2md runtime, all-format parsing, production or HippoRAG execution verified.",
+  "native_reference_files": [
+    {
+      "file_id": "libfile_b185e7c896ac81918efa84b67c861d81",
+      "description": "doc2md 19-cap candidate SDD"
+    },
+    {
+      "file_id": "libfile_380ccc8979048191b6f7395db27b7e16",
+      "description": "preservation/difference notes"
+    },
+    {
+      "file_id": "libfile_2b1981e0dfc4819185869b835e7c30e5",
+      "description": "image transcription, reference only; original images unavailable"
+    }
+  ],
+  "external_primary_urls": [
+    "https://microsoft.github.io/graphrag/index/default_dataflow/",
+    "https://microsoft.github.io/graphrag/index/inputs/",
+    "https://milvus.io/docs/v2.5.x/full-text-search.md",
+    "https://dev.mysql.com/doc/refman/8.0/en/fulltext-search-ngram.html",
+    "https://github.com/OSU-NLP-Group/HippoRAG/blob/main/README.md",
+    "https://github.com/OSU-NLP-Group/HippoRAG/blob/main/src/hipporag/HippoRAG.py"
+  ]
+}

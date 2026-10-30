@@ -1,0 +1,228 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "LLMKE Graph Engine Port",
+    "version": "1.0.0",
+    "description": "Engine-neutral internal adapter contract. Design only; not implemented. Platform authorization/release/evidence remain outside native engines."
+  },
+  "security": [
+    {
+      "ServiceBearer": []
+    }
+  ],
+  "paths": {
+    "/internal/v1/graph-engine/descriptor": {
+      "get": {
+        "operationId": "describeGraphEngine",
+        "responses": {
+          "200": {
+            "description": "Accepted/result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphEngineDescriptor"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contract",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Stale/conflicting/unsupported capability"
+          }
+        }
+      }
+    },
+    "/internal/v1/graph-engine/builds": {
+      "post": {
+        "operationId": "buildGraphEngineIndex",
+        "responses": {
+          "202": {
+            "description": "Accepted/result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineIndexManifest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contract",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Stale/conflicting/unsupported capability"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineBuildRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/graph-engine/indexes/{engine_index_id}": {
+      "get": {
+        "operationId": "getGraphEngineIndex",
+        "responses": {
+          "200": {
+            "description": "Accepted/result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineIndexManifest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contract",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Stale/conflicting/unsupported capability"
+          }
+        },
+        "parameters": [
+          {
+            "name": "engine_index_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        ]
+      }
+    },
+    "/internal/v1/graph-engine/retrieve": {
+      "post": {
+        "operationId": "retrieveFromGraphEngine",
+        "responses": {
+          "200": {
+            "description": "Accepted/result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineRetrievalResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contract",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Stale/conflicting/unsupported capability"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineRetrievalRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ServiceBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "GraphEngineDescriptor": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/GraphEngineDescriptor"
+      },
+      "KnowledgeInputBundle": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/KnowledgeInputBundle"
+      },
+      "DocumentSemantics": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/DocumentSemantics"
+      },
+      "EngineInputUnit": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/EngineInputUnit"
+      },
+      "EngineBuildRequest": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/EngineBuildRequest"
+      },
+      "EngineIndexManifest": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/EngineIndexManifest"
+      },
+      "EngineRetrievalRequest": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/EngineRetrievalRequest"
+      },
+      "EngineRetrievalResult": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/EngineRetrievalResult"
+      },
+      "Error": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+      }
+    }
+  }
+}

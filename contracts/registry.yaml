@@ -193,3 +193,108 @@ contracts:
   - llmke-core
   - llmke-auth-context
   compatibility: breaking_guarded
+- id: llmke-document-pipeline-v2
+  type: schema
+  layer: domain
+  version: 2.0.0
+  owner: integration-agent
+  path: schema/llmke-document-pipeline-v2.json
+  depends_on:
+  - llmke-core
+  compatibility: parallel_v2_legacy_v1_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+  generator: scripts/generators/schema_snapshot.py
+  outputs:
+  - generated/schema/llmke-document-pipeline-v2.snapshot.json
+- id: llmke-document-pipeline-api-v2
+  type: api
+  layer: application
+  version: 2.0.0
+  owner: integration-agent
+  path: api/llmke-document-pipeline-v2.openapi.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  - llmke-auth-context
+  compatibility: parallel_v2_legacy_v1_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+  generator: scripts/generators/openapi_types.py
+  outputs:
+  - generated/sdk/llmke-document-pipeline-api-v2.types.json
+- id: llmke-document-events-v2
+  type: events
+  layer: application
+  version: 2.0.0
+  owner: integration-agent
+  path: events/llmke-document-pipeline-v2.events.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  compatibility: parallel_v2_legacy_v1_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+- id: llmke-source-lineage-v2
+  type: evidence
+  layer: domain
+  version: 2.0.0
+  owner: integration-agent
+  path: evidence/llmke-source-lineage-v2.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  compatibility: parallel_v2_legacy_v1_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+- id: llmke-document-invariants-v2
+  type: rules
+  layer: domain
+  version: 2.0.0
+  owner: integration-agent
+  path: rules/llmke-document-pipeline-v2.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  compatibility: parallel_v2_legacy_v1_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+- id: llmke-document-acceptance-v2
+  type: evaluation
+  layer: domain
+  version: 2.0.0
+  owner: integration-agent
+  path: evaluation/llmke-document-pipeline-v2.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  - llmke-source-lineage-v2
+  - llmke-document-invariants-v2
+  compatibility: parallel_v2_legacy_v1_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+- id: llmke-entity-types-v1
+  type: ontology
+  layer: domain
+  version: 1.0.0
+  owner: algorithm-owner
+  path: ontology/entity-types.v1.json
+  depends_on: []
+  compatibility: additive_registration_metadata_only
+- id: llmke-relations-v1
+  type: ontology
+  layer: domain
+  version: 1.0.0
+  owner: algorithm-owner
+  path: ontology/relations.v1.json
+  depends_on: []
+  compatibility: additive_registration_metadata_only
+- id: llmke-graph-engine-api-v1
+  type: api
+  layer: application
+  version: 1.0.0
+  owner: integration-agent
+  path: api/llmke-graph-engine-v1.openapi.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  - llmke-auth-context
+  compatibility: new_internal_port_legacy_unchanged
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
+  generator: scripts/generators/openapi_types.py
+  outputs:
+  - generated/sdk/llmke-graph-engine-api-v1.types.json
+design_revision:
+  id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  legacy_baseline_unchanged: true
+  dispatch: supersedes unsupported R15L architecture assumptions; no new implementation
+    dispatch in this revision

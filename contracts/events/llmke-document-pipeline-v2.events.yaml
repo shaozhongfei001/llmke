@@ -1,0 +1,28 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "LLMKE document pipeline events",
+    "version": "2.0.0"
+  },
+  "defaultContentType": "application/json",
+  "channels": {
+    "document-pipeline": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/DocumentEvent"
+        }
+      }
+    }
+  },
+  "components": {
+    "messages": {
+      "DocumentEvent": {
+        "payload": {
+          "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Event"
+        }
+      }
+    }
+  },
+  "x-transport": "logical; existing broker or coordinator-owned MySQL outbox; not a new required broker",
+  "x-delivery": "at-least-once; event_id+payload_hash; commit before dispatch; late-lease results cannot publish"
+}

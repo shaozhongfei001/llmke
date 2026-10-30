@@ -1,0 +1,11 @@
+{
+  "engine_id": "hipporag",
+  "engine_revision": "TO_BE_PINNED_NOT_INSTALLED",
+  "adapter_version": "1.0.0-design",
+  "dependency_lock_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+  "status": "CANDIDATE",
+  "capabilities": [
+    "PASSAGE_RETRIEVAL"
+  ],
+  "verified_capabilities": []
+}

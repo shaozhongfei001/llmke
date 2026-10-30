@@ -1,0 +1,16 @@
+{
+  "request_id": "req-engine",
+  "release_id": "release-example",
+  "engine_index_id": "index-example",
+  "snapshot_id": "snapshot-example",
+  "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+  "scope": {
+    "auth_scope_id": "scope-example",
+    "auth_version": 1,
+    "kb_id": "kb-example",
+    "resource_version": 1
+  },
+  "query": "AAA档定价是多少",
+  "top_k": 5,
+  "require_graph_execution": true
+}

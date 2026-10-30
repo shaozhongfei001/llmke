@@ -80,5 +80,6 @@
     "reverse_dedup": "写入前用 (name, 无序端点对) 判重；symmetric=true 的谓词按同一条处理，symmetric=false 的谓词反向是不同事实，不得互相覆盖",
     "predicate_merge": "变体按 aliases 归一到 name，记录 predicate_merged 计数与被合并原名",
     "total_vs_item": "授信额度/最高额度 只表达总额；信用方式上限/担保额度 只表达分项；二者互不覆盖"
-  }
+  },
+  "ontology": {"name": "llmke-relations.v1", "version": "1.0.0", "registration_only": true}
 }

@@ -1,0 +1,79 @@
+{
+  "schema_version": "llmke-graph-extraction-plan/2.0",
+  "plan_id": "plan-example",
+  "graph_build_id": "graph-example",
+  "snapshot_id": "snapshot-example",
+  "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+  "scope": {
+    "auth_scope_id": "scope-example",
+    "auth_version": 1,
+    "kb_id": "kb-example",
+    "resource_version": 1
+  },
+  "source_mode": "PARSE_ARTIFACT_DIRECT",
+  "policy": "WHOLE_DOCUMENT_IF_FITS_ELSE_STRUCTURAL_WINDOWS",
+  "bindings": [
+    {
+      "artifact_manifest_hash": "7ad5330ecca1d0b8bc82afe649bee59c4f4616a2d6e21718472bde9427f5cc19",
+      "content_uid": "6424236748636fe46f597dc0303b7d33aae2a09eae85cf69193d66079d9b80c6",
+      "document_version": "v1",
+      "enhancement_manifest_hash": null,
+      "file_id": "file-example",
+      "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+      "parse_artifact_id": "pa-example-1",
+      "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a"
+    }
+  ],
+  "extractor_profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "tokenizer_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "model_window_tokens": 2048,
+  "windows": [
+    {
+      "window_id": "w1",
+      "mode": "WHOLE_DOCUMENT",
+      "parse_artifact_id": "pa-example-1",
+      "sequence_no": 0,
+      "source_refs": [
+        {
+          "block_id": "b0001",
+          "document_version": "v1",
+          "file_id": "file-example",
+          "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+          "locator": {
+            "end_offset": 31,
+            "kind": "text_span",
+            "quote_hash": "6ed55d5b3deaa0d8b512988eaae7d56e181384fbb12e3226a1829e9e01fbacc9",
+            "source": "parsed_text.md",
+            "start_offset": 0,
+            "unit": "unicode_codepoint"
+          },
+          "observation_class": "SOURCE_CONTENT",
+          "parse_artifact_id": "pa-example-1",
+          "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a",
+          "schema_version": "llmke-source-ref/2.0"
+        }
+      ],
+      "input_tokens": 200,
+      "output_reserved_tokens": 256,
+      "context_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "md_spans": [
+        {
+          "start_offset": 0,
+          "end_offset": 32,
+          "text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "parse_artifact_id": "pa-example-1",
+      "block_id": "b0001",
+      "disposition": "EXTRACT",
+      "window_ids": [
+        "w1"
+      ],
+      "reason": ""
+    }
+  ]
+}

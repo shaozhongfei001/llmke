@@ -1,0 +1,19 @@
+{
+  "schema_version": "llmke-retrieval-profile/2.0",
+  "profile_id": "synthetic-verified-no-es",
+  "status": "VERIFIED",
+  "dense_backend": "milvus",
+  "lexical_backend": "milvus_bm25",
+  "exact_backend": "mysql",
+  "es_required": false,
+  "backend_version": "SYNTHETIC-NOT-RUNTIME",
+  "analyzer_config_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "acceptance": {
+    "chinese_lexical": "PASS",
+    "exact_identifiers": "PASS",
+    "snapshot_authorization": "PASS",
+    "deleted_exclusion": "PASS",
+    "replay_migration": "PASS",
+    "offline_install": "PASS"
+  }
+}
