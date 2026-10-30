@@ -81,6 +81,34 @@ changes:
   - 改脚本 -> manual check command changed
   - 非 0 退出 -> 失效
   - 日志被篡改 -> hash mismatch
+- id: BL-2.0.0-02
+  title: text-only 解析产物的登记对象（LegacyTextArtifact），与 ParseArtifact 并列不降级
+  status: ADOPTED
+  owner: tech-lead
+  carrier: contracts/schema/llmke-document-pipeline-v2.json#/$defs/LegacyTextArtifact
+  problem: >-
+    设计要求"所有格式进 doc2md，且不能把 parsed_text-only 产物标作结构化完整"（01 §4.4），
+    但 V2 只有 ParseArtifact 一种产物对象，它硬性要求 parts 含 document_ir、ir_schema=document-ir/1.0、
+    且 parsed_metadata.json 带 content_uid。实测 doc2md d9e4f98 的 parse-markitdown 只写三件套
+    （markitdown_parser.py:437-483），parse-mineru-pdf 只多写 ir_source/（mineru_pdf_parser.py:624），
+    两条路径都不调用 document_ir_builder，metadata 也没有 content_uid。
+    结果是真实产物既不能进 ParseArtifact，也没有第二种合法登记方式——要么伪造 IR（禁止），
+    要么整条 text 链路无法入仓。
+  proposal: >-
+    新增 $defs/LegacyTextArtifact（schema_version=llmke-legacy-text-artifact/1.0）：
+    三件套即可登记；quality.state 固定 PARTIAL；capabilities 枚举限定 text/source_alignment；
+    warnings 至少 1 条（须说明缺 IR）；不含 ir_schema 字段。ParseArtifact 定义一字未改。
+    平台侧：有 document_ir 走 ParseArtifact，没有则只能走 LegacyTextArtifact，
+    且下游图构建必须拒绝 LegacyTextArtifact（无 IR 即无结构）。
+  compat: >-
+    纯新增 $defs，旧 18 份合同与 ParseArtifact 字节/语义不变；已登记 V2 对象不受影响。
+    text-only 产物此前无处可去，现可登记但仍不得声明结构性能力，因此不构成"新增能力"。
+  acceptance:
+  - ParseArtifact 定义与 generated 快照的既有字节不变（仅 $defs 新增）
+  - LegacyTextArtifact.state 只能是 PARTIAL；声明 document_ir/table_cells/figure_assets 必须被拒
+  - 目录里存在 document_ir.json 时不得走 text-only 登记（IR_PRESENT_USE_V2_PATH）
+  - 上游 metadata 缺 content_uid 时可登记，但有值时必须与 manifest 一致
+  - make contract-all 与 make contract-v2-check 在改动后仍 PASS
 - id: BL-2.0.0-01
   title: 非对称谓词的反向判定与 reverse_dedup 口径对齐（B01）
   status: ADOPTED

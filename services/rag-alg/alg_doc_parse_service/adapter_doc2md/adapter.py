@@ -85,6 +85,9 @@ def capability_report(artifact_dir):
         "rendered_md": (root / "rendered.md").is_file(),
         "metadata_has_content_uid": metadata_has_uid,
         "v2_artifact_ready": all(has.values()) and metadata_has_uid,
+        # CR BL-2.0.0-02：没有 IR 时只能登记为 text-only（PARTIAL），不是 ParseArtifact
+        "text_only_ready": has["parsed_text.md"] and has["parsed_metadata.json"]
+        and has["parse_manifest.json"],
     }
 
 
@@ -155,3 +158,22 @@ class Doc2mdAdapter:
         inputs = producer_inputs(source_revision, runtime_lock=runtime_lock, config=config,
                                  model_fingerprints=model_fingerprints)
         return store.commit(artifact_dir, store_root, inputs, artifact_id=artifact_id)
+
+    def parse_to_legacy_artifact(self, content_uid, store_root, source_revision,
+                                 config=None, runtime_lock=None, model_fingerprints=None,
+                                 artifact_id=None):
+        """上游只有三件套时的登记路径：LegacyTextArtifact（PARTIAL，只声明文本能力）。
+
+        这不是"ParseArtifact 降级版"：它是另一种对象，图构建必须拒绝它。
+        """
+        self.run(content_uid, config=config)
+        artifact_dir = locate_artifact(self.parsed_root, content_uid)
+        if not artifact_dir.is_dir():
+            raise AdapterFailed("ARTIFACT_DIR_MISSING", str(artifact_dir))
+        report = capability_report(artifact_dir)
+        if not report["text_only_ready"]:
+            raise AdapterFailed("ARTIFACT_INCOMPLETE", str(report))
+        inputs = producer_inputs(source_revision, runtime_lock=runtime_lock, config=config,
+                                 model_fingerprints=model_fingerprints)
+        return store.commit(artifact_dir, store_root, inputs,
+                            artifact_id=artifact_id, mode="text_only")

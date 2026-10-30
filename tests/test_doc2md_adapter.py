@@ -13,10 +13,12 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "services/rag-alg/index_data_service"))
 sys.path.insert(0, str(ROOT / "services/rag-alg/alg_doc_parse_service"))
 
 from adapter_doc2md import adapter as A  # noqa: E402
+from contract_runtime import validate_instance  # noqa: E402
 from parse_artifact import store as S  # noqa: E402
 
 E = ROOT / "docs/design/unified-documents-v2/examples"
@@ -120,6 +122,47 @@ def test_capability_report_does_not_infer_from_display_file(tmp_path):
     assert report["parsed_text"] is False
     assert report["document_ir"] is False
     assert report["v2_artifact_ready"] is False
+
+
+def test_text_only_upstream_registers_legacy_artifact(tmp_path):
+    """CR BL-2.0.0-02：没有 IR 时只能登记 text-only，且能力被契约限死。"""
+    adapter, _ = make_adapter(tmp_path, "--no-ir")
+    lock = tmp_path / "requirements.lock"
+    lock.write_text("markitdown>=0.1.0\n", encoding="utf-8")
+    config = tmp_path / "app.yaml"
+    config.write_text("app:\n  name: stub\n", encoding="utf-8")
+    artifact, target = adapter.parse_to_legacy_artifact(
+        UID, tmp_path / "store", source_revision="stub-doc2md@1",
+        config=config, runtime_lock=lock)
+    validate_instance(ROOT, "schema/llmke-document-pipeline-v2.json",
+                      artifact, "/$defs/LegacyTextArtifact")
+    assert artifact["schema_version"] == "llmke-legacy-text-artifact/1.0"
+    assert artifact["quality"]["state"] == "PARTIAL"
+    assert set(artifact["quality"]["capabilities"]) == {"text", "source_alignment"}
+    assert "document_ir" not in [p["role"] for p in artifact["parts"]]
+    assert artifact["quality"]["warnings"]
+    assert (target / "artifact.json").is_file()
+
+
+def test_legacy_text_cannot_claim_structure(tmp_path):
+    src = tmp_path / "text-only"
+    shutil.copytree(E / "artifact", src)
+    (src / "document_ir.json").unlink()
+    artifact = S.build_text_only_artifact(
+        src, {"source_revision": "x", "runtime_lock_hash": "0" * 64, "config_hash": "1" * 64})
+    artifact["quality"]["capabilities"] = ["text", "document_ir"]
+    with pytest.raises(Exception):
+        validate_instance(ROOT, "schema/llmke-document-pipeline-v2.json",
+                          artifact, "/$defs/LegacyTextArtifact")
+
+
+def test_text_only_refused_when_ir_present(tmp_path):
+    src = sample = tmp_path / "with-ir"
+    shutil.copytree(E / "artifact", sample)
+    with pytest.raises(S.ArtifactRefused) as err:
+        S.build_text_only_artifact(
+            src, {"source_revision": "x", "runtime_lock_hash": "0" * 64, "config_hash": "1" * 64})
+    assert err.value.code == "IR_PRESENT_USE_V2_PATH"
 
 
 def test_store_accepts_doc2md_layout_and_drops_display_track(tmp_path):

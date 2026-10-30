@@ -1,6 +1,6 @@
 {
   "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
-  "content_sha256": "12f3dab9701c1b08459b5a4b9c1050b569d524f79b04f86557fd44f43ca0e612",
+  "content_sha256": "f4d5fee6a3cb97ded62846ec6ef4acfde0f4ed5e58ddd1ed6e3fa2c0ed560487",
   "contract_id": "llmke-document-pipeline-v2",
   "enums": {},
   "properties": {},
@@ -2224,6 +2224,97 @@
           "expected_previous_release",
           "state",
           "activated_at"
+        ],
+        "type": "object"
+      },
+      "LegacyTextArtifact": {
+        "additionalProperties": false,
+        "description": "doc2md 现有 text-only 出口的登记对象（CR BL-2.0.0-02）。与 ParseArtifact 并列、不可互换：没有 document_ir 时只能登记为 PARTIAL 文本能力，结构性能力（document_ir/table_cells/figure_assets）在此层被枚举挡住。",
+        "properties": {
+          "artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "commit_state": {
+            "const": "COMMITTED"
+          },
+          "committed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "content_uid": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parser_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/$defs/ArtifactPart"
+            },
+            "minItems": 3,
+            "type": "array"
+          },
+          "producer": {
+            "$ref": "#/$defs/Producer"
+          },
+          "quality": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilities": {
+                "items": {
+                  "enum": [
+                    "text",
+                    "source_alignment"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true
+              },
+              "state": {
+                "const": "PARTIAL"
+              },
+              "warnings": {
+                "items": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            },
+            "required": [
+              "state",
+              "capabilities",
+              "warnings"
+            ],
+            "type": "object"
+          },
+          "read_set_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-legacy-text-artifact/1.0"
+          }
+        },
+        "required": [
+          "schema_version",
+          "artifact_id",
+          "content_uid",
+          "parser_fingerprint",
+          "producer",
+          "read_set_digest",
+          "parts",
+          "quality",
+          "commit_state",
+          "committed_at"
         ],
         "type": "object"
       },

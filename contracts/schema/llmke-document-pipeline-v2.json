@@ -3733,6 +3733,97 @@
         "source_refs"
       ],
       "additionalProperties": false
+    },
+    "LegacyTextArtifact": {
+      "type": "object",
+      "description": "doc2md 现有 text-only 出口的登记对象（CR BL-2.0.0-02）。与 ParseArtifact 并列、不可互换：没有 document_ir 时只能登记为 PARTIAL 文本能力，结构性能力（document_ir/table_cells/figure_assets）在此层被枚举挡住。",
+      "properties": {
+        "schema_version": {
+          "const": "llmke-legacy-text-artifact/1.0"
+        },
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "content_uid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "parser_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "producer": {
+          "$ref": "#/$defs/Producer"
+        },
+        "read_set_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ArtifactPart"
+          },
+          "minItems": 3
+        },
+        "quality": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "PARTIAL"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "source_alignment"
+                ]
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "warnings": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "state",
+            "capabilities",
+            "warnings"
+          ],
+          "additionalProperties": false
+        },
+        "commit_state": {
+          "const": "COMMITTED"
+        },
+        "committed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "schema_version",
+        "artifact_id",
+        "content_uid",
+        "parser_fingerprint",
+        "producer",
+        "read_set_digest",
+        "parts",
+        "quality",
+        "commit_state",
+        "committed_at"
+      ],
+      "additionalProperties": false
     }
   }
 }

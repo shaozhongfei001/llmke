@@ -30,6 +30,8 @@ def main(argv=None):
     parser.add_argument("--runtime-lock-hash", required=True)
     parser.add_argument("--config-hash", required=True)
     parser.add_argument("--model-fingerprint", action="append", default=[])
+    parser.add_argument("--mode", choices=["v2", "text_only"], default="v2",
+                        help="v2=ParseArtifact（需 document_ir）；text_only=LegacyTextArtifact（CR BL-2.0.0-02）")
     parser.add_argument("--validate", action="store_true", help="用 V2 合同复核产物形状")
     parser.add_argument("--project-root", default=str(REPO_ROOT))
     args = parser.parse_args(argv)
@@ -41,16 +43,19 @@ def main(argv=None):
         "model_fingerprints": args.model_fingerprint,
     }
     try:
-        artifact, target = commit(args.source, args.store, producer, artifact_id=args.artifact_id)
+        artifact, target = commit(args.source, args.store, producer,
+                                  artifact_id=args.artifact_id, mode=args.mode)
         verify_committed(args.store, artifact["artifact_id"])
-        result = {"status": "COMMITTED", "artifact_id": artifact["artifact_id"],
+        result = {"status": "COMMITTED", "schema_version": artifact["schema_version"],
+                  "artifact_id": artifact["artifact_id"],
                   "content_uid": artifact["content_uid"], "parts": len(artifact["parts"]),
                   "quality": artifact["quality"], "target": str(target)}
         if args.validate:
             sys.path.insert(0, str(Path(args.project_root) / "scripts"))
             from contract_runtime import validate_instance
+            definition = "/$defs/ParseArtifact" if args.mode == "v2" else "/$defs/LegacyTextArtifact"
             validate_instance(args.project_root, "schema/llmke-document-pipeline-v2.json",
-                              artifact, "/$defs/ParseArtifact")
+                              artifact, definition)
             result["contract"] = "PASS"
     except ArtifactRefused as exc:
         print(json.dumps({"status": "REFUSED", "code": exc.code, "detail": exc.detail},

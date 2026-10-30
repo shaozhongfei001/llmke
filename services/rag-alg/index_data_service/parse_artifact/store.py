@@ -43,6 +43,10 @@ SINGLETON_FILES = {
     "document_ir.json": "document_ir",
 }
 SINGLETON_ROLES = tuple(SINGLETON_FILES.values())
+# text-only 产物（doc2md 现有 markitdown 路径）：三件套，无 IR。
+# 见 CR BL-2.0.0-02：它不是 ParseArtifact 的降级替身，而是**另一种**登记对象，
+# 能力上只声明 text，结构性能力（document_ir/table_cells/figure_assets）一律不可声明。
+TEXT_ONLY_ROLES = ("parsed_text", "parsed_metadata", "parse_manifest")
 
 # doc2md 产物目录里"不是证据基准"的派生文件：只用于展示，不进证据集。
 # 依据：doc2md `app/core/parsed_paths.py` 声明 parsed_dir 下含 rendered_md（派生展示轨），
@@ -112,14 +116,15 @@ def _walk_source(source_dir):
     return out
 
 
-def collect_parts(source_dir):
+def collect_parts(source_dir, required_roles=SINGLETON_ROLES):
     """把源目录里属于产物的文件枚举成 ArtifactPart 列表（按 relative_path 排序）。
 
     规则：
-      - 四件套必须存在且唯一，缺失即 MISSING_PART；
+      - required_roles 必须存在且唯一，缺失即 MISSING_PART；
       - 未识别的顶层文件不静默收编，直接拒绝（UNKNOWN_TOP_LEVEL_FILE），
         避免把日志/临时文件当成产物发布；
-      - `assets/**` 一律记为 asset 角色。
+      - `assets/**` 记为 asset，`ir_source/**` 记为 ir_source；
+      - `rendered.md` 是派生展示轨，不进证据集。
     """
     entries = _walk_source(source_dir)
     parts = []
@@ -142,7 +147,8 @@ def collect_parts(source_dir):
             "sha256": sha256_file(path),
             "size_bytes": path.stat().st_size,
         })
-    for name, role in SINGLETON_FILES.items():
+    for role in required_roles:
+        name = next((n for n, r in SINGLETON_FILES.items() if r == role), role)
         got = seen_roles.get(role, [])
         if not got:
             raise ArtifactRefused("MISSING_PART", f"{role} ({name})")
@@ -292,6 +298,73 @@ def derive_quality(ir, text, blocks):
 # ─────────────────────────────────────────────────────────────── 构建与提交
 
 
+TEXT_ONLY_SCHEMA = "llmke-legacy-text-artifact/1.0"
+
+
+def _check_text_only(source_dir, parts):
+    """text-only 一致性：只看三件套，**不假装**有 IR。
+
+    与 V2 口径的差别（都是上游事实，不是放宽）：
+      - `parsed_metadata.json` 允许没有 content_uid（doc2md markitdown 路径就没写，
+        见 markitdown_parser.py:437-483）；有则必须与 manifest 一致；
+      - 不校验 IR span/table/figure —— 因为没有 IR，也就不能声明结构化能力。
+    """
+    source = Path(source_dir)
+    text = _check_text((source / "parsed_text.md").read_bytes())
+    legacy = _read_json(source / "parse_manifest.json", "PARSE_MANIFEST_INVALID")
+    metadata = _read_json(source / "parsed_metadata.json", "PARSED_METADATA_INVALID")
+
+    if legacy.get("status") not in {"SUCCESS", "EMPTY"}:
+        raise ArtifactRefused("FAILED_PARSE_REFUSED", str(legacy.get("status")))
+    text_sha = sha256_bytes(text.encode("utf-8"))
+    if legacy.get("output_hash") != text_sha:
+        raise ArtifactRefused("TEXT_HASH_MISMATCH",
+                              f"parse_manifest.output_hash={legacy.get('output_hash')} 实际={text_sha}")
+    content_uid = legacy.get("content_uid")
+    if not isinstance(content_uid, str) or not _SHA256_RE.match(content_uid):
+        raise ArtifactRefused("CONTENT_UID_INVALID", str(content_uid))
+    if metadata.get("content_uid") not in (None, content_uid):
+        raise ArtifactRefused("CONTENT_UID_MISMATCH", str(metadata.get("content_uid")))
+
+    asset_hashes = {p["sha256"] for p in parts if p["role"] == "asset"}
+    legacy_assets = {x.get("sha256") for x in (legacy.get("asset_files") or [])}
+    if asset_hashes != legacy_assets:
+        raise ArtifactRefused("ASSET_MANIFEST_MISMATCH",
+                              f"parts={sorted(asset_hashes)} manifest={sorted(x for x in legacy_assets if x)}")
+    return content_uid, legacy, metadata, text
+
+
+def build_text_only_artifact(source_dir, producer_inputs, artifact_id=None, committed_at=None):
+    """构建 text-only 登记对象（不是 ParseArtifact）。缺失 IR 时才允许走这条路。"""
+    if (Path(source_dir) / "document_ir.json").is_file():
+        raise ArtifactRefused("IR_PRESENT_USE_V2_PATH",
+                              "上游已有 document_ir.json，请走 ParseArtifact 而不是 text-only 登记")
+    parts = collect_parts(source_dir, required_roles=TEXT_ONLY_ROLES)
+    content_uid, _legacy, metadata, text = _check_text_only(source_dir, parts)
+    producer = _producer_from(metadata, producer_inputs)
+    artifact_id = artifact_id or content_uid
+    if not _SAFE_ID_RE.match(str(artifact_id)):
+        raise ArtifactRefused("UNSAFE_ARTIFACT_ID", str(artifact_id))
+    warnings = ["上游未提供 document_ir.json：只登记文本能力，不得声明表格/图片/结构能力"]
+    if not text.strip():
+        warnings.append("正文为空（合法空文件需上游给出证明）")
+    return {
+        "schema_version": TEXT_ONLY_SCHEMA,
+        "artifact_id": artifact_id,
+        "content_uid": content_uid,
+        "parser_fingerprint": parser_fingerprint(producer),
+        "producer": producer,
+        "read_set_digest": read_set_digest(parts),
+        "parts": parts,
+        # 能力只声明 text/source_alignment：结构性能力在这一层被契约挡住
+        "quality": {"state": "PARTIAL",
+                    "capabilities": ["text", "source_alignment"],
+                    "warnings": warnings},
+        "commit_state": "COMMITTED",
+        "committed_at": committed_at or _utc_now(),
+    }
+
+
 def _producer_from(metadata, producer_inputs):
     merged = {
         "name": "doc2md",
@@ -362,15 +435,26 @@ def verify_committed(store_root, artifact_id):
 
 
 def commit(source_dir, store_root, producer_inputs, artifact_id=None,
-           committed_at=None, after_part_copied=None):
+           committed_at=None, after_part_copied=None, mode="v2"):
     """把源产物提交为不可变快照；返回 (artifact, 目标目录)。
+
+    mode="v2"        → ParseArtifact（要求四件套含 document_ir）
+    mode="text_only" → LegacyTextArtifact（三件套，只声明文本能力；见 CR BL-2.0.0-02）
 
     - 幂等：同 artifact_id 且内容一致 → 直接复核后返回既有快照，不重写；
     - 冲突：同 artifact_id 但 content_uid/parts 不同 → ARTIFACT_CONFLICT（不覆盖）；
     - 源在复制期间变化 → SOURCE_CHANGED，staging 清理，目标不产生。
     """
-    artifact = build_artifact(source_dir, producer_inputs,
-                              artifact_id=artifact_id, committed_at=committed_at)
+    if mode == "v2":
+        artifact = build_artifact(source_dir, producer_inputs,
+                                  artifact_id=artifact_id, committed_at=committed_at)
+        required_roles = SINGLETON_ROLES
+    elif mode == "text_only":
+        artifact = build_text_only_artifact(source_dir, producer_inputs,
+                                            artifact_id=artifact_id, committed_at=committed_at)
+        required_roles = TEXT_ONLY_ROLES
+    else:
+        raise ArtifactRefused("UNKNOWN_MODE", str(mode))
     root = Path(store_root)
     target = root / "artifacts" / artifact["artifact_id"]
     if target.exists():
@@ -396,7 +480,7 @@ def commit(source_dir, store_root, producer_inputs, artifact_id=None,
                 raise ArtifactRefused("COPY_MISMATCH", part["relative_path"])
             if after_part_copied is not None:
                 after_part_copied(index, part)
-        if collect_parts(source) != artifact["parts"]:
+        if collect_parts(source, required_roles=required_roles) != artifact["parts"]:
             raise ArtifactRefused("SOURCE_CHANGED",
                                   "复制期间源产物发生变化，候选快照已放弃（不混合两次解析）")
         (staging / "artifact.json").write_text(
