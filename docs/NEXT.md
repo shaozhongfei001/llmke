@@ -27,6 +27,7 @@
   B1 状态：隔离候选写入/回退已成立（v2cand_*，基线未变）；真实上传被 D-01 阻断（缺 libreoffice-writer，需 root）
   C1 状态：hipporag 2.0.0a4 已装成并真跑 index/retrieve（本地 LLM+embedding），chunk 键=chunk-md5(text)，
      同文异源由 SourceMap 保 3→1 不掉来源；跨文档/社区/断网 wheelhouse 未做
+  A2 状态：magic-pdf 1.3.12 可装、GPU 6GB 可用；HF 不可达、ModelScope 可达（权重改走此源）；未装未跑
   B1/C1 下一步：D-01 的候选补丁（跳过 LibreOffice 转换）＋部署验证；C1 扩到 333/329 全量与跨文档路径
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
      + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
