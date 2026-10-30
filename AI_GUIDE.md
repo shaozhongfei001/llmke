@@ -34,3 +34,21 @@
 优先保留成熟内部实现，按契约适配外边界；12项源码、37表/482字段、506条接口的登记在 docs/reuse。未经发布基线、特征回放、实际 DDL、迁移/回退证据与批准，不标记直接复用。禁止凭模型字段清单编造生产 DDL。
 
 规则源为 docs/policies/AGENT-RULES.yaml；两 IDE 的规则和六个通用工作流由它生成。没有第二个 OpenAPI 事实源。Oracle 工具为可选独立工具，不证明 RAG MySQL 37表已完成核验。
+
+## 统一文档 V2（2026-10-30 设计与契约接入）
+
+入口：`docs/design/unified-documents-v2/00_READ_ME_FIRST.md`；实施队列：同目录 `IMPLEMENTATION-QUEUE-V2.md`；接入事实：`ADOPTION_REPORT_20261030.md`；检查点：`docs/NEXT.md`。
+
+**继续有效**：契约优先与 registry 唯一注册入口；固定可解释检索；A01–A17 / C01–C20 / DV-01…26 的验收义务；权限域与代次先于构建；四类状态分离；禁用未证据的能力声明。
+
+**被取代的旧条款**（`docs/r15/TASKS.yaml` 中依赖旧边界者作废，其余保留并映射进实施队列）：
+
+1. "Graph 只预留插入点、社区默认不实现" → 社区/报告/global 为必选能力。
+2. "ES 为必选默认、图经 ES 中转取块" → 目标架构不强制 ES；图直读 MD/IR。
+3. "所有下游共用同一 RAG chunk" → 共用同一解析版本，RAG 与 Graph 各有上下文单元。
+4. "Markdown 只是可读呈现" → `parsed_text.md` 是不可变证据坐标基准。
+5. "整体替换或自研二选一" → 首适配 HippoRAG 经 GraphEnginePort 隔离，替换成本仍需实证。
+
+**新增合同边界**：V2 合同 `x-lifecycle=DESIGN_REVISED_NOT_IMPLEMENTED`，登记≠实现≠批准；旧 v1 18 份合同的冻结与业务证据状态未变；新错误码 PARSE-20x/PIPELINE-20x 只在 V2 域内定义，不塞进 v1 闭集。
+
+**工具纪律（本次新增）**：`make generate/check` 的 OpenAPI 校验只做仓内 `$ref` 解析并在校验期禁网；任何未知外部引用直接失败。改 `contracts/**` 或 `scripts/contract_*.py` 后必须重新 `make generate`，否则 `make check` 以 DRIFT 失败，不得手改 `generated/`。

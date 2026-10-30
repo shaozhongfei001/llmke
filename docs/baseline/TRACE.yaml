@@ -90,3 +90,51 @@ contracts:
   decision_id: BL-1.1.0
   status: TECHNICAL_FROZEN_BUSINESS_EVIDENCE_PENDING
   consumer: producer/consumer adapters plus acceptance profile
+# ── V2 文档管线（decision_id 指 contracts/registry.yaml 的 design_revision.id）──
+# 登记含义：合同已进入技术控制面并可被生成/校验链路解析；
+# 不代表已实现、未冻结、未获业务批准（见 docs/design/unified-documents-v2/）。
+- id: llmke-document-pipeline-v2
+  path: contracts/schema/llmke-document-pipeline-v2.json
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: doc2md adapter and coordinator produce; RAG/graph/community projections and validators consume
+- id: llmke-document-pipeline-api-v2
+  path: contracts/api/llmke-document-pipeline-v2.openapi.yaml
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: platform/API adapter (no HTTP implementation yet) -> document/build/query callers
+- id: llmke-document-events-v2
+  path: contracts/events/llmke-document-pipeline-v2.events.yaml
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: parse/coordinator events -> projection consumers (logical transport, not bound to a new MQ)
+- id: llmke-source-lineage-v2
+  path: contracts/evidence/llmke-source-lineage-v2.yaml
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: source text/facts/reports -> answer assembly (plain RAG may cite SourceRefV2 without graph assertions)
+- id: llmke-document-invariants-v2
+  path: contracts/rules/llmke-document-pipeline-v2.yaml
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: all implementations -> static/runtime/semantic guards (DP-01..26)
+- id: llmke-document-acceptance-v2
+  path: contracts/evaluation/llmke-document-pipeline-v2.yaml
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: implementation and acceptance -> delivery judgement (DV-01..26, all NOT_EXECUTED)
+- id: llmke-entity-types-v1
+  path: contracts/ontology/entity-types.v1.json
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: graph extraction/semantic layer -> M1 27 controlled type codes (registration only; payload unchanged)
+- id: llmke-relations-v1
+  path: contracts/ontology/relations.v1.json
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: graph types dedup/direction rules -> symmetric/domain/range declarations (registration only; payload unchanged)
+- id: llmke-graph-engine-api-v1
+  path: contracts/api/llmke-graph-engine-v1.openapi.yaml
+  decision_id: DOC2MD-UNIFIED-2.0.0
+  status: DESIGN_REVISED_NOT_IMPLEMENTED
+  consumer: platform coordinator -> engine adapter worker (GraphEnginePort; no HippoRAG native types exposed)

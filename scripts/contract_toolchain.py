@@ -5,7 +5,7 @@ import json,os,re,shutil,subprocess,sys,tempfile
 from pathlib import Path
 from datetime import datetime,timezone
 from contract_registry import validate_registry
-from contract_runtime import load,filehash,canonical,inside,check_refs,ContractViolation
+from contract_runtime import load,filehash,canonical,inside,check_refs,ContractViolation,bundle_local_refs,no_network
 from jsonschema import Draft202012Validator
 from openapi_spec_validator import validate as validate_openapi
 DUMMY_RE=re.compile(r'TODO|TBD|FIXME|Replace\s+with|占位|待实现|not\s+implemented',re.I)
@@ -44,7 +44,11 @@ def semantic_errors(root,contracts,layering=True):
     sid=doc.get('$id')
     if sid in schema_ids:raise ContractViolation('duplicate schema $id: '+str(sid))
     if sid:schema_ids[sid]=c.id
-   elif c.type=='api':validate_openapi(doc,base_uri=path.resolve().as_uri())
+   elif c.type=='api':
+    # V2 接入补齐：合同使用仓内 $id 的绝对引用（https://llmke.local/...），
+    # 通用校验器会真的去抓这个 URL（实测发起 HTTPS 连接）。改为先在内存里把
+    # $ref 全部解析成仓内文件并内联，未知外部引用直接失败，校验阶段禁用出网。
+    validate_openapi(bundle_local_refs(root,path)[0])
    else:
     key={'semantic':'entity_types','evidence':'evidence','evaluation':'evaluation','rules':'rules','events':'asyncapi','ontology':'ontology','skills':'skill','actions':'action'}[c.type]
     if key not in doc:raise ContractViolation('missing '+key)
@@ -73,13 +77,20 @@ def semantic_errors(root,contracts,layering=True):
   except Exception as e:errors.append('CROSS_CONTRACT: '+str(e))
  return errors
 
+def semantic_errors_offline(root,contracts,layering=True):
+ """语义校验全程禁网：任何出网尝试都判失败，不允许"碰巧因为没网才通过"。"""
+ with no_network() as attempts:
+  errors=semantic_errors(root,contracts,layering=layering)
+ if attempts:errors=errors+['NETWORK: semantic validation attempted external access (repo-local resolution only)']
+ return errors
+
 def _write_report(root,name,report):
  p=root/'contracts/build'/name;p.parent.mkdir(parents=True,exist_ok=True)
  tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');os.replace(tmp,p)
 
 def generate(root):
  contracts,errors=validate_registry(root)
- if not errors:errors+=semantic_errors(root,contracts,layering=False)
+ if not errors:errors+=semantic_errors_offline(root,contracts,layering=False)
  report={'report_version':2,'stage':'generate','ran_at':datetime.now(timezone.utc).isoformat(),'contracts':[],'failures':errors}
  if not errors:
   report['fingerprints']=fingerprints(root,contracts)
@@ -115,7 +126,7 @@ def check(root):
  contracts,errors=validate_registry(root)
  report={'report_version':2,'stage':'check','contracts':[],'failures':errors}
  if not errors:
-  errors+=semantic_errors(root,contracts)
+  errors+=semantic_errors_offline(root,contracts)
   try:
    generated=load(root/'contracts/build/generate-report.json')
    if generated.get('report_version')!=2 or generated.get('failures'):raise ContractViolation('LINKAGE: missing successful v2 generate report')

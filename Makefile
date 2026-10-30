@@ -1,4 +1,4 @@
-.PHONY: help generate check contract-all framework-test framework-verify tooling-test oracle-readonly-guard-test p0-check p0-gate p0-status security-check baseline-check rules-check trace-check mutation-probe reuse-check discovery-verify business-verify run-dev memory-check evidence-check new-loop baton-transfer module-test python-info
+.PHONY: help generate check contract-all contract-v2-check framework-test framework-verify tooling-test oracle-readonly-guard-test p0-check p0-gate p0-status security-check baseline-check rules-check trace-check mutation-probe reuse-check discovery-verify business-verify run-dev memory-check evidence-check new-loop baton-transfer module-test python-info
 LOOP ?=
 EXECUTOR ?=
 PROFILE ?= L1
@@ -20,6 +20,13 @@ framework-test:
 	@$(PY) -m pytest tests/ modules/ -q
 module-test:
 	@$(PY) -m pytest modules/ -q
+# V2 文档管线合同自查（仓内解析、离线、不替代 contract-all）
+# 为什么单列：这两个脚本覆盖 V2 新增的 schema/API/来源/规则/验收合同与合成样例，
+# 而通用 contract_toolchain 只做 registry 驱动的语义+联动，不校验样例一致性。
+contract-v2-check:
+	@$(PY) scripts/document_pipeline_v2_offline_check.py
+	@$(PY) scripts/document_pipeline_v2_validate.py
+	@$(PY) -m pytest tests/test_contract_semantics.py tests/test_document_pipeline_v2_contracts.py -q
 framework-verify:
 	@$(MAKE) --no-print-directory contract-all
 	@$(MAKE) --no-print-directory rules-check
