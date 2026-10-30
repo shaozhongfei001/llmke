@@ -21,7 +21,10 @@
 真实外部阻塞：HippoRAG 版本/离线依赖（U-03）；真实生产 DDL 与恢复副本权限（U-07）；
         P0/正式门禁/独立QA/发布授权（保持真实状态）
 下一精确动作（按任务书 A→B→C→D→Q）：
-  B1 实时链路接入：把投影接到上传→解析任务，先在隔离 V2 测试库启用 snapshot 并验证回退
+  B1 实时链路接入：集成层与影子钩子已落地（见下），下一步是**在隔离 V2 测试库启用 snapshot 写入**
+     并验证回退；需要先决定测试 ES/Milvus 索引命名与清理方式（不得污染 kb_9 基准）
+  B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
+     + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
   A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office
   C1 选定并固定 HippoRAG 版本，独立环境安装 + native_id→input_unit→SourceRef 映射
   D1 取真实 DDL（只导结构）→ 隔离恢复副本 → 迁移草案验证 parse_artifact_id
@@ -98,7 +101,7 @@
 | `make trace-check` | FAIL：`planned/actual loop set mismatch`（`loops/R12-real-rag` 未登记进 `PROJECT-PLAN.yaml`） | 既有，U-04 |
 | `make baseline-check` | FAIL：冻结控制面漂移（既有 `.gitignore`；本次追加 `contracts/*`） | 需授权重冻结，U-05 |
 | `make security-check` | FAIL 1861 条（R12 平台配置含真实连接串/口令/个人路径） | 既有，本次新增 0 |
-| `pytest tests/` | 270 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
+| `pytest tests/` | 279 passed / 3 skipped / 1 failed（`test_framework_repo_itself_is_clean`，同上） | 既有 |
 
 ## 4. 待定（阻塞后继，不影响本分支其他工作）
 

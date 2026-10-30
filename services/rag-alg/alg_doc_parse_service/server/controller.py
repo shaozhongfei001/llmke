@@ -742,6 +742,55 @@ def parse_without_indexing(parse_params: ParseParams):
 
 
 @try_catch
+def _shadow_report(parse_params: ParseParams, legacy_counts: dict):
+    """影子对照：只读快照、只写报告。任何异常都吞掉并记日志，绝不影响索引结果。
+
+    三条前提都满足才动作，否则直接返回（默认线上就是这三条不满足）：
+      INGEST_PROJECTION_MODE=shadow、INGEST_ARTIFACT_ROOT 指向快照仓、
+      INGEST_SHADOW_DIR 指向可写目录。
+    依赖为可选：导入不到 rag_projection 时记 SKIPPED_NO_MODULE，不影响解析任务。
+    """
+    mode = (os.environ.get('INGEST_PROJECTION_MODE') or 'legacy').strip().lower()
+    root = os.environ.get('INGEST_ARTIFACT_ROOT')
+    outdir = os.environ.get('INGEST_SHADOW_DIR')
+    if mode != 'shadow' or not root or not outdir:
+        return
+    try:
+        import hashlib
+        import sys as _sys
+        from pathlib import Path as _Path
+
+        _sys.path.insert(0, str(_Path(__file__).resolve().parents[3] / 'index_data_service'))
+        from ingest_pipeline import compare_channels, ingest
+
+        report = {'mode': mode, 'legacy': legacy_counts, 'files': []}
+        for _file in parse_params.files:
+            entry = {'file_path': _file.file_path}
+            try:
+                _p = _Path(_file.file_path)
+                uid = hashlib.sha256(_p.read_bytes()).hexdigest()
+                artifact_dir = _Path(root) / uid
+                result = ingest(artifact_dir, index_name=parse_params.index_name,
+                                file_id=_file.file_id, mode=mode)
+                entry.update({'status': result['status'], 'artifact_id': result.get('artifact_id'),
+                              'projected': result.get('counts'),
+                              'diff': compare_channels(
+                                  {'kb_9': legacy_counts['kb_9']},
+                                  {'kb_9': result.get('counts', {}).get('kb_9', 0)})})
+            except Exception as exc:  # noqa: BLE001 - 影子臂不得影响主链路
+                entry['status'] = 'SKIPPED'
+                entry['reason'] = f'{type(exc).__name__}: {str(exc)[:200]}'
+            report['files'].append(entry)
+        _Path(outdir).mkdir(parents=True, exist_ok=True)
+        _out = _Path(outdir) / f'shadow_{parse_params.task_id or "adhoc"}.json'
+        _out.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
+        logger.info(f'[v2-shadow] 报告已写入 {_out}')
+    except ImportError as exc:
+        logger.warning(f'[v2-shadow] SKIPPED_NO_MODULE: {exc}')
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(f'[v2-shadow] 对照失败（不影响解析任务）: {exc}')
+
+
 def parse_task(parse_params: ParseParams):
     doc_parse_config = DocParseConfig()
     gateway_ip = doc_parse_config.configs['java-common']['server']['host-ip']
@@ -857,6 +906,14 @@ def parse_task(parse_params: ParseParams):
                         logger.info(f"[milvus]index服务插入[{task_name}]耗时: {(time.time() - milvus_time):.2f}s")
 
                 logger.info(f'[es][milvus]index服务插入索引总花费时间：{(time.perf_counter() - timer):.2f}s')
+
+                # V2 / B1 影子对照：仅在 INGEST_PROJECTION_MODE=shadow **且** 配了
+                # INGEST_ARTIFACT_ROOT 时，拿同内容已提交的快照再算一遍分块，把两臂
+                # 的通道计数写进报告。**不改任何被索引的 chunks**，失败也不影响任务。
+                _shadow_report(parse_params, {
+                    'kb_9': len(parser_chunks),
+                    'table_chunks_kb_9': len(parser_table_chunks),
+                })
 
             else:
                 parser.parse_without_chunking(need_image_boxes=False)
