@@ -51,8 +51,12 @@ def resolve(env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     provider = (env.get("LLMKE_ANSWER_PROVIDER") or DEFAULT_PROVIDER).strip().lower()
 
     if provider == "local":
+        # 本地端点也要限流：它同样占 GPU/CPU、同样会把请求打爆。
+        # 早先这里没有 budget 键，`LLMKE_ANSWER_RATE` 对 local **静默不生效**——
+        # "配了没反应"比"不支持"更难查，所以两个分支保持一致。
         return {"schema": SCHEMA, "provider": "local", "base": LOCAL_BASE, "model": LOCAL_MODEL,
                 "key_env": None, "key": None,
+                "budget": _budget_from_env(env),
                 "timeout": int(env.get("LLMKE_ANSWER_TIMEOUT", "120")),
                 "max_tokens": int(env.get("LLMKE_ANSWER_MAX_TOKENS", "1024"))}
 

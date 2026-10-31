@@ -90,3 +90,15 @@ def test_budget_rejects_bad_rate_with_original_value():
     with pytest.raises(ValueError) as excinfo:
         resolve({"DSEEK_2026_SZF_KEY": "k", "LLMKE_ANSWER_RATE": "abc"})
     assert "abc" in str(excinfo.value)
+
+
+def test_local_provider_also_gets_budget():
+    """local 端点同样受限流管：配了 rate 却静默不生效，比"不支持"更难查。"""
+    from graph_engine_adapter.llm_config import resolve
+
+    cfg = resolve({"LLMKE_ANSWER_PROVIDER": "local", "LLMKE_ANSWER_RATE": "2/60"})
+    assert cfg["provider"] == "local"
+    assert cfg["budget"] is not None
+    assert cfg["budget"].stats()["capacity"] == 2.0
+    # 不配 rate 时仍然是 None（默认关闭）
+    assert resolve({"LLMKE_ANSWER_PROVIDER": "local"})["budget"] is None

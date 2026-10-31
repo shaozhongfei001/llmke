@@ -41,6 +41,20 @@ retry_after > 0；describe() 不含密钥明文
    `pytest` 收集时不报，跑几分钟后才在检查函数处炸。加 `tests/test_scripts_compile.py`
    对 `scripts/` 做 compileall——这类错误应该在 0.1 秒内被拦住，而不是几分钟后。
 
+## 角色回报暴露的两处问题（已处理一处，另一处如实记录）
+
+**1. local provider 静默不限流（已修）**
+`resolve()` 的 local 分支早返回，没有 `budget` 键 → `LLMKE_ANSWER_RATE` 对本地端点**配了没反应**。
+"配了没反应"比"不支持"更难查，所以两个分支现在一致（本地端点同样占 GPU/CPU，同样该限流）。
+测试：`test_local_provider_also_gets_budget` 钉住"配了就有、没配仍是 None"。
+
+**2. 服务调用链尚未经过预算（未修，如实记录）**
+`make_llm_call` 在 `services/` 内**没有调用点**：`answer.assemble` 是"调用方注入 llm_call"，
+真正的使用者是 `scripts/v2_answer_e2e.py`、`scripts/v2_community_report.py`。
+也就是说限流目前只覆盖脚本路径；若将来某个服务自己拼 urllib 调模型，限流不会生效。
+没有去改 `answer.assemble` 签名强塞 budget（会与"调用方注入"的设计打架，也容易造成重复扣减），
+这条记为"接线面待定"，等真正的服务入口落地时再收口。
+
 ## 边界
 
 - 限流是**单进程内计数**：多 worker/多实例各自一份桶，总配额会被放大（要分布式配额得走 Redis，未做）；

@@ -259,6 +259,9 @@
          ②把 CallBudget 塞进 report 导致 json.dump 中途失败留下截断文件、Q 崩溃 → 只序列化 stats + Q 容错；
          ③我重复犯的引号错 → 新增 tests/test_scripts_compile.py（compileall 全量脚本）。
        未做：多进程/分布式配额、重试风暴不被限流、配额耗尽告警、图重建/embedding 未接
+       角色回报补充：①local 分支原先没有 budget 键（配了静默不生效）→ 已统一补上并加测试；
+       ②make_llm_call 在 services/ 内无调用点（answer.assemble 由调用方注入 llm_call），
+         限流目前只覆盖脚本路径，服务入口落地时再收口——已写进证据，不当成已覆盖
     2e) 部署剩余：灰度发布、真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
