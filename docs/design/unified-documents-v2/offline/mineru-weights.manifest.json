@@ -1,0 +1,95 @@
+{
+ "schema": "llmke.model-weights.v1",
+ "source": "modelscope:opendatalab/PDF-Extract-Kit-1.0",
+ "preset": "scanned-cn",
+ "fetched_at": "2026-10-31T13:54:55+0800",
+ "file_count": 17,
+ "total_bytes": 2086075128,
+ "files": [
+  {
+   "path": "models/Layout/YOLO/doclayout_yolo_docstructbench_imgsz1280_2501.pt",
+   "bytes": 39772550,
+   "sha256": "1b152460888dc30be6db7f5dfab28bde3dcc999e5202f46187a764a1699c80be"
+  },
+  {
+   "path": "models/Layout/YOLO/doclayout_yolo_ft.pt",
+   "bytes": 40709302,
+   "sha256": "9a2ee0220fe3d9ad31b47e1d9f1282f46959a54e4618fce9cffcc9715b8286e2"
+  },
+  {
+   "path": "models/Layout/YOLO/yolov10l_ft.pt",
+   "bytes": 52275810,
+   "sha256": "fad2c4c27428e5525460321a099327bb9810880934ee9e3e1a68d25d22887cd6"
+  },
+  {
+   "path": "models/MFD/YOLO/yolo_v8_ft.pt",
+   "bytes": 349867002,
+   "sha256": "41029d5abb9b0b6df825ecaf8adf9151762ea0688ac0fc4ea0ea34ab9a5808fc"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/README.md",
+   "bytes": 1657,
+   "sha256": "96574f3857e919353024edc423b9165dbf46e902cfe97b5b7ec552283bd744f6"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/config.json",
+   "bytes": 5094,
+   "sha256": "64c02e9897410658f7668c6a334a8b306276e4697656cbe06f86d8c4f01fc040"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/generation_config.json",
+   "bytes": 191,
+   "sha256": "d56ca9d5c5efa4283a2565ae42771bafd02910b56ef9c53e9b441c9c4c896d09"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/model.safetensors",
+   "bytes": 810036696,
+   "sha256": "9244e2565585c0f89bc3a6eeeea080ef3c588375fc0d536074fe88e80b917cda"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/special_tokens_map.json",
+   "bytes": 552,
+   "sha256": "358c249e2fb29060c6b73157d428853b0c48710deffc8ee670ab1013880946c9"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/tokenizer.json",
+   "bytes": 3581950,
+   "sha256": "f8e29e3c3a8017f067b62a3d2d9211bb4cebc08a25afe58d3a6069981e3684d6"
+  },
+  {
+   "path": "models/MFR/unimernet_hf_small_2503/tokenizer_config.json",
+   "bytes": 4522,
+   "sha256": "28b99e33895e06389c26c139b1333b82b7f5d8ed5f4fd14998acfd7c20989338"
+  },
+  {
+   "path": "models/OCR/paddleocr_torch/Multilingual_PP-OCRv3_det_infer.pth",
+   "bytes": 2540826,
+   "sha256": "05eb1c89030b269b830ba7f2d424a4ac80c7593ea1795fef9777fedbc18e383f"
+  },
+  {
+   "path": "models/OCR/paddleocr_torch/ch_PP-OCRv4_rec_infer.pth",
+   "bytes": 26919769,
+   "sha256": "cb4265bb4300a2487e93e82ccfa1924bf9cd1194c1a202ab17a96b4911c27e0b"
+  },
+  {
+   "path": "models/OCR/paddleocr_torch/ch_PP-OCRv5_det_infer.pth",
+   "bytes": 14506268,
+   "sha256": "df848ed5060bac4d0f6e58572aea97d92e909a8a87cf292849237b0e84f6ffdb"
+  },
+  {
+   "path": "models/OCR/paddleocr_torch/ch_PP-OCRv5_rec_infer.pth",
+   "bytes": 32611609,
+   "sha256": "d20ee8dac2ca63e2d1989b02ecc42595c71d61bf8dd8c8ddc5ad2ee68e7b5be2"
+  },
+  {
+   "path": "models/ReadingOrder/layout_reader/config.json",
+   "bytes": 24118,
+   "sha256": "b77e78d8333ee47d5c618eb08ca2070c22347cab5d753b1461e366cda9f42698"
+  },
+  {
+   "path": "models/ReadingOrder/layout_reader/model.safetensors",
+   "bytes": 713217212,
+   "sha256": "9df7c046b212c1892a649cbf98f2a521bbb32741e8cbc06f10ffd4247b53c451"
+  }
+ ]
+}
