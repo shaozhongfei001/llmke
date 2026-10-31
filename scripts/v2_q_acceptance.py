@@ -161,6 +161,38 @@ def check_capabilities():
            None if ok else f"无证据却声明 VERIFIED: {lying} 或 GRAPH 路线被误标 {route}")
 
 
+def check_retrieval_orchestration():
+    """编排层不变量：路线必须带原因；强制图验收不得靠回退通过；引用要能判失效。"""
+    from graph_engine_adapter import Assertion, AssertionStore, SourceRef
+    from graph_engine_adapter.pipeline import retrieve
+
+    class Fake:
+        def dense(self, q, k):
+            return [{"text": "d", "sources": [{"file_id": "333"}]}]
+
+        def graph(self, q, seeds, k):
+            return [{"text": "g", "sources": [{"file_id": "333"}]}]
+
+    s = AssertionStore()
+    s.register_entity("p", "产品甲")
+    s.add(Assertion(subject="p", predicate="额度", object_value=8000, unit="万元",
+                    key="额度", sources=[SourceRef("333", "a" * 64)]))
+
+    graph_out = retrieve("产品甲的额度", store=s, retriever=Fake())
+    fallback = retrieve("无关问题", store=s, retriever=Fake())
+    forced = retrieve("无关问题", store=s, retriever=Fake(), require_graph=True)
+    invalid = retrieve("产品甲的额度", store=s, retriever=Fake(), known_files={"999"})
+
+    ok = (graph_out["route"] == "GRAPH" and graph_out["passed"]
+          and fallback["route"] == "DENSE_FALLBACK" and fallback["reason"] == "NO_SEED_ENTITY"
+          and forced["passed"] is False                     # 强制图验收不许回退通过
+          and len(invalid["invalid_citations"]) == 1)
+    record("graph:检索编排不变量", "PASS" if ok else "FAIL",
+           {"graph": graph_out["route"], "fallback": fallback["reason"],
+            "forced_passed": forced["passed"], "invalid": len(invalid["invalid_citations"])},
+           "编排层（假 retriever）；真实引擎接线未做")
+
+
 def check_mineru():
     cfg = Path(os.environ.get("MINERU_TOOLS_CONFIG_JSON",
                               os.path.expanduser("~/mineru/magic-pdf.json")))
@@ -288,6 +320,7 @@ def main(argv=None):
     check_legacy_channels()
     check_mapping()
     check_capabilities()
+    check_retrieval_orchestration()
     check_mineru()
     check_business_semantics()
     for item, why in NOT_IMPLEMENTED:

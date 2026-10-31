@@ -66,6 +66,12 @@ CAPABILITIES = {
                 "九条业务语义用构造数据反证（引擎侧接线仍缺）",
         "evidence": "tests/test_graph_assertions.py",
     },
+    "platform_retrieval_orchestration": {
+        "status": "VERIFIED",
+        "note": "路线先判（GRAPH/DENSE_FALLBACK + 原因）、require_graph 时回退不算通过、"
+                "引用对回断言并校验可见性；用假 retriever 验编排，真实引擎接线仍缺",
+        "evidence": "tests/test_graph_pipeline.py",
+    },
     "engine_predicate_normalization": {
         "status": "NOT_IMPLEMENTED",
         "note": "断言层已能表达方向与单位，但引擎抽取结果尚未归一进该层",

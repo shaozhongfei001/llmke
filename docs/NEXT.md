@@ -49,7 +49,9 @@
     · 离线交付：四 wheelhouse 空 venv 安装 4 PASS（查清 parse 缺 torch，须由 models 包补）；
       六镜像 tar 摘要/标签/层 6 PASS（刻意不 docker load，避免覆盖在用 tag）
   下一步（按依赖顺序，不询问）：
-    1) 图业务能力：谓词归一/数值一致性/版本过滤/可见性隔离的图执行层，逐项把 Q 的 8 项转成可验
+    1) 图能力已推进：标准断言层（方向/单位/生效期/可见范围/多来源/引用校验）+ 检索编排层
+       （路线先判、require_graph 不许回退通过、引用收口）已落地，Q 25 PASS/0 FAIL/2 NOT_IMPLEMENTED；
+       剩余：把 HippoRAG 真实抽取与检索接到断言层（engine_* 三项仍 NOT_IMPLEMENTED）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）

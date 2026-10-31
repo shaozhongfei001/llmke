@@ -52,3 +52,21 @@
   仍为 NOT_IMPLEMENTED（引擎检索尚未按这些约束执行）。
 
 当前计数：VERIFIED 4 / NOT_VERIFIED 1 / NOT_IMPLEMENTED 7。
+
+## 编排层（`pipeline.py`，7 项测试）
+
+`retrieve()` 把三件事固定下来，顺序不能换：
+
+1. **先判路线**：`decide_route` → `GRAPH` / `DENSE_FALLBACK` + 原因
+   （`GRAPH_DISABLED` / `NO_SEED_ENTITY` / `SEEDS_UNKNOWN` / `SEEDS_WITHOUT_ASSERTIONS`）；
+2. **再调引擎**：图路线走 `retriever.graph`，回退走 `retriever.dense`；引擎只给候选；
+3. **最后收口引用**：命中来源对回断言，`known_files` 判可见性，失效引用单列。
+
+两条关键不变量已用测试钉住：
+
+- `require_graph=True` 时一旦回退，`passed=False`——**强制图验收不能靠稠密回退通过**；
+- 断言对该 scope 不可见时按"无种子事实"处理并回退，**不偷偷用隐藏事实**。
+
+Q 增加 `graph:检索编排不变量`，现 **25 PASS / 0 FAIL / 2 NOT_IMPLEMENTED**。
+该检查的 boundary 写明"编排层（假 retriever）；真实引擎接线未做"——
+用假 retriever 验的是编排逻辑，不是模型效果，两者不能混。

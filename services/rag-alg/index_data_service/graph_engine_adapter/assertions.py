@@ -94,6 +94,15 @@ class AssertionStore:
         ids = self._aliases.get(name_or_id) or set()
         return next(iter(ids)) if len(ids) == 1 else None
 
+    def entity_names(self) -> List[str]:
+        """所有登记过的名字（含别名），供查询侧认种子用。"""
+        return sorted(self._aliases)
+
+    def facts_by_source(self, file_id: str) -> List[Assertion]:
+        """按来源反查断言：引用收口时用。"""
+        return [a for a in self._assertions.values()
+                if any(s.file_id == file_id for s in a.sources)]
+
     def entities_named(self, name: str) -> List[str]:
         """同名异体：返回**所有** canonical id，绝不擅自挑一个。"""
         return sorted(cid for cid, names in self._entities.items()

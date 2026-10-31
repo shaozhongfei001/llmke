@@ -3,5 +3,6 @@
 from .assertions import (DENSE_FALLBACK, GRAPH, Assertion, AssertionStore, SourceRef,
                          decide_route)  # noqa: F401
 from .capabilities import describe  # noqa: F401
+from .pipeline import find_seeds, retrieve  # noqa: F401
 from .mapping import (SCHEMA, InputUnit, SourceMap, input_unit_id, native_key,
                       units_from_chunks)  # noqa: F401
