@@ -51,3 +51,25 @@ python scripts/install_offline_bundle.py --manifest offline/r12-graph-venv-py311
 2. **容器镜像**：Milvus / ES / MinIO / etcd / Redis / MySQL 的镜像 tar 未导出；
 3. **前端静态资源**：未见构建产物清单；
 4. **venv wheelhouse 只下了 graph 一个**（后台作业，`/tmp/wh-graph`），其余三个未拉。
+
+## 5. 中间件镜像包（本轮补）
+
+按**运行中容器的实际镜像**导出（不是按猜测的镜像名），`docker save` 后生成清单：
+
+| 镜像 | tar 体积 |
+|---|---|
+| `milvusdb/milvus:v2.5.6` | 1.6 GB |
+| `r12/elasticsearch-ik:8.13.4` | 1.2 GB |
+| `mysql:8.4` | 794 MB |
+| `minio/minio:RELEASE.2023-03-20T20-16-18Z` | 244 MB |
+| `quay.io/coreos/etcd:v3.5.5` | 179 MB |
+| `redis:7.4.10-alpine` | 39 MB |
+| **合计** | **3.98 GB**（6 个） |
+
+清单：`offline/r12-middleware-images.manifest.json`（逐 tar 的 sha256 + 字节数 + 镜像名），
+生成用 `scripts/build_image_bundle.py`（镜像名与文件名显式映射，不做猜测）。
+`docker load` 回环已用最小的 redis 镜像验证：`Loaded image: redis:7.4.10-alpine`。
+
+一个实际踩过的坑：最初导出了 `openspg-minio` 和 `mysql:8.0`，而运行栈用的是
+`minio/minio:RELEASE.2023-03-20` 与 `mysql:8.4`——**镜像名必须从 `docker inspect <container>` 取**，
+不能按仓库里出现过的名字猜，否则离线包会"装得上但版本不对"。

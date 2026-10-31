@@ -1,0 +1,46 @@
+{
+ "schema": "llmke.image-bundle.v1",
+ "name": "r12-middleware-images",
+ "built_at": "2026-10-31T13:11:17+0800",
+ "load_command": "docker load -i <file>",
+ "total_bytes": 4274778112,
+ "images": [
+  {
+   "image": "milvusdb/milvus:v2.5.6",
+   "file": "milvusdb_milvus_v2.5.6.tar",
+   "bytes": 1713310720,
+   "sha256": "79e77a1375bd9ad1d2d747c2f03bf171535c06a50700ed6cfd832cc2bf0ed709"
+  },
+  {
+   "image": "r12/elasticsearch-ik:8.13.4",
+   "file": "r12_elasticsearch-ik_8.13.4.tar",
+   "bytes": 1247414272,
+   "sha256": "2b997596f71e20db5b5dd712e9eafcdc250a8c53e8a49decbf010dcb618833b5"
+  },
+  {
+   "image": "mysql:8.4",
+   "file": "mysql_8.4.tar",
+   "bytes": 832249856,
+   "sha256": "04c69767e24f51cace7d7e4dbb01467d311c3a45946244e988e7e6802aaff97c"
+  },
+  {
+   "image": "redis:7.4.10-alpine",
+   "file": "redis_7.4.10-alpine.tar",
+   "bytes": 39906816,
+   "sha256": "36b1f12ffaa7c2b1c90657ff319dffb476617fd0d9bd706c113ea82188fc214a"
+  },
+  {
+   "image": "minio/minio:RELEASE.2023-03-20T20-16-18Z",
+   "file": "minio_minio_RELEASE.2023-03-20T20-16-18Z.tar",
+   "bytes": 254981632,
+   "sha256": "586fb697534eb4adf5d24956405de81264b336d23f037f63f190bb8be69f3bb7"
+  },
+  {
+   "image": "quay.io/coreos/etcd:v3.5.5",
+   "file": "quay.io_coreos_etcd_v3.5.5.tar",
+   "bytes": 186914816,
+   "sha256": "3821353274c6dad993f81bfb5daaa8f4a9ee302268a1c51219505054c8457ba5"
+  }
+ ],
+ "untracked_tars": []
+}
