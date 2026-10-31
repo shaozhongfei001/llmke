@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 42,
+  "PASS": 43,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 0
@@ -281,7 +281,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 362,
+     "blocked": 328,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +297,10 @@
      "340"
     ],
     "readers_blocked": [
-     958,
-     958,
-     957,
-     956
+     841,
+     839,
+     842,
+     839
     ],
     "readers_allowed": [
      0,
@@ -390,14 +390,14 @@
      "B": 1
     },
     "fencing": {
-     "A": 2,
+     "A": null,
      "B": 1
     },
     "not_leader": {
-     "A": 157,
+     "A": 179,
      "B": 0
     },
-    "lease_key": "q-lease-1793462573"
+    "lease_key": "q-lease-1793463894"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -429,7 +429,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 42.4,
+    "elapsed_s": 36.3,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -449,7 +449,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:33131/hook",
+     "url": "http://127.0.0.1:46087/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -462,9 +462,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 37.8,
-    "delta_s": 7.6,
-    "speedup_x": 5.0,
+    "full_s": 44.1,
+    "delta_s": 3.8,
+    "speedup_x": 11.5,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -513,15 +513,34 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 00:09:01.148 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 00:09:02.291 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 00:09:02.291 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 00:09:02.296 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 00:30:55.951 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 00:30:57.130 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 00:30:57.130 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 00:30:57.135 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
    },
    "boundary": "真实 nacos 开关 + MinIO 取文件；只测扫描 PDF，未测 doc/docx 转换路径"
+  },
+  {
+   "item": "infra:镜像条件 load 与冒烟",
+   "status": "PASS",
+   "evidence": {
+    "images": 6,
+    "verdict": "PASS",
+    "refused": [],
+    "smoke_failed": [],
+    "smoke": {
+     "milvusdb/milvus": "PASS",
+     "r12/elasticsearch-ik": "PASS",
+     "mysql": "PASS",
+     "redis": "PASS",
+     "minio/minio": "PASS",
+     "quay.io/coreos/etcd": "PASS"
+    }
+   },
+   "boundary": "load 仅在 tar 与本地镜像 ID 完全一致时执行（no-op）；未在干净机首装"
   },
   {
    "item": "biz:global 报告/引用失效识别",
@@ -544,8 +563,8 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款按业务日跨账户汇总/天数，数据源为T-CORE-001；用电量按月度同比，数据源为T-EXT",
-    "citations": 3,
+    "answer": "多指标对账口径包括：日均存款的数据源为 T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源为 T-EX",
+    "citations": 2,
     "model": "deepseek-flash"
    },
    "boundary": "真实端到端（外部回答模型 + 本地引擎 + CJK 补丁），单问句；多跳/合计/跨文档未覆盖"

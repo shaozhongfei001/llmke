@@ -798,6 +798,40 @@ def check_use_mineru_switch():
            "真实 nacos 开关 + MinIO 取文件；只测扫描 PDF，未测 doc/docx 转换路径")
 
 
+def check_image_load_smoke():
+    """镜像包：条件 load（ID 一致才 load）+ 冒烟启动。不是干净机首装，但能证明镜像起得来。"""
+    import subprocess
+
+    delivery = os.path.expanduser(os.environ.get("V2_DELIVERY", "~/delivery"))
+    if not os.path.isdir(os.path.join(delivery, "images-r12")):
+        record("infra:镜像条件 load 与冒烟", "SKIP",
+               {"why": "交付目录缺失", "delivery": delivery})
+        return
+    env = {**os.environ, "PATH": os.environ.get("PATH", "")}
+    proc = subprocess.run(["docker", "version", "--format", "{{.Server.Version}}"],
+                          capture_output=True, text=True, env=env)
+    if proc.returncode != 0:
+        record("infra:镜像条件 load 与冒烟", "SKIP", {"why": "docker 不可用"})
+        return
+    out = tempfile.mktemp(suffix=".json")
+    run = subprocess.run([sys.executable, str(REPO / "scripts/v2_verify_image_bundles.py"),
+                          "--delivery", delivery, "--load", "--smoke", "--out", out],
+                         capture_output=True, text=True, timeout=1800, env=env)
+    if not os.path.isfile(out):
+        record("infra:镜像条件 load 与冒烟", "FAIL", {"tail": (run.stderr or "")[-200:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    results = d["results"]
+    refused = [r["image"] for r in results if r.get("load") == "REFUSED"]
+    smoke_bad = [r["image"] for r in results if r.get("smoke") == "FAIL"]
+    ok = d["verdict"] == "PASS" and not refused and not smoke_bad
+    record("infra:镜像条件 load 与冒烟", "PASS" if ok else "FAIL",
+           {"images": len(results), "verdict": d["verdict"],
+            "refused": refused, "smoke_failed": smoke_bad,
+            "smoke": {r["image"].split(":")[0]: r.get("smoke") for r in results}},
+           "load 仅在 tar 与本地镜像 ID 完全一致时执行（no-op）；未在干净机首装")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -1028,6 +1062,7 @@ def main(argv=None):
     check_incremental_rebuild()
     check_mineru_wheelhouse()
     check_use_mineru_switch()
+    check_image_load_smoke()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

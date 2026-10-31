@@ -209,7 +209,17 @@
        ②MinerUParser 拼 request_id.get()，无请求上下文即 TypeError；
        ③平台 loguru enqueue 队列 sink 被 magic_pdf 多进程 pickle；④load_files 只认 MinIO 路径。
        未做：doc/docx 转换路径（LibreOffice）、热切换并发、self-built OCR 模型齐套、线上 data-id 仍 false
-    2) 部署收口：镜像 tar 在干净机 load + 服务启动、差分升级演练
+    2a) 部署收口（本轮）：
+       · 镜像改为"条件 load"：先比 tar 内 Config 摘要与本地 .Id，6 个全一致才 load（no-op），
+         不一致一律 REFUSED；load 后 --network none 冒烟：mysql/redis/etcd/minio/ES/milvus 全 PASS
+         （ES 在隔离网络下会先打 hostname ERROR，仍输出 Version，故冒烟判据看期望片段不只看 rc）；
+       · scripts/v2_delta_upgrade.py：按**包名**做差集（不是文件名），多清单同包后覆盖先并记
+         superseded，替换必须 --allow-replace，收尾 --repin。真跑 parse→+models+mineru：
+         新增 56 / 替换 25 / 安装 81（非全量 250+），repin numpy==1.26.4 后探针 111 字符通过。
+       · 结论：把 MinerU 并进 parse 不是"加一个包"，而是**替换 25 个核心依赖**
+         （fastapi/pydantic/starlette/uvicorn/pandas/httpx/scipy…），建议仍用独立 venv/服务。
+       未做：干净机首装、服务进程用新依赖真跑、pdfminer.six pin 冲突、差分回滚脚本
+    2b) 部署剩余：进程守护与启动顺序、灰度发布、真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层
