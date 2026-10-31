@@ -61,7 +61,9 @@ def main(argv=None):
     ap.add_argument("--queries", nargs="+", required=True)
     ap.add_argument("--save-dir", default="/tmp/hippo-cjk")
     ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
-    ap.add_argument("--model", default="qwen2.5-7b-instruct")
+    ap.add_argument("--provider", default="deepseek", choices=["deepseek", "local"],
+                    help="回答段模型来源：deepseek（默认，DeepSeek-V4.1-Flash）/ local")
+    ap.add_argument("--model", default=None, help="模型 id；不传则用 llm_config 的默认值")
     ap.add_argument("--api-base", default=None,
                     help="外部 OpenAI 兼容端点，如 https://dashscope.aliyuncs.com/compatible-mode/v1")
     ap.add_argument("--api-key-env", default=None, help="存放 API key 的环境变量名（不传 key 值本身）")
@@ -104,16 +106,24 @@ def main(argv=None):
     store = norm["store"]
     retriever = EngineRetriever(
         engine, source_lookup=lambda text: to_refs(sm.sources_for(native_key(text))))
-    api_key = os.environ.get(args.api_key_env) if args.api_key_env else None
+    from graph_engine_adapter.llm_config import describe as describe_llm
+    from graph_engine_adapter.llm_config import make_llm_call as make_configured_call
+    from graph_engine_adapter.llm_config import resolve as resolve_llm
+
+    env_override = dict(os.environ)
+    env_override["LLMKE_ANSWER_PROVIDER"] = args.provider
     if args.api_base:
-        if args.api_key_env and not api_key:
-            print(json.dumps({"status": "NO_API_KEY_ENV", "env": args.api_key_env},
-                             ensure_ascii=False))
-            return 2
-        llm_call = make_llm_call(f"{args.api_base.rstrip('/')}/chat/completions", args.model,
-                                 api_key=api_key)
-    else:
-        llm_call = make_llm_call(f"{args.llm}/chat/completions", args.model)
+        env_override["LLMKE_ANSWER_API_BASE"] = args.api_base
+    if args.api_key_env:
+        env_override["LLMKE_ANSWER_KEY_ENV"] = args.api_key_env
+    if args.model:
+        env_override["LLMKE_ANSWER_MODEL"] = args.model
+    llm_cfg = resolve_llm(env_override)
+    llm_summary = describe_llm(llm_cfg)
+    if not llm_summary["ready"]:
+        print(json.dumps({"status": "LLM_NOT_READY", "llm": llm_summary}, ensure_ascii=False))
+        return 2
+    llm_call = make_configured_call(llm_cfg)
 
     results = []
     for query in args.queries:
@@ -129,8 +139,7 @@ def main(argv=None):
                         "answer_passed": ans["passed"]})
 
     report = {"schema": "llmke.graph-engine.answer-e2e.v1", "cjk_compat": compat,
-              "llm": {"mode": "external" if args.api_base else "local",
-                      "model": args.model, "base": args.api_base or args.llm},
+              "llm": llm_summary,
               "build": build, "normalize": norm["stats"], "results": results}
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:

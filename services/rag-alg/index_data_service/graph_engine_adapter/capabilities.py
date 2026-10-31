@@ -76,8 +76,8 @@ CAPABILITIES = {
     "platform_answer_assembly": {
         "status": "VERIFIED",
         "note": "回答组装 + 引用核验（quote 必须是原文子串，空白归一；只在 citable=True 的材料里找）。"
-                "12 次真实采样 7 通过（58%，波动 33%-67%）：失败为模型答\"材料不足\"或拼接引用，"
-                "核验器按预期拦下；不等于问答能力达标",
+                "回答模型默认 DeepSeek-V4.1-Flash（deepseek-flash）：18 次真实采样 18 通过；"
+                "本地 qwen2.5-7b 同套问句 7/12，短板集中在\"标题句+数据行\"联合",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-ANSWER-ASSEMBLY-20261031.md",
     },
     "platform_retrieval_orchestration": {

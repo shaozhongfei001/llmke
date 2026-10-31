@@ -219,10 +219,52 @@ def check_mineru():
 NOT_IMPLEMENTED = [
     ("biz:global 报告/引用失效识别（社区/global 真实产物消费）",
      "引用校验已在断言层可用，但社区/global 处理器尚未消费真实产物，不得用普通 RAG 顶替"),
-    ("biz:端到端业务问答（真实文档→引擎→回答）",
-     "图路径已在中文兼容补丁下真实执行（graph_calls=1、executed_route=GRAPH），"
-     "但回答组装与引用成文未做；未打补丁时上游会清空中文事实、恒回退稠密"),
 ]
+
+
+def check_end_to_end_answer():
+    """真实端到端：载荷 → 引擎（CJK 补丁）→ 断言 → 检索 → 回答 → 引用核验。
+
+    需要三样外部条件：hipporag 环境、本地 embedding/图索引目录、外部回答模型 key。
+    缺任一项就 SKIP 并写明缺什么——**不许**用"没有 FAIL"冒充通过。
+    """
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    if not os.path.isfile(py):
+        record("biz:端到端业务问答", "SKIP", {"why": "no hipporag venv", "python": py})
+        return
+    from graph_engine_adapter.llm_config import describe as describe_llm, resolve as resolve_llm
+    llm = describe_llm(resolve_llm())
+    if not llm["ready"]:
+        record("biz:端到端业务问答", "SKIP", {"why": "answer LLM key missing",
+                                              "key_env": llm["key_env"]})
+        return
+
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not all(os.path.isfile(p) for p in payloads):
+        record("biz:端到端业务问答", "SKIP", {"why": "ingest payloads missing", "paths": payloads})
+        return
+
+    cmd = [py, str(REPO / "scripts/v2_answer_e2e.py"), "--payloads", *payloads,
+           "--queries", "多指标对账口径是什么", "--save-dir", "/tmp/hippo-cjk",
+           "--cjk-compat", "--skip-build", "--require-graph", "--top-k", "5",
+           "--out", "/tmp/q-e2e.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-e2e.json"):
+        record("biz:端到端业务问答", "FAIL", {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    report = json.loads(open("/tmp/q-e2e.json", encoding="utf-8").read())
+    first = (report.get("results") or [{}])[0]
+    ok = first.get("answer_passed") is True and first.get("executed_route") == "GRAPH"
+    record("biz:端到端业务问答", "PASS" if ok else "FAIL",
+           {"route": first.get("executed_route"), "reason": first.get("answer_reason"),
+            "answer": str(first.get("answer"))[:60],
+            "citations": len(first.get("citations") or []),
+            "model": report.get("llm", {}).get("model")},
+           # 端到端只跑单问句：多跳、表格合计、跨文档合并都还没覆盖，边界必须写出来
+           "真实端到端（外部回答模型 + 本地引擎 + CJK 补丁），单问句；"
+           "多跳/合计/跨文档未覆盖" if ok else "回答未通过核验或图路线未执行")
 
 
 def check_business_semantics():
@@ -324,6 +366,7 @@ def main(argv=None):
     check_retrieval_orchestration()
     check_mineru()
     check_business_semantics()
+    check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
         record(item, "NOT_IMPLEMENTED", why)
 

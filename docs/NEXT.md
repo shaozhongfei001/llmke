@@ -82,6 +82,13 @@
        **自我更正**：第二问失败是我出题歧义（4 个客户 4 个额度），改成"江南装备的授信额度"后
        本地 7B 也 2/2 通过 → 测试集需先修，再谈模型差距。
        建议：回答段换 qwen-plus；不动 embedding（换则向量全失效）；火山方舟暂不纳入
+    1h) 回答段已接 DeepSeek-V4.1-Flash（用户指定 key DSEEK_2026_SZF_KEY）：
+       API 里 model id 是 `deepseek-flash`（展示名 DeepSeek-V4.1-Flash），不是用户写的字面串；
+       新增 llm_config.py（密钥只走环境变量、describe 不泄露、缺键给明确报错、401 不重试、
+       finish_reason=length 时加倍预算重试）。实测 18/18 通过（6 轮×3 问），
+       本地 7B 同套 7/12。Q 的端到端已转真实检查 → 26 PASS/0 FAIL/1 NOT_IMPLEMENTED
+       坑：max_tokens=512 导致 JSON 截断，被误判为"格式错误"，已按 finish_reason 分开处理
+       产品化未做：密钥注入（现在依赖 ~/.bashrc）、限流/成本、失败降级策略
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
