@@ -23,10 +23,13 @@ def test_manifest_is_self_consistent(manifest_path):
     if doc.get("schema") != "llmke.offline-bundle.v1":
         pytest.skip("not a wheel bundle manifest")
     assert doc["schema"] == "llmke.offline-bundle.v1"
-    assert doc["wheel_count"] == len(doc["wheels"]) > 0
-    assert doc["total_bytes"] == sum(w["bytes"] for w in doc["wheels"])
-    for wheel in doc["wheels"]:
-        assert wheel["file"].endswith(".whl"), wheel
+    files = doc["wheels"]
+    assert doc["file_count"] == len(files) > 0
+    assert doc["wheel_count"] + doc["sdist_count"] == doc["file_count"]
+    assert doc["total_bytes"] == sum(w["bytes"] for w in files)
+    for wheel in files:
+        assert wheel["kind"] in ("wheel", "sdist"), wheel
+        assert wheel["file"].endswith((".whl", ".tar.gz", ".zip")), wheel
         assert SHA.match(wheel["sha256"]), wheel
         assert wheel["bytes"] > 0
     # 清单里不允许出现同一文件名两次（同名不同内容会让"照清单装"产生歧义）

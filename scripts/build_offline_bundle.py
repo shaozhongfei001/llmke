@@ -43,7 +43,14 @@ def main(argv=None):
     ap.add_argument("--platform", default=None)
     args = ap.parse_args(argv)
 
-    wheels = sorted(f for f in os.listdir(args.wheel_dir) if f.endswith(".whl"))
+    def kind_of(name):
+        if name.endswith(".whl"):
+            return "wheel"
+        if name.endswith((".tar.gz", ".zip")):
+            return "sdist"
+        return None
+
+    wheels = sorted(f for f in os.listdir(args.wheel_dir) if kind_of(f))
     if not wheels:
         print(f"no wheels in {args.wheel_dir}", file=sys.stderr)
         return 2
@@ -53,7 +60,8 @@ def main(argv=None):
         path = os.path.join(args.wheel_dir, name)
         size = os.path.getsize(path)
         total += size
-        entries.append({"file": name, "bytes": size, "sha256": _sha256(path)})
+        entries.append({"file": name, "kind": kind_of(name), "bytes": size,
+                        "sha256": _sha256(path)})
 
     # 冻结清单本身也要校验：清单换了而 wheel 没换，同样属于不可复现
     req_sha = _sha256(args.requirements)
@@ -69,7 +77,9 @@ def main(argv=None):
                         "--no-deps", "-r", "requirements.txt"],
             "notes": "必须 --no-deps：冻结清单里有历史钉版冲突，带解析会 ResolutionImpossible",
         },
-        "wheel_count": len(entries),
+        "wheel_count": sum(1 for e in entries if e["kind"] == "wheel"),
+        "sdist_count": sum(1 for e in entries if e["kind"] == "sdist"),
+        "file_count": len(entries),
         "total_bytes": total,
         "wheels": entries,
     }

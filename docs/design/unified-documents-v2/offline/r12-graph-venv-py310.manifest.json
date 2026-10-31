@@ -1,0 +1,666 @@
+{
+ "schema": "llmke.offline-bundle.v1",
+ "name": "r12-graph-venv-py310",
+ "built_at": "2026-10-31T13:14:19+0800",
+ "python": "3.10",
+ "platform": "linux-x86_64",
+ "requirements": {
+  "path": "r12-graph-venv.txt",
+  "sha256": "5658da4350617f80145194b9c9d7dcc7c4f91c84a1d39dc686576813cbd09f47"
+ },
+ "install": {
+  "command": [
+   "pip",
+   "install",
+   "--no-index",
+   "--find-links",
+   ".",
+   "--no-deps",
+   "-r",
+   "requirements.txt"
+  ],
+  "notes": "必须 --no-deps：冻结清单里有历史钉版冲突，带解析会 ResolutionImpossible"
+ },
+ "wheel_count": 99,
+ "sdist_count": 7,
+ "file_count": 106,
+ "total_bytes": 100026260,
+ "wheels": [
+  {
+   "file": "a2a_sdk-0.3.26-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 151016,
+   "sha256": "754e0573f6d33b225c1d8d51f640efa69cbbed7bdfb06ce9c3540ea9f58d4a91"
+  },
+  {
+   "file": "aiofiles-24.1.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 15896,
+   "sha256": "b4ec55f4195e3eb5d7abd1bf7e061763e864dd4954231fb8539a0ef8bb8260e5"
+  },
+  {
+   "file": "aiohappyeyeballs-2.7.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 15038,
+   "sha256": "9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472"
+  },
+  {
+   "file": "aiohttp-3.14.5-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 1856329,
+   "sha256": "f375db73a39f5cf83696d500e21a67f418dc9a988955756f254be8f03b7b3651"
+  },
+  {
+   "file": "aiosignal-1.4.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 7490,
+   "sha256": "053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e"
+  },
+  {
+   "file": "alibabacloud-darabonba-string-0.0.4.tar.gz",
+   "kind": "sdist",
+   "bytes": 2852,
+   "sha256": "ec6614c0448dadcbc5e466485838a1f8cfdd911135bea739e20b14511270c6f7"
+  },
+  {
+   "file": "alibabacloud-tea-0.4.3.tar.gz",
+   "kind": "sdist",
+   "bytes": 8785,
+   "sha256": "ec8053d0aa8d43ebe1deb632d5c5404339b39ec9a18a0707d57765838418504a"
+  },
+  {
+   "file": "alibabacloud_credentials-1.0.12-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 52000,
+   "sha256": "c09afcf579663374df056c20482fc1397240d20b4ccb143d23c287f3f8a91109"
+  },
+  {
+   "file": "alibabacloud_credentials_api-1.0.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 2230,
+   "sha256": "5f27889113214fc53493b3e918eb26d73dfab2022e22bdaac262849b8e58cbc0"
+  },
+  {
+   "file": "alibabacloud_darabonba_array-0.1.0.tar.gz",
+   "kind": "sdist",
+   "bytes": 2306,
+   "sha256": "7f9a7c632518ff4f0cebb0d4e825a48c12e7cf0b9016ea25054dd73732e155aa"
+  },
+  {
+   "file": "alibabacloud_darabonba_encode_util-0.0.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 4295,
+   "sha256": "6a91c82f6cc4227091be39b65d1f6921d7330119bac7b911e5a26daf895cc9dc"
+  },
+  {
+   "file": "alibabacloud_darabonba_map-0.0.1.tar.gz",
+   "kind": "sdist",
+   "bytes": 2056,
+   "sha256": "adb17384658a1a8f72418f1838d4b6a5fd2566bfd392a3ef06d9dbb0a595a23f"
+  },
+  {
+   "file": "alibabacloud_darabonba_signature_util-0.0.4.tar.gz",
+   "kind": "sdist",
+   "bytes": 4170,
+   "sha256": "71d79b2ae65957bcfbf699ced894fda782b32f9635f1616635533e5a90d5feb0"
+  },
+  {
+   "file": "alibabacloud_endpoint_util-0.0.4.tar.gz",
+   "kind": "sdist",
+   "bytes": 2813,
+   "sha256": "a593eb8ddd8168d5dc2216cd33111b144f9189fcd6e9ca20e48f358a739bbf90"
+  },
+  {
+   "file": "alibabacloud_gateway_pop-0.1.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 5541,
+   "sha256": "6314f92885d5ddc449716952beabbe9704e3469655a270703397955283676769"
+  },
+  {
+   "file": "alibabacloud_gateway_spi-0.0.4-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 4290,
+   "sha256": "0d5256e95d8719da8ec9611b7ffbb12c2d26fdf7ce52c8f64e4e06350731e893"
+  },
+  {
+   "file": "alibabacloud_kms20160120-3.3.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 282035,
+   "sha256": "14c59c4fc36541520e3637cfbd1b42eda90b83a0da4767713971ec6db7e3b699"
+  },
+  {
+   "file": "alibabacloud_openapi_util-0.2.4-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 7661,
+   "sha256": "a2474f230b5965ae9a8c286e0dc86132a887928d02d20b8182656cf6b1b6c5bd"
+  },
+  {
+   "file": "alibabacloud_tea_openapi-0.4.6-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 33448,
+   "sha256": "c9e1727b9fb2936f487d050fc3590c99f9f2065256dc3a927e5b61f414674ed6"
+  },
+  {
+   "file": "alibabacloud_tea_util-0.3.15-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 6709,
+   "sha256": "afb3dd8ad5cd2f93804258fbbac4360c050462100499269795ea055c1644e193"
+  },
+  {
+   "file": "alibabacloud_tea_xml-0.0.3.tar.gz",
+   "kind": "sdist",
+   "bytes": 3466,
+   "sha256": "979cb51fadf43de77f41c69fc69c12529728919f849723eb0cd24eb7b048a90c"
+  },
+  {
+   "file": "annotated_doc-0.0.5-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 5302,
+   "sha256": "117bac03a25ede5df5440e855b32d556049ca169ead221505badf432fed4b101"
+  },
+  {
+   "file": "annotated_types-0.8.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 13427,
+   "sha256": "f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0"
+  },
+  {
+   "file": "anyio-4.15.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 132079,
+   "sha256": "6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101"
+  },
+  {
+   "file": "apscheduler-3.11.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 66024,
+   "sha256": "bbeb2ec02d23d3c06a6c07ed7f0f3939ada6680eb121fae809a69bb42c537a30"
+  },
+  {
+   "file": "async_timeout-5.0.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 6233,
+   "sha256": "39e3809566ff85354557ec2398b55e096c8364bacac9405a7a1fa429e77fe76c"
+  },
+  {
+   "file": "attrs-26.1.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 67548,
+   "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
+  },
+  {
+   "file": "certifi-2026.10.23-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 135082,
+   "sha256": "e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1"
+  },
+  {
+   "file": "cffi-2.1.1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 218742,
+   "sha256": "194cffa889098ced9976c3fc6340305e43f6303657d298da55366907c05c22d6"
+  },
+  {
+   "file": "charset_normalizer-3.5.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 271105,
+   "sha256": "8a893cc101149f80a653f82062ebc95b34525a2614382e1da5458fe7c6997249"
+  },
+  {
+   "file": "click-8.5.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 125251,
+   "sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"
+  },
+  {
+   "file": "cryptography-50.0.2-cp39-abi3-manylinux_2_34_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 4780973,
+   "sha256": "1981f1db4630889b9ef7803fadef12b056f428cb6b85c27ba57b774793b6093c"
+  },
+  {
+   "file": "darabonba_core-1.0.9-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 31336,
+   "sha256": "dafe9bc93639ddd9954322df72382b27f51078dbb41c045274a70e59dce57d80"
+  },
+  {
+   "file": "distro-1.9.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 20277,
+   "sha256": "7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2"
+  },
+  {
+   "file": "exceptiongroup-1.3.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 16740,
+   "sha256": "a7a39a3bd276781e98394987d3a5701d0c4edffb633bb7a5144577f82c773598"
+  },
+  {
+   "file": "fastapi-0.162.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 148912,
+   "sha256": "3785963de305dd09912426cb81f2d230fce98ab3521cdfe97265c8d14983128c"
+  },
+  {
+   "file": "frozenlist-1.8.0-cp310-cp310-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 219464,
+   "sha256": "f57fb59d9f385710aa7060e89410aeb5058b99e62f4d16b08b91986b9a2140c2"
+  },
+  {
+   "file": "future-1.0.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 491326,
+   "sha256": "929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216"
+  },
+  {
+   "file": "google_api_core-2.43.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 223488,
+   "sha256": "dd588ae9de5e372be89b87c68b1e1555fe89add1809d623182b773d14f96859a"
+  },
+  {
+   "file": "google_auth-2.62.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 267911,
+   "sha256": "4ff4319aeb4ad128409759d397a9fcafad126d0031d241cc0dd6b9a00b43e3f3"
+  },
+  {
+   "file": "googleapis_common_protos-1.76.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 307707,
+   "sha256": "59e13344a9f3651aa201a03e2bee815a3bf43a4baf1f9ff8a9b62a840ce25fac"
+  },
+  {
+   "file": "grpcio-1.84.1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 7151717,
+   "sha256": "4aaf596ea35c7d022a3bfe0402cdee30d86c6ccea2b6fbbe03d1e4826cc7179c"
+  },
+  {
+   "file": "gunicorn-26.2.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 228389,
+   "sha256": "bd249d0b3f7972f7432f0a6b6ff3b3ee2d129f70cd1ff6c09a9dd9e29a2b88e3"
+  },
+  {
+   "file": "h11-0.16.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 37515,
+   "sha256": "63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86"
+  },
+  {
+   "file": "h2-4.4.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 62636,
+   "sha256": "0e25f1462b23c9cb82d9eb02e28bc706dac2a68cb457c6a0d74d63c8a2a5d0e6"
+  },
+  {
+   "file": "hpack-4.2.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 34246,
+   "sha256": "858ac0b02280fa582b5080d68db0899c62a80375e0e5413a74970c5e518b6986"
+  },
+  {
+   "file": "httpcore-1.0.9-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 78784,
+   "sha256": "2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55"
+  },
+  {
+   "file": "httpcore2-2.14.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 84291,
+   "sha256": "4c4f64f4b544afeb778c42c0ffb5941b29e671157e90ed3f6dc787c4bca90cd1"
+  },
+  {
+   "file": "httplib2-0.32.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 93148,
+   "sha256": "dc6705cacdf3fb0a2aba7629fa33c90fd93e30035db0c157325826be177e4816"
+  },
+  {
+   "file": "httpx-0.28.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 73517,
+   "sha256": "d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"
+  },
+  {
+   "file": "httpx2-2.14.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 96901,
+   "sha256": "9d20c13a10bae1773a0be3b0f1e5beeb4bdd549bc3a2ba18efa32897c65403e4"
+  },
+  {
+   "file": "httpx_sse-0.4.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 8960,
+   "sha256": "0ac1c9fe3c0afad2e0ebb25a934a59f4c7823b60792691f779fad2c5568830fc"
+  },
+  {
+   "file": "hyperframe-6.1.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 13007,
+   "sha256": "b03380493a519fce58ea5af42e4a42317bf9bd425596f7a0835ffce80f1a42e5"
+  },
+  {
+   "file": "idna-3.20-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 69583,
+   "sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c"
+  },
+  {
+   "file": "igraph-1.0.0-cp39-abi3-manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 5683134,
+   "sha256": "2d04c2c76f686fb1f554ee35dfd3085f5e73b7965ba6b4cf06d53e66b1955522"
+  },
+  {
+   "file": "jsonpatch-1.37-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 17170,
+   "sha256": "7905646db52668a89d10945a07ca1c10337094dcf07d172ca384dccfca0b7438"
+  },
+  {
+   "file": "jsonpointer-3.5-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 9121,
+   "sha256": "8728c42f6bc07b1436af31600267bdbb1495ac5a61f31d9583ff319ecf7da09c"
+  },
+  {
+   "file": "langchain_core-1.7.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 574676,
+   "sha256": "e82b24d7ac51fc74874baa29d6b3c0b8234880d4f3d897f8ff57fb80dfd9b07d"
+  },
+  {
+   "file": "langchain_protocol-0.0.20-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 7347,
+   "sha256": "3c935e5e46b0f6f9cb52f45ba7cfa53d1b9fa80c82c4a277d47f03e07f7385b1"
+  },
+  {
+   "file": "langsmith-0.14.12-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 883644,
+   "sha256": "9dafba7f615afa77204dc8afbb9c803e4ba1b55e96249f12c8f9aafb23fae6d0"
+  },
+  {
+   "file": "loguru-0.7.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 61595,
+   "sha256": "31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220c"
+  },
+  {
+   "file": "multidict-7.1.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 464425,
+   "sha256": "9a8c826caeb7c08264e0a556df1267531c6ed90cc70506e7e5f4119e2d09f3d7"
+  },
+  {
+   "file": "nacos_sdk_python-2.0.9-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 93824,
+   "sha256": "e3c3b355d28939ce5389971480c83275e8e063c35af3fde773df09ec751e9709"
+  },
+  {
+   "file": "nebula3_python-3.8.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 333338,
+   "sha256": "41fae25b6a8f399cbd2f75b14887375b3865aa113e6b360bd7c932d807de75c6"
+  },
+  {
+   "file": "networkx-3.4.2-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 1723263,
+   "sha256": "df5d4365b724cf81b8c6a7312509d0c22386097011ad1abe274afd5e9d3bbc5f"
+  },
+  {
+   "file": "numpy-2.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 16801050,
+   "sha256": "fc7b73d02efb0e18c000e9ad8b83480dfcd5dfd11065997ed4c6747470ae8915"
+  },
+  {
+   "file": "opentelemetry_api-1.45.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 60256,
+   "sha256": "b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb"
+  },
+  {
+   "file": "orjson-3.13.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 130727,
+   "sha256": "93c70a5e22bbbbdeafc7b273441e8452a196041d67fd4d9a9c450c66370a8486"
+  },
+  {
+   "file": "packaging-26.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 129956,
+   "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+  },
+  {
+   "file": "propcache-0.5.4-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 224251,
+   "sha256": "f574e460d1c8a08384a016fdb09ccf3543433263ed6b2f97104f979e64ea57c2"
+  },
+  {
+   "file": "proto_plus-1.29.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 50786,
+   "sha256": "8acd070469a7aaf43f440b022ef9757c8cac1a9f866e933f59ae98669ddc6c8b"
+  },
+  {
+   "file": "protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 343223,
+   "sha256": "89f23aa53c24553a2416fd4fd1ec06f74fa42b14b546d8883128813f775bbfd2"
+  },
+  {
+   "file": "psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 155560,
+   "sha256": "076a2d2f923fd4821644f5ba89f059523da90dc9014e85f8e45a5774ca5bc6f9"
+  },
+  {
+   "file": "pyasn1-0.6.4-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 84410,
+   "sha256": "deda9277cfd454080ec40b207fb6df82206a3a2688735233cdcd8d3d565f088b"
+  },
+  {
+   "file": "pyasn1_modules-0.4.2-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 181259,
+   "sha256": "29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a"
+  },
+  {
+   "file": "pycparser-3.11-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 51178,
+   "sha256": "51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80"
+  },
+  {
+   "file": "pycryptodome-4.2.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 2976488,
+   "sha256": "76777686de3a354c41710727988c2284448d5db9bd82e5ddb9a9b6710d17d9df"
+  },
+  {
+   "file": "pydantic-2.14.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 488106,
+   "sha256": "9195d967ec791692a04438115466764fb8b9a27b31f14a760437694f40d6b454"
+  },
+  {
+   "file": "pydantic_core-2.50.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 2160719,
+   "sha256": "f77ac30b19221cd9bd3fcfa3d4614eff93140d0572ab730cded17b64adca05f3"
+  },
+  {
+   "file": "pyparsing-3.3.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 126420,
+   "sha256": "ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4"
+  },
+  {
+   "file": "python_igraph-1.0.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 9157,
+   "sha256": "b0bb8d91cce2a1e0550fe45f9ec925bcd04152dfb5be3fa822b9f5f36eb3f380"
+  },
+  {
+   "file": "pytz-2026.5-py2.py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 506342,
+   "sha256": "e658af3757f9e26a9d25dd2aff38335acd92bc9104f890a894b2c1ba28311b03"
+  },
+  {
+   "file": "pyyaml-6.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 770293,
+   "sha256": "9c7708761fccb9397fe64bbc0395abcae8c4bf7b0eac081e12b809bf47700d0b"
+  },
+  {
+   "file": "regex-2026.9.29-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 797643,
+   "sha256": "4fb41211d2333eb930a51e0546a65999761cf1f572a4da56ef9b8a62966c06f2"
+  },
+  {
+   "file": "requests-2.34.2-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 73075,
+   "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0"
+  },
+  {
+   "file": "requests_toolbelt-1.0.0-py2.py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 54481,
+   "sha256": "cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06"
+  },
+  {
+   "file": "scipy-1.15.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 37662964,
+   "sha256": "9e2abc762b0811e09a0d3258abee2d98e0c703eee49464ce0069590846f31d40"
+  },
+  {
+   "file": "six-1.17.0-py2.py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 11050,
+   "sha256": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+  },
+  {
+   "file": "sniffio-1.3.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 10235,
+   "sha256": "2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"
+  },
+  {
+   "file": "starlette-1.7.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 78980,
+   "sha256": "67f8e99895493dd2911a03f11314af6ceebeae4e704bb9f43dfc6a9db151c93e"
+  },
+  {
+   "file": "tenacity-9.2.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 32310,
+   "sha256": "9e56f17539296baab7beabb08b92f6ee3d7be92d8be72d763360677c2ad6580e"
+  },
+  {
+   "file": "texttable-1.7.2-py2.py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 10862,
+   "sha256": "a381e1ed30e4d4bd24cdacabe26463b7a570c0e964fc0b35d8d9276b2fcbe252"
+  },
+  {
+   "file": "tiktoken-0.14.0-cp310-cp310-manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 1206869,
+   "sha256": "18a1b651c4b032004bf7b4f1713391a54b2a341a52c6e8a2b59acae9d16e13c7"
+  },
+  {
+   "file": "tqdm-4.70.1-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 80199,
+   "sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73"
+  },
+  {
+   "file": "truststore-0.10.5-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 19017,
+   "sha256": "9aaaedaefaf06d8b206278cf8b5012bc897f485a874503501e12d776df78951c"
+  },
+  {
+   "file": "typing_extensions-4.16.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 45571,
+   "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+  },
+  {
+   "file": "typing_inspection-0.4.4-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 14750,
+   "sha256": "65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147"
+  },
+  {
+   "file": "tzlocal-5.4.5-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 18215,
+   "sha256": "ecab534f6d65d9deb4c4ea52c121ab6dd5958e9b878e71dcb102578269752454"
+  },
+  {
+   "file": "urllib3-2.8.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 135717,
+   "sha256": "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3"
+  },
+  {
+   "file": "uuid_utils-0.18.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 327168,
+   "sha256": "64a7bb1be6d31a903f6d246f8b9f099c9eda4a46e1b57fc94fe848647beef748"
+  },
+  {
+   "file": "uvicorn-0.54.0-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 87427,
+   "sha256": "505bdb0f318731d45f1f712071fc781a8981f6847a31c902c9f5e652d4f67faf"
+  },
+  {
+   "file": "websocket_client-1.9.2-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 95786,
+   "sha256": "e1a673830a9c7bfa47b1cd3d5e4178f4c9651d80a4eab02c9c23a1c3ec6250ce"
+  },
+  {
+   "file": "websockets-16.1.1-cp310-cp310-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 186038,
+   "sha256": "1214e673c404684b9bf7154f5cf43b45025b1a6160fac3a9e438e9c1a97e22cb"
+  },
+  {
+   "file": "xxhash-4.0.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 249484,
+   "sha256": "f9f528029f32c081622f36a0149898929c0a89f601f1cdc6620c57cd836762db"
+  },
+  {
+   "file": "yarl-1.25.1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 118071,
+   "sha256": "e5637ca8d0bd7fb72648a6c7934af4baaccb697657f7438c9d264fc2abb8b0b1"
+  },
+  {
+   "file": "zstandard-0.25.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+   "kind": "wheel",
+   "bytes": 5556583,
+   "sha256": "4b6d83057e713ff235a12e73916b6d356e3084fd3d14ced499d84240f3eecee0"
+  }
+ ]
+}

@@ -90,3 +90,24 @@ python scripts/install_offline_bundle.py --manifest <manifest> \
 一个实际踩过的坑：最初导出了 `openspg-minio` 和 `mysql:8.0`，而运行栈用的是
 `minio/minio:RELEASE.2023-03-20` 与 `mysql:8.4`——**镜像名必须从 `docker inspect <container>` 取**，
 不能按仓库里出现过的名字猜，否则离线包会"装得上但版本不对"。
+
+## 7. graph venv 的 wheelhouse 已具备（第一批平台服务）
+
+| 项 | 值 |
+|---|---|
+| 目录 | `/home/szf/data/dev/delivery/wheels-r12-graph` |
+| 文件 | 106 个（99 wheel + **7 sdist**），95.4 MB |
+| 清单 | `offline/r12-graph-venv-py310.manifest.json` |
+| 解释器 | CPython 3.10（该 venv 实际是 3.10.12，与 hipporag 的 3.11 不同，清单里分开记） |
+
+sdists 是 `alibabacloud-darabonba-*` 系列（上游只发 sdist）。离线安装它们需要目标机自带
+`setuptools/wheel`，否则 `pip install` 会在构建阶段失败——这属于**必须在部署脚本里检查的前置条件**，
+已写进本节而不是等装机时才发现。
+
+清单生成器已同时统计 `wheel_count` 与 `sdist_count`（原来只数 `.whl`，会把 7 个 sdist 静默漏掉）。
+
+## 8. 剩余三个 venv 未做
+
+`alg`(103 包) / `parse`(151 包) / `models`(44 包, 1.2 GB) 的 wheelhouse 尚未拉取；
+做法与 graph 完全一致（`pip download --no-deps -r locks/<venv>.txt`）。`models` 里若含权重，
+需要单独区分"包"与"模型文件"，不能混在一个清单里。
