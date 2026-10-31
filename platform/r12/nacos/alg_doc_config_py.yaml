@@ -75,3 +75,13 @@ multi_version:
   url: ""            # Java 侧无该端点，多版本能力 R13 再评估（保留空串表示未启用）
 url_table_indicator:
   url: ""
+
+# A2：MinerU 走 build-in SDK（本地权重），webapi 仅后备。
+# build-in=true 需要解析环境安装 magic-pdf 且配好 MINERU_TOOLS_CONFIG_JSON（见 A2-MINERU-INTEGRATION.md）；
+# 未装时 MinerUParser 会退回 webapi 分支，因此 use-mineru 保持 false 直到部署确认。
+mineru:
+  build-in: true
+  backend: pipeline
+  version: 1.3.12
+  endpoint: http://127.0.0.1:12340
+  api-key: ''
