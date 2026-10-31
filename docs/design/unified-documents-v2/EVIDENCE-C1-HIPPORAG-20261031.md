@@ -105,3 +105,30 @@
 
 5 块时三个查询都返回两个文件的命中——**这是图太小、候选几乎全覆盖**，不能当作"跨文档检索准确"。
 真正的判别力要在 333/329/999011 全量 + 多主题语料上测，目前只到"链路通、来源可回指"。
+
+## 8. 社区与 global 的真实消费（平台侧，非 HippoRAG）
+
+平台已有的社区能力在真实图上可用，本轮验证的是**消费者**而不是重造：
+
+```
+# 经检索服务（19995）走 global
+POST /retrieval_documents_global {"knowledge_base_name":["kb_9"],"query":"产品额度与利率的关系","query_mode":"global"}
+-> code=200 msg="社区摘要 1 条"
+   top=「这个社区围绕"智造贷"这一主题聚集…」 source=…/V1/R12FIX-product-intro(1).pptx  chunk_refs=3
+
+# local 模式
+-> code=200 msg="社区摘要 2 条" docs=2
+
+# 无社区的知识库（kb_10）负例
+-> code=200 msg="社区摘要 0 条" global_answer="" documents_list=[]   # 不编造
+```
+
+社区文档字段齐全：`community_id / level / generations=['V1'] / file_ids / chunk_refs /
+sources_resolved_by=file_id`，即引用可回指、代次可回答。
+
+**一次自我纠错**：我先用 ES 的 `term`/`prefix` 查 `metadata.source` 得到 0 条，差点判成"引用指向不存在的源"；
+实际是 `metadata.source` 在 ES 里是分词语义字段，term/prefix 不适用。改查 Milvus（`source like ...`）得到 **2 行**，
+与 ES 总量 270=270 一致。**以 Milvus 查询为准，未发现索引不一致**；这条也说明"引用失效"的判据不能只看一次 ES 查询。
+
+**仍未验证**：真正的"引用失效"反例（删掉被引文件后 global 是否标记失效）——需要动 kb_9 的既有数据，
+本轮不做破坏性实验，留作独立反例任务。
