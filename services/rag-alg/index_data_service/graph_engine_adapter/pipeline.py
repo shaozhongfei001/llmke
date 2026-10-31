@@ -83,13 +83,20 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
                     bucket.append({"label": label, "assertion": fact.content_key()[:4],
                                    "sources": [s.file_id for s in fact.sources]})
 
-    passed = not hits
-    if hits:
-        passed = True
-    if require_graph and route != GRAPH:
-        passed = False
+    # 引擎自报的**实际**路线优先于我们的计划：计划是意图，执行才是事实
+    executed_route = getattr(retriever, "last_executed_route", None)
+    route_matches = None if executed_route is None else (executed_route == route)
+
+    passed = bool(hits)
+    if require_graph:
+        # 强制图验收只认引擎 trace：计划走图但引擎内部回退，同样算不通过
+        if executed_route is None:
+            passed = False
+        elif executed_route != GRAPH:
+            passed = False
 
     return {"schema": SCHEMA, "query": query, "route": route, "reason": reason,
+            "executed_route": executed_route, "route_matches": route_matches,
             "seeds": seeds, "hit_count": len(hits), "hits": hits[:top_k],
             "citations": cited, "invalid_citations": invalid,
             "require_graph": require_graph, "passed": passed}

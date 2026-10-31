@@ -7,14 +7,19 @@ from graph_engine_adapter.pipeline import find_seeds, retrieve
 
 
 class FakeRetriever:
-    def __init__(self):
+    """默认 executed_route 与计划一致；可显式模拟"计划走图但引擎内部回退"。"""
+
+    def __init__(self, executed_route=None):
         self.calls = []
+        self.last_executed_route = executed_route
 
     def dense(self, query, top_k):
+        self.last_executed_route = self.last_executed_route or "DENSE_FALLBACK"
         self.calls.append(("dense", query, top_k))
         return [{"text": "稠密命中", "sources": [{"file_id": "333"}]}]
 
     def graph(self, query, seeds, top_k):
+        self.last_executed_route = self.last_executed_route or "GRAPH"
         self.calls.append(("graph", query, tuple(seeds), top_k))
         return [{"text": "图命中", "sources": [{"file_id": "333"}]}]
 
@@ -74,6 +79,17 @@ def test_citations_are_linked_and_invalid_flagged():
     bad = retrieve("产品甲的额度", store=s, retriever=r, known_files={"999"})
     assert bad["citations"] == []
     assert [c["label"] for c in bad["invalid_citations"]] == ["p_jia.额度@333"]
+
+
+def test_require_graph_fails_when_engine_falls_back_internally():
+    """计划走图、引擎内部回退到稠密：强制图验收必须判不通过（不能只看计划）。"""
+    s, r = make_store(), FakeRetriever(executed_route="DENSE_FALLBACK")
+    out = retrieve("产品甲的额度", store=s, retriever=r, require_graph=True)
+    assert out["route"] == "GRAPH"
+    assert out["executed_route"] == "DENSE_FALLBACK"
+    assert out["route_matches"] is False
+    assert out["passed"] is False
+    assert out["hit_count"] == 1          # 有结果也没用
 
 
 def test_scope_filter_affects_route_decision():

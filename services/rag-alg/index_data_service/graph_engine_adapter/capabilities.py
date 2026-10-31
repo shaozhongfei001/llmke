@@ -32,7 +32,8 @@ CAPABILITIES = {
     },
     "retrieve_graph_route": {
         "status": "NOT_VERIFIED",
-        "note": "没有 executed_route=GRAPH 的执行 trace；检索命中不能当图执行证据（设计 §6.5）",
+        "note": "实测：本地 qwen2.5-7b 的事实重排返回空 JSON，facts_after_rerank=0，"
+                "引擎始终回退稠密，graph_calls=0；检索命中不能当图执行证据（设计 §6.5）",
         "evidence": None,
     },
     "source_map_multi_source": {

@@ -52,6 +52,11 @@
     1) 图能力已推进：标准断言层（方向/单位/生效期/可见范围/多来源/引用校验）+ 检索编排层
        （路线先判、require_graph 不许回退通过、引用收口）已落地，Q 25 PASS/0 FAIL/2 NOT_IMPLEMENTED；
        剩余：把 HippoRAG 真实抽取与检索接到断言层（engine_* 三项仍 NOT_IMPLEMENTED）
+    1b) 引擎接线已通但**图路径被重排器阻断**（实测）：端到端桥接跑通
+       （52 事实→28 断言→检索→引用收口），但本地 qwen2.5-7b 的事实重排返回空 JSON，
+       facts_after_rerank=0、graph_calls=0，retrieve 始终回退稠密；直调 graph_search_with_fact_entities
+       可出 5 篇（PPR 有效）并真实触发 phrase_weights 0 除告警。
+       已修 pipeline 的假通过（现只认引擎 executed_route，新增 route_matches）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
