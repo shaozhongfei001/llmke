@@ -343,3 +343,32 @@ Milvus _kb_10 该文件 1 行
 2. **user_id 必须来自 task_info**：缺失时回填 `create_by`（用户名）或 `0` 仍会 "用户不存在"。
    真实 UI 上传由 UserContext 写入 user_id 才有；纯 API/脚本入库的任务需要在入队时补数字 id，
    或由服务端按用户名反查 id —— 属待定契约，本轮未擅自改。
+
+## 14. 自动链路闭环（最终版，file 999014）
+
+前面 999013 需要手工把 user_id 塞进 task_info 才跑通；本轮把这一步也做成代码：
+`task_info` 缺 `user_id` 时按 `create_by`（用户名）调 `/auth/user/getUserInfoByUserName/{name}`
+（该端点实测免令牌 200）反查数字 id，并**同时写进 param** —— 只设线程上下文没用，
+发往解析服务的是 param 序列化结果，漏写照样 422（这个坑实测踩过一次）。
+
+最终验证（全新文件 `v2-auto-sample.txt`，file 999014，只补 `create_by=admin` 模拟 UI 上传）：
+
+```
+11:13:15  [V2-SYSCTX] 任务缺 user_id，回填 userId=1 userName=admin taskId=637
+task 637 status = 4 (SUCESS)，error_msg 为空
+ES   kb_10 该文件 1 条，source=r12-rag/kb_10/v2-auto-sample.txt/V0/v2-auto-sample.txt
+     正文=「自动链路验收样本产品丙 最高额度 3000万元，担保方式为抵押。客户D 申请产品丙…」
+Milvus _kb_10 该文件 1 行
+```
+
+即 **上传 → 调度 → 模型解析 → 用户身份回填 → /parse → 切分 → ES+Milvus → 回调置成功** 全链路成立。
+
+部署现状（可回退）：
+- 运行中的 18082 实例是本候选 jar（`mvn -o -pl rag-index-service -am package -DskipTests
+  -Dmaven.compiler.source=17 -Dmaven.compiler.target=17` 产出）；
+- 回退方式：用 `/home/szf/data/dev/llmke-r12/.../rag-index-service/target/*.jar` 原 jar 重启即可；
+- 只用 `-pl` 构建会缺 `hutool` 类（`NoClassDefFoundError: cn/hutool/core/date/DateUtil`），
+  必须 `-am` 全 reactor 构建——这条已写进部署说明。
+
+仍存的边界：纯 API 直连上传（无 UserContext、`create_by` 为空）的任务仍会回填 `userId=0` 并在
+解析服务判"用户不存在"。属"没有身份就没有归属"的真实情况，UI 路径不受影响。

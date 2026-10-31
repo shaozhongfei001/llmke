@@ -6,7 +6,9 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.gientech.ragcommon.context.user.User;
+import com.gientech.ragcommon.auth.dto.UserInfoDTO;
 import com.gientech.ragcommon.context.user.UserContext;
+import com.gientech.ragindexservice.application.remote.UserClient;
 import com.gientech.ragcommon.global.ErrCodeEnum;
 import com.gientech.ragcommon.index.dto.FileChunkDTO;
 import com.gientech.ragcommon.index.dto.ModelSimpDTO;
@@ -47,6 +49,9 @@ import static com.gientech.ragcommon.index.enmus.FileFieldEnums.*;
 @Slf4j
 @Component
 public class FileAppServiceImpl implements FileAppService {
+
+    @Autowired
+    private UserClient userClient;
 
     @Autowired
     private RemoteFileUtils remoteFileUtils;
@@ -103,14 +108,35 @@ public class FileAppServiceImpl implements FileAppService {
             // 解析服务的 /parse 会因 "传入knowledge_base_id的时候必须使用user_id" 直接 422。
             // 后台任务没有请求身份，这里按任务创建者回填用户名；仍取不到则用 system 占位并告警，
             // 保证"任务能跑"而不是让整条链在参数校验处静默失败。
-            String taskUserId = StringUtils.isNotBlank(param.getUserId()) ? param.getUserId()
-                    : (StringUtils.isNotBlank(task.getCreateBy()) ? task.getCreateBy() : "0");
+            String taskUserId = param.getUserId();
             String taskUserName = StringUtils.isNotBlank(param.getUserName()) ? param.getUserName()
-                    : (StringUtils.isNotBlank(task.getCreateBy()) ? task.getCreateBy() : "system");
-            if (StringUtils.isBlank(param.getUserId())) {
+                    : task.getCreateBy();
+            if (StringUtils.isBlank(taskUserId)) {
+                // 按用户名反查数字 id（该端点免令牌，实测 200；不额外放宽任何权限面）。
+                if (StringUtils.isNotBlank(taskUserName)) {
+                    try {
+                        UserInfoDTO u = userClient.getUserInfoByUserName(taskUserName);
+                        if (u != null && u.getId() != null) {
+                            taskUserId = String.valueOf(u.getId());
+                        }
+                    } catch (Exception ex) {
+                        log.warn("[V2-SYSCTX] 按用户名回查 user_id 失败 userName={}, 原因={}",
+                                taskUserName, ex.getMessage());
+                    }
+                }
+                if (StringUtils.isBlank(taskUserId)) {
+                    taskUserId = "0";
+                }
                 log.warn("[V2-SYSCTX] 任务缺 user_id，回填 userId={} userName={} taskId={}",
                         taskUserId, taskUserName, task.getId());
             }
+            if (StringUtils.isBlank(taskUserName)) {
+                taskUserName = "system";
+            }
+            // 只设线程上下文还不够：发给解析服务的是 param 序列化后的 JSON，
+            // 未写进 param 时 user_id 仍为空，解析服务照样 422（实测）。
+            param.setUserId(taskUserId);
+            param.setUserName(taskUserName);
             //设置用户上下文信息
             setUserContext(taskUserId, taskUserName);
             kbId = param.getKnowledgeBaseId();
