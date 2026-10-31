@@ -98,6 +98,9 @@ def main(argv=None):
     ap.add_argument("--template", default="_kb_9")
     ap.add_argument("--embed", default="http://127.0.0.1:18090/v1/embeddings")
     ap.add_argument("--model", default="bge-m3")
+    ap.add_argument("--retrieval-compatible", action="store_true",
+                    help="按检索服务的索引命名规则落库：正文=<ns>_<kb>、表格=table_chunks_<ns>_<kb>、"
+                         "总结=table_summary_<ns>_<kb>；这样把 <ns>_<kb> 当知识库名即可直接检索")
     ap.add_argument("--milvus-collections", action="store_true",
                     help="同时写 Milvus（默认只写 ES，避免无谓开销）")
     args = ap.parse_args(argv)
@@ -132,12 +135,23 @@ def _apply(args, ns, es):
     for src in sources:
         manifest["baseline"][f"es:{src}"] = _es_count(es, src)
 
+    def target_name(src):
+        """检索侧按 `table_chunks_<kb>` / `table_summary_<kb>` 拼索引名，
+        因此候选命名要么自洽，要么检索根本查不到（这是实测会踩的坑）。"""
+        if not args.retrieval_compatible:
+            return f"{ns}_{src}"
+        if src.startswith("table_chunks_"):
+            return f"table_chunks_{ns}_{src[len('table_chunks_'):]}"
+        if src.startswith("table_summary_"):
+            return f"table_summary_{ns}_{src[len('table_summary_'):]}"
+        return f"{ns}_{src}"
+
     by_index = {}
     for chunk in chunks:
         by_index.setdefault(chunk["index"], []).append(chunk)
 
     for src, items in by_index.items():
-        target = f"{ns}_{src}"
+        target = target_name(src)
         try:
             _req("DELETE", f"{es}/{target}")
         except urllib.error.HTTPError:

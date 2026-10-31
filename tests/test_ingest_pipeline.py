@@ -39,6 +39,7 @@ def test_shadow_routes_channels_to_separate_indexes(artifact_dir):
     assert payloads
     for item in payloads:
         assert item["metadata"]["parse_artifact_id"] == result["artifact_id"]
+        assert item["metadata"]["pk"] == item["pk"]      # 检索侧直接读 metadata.pk
         assert item["index"] in {"kb_9", "table_chunks_kb_9"}
         if item["metadata"]["channel"] == "text":
             assert item["index"] == "kb_9"

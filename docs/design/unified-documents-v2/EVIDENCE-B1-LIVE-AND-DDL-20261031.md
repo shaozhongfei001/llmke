@@ -372,3 +372,26 @@ Milvus _kb_10 该文件 1 行
 
 仍存的边界：纯 API 直连上传（无 UserContext、`create_by` 为空）的任务仍会回填 `userId=0` 并在
 解析服务判"用户不存在"。属"没有身份就没有归属"的真实情况，UI 路径不受影响。
+
+## 15. 真实检索服务接入对照（legacy vs 候选快照）
+
+目标：不是"我自己查 ES"，而是**检索服务自己**能不能查候选索引，并把两臂结果摆在一起。
+
+发现并修掉的兼容缺口：检索侧直接读 `doc.metadata["pk"]`（table_summary 两段式/版本回填），
+投影只把 pk 放在顶层；接真实服务时报 `KeyError: 'pk'`（500）。现已在投影载荷的 metadata 里补 `pk`，
+并加断言 `metadata.pk == 顶层 pk`。
+
+命名也必须自洽：检索按 `table_chunks_<kb>` / `table_summary_<kb>` 拼索引名，
+所以候选命名要写成 `v2cand_kb_10` / `table_chunks_v2cand_kb_10` / `table_summary_v2cand_kb_10`；
+否则数据写得进去、检索永远查不到（`--retrieval-compatible` 就是干这个的）。
+
+同一 query、`search_policy=2`（仅 ES）、top_k=3：
+
+```
+kb_10          -> docs=1 score=0.687  src=…/M1-实体类型体系与归一化方案.docx  text=「|序号|任务|周期|交付物|出口条件|…」
+v2cand_kb_10   -> docs=1 score=0.936  src=…/M1.docx                        text=「文档编号 | RAG-ALG-GRAG-M1-001 版本/状态…」
+```
+
+两臂都返回同一张表的内容；**分数不可直接比**（索引不同、块粒度不同、打分器也是各自的），
+能下的结论只有一条：**候选快照的数据能被真实检索服务查到并回指来源**。
+候选命名空间已回退并核对线上 `kb_10 / table_chunks / table_summary` 计数未变。

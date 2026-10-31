@@ -51,6 +51,9 @@ def _chunk_payload(chunk, index_name, file_id, ctx):
     # 所以这里必须写**每个文件唯一的对象键**。写成 parsed_text.md 会让所有文件共享同一身份：
     # 相邻块扩展到别的文件、跨文件去重、引用 URL 全部指向同一个假路径。
     # V2 的原文回指另行放 parsed_text_ref，不动 source 的既有语义。
+    # 检索侧会直接取 `doc.metadata["pk"]`（table_summary 两段式、版本回填都用它），
+    # 只放在顶层 pk 不够——实测接真实检索服务时报 KeyError: 'pk'。
+    meta["pk"] = chunk["pk"]
     meta["source"] = ctx.get("source") or ctx.get("file_path") or ""
     meta["parsed_text_ref"] = ("parsed_text.md" if channel == "text"
                                else f"table:{chunk['locator'].get('table_id')}")
