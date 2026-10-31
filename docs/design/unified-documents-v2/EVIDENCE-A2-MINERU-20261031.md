@@ -72,12 +72,12 @@ CPU 单页扫描件 ~10 s（Layout 1.8s + OCR 1.3s），一页量级可接受；
 
 ```json
 {
-  "models-dir": "/home/szf/data/dev/models/mineru/models",
+  "models-dir": "<MINERU_ROOT>/models/models",
   "device-mode": "cpu",
   "layout-config": {"model": "doclayout_yolo"},
   "formula-config": {"mfd_model": "yolo_v8_mfd", "mfr_model": "unimernet_small", "enable": false},
   "table-config": {"model": "rapid_table", "sub_model": "slanet_plus", "enable": false, "max_time": 400},
-  "layoutreader-model-dir": "/home/szf/data/dev/models/mineru/models/ReadingOrder/layout_reader"
+  "layoutreader-model-dir": "<MINERU_ROOT>/models/models/ReadingOrder/layout_reader"
 }
 ```
 

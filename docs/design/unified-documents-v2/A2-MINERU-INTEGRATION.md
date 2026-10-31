@@ -56,7 +56,7 @@ python scripts/v2_mineru_adapter_probe.py \
 
 ## 5. 还没做（不许当成已具备）
 
-- **未写进 parse venv 的部署脚本**：现在是一次性手工装（`/home/szf/data/dev/parse-v2-venv`）。
+- **未写进 parse venv 的部署脚本**：现在是一次性手工装（`<DEV>/parse-v2-venv`）。
   要进交付必须把这 7 步固化成幂等安装脚本 + wheelhouse（含 numpy 回锁顺序）。
 - **`use-mineru` 未开**：切换需要重启解析服务，会打断当前在跑的环境；且要确认 OCR 质量与耗时。
 - **doc/docx 走 MinerU 会调 `convert_file_to_pdf`**，同样依赖 LibreOffice；本机缺 writer（D-01），

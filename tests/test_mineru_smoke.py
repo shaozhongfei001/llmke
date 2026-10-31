@@ -16,8 +16,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/v2_mineru_smoke.py"
 PDF = ROOT / "platform/r12/parse/fixtures/generated/cn-scan.pdf"
-MINERU_PY = os.environ.get("V2_MINERU_PYTHON", "/home/szf/data/dev/mineru-toolenv/bin/python")
-CONFIG = os.environ.get("MINERU_TOOLS_CONFIG_JSON", "/home/szf/data/dev/models/mineru/magic-pdf.json")
+MINERU_PY = os.environ.get("V2_MINERU_PYTHON", os.path.expanduser(os.environ.get("V2_MINERU_PYTHON", "~/mineru-venv/bin/python")))
+CONFIG = os.environ.get("MINERU_TOOLS_CONFIG_JSON", os.path.expanduser(os.environ.get("MINERU_TOOLS_CONFIG_JSON", "~/mineru/magic-pdf.json")))
 
 
 def _run(args, env=None):

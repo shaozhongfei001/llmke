@@ -8,7 +8,7 @@ TabRec 1.8 GB。扫描件/复杂版面这条路线只需要 layout + MFD + MFR(�
 为什么不用 huggingface_hub：本机 huggingface.co 不可达（实测 000），modelscope.cn 可达（302/200）。
 
 用法：
-  python scripts/fetch_mineru_weights.py --dest /home/szf/data/dev/models/mineru \
+  python scripts/fetch_mineru_weights.py --dest $HOME/mineru-models \
       --preset scanned-cn --out docs/design/unified-documents-v2/offline/mineru-weights.manifest.json
 """
 

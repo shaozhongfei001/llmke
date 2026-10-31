@@ -146,8 +146,7 @@ def check_mapping():
 
 def check_mineru():
     cfg = Path(os.environ.get("MINERU_TOOLS_CONFIG_JSON",
-                              "/home/szf/data/dev/models/mineru/magic-pdf.json"))
-    weights = Path("/home/szf/data/dev/models/mineru/models")
+                              os.path.expanduser("~/mineru/magic-pdf.json")))
     if not cfg.is_file():
         record("mineru:config", "SKIP", f"no config at {cfg}")
         return
@@ -157,11 +156,13 @@ def check_mineru():
         record("mineru:config", "FAIL", f"{type(exc).__name__}: {exc}")
         return
     models_dir = Path(conf.get("models-dir", ""))
+    weights = models_dir
     present = models_dir.is_dir() and any(models_dir.rglob("*.pt"))
     record("mineru:config", "PASS" if present else "FAIL",
            {"models_dir": str(models_dir), "device": conf.get("device-mode"),
             "formula": conf.get("formula-config", {}).get("enable")},
            None if present else "权重目录不存在或无 .pt")
+    # 权重根目录直接取配置里的 models-dir，不在代码里写死机器路径
     record("mineru:weights_root", "PASS" if weights.is_dir() else "FAIL",
            {"path": str(weights)})
 

@@ -31,7 +31,7 @@ def main(argv=None):
     ap.add_argument("--nacos-data-id", default="alg_doc_config_py_v2test")
     ap.add_argument("--nacos-address", default="http://127.0.0.1:18848")
     ap.add_argument("--nacos-group", default="DEFAULT_GROUP")
-    ap.add_argument("--mineru-config", default="/home/szf/data/dev/models/mineru/magic-pdf.json")
+    ap.add_argument("--mineru-config", default=os.path.expanduser(os.environ.get("MINERU_TOOLS_CONFIG_JSON", "~/mineru/magic-pdf.json")))
     ap.add_argument("--expect", nargs="*", default=[])
     ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)

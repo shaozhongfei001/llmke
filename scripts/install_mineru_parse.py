@@ -11,7 +11,7 @@
 
 用法：
   scripts/install_mineru_parse.py --python /path/to/venv/bin/python \
-      --mineru-config /home/szf/data/dev/models/mineru/magic-pdf.json
+      --mineru-config $HOME/mineru/magic-pdf.json
 """
 
 import argparse
@@ -36,14 +36,14 @@ CHECK_IMPORTS = ["magic_pdf", "pycocotools", "ultralytics", "doclayout_yolo",
                  "rapid_table", "dill", "openai", "numpy", "pandas"]
 
 DEFAULT_CONFIG = {
-    "models-dir": "/home/szf/data/dev/models/mineru/models",
+    "models-dir": "$HOME/mineru/models",
     "device-mode": "cpu",
     "layout-config": {"model": "doclayout_yolo"},
     "formula-config": {"mfd_model": "yolo_v8_mfd", "mfr_model": "unimernet_small", "enable": False},
     "table-config": {"model": "rapid_table", "sub_model": "slanet_plus", "enable": False,
                      "max_time": 400},
     "layoutreader-model-dir":
-        "/home/szf/data/dev/models/mineru/models/ReadingOrder/layout_reader",
+        "$HOME/mineru/models/ReadingOrder/layout_reader",
 }
 
 
@@ -56,7 +56,7 @@ def _pip(python, args):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--python", default=sys.executable)
-    ap.add_argument("--mineru-config", default="/home/szf/data/dev/models/mineru/magic-pdf.json")
+    ap.add_argument("--mineru-config", default="$HOME/mineru/magic-pdf.json")
     ap.add_argument("--skip-install", action="store_true", help="只做自检与配置，不装包")
     args = ap.parse_args(argv)
 

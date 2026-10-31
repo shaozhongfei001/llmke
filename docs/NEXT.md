@@ -24,27 +24,28 @@
 真实外部阻塞：HippoRAG 版本/离线依赖（U-03）；真实生产 DDL 与恢复副本权限（U-07）；
         P0/正式门禁/独立QA/发布授权（保持真实状态）
 下一精确动作（按任务书 A→B→C→D→Q）：
-  B1 状态：隔离候选写入/回退已成立（v2cand_*，基线未变）；真实上传被 D-01 阻断（缺 libreoffice-writer，需 root）
-  C1 状态：hipporag 2.0.0a4 已装成并真跑 index/retrieve（本地 LLM+embedding）；66 个真实块
-     197 实体/253 事实、跨文件命中可回指；引擎按 chunk-md5(text) 合并、SourceMap 保多来源；
-     已修引擎持久化目录污染（沿用旧 save_dir 会捞出历史 chunk）；社区/断网 wheelhouse 未做
-  D-01b 状态：**已闭环**——系统上下文解析模型 + 按 create_by 反查 user_id 并写入 param
-     + 纯文本跳过转换；候选 jar（必须 -am 构建）已接管 18082；file 999014 走通
-     上传→调度→/parse→ES+Milvus→回调置 SUCESS（task=4、error 空）
-     边界：无 UserContext 且 create_by 为空的纯 API 上传仍会 userId=0 判"用户不存在"
-  A2 状态：magic-pdf 1.3.12 可装、GPU 6GB 可用；HF 不可达、ModelScope 可达（权重改走此源）；未装未跑
-  B1 状态补充：真实检索服务（19995）可查候选快照（search_policy=2），两臂返回同一表正文；
-     载荷已补 metadata.pk；候选命名须与检索拼名规则一致（已加 --retrieval-compatible）
-  B1 已完成：读路径切换（legacy/snapshot，按库灰度、可回退，开关已登记）；D-05 删除漏清理已修并验证
-  B1 已完成：读路径切换（按库灰度/可回退）+ D-05 删除漏清理修复 + 验收探测脚本（含删除归零判据）
-  C1 已完成：hipporag 2.0.0a4 真跑（66/83 块）、社区/global 真实消费验证、断网 wheelhouse 与离线实跑
-  离线交付：四个 venv wheelhouse + 6 镜像 tar（3.98G）+ 清单/校验安装器，均实测
-  B1/C1/离线 下一步：前端产物与模型权重（ModelScope）清单化；目标机干净部署与差分升级
-  B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
-     + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
-  A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office
-  C1 选定并固定 HippoRAG 版本，独立环境安装 + native_id→input_unit→SourceRef 映射
-  D1 取真实 DDL（只导结构）→ 隔离恢复副本 → 迁移草案验证 parse_artifact_id
+  B1 状态：隔离候选写入/回退成立（v2cand_*）；读路径按库灰度可回退；D-05 删除漏清理已修；
+     真实上传 999014 走通全链（D-01b 闭环）；无 UserContext 且 create_by 空的纯 API 上传仍受限
+  C1 状态：hipporag 2.0.0a4 真跑（66/83 块、社区/global 已消费）；本轮用真实投影载荷（333+329，5 块）
+     验跨文档与来源回指，nan_scores 为空；遗留两个真实问题：
+     · phrase_weights 整除触发 RuntimeWarning（本次靠数据躲过，非已修）
+     · OpenIE 对部分块返回空 {}，图稀疏且不告警
+  D1 状态：真实 DDL（41 表/0 INSERT）+ 隔离副本 gienrag_v2_restore + V2_0001 迁移 apply/rollback 全通过
+  A2 状态：**已真跑通**——magic-pdf 1.3.12 在 CPU 上解析扫描件，平台 MinerUParser 适配器返回
+     ParsedText（111 字符正文 + 真实 bbox/page_number/page_size）；权重 ModelScope 子集 1.94GB 已清单化；
+     安装固化为 scripts/install_mineru_parse.py（8 步顺序 + numpy 回锁 + import 自检）
+     未做：离线 wheelhouse（torch 构建选型未定）、use-mineru 未开、公式识别关闭（MFR 需 HF 远程代码）、
+     doc/docx 走 MinerU 仍受 LibreOffice 缺 writer 限制
+  Q1 状态：scripts/v2_q_acceptance.py 15 PASS / 0 FAIL / 8 NOT_IMPLEMENTED；
+     8 项业务场景（同谓词双向、数值调整、别名、版本、孤点、可见性、图降级、global 失效）
+     无图执行/版本治理/权限构建，显式未实现；tests/test_q_acceptance.py 钉住不得删清单
+  离线交付：四个 venv wheelhouse + 6 镜像 tar（3.98G）+ 安装器已实测；前端 npm ci --offline 构建
+     dist 141MB 已归档清单；MinerU 权重清单已入 offline/
+  下一步（按依赖顺序，不询问）：
+    1) C1：把 phrase_weights 的 NaN 退化做成可复现反例并在适配层显式告警（不改上游算法结论）
+    2) 图业务能力：谓词归一/数值一致性/版本过滤的图执行层，逐项把 Q 的 8 项 NOT_IMPLEMENTED 转成可验
+    3) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
+    4) 离线：目标机干净部署与差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层
 副作用/回退：doc2md dev 库 gits_ke 新增 3 条 content/instance（未删改既有）；
