@@ -98,6 +98,19 @@ class AssertionStore:
         """所有登记过的名字（含别名），供查询侧认种子用。"""
         return sorted(self._aliases)
 
+    def name_of(self, canonical_id: str) -> str:
+        """可读名（取登记时的第一个名字）；取不到就退回 id，但去掉 ent: 前缀。"""
+        names = sorted(self._entities.get(canonical_id) or [])
+        if names:
+            return names[0]
+        return canonical_id[4:] if canonical_id.startswith("ent:") else canonical_id
+
+    def render(self, assertion: Assertion) -> str:
+        """把断言渲染成人能读的句子，供上下文展示（**不是**原文，所以不可引用）。"""
+        obj = (self.name_of(assertion.object_entity) if assertion.object_entity
+               else f"{assertion.object_value}{assertion.unit or ''}")
+        return f"{self.name_of(assertion.subject)} {assertion.predicate} {obj}"
+
     def facts_by_source(self, file_id: str) -> List[Assertion]:
         """按来源反查断言：引用收口时用。"""
         return [a for a in self._assertions.values()

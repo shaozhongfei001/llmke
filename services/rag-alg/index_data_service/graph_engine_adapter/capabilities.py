@@ -73,6 +73,13 @@ CAPABILITIES = {
                 "打补丁后真实语料 graph_calls=1、executed_route=GRAPH（未打补丁时恒为 0）",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-CJK-COMPAT-20261031.md",
     },
+    "platform_answer_assembly": {
+        "status": "VERIFIED",
+        "note": "回答组装 + 引用核验（quote 必须是原文子串，空白归一；只在 citable=True 的段落里找）。"
+                "真实三问：1 条通过、2 条因模型编造/改写引用被拦下——核验器按预期工作，"
+                "不等于问答能力达标",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-ANSWER-ASSEMBLY-20261031.md",
+    },
     "platform_retrieval_orchestration": {
         "status": "VERIFIED",
         "note": "路线先判（GRAPH/DENSE_FALLBACK + 原因）、require_graph 时回退不算通过、"

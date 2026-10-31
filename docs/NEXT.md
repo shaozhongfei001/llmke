@@ -62,7 +62,11 @@
        （保留 CJK、默认不装）；打补丁后真跑 graph_calls=1、executed_route=GRAPH、
        seed_hits=['ent:多指标对账口径','ent:指标']。能力拆分：
        retrieve_graph_route 仍 NOT_VERIFIED，retrieve_graph_route_with_cjk_patch 已 VERIFIED。
-       未做：种子识别弱于引擎（计划 DENSE 但执行 GRAPH 已暴露）、事实噪声、回答组装
+       未做：种子识别弱于引擎（计划 DENSE 但执行 GRAPH 已暴露）、事实噪声
+    1d) 回答组装已落地（answer.py + v2_answer_e2e.py，13 项测试）：材料只给原文段落，
+       引用必须逐字命中（空白归一），派生断言不可引用（防自证循环），require_graph 沿用到回答。
+       真实三问：1 条 OK（引用表格行逐字命中）、2 条被核验拦下（模型把列名与值拼成一行）。
+       结论：组装/核验链路成立，问答能力未达标 → Q 端到端仍 NOT_IMPLEMENTED
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
