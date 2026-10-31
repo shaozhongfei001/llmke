@@ -9,7 +9,13 @@
   再取批构建；失败/退避期间按协调器给的 `retry_in_s` 睡，不空转；
 - 收到 stop 事件后在下一个检查点退出（`sleep` 可注入，测试里不会真的等待）。
 
-不做的事（避免假装）：不做多实例协调、不做定时全量重建、不接告警通道。
+不做的事（避免假装）：不做定时全量重建、不内置告警通道实现（只给 `on_alert` 接缝，
+Webhook/企业微信等由部署侧接，本仓未接任何真实通道）。
+
+租约故障是**必须**处理的：`lease.acquire()` 打的是外部存储（MySQL），对端不可用会抛异常。
+如果不接住，一轮异常就能把 `run()` 打死——服务进程还在、重建永远停摆，而且没人知道。
+所以这里显式分成两条路：接住、记数、按退避继续跑（fail-closed 不重建），并把故障**沿边沿触发**
+推给 `on_alert`（首次失败、持续失败每 N 秒一次、恢复一次）。告警通道自己抛异常也不能拖死主循环。
 """
 
 import threading
@@ -19,6 +25,7 @@ from typing import Any, Callable, Dict, Optional
 from .rebuild_coordinator import RebuildCoordinator
 
 SCHEMA = "llmke.graph-engine.rebuild-scheduler.v1"
+LEASE_ERROR_BACKOFF = 5.0     # 租约不可用时的重试间隔上限（避免打爆数据库）
 
 
 class RebuildScheduler:
@@ -28,7 +35,10 @@ class RebuildScheduler:
                  max_sleep: float = 30.0,
                  sleep: Optional[Callable[[float], None]] = None,
                  clock: Optional[Callable[[], float]] = None,
-                 lease: Any = None):
+                 lease: Any = None,
+                 on_alert: Optional[Callable[[Dict[str, Any]], None]] = None,
+                 alert_every_s: float = 60.0,
+                 lease_error_backoff: float = LEASE_ERROR_BACKOFF):
         self.coordinator = coordinator
         self.debounce = debounce
         self.idle_poll = idle_poll
@@ -37,12 +47,58 @@ class RebuildScheduler:
         self._clock = clock or time.monotonic
         # 可选租约：多实例部署时只让持有者真正重建（不给就是单实例行为）
         self.lease = lease
+        self.on_alert = on_alert
+        self.alert_every_s = alert_every_s
+        self.lease_error_backoff = lease_error_backoff
         self._state = {"cycles": 0, "debounce_waits": 0, "idle": 0,
                        "backoff_waits": 0, "slept_s": 0.0, "stopped": False,
-                       "not_leader": 0, "lost_lease": 0}
+                       "not_leader": 0, "lost_lease": 0,
+                       "lease_errors": 0, "alerts_sent": 0, "alert_sink_errors": 0}
         # 当前持有的 fencing 值：build 回调把它写进快照，旧主的晚到写入才会被拒
         self.lease_fencing: Optional[int] = None
         self._lock = threading.Lock()
+        self._alert_state = {"failing": False, "last_at": 0.0, "last_error": None}
+
+    # ---------- 告警：边沿触发 ----------
+    def _emit(self, kind: str, payload: Dict[str, Any]) -> None:
+        """告警通道抛异常不能拖死主循环（否则"发不出告警"会变成"服务停摆"）。"""
+        if self.on_alert is None:
+            return
+        event = {"schema": "llmke.graph-engine.alert.v1", "kind": kind,
+                 "at": self._clock(), **payload}
+        try:
+            self.on_alert(event)
+            with self._lock:
+                self._state["alerts_sent"] += 1
+        except Exception as exc:  # noqa: BLE001
+            with self._lock:
+                self._state["alert_sink_errors"] += 1
+                self._state["last_alert_sink_error"] = f"{type(exc).__name__}: {exc}"
+
+    def _note_lease_ok(self) -> None:
+        with self._lock:
+            if not self._alert_state["failing"]:
+                return
+            self._alert_state["failing"] = False
+            last = self._alert_state["last_error"]
+        self._emit("LEASE_RECOVERED", {"last_error": last})
+
+    def _note_lease_error(self, exc: BaseException) -> None:
+        now = self._clock()
+        detail = f"{type(exc).__name__}: {exc}"
+        with self._lock:
+            was_failing = self._alert_state["failing"]
+            due = (not was_failing) or (now - self._alert_state["last_at"] >= self.alert_every_s)
+            if due:
+                self._alert_state["last_at"] = now
+                self._alert_state["last_error"] = detail
+            self._alert_state["failing"] = True
+            errors = self._state["lease_errors"]
+        if due:
+            # 首次失败立即告警；持续失败按 alert_every_s 节流，不刷屏
+            self._emit("LEASE_UNAVAILABLE",
+                       {"error": detail, "consecutive": errors,
+                        "impact": "重建已暂停（fail-closed），读路径继续读旧快照"})
 
     def stats(self) -> Dict[str, Any]:
         with self._lock:
@@ -80,7 +136,19 @@ class RebuildScheduler:
                     "retry_in_s": retry_in, "pending": pending}
 
         if self.lease is not None:
-            acquired = self.lease.acquire()
+            try:
+                acquired = self.lease.acquire()
+            except Exception as exc:  # noqa: BLE001
+                # 租约存储不可用：不构建、不抛出去打死循环、按退避重试
+                with self._lock:
+                    self._state["lease_errors"] += 1
+                    errors = self._state["lease_errors"]
+                self._note_lease_error(exc)
+                self._sleep_bounded(self.lease_error_backoff)
+                return {"schema": SCHEMA, "action": "LEASE_ERROR", "pending": pending,
+                        "error": f"{type(exc).__name__}: {exc}", "consecutive": errors,
+                        "hint": "租赁存储不可用，本轮不重建（读路径继续读旧快照）"}
+            self._note_lease_ok()
             if not acquired.get("acquired"):
                 with self._lock:
                     self._state["not_leader"] += 1
@@ -88,7 +156,19 @@ class RebuildScheduler:
                 return {"schema": SCHEMA, "action": "NOT_LEADER",
                         "holder": acquired.get("holder"), "pending": pending}
             self.lease_fencing = acquired.get("fencing", self.lease_fencing)
-            if not self.lease.renew():
+            try:
+                renewed = self.lease.renew()
+            except Exception as exc:  # noqa: BLE001
+                # 续租失败无法确认自己还是主：按"失去租约"处理，绝不继续构建
+                with self._lock:
+                    self._state["lease_errors"] += 1
+                    self._state["lost_lease"] += 1
+                self._note_lease_error(exc)
+                self._sleep_bounded(self.lease_error_backoff)
+                return {"schema": SCHEMA, "action": "LOST_LEASE", "pending": pending,
+                        "error": f"{type(exc).__name__}: {exc}",
+                        "hint": "续租时存储不可用，无法确认仍是主 → 本轮不构建"}
+            if not renewed:
                 with self._lock:
                     self._state["lost_lease"] += 1
                 return {"schema": SCHEMA, "action": "LOST_LEASE",

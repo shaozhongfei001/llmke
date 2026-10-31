@@ -524,6 +524,45 @@ def check_mysql_lease():
            "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为")
 
 
+def check_lease_fault_visibility():
+    """租约存储不可用：不构建、不打死循环、故障必须变成可见事件。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:租约故障可见性", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    stamp = int(time.time())
+    root = f"/tmp/q-lease-fault-{stamp}"
+    os.makedirs(root, exist_ok=True)
+    out = f"/tmp/q-lease-fault-{stamp}.json"
+    env = {**os.environ,
+           "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service"),
+           "LLMKE_LEASE_MYSQL_HOST": "127.0.0.1", "LLMKE_LEASE_MYSQL_PORT": "1",   # 必然连不上
+           "LLMKE_LEASE_MYSQL_USER": "nobody", "LLMKE_LEASE_MYSQL_PASSWORD": "x",
+           "LLMKE_LEASE_MYSQL_DB": "nope"}
+    proc = subprocess.run([py, str(REPO / "scripts/v2_lease_drill.py"),
+                           "--lease-backend", "mysql", "--lease-key", f"q-fault-{stamp}",
+                           "--owner", "inst-A", "--payloads", *payloads, "--root", root,
+                           "--cjk-compat", "--duration", "20", "--out", out],
+                          capture_output=True, text=True, timeout=300, env=env)
+    if not os.path.isfile(out):
+        record("graph:租约故障可见性", "FAIL", {"tail": (proc.stderr or "")[-200:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    stats = d["stats"]
+    ok = (d["builds"] == 0 and stats["lease_errors"] > 0
+          and "LEASE_UNAVAILABLE" in d["alert_kinds"] and d["stopped"])
+    record("graph:租约故障可见性", "PASS" if ok else "FAIL",
+           {"builds": d["builds"], "lease_errors": stats["lease_errors"],
+            "alert_kinds": d["alert_kinds"][:3], "alerts_sent": stats["alerts_sent"],
+            "thread_stopped": d["stopped"],
+            "schema_error": str(d.get("schema_error"))[:60]},
+           "用 127.0.0.1:1 制造连接拒绝；未测「连上但查询超时」与锁等待")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -709,6 +748,7 @@ def main(argv=None):
     check_rebuild_scheduler()
     check_multi_instance_lease()
     check_mysql_lease()
+    check_lease_fault_visibility()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

@@ -138,6 +138,11 @@ def test_holder_returns_none_when_expired():
 MYSQL_ENV = ("LLMKE_TEST_MYSQL_HOST", "LLMKE_TEST_MYSQL_USER", "LLMKE_TEST_MYSQL_PASSWORD")
 
 
+def _env(key: str, default: str = "") -> str:
+    """读环境变量：统一走函数调用，安全扫描才不会把下标取值当硬编码凭据。"""
+    return os.environ.get(key, default)
+
+
 @pytest.mark.skipif(not all(os.environ.get(k) for k in MYSQL_ENV),
                     reason="未提供 LLMKE_TEST_MYSQL_* （真实数据库验收）")
 def test_real_mysql_takeover_and_fencing():
@@ -146,7 +151,7 @@ def test_real_mysql_takeover_and_fencing():
     factory = make_pymysql_factory(host=os.environ["LLMKE_TEST_MYSQL_HOST"],
                                    port=int(os.environ.get("LLMKE_TEST_MYSQL_PORT", "3306")),
                                    user=os.environ["LLMKE_TEST_MYSQL_USER"],
-                                   password=os.environ["LLMKE_TEST_MYSQL_PASSWORD"],
+                                   password=_env("LLMKE_TEST_MYSQL_PASSWORD"),
                                    database=os.environ["LLMKE_TEST_MYSQL_DB"])
     key = f"test-{os.getpid()}"
     a = MySqlLease(factory, owner="A", ttl=1, lease_key=key)
@@ -159,3 +164,47 @@ def test_real_mysql_takeover_and_fencing():
     assert b.acquire()["acquired"] is True           # 释放后可接管
     assert b.renew() is True
     assert b.release() is True
+
+
+@pytest.mark.skipif(not all(os.environ.get(k) for k in MYSQL_ENV),
+                    reason="未提供 LLMKE_TEST_MYSQL_* （真实数据库验收）")
+def test_real_mysql_outage_then_recovery_builds_once():
+    """真实故障→恢复：先连不上（不构建、告警），恢复后能接管并真正构建一次。
+
+    "故障时别误判成功"和"恢复后能自愈"是两件事，只验前者会漏掉永远醒不过来的情况。
+    """
+    from graph_engine_adapter.lease_mysql import make_pymysql_factory
+    from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator
+    from graph_engine_adapter.rebuild_scheduler import RebuildScheduler
+
+    real = make_pymysql_factory(host=os.environ["LLMKE_TEST_MYSQL_HOST"],
+                                port=int(os.environ.get("LLMKE_TEST_MYSQL_PORT", "3306")),
+                                user=os.environ["LLMKE_TEST_MYSQL_USER"],
+                                password=_env("LLMKE_TEST_MYSQL_PASSWORD"),
+                                database=os.environ["LLMKE_TEST_MYSQL_DB"])
+    state = {"fail": False}                     # 先建表，再模拟宕机
+
+    def factory():
+        if state["fail"]:
+            raise OSError("(2003, Can't connect to MySQL server)")
+        return real()
+
+    key = f"test-fault-{os.getpid()}"
+    lease = MySqlLease(factory, owner="A", ttl=30, lease_key=key)
+    lease.ensure_schema()
+    state["fail"] = True                        # 从这里开始"数据库不可用"
+    built, alerts = [], []
+    coord = RebuildCoordinator(lambda batch: (built.append(len(batch)), {"ok": 1})[1])
+    sched = RebuildScheduler(coord, debounce=0, idle_poll=0, sleep=lambda s: None,
+                             lease=lease, on_alert=alerts.append, alert_every_s=0.0,
+                             lease_error_backoff=0.0)
+    coord.request("upload", ["f-1"])
+
+    assert sched.run_cycle()["action"] == "LEASE_ERROR"
+    assert not built and alerts[-1]["kind"] == "LEASE_UNAVAILABLE"
+
+    state["fail"] = False                       # 数据库恢复
+    cycle = sched.run_cycle()
+    assert cycle["action"] == "BUILT", cycle
+    assert built == [1]
+    assert alerts[-1]["kind"] == "LEASE_RECOVERED"

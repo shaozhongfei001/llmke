@@ -1,0 +1,449 @@
+{
+ "schema": "llmke.q-acceptance.v1",
+ "summary": {
+  "PASS": 37,
+  "FAIL": 0,
+  "SKIP": 0,
+  "NOT_IMPLEMENTED": 0
+ },
+ "verdict": "PASS",
+ "note": "NOT_IMPLEMENTED 表示能力未建，不计入 PASS，也不等于通过",
+ "results": [
+  {
+   "item": "infra:es_19200",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:es_proxy_19527",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:minio_19000",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:parse_12340",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:index_18082",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:milvus_19630",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:mysql_13306",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "legacy:kb_9:333",
+   "status": "PASS",
+   "evidence": {
+    "docs": 1,
+    "distinct_source": 1,
+    "chunk_index": [
+     0
+    ]
+   },
+   "boundary": null
+  },
+  {
+   "item": "legacy:table_chunks_kb_9:333",
+   "status": "PASS",
+   "evidence": {
+    "docs": 1,
+    "distinct_source": 1,
+    "chunk_index": [
+     1
+    ]
+   },
+   "boundary": "chunk_index 起点=1（legacy 既有编号，不要求从 0）"
+  },
+  {
+   "item": "legacy:kb_9:329",
+   "status": "PASS",
+   "evidence": {
+    "docs": 0,
+    "distinct_source": 0,
+    "chunk_index": []
+   },
+   "boundary": "xlsx 只走表格通道（实测）"
+  },
+  {
+   "item": "legacy:table_chunks_kb_9:329",
+   "status": "PASS",
+   "evidence": {
+    "docs": 1,
+    "distinct_source": 1,
+    "chunk_index": [
+     0
+    ]
+   },
+   "boundary": "chunk_index 起点=0（legacy 既有编号，不要求从 0）"
+  },
+  {
+   "item": "mapping:same_text_multi_source",
+   "status": "PASS",
+   "evidence": {
+    "stats": {
+     "units": 2,
+     "engine_chunks": 1,
+     "shared_chunks": 1,
+     "max_sources_per_chunk": 2
+    },
+    "sources": [
+     "333",
+     "334"
+    ]
+   },
+   "boundary": null
+  },
+  {
+   "item": "mapping:delete_one_keep_rest",
+   "status": "PASS",
+   "evidence": {
+    "remaining": [
+     "334"
+    ]
+   },
+   "boundary": null
+  },
+  {
+   "item": "graph:describe",
+   "status": "PASS",
+   "evidence": {
+    "counts": {
+     "VERIFIED": 10,
+     "NOT_VERIFIED": 1,
+     "NOT_IMPLEMENTED": 6
+    },
+    "graph_route": "NOT_VERIFIED"
+   },
+   "boundary": null
+  },
+  {
+   "item": "graph:检索编排不变量",
+   "status": "PASS",
+   "evidence": {
+    "graph": "GRAPH",
+    "fallback": "NO_SEED_ENTITY",
+    "forced_passed": false,
+    "invalid": 1
+   },
+   "boundary": "编排层（假 retriever）；真实引擎接线未做"
+  },
+  {
+   "item": "mineru:config",
+   "status": "PASS",
+   "evidence": {
+    "models_dir": "/home/szf/data/dev/models/mineru/models",
+    "device": "cpu",
+    "formula": false
+   },
+   "boundary": null
+  },
+  {
+   "item": "mineru:weights_root",
+   "status": "PASS",
+   "evidence": {
+    "path": "/home/szf/data/dev/models/mineru/models"
+   },
+   "boundary": null
+  },
+  {
+   "item": "biz:同谓词双向不误合并",
+   "status": "PASS",
+   "evidence": {
+    "forward": true,
+    "reverse": false
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:加/减/零调整，总额与分项一致",
+   "status": "PASS",
+   "evidence": {
+    "total": 9500,
+    "components": 3
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:多文件别名与同名异体",
+   "status": "PASS",
+   "evidence": {
+    "alias": "甲产品->p1",
+    "homonym_ids": [
+     "x1",
+     "x2"
+    ]
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:同事实多来源删一保留",
+   "status": "PASS",
+   "evidence": {
+    "after_first_delete": 1
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:合法孤点",
+   "status": "PASS",
+   "evidence": {
+    "route": "SEEDS_WITHOUT_ASSERTIONS"
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:新旧政策有效版本",
+   "status": "PASS",
+   "evidence": {
+    "as_of_0315": 5000,
+    "as_of_1031": 8000
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:不可见文件变化不污染可见构建",
+   "status": "PASS",
+   "evidence": {
+    "visible_before": 8000,
+    "visible_after": 8000
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:图禁用/无种子时路线准确",
+   "status": "PASS",
+   "evidence": {
+    "disabled": "GRAPH_DISABLED",
+    "no_seed": "NO_SEED_ENTITY"
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "graph:撤权 fence",
+   "status": "PASS",
+   "evidence": {
+    "dropped": [
+     {
+      "text": "旧内容",
+      "sources": [
+       "999"
+      ],
+      "reason": "ALL_SOURCES_REVOKED"
+     }
+    ],
+    "stale_blocked": true,
+    "generation": 1
+   },
+   "boundary": "平台侧 fence（先验索引代次再过滤）；引擎侧增量删除仍未实现，首版靠隔离快照全量重建"
+  },
+  {
+   "item": "graph:隔离重建（撤权→重建→切读）",
+   "status": "PASS",
+   "evidence": {
+    "generation": 1,
+    "chunks": 3,
+    "revoked_text_leaked": [],
+    "stale_blocked": true,
+    "fresh_allowed": true
+   },
+   "boundary": "真实引擎重建；引擎侧按文档删除图产物仍未实现，删文档走重建路径"
+  },
+  {
+   "item": "graph:重建窗口并发",
+   "status": "PASS",
+   "evidence": {
+    "failure_case": {
+     "rebuild_failed": true,
+     "pointer_unchanged": true,
+     "pointer_generation": 0,
+     "fence_generation": 1,
+     "reader_allowed": false
+    },
+    "during": {
+     "blocked": 488,
+     "allowed": 0
+    },
+    "after_allowed": true
+   },
+   "boundary": "真实引擎重建 + 线程采样；只覆盖单进程读者，多进程/多实例未测"
+  },
+  {
+   "item": "graph:写并发与多读者一致性",
+   "status": "PASS",
+   "evidence": {
+    "write_first_stale": true,
+    "write_missing": [
+     "340"
+    ],
+    "readers_blocked": [
+     1345,
+     1346,
+     1349,
+     1348
+    ],
+    "readers_allowed": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "final_generation": 1
+   },
+   "boundary": "单机多进程读者；跨机器多实例与真实库规模窗口未测；窗口被 sleep 延长以便采样"
+  },
+  {
+   "item": "graph:重建合并",
+   "status": "PASS",
+   "evidence": {
+    "first_requests": 3,
+    "second_requests": 1,
+    "builds": 2,
+    "documents": 5,
+    "expected": 5
+   },
+   "boundary": "单进程协调器；多实例需外部协调（未做），失败重试/积压上限未做"
+  },
+  {
+   "item": "graph:重建退避与背压",
+   "status": "PASS",
+   "evidence": {
+    "rejected": "BACKPRESSURE",
+    "delays": [
+     1.0,
+     2.0,
+     4.0
+    ],
+    "alerts": 1,
+    "pending_kept": 2
+   },
+   "boundary": "进程内协调器逻辑；真实告警通道、定时调度、多实例协调未接"
+  },
+  {
+   "item": "graph:重建调度器",
+   "status": "PASS",
+   "evidence": {
+    "builds": [
+     5,
+     5
+    ],
+    "stopped": true,
+    "no_build_after_stop": true,
+    "debounce_waits": 2,
+    "documents": 5
+   },
+   "boundary": "单进程后台线程；多实例/进程守护/监控接入未做"
+  },
+  {
+   "item": "graph:多实例租约",
+   "status": "PASS",
+   "evidence": {
+    "builds": {
+     "A": 0,
+     "B": 1
+    },
+    "not_leader": {
+     "A": 104,
+     "B": 0
+    },
+    "skipped_fresh": {
+     "A": 0,
+     "B": 0
+    },
+    "fencing": {
+     "A": null,
+     "B": 1
+    },
+    "stale_write_blocked": {
+     "A": null,
+     "B": true
+    }
+   },
+   "boundary": "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）"
+  },
+  {
+   "item": "graph:MySQL 租约（跨机）",
+   "status": "PASS",
+   "evidence": {
+    "builds": {
+     "A": 0,
+     "B": 1
+    },
+    "fencing": {
+     "A": null,
+     "B": 1
+    },
+    "not_leader": {
+     "A": 174,
+     "B": 0
+    },
+    "lease_key": "q-lease-1793453215"
+   },
+   "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
+  },
+  {
+   "item": "graph:租约故障可见性",
+   "status": "PASS",
+   "evidence": {
+    "builds": 0,
+    "lease_errors": 5,
+    "alert_kinds": [
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE"
+    ],
+    "alerts_sent": 5,
+    "thread_stopped": true,
+    "schema_error": "OperationalError: (2003, \"Can't connect to MySQL server on '"
+   },
+   "boundary": "用 127.0.0.1:1 制造连接拒绝；未测「连上但查询超时」与锁等待"
+  },
+  {
+   "item": "biz:global 报告/引用失效识别",
+   "status": "PASS",
+   "evidence": {
+    "status": "READY",
+    "export": {
+     "total": 29,
+     "exported": 29,
+     "excluded": 0
+    },
+    "communities": 5,
+    "invalid_citations": 0
+   },
+   "boundary": "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，未参与判定"
+  },
+  {
+   "item": "biz:端到端业务问答",
+   "status": "PASS",
+   "evidence": {
+    "route": "GRAPH",
+    "reason": "OK",
+    "answer": "日均存款：数据源 T-CORE-001，口径为按业务日跨账户汇总/天数；用电量：数据源 T-EXT-001，口径为月度同",
+    "citations": 2,
+    "model": "deepseek-flash"
+   },
+   "boundary": "真实端到端（外部回答模型 + 本地引擎 + CJK 补丁），单问句；多跳/合计/跨文档未覆盖"
+  }
+ ]
+}

@@ -157,6 +157,11 @@
        另修一处验收偶发失败：一致性检查的读者结果从 mp.Queue 改落文件轮询（CPU 紧张时 Queue 超时
        会被记成验收失败），连跑 3 次稳定。
        未做：断网/主从切换下的租约行为、DDL 权限收紧后的预建表迁移、多租户 lease_key、锁等待超时影响
+    1t) 租约故障可见性（本轮）：acquire/renew 抛异常不再打穿 run()，改为 LEASE_ERROR 决策 +
+       lease_errors 计数 + 边沿触发告警（首次即报、持续每 60s、恢复报一次）；on_alert 自己抛错
+       只记 alert_sink_errors，不拖死循环。实测：端口 1 拒绝 → builds=0 / lease_errors=6 /
+       thread_stopped=True / LEASE_UNAVAILABLE；真库故障→恢复能自愈并 BUILT + LEASE_RECOVERED。
+       未做：真实告警通道（Webhook 等仍空）、查询超时（表现为卡住，无超时保护）、指标导出
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
