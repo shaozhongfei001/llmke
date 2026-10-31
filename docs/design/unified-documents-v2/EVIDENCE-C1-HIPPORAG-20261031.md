@@ -132,3 +132,31 @@ sources_resolved_by=file_id`，即引用可回指、代次可回答。
 
 **仍未验证**：真正的"引用失效"反例（删掉被引文件后 global 是否标记失效）——需要动 kb_9 的既有数据，
 本轮不做破坏性实验，留作独立反例任务。
+
+## 9. 离线 wheelhouse 体积基线（U-03 断网交付的前置数字）
+
+实测已装环境与关键包体积（`du -sh`）：
+
+| 项 | 体积 |
+|---|---|
+| `hipporag-toolenv` 总体 | **7.4 GB** |
+| `nvidia/*`（CUDA 运行时） | 2.7 GB |
+| `torch` | 1.7 GB |
+| `vllm` | 531 MB |
+| `transformers` | 98 MB |
+| `hipporag` wheel 本体 | 85 KB（sha256 `eee80804…`） |
+
+即"断网可装"至少要准备 4–5 GB 级别的 wheelhouse；纯 Python 依赖（hipporag/networkx/tiktoken）
+只有 ~2.8 MB，体积全在 torch/vllm/nvidia。
+
+已启动的后台作业（本轮发起，跨回合续跑）：
+```
+pip download -d /tmp/wh-full -r locks/hipporag-2.0.0a4-requirements.txt
+log: /tmp/wh-full.log   pid 见启动记录
+```
+进展核对方式：`du -sh /tmp/wh-full`、`tail /tmp/wh-full.log`；完成后应得到可断网安装的 wheelhouse。
+
+**已知取舍**（下一步要决策，不是能靠下载解决的）：`hipporag 2.0.0a4` 在模块级 `import vllm`，
+即使只用 OpenAI 兼容后端也绕不开 → 离线包必须带 vllm+torch+nvidia（≈4.5 GB）。
+若目标机只需 OpenAI 后端，可评估"CPU 版 torch + 受控 vllm 占位"把体积压到 ~1 GB，
+但这属于对上游行为的偏离，需要单独评审，不能默默替换。
