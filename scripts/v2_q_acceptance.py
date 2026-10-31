@@ -144,6 +144,23 @@ def check_mapping():
            {"remaining": sorted(remaining)}, None if ok else "删掉一个来源后其余来源丢失")
 
 
+def check_capabilities():
+    """图引擎能力声明：VERIFIED 必须有证据；GRAPH 路线未被证明就不许写成已具备。"""
+    try:
+        from graph_engine_adapter import describe
+    except Exception as exc:  # noqa: BLE001
+        record("graph:describe", "FAIL", f"{type(exc).__name__}: {exc}")
+        return
+    d = describe()
+    caps = d["capabilities"]
+    lying = [k for k, v in caps.items() if v["status"] == "VERIFIED" and not v["evidence"]]
+    route = caps.get("retrieve_graph_route", {}).get("status")
+    ok = not lying and route != "VERIFIED"
+    record("graph:describe", "PASS" if ok else "FAIL",
+           {"counts": d["counts"], "graph_route": route},
+           None if ok else f"无证据却声明 VERIFIED: {lying} 或 GRAPH 路线被误标 {route}")
+
+
 def check_mineru():
     cfg = Path(os.environ.get("MINERU_TOOLS_CONFIG_JSON",
                               os.path.expanduser("~/mineru/magic-pdf.json")))
@@ -187,6 +204,7 @@ def main(argv=None):
     check_infra()
     check_legacy_channels()
     check_mapping()
+    check_capabilities()
     check_mineru()
     for item, why in NOT_IMPLEMENTED:
         record(item, "NOT_IMPLEMENTED", why)
