@@ -71,6 +71,9 @@ def main(argv=None):
                     help="已知坏样本的 file_id：三索引与 Milvus 都应为 0/缺席")
     ap.add_argument("--query", default="产品丙的最高额度")
     ap.add_argument("--retrieval", default=RETRIEVAL)
+    ap.add_argument("--index-service", default=os.environ.get("V2_INDEX", "http://127.0.0.1:18082"))
+    ap.add_argument("--verify-delete", default=None,
+                    help="对指定 file_id 走真实删除接口并断言三索引+Milvus 归零（破坏性，显式指定才执行）")
     ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)
 
@@ -110,6 +113,24 @@ def main(argv=None):
                                       "top_source": (top.get("metadata") or {}).get("source")}
         if not docs:
             problems.append(f"search_policy={policy} 无结果（{args.query}）")
+
+    if args.verify_delete:
+        fid = str(args.verify_delete)
+        before = {"es": sum(es_count(f"{p}{args.kb}", fid) or 0
+                            for p in ("", "table_chunks_", "table_summary_")),
+                  "milvus": milvus_count(f"_{args.kb}", fid) or 0}
+        req = urllib.request.Request(
+            f"{args.index_service}/index/api/knowledgeBase/file/delete?id={fid}", method="DELETE")
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            ok = json.loads(resp.read()).get("success")
+        import time
+        time.sleep(20)
+        after = {"es": sum(es_count(f"{p}{args.kb}", fid) or 0
+                           for p in ("", "table_chunks_", "table_summary_")),
+                 "milvus": milvus_count(f"_{args.kb}", fid) or 0}
+        report["delete_check"] = {"file_id": fid, "api_ok": ok, "before": before, "after": after}
+        if not ok or after["es"] or after["milvus"]:
+            problems.append(f"删除后仍有残留: {after}")
 
     if problems:
         report["status"] = "FAILED"
