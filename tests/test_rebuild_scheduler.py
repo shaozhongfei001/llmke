@@ -13,6 +13,9 @@ class Clock:
     def __call__(self):
         return self.now
 
+    def advance(self, seconds):
+        self.now += seconds
+
 
 def make(coordinator, clock, **kw):
     sleeps = []
@@ -89,3 +92,45 @@ def test_run_loop_is_bounded_by_max_cycles_and_respects_stop():
     out2 = sched.run(max_cycles=2)
     assert out2["last"]["action"] in ("BUILT", "IDLE")
     assert calls == [1]
+
+
+def test_lease_blocks_non_leader_from_building(tmp_path):
+    from graph_engine_adapter.lease import FileLease
+
+    clock = Clock()
+    calls = []
+    coord = RebuildCoordinator(lambda b: (calls.append(len(b)), {})[1], clock=clock)
+    path = str(tmp_path / "lease.json")
+    other = FileLease(path, owner="OTHER", ttl=60, clock=clock)
+    other.acquire()
+
+    sched, sleeps = make(coord, clock, debounce=0.0, idle_poll=0.1,
+                         lease=FileLease(path, owner="ME", ttl=60, clock=clock))
+    coord.request("u", files=["a"])
+    out = sched.run_cycle()
+    assert out["action"] == "NOT_LEADER" and out["holder"] == "OTHER"
+    assert calls == []                      # 非主不构建
+    assert sleeps == [0.1]
+
+
+def test_leader_builds_and_lost_lease_stops_building(tmp_path):
+    from graph_engine_adapter.lease import FileLease
+
+    clock = Clock()
+    calls = []
+    coord = RebuildCoordinator(lambda b: (calls.append(len(b)), {})[1], clock=clock)
+    path = str(tmp_path / "lease.json")
+    me = FileLease(path, owner="ME", ttl=10, clock=clock)
+    sched, _ = make(coord, clock, debounce=0.0, lease=me)
+
+    coord.request("u", files=["a"])
+    assert sched.run_cycle()["action"] == "BUILT"
+    assert calls == [1]
+
+    # 租约过期后被别人接管，本实例即使能拿到 pending 也必须停手
+    clock.advance(20)
+    FileLease(path, owner="OTHER", ttl=10, clock=clock).acquire()
+    coord.request("u", files=["b"])
+    out = sched.run_cycle()
+    assert out["action"] in ("NOT_LEADER", "LOST_LEASE")
+    assert calls == [1]                     # 没有第二次构建

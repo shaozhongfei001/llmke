@@ -129,3 +129,25 @@ def test_freshness_ignores_revoked_files(tmp_path):
     assert check_freshness(pointer, all_docs, fence)["stale"] is True   # 还没重建
     rebuild(str(tmp_path / "idx"), fence, all_docs, lambda i, t: {"ok": 1})
     assert check_freshness(read_pointer(str(tmp_path / "idx")), all_docs, fence)["stale"] is False
+
+
+def test_rebuild_if_stale_skips_when_snapshot_covers_docs(tmp_path):
+    from graph_engine_adapter.rebuild import rebuild_if_stale
+
+    fence = FenceState()
+    root = str(tmp_path / "idx")
+    base = docs("333", "329")
+    calls = []
+
+    def build(items, target):
+        calls.append(len(items))
+        return {"ok": 1}
+
+    first = rebuild_if_stale(root, fence, base, build)
+    assert first["status"] == "BUILT" and calls == [2]
+
+    second = rebuild_if_stale(root, fence, base, build)
+    assert second["status"] == "SKIPPED_FRESH" and calls == [2]      # 没有第二次构建
+
+    third = rebuild_if_stale(root, fence, base + docs("340"), build)
+    assert third["status"] == "BUILT" and calls == [2, 3]

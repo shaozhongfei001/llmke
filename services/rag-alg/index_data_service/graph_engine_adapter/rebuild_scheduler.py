@@ -27,15 +27,19 @@ class RebuildScheduler:
                  idle_poll: float = 0.5,
                  max_sleep: float = 30.0,
                  sleep: Optional[Callable[[float], None]] = None,
-                 clock: Optional[Callable[[], float]] = None):
+                 clock: Optional[Callable[[], float]] = None,
+                 lease: Any = None):
         self.coordinator = coordinator
         self.debounce = debounce
         self.idle_poll = idle_poll
         self.max_sleep = max_sleep      # 单次睡眠上限：保证 stop 事件能被及时看到
         self._sleep = sleep or time.sleep
         self._clock = clock or time.monotonic
+        # 可选租约：多实例部署时只让持有者真正重建（不给就是单实例行为）
+        self.lease = lease
         self._state = {"cycles": 0, "debounce_waits": 0, "idle": 0,
-                       "backoff_waits": 0, "slept_s": 0.0, "stopped": False}
+                       "backoff_waits": 0, "slept_s": 0.0, "stopped": False,
+                       "not_leader": 0, "lost_lease": 0}
         self._lock = threading.Lock()
 
     def stats(self) -> Dict[str, Any]:
@@ -72,6 +76,21 @@ class RebuildScheduler:
             self._sleep_bounded(retry_in)
             return {"schema": SCHEMA, "action": "BACKOFF_WAIT",
                     "retry_in_s": retry_in, "pending": pending}
+
+        if self.lease is not None:
+            acquired = self.lease.acquire()
+            if not acquired.get("acquired"):
+                with self._lock:
+                    self._state["not_leader"] += 1
+                self._sleep_bounded(self.idle_poll)
+                return {"schema": SCHEMA, "action": "NOT_LEADER",
+                        "holder": acquired.get("holder"), "pending": pending}
+            if not self.lease.renew():
+                with self._lock:
+                    self._state["lost_lease"] += 1
+                return {"schema": SCHEMA, "action": "LOST_LEASE",
+                        "pending": pending,
+                        "hint": "租约被接管，本实例立即停手（重建本身幂等，不会写坏快照）"}
 
         if self.debounce > 0:
             with self._lock:

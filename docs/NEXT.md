@@ -132,7 +132,13 @@
        run_cycle 单轮可断言、run 真循环；debounce 合并突发、退避期只睡不打模型、
        max_sleep 切片睡眠保证停机及时、每轮检查 stop。实测 3 条突发→1 次构建、
        再 1 条→第 2 次，停机后 1s 内无新构建，指针 5 块且 fresh。
-       Q 现 34 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。未做：进程守护、多实例、指标导出、定时全量重建
+       Q 现 34 PASS / 0 FAIL / 0 NOT_IMPLEMENTED
+    1q) 多实例租约（lease.py + rebuild_if_stale + v2_lease_drill.py 双进程真跑）：
+       用目录做原子锁（先读后写会双主，实测出现过两次构建）；meta 缺失给 3s claim_grace；
+       长构建必须 lease_guard 续租（首版只包住 sleep，漏掉构建本体仍双主）。
+       实测 B 先启动：builds=1；A 后启动：not_leader=200、拿到租约后因指纹已新 skipped_fresh=1、
+       builds=0 → 合计 1 次构建。Q 现 35 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
+       边界：文件租约（单机/共享盘），无 fencing token，跨机非共享盘不成立；重建本身幂等兜底
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

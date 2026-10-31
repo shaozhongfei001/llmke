@@ -432,6 +432,47 @@ def check_rebuild_scheduler():
            "单进程后台线程；多实例/进程守护/监控接入未做")
 
 
+def check_multi_instance_lease():
+    """双实例争租约：两个进程都请求重建，合计只允许 1 次真正构建。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:多实例租约", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    stamp = int(time.time())
+    root = f"/tmp/q-lease-{stamp}"
+    lease = f"{root}/lease.json"
+    os.makedirs(root, exist_ok=True)
+    common = [py, str(REPO / "scripts/v2_lease_drill.py"),
+              "--payloads", *payloads, "--root", root, "--lease", lease,
+              "--cjk-compat", "--duration", "20"]
+    a_out, b_out = f"/tmp/q-lease-A-{stamp}.json", f"/tmp/q-lease-B-{stamp}.json"
+    # 先起 B 并让它在主位上跑起来，再起 A：这样窗口是确定性的，
+    # 不依赖两个进程谁先抢到（抢谁赢都对，但断言要看"只有一个建"）
+    proc_b = subprocess.Popen(common + ["--owner", "inst-B", "--out", b_out],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(6)
+    proc_a = subprocess.run(common + ["--owner", "inst-A", "--out", a_out],
+                            capture_output=True, text=True, timeout=1200)
+    proc_b.wait(timeout=1200)
+
+    if not (os.path.isfile(a_out) and os.path.isfile(b_out)):
+        record("graph:多实例租约", "FAIL", {"tail": (proc_a.stderr or "")[-200:]})
+        return
+    a = json.loads(open(a_out, encoding="utf-8").read())
+    b = json.loads(open(b_out, encoding="utf-8").read())
+    total = a["builds"] + b["builds"]
+    ok = total == 1 and a["builds"] + b["builds"] == 1 and (a["builds"], b["builds"]) in ((1, 0), (0, 1))
+    record("graph:多实例租约", "PASS" if ok else "FAIL",
+           {"builds": {"A": a["builds"], "B": b["builds"]},
+            "not_leader": {"A": a["stats"]["not_leader"], "B": b["stats"]["not_leader"]},
+            "skipped_fresh": {"A": a.get("skipped_fresh"), "B": b.get("skipped_fresh")}},
+           "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -615,6 +656,7 @@ def main(argv=None):
     check_rebuild_coalescing()
     check_rebuild_backpressure()
     check_rebuild_scheduler()
+    check_multi_instance_lease()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

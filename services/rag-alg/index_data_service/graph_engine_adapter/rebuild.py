@@ -131,9 +131,24 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
         if path != target:
             shutil.rmtree(path, ignore_errors=True)
 
-    return {"schema": SCHEMA, "pointer": pointer, "current": payload,
+    return {"schema": SCHEMA, "status": "BUILT", "pointer": pointer, "current": payload,
             "build_result": _safe(result),
             "previous": previous}
+
+
+def rebuild_if_stale(root: str, fence: FenceState, docs: List[Dict[str, Any]],
+                     build_fn: Callable[[List[Dict[str, Any]], str], Any]) -> Dict[str, Any]:
+    """快照已经覆盖当前存活文档就跳过重建。
+
+    多实例场景下这一条很关键：租约让多个实例**串行**，但如果第二个实例进来时
+    第一个已经建好了同样的内容，再建一次纯属浪费。所以先比指纹，跳过并说明原因。
+    """
+    pointer = read_pointer(root)
+    fresh = check_freshness(pointer, docs, fence)
+    if not fresh["stale"]:
+        return {"schema": SCHEMA, "status": "SKIPPED_FRESH", "pointer": pointer,
+                "documents": pointer.get("documents")}
+    return rebuild(root, fence, docs, build_fn)
 
 
 def _safe(value: Any) -> Any:
