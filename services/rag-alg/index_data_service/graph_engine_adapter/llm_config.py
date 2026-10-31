@@ -33,6 +33,18 @@ LOCAL_BASE = "http://127.0.0.1:18092/v1"
 LOCAL_MODEL = "qwen2.5-7b-instruct"
 
 
+def _budget_from_env(env: Dict[str, str]):
+    """按 `LLMKE_ANSWER_RATE` 造调用预算；未配置返回 None（保持原有行为）。
+
+    懒加载：没配限流的部署不该因为"预算模块导入失败"而起不来。
+    """
+    raw = (env.get("LLMKE_ANSWER_RATE") or "").strip()
+    if not raw:
+        return None
+    from .llm_budget import from_env
+    return from_env(env)
+
+
 def resolve(env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     """解析出 {provider, base, model, key_env, key, timeout, max_tokens}；不打印 key。"""
     env = env if env is not None else os.environ
@@ -54,6 +66,7 @@ def resolve(env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     key = SecretSource.from_env(key_env, key_file, environ=env).get()
     return {"schema": SCHEMA, "provider": provider, "base": base, "model": model,
             "key_env": key_env, "key_file": key_file, "key": key,
+            "budget": _budget_from_env(env),
             "timeout": int(env.get("LLMKE_ANSWER_TIMEOUT", "120")),
             "max_tokens": int(env.get("LLMKE_ANSWER_MAX_TOKENS", "1024"))}
 
@@ -62,10 +75,12 @@ def describe(cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """可安全打印的摘要：只有键名与是否就绪，没有键值。"""
     cfg = cfg or resolve()
     key = cfg.get("key")
+    budget = cfg.get("budget")
     return {"schema": cfg.get("schema"), "provider": cfg["provider"], "base": cfg["base"],
             "model": cfg["model"], "key_env": cfg.get("key_env"),
             "key_present": bool(key), "key_len": len(key) if key else 0,
-            "ready": cfg["provider"] == "local" or bool(key)}
+            "ready": cfg["provider"] == "local" or bool(key),
+            "budget": budget.describe() if hasattr(budget, "describe") else None}
 
 
 def make_llm_call(cfg: Optional[Dict[str, Any]] = None, *,
@@ -81,8 +96,15 @@ def make_llm_call(cfg: Optional[Dict[str, Any]] = None, *,
             f"回答段缺少 API key：请设置环境变量 {cfg.get('key_env')}（值不入库、不打印）")
 
     url = f"{cfg['base'].rstrip('/')}/chat/completions"
+    # 不能叫 budget：`_call` 内部已经用 `budget` 表示 max_tokens 预算，
+    # 同名会让它变成 `_call` 的局部变量，外层赋值不可见 → UnboundLocalError。
+    call_budget = cfg.get("budget")
 
     def _call(messages, **kw):
+        # 限流按"一次回答"计数，不按重试计数：重试是同一次回答的一部分，
+        # 把它也计进去会让"输出被截断→加倍预算重试"这条路径莫名触发限流。
+        if call_budget is not None:
+            call_budget.before_call()
         payload = {"model": kw.get("model", cfg["model"]), "messages": messages,
                    "temperature": kw.get("temperature", 0),
                    "max_tokens": kw.get("max_tokens", cfg["max_tokens"])}

@@ -248,6 +248,17 @@
     3b) 多租户 lease_key（本轮）：测试证明两个不同 key 互不阻塞（按知识库分片选主的前提），
        同 key 自己续租不加 fencing。worker 已有 --lease-key，部署按 KB 传即可。
        未做：key 的命名/配额校验（非法字符、超长、与 KB 生命周期的绑定）
+    4a) 阶段B 限流接入（本轮，Q 49 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED）：
+       · llm_budget.py（角色交付）：LLMKE_ANSWER_RATE="6/60" 解析、CallBudget.before_call 抛
+         RateLimitedError（带 retry_after）、复用既有 TokenBucket；
+       · llm_config 接线（TL）：resolve() 造 budget（未配=None），make_llm_call 在**每次回答**前扣一次，
+         重试不计入；describe() 带 budget 摘要不泄密；
+       · 演练 v2_rate_limit_drill.py：假 OpenAI 服务 + 真实 make_llm_call，
+         不限流 3/3 且服务端收 3；2/60 时 2 过 1 拒且**服务端只收 2 次**（证明拦在发送前）；
+       · 三个真 bug：①`budget` 变量遮蔽（内层 max_tokens 预算）→ UnboundLocalError，改 call_budget；
+         ②把 CallBudget 塞进 report 导致 json.dump 中途失败留下截断文件、Q 崩溃 → 只序列化 stats + Q 容错；
+         ③我重复犯的引号错 → 新增 tests/test_scripts_compile.py（compileall 全量脚本）。
+       未做：多进程/分布式配额、重试风暴不被限流、配额耗尽告警、图重建/embedding 未接
     2e) 部署剩余：灰度发布、真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）

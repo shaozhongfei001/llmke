@@ -63,3 +63,30 @@ def test_key_file_missing_falls_back_to_none(tmp_path):
 
     cfg = resolve({"LLMKE_ANSWER_KEY_FILE": str(tmp_path / "nope")})
     assert cfg["key"] is None
+
+
+def test_budget_is_off_by_default():
+    """不配 LLMKE_ANSWER_RATE 时必须完全保持原行为：没有预算对象、不额外计时。"""
+    from graph_engine_adapter.llm_config import describe, resolve
+
+    cfg = resolve({"DSEEK_2026_SZF_KEY": "k"})
+    assert cfg["budget"] is None
+    assert describe(cfg)["budget"] is None
+
+
+def test_budget_is_built_when_rate_configured():
+    from graph_engine_adapter.llm_config import resolve
+
+    cfg = resolve({"DSEEK_2026_SZF_KEY": "k", "LLMKE_ANSWER_RATE": "3/60"})
+    assert cfg["budget"] is not None
+    assert cfg["budget"].stats()["capacity"] == 3.0
+
+
+def test_budget_rejects_bad_rate_with_original_value():
+    import pytest
+
+    from graph_engine_adapter.llm_config import resolve
+
+    with pytest.raises(ValueError) as excinfo:
+        resolve({"DSEEK_2026_SZF_KEY": "k", "LLMKE_ANSWER_RATE": "abc"})
+    assert "abc" in str(excinfo.value)

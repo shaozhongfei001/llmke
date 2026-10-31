@@ -788,7 +788,14 @@ def check_use_mineru_switch():
     if not os.path.isfile(out):
         record("mineru:use-mineru 开关", "FAIL", {"tail": (proc.stderr or "")[-300:]})
         return
-    d = json.loads(open(out, encoding="utf-8").read())
+    try:
+        d = json.loads(open(out, encoding="utf-8").read())
+    except Exception as exc:  # noqa: BLE001
+        # 演练可能写出截断文件（中途序列化失败）；不能让它把整个验收带崩
+        record("biz:回答段限流", "FAIL",
+               {"why": f"{type(exc).__name__}: {exc}",
+                "tail": (proc.stderr or "")[-200:]})
+        return
     ok = d.get("status") == "OK"
     record("mineru:use-mineru 开关", "PASS" if ok else "FAIL",
            {"on": {"chars": d["on"]["chars"], "hit": d["on"]["hit"]},
@@ -1077,6 +1084,39 @@ def check_metrics_auth_endpoint():
            "只验 Bearer token 路径；IP 白名单与 loopback 策略由单元测试覆盖")
 
 
+def check_answer_rate_limit():
+    """回答段限流：超限被拦在发请求之前，且默认关闭不改变原有行为。"""
+    import subprocess
+
+    script = REPO / "scripts/v2_rate_limit_drill.py"
+    if not script.is_file():
+        record("biz:回答段限流", "SKIP", {"why": "演练脚本缺失"})
+        return
+    out = tempfile.mktemp(suffix=".json")
+    proc = subprocess.run([sys.executable, str(script), "--out", out],
+                          capture_output=True, text=True, timeout=300)
+    if not os.path.isfile(out):
+        record("biz:回答段限流", "FAIL", {"tail": (proc.stderr or proc.stdout or "")[-300:]})
+        return
+    try:
+        d = json.loads(open(out, encoding="utf-8").read())
+    except Exception as exc:  # noqa: BLE001
+        # 演练可能写出截断文件（中途序列化失败）；不能让它把整个验收带崩
+        record("biz:回答段限流", "FAIL",
+               {"why": f"{type(exc).__name__}: {exc}",
+                "tail": (proc.stderr or "")[-200:]})
+        return
+    ok = d.get("status") == "OK"
+    record("biz:回答段限流", "PASS" if ok else "FAIL",
+           {"unlimited_ok": d["unlimited"]["ok"],
+            "limited_ok": d["limited"]["ok"],
+            "limited_denied": len(d["limited"]["denied"]),
+            "server_hits_under_limit": d["limited"]["server_hits"],
+            "retry_after": (d["limited"]["denied"] or [{}])[0].get("retry_after"),
+            "budget": d["limited"].get("budget"), "problems": d.get("problems")},
+           "用本地假 OpenAI 服务；只验「单进程内按次数限流」，未验多进程/分布式配额")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -1317,6 +1357,7 @@ def main(argv=None):
     check_systemd_units()
     check_graph_worker_service()
     check_metrics_auth_endpoint()
+    check_answer_rate_limit()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
