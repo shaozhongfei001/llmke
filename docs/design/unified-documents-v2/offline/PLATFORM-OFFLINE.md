@@ -179,3 +179,23 @@ import soupsieve        -> 3.0.4（即重打包那个）
 
 **已删除**：`venv-r12-parse-py311.tar`（1.36 GB 环境快照）——wheelhouse 已可用（含重打包的
 soupsieve 3.0.4），快照作为兜底没有保留价值，避免交付介质里出现两套来源不一致的 parse 环境。
+
+## 13. 离线环境里把图服务**真正跑起来并回答**（不是只 import）
+
+用 `wheels-r12-graph` 装出的 3.10 venv，在 19531 端口起 `index_graph_service`：
+
+```
+GET  /openapi.json   -> ['/generate_community','/query_community','/del_community']
+POST /query_community {"space_name":"kb_9","mode":"global","query":"产品额度","top_k":3}
+ -> code=200 msg="global 汇总完成（社区 10 个，命中 4 个，有相关事实 4 个）"
+    answer="海川电子材料股份有限公司的智造贷产品额度为8000万元 [L0-659385b9]。
+            其中 信用部分最高额度 1000万元（分项，不属于总额度）[L1-e0525331]"
+```
+
+这同时证明三件事：离线依赖闭包完整、服务能启动、并且能连真实 ES/Milvus/LLM 产出带引用的答案。
+
+启动时踩到的配置坑（与离线包无关，但会让人误判）：
+- `DATA_ID` 必须用 `index_graph_config_py`（我从 19529 进程的 environ 里取到的真值）；
+- 先用 `index_data_config_py` 启会报 `KeyError: 'graph_server'`，看着像"包不全"，其实是配置读错。
+
+实例已关停（19531 无监听）。
