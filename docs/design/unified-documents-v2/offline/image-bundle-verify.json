@@ -1,0 +1,83 @@
+{
+ "schema": "llmke.image-verify.v1",
+ "summary": {
+  "PASS": 6,
+  "FAIL": 0
+ },
+ "verdict": "PASS",
+ "note": "只校验包内容与标签，未执行 docker load（避免覆盖在用 tag）",
+ "results": [
+  {
+   "image": "milvusdb/milvus:v2.5.6",
+   "file": "milvusdb_milvus_v2.5.6.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "milvusdb/milvus:v2.5.6"
+   ],
+   "layers": 7,
+   "missing_layers": [],
+   "sha256": "79e77a1375bd9ad1",
+   "why": ""
+  },
+  {
+   "image": "r12/elasticsearch-ik:8.13.4",
+   "file": "r12_elasticsearch-ik_8.13.4.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "r12/elasticsearch-ik:8.13.4"
+   ],
+   "layers": 12,
+   "missing_layers": [],
+   "sha256": "2b997596f71e20db",
+   "why": ""
+  },
+  {
+   "image": "mysql:8.4",
+   "file": "mysql_8.4.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "mysql:8.4"
+   ],
+   "layers": 10,
+   "missing_layers": [],
+   "sha256": "04c69767e24f51ca",
+   "why": ""
+  },
+  {
+   "image": "redis:7.4.10-alpine",
+   "file": "redis_7.4.10-alpine.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "redis:7.4.10-alpine"
+   ],
+   "layers": 7,
+   "missing_layers": [],
+   "sha256": "36b1f12ffaa7c2b1",
+   "why": ""
+  },
+  {
+   "image": "minio/minio:RELEASE.2023-03-20T20-16-18Z",
+   "file": "minio_minio_RELEASE.2023-03-20T20-16-18Z.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "minio/minio:RELEASE.2023-03-20T20-16-18Z"
+   ],
+   "layers": 6,
+   "missing_layers": [],
+   "sha256": "586fb697534eb4ad",
+   "why": ""
+  },
+  {
+   "image": "quay.io/coreos/etcd:v3.5.5",
+   "file": "quay.io_coreos_etcd_v3.5.5.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "quay.io/coreos/etcd:v3.5.5"
+   ],
+   "layers": 7,
+   "missing_layers": [],
+   "sha256": "3821353274c6dad9",
+   "why": ""
+  }
+ ]
+}
