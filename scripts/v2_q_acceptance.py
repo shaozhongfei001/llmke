@@ -832,6 +832,39 @@ def check_image_load_smoke():
            "load 仅在 tar 与本地镜像 ID 完全一致时执行（no-op）；未在干净机首装")
 
 
+def check_delta_upgrade_roundtrip():
+    """升级快照/回滚的**逻辑**闭环（不装包，秒级）：快照→比对→无事可做。
+
+    真正的"降级 26 个包"发生在证据文档里的独立 venv 演练，不在 Q 里跑——
+    那要新建 venv 并装 80+ 个 wheel，几分钟，不适合每次验收。
+    """
+    import importlib.util
+
+    script = REPO / "scripts/v2_delta_upgrade.py"
+    if not script.is_file():
+        record("deploy:升级快照与回滚", "SKIP", {"why": "脚本不存在"})
+        return
+    spec = importlib.util.spec_from_file_location("v2_delta_upgrade", script)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    path = tempfile.mktemp(suffix=".snapshot.json")
+    try:
+        snap = mod.snapshot(sys.executable, path, note="q-roundtrip")
+        report = mod.rollback(sys.executable, path, [])
+    finally:
+        if os.path.exists(path):
+            os.remove(path)
+
+    ok = (report["status"] == "PASS" and report["matches_snapshot"] is True
+          and report["restore_count"] == 0 and len(snap["packages"]) > 0)
+    record("deploy:升级快照与回滚", "PASS" if ok else "FAIL",
+           {"packages": len(snap["packages"]), "restore": report["restore_count"],
+            "matches": report["matches_snapshot"], "extras": len(report["extras"]),
+            "status": report["status"]},
+           "只验快照/比对闭环；真实降级（26 包）在 EVIDENCE-DEPLOY-CLOSEOUT 里")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -1063,6 +1096,7 @@ def main(argv=None):
     check_mineru_wheelhouse()
     check_use_mineru_switch()
     check_image_load_smoke()
+    check_delta_upgrade_roundtrip()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

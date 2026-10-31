@@ -20,6 +20,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 
@@ -84,6 +85,61 @@ def diff(base_wheels, add_sets):
             "install": install, "superseded": superseded}
 
 
+def inventory(python):
+    """venv 当前装了哪些包（name → version）。用 pip 自己的视图，不猜 dist-info。"""
+    proc = subprocess.run([python, "-m", "pip", "list", "--format=json"],
+                          capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise SystemExit(f"pip list 失败：{(proc.stderr or '')[-200:]}")
+    return {item["name"].lower().replace("_", "-"): item["version"]
+            for item in json.loads(proc.stdout)}
+
+
+def snapshot(python, path, *, note=None):
+    """升级前快照：只存"包名→版本"，不复制整个环境。
+
+    为什么不复制 venv：几百 MB 到几 GB，而且 venv 里写死了绝对路径，搬走也未必能用。
+    版本清单 + 离线 wheelhouse 足以精确重建。
+    """
+    snap = {"schema": "llmke.env-snapshot.v1", "python": python,
+            "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "packages": inventory(python), "note": note}
+    Path(path).write_text(json.dumps(snap, ensure_ascii=False, indent=1) + "\n",
+                          encoding="utf-8")
+    return snap
+
+
+def rollback(python, path, find_links):
+    """按快照把版本装回去。**不卸载**快照里没有的包，只报出来。
+
+    自动卸载是把"回滚"变成"再炸一次"的典型做法：新装包可能被别的包依赖，
+    卸掉它会让原本正常的组件起不来。所以 extras 只报告，由人决定。
+    """
+    snap = json.loads(Path(path).read_text(encoding="utf-8"))
+    want = {k.lower().replace("_", "-"): v for k, v in snap["packages"].items()}
+    have = inventory(python)
+    restore = sorted(f"{name}=={ver}" for name, ver in want.items()
+                     if have.get(name) != ver)
+    extras = sorted(name for name in have if name not in want)
+    report = {"schema": "llmke.env-rollback.v1", "snapshot": os.path.basename(path),
+              "snapshot_at": snap.get("at"),
+              "restore_count": len(restore), "restore": restore[:40], "extras": extras,
+              "status": "PLANNED"}
+    if restore:
+        args = ["--no-index"]
+        for directory in find_links:
+            args += ["--find-links", directory]
+        rc, tail = pip(python, args + restore)
+        report["rc"] = rc
+        report["tail"] = tail
+        report["status"] = "PASS" if rc == 0 else "FAIL"
+    else:
+        report["status"] = "PASS"        # 已经在快照状态，无事可做
+    report["after"] = {k: v for k, v in inventory(python).items() if k in want}
+    report["matches_snapshot"] = report["after"] == want
+    return report
+
+
 def pip(python, args, timeout=3600):
     proc = subprocess.run([python, "-m", "pip", "install", "-q"] + args,
                           capture_output=True, text=True, timeout=timeout)
@@ -93,10 +149,11 @@ def pip(python, args, timeout=3600):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--base-manifest", required=True)
-    ap.add_argument("--base-wheel-dir", required=True)
-    ap.add_argument("--add-manifest", required=True, action="append")
-    ap.add_argument("--add-wheel-dir", required=True, action="append")
+    # 回滚模式不需要 manifest；升级模式在下面显式校验，避免 argparse 把回滚挡在门外
+    ap.add_argument("--base-manifest")
+    ap.add_argument("--base-wheel-dir")
+    ap.add_argument("--add-manifest", action="append", default=[])
+    ap.add_argument("--add-wheel-dir", action="append", default=[])
     ap.add_argument("--python", default=sys.executable, help="目标 venv 的 python")
     ap.add_argument("--plan-only", action="store_true")
     ap.add_argument("--allow-replace", action="store_true",
@@ -104,8 +161,25 @@ def main(argv=None):
     ap.add_argument("--repin", action="append", default=[],
                     help="升级后回锁，如 numpy==1.26.4（可重复）")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--snapshot", default=None,
+                    help="升级前把 venv 的包版本快照写到该路径（回滚用）")
+    ap.add_argument("--rollback", default=None,
+                    help="回滚模式：按该快照文件把版本装回去（忽略 base/add 参数）")
     args = ap.parse_args(argv)
 
+    if args.rollback:
+        dirs = [args.base_wheel_dir] + list(args.add_wheel_dir or [])
+        report = rollback(args.python, args.rollback, dirs)
+        if args.out:
+            Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n",
+                                      encoding="utf-8")
+        print(json.dumps({"status": report["status"], "restore": report["restore_count"],
+                          "extras": len(report["extras"]),
+                          "matches": report["matches_snapshot"]}, ensure_ascii=False))
+        return 0 if report["status"] == "PASS" and report["matches_snapshot"] else 1
+
+    if not args.base_manifest or not args.add_manifest:
+        raise SystemExit("升级模式需要 --base-manifest 与 --add-manifest")
     if len(args.add_manifest) != len(args.add_wheel_dir):
         raise SystemExit("--add-manifest 与 --add-wheel-dir 必须一一对应")
 
@@ -118,6 +192,11 @@ def main(argv=None):
         add_sets.append((wheels, directory))
         merged.update(wheels)          # 后给的覆盖先给的（升级语义）
 
+    snap = None
+    if args.snapshot and not args.plan_only:
+        snap = snapshot(args.python, args.snapshot,
+                        note=f"before upgrade {os.path.basename(args.base_manifest)}")
+
     plan = diff(base_wheels, [wheels for wheels, _ in add_sets])
     plan["replaced_risky"] = plan["replaced"][:]
     report = {"schema": "llmke.delta-upgrade.v1",
@@ -125,7 +204,9 @@ def main(argv=None):
                        "wheels": len(base_wheels)},
               "add": per_manifest,
               "plan": {k: (v if k != "install" else len(v)) for k, v in plan.items()},
-              "plan_detail": plan, "installed": None, "status": "PLANNED"}
+              "plan_detail": plan, "installed": None, "status": "PLANNED",
+              "snapshot": {"path": args.snapshot, "packages": len(snap["packages"])}
+              if snap else None}
 
     if plan["replaced"] and not args.allow_replace:
         # 不授权就不动：悄悄把 numpy 顶到 2.x 的后果是 pandas 在运行期崩，日志里看不出来
