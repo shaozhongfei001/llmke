@@ -288,6 +288,29 @@ def check_isolated_rebuild():
            "真实引擎重建；引擎侧按文档删除图产物仍未实现，删文档走重建路径")
 
 
+def check_rebuild_window():
+    """重建窗口：过程中一次都不许放行；失败后指针不动且仍拒读。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:重建窗口并发", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    cmd = [py, str(REPO / "scripts/v2_concurrency_drill.py"), "--payloads", *payloads,
+           "--root", "/tmp/q-window", "--cjk-compat", "--out", "/tmp/q-window.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-window.json"):
+        record("graph:重建窗口并发", "FAIL", {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    data = json.loads(open("/tmp/q-window.json", encoding="utf-8").read())
+    record("graph:重建窗口并发", "PASS" if data.get("passed") else "FAIL",
+           {"failure_case": data.get("failure_case"), "during": data["success_case"]["during_rebuild"],
+            "after_allowed": data["success_case"]["reader_allowed_after"]},
+           "真实引擎重建 + 线程采样；只覆盖单进程读者，多进程/多实例未测")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -466,6 +489,7 @@ def main(argv=None):
     check_business_semantics()
     check_visibility_fence()
     check_isolated_rebuild()
+    check_rebuild_window()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
