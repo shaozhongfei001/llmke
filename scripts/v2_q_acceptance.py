@@ -16,6 +16,7 @@
 import argparse
 import json
 import os
+import tempfile
 import socket
 import time
 import sys
@@ -634,6 +635,96 @@ def check_lease_hang_timeout():
            "对端只 accept 不回包；read_timeout=2s。未测真实 MySQL 的锁等待(50s)场景")
 
 
+def check_metrics_and_alert_channel():
+    """指标文本格式 + 真实 HTTP 告警通道（本地起服务器，不连外网）。"""
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from graph_engine_adapter.alert_sink import WebhookAlertSink
+    from graph_engine_adapter.lease import FileLease
+    from graph_engine_adapter.metrics import CONTENT_TYPE, render_with_lease
+    from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator
+    from graph_engine_adapter.rebuild_scheduler import RebuildScheduler
+
+    received, statuses = [], [200]
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length", 0))
+            received.append(self.rfile.read(length))
+            self.send_response(statuses[0])
+            self.end_headers()
+            self.wfile.write(b"{}")
+
+        def log_message(self, *args):
+            return None
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        root = tempfile.mkdtemp(prefix="q-obs-")
+        lease = FileLease(os.path.join(root, "lease"), owner="q", ttl=30)
+        coord = RebuildCoordinator(lambda batch: {"written": len(batch)})
+        sched = RebuildScheduler(coord, debounce=0, idle_poll=0, sleep=lambda s: None,
+                                 lease=lease)
+        coord.request("upload", ["f-1"])          # 有 pending，stats 才有非零信号
+        text = render_with_lease(sched, lease)
+
+        problems = []
+        types_seen = {}
+        for line in text.splitlines():
+            if not line or line.startswith("#"):
+                if line.startswith("# TYPE "):
+                    name = line.split()[2]
+                    types_seen[name] = types_seen.get(name, 0) + 1
+                continue
+            parts = line.split()
+            if len(parts) != 2:
+                problems.append(f"样本行格式错误: {line[:60]}")
+                continue
+            try:
+                value = float(parts[1])
+            except ValueError:
+                problems.append(f"样本值非法: {line[:60]}")
+                continue
+            if value != value or value in (float("inf"), float("-inf")):
+                problems.append(f"输出了 nan/inf: {line[:60]}")
+        dup = [k for k, v in types_seen.items() if v > 1]
+        if dup:
+            problems.append(f"TYPE 重复: {dup[:3]}")
+        if "llmke_graph_rebuild_pending" not in types_seen:
+            problems.append("缺少核心 gauge: rebuild_pending")
+
+        url = f"http://127.0.0.1:{server.server_port}/hook"
+        sink = WebhookAlertSink(url, timeout=2, retries=2, sleep=lambda s: None,
+                                dedupe_window_s=0)
+        ok_send = sink({"kind": "LEASE_UNAVAILABLE", "n": 1}) is True
+        sink({"kind": "LEASE_UNAVAILABLE", "n": 2})          # 去重关掉 → 应再发一次
+        statuses[0] = 500                                     # 服务端开始返错
+        failed_send = sink({"kind": "LEASE_OTHER", "n": 3})
+        stats = sink.stats()
+        if not ok_send:
+            problems.append("200 响应被判失败")
+        if failed_send is not False:
+            problems.append("500 响应未判失败")
+        if stats["sent"] != 2:
+            problems.append(f"sent 应为 2，实际 {stats['sent']}")
+        if stats["failed"] != 1:
+            problems.append(f"failed 应为 1，实际 {stats['failed']}")
+        if stats["attempts"] != 5:
+            problems.append(f"attempts 应为 5（2 成功 + 3 次重试），实际 {stats['attempts']}")
+        if len(received) != 5:
+            problems.append(f"服务端应收到 5 次请求，实际 {len(received)}")
+
+        record("graph:指标导出与告警通道", "PASS" if not problems else "FAIL",
+               {"metrics_lines": len(text.splitlines()), "metrics_series": len(types_seen),
+                "content_type": CONTENT_TYPE, "webhook": stats,
+                "http_requests_received": len(received), "problems": problems[:5]},
+               "本地 HTTP 服务器；未接真实企业微信/钉钉网关，未验签名与鉴权")
+    finally:
+        server.shutdown()
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -821,6 +912,7 @@ def main(argv=None):
     check_mysql_lease()
     check_lease_fault_visibility()
     check_lease_hang_timeout()
+    check_metrics_and_alert_channel()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

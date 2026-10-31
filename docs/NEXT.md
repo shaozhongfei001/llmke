@@ -170,6 +170,15 @@
        未做：真实 MySQL 锁等待 50s 场景、指标导出、超时值按 RTT 自适应
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
+    1v) 可观测性收口（本轮）：metrics.py 手写 Prometheus 文本（缺值整条省略、nan/inf 跳过、
+       bool 转 0/1、无直方图）+ alert_sink.py WebhookAlertSink（永不抛、指数退避、
+       去重在决定发送时打点）/ CompositeSink；drill 增 --metrics-out 与 --alert-webhook。
+       **演练抓出真缺陷**：_default_post 返回 {"status":200} dict，_status_of 不认 dict
+       → 真实 200 全被判失败、重试 3 次、failed=1（告警其实送到了）。桩测试盲区，
+       已修 + 用真实本地 HTTP 服务器补回归测试；修后 5 条告警→1 次 POST、sent=1/deduped=4。
+       真实锁等待实测：另一连接 FOR UPDATE 持锁，客户端 read_timeout=2s 先于服务端 50s 返回，
+       放锁后立即可接管（上一轮遗留问题闭环）。
+       未做：服务未挂 /metrics 端点、告警不签名不落盘、未接真实网关、指标无 label
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）

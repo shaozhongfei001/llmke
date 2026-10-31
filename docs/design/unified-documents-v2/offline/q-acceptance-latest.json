@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 38,
+  "PASS": 39,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 0
@@ -129,8 +129,8 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "NOT_IMPLEMENTED": 6,
      "NOT_VERIFIED": 1,
+     "NOT_IMPLEMENTED": 6,
      "VERIFIED": 10
     },
     "graph_route": "NOT_VERIFIED"
@@ -281,7 +281,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 364,
+     "blocked": 283,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +297,10 @@
      "340"
     ],
     "readers_blocked": [
-     1046,
-     1050,
-     1049,
-     1045
+     890,
+     890,
+     888,
+     888
     ],
     "readers_allowed": [
      0,
@@ -394,10 +394,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 179,
+     "A": 181,
      "B": 0
     },
-    "lease_key": "q-lease-1793455619"
+    "lease_key": "q-lease-1793457048"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -429,11 +429,34 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 39.2,
+    "elapsed_s": 35.4,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
    "boundary": "对端只 accept 不回包；read_timeout=2s。未测真实 MySQL 的锁等待(50s)场景"
+  },
+  {
+   "item": "graph:指标导出与告警通道",
+   "status": "PASS",
+   "evidence": {
+    "metrics_lines": 63,
+    "metrics_series": 21,
+    "content_type": "text/plain; version=0.0.4; charset=utf-8",
+    "webhook": {
+     "sent": 2,
+     "failed": 1,
+     "attempts": 5,
+     "deduped": 0,
+     "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
+     "last_status": 500,
+     "url": "http://127.0.0.1:40199/hook",
+     "retries": 2,
+     "dedupe_window_s": 0
+    },
+    "http_requests_received": 5,
+    "problems": []
+   },
+   "boundary": "本地 HTTP 服务器；未接真实企业微信/钉钉网关，未验签名与鉴权"
   },
   {
    "item": "biz:global 报告/引用失效识别",
@@ -456,7 +479,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径为：日均存款按 T-CORE-001 数据源，按业务日跨账户汇总/天数；用电量按 T-EXT-001 数据",
+    "answer": "多指标对账口径包括：日均存款（T-CORE-001）按业务日跨账户汇总/天数；用电量（T-EXT-001）按月同比。",
     "citations": 2,
     "model": "deepseek-flash"
    },

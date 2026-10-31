@@ -84,6 +84,8 @@ def main(argv=None):
     ap.add_argument("--cjk-compat", action="store_true")
     ap.add_argument("--out", default=None)
     ap.add_argument("--alert-out", default=None, help="把告警事件落盘，供验收断言")
+    ap.add_argument("--metrics-out", default=None, help="把 Prometheus 文本指标落盘（部署侧可挂到 /metrics）")
+    ap.add_argument("--alert-webhook", default=None, help="真实 webhook 地址：调度器的 on_alert 走 WebhookAlertSink")
     args = ap.parse_args(argv)
 
     if args.cjk_compat:
@@ -117,8 +119,17 @@ def main(argv=None):
     coord = RebuildCoordinator(build_once)
     lease = build_lease(args)
     alerts = []
+    on_alert = alerts.append
+    webhook = None
+    if args.alert_webhook:
+        from graph_engine_adapter.alert_sink import WebhookAlertSink
+        webhook = WebhookAlertSink(args.alert_webhook, timeout=3.0, retries=2)
+
+        def on_alert(event):                 # 本地记录 + 真实投递（sink 自己永不抛）
+            alerts.append(event)
+            webhook(event)
     sched = RebuildScheduler(coord, debounce=0.2, idle_poll=0.2, lease=lease,
-                             on_alert=alerts.append, alert_every_s=5.0)
+                             on_alert=on_alert, alert_every_s=5.0)
     sched_lease = sched.lease
 
     stop = threading.Event()
@@ -159,6 +170,7 @@ def main(argv=None):
 
     report = {"owner": args.owner, "builds": len(builds), "skipped_fresh": len(skipped),
               "alerts": alerts, "alert_kinds": [a["kind"] for a in alerts],
+              "webhook_stats": webhook.stats() if webhook is not None else None,
               "schema_error": getattr(build_lease, "schema_error", None),
               "fencing": sched.lease_fencing, "stale_write_blocked": stale_blocked,
               "documents": builds,
@@ -166,6 +178,10 @@ def main(argv=None):
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
             fh.write(json.dumps(report, ensure_ascii=False, indent=1) + "\n")
+    if args.metrics_out:
+        from graph_engine_adapter.metrics import render_with_lease
+        with open(args.metrics_out, "w", encoding="utf-8") as fh:
+            fh.write(render_with_lease(sched, lease))
     if args.alert_out:
         with open(args.alert_out, "w", encoding="utf-8") as fh:
             fh.write(json.dumps(alerts, ensure_ascii=False, indent=1) + "\n")

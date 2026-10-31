@@ -295,3 +295,67 @@ def test_blackhole_peer_fails_fast_instead_of_hanging(blackhole):
     assert 0.8 <= elapsed < 10, f"耗时 {elapsed:.1f}s，不符合 read_timeout 生效的样子"
     assert lease.last_op_s is not None and lease.last_op_s < 10
     assert type(excinfo.value).__name__ in {"OperationalError", "TimeoutError", "OSError", "InterfaceError"}
+
+
+@pytest.mark.skipif(not all(os.environ.get(k) for k in MYSQL_ENV),
+                    reason="未提供 LLMKE_TEST_MYSQL_* （真实数据库验收）")
+def test_real_mysql_lock_wait_returns_by_read_timeout_not_50s():
+    """真实锁等待：另一连接 FOR UPDATE 持锁不放，acquire 必须在 read_timeout 内失败。
+
+    这是"连上但不回包"的真正生产形态：不是网络黑洞，而是行锁被长事务占着。
+    需要回答的问题是——客户端 read_timeout 和服务端 innodb_lock_wait_timeout 谁先到。
+    """
+    import time
+
+    from graph_engine_adapter.lease_mysql import make_pymysql_factory
+
+    def factory(**over):
+        kw = dict(host=os.environ["LLMKE_TEST_MYSQL_HOST"],
+                  port=int(os.environ.get("LLMKE_TEST_MYSQL_PORT", "3306")),
+                  user=os.environ["LLMKE_TEST_MYSQL_USER"],
+                  password=_env("LLMKE_TEST_MYSQL_PASSWORD"),
+                  database=os.environ["LLMKE_TEST_MYSQL_DB"])
+        kw.update(over)
+        return make_pymysql_factory(**kw)
+
+    key = f"test-lock-{os.getpid()}"
+    base = MySqlLease(factory(), owner="A", ttl=30, lease_key=key)
+    base.ensure_schema()
+    assert base.acquire()["acquired"] is True
+    base.release()                      # 行还在（fencing 保留），expires_at=0 表示可接管
+
+    holder = factory()()
+    holder.autocommit(False)
+    with holder.cursor() as cur:
+        cur.execute("SELECT * FROM v2_rebuild_lease WHERE lease_key = %s FOR UPDATE", (key,))
+        cur.fetchone()                  # 拿到锁，**不提交**，锁一直占着
+
+    server_wait = None
+    try:
+        with factory()().cursor() as cur:
+            cur.execute("SELECT @@innodb_lock_wait_timeout")
+            server_wait = int(cur.fetchone()[0])
+    except Exception:  # noqa: BLE001
+        pass
+
+    try:
+        fast = MySqlLease(factory(read_timeout=2), owner="B", ttl=30, lease_key=key)
+        started = time.time()
+        with pytest.raises(Exception) as excinfo:
+            fast.acquire()
+        elapsed = time.time() - started
+        assert 1.0 <= elapsed < 15, f"耗时 {elapsed:.1f}s，read_timeout 没先到"
+        if server_wait:
+            assert elapsed < server_wait, (
+                f"耗时 {elapsed:.1f}s 接近服务端锁等待 {server_wait}s，客户端超时没起作用")
+        assert "timeout" in str(excinfo.value).lower() or "Lost connection" in str(excinfo.value)
+    finally:
+        holder.rollback()               # 放锁
+        holder.close()
+
+    # 锁放掉后必须能立刻接管：证明上面失败的根因是锁等待，不是连接/权限坏了
+    taker = MySqlLease(factory(), owner="C", ttl=30, lease_key=key)
+    out = taker.acquire()
+    assert out["acquired"] is True
+    assert out["fencing"] >= 1
+    taker.release()
