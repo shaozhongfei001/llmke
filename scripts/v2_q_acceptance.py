@@ -17,6 +17,7 @@ import argparse
 import json
 import os
 import socket
+import time
 import sys
 import urllib.parse
 import urllib.request
@@ -272,7 +273,7 @@ def check_isolated_rebuild():
         return
 
     cmd = [py, str(REPO / "scripts/v2_rebuild_drill.py"), "--payloads", *payloads,
-           "--revoke", "329", "--root", "/tmp/q-rebuild", "--cjk-compat",
+           "--revoke", "329", "--root", f"/tmp/q-rebuild-{int(time.time())}", "--cjk-compat",
            "--out", "/tmp/q-rebuild.json"]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
     if proc.returncode != 0 or not os.path.isfile("/tmp/q-rebuild.json"):
@@ -299,7 +300,7 @@ def check_rebuild_window():
         return
 
     cmd = [py, str(REPO / "scripts/v2_concurrency_drill.py"), "--payloads", *payloads,
-           "--root", "/tmp/q-window", "--cjk-compat", "--out", "/tmp/q-window.json"]
+           "--root", f"/tmp/q-window-{int(time.time())}", "--cjk-compat", "--out", "/tmp/q-window.json"]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
     if proc.returncode != 0 or not os.path.isfile("/tmp/q-window.json"):
         record("graph:重建窗口并发", "FAIL", {"tail": (proc.stderr or proc.stdout)[-300:]})
@@ -322,7 +323,7 @@ def check_rebuild_consistency():
         return
 
     cmd = [py, str(REPO / "scripts/v2_rebuild_consistency_drill.py"), "--payloads", *payloads,
-           "--root", "/tmp/q-consistency", "--cjk-compat", "--out", "/tmp/q-consistency.json"]
+           "--root", f"/tmp/q-consistency-{int(time.time())}", "--cjk-compat", "--out", "/tmp/q-consistency.json"]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1200)
     if proc.returncode != 0 or not os.path.isfile("/tmp/q-consistency.json"):
         record("graph:写并发与多读者一致性", "FAIL",
@@ -337,6 +338,32 @@ def check_rebuild_consistency():
             "readers_allowed": [r["allowed"] for r in readers],
             "final_generation": data["multi_reader"]["pointer_generation_after"]},
            "单机多进程读者；跨机器多实例与真实库规模窗口未测；窗口被 sleep 延长以便采样")
+
+
+def check_rebuild_coalescing():
+    """重建合并：连续变更只构建一次；判据是构建次数，不是耗时。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:重建合并", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    cmd = [py, str(REPO / "scripts/v2_rebuild_coalesce_drill.py"), "--payloads", *payloads,
+           "--root", f"/tmp/q-coalesce-{int(time.time())}", "--cjk-compat", "--out", "/tmp/q-coalesce.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1200)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-coalesce.json"):
+        record("graph:重建合并", "FAIL", {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    data = json.loads(open("/tmp/q-coalesce.json", encoding="utf-8").read())
+    record("graph:重建合并", "PASS" if data.get("passed") else "FAIL",
+           {"first_requests": data["first_run"]["requests"],
+            "second_requests": data["second_run"]["requests"],
+            "builds": data["stats"]["builds"],
+            "documents": data["snapshot_documents"],
+            "expected": data["expected_documents"]},
+           "单进程协调器；多实例需外部协调（未做），失败重试/积压上限未做")
 
 
 def check_community_report():
@@ -519,6 +546,7 @@ def main(argv=None):
     check_isolated_rebuild()
     check_rebuild_window()
     check_rebuild_consistency()
+    check_rebuild_coalescing()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

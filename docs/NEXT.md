@@ -116,7 +116,13 @@
        4 个读者进程窗口内 blocked≈1347/1347/1348/1341、allowed=0，完成后代次全=1。
        Q 现 31 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
        新踩两坑：①`a == b is False` 链式比较恒假；②新鲜度检查没排除撤权文件→每次都误报 missing。
-       仍未做：跨机器多实例指针、重建积压/合并、修改与删除在窗口内的行为、真实库规模耗时
+       仍未做：跨机器多实例指针、修改与删除在窗口内的行为、真实库规模耗时
+    1n) 重建合并（rebuild_coordinator.py，5 项测试 + v2_rebuild_coalesce_drill.py 真跑）：
+       request 只登记、run_once 取批、构建期新请求留给下轮、single-flight、失败整批放回。
+       实测 3 次快速变更→1 次构建，再一次变更→第 2 次；快照 5 块、两次后均 fresh。
+       自查 bug：取批只复制没清空 → pending 重复计数（2 vs 1、4 vs 2），重试会重复构建；
+       另修 Q 测试污染：固定 /tmp/q-window 目录导致"撤权后仍被拒"判定失真，改为按运行隔离目录。
+       Q 现 32 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。未做：多实例协调、积压上限/背压、定时窗口、告警与退避
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
