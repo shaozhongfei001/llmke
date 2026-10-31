@@ -41,12 +41,14 @@ def load_payloads(paths):
     return docs
 
 
-def make_llm_call(url, model, timeout=180):
+def make_llm_call(url, model, timeout=180, api_key=None):
     def _call(messages, **kw):
         body = json.dumps({"model": model, "messages": messages, "temperature": 0,
                            "max_tokens": kw.get("max_tokens", 512)}).encode()
-        req = urllib.request.Request(url, data=body,
-                                     headers={"Content-Type": "application/json"})
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        req = urllib.request.Request(url, data=body, headers=headers)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read())
         return data["choices"][0]["message"]["content"]
@@ -60,6 +62,9 @@ def main(argv=None):
     ap.add_argument("--save-dir", default="/tmp/hippo-cjk")
     ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
     ap.add_argument("--model", default="qwen2.5-7b-instruct")
+    ap.add_argument("--api-base", default=None,
+                    help="外部 OpenAI 兼容端点，如 https://dashscope.aliyuncs.com/compatible-mode/v1")
+    ap.add_argument("--api-key-env", default=None, help="存放 API key 的环境变量名（不传 key 值本身）")
     ap.add_argument("--embed", default="http://127.0.0.1:18090/v1")
     ap.add_argument("--top-k", type=int, default=3)
     ap.add_argument("--cjk-compat", action="store_true")
@@ -99,7 +104,16 @@ def main(argv=None):
     store = norm["store"]
     retriever = EngineRetriever(
         engine, source_lookup=lambda text: to_refs(sm.sources_for(native_key(text))))
-    llm_call = make_llm_call(f"{args.llm}/chat/completions", args.model)
+    api_key = os.environ.get(args.api_key_env) if args.api_key_env else None
+    if args.api_base:
+        if args.api_key_env and not api_key:
+            print(json.dumps({"status": "NO_API_KEY_ENV", "env": args.api_key_env},
+                             ensure_ascii=False))
+            return 2
+        llm_call = make_llm_call(f"{args.api_base.rstrip('/')}/chat/completions", args.model,
+                                 api_key=api_key)
+    else:
+        llm_call = make_llm_call(f"{args.llm}/chat/completions", args.model)
 
     results = []
     for query in args.queries:
@@ -115,6 +129,8 @@ def main(argv=None):
                         "answer_passed": ans["passed"]})
 
     report = {"schema": "llmke.graph-engine.answer-e2e.v1", "cjk_compat": compat,
+              "llm": {"mode": "external" if args.api_base else "local",
+                      "model": args.model, "base": args.api_base or args.llm},
               "build": build, "normalize": norm["stats"], "results": results}
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:

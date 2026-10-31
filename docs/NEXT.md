@@ -73,6 +73,15 @@
        实测通过率 6/9 → 0/9（负结果已入证据）；改保序截断后回到 6/9。
        12 次采样汇总 7/12（58%，波动 33%-67%）：4 次模型答"材料不足"（答案行就在材料里）、
        1 次拼接引用被核验拦下。核验链路稳定，问答能力不稳定 → Q 端到端仍 NOT_IMPLEMENTED
+    1g) 模型评估（EVIDENCE-MODEL-SELECTION-20261031）：
+       当前 chat=本地 qwen2.5-7b-instruct(18092)、embedding=bge-m3(18090)、VL=18093；
+       凭据实测：DASHSCOPE_API_KEY 可用（qwen-plus/max）、DSEEK_2026_SZF_KEY 可用、
+       VOLCANO_ARK_APIKEY 401 不可用；~/.bashrc 里的键非交互 shell 不自动加载，需显式 eval。
+       同套三问：qwen-plus 10/12(83%) > qwen-max 2/3 ≈ deepseek-chat 2/3 > 本地 7B 7/12(58%)；
+       唯一可归因差异是第一问（qwen-plus 4/4 vs 本地 0/4，需"标题句+数据行"联合）。
+       **自我更正**：第二问失败是我出题歧义（4 个客户 4 个额度），改成"江南装备的授信额度"后
+       本地 7B 也 2/2 通过 → 测试集需先修，再谈模型差距。
+       建议：回答段换 qwen-plus；不动 embedding（换则向量全失效）；火山方舟暂不纳入
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
