@@ -41,6 +41,9 @@ def main(argv=None):
     ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
     ap.add_argument("--embed", default="http://127.0.0.1:18090/v1")
     ap.add_argument("--query", default="客户A申请产品甲的额度是多少")
+    ap.add_argument("--payloads", nargs="*", default=[],
+                    help="用真实投影载荷（ingest 输出）当语料，验证跨文档与规模")
+    ap.add_argument("--queries", default=None, help="逗号分隔的多条检索词，用于抓 NaN")
     args = ap.parse_args(argv)
 
     os.environ.setdefault("OPENAI_API_KEY", "sk-local")
@@ -53,11 +56,23 @@ def main(argv=None):
         return 2
 
     # 1) 平台侧映射：一块一来源，允许同文多源
+    docs = list(DOCS)
+    if args.payloads:
+        docs = []
+        for path in args.payloads:
+            payload = json.load(open(path, encoding="utf-8"))
+            for chunk in payload.get("chunks", []):
+                meta = chunk.get("metadata", {})
+                docs.append((chunk["page_content"], str(meta.get("file_id")),
+                             meta.get("source", ""), meta.get("chunk_index", 0)))
+        if not docs:
+            print(json.dumps({"status": "NO_CHUNKS_IN_PAYLOADS"}, ensure_ascii=False))
+            return 2
     sm = SourceMap()
-    for i, (text, file_id, source, seq) in enumerate(DOCS):
+    for i, (text, file_id, source, seq) in enumerate(docs):
         sm.add(InputUnit(text, content_uid="c" * 64, parse_artifact_id="a" * 64, seq=i,
                          source_ref={"file_id": file_id, "source": source, "seq": seq}))
-    texts = [d[0] for d in DOCS]
+    texts = [d[0] for d in docs]
     expect_engine_chunks = len({native_key(t) for t in texts})
 
     config = BaseConfig(save_dir=args.save_dir, llm_name="qwen2.5-7b-instruct",
@@ -66,16 +81,31 @@ def main(argv=None):
                         embedding_base_url=args.embed, openie_mode="online")
     hp = HippoRAG(global_config=config)
 
-    # 2) 真实索引与检索
+    # 2) 真实索引与检索（多条查询，抓 "invalid value encountered in divide" 这类退化）
+    import math
+    import warnings
     hp.index(texts)
-    solutions = hp.retrieve([args.query], num_to_retrieve=2)
-
-    hits = []
-    for sol in (solutions or []):
-        for doc_text in (getattr(sol, "docs", None) or []):
-            key = native_key(doc_text)
-            hits.append({"native_key": key, "text": doc_text[:60],
-                         "sources": sm.sources_for(key)})
+    queries = ([q for q in args.queries.split(",") if q.strip()] if args.queries
+               else [args.query])
+    hits, nan_hits, warn_msgs = [], [], []
+    for query in queries:
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            solutions = hp.retrieve([query], num_to_retrieve=2)
+        for w in caught:
+            msg = f"{w.category.__name__}: {w.message}"
+            if msg not in warn_msgs:
+                warn_msgs.append(msg)
+        for sol in (solutions or []):
+            score = getattr(sol, "score", None)
+            scores = score if isinstance(score, (list, tuple)) else [score]
+            bad = [s for s in scores if isinstance(s, float) and not math.isfinite(s)]
+            if bad:
+                nan_hits.append({"query": query, "scores": bad})
+            for doc_text in (getattr(sol, "docs", None) or []):
+                key = native_key(doc_text)
+                hits.append({"query": query, "native_key": key, "text": doc_text[:50],
+                             "sources": sm.sources_for(key)})
 
     engine_rows = hp.chunk_embedding_store.get_all_id_to_rows()
     report = {
@@ -87,21 +117,27 @@ def main(argv=None):
         "mapping": sm.stats(),
         "expected_engine_chunks": expect_engine_chunks,
         "actual_engine_chunks": len(engine_rows),
-        "hits": hits,
-        "query": args.query,
+        "hits": hits[:12],
+        "hit_count": len(hits),
+        "queries": queries,
+        "nan_scores": nan_hits,
+        "warnings": warn_msgs,
+        "files_in_corpus": len({d[1] for d in docs}),
     }
 
     # 3) 断言：引擎侧合并、平台侧不丢来源
     problems = []
     if len(engine_rows) != expect_engine_chunks:
         problems.append(f"引擎 chunk 数 {len(engine_rows)} != 期望 {expect_engine_chunks}")
-    shared = native_key(DOCS[0][0])
-    if len(sm.sources_for(shared)) != 2:
+    shared = native_key(docs[0][0])
+    if not args.payloads and len(sm.sources_for(shared)) != 2:
         problems.append("同文异源未保留两个来源")
     if not hits:
         problems.append("检索无结果")
     if all(not h["sources"] for h in hits):
         problems.append("检索结果无法回指来源")
+    if nan_hits:
+        problems.append(f"检索得分出现 NaN/Inf: {nan_hits[:2]}")
 
     if problems:
         report["status"] = "FAILED"
