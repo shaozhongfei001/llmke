@@ -55,6 +55,36 @@ def assert_index_fresh(index_generation: Optional[int], fence: FenceState) -> No
             f"索引代次 {index_generation} 落后于撤权代次 {fence.generation}：请先用隔离快照重建")
 
 
+class SupersededSnapshotError(RuntimeError):
+    """快照的 fencing 低于读者认定的当前值：这份快照是**已被接管的旧主**产出的。
+
+    与 StaleIndexError 的区别：
+    - StaleIndexError 说的是"代次不够，可能含已撤权内容"（安全语义，必须拦）；
+    - 本错误说的是"这份快照来自上一轮领导权"（新鲜度语义）。
+    内容本身未必有错（旧主写入已被 fencing 拒绝），所以这条校验**默认关闭**，
+    由能拿到当前 fencing 的调用方显式开启——大多数读者手里没有租约，开不了。
+    """
+
+
+def assert_snapshot_not_superseded(snapshot_fencing: Optional[int],
+                                   min_fencing: Optional[int]) -> None:
+    """读者侧（可选）校验：快照 fencing 不得落后于 `min_fencing`。
+
+    - `min_fencing is None` → 不校验（默认行为，保持兼容）；
+    - 快照没记 fencing（老快照）且要求校验 → 拒绝，不猜；
+    - 落后 → 拒绝，并给出"谁该负责"的提示。
+    """
+    if min_fencing is None:
+        return
+    if snapshot_fencing is None:
+        raise SupersededSnapshotError(
+            f"快照未记录 fencing，无法确认不是被接管的旧主产出（要求 >= {min_fencing}）")
+    if int(snapshot_fencing) < int(min_fencing):
+        raise SupersededSnapshotError(
+            f"快照 fencing {snapshot_fencing} 落后于当前 {min_fencing}："
+            "这份快照来自上一轮领导权，请等当前实例重建后再读")
+
+
 def filter_hits(hits: Sequence[Dict[str, Any]], fence: FenceState) -> Dict[str, Any]:
     """按来源过滤：一个命中只要还有**未撤权**来源就保留，并把这些来源裁掉。"""
     kept, dropped = [], []

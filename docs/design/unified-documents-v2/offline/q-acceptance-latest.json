@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 40,
+  "PASS": 41,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 0
@@ -281,7 +281,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 337,
+     "blocked": 312,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +297,10 @@
      "340"
     ],
     "readers_blocked": [
-     1087,
-     1089,
-     1086,
-     1086
+     1062,
+     1065,
+     1063,
+     1062
     ],
     "readers_allowed": [
      0,
@@ -359,24 +359,24 @@
    "status": "PASS",
    "evidence": {
     "builds": {
-     "A": 1,
-     "B": 0
+     "A": 0,
+     "B": 1
     },
     "not_leader": {
-     "A": 0,
-     "B": 104
+     "A": 104,
+     "B": 0
     },
     "skipped_fresh": {
      "A": 0,
      "B": 0
     },
     "fencing": {
-     "A": 1,
-     "B": null
+     "A": null,
+     "B": 1
     },
     "stale_write_blocked": {
-     "A": true,
-     "B": null
+     "A": null,
+     "B": true
     }
    },
    "boundary": "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）"
@@ -390,14 +390,14 @@
      "B": 1
     },
     "fencing": {
-     "A": null,
+     "A": 2,
      "B": 1
     },
     "not_leader": {
-     "A": 177,
+     "A": 161,
      "B": 0
     },
-    "lease_key": "q-lease-1793459348"
+    "lease_key": "q-lease-1793460887"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -429,7 +429,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 36.2,
+    "elapsed_s": 35.9,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -449,7 +449,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:46539/hook",
+     "url": "http://127.0.0.1:42993/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -462,8 +462,8 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 33.0,
-    "delta_s": 3.5,
+    "full_s": 33.9,
+    "delta_s": 3.6,
     "speedup_x": 9.4,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
@@ -487,6 +487,18 @@
    "boundary": "真跑 5 块语料；未测检索质量变化（需重排模型，波动大）"
   },
   {
+   "item": "mineru:离线 wheelhouse",
+   "status": "PASS",
+   "evidence": {
+    "wheels": 97,
+    "missing": [],
+    "bad_size": [],
+    "bad_hash": [],
+    "total_mb": 376.5
+   },
+   "boundary": "只验包完整与摘要；装入干净 venv 的实测在证据文档里"
+  },
+  {
    "item": "biz:global 报告/引用失效识别",
    "status": "PASS",
    "evidence": {
@@ -507,7 +519,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款的数据源为T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源为T-EXT-",
+    "answer": "日均存款：按业务日跨账户汇总/天数（数据源T-CORE-001）；用电量：月度同比（数据源T-EXT-001）。",
     "citations": 2,
     "model": "deepseek-flash"
    },

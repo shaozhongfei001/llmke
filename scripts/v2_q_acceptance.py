@@ -725,6 +725,45 @@ def check_metrics_and_alert_channel():
         server.shutdown()
 
 
+def check_mineru_wheelhouse():
+    """MinerU 离线 wheelhouse：清单里每个 wheel 都在、大小与 sha256 对得上。
+
+    只验"交付包完整"，不验"装得上"——后者要新建 venv 跑几分钟，放进部署演练更合适
+    （见 EVIDENCE-A2-MINERU-OFFLINE）。
+    """
+    import hashlib
+
+    manifest = REPO / "docs/design/unified-documents-v2/offline/r12-mineru-venv-py311.manifest.json"
+    if not manifest.is_file():
+        record("mineru:离线 wheelhouse", "SKIP", {"why": "清单不存在"})
+        return
+    wheel_dir = Path(os.path.expanduser(
+        os.environ.get("V2_MINERU_WHEELHOUSE", "~/delivery/wheels-mineru-py311")))
+    if not wheel_dir.is_dir():
+        record("mineru:离线 wheelhouse", "SKIP",
+               {"why": "wheel 目录不存在（部署机才有）", "expected": str(wheel_dir)})
+        return
+    man = json.loads(manifest.read_text(encoding="utf-8"))
+    missing, bad_size, bad_hash = [], [], []
+    for item in man.get("wheels") or []:
+        path = wheel_dir / item["file"]
+        if not path.is_file():
+            missing.append(item["file"])
+            continue
+        if path.stat().st_size != item["bytes"]:
+            bad_size.append(item["file"])
+            continue
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != item["sha256"]:
+            bad_hash.append(item["file"])
+    ok = not missing and not bad_size and not bad_hash
+    record("mineru:离线 wheelhouse", "PASS" if ok else "FAIL",
+           {"wheels": len(man.get("wheels") or []), "missing": missing[:3],
+            "bad_size": bad_size[:3], "bad_hash": bad_hash[:3],
+            "total_mb": round((man.get("total_bytes") or 0) / 1024**2, 1)},
+           "只验包完整与摘要；装入干净 venv 的实测在证据文档里")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -953,6 +992,7 @@ def main(argv=None):
     check_lease_hang_timeout()
     check_metrics_and_alert_channel()
     check_incremental_rebuild()
+    check_mineru_wheelhouse()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

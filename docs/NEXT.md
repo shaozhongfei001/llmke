@@ -189,7 +189,19 @@
        被删文本已不在快照，指针 mode=DELTA。三种拒绝路径都测：无基准快照/全撤权/fencing 落后。
        未做：检索质量未测（需重排模型）、同文本会合并成一块、每次复制整目录的磁盘成本、
        RebuildCoordinator 仍走全量、describe() 未登记 DELTA
-    2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
+    1x) 读路径 leadership 校验（本轮）：fence.assert_snapshot_not_superseded + retrieve 的
+       snapshot_fencing/min_snapshot_fencing（**默认关闭**，因为多数读者手里没有租约）；
+       开了就必须拦：落后抛 SupersededSnapshotError、老快照无 fencing 也拒绝（不猜）。
+       结果里带 fence.snapshot_fencing，能看出读的是哪一轮快照。
+    1y) A2 离线 wheelhouse（本轮）：delivery/wheels-mineru-py311（97 wheel / 376.5MB，
+       逐文件 sha256 清单 + 200 行 freeze）；install_mineru_parse.py 增 --offline/--wheel-dir
+       与 omegaconf 步骤。干净 py311 venv 全用 --no-index 装成：9 步 rc=0、imports.bad=[]、
+       numpy 1.26.4/pandas 2.0.3，适配器探针输出 111 字符中文正文 + 真实 bbox。
+       四个坑：①torchvision 必须同为 +cpu（否则 operator torchvision::nms 不存在）；
+       ②我 rm nvidia_*.whl 误删 nvidia-ml-py（ultralytics 依赖）；③omegaconf 运行时才 import；
+       ④离线装会顶掉 parse 侧 httpx/pdfminer.six/openai（能跑，但未验长期兼容）。
+       未做：无外网机器实测、openai 3.x 在线模式、联合约束文件、wheel 去重
+    2) A2 剩余：use-mineru 开关切换与回退演练（离线安装已通）
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层

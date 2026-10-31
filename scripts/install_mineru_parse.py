@@ -30,6 +30,7 @@ STEPS = [
     ["dill"],
     ["openai"],
     ["numpy==1.26.4"],          # 每轮装完都必须回锁（见文件头）
+    ["omegaconf"],              # magic-pdf 的 OCR 子模块运行时才 import，装包不报、跑起来才炸
 ]
 
 CHECK_IMPORTS = ["magic_pdf", "pycocotools", "ultralytics", "doclayout_yolo",
@@ -58,12 +59,27 @@ def main(argv=None):
     ap.add_argument("--python", default=sys.executable)
     ap.add_argument("--mineru-config", default="$HOME/mineru/magic-pdf.json")
     ap.add_argument("--skip-install", action="store_true", help="只做自检与配置，不装包")
+    ap.add_argument("--offline", action="store_true",
+                    help="离线模式：只用 --wheel-dir 里的 wheel，禁止访问网络")
+    ap.add_argument("--wheel-dir", action="append", default=[],
+                    help="离线 wheel 目录，可重复（parse/models/mineru 三个包按需给）")
+    ap.add_argument("--no-lock-numpy", action="store_true",
+                    help="独立 venv（不含 pandas）时可不回锁；默认仍然回锁")
     args = ap.parse_args(argv)
 
     steps = []
     if not args.skip_install:
-        for step in STEPS:
-            code, tail = _pip(args.python, step)
+        steps_to_run = STEPS
+        if args.no_lock_numpy:
+            steps_to_run = [s for s in STEPS if not s[0].startswith("numpy")]
+        for step in steps_to_run:
+            extra = []
+            if args.offline:
+                if not args.wheel_dir:
+                    print(json.dumps({"status": "NO_WHEEL_DIR"}, ensure_ascii=False))
+                    return 2
+                extra = ["--no-index"] + [f for d in args.wheel_dir for f in ("--find-links", d)]
+            code, tail = _pip(args.python, extra + step)
             steps.append({"pkg": step[0], "rc": code, "tail": tail})
             if code != 0:
                 print(json.dumps({"status": "PIP_FAILED", "steps": steps}, ensure_ascii=False))

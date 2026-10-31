@@ -16,7 +16,8 @@ from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set
 
 from .assertions import GRAPH, AssertionStore, decide_route
-from .fence import FenceState, assert_index_fresh, filter_hits
+from .fence import (FenceState, assert_index_fresh, assert_snapshot_not_superseded,
+                    filter_hits)
 
 SCHEMA = "llmke.graph-engine.retrieve.v1"
 
@@ -51,7 +52,9 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
              top_k: int = 3, scopes: Optional[Set[str]] = None,
              known_files: Optional[Iterable[str]] = None,
              require_graph: bool = False, fence: Optional[FenceState] = None,
-             index_generation: Optional[int] = None) -> Dict[str, Any]:
+             index_generation: Optional[int] = None,
+             snapshot_fencing: Optional[int] = None,
+             min_snapshot_fencing: Optional[int] = None) -> Dict[str, Any]:
     """返回 {route, reason, hits, citations, invalid_citations, passed}。
 
     `require_graph=True` 用于强制图验收：一旦回退到稠密，`passed=False`，
@@ -68,7 +71,11 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
 
     # 撤权 fence：先验索引代次，再按来源过滤。顺序不能反——
     # 只过滤不验代次，等于赌引擎一定会把撤权内容吐出来让我们拦。
-    fence_info = {"generation": None, "dropped": []}
+    # 读者侧（可选）领导权校验：默认关闭，因为多数读者手里没有租约/当前 fencing。
+    assert_snapshot_not_superseded(snapshot_fencing, min_snapshot_fencing)
+
+    fence_info = {"generation": None, "dropped": [],
+                  "snapshot_fencing": snapshot_fencing}
     if fence is not None:
         assert_index_fresh(index_generation, fence)
         fence_info["generation"] = fence.generation
