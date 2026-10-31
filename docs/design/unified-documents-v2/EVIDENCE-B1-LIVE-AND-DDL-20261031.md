@@ -428,3 +428,23 @@ v2cand_kb_10   -> docs=1 score=0.936  src=…/M1.docx                        tex
 
 边界：本轮验证用的是"另起实例 + 环境变量"，不是线上实例热切换；线上要切换需重启检索服务
 （或在配置中心加同名键后由部署流程注入），属运维动作，未做。
+
+## 17. 验收探测脚本（Q1 样本 + ES 非必选）
+
+`scripts/v2_acceptance_probe.py`：对真实环境做硬探测并输出可归档 JSON（不是夹具、不是 mock）。
+
+实测（kb_10）：
+
+```
+文件落库  999013: ES text=1 table=0 summary=0 | Milvus text=1
+          999014: ES text=1 table=0 summary=0 | Milvus text=1
+检索策略  policy=1(ES+Milvus) docs=2 top=…/v2-auto-sample.txt
+          policy=2(仅ES)      docs=1 top=…/v2-auto-sample.txt
+          policy=3(仅Milvus)  docs=2 top=…/v2-auto-sample.txt
+坏样本    68(random-bytes.pdf) ES=0 Milvus=0；57(plain-text-pretend.pdf) ES=0 Milvus=0
+```
+
+三条可用的结论：
+1. 新上传文件的正文确实落到两个存储，且能被检索回指（Q1 样本可固定）；
+2. **仅 Milvus** 也能返回正确首条 → "ES 非必选 profile"在检索层面成立（不等于生产已验证）；
+3. 坏样本 `random-bytes.pdf` / `plain-text-pretend.pdf` 没有内容入库，不存在"坏文件也被算成功"。
