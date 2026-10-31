@@ -21,10 +21,10 @@
   ],
   "notes": "必须 --no-deps：冻结清单里有历史钉版冲突，带解析会 ResolutionImpossible"
  },
- "wheel_count": 99,
+ "wheel_count": 100,
  "sdist_count": 7,
- "file_count": 106,
- "total_bytes": 100026260,
+ "file_count": 107,
+ "total_bytes": 100073000,
  "wheels": [
   {
    "file": "a2a_sdk-0.3.26-py3-none-any.whl",
@@ -661,6 +661,13 @@
    "kind": "wheel",
    "bytes": 5556583,
    "sha256": "4b6d83057e713ff235a12e73916b6d356e3084fd3d14ced499d84240f3eecee0"
+  },
+  {
+   "file": "pymysql-1.2.3-py3-none-any.whl",
+   "kind": "wheel",
+   "bytes": 46740,
+   "sha256": "14f1c68e2ed859243ae5ca41ffbe677027fc46bc136a9f0be8a4e928e5e7415a"
   }
- ]
+ ],
+ "note": " 追加 pymysql：MySQL 租约（跨机重建选主）需要。"
 }

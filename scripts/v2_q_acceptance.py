@@ -478,6 +478,52 @@ def check_multi_instance_lease():
            "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）")
 
 
+def check_mysql_lease():
+    """MySQL 租约：跨机部署的选主（用隔离库，需要 LLMKE_LEASE_MYSQL_* 环境变量）。"""
+    import subprocess
+
+    need = ("LLMKE_LEASE_MYSQL_HOST", "LLMKE_LEASE_MYSQL_USER",
+            "LLMKE_LEASE_MYSQL_PASSWORD", "LLMKE_LEASE_MYSQL_DB")
+    missing = [k for k in need if not os.environ.get(k)]
+    if missing:
+        record("graph:MySQL 租约（跨机）", "SKIP", {"missing_env": missing})
+        return
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:MySQL 租约（跨机）", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    stamp = int(time.time())
+    root = f"/tmp/q-mysql-lease-{stamp}"
+    key = f"q-lease-{stamp}"
+    os.makedirs(root, exist_ok=True)
+    a_out, b_out = f"/tmp/q-mysql-A-{stamp}.json", f"/tmp/q-mysql-B-{stamp}.json"
+    common = [py, str(REPO / "scripts/v2_lease_drill.py"), "--lease-backend", "mysql",
+              "--lease-key", key, "--payloads", *payloads, "--root", root,
+              "--cjk-compat", "--duration", "40"]
+    proc_b = subprocess.Popen(common + ["--owner", "inst-B", "--out", b_out],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(6)
+    proc_a = subprocess.run(common + ["--owner", "inst-A", "--out", a_out],
+                            capture_output=True, text=True, timeout=1200)
+    proc_b.wait(timeout=1200)
+    if not (os.path.isfile(a_out) and os.path.isfile(b_out)):
+        record("graph:MySQL 租约（跨机）", "FAIL", {"tail": (proc_a.stderr or "")[-200:]})
+        return
+    a = json.loads(open(a_out, encoding="utf-8").read())
+    b = json.loads(open(b_out, encoding="utf-8").read())
+    total = a["builds"] + b["builds"]
+    ok = total == 1 and (a["builds"], b["builds"]) in ((1, 0), (0, 1))
+    record("graph:MySQL 租约（跨机）", "PASS" if ok else "FAIL",
+           {"builds": {"A": a["builds"], "B": b["builds"]},
+            "fencing": {"A": a.get("fencing"), "B": b.get("fencing")},
+            "not_leader": {"A": a["stats"]["not_leader"], "B": b["stats"]["not_leader"]},
+            "lease_key": key},
+           "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -662,6 +708,7 @@ def main(argv=None):
     check_rebuild_backpressure()
     check_rebuild_scheduler()
     check_multi_instance_lease()
+    check_mysql_lease()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

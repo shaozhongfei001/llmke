@@ -145,8 +145,18 @@
        实测：fencing 1→2→3 不回退；旧主 fencing=1 写、指针=2 被拒且指针未变；
        双实例：B builds=1(fencing=1)、A builds=0/skipped_fresh=1(fencing=2)，两者旧主写入均被拒。
        Q 保持 35 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
-       未做：计数器文件写入无锁（双主时会跳号）、读路径不校验 fencing、外部存储实现、
+       未做：计数器文件写入无锁（双主时会跳号）、读路径不校验 fencing、
        真实网络分区下的抢占时序（演练是模拟）
+    1s) MySQL 租约（lease_mysql.py，6 项测试含真库 + v2_lease_drill.py --lease-backend mysql）：
+       `SELECT ... FOR UPDATE` 行锁互斥，fencing 在接管时 +1、自己续租不变；释放只置 expires_at=0
+       且**保留行**（删行会让 fencing 从 1 重来）。隔离库 gienrag_v2_restore 上双进程真跑：
+       B builds=1(fencing=1)、A builds=0/skipped_fresh=1(fencing=2)/not_leader=146，合计 1 次构建。
+       两个真实缺口：①交付 wheelhouse 缺 pymysql → 已补 PyMySQL 1.2.3 并更新 manifest，
+       graph bundle 干净安装复验 PASS；②我把模块 __version__(2.2.8 协议版本)当包版本，
+       实际包版本 1.2.3（看 pip show 才对）。
+       另修一处验收偶发失败：一致性检查的读者结果从 mp.Queue 改落文件轮询（CPU 紧张时 Queue 超时
+       会被记成验收失败），连跑 3 次稳定。
+       未做：断网/主从切换下的租约行为、DDL 权限收紧后的预建表迁移、多租户 lease_key、锁等待超时影响
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

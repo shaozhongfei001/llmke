@@ -45,7 +45,7 @@ def load_payloads(paths):
     return docs
 
 
-def reader_probe(root, fence_generation, deadline, done, queue):
+def reader_probe(root, fence_generation, deadline, done, out_path):
     """独立进程：窗口内尽量多次"打开索引"，记录放行/拒绝次数。
 
     用 mp.Event 收尾而不是固定时长：真实重建耗时不可预估（要调用模型），
@@ -63,10 +63,13 @@ def reader_probe(root, fence_generation, deadline, done, queue):
         except StaleIndexError:
             blocked += 1
         time.sleep(0.01)
-    queue.put({"pid": os.getpid(), "allowed": allowed, "blocked": blocked,
-               "final_generation": (read_pointer(root) or {}).get("generation"),
-               "max_seen": max([g for g in seen if g is not None], default=None),
-               "iterations": len(seen)})
+    # 结果落文件而不是 mp.Queue：Q 里多轮引擎构建后 CPU 紧张，Queue.get 超时会
+    # 把"子进程慢"变成"验收失败"（实测偶发 1 次），文件轮询能容错且能看到缺哪个进程。
+    with open(out_path, "w", encoding="utf-8") as fh:
+        json.dump({"pid": os.getpid(), "allowed": allowed, "blocked": blocked,
+                   "final_generation": (read_pointer(root) or {}).get("generation"),
+                   "max_seen": max([g for g in seen if g is not None], default=None),
+                   "iterations": len(seen)}, fh)
 
 
 def scenario_write_concurrent(root, docs):
@@ -101,12 +104,12 @@ def scenario_multi_reader(root, docs, build_fn):
     rebuild(root, fence, docs, lambda items, target: os.makedirs(target, exist_ok=True) or {"ok": 1})
     fence.revoke(["329"])                       # 代次 1
 
-    queue = mp.Queue()
     done = mp.Event()
     deadline = time.time() + 300            # 防挂死；正常由 done 收尾
+    out_paths = [os.path.join(root, f"reader-{i}.json") for i in range(4)]
     procs = [mp.Process(target=reader_probe,
-                        args=(root, fence.generation, deadline, done, queue))
-             for _ in range(4)]
+                        args=(root, fence.generation, deadline, done, path))
+             for path in out_paths]
     for p in procs:
         p.start()
     time.sleep(0.5)                          # 让读者先进入采样
@@ -115,12 +118,21 @@ def scenario_multi_reader(root, docs, build_fn):
     for p in procs:
         p.join(timeout=30)
 
-    results = [queue.get(timeout=10) for _ in procs]
+    results, missing_results = [], []
+    for path in out_paths:
+        for _ in range(120):                # 最多等 60s（0.5s × 120），慢子进程不至于直接判失败
+            if os.path.isfile(path) and os.path.getsize(path) > 0:
+                results.append(json.loads(open(path, encoding="utf-8").read()))
+                break
+            time.sleep(0.5)
+        else:
+            missing_results.append(path)
     # 读者看到的代次要覆盖"完成后"，所以单独从主进程确认一次
     final_pointer = read_pointer(root) or {}
     after = check_freshness(final_pointer, docs, fence)
-    return {"readers": results,
-            "all_blocked_in_window": all(r["blocked"] > 0 and r["allowed"] == 0 for r in results),
+    return {"readers": results, "missing_reader_results": missing_results,
+            "all_blocked_in_window": bool(results) and all(
+                r["blocked"] > 0 and r["allowed"] == 0 for r in results),
             "generations_consistent": len({r["final_generation"] for r in results}) == 1,
             "pointer_generation_after": final_pointer.get("generation"),
             "fence_generation": fence.generation,
@@ -157,6 +169,7 @@ def main(argv=None):
     d = scenario_multi_reader(os.path.join(args.root, "readers"), docs_d, real_slow_build)
 
     passed = (c["first_snapshot_stale"]["stale"] and not c["second_snapshot_fresh"]["stale"]
+              and not d["missing_reader_results"]
               and d["all_blocked_in_window"] and d["generations_consistent"]
               and d["pointer_generation_after"] == 1        # 重建后指针代次已提升
               and d["after"]["stale"] is False)

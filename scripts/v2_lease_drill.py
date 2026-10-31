@@ -22,6 +22,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "services/rag-alg/index_data_service"))
 
 from graph_engine_adapter.lease import FileLease, lease_guard  # noqa: E402
+from graph_engine_adapter.lease_mysql import MySqlLease, make_pymysql_factory  # noqa: E402
 from graph_engine_adapter.rebuild import rebuild_if_stale  # noqa: E402
 from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator  # noqa: E402
 from graph_engine_adapter.rebuild_scheduler import RebuildScheduler  # noqa: E402
@@ -37,12 +38,36 @@ def load_payloads(paths):
     return docs
 
 
+def build_lease(args):
+    """按后端构造租约：文件租约（单机/共享盘）或 MySQL 租约（跨机）。"""
+    if args.lease_backend == "mysql":
+        env = os.environ
+        missing = [k for k in ("LLMKE_LEASE_MYSQL_HOST", "LLMKE_LEASE_MYSQL_USER",
+                               "LLMKE_LEASE_MYSQL_PASSWORD", "LLMKE_LEASE_MYSQL_DB")
+                   if not env.get(k)]
+        if missing:
+            raise SystemExit(f"缺少环境变量: {','.join(missing)}")
+        factory = make_pymysql_factory(
+            host=env["LLMKE_LEASE_MYSQL_HOST"],
+            port=int(env.get("LLMKE_LEASE_MYSQL_PORT", "3306")),
+            user=env["LLMKE_LEASE_MYSQL_USER"], password=env["LLMKE_LEASE_MYSQL_PASSWORD"],
+            database=env["LLMKE_LEASE_MYSQL_DB"])
+        lease = MySqlLease(factory, owner=args.owner, ttl=30, lease_key=args.lease_key)
+        lease.ensure_schema()
+        return lease
+    if not args.lease:
+        raise SystemExit("--lease-backend file 需要 --lease <path>")
+    return FileLease(args.lease, owner=args.owner, ttl=30)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--owner", required=True)
     ap.add_argument("--payloads", nargs="+", required=True)
     ap.add_argument("--root", required=True)
-    ap.add_argument("--lease", required=True)
+    ap.add_argument("--lease", default=None, help="文件租约路径（--lease-backend file 时必填）")
+    ap.add_argument("--lease-backend", choices=["file", "mysql"], default="file")
+    ap.add_argument("--lease-key", default="rebuild", help="MySQL 租约的 lease_key")
     ap.add_argument("--duration", type=float, default=90.0)
     ap.add_argument("--build-sleep", type=float, default=1.5)
     ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
@@ -80,8 +105,8 @@ def main(argv=None):
         return {"documents": result["current"]["documents"]}
 
     coord = RebuildCoordinator(build_once)
-    sched = RebuildScheduler(coord, debounce=0.2, idle_poll=0.2,
-                             lease=FileLease(args.lease, owner=args.owner, ttl=30))
+    lease = build_lease(args)
+    sched = RebuildScheduler(coord, debounce=0.2, idle_poll=0.2, lease=lease)
     sched_lease = sched.lease
 
     stop = threading.Event()
