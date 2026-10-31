@@ -126,46 +126,36 @@ sdists 是 `alibabacloud-darabonba-*` 系列（上游只发 sdist）。离线安
 `parse`(151 包) 与 `models`(44 包，含 torch 714 MB / transformers 119 MB，**不含权重**) 的
 wheelhouse 正在拉取/待拉取；两者做法相同，`models` 需注意"包 ≠ 权重"。
 
-## 10. D-06（真实阻塞）：平台 venv 的部分锁定版本**公开源没有**
+## 10. D-06 更正：真正缺的只有 1 个版本，已用"重打包"补上
 
-对四份依赖锁逐包比对公开镜像（`pip index versions`，并发 12）：
+上一版用**跑在 3.10 的 pip** 去核对 3.11 目标的版本可得性，把"解释器不匹配"误判成"公开源没有"，
+得出 alg 7 / parse 10 / models 6 个缺失——**这个结论是错的**，在此更正。
 
-| venv | 包数 | 公开源缺失 | 缺失示例 |
+按目标解释器（`--python-version 3.11`）重测：
+
+| venv | 包数 | 真正缺失 | 说明 |
 |---|---|---|---|
-| `graph` | 106 | **0** | —（可完全用公开 wheelhouse 重建） |
-| `alg` | 103 | **7** | httpcore2 2.16.0、httpx2 2.16.0、pyarrow 26.0.0、pydantic-settings 2.16.1… |
-| `parse` | 151 | **10** | soupsieve 3.0.4、pillow 13.0.0、scipy 1.17.1、SQLAlchemy 2.1.6… |
-| `models` | 43 | **6** | filelock 4.2.4、numpy 2.4.6、pillow 13.0.0… |
+| `graph` | 106 | 0 | — |
+| `alg` | 103 | 0（重测后） | 之前 7 个是 3.10/3.11 差异导致的误判 |
+| `parse` | 151 | **1**：`soupsieve==3.0.4` | 公开最高 2.10，该版本来自私有索引 |
+| `models` | 43 | 待按 3.11 重测 | — |
 
-这些版本在公开 PyPI/镜像上不存在（例如 `soupsieve` 公开最高 2.10，而环境里装的是 3.0.4），
-说明**这些 venv 是从私有/更超前索引构建的**。后果：
-**仅凭公开源无法重建 alg/parse/models 三个 venv**，`pip download -r lock` 会直接失败（实测
-`No matching distribution found for soupsieve==3.0.4`）。
+`parse` 的 1 个缺失用 `scripts/repack_installed_wheel.py` 从**本机已安装**的同版本重建 wheel
+（纯 Python 包，拒绝非纯 Python；清单里用 `r12-parse-venv-py311.repacked.json` 标注来源，
+不冒充上游发布物）。
 
-两条出路（都需要决策，不是能靠脚本绕过的）：
-1. 取得构建这些 venv 的**私有索引地址与凭据**，按同一锁重建 wheelhouse；
-2. 退化为**环境快照**交付（tar 整个 venv），代价是路径/shebang 绑定、体积大、不可审计到包级。
+### 离线安装 sdist 的两个硬约束（实测踩过）
 
-已做的兜底：`parse` venv 快照 `venv-r12-parse-py311.tar`（**1.36 GB**，
-sha256 `235ecd70eb012461…`，清单 `offline/r12-parse-venv-py311.snapshot.json`），
-仅作为"公开源不可重建"时的最后手段，不作为首选交付形态。
+1. 构建隔离会去索引找 `wheel`/`Cython` → 离线必失败；必须先把构建工具装进目标环境，
+   再用 `--no-build-isolation`（安装器已内置该步骤）；
+2. **构建工具也要按目标解释器拉**：用 3.10 的 pip 拉 `Cython` 会得到 cp310 wheel，
+   装到 3.11 环境报 `from versions: none`（我踩过，别再用默认解释器偷懒）。
 
-## 11. graph 服务离线可重建（已实测，不只是清单）
-
-用 `offline/r12-graph-venv-py310.manifest.json` 在**全新 3.10 venv**安装（仅本地 wheel）：
+### 实测结果（parse，全新 3.11 venv，仅本地 wheel）
 
 ```
-install_offline_bundle -> {"status":"OK","wheels":106,...}
+install_offline_bundle -> {"status":"OK","wheels":153,...}
+pip list                -> 156 包
+import fastapi/pydantic/numpy -> ok（0.109.1 / 2.14.1 / 1.26.4）
+import soupsieve        -> 3.0.4（即重打包那个）
 ```
-
-随后在同一环境导入图服务主模块（`index_graph_service/graph_summary.py`）：
-
-```
-首次: ValueError: server address & endpoint must not both none   ← 只缺 NACOS 配置，不是缺依赖
-带 NACOS_SERVER_ADDRESS/DATA_ID 后: graph_summary import ok
-```
-
-即：**依赖闭包完整**，剩下的只是运行配置。这也说明"能导入"和"能跑"要分开记录——
-上面第一次失败是配置缺失，若不追下去很容易误判成"离线包不全"。
-
-`graph` 因此是本项目里**第一个可以完全由公开源离线重建**的服务（0 个缺失版本，见 §10）。
