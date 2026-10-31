@@ -159,3 +159,23 @@ pip list                -> 156 包
 import fastapi/pydantic/numpy -> ok（0.109.1 / 2.14.1 / 1.26.4）
 import soupsieve        -> 3.0.4（即重打包那个）
 ```
+
+
+## 12. 四个平台 venv 的 wheelhouse 全部就位（本轮收尾）
+
+| venv | 清单 | 文件数 | 体积 | 离线安装实测 |
+|---|---|---|---|---|
+| `graph` (3.10) | `r12-graph-venv-py310.manifest.json` | 106 | 95.4 MB | 全新 venv 装成 + 主模块 import ok |
+| `alg` (3.11) | `r12-alg-venv-py311.manifest.json` | 103 | 141.8 MB | 清单校验通过（含 sdist） |
+| `parse` (3.11) | `r12-parse-venv-py311.manifest.json` | 153 | 552.8 MB | 全新 venv 装成（156 包）+ fastapi/pydantic/numpy/soupsieve 可导入 |
+| `models` (3.11) | `r12-models-venv-py311.manifest.json` | 44 | 234.0 MB | 全新 venv 装成 + `torch 2.6.0+cpu` / `transformers 4.57.6` 可导入 |
+
+`models` 的 torch 是 **CPU 版**（2.6.0+cpu，234 MB），比 HippoRAG 那套 CUDA 栈小一个数量级——
+说明"能不能离线"和"要不要 GPU"要分开算。
+
+制品目录（持久，非 /tmp）：`/home/szf/data/dev/delivery/`
+- `wheels-hipporag` / `wheels-r12-{alg,graph,parse,models}`：wheelhouse
+- `images-r12`：6 个中间件镜像 tar（3.98 GB）
+
+**已删除**：`venv-r12-parse-py311.tar`（1.36 GB 环境快照）——wheelhouse 已可用（含重打包的
+soupsieve 3.0.4），快照作为兜底没有保留价值，避免交付介质里出现两套来源不一致的 parse 环境。
