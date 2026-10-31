@@ -28,9 +28,10 @@
   C1 状态：hipporag 2.0.0a4 已装成并真跑 index/retrieve（本地 LLM+embedding）；66 个真实块
      197 实体/253 事实、跨文件命中可回指；引擎按 chunk-md5(text) 合并、SourceMap 保多来源；
      已修引擎持久化目录污染（沿用旧 save_dir 会捞出历史 chunk）；社区/断网 wheelhouse 未做
-  D-01b 状态：**已解除并部署验证**——系统上下文解析模型 + user_id 回填 + 纯文本跳过转换；
-     候选 jar（-am + source/target=17 构建）已接管 18082；file 999013 走通 上传→调度→/parse→ES+Milvus
-     遗留：user_id 必须来自 task_info（纯 API 入库任务缺 id 会 422）；error_msg 成功路径未清空
+  D-01b 状态：**已闭环**——系统上下文解析模型 + 按 create_by 反查 user_id 并写入 param
+     + 纯文本跳过转换；候选 jar（必须 -am 构建）已接管 18082；file 999014 走通
+     上传→调度→/parse→ES+Milvus→回调置 SUCESS（task=4、error 空）
+     边界：无 UserContext 且 create_by 为空的纯 API 上传仍会 userId=0 判"用户不存在"
   A2 状态：magic-pdf 1.3.12 可装、GPU 6GB 可用；HF 不可达、ModelScope 可达（权重改走此源）；未装未跑
   B1/C1 下一步：D-01 的候选补丁（跳过 LibreOffice 转换）＋部署验证；C1 扩到 333/329 全量与跨文档路径
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
