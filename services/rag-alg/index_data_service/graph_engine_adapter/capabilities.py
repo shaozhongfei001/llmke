@@ -60,19 +60,25 @@ CAPABILITIES = {
         "note": "未消费真实社区产物；不得用普通 RAG 顶替",
         "evidence": None,
     },
-    "predicate_normalization": {
+    "platform_assertion_layer": {
+        "status": "VERIFIED",
+        "note": "平台标准断言层：方向/单位/生效期/可见范围/多来源/引用校验；"
+                "九条业务语义用构造数据反证（引擎侧接线仍缺）",
+        "evidence": "tests/test_graph_assertions.py",
+    },
+    "engine_predicate_normalization": {
         "status": "NOT_IMPLEMENTED",
-        "note": "同谓词双向不合并、单位/条件归一均未实现",
+        "note": "断言层已能表达方向与单位，但引擎抽取结果尚未归一进该层",
         "evidence": None,
     },
-    "version_filtering": {
+    "engine_version_filtering": {
         "status": "NOT_IMPLEMENTED",
-        "note": "新旧政策有效版本过滤未实现",
+        "note": "as-of 过滤在断言层成立；引擎检索尚未按生效期约束",
         "evidence": None,
     },
-    "visibility_scope": {
+    "engine_visibility_isolation": {
         "status": "NOT_IMPLEMENTED",
-        "note": "一个索引只绑一个可见集合的构建隔离未实现",
+        "note": "查询侧 scope 过滤在断言层成立；构建期按可见集合隔离索引未做",
         "evidence": None,
     },
 }

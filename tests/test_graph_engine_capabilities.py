@@ -25,7 +25,9 @@ def test_graph_route_is_not_verified_and_communities_not_implemented():
     # 检索命中不等于图执行：没有 executed_route=GRAPH 的 trace 就只能 NOT_VERIFIED
     assert caps["retrieve_graph_route"]["status"] == "NOT_VERIFIED"
     assert caps["community_report"]["status"] == "NOT_IMPLEMENTED"
-    assert caps["predicate_normalization"]["status"] == "NOT_IMPLEMENTED"
+    assert caps["engine_predicate_normalization"]["status"] == "NOT_IMPLEMENTED"
+    # 断言层语义已验证，但引擎接线未做——两者要分开记，不能互相顶替
+    assert caps["platform_assertion_layer"]["status"] == "VERIFIED"
 
 
 def test_verified_without_evidence_is_rejected(monkeypatch):

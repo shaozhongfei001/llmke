@@ -185,15 +185,98 @@ def check_mineru():
 
 
 NOT_IMPLEMENTED = [
-    ("biz:同谓词双向不误合并", "平台尚无图执行与谓词归一化，只有映射层"),
-    ("biz:加/减/零调整，总额与分项一致", "无数值一致性校验器，也无图查询结果"),
-    ("biz:多文件别名与同名异体", "别名归一未实现（映射层只保证同文多源不丢来源）"),
-    ("biz:新旧政策有效版本", "无时间/版本过滤执行路径"),
-    ("biz:合法孤点", "无图遍历，孤点语义未定义"),
-    ("biz:不可见文件变化不污染可见构建", "无权限/可见性构建，无法构造该场景"),
-    ("biz:图禁用/无种子时路线准确", "图未接入运行时，无法降级验证"),
-    ("biz:global 报告/引用失效识别", "未消费真实社区/global 产物"),
+    ("biz:global 报告/引用失效识别（社区/global 真实产物消费）",
+     "引用校验已在断言层可用，但社区/global 处理器尚未消费真实产物，不得用普通 RAG 顶替"),
+    ("biz:端到端业务问答（真实文档→引擎→回答）",
+     "断言层语义已验；引擎侧接线与回答组装未做，端到端不算通过"),
 ]
+
+
+def check_business_semantics():
+    """任务书业务场景在**标准断言层**的语义验证（构造数据）。
+
+    每项结论都带 boundary：语义层成立 ≠ 端到端成立。没有这句，PASS 会被误读成产品能力已通。
+    """
+    from graph_engine_adapter.assertions import (Assertion, AssertionStore, SourceRef,
+                                                 decide_route, DENSE_FALLBACK, GRAPH)
+
+    def ref(fid, loc="0-10"):
+        return SourceRef(file_id=fid, artifact_id="a" * 64, channel="text", locator=loc)
+
+    boundary = "语义层（构造数据）；端到端未做"
+
+    # 1 同谓词双向不误合并
+    s = AssertionStore()
+    s.register_entity("cust", "客户A"); s.register_entity("p", "产品甲"); s.register_entity("q", "产品乙")
+    s.add(Assertion(subject="cust", predicate="申请", object_entity="p", sources=[ref("333")]))
+    ok = s.related("cust", "申请", "p") and not s.related("p", "申请", "cust")
+    record("biz:同谓词双向不误合并", "PASS" if ok else "FAIL", {"forward": True, "reverse": False}, boundary)
+
+    # 2 加/减/零调整 + 总额与分项
+    s2 = AssertionStore(); s2.register_entity("p", "产品甲")
+    for op, val in (("set", 8000), ("add", 2000), ("subtract", 500), ("add", 0)):
+        s2.add(Assertion(subject="p", predicate="额度", object_value=val, unit="万元", key="额度",
+                         op=op, sources=[ref("333")]))
+    led = s2.ledger("p", "额度")
+    ok = led["total"] == 9500 and len(led["components"]) == 3 and led["unit"] == "万元"
+    record("biz:加/减/零调整，总额与分项一致", "PASS" if ok else "FAIL",
+           {"total": led["total"], "components": len(led["components"])}, boundary)
+
+    # 3 多文件别名与同名异体
+    s3 = AssertionStore()
+    s3.register_entity("p1", "产品甲", "甲产品")
+    s3.register_entity("x1", "同名"); s3.register_entity("x2", "同名")
+    ok = (s3.resolve("甲产品") == "p1" and s3.entities_named("同名") == ["x1", "x2"]
+          and s3.resolve("同名") is None)
+    record("biz:多文件别名与同名异体", "PASS" if ok else "FAIL",
+           {"alias": "甲产品->p1", "homonym_ids": s3.entities_named("同名")}, boundary)
+
+    # 4 同事实多来源删一保留
+    s4 = AssertionStore(); s4.register_entity("p", "产品甲")
+    s4.add(Assertion(subject="p", predicate="额度", object_value=8000, unit="万元", key="额度",
+                     sources=[ref("333"), ref("334")]))
+    s4.remove_source("333")
+    ok = len(s4.facts("p", "额度")) == 1 and s4.facts("p", "额度")[0].sources[0].file_id == "334"
+    s4.remove_source("334")
+    ok = ok and s4.facts("p", "额度") == []
+    record("biz:同事实多来源删一保留", "PASS" if ok else "FAIL", {"after_first_delete": 1}, boundary)
+
+    # 5 合法孤点
+    s5 = AssertionStore(); s5.add_orphan("lonely", "孤立实体")
+    d5 = decide_route(True, ["孤立实体"], s5)
+    ok = s5.stats()["orphans"] == 1 and s5.facts("lonely") == [] and d5["route"] == DENSE_FALLBACK
+    record("biz:合法孤点", "PASS" if ok else "FAIL", {"route": d5["reason"]}, boundary)
+
+    # 6 新旧政策有效版本
+    s6 = AssertionStore(); s6.register_entity("p", "产品甲")
+    s6.add(Assertion(subject="p", predicate="额度", object_value=5000, unit="万元", key="额度",
+                     effective_from="2026-01-01", effective_to="2026-07-01", sources=[ref("333")]))
+    s6.add(Assertion(subject="p", predicate="额度", object_value=8000, unit="万元", key="额度",
+                     effective_from="2026-07-01", sources=[ref("334")]))
+    ok = (s6.effective_fact("p", "额度", as_of="2026-03-15").object_value == 5000
+          and s6.effective_fact("p", "额度", as_of="2026-10-31").object_value == 8000)
+    record("biz:新旧政策有效版本", "PASS" if ok else "FAIL", {"as_of_0315": 5000, "as_of_1031": 8000}, boundary)
+
+    # 7 不可见文件变化不污染可见构建
+    s7 = AssertionStore(); s7.register_entity("p", "产品甲")
+    s7.add(Assertion(subject="p", predicate="额度", object_value=8000, unit="万元", key="额度",
+                     visibility={"public"}, sources=[ref("333")]))
+    s7.add(Assertion(subject="p", predicate="额度", object_value=99999, unit="万元", key="额度",
+                     op="add", visibility={"secret"}, sources=[ref("999")]))
+    before = s7.ledger("p", "额度", scopes={"public"})["total"]
+    s7.remove_source("999")
+    after = s7.ledger("p", "额度", scopes={"public"})["total"]
+    ok = before == after == 8000
+    record("biz:不可见文件变化不污染可见构建", "PASS" if ok else "FAIL",
+           {"visible_before": before, "visible_after": after}, boundary)
+
+    # 8 图禁用/无种子时路线准确
+    ok = (decide_route(False, ["产品甲"])["reason"] == "GRAPH_DISABLED"
+          and decide_route(True, [])["reason"] == "NO_SEED_ENTITY"
+          and decide_route(True, ["查无此实体"], s5)["reason"] == "SEEDS_UNKNOWN")
+    record("biz:图禁用/无种子时路线准确", "PASS" if ok else "FAIL",
+           {"disabled": "GRAPH_DISABLED", "no_seed": "NO_SEED_ENTITY"}, boundary)
+
 
 
 def main(argv=None):
@@ -206,6 +289,7 @@ def main(argv=None):
     check_mapping()
     check_capabilities()
     check_mineru()
+    check_business_semantics()
     for item, why in NOT_IMPLEMENTED:
         record(item, "NOT_IMPLEMENTED", why)
 
