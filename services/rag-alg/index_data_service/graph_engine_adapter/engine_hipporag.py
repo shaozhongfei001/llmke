@@ -56,6 +56,42 @@ class HippoRAGEngine:
         return {"schema": SCHEMA, "chunks": len(rows),
                 "chunk_ids": sorted(rows)[:3], "save_dir": self.save_dir}
 
+    # ---------- 增量：删除 + 只对新增块抽取 ----------
+    def all_texts(self) -> List[str]:
+        """引擎里现存的所有块文本。增量差异以**文本集合**为准（块 id 就是文本哈希）。"""
+        hp = self.hp
+        store = getattr(hp, "chunk_embedding_store", None)
+        if store is None or not hasattr(store, "get_all_texts"):
+            return []
+        return list(store.get_all_texts())
+
+    def apply_delta(self, texts: Sequence[str]) -> Dict[str, Any]:
+        """把快照调整成"恰好这些文本"：删掉多出来的，只对新增块跑抽取。
+
+        为什么按文本差集而不是按 file_id：块 id 是文本哈希，撤权/改名/内容微调在引擎眼里
+        都是"这段文本没了、那段文本来了"。按 file_id 做需要额外的映射表，多一层就多一处会错。
+
+        真实收益在 `hp.index(to_add)`：它会 `load_existing_openie()` 复用已有抽取结果，
+        只对 `to_add` 调 LLM。**图构建仍然是全量**（add_fact_edges 遍历所有块），
+        所以这是"增量抽取 + 全量重建图"，不是"增量图更新"——别把两者说成一回事。
+        """
+        hp = self.hp
+        wanted = list(dict.fromkeys(str(t) for t in texts))     # 去重保序
+        existing = set(self.all_texts())
+        to_delete = sorted(existing - set(wanted))
+        to_add = [t for t in wanted if t not in existing]
+
+        if to_delete:
+            hp.delete(to_delete)
+        if to_add:
+            hp.index(to_add)
+
+        remaining = len(hp.chunk_embedding_store.get_all_id_to_rows())
+        return {"schema": SCHEMA, "deleted": len(to_delete), "added": len(to_add),
+                "reused": len(wanted) - len(to_add), "duplicates": len(texts) - len(wanted),
+                "remaining": remaining, "expected": len(wanted),
+                "consistent": remaining == len(wanted)}
+
     # ---------- 抽取结果 ----------
     def openie_docs(self) -> List[Dict[str, Any]]:
         """读引擎落盘的 openie 结果（这是我们归一化的输入，不是权威事实）。"""

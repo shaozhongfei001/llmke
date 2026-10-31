@@ -725,6 +725,45 @@ def check_metrics_and_alert_channel():
         server.shutdown()
 
 
+def check_incremental_rebuild():
+    """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:增量重建（删+增）", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    stamp = int(time.time())
+    root, out = f"/tmp/q-delta-{stamp}", f"/tmp/q-delta-{stamp}.json"
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    proc = subprocess.run([py, str(REPO / "scripts/v2_delta_drill.py"),
+                           "--payloads", *payloads, "--root", root,
+                           "--cjk-compat", "--out", out],
+                          capture_output=True, text=True, timeout=1800, env=env)
+    if not os.path.isfile(out):
+        record("graph:增量重建（删+增）", "FAIL", {"tail": (proc.stderr or "")[-200:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    apply_result = (d.get("delta") or {}).get("apply") or {}
+    ok = (d.get("status") == "OK" and apply_result.get("consistent") is True
+          and d.get("deleted_still_present") == []
+          and (d.get("pointer") or {}).get("mode") == "DELTA"
+          and d.get("delta", {}).get("openie_docs") == d.get("openie_expected")
+          and d.get("delta", {}).get("seconds", 1e9) < d.get("full", {}).get("seconds", -1))
+    record("graph:增量重建（删+增）", "PASS" if ok else "FAIL",
+           {"full_s": d["full"]["seconds"], "delta_s": d["delta"]["seconds"],
+            "speedup_x": d.get("speedup_x"), "apply": apply_result,
+            "openie": {"base": d["full"]["openie_docs"],
+                       "after": d["delta"]["openie_docs"],
+                       "expected": d.get("openie_expected")},
+            "pointer_mode": (d.get("pointer") or {}).get("mode"),
+            "deleted_still_present": d.get("deleted_still_present"),
+            "problems": d.get("problems")},
+           "真跑 5 块语料；未测检索质量变化（需重排模型，波动大）")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -913,6 +952,7 @@ def main(argv=None):
     check_lease_fault_visibility()
     check_lease_hang_timeout()
     check_metrics_and_alert_channel()
+    check_incremental_rebuild()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

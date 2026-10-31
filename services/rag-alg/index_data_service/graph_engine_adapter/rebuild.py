@@ -125,7 +125,22 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
         shutil.rmtree(target, ignore_errors=True)
         raise RebuildFailed(f"重建失败，指针未切换：{type(exc).__name__}: {exc}") from exc
 
-    # fencing 校验必须在写指针之前：旧主的写入要在这里被挡住
+    payload = _promote(root, fence, live, target, previous, result,
+                       fencing=fencing, dropped=dropped, keep_last=keep_last,
+                       mode="FULL")
+    return {"schema": SCHEMA, "status": "BUILT", "pointer": pointer_path(root),
+            "current": payload, "build_result": _safe(result), "previous": previous}
+
+
+def _promote(root: str, fence: FenceState, live: List[Dict[str, Any]], target: str,
+             previous: Optional[Dict[str, Any]], result: Any, *,
+             fencing: Optional[int], dropped: List[Any], keep_last: int,
+             mode: str) -> Dict[str, Any]:
+    """把已建好的 target 目录提升为当前快照：校验 fencing → 写指针 → 清理旧快照。
+
+    全量与增量共用这一段：**无论哪条路径，写入前的 fencing 校验都不能省**，
+    否则被接管的旧主可以通过"增量"这条路绕开保护。
+    """
     current_pointer = read_pointer(root)
     current_fencing = int((current_pointer or {}).get("fencing", 0) or 0)
     if fencing is not None and current_fencing > fencing:
@@ -137,9 +152,10 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
                "fencing": fencing if fencing is not None else current_fencing,
                "documents": len(live), "dropped_revoked": dropped,
                "fingerprint": docs_fingerprint(live),
+               "mode": mode,
                "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
                "previous": (previous or {}).get("dir")}
-    pointer = _write_pointer(root, payload)
+    _write_pointer(root, payload)
 
     # 只保留最近 keep_last 个快照目录，避免磁盘无限增长（不删当前指针指向的那个）
     snapshots = sorted(d for d in os.listdir(root) if d.startswith("snapshot-"))
@@ -147,10 +163,55 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
         path = os.path.join(root, stale)
         if path != target:
             shutil.rmtree(path, ignore_errors=True)
+    return payload
 
-    return {"schema": SCHEMA, "status": "BUILT", "pointer": pointer, "current": payload,
-            "build_result": _safe(result),
-            "previous": previous}
+
+def rebuild_delta(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
+                  apply_fn: Callable[[str, List[str]], Any], *,
+                  keep_last: int = 2, fencing: Optional[int] = None) -> Dict[str, Any]:
+    """增量重建：**复制上一份快照**再就地应用差异，不重新抽取已存在的内容。
+
+    为什么不在原目录上改：旧快照在切换前还要被读者按 fence 代次读，改它等于边读边写。
+    复制的代价是磁盘 IO，而全量重建的代价是**每块都重新过一遍 LLM**——差着数量级。
+
+    为什么必须传 `docs` 全量而不是差异：快照要能自证"我就是当前存活文档的样子"，
+    指纹、documents、dropped_revoked 都从全量算；差异由 apply_fn 自己按文本比出来
+    （见 HippoRAGEngine.apply_delta），调用方不用拼两份清单，也就不会拼错。
+
+    没有上一份快照时**拒绝**而不是偷偷全量：静默降级会让"增量"这个名字失去意义，
+    调用方应当显式走 rebuild()。
+    """
+    previous = read_pointer(root)
+    base_dir = (previous or {}).get("dir")
+    if not base_dir or not os.path.isdir(base_dir):
+        raise RebuildFailed("没有可复用的上一份快照（或目录不存在），增量重建拒绝执行；"
+                            "请先做一次全量重建")
+
+    live = [d for d in docs if not fence.is_revoked(str(d.get("file_id", "")))]
+    dropped = [d.get("file_id") for d in docs if fence.is_revoked(str(d.get("file_id", "")))]
+    if not live:
+        raise RebuildFailed("没有存活文件可重建（全部撤权），拒绝生成空快照")
+
+    stamp = f"{time.strftime('%Y%m%d%H%M%S')}-{time.time_ns() % 1000000:06d}"
+    target = os.path.join(root, f"snapshot-{stamp}-g{fence.generation}")
+    try:
+        shutil.copytree(base_dir, target)          # 目录必须不存在，copytree 会自己建
+    except Exception as exc:  # noqa: BLE001
+        shutil.rmtree(target, ignore_errors=True)
+        raise RebuildFailed(f"复制基准快照失败：{type(exc).__name__}: {exc}") from exc
+
+    try:
+        result = apply_fn(target, [str(d.get("text", "")) for d in live])
+    except Exception as exc:  # noqa: BLE001
+        shutil.rmtree(target, ignore_errors=True)
+        raise RebuildFailed(f"增量应用失败，指针未切换：{type(exc).__name__}: {exc}") from exc
+
+    payload = _promote(root, fence, live, target, previous, result,
+                       fencing=fencing, dropped=dropped, keep_last=keep_last,
+                       mode="DELTA")
+    return {"schema": SCHEMA, "status": "BUILT", "mode": "DELTA",
+            "pointer": pointer_path(root), "current": payload,
+            "apply_result": _safe(result), "previous": previous}
 
 
 def rebuild_if_stale(root: str, fence: FenceState, docs: List[Dict[str, Any]],

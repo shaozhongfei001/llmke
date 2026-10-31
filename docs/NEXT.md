@@ -182,6 +182,13 @@
        并导出为 llmke_graph_scheduler_alerts_undelivered_total；sent-undelivered 才是实际送达。
        metrics/alert_sink 已从 graph_engine_adapter 包导出。
        未做：服务未挂 /metrics 端点、告警不签名不落盘、未接真实网关、指标无 label
+    1w) 增量重建（本轮）：rebuild_delta 复制上一份快照→按文本差集删/增→共用 _promote 做
+       fencing 校验与指针切换。引擎侧 apply_delta：hp.delete 去删、hp.index(to_add) 复用
+       load_existing_openie 只对新块抽取（**增量抽取 + 全量重建图**，两件事没说成一回事）。
+       真跑 5 块：全量 32.4s → 增量 7.5s（4.3×），删 3 增 1 复用 2，openie 5→3 == 期望 5-3+1，
+       被删文本已不在快照，指针 mode=DELTA。三种拒绝路径都测：无基准快照/全撤权/fencing 落后。
+       未做：检索质量未测（需重排模型）、同文本会合并成一块、每次复制整目录的磁盘成本、
+       RebuildCoordinator 仍走全量、describe() 未登记 DELTA
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）

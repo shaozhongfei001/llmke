@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 39,
+  "PASS": 40,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 0
@@ -129,9 +129,9 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "NOT_VERIFIED": 1,
+     "VERIFIED": 10,
      "NOT_IMPLEMENTED": 6,
-     "VERIFIED": 10
+     "NOT_VERIFIED": 1
     },
     "graph_route": "NOT_VERIFIED"
    },
@@ -281,7 +281,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 283,
+     "blocked": 337,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +297,10 @@
      "340"
     ],
     "readers_blocked": [
-     890,
-     890,
-     888,
-     888
+     1087,
+     1089,
+     1086,
+     1086
     ],
     "readers_allowed": [
      0,
@@ -359,24 +359,24 @@
    "status": "PASS",
    "evidence": {
     "builds": {
-     "A": 0,
-     "B": 1
+     "A": 1,
+     "B": 0
     },
     "not_leader": {
-     "A": 104,
-     "B": 0
+     "A": 0,
+     "B": 104
     },
     "skipped_fresh": {
      "A": 0,
      "B": 0
     },
     "fencing": {
-     "A": null,
-     "B": 1
+     "A": 1,
+     "B": null
     },
     "stale_write_blocked": {
-     "A": null,
-     "B": true
+     "A": true,
+     "B": null
     }
    },
    "boundary": "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）"
@@ -394,10 +394,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 181,
+     "A": 177,
      "B": 0
     },
-    "lease_key": "q-lease-1793457048"
+    "lease_key": "q-lease-1793459348"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -429,7 +429,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 35.4,
+    "elapsed_s": 36.2,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -439,8 +439,8 @@
    "item": "graph:指标导出与告警通道",
    "status": "PASS",
    "evidence": {
-    "metrics_lines": 63,
-    "metrics_series": 21,
+    "metrics_lines": 66,
+    "metrics_series": 22,
     "content_type": "text/plain; version=0.0.4; charset=utf-8",
     "webhook": {
      "sent": 2,
@@ -449,7 +449,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:40199/hook",
+     "url": "http://127.0.0.1:46539/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -457,6 +457,34 @@
     "problems": []
    },
    "boundary": "本地 HTTP 服务器；未接真实企业微信/钉钉网关，未验签名与鉴权"
+  },
+  {
+   "item": "graph:增量重建（删+增）",
+   "status": "PASS",
+   "evidence": {
+    "full_s": 33.0,
+    "delta_s": 3.5,
+    "speedup_x": 9.4,
+    "apply": {
+     "schema": "llmke.graph-engine.hipporag.v1",
+     "deleted": 3,
+     "added": 1,
+     "reused": 2,
+     "duplicates": 0,
+     "remaining": 3,
+     "expected": 3,
+     "consistent": true
+    },
+    "openie": {
+     "base": 5,
+     "after": 3,
+     "expected": 3
+    },
+    "pointer_mode": "DELTA",
+    "deleted_still_present": [],
+    "problems": []
+   },
+   "boundary": "真跑 5 块语料；未测检索质量变化（需重排模型，波动大）"
   },
   {
    "item": "biz:global 报告/引用失效识别",
@@ -479,7 +507,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款（T-CORE-001）按业务日跨账户汇总/天数；用电量（T-EXT-001）按月同比。",
+    "answer": "多指标对账口径包括：日均存款的数据源为T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源为T-EXT-",
     "citations": 2,
     "model": "deepseek-flash"
    },
