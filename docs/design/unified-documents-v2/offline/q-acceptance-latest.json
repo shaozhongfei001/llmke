@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 37,
+  "PASS": 38,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 0
@@ -129,9 +129,9 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "VERIFIED": 10,
+     "NOT_IMPLEMENTED": 6,
      "NOT_VERIFIED": 1,
-     "NOT_IMPLEMENTED": 6
+     "VERIFIED": 10
     },
     "graph_route": "NOT_VERIFIED"
    },
@@ -281,7 +281,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 488,
+     "blocked": 364,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +297,10 @@
      "340"
     ],
     "readers_blocked": [
-     1345,
-     1346,
-     1349,
-     1348
+     1046,
+     1050,
+     1049,
+     1045
     ],
     "readers_allowed": [
      0,
@@ -394,10 +394,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 174,
+     "A": 179,
      "B": 0
     },
-    "lease_key": "q-lease-1793453215"
+    "lease_key": "q-lease-1793455619"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -417,6 +417,23 @@
     "schema_error": "OperationalError: (2003, \"Can't connect to MySQL server on '"
    },
    "boundary": "用 127.0.0.1:1 制造连接拒绝；未测「连上但查询超时」与锁等待"
+  },
+  {
+   "item": "graph:租约卡住型故障超时",
+   "status": "PASS",
+   "evidence": {
+    "builds": 0,
+    "lease_errors": 3,
+    "alert_kinds": [
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE"
+    ],
+    "elapsed_s": 39.2,
+    "connections_accepted": 5,
+    "read_timeout_s": 2
+   },
+   "boundary": "对端只 accept 不回包；read_timeout=2s。未测真实 MySQL 的锁等待(50s)场景"
   },
   {
    "item": "biz:global 报告/引用失效识别",
@@ -439,7 +456,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "日均存款：数据源 T-CORE-001，口径为按业务日跨账户汇总/天数；用电量：数据源 T-EXT-001，口径为月度同",
+    "answer": "多指标对账口径为：日均存款按 T-CORE-001 数据源，按业务日跨账户汇总/天数；用电量按 T-EXT-001 数据",
     "citations": 2,
     "model": "deepseek-flash"
    },

@@ -161,7 +161,13 @@
        lease_errors 计数 + 边沿触发告警（首次即报、持续每 60s、恢复报一次）；on_alert 自己抛错
        只记 alert_sink_errors，不拖死循环。实测：端口 1 拒绝 → builds=0 / lease_errors=6 /
        thread_stopped=True / LEASE_UNAVAILABLE；真库故障→恢复能自愈并 BUILT + LEASE_RECOVERED。
-       未做：真实告警通道（Webhook 等仍空）、查询超时（表现为卡住，无超时保护）、指标导出
+       未做：真实告警通道（Webhook 等仍空）、指标导出
+    1u) 卡住型租约故障（本轮）：`make_pymysql_factory` 自带 connect/read/write 超时（3/8/8s），
+       不依赖 my.cnf；`MySqlLease` 记 last_op_s/slow_ops，调度器超预算记 slow_lease_ops 并发
+       LEASE_SLOW。反例可复现：只 accept 不回包的黑洞对端，read_timeout=1 → 0.8~10s 内抛错；
+       Q 用黑洞演练 20s：builds=0 / lease_errors=3 / connections_accepted=5 / elapsed=39s。
+       自己踩坑：`_slow_state["last_at"]=0.0` 会吞掉首次慢告警（假时钟从 0 起），改 None。
+       未做：真实 MySQL 锁等待 50s 场景、指标导出、超时值按 RTT 自适应
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

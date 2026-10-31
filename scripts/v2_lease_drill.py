@@ -51,7 +51,11 @@ def build_lease(args):
             host=env["LLMKE_LEASE_MYSQL_HOST"],
             port=int(env.get("LLMKE_LEASE_MYSQL_PORT", "3306")),
             user=env["LLMKE_LEASE_MYSQL_USER"], password=env["LLMKE_LEASE_MYSQL_PASSWORD"],
-            database=env["LLMKE_LEASE_MYSQL_DB"])
+            database=env["LLMKE_LEASE_MYSQL_DB"],
+            # 演练"连上不回包"时允许把超时压短，方便观察；默认沿用驱动默认值
+            **({"connect_timeout": int(env["LLMKE_LEASE_MYSQL_CONNECT_TIMEOUT"]),
+                "read_timeout": int(env["LLMKE_LEASE_MYSQL_READ_TIMEOUT"])}
+               if env.get("LLMKE_LEASE_MYSQL_READ_TIMEOUT") else {}))
         lease = MySqlLease(factory, owner=args.owner, ttl=30, lease_key=args.lease_key)
         # 建表失败不在这里退出：真实故障就是"启动时数据库就不通"，
         # 演练要看的正是"建表失败后调度器还能不能活着并把故障报出来"。

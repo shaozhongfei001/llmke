@@ -53,11 +53,13 @@ class RebuildScheduler:
         self._state = {"cycles": 0, "debounce_waits": 0, "idle": 0,
                        "backoff_waits": 0, "slept_s": 0.0, "stopped": False,
                        "not_leader": 0, "lost_lease": 0,
-                       "lease_errors": 0, "alerts_sent": 0, "alert_sink_errors": 0}
+                       "lease_errors": 0, "alerts_sent": 0, "alert_sink_errors": 0,
+                       "slow_lease_ops": 0}
         # 当前持有的 fencing 值：build 回调把它写进快照，旧主的晚到写入才会被拒
         self.lease_fencing: Optional[int] = None
         self._lock = threading.Lock()
         self._alert_state = {"failing": False, "last_at": 0.0, "last_error": None}
+        self._slow_state = {"last_at": None}   # None = 还没报过；用 0.0 会在 clock 起点附近被判"没到窗口"
 
     # ---------- 告警：边沿触发 ----------
     def _emit(self, kind: str, payload: Dict[str, Any]) -> None:
@@ -74,6 +76,24 @@ class RebuildScheduler:
             with self._lock:
                 self._state["alert_sink_errors"] += 1
                 self._state["last_alert_sink_error"] = f"{type(exc).__name__}: {exc}"
+
+    def _note_lease_slow(self, op: str, elapsed: float) -> None:
+        """慢但没抛：说明驱动超时在兜底（勉强活着）。仍要可见——否则"每轮卡 4s"会被当成正常。"""
+        budget = getattr(self.lease, "op_budget_s", None)
+        if budget is None or elapsed is None or elapsed <= budget:
+            return
+        now = self._clock()
+        with self._lock:
+            self._state["slow_lease_ops"] += 1
+            last_at = self._slow_state["last_at"]
+            due = last_at is None or (now - last_at) >= self.alert_every_s
+            if due:
+                self._slow_state["last_at"] = now
+            count = self._state["slow_lease_ops"]
+        if due:
+            self._emit("LEASE_SLOW", {"op": op, "elapsed_s": elapsed, "budget_s": budget,
+                                      "count": count,
+                                      "impact": "本轮仍继续，但调度节拍被拖慢；持续出现需查网络/锁等待"})
 
     def _note_lease_ok(self) -> None:
         with self._lock:
@@ -149,6 +169,7 @@ class RebuildScheduler:
                         "error": f"{type(exc).__name__}: {exc}", "consecutive": errors,
                         "hint": "租赁存储不可用，本轮不重建（读路径继续读旧快照）"}
             self._note_lease_ok()
+            self._note_lease_slow("acquire", getattr(self.lease, "last_op_s", None))
             if not acquired.get("acquired"):
                 with self._lock:
                     self._state["not_leader"] += 1
@@ -168,6 +189,7 @@ class RebuildScheduler:
                 return {"schema": SCHEMA, "action": "LOST_LEASE", "pending": pending,
                         "error": f"{type(exc).__name__}: {exc}",
                         "hint": "续租时存储不可用，无法确认仍是主 → 本轮不构建"}
+            self._note_lease_slow("renew", getattr(self.lease, "last_op_s", None))
             if not renewed:
                 with self._lock:
                     self._state["lost_lease"] += 1

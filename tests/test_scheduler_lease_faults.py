@@ -148,3 +148,37 @@ def test_renew_exception_blocks_build():
     assert cycle["action"] == "LOST_LEASE"
     assert "续租时存储不可用" in cycle["hint"]
     assert sched.stats()["builds"] == 0
+
+
+class SlowLease:
+    """能成功，但每次操作都超预算：驱动超时在兜底，系统"勉强活着"。"""
+
+    op_budget_s = 0.5
+    last_op_s = 4.2
+
+    def __init__(self):
+        self.fencing = 1
+
+    def acquire(self):
+        return {"acquired": True, "fencing": 1}
+
+    def renew(self):
+        return True
+
+
+def test_slow_lease_is_reported_but_does_not_block_build():
+    clock, alerts = Clock(), []
+
+    coord = RebuildCoordinator(lambda batch: {"written": len(batch)}, clock=clock)
+    sched = RebuildScheduler(coord, debounce=0, idle_poll=0, sleep=lambda s: None,
+                             clock=clock, lease=SlowLease(), on_alert=alerts.append)
+    coord.request("upload", ["f-1"])
+
+    cycle = sched.run_cycle()
+
+    assert cycle["action"] == "BUILT"           # 慢不等于失败，构建照做
+    stats = sched.stats()
+    assert stats["slow_lease_ops"] == 2         # acquire + renew 各一次
+    kinds = [a["kind"] for a in alerts]
+    assert kinds.count("LEASE_SLOW") == 1       # 边沿节流：同一窗口只报一次
+    assert alerts[0]["elapsed_s"] == 4.2

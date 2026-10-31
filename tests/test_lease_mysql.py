@@ -208,3 +208,90 @@ def test_real_mysql_outage_then_recovery_builds_once():
     assert cycle["action"] == "BUILT", cycle
     assert built == [1]
     assert alerts[-1]["kind"] == "LEASE_RECOVERED"
+
+
+def test_factory_sets_driver_timeouts_by_default(monkeypatch):
+    """超时必须是默认值：调用方忘了传，也不会退化成"连上不回包就卡 50s"。"""
+    captured = {}
+    real = __import__("pymysql")
+
+    class FakeModule:
+        @staticmethod
+        def connect(**kwargs):
+            captured.update(kwargs)
+            return "conn"
+
+    monkeypatch.setitem(__import__("sys").modules, "pymysql", FakeModule)
+    from graph_engine_adapter.lease_mysql import (DEFAULT_CONNECT_TIMEOUT,
+                                                  DEFAULT_READ_TIMEOUT,
+                                                  DEFAULT_WRITE_TIMEOUT,
+                                                  make_pymysql_factory)
+    make_pymysql_factory(host="127.0.0.1")()
+    assert captured["connect_timeout"] == DEFAULT_CONNECT_TIMEOUT
+    assert captured["read_timeout"] == DEFAULT_READ_TIMEOUT
+    assert captured["write_timeout"] == DEFAULT_WRITE_TIMEOUT
+
+    # 调用方显式给的值优先（测试/运维可能需要放宽）
+    make_pymysql_factory(host="127.0.0.1", read_timeout=1)()
+    assert captured["read_timeout"] == 1
+    assert real is not None
+
+
+@pytest.fixture
+def blackhole():
+    """连得上但永不回包的对端：模拟"TCP 通、MySQL 不应答"（比连接拒绝更接近真故障）。"""
+    import socket
+    import threading
+
+    srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(16)
+    srv.settimeout(0.2)
+    accepted = []
+    stop = threading.Event()
+
+    def loop():
+        while not stop.is_set():
+            try:
+                conn, _ = srv.accept()
+                accepted.append(conn)          # 收下连接，一句都不回
+            except socket.timeout:
+                continue
+            except OSError:
+                break
+
+    thread = threading.Thread(target=loop, daemon=True)
+    thread.start()
+    yield srv.getsockname()[1], accepted
+    stop.set()
+    srv.close()
+    for conn in accepted:
+        try:
+            conn.close()
+        except OSError:
+            pass
+
+
+def test_blackhole_peer_fails_fast_instead_of_hanging(blackhole):
+    """卡住型故障：必须在驱动超时内抛错，而不是等 innodb_lock_wait_timeout(50s)。"""
+    import time
+
+    from graph_engine_adapter.lease_mysql import make_pymysql_factory
+
+    port, accepted = blackhole
+    factory = make_pymysql_factory(host="127.0.0.1", port=port, user="u", password="p",
+                                   database="d", connect_timeout=1, read_timeout=1,
+                                   write_timeout=1)
+    lease = MySqlLease(factory, owner="A", ttl=5, lease_key="hang")
+
+    started = time.time()
+    with pytest.raises(Exception) as excinfo:
+        lease.acquire()
+    elapsed = time.time() - started
+
+    assert accepted, "对端应已接受连接（这才叫'连上但不回包'）"
+    # 下界同样重要：<0.8s 说明是"连不上就抛"，根本没走到"等回包超时"这条路
+    assert 0.8 <= elapsed < 10, f"耗时 {elapsed:.1f}s，不符合 read_timeout 生效的样子"
+    assert lease.last_op_s is not None and lease.last_op_s < 10
+    assert type(excinfo.value).__name__ in {"OperationalError", "TimeoutError", "OSError", "InterfaceError"}

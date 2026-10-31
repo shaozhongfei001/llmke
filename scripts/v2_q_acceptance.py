@@ -563,6 +563,77 @@ def check_lease_fault_visibility():
            "用 127.0.0.1:1 制造连接拒绝；未测「连上但查询超时」与锁等待")
 
 
+def check_lease_hang_timeout():
+    """卡住型故障：TCP 通、对端不回包。必须在驱动超时内失败，不能卡满 50s。"""
+    import socket
+    import subprocess
+    import threading
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:租约卡住型故障超时", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    srv = socket.socket()
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(8)
+    srv.settimeout(0.2)
+    held, stop = [], threading.Event()
+
+    def accept_only():
+        while not stop.is_set():
+            try:
+                conn, _ = srv.accept()
+                held.append(conn)          # 收下连接，一句不回
+            except socket.timeout:
+                continue
+            except OSError:
+                break
+
+    threading.Thread(target=accept_only, daemon=True).start()
+    port = srv.getsockname()[1]
+    stamp = int(time.time())
+    root, out = f"/tmp/q-lease-hang-{stamp}", f"/tmp/q-lease-hang-{stamp}.json"
+    os.makedirs(root, exist_ok=True)
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service"),
+           "LLMKE_LEASE_MYSQL_HOST": "127.0.0.1", "LLMKE_LEASE_MYSQL_PORT": str(port),
+           "LLMKE_LEASE_MYSQL_USER": "nobody", "LLMKE_LEASE_MYSQL_PASSWORD": "x",
+           "LLMKE_LEASE_MYSQL_DB": "nope",
+           "LLMKE_LEASE_MYSQL_CONNECT_TIMEOUT": "1", "LLMKE_LEASE_MYSQL_READ_TIMEOUT": "2"}
+    started = time.time()
+    try:
+        proc = subprocess.run([py, str(REPO / "scripts/v2_lease_drill.py"),
+                               "--lease-backend", "mysql", "--lease-key", f"q-hang-{stamp}",
+                               "--owner", "inst-A", "--payloads", *payloads, "--root", root,
+                               "--cjk-compat", "--duration", "20", "--out", out],
+                              capture_output=True, text=True, timeout=240, env=env)
+        elapsed = time.time() - started
+    finally:
+        stop.set()
+        srv.close()
+        for conn in held:
+            try:
+                conn.close()
+            except OSError:
+                pass
+
+    if not os.path.isfile(out):
+        record("graph:租约卡住型故障超时", "FAIL", {"tail": (proc.stderr or "")[-200:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    ok = (d["builds"] == 0 and d["stats"]["lease_errors"] > 0
+          and "LEASE_UNAVAILABLE" in d["alert_kinds"]
+          and d["stopped"] and elapsed < 90)
+    record("graph:租约卡住型故障超时", "PASS" if ok else "FAIL",
+           {"builds": d["builds"], "lease_errors": d["stats"]["lease_errors"],
+            "alert_kinds": d["alert_kinds"][:3], "elapsed_s": round(elapsed, 1),
+            "connections_accepted": len(held),
+            "read_timeout_s": 2},
+           "对端只 accept 不回包；read_timeout=2s。未测真实 MySQL 的锁等待(50s)场景")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -749,6 +820,7 @@ def main(argv=None):
     check_multi_instance_lease()
     check_mysql_lease()
     check_lease_fault_visibility()
+    check_lease_hang_timeout()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
