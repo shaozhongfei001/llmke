@@ -98,16 +98,35 @@ class HippoRAGEngine:
                 except AttributeError:
                     pass
 
-        # 种子是否真的落在图里：这决定 PPR 有起点可用
+        # 种子是否真的落在图里：这决定 PPR 有没有起点。
+        # 平台 id 是 "ent:<名称>"，引擎键是 "entity-" + mdhash(text_processing(名称))，
+        # 所以要做一次显式换算——换算不出来就如实记空，别假装命中。
         idx_map = getattr(hp, "node_name_to_vertex_idx", {}) or {}
         for seed in seeds or []:
-            key = seed if str(seed).startswith("entity-") else None
+            key = self._to_engine_key(seed)
             if key and key in idx_map:
                 trace["seed_hits"].append(seed)
 
         route = GRAPH if trace["graph_calls"] > 0 else DENSE_FALLBACK
         reason = "GRAPH_CALLED" if route == GRAPH else "GRAPH_NOT_CALLED"
         return self._pack(solutions, route, reason, trace)
+
+    @staticmethod
+    def _to_engine_key(seed: str) -> Optional[str]:
+        s = str(seed)
+        if s.startswith("entity-"):
+            return s
+        name = s[4:] if s.startswith("ent:") else s
+        try:
+            import sys
+
+            misc = sys.modules.get("hipporag.utils.misc_utils")
+            if misc is None:
+                return None
+            processed = misc.text_processing(name)
+            return misc.compute_mdhash_id(processed, prefix="entity-")
+        except Exception:  # noqa: BLE001 - 换算失败就是没命中，不猜
+            return None
 
     @staticmethod
     def _pack(solutions, route, reason, trace):
@@ -138,7 +157,8 @@ class EngineRetriever:
     def dense(self, query, top_k):
         out = self.engine.retrieve(query, seeds=None, top_k=top_k)
         self.last_executed_route = out["executed_route"]
-        self.calls.append({"path": "dense", "executed_route": out["executed_route"]})
+        self.calls.append({"path": "dense", "executed_route": out["executed_route"],
+                           "trace": out["trace"]})
         return self._to_hits(out)
 
     def graph(self, query, seeds, top_k):

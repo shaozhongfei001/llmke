@@ -54,8 +54,17 @@ def main(argv=None):
     ap.add_argument("--top-k", type=int, default=3)
     ap.add_argument("--require-graph", action="store_true")
     ap.add_argument("--skip-build", action="store_true")
+    ap.add_argument("--cjk-compat", action="store_true",
+                    help="安装中文兼容补丁（上游会把中文事实清空，属显式偏离）")
     ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)
+
+    compat = {"installed": False}
+    if args.cjk_compat:
+        from graph_engine_adapter.hipporag_compat import (install_cjk_text_processing,
+                                                          is_patched)
+        compat = install_cjk_text_processing()
+        compat["effective"] = is_patched()
 
     docs = load_payloads(args.payloads)
     if not docs:
@@ -109,6 +118,7 @@ def main(argv=None):
         })
 
     report = {"schema": "llmke.graph-engine.bridge.v1",
+              "cjk_compat": compat,
               "build": build, "normalize": norm["stats"],
               "corpus": {"chunks": len(docs), "files": len(known_files)},
               "results": results}

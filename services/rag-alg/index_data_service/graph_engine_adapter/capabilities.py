@@ -67,6 +67,12 @@ CAPABILITIES = {
                 "九条业务语义用构造数据反证（引擎侧接线仍缺）",
         "evidence": "tests/test_graph_assertions.py",
     },
+    "retrieve_graph_route_with_cjk_patch": {
+        "status": "VERIFIED",
+        "note": "仅在安装中文兼容补丁后成立：上游 text_processing 会把中文事实清成空串，"
+                "打补丁后真实语料 graph_calls=1、executed_route=GRAPH（未打补丁时恒为 0）",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-CJK-COMPAT-20261031.md",
+    },
     "platform_retrieval_orchestration": {
         "status": "VERIFIED",
         "note": "路线先判（GRAPH/DENSE_FALLBACK + 原因）、require_graph 时回退不算通过、"

@@ -220,8 +220,8 @@ NOT_IMPLEMENTED = [
     ("biz:global 报告/引用失效识别（社区/global 真实产物消费）",
      "引用校验已在断言层可用，但社区/global 处理器尚未消费真实产物，不得用普通 RAG 顶替"),
     ("biz:端到端业务问答（真实文档→引擎→回答）",
-     "接线已通但图路径被重排器阻断：本地 qwen2.5-7b 重排返回空 JSON，"
-     "facts_after_rerank=0、graph_calls=0，引擎始终回退稠密（见 EVIDENCE-GRAPH-BRIDGE-20261031）"),
+     "图路径已在中文兼容补丁下真实执行（graph_calls=1、executed_route=GRAPH），"
+     "但回答组装与引用成文未做；未打补丁时上游会清空中文事实、恒回退稠密"),
 ]
 
 

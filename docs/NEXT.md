@@ -57,6 +57,12 @@
        facts_after_rerank=0、graph_calls=0，retrieve 始终回退稠密；直调 graph_search_with_fact_entities
        可出 5 篇（PPR 有效）并真实触发 phrase_weights 0 除告警。
        已修 pipeline 的假通过（现只认引擎 executed_route，新增 route_matches）
+    1c) 根因已定位并验证：上游 hipporag `text_processing` 用 `[^A-Za-z0-9 ]` 把**中文事实清成空串**
+       （fact 库里全是 ('','','1800')），重排看到空壳才返回 {}。新增可选补丁 hipporag_compat.py
+       （保留 CJK、默认不装）；打补丁后真跑 graph_calls=1、executed_route=GRAPH、
+       seed_hits=['ent:多指标对账口径','ent:指标']。能力拆分：
+       retrieve_graph_route 仍 NOT_VERIFIED，retrieve_graph_route_with_cjk_patch 已 VERIFIED。
+       未做：种子识别弱于引擎（计划 DENSE 但执行 GRAPH 已暴露）、事实噪声、回答组装
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
