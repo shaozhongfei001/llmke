@@ -52,7 +52,24 @@ python scripts/install_offline_bundle.py --manifest offline/r12-graph-venv-py311
 3. **前端静态资源**：未见构建产物清单；
 4. **venv wheelhouse 只下了 graph 一个**（后台作业，`/tmp/wh-graph`），其余三个未拉。
 
-## 5. 中间件镜像包（本轮补）
+## 5. 制品存放位置（持久目录，非 /tmp）
+
+本轮把 7.5 GB 制品从 `/tmp`（重启即失）迁到持久目录，并逐个复核哈希：
+
+| 目录 | 内容 | 体积 | 复核 |
+|---|---|---|---|
+| `/home/szf/data/dev/delivery/wheels-hipporag` | 184 wheels | 3.5 GB | 184/184 哈希匹配，0 不符 |
+| `/home/szf/data/dev/delivery/images-r12` | 6 个镜像 tar | 3.98 GB | 6/6 哈希匹配，0 不符 |
+
+复核方式（不安装、只比对）：
+```bash
+python scripts/install_offline_bundle.py --manifest <manifest> \
+  --wheel-dir /home/szf/data/dev/delivery/wheels-hipporag --pip <venv>/bin/pip --skip-verify
+# 以及逐文件 sha256 比对（见本节脚本片段/CI 目标）
+```
+迁移后再次用新路径安装通过（`status: OK`），说明清单不依赖原路径。
+
+## 6. 中间件镜像包（本轮补）
 
 按**运行中容器的实际镜像**导出（不是按猜测的镜像名），`docker save` 后生成清单：
 
