@@ -36,7 +36,10 @@
   B1 状态补充：真实检索服务（19995）可查候选快照（search_policy=2），两臂返回同一表正文；
      载荷已补 metadata.pk；候选命名须与检索拼名规则一致（已加 --retrieval-compatible）
   B1 已完成：读路径切换（legacy/snapshot，按库灰度、可回退，开关已登记）；D-05 删除漏清理已修并验证
-  B1/C1 下一步：C1 扩到 333/329 全量与跨文档路径；社区/global 仍未消费真实产物
+  B1 已完成：读路径切换（按库灰度/可回退）+ D-05 删除漏清理修复 + 验收探测脚本（含删除归零判据）
+  C1 已完成：hipporag 2.0.0a4 真跑（66/83 块）、社区/global 真实消费验证、断网 wheelhouse 与离线实跑
+  离线交付：四个 venv wheelhouse + 6 镜像 tar（3.98G）+ 清单/校验安装器，均实测
+  B1/C1/离线 下一步：前端产物与模型权重（ModelScope）清单化；目标机干净部署与差分升级
   B1 已完成部分：ingest_pipeline（adapter→commit→project 集成层，三档开关，shadow 禁止写索引）
      + controller 影子钩子（默认三条 env 不满足即不动作；失败不影响解析任务）
   A2 MinerU/OCR 路线并行准备（扫描 PDF），不阻塞原生 Office
