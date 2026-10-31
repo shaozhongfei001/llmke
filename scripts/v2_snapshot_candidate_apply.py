@@ -164,6 +164,14 @@ def _apply(args, ns, es):
 
     if args.milvus_collections:
         from pymilvus import DataType, MilvusClient
+
+        def template_for(src):
+            """按通道选模板集合：总结/表格块/正文的字段集不同，用同一模板会缺字段。"""
+            if src.startswith("table_summary_"):
+                return "_table_summary_kb_10"
+            if src.startswith("table_chunks_"):
+                return "_table_chunks_kb_10"
+            return args.template
         client = MilvusClient(uri=args.milvus, db_name=args.db)
         vectors = _embed(args.embed, args.model, [c["page_content"] for c in chunks])
         vec_by_pk = {c["pk"]: v for c, v in zip(chunks, vectors)}
@@ -172,7 +180,7 @@ def _apply(args, ns, es):
             target = f"{ns}_{src}"
             if client.has_collection(target):
                 client.drop_collection(target)
-            schema, fields = _clone_schema(client, args.template, DataType)
+            schema, fields = _clone_schema(client, template_for(src), DataType)
             client.create_collection(target, schema=schema)
             index_params = client.prepare_index_params()
             index_params.add_index("vector", index_type="AUTOINDEX", metric_type="IP")
@@ -187,7 +195,10 @@ def _apply(args, ns, es):
                     if f["type"] == DataType.FLOAT_VECTOR:
                         row[f["name"]] = vec_by_pk[chunk["pk"]]
                     elif f.get("is_primary"):
-                        row[f["name"]] = pk_seq
+                        # 主键必须用投影里登记的 pk：总结文档的 pk 就是表格块的 table_summary_id，
+                        # 用自增序号会让"总结→明细"的关联断掉（实测 linked_chunks=0）。
+                        declared = chunk.get("pk")
+                        row[f["name"]] = int(declared) if declared is not None else pk_seq
                     elif meta.get(f["name"]) is None:
                         row[f["name"]] = _coerce([], f["type"], f.get("element_type"), DataType) \
                             if f["type"] == DataType.ARRAY else _coerce("", f["type"], None, DataType)

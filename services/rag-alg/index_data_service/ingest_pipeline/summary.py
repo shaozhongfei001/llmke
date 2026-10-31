@@ -28,7 +28,10 @@ import urllib.request
 
 
 def table_summary_id(index_name, file_id, table_id):
-    """总结文档主键 = 表格块上的 table_summary_id；同表稳定、跨次解析不变。"""
+    """总结文档主键（INT64）；写到表格块上时为它的十进制字符串。
+
+    同表稳定、跨次解析不变：种子只用 index/file_id/table_id。
+    """
     seed = f"v2sum|{index_name}|{file_id}|{table_id}"
     return int(hashlib.sha1(seed.encode("utf-8")).hexdigest()[:15], 16)
 
@@ -73,7 +76,9 @@ def build_summary_payloads(table_chunks, *, index_name, summarizer):
         table_id = meta.get("table_id") or f"seq{meta.get('chunk_index')}"
         sid = table_summary_id(index_name, meta.get("file_id"), table_id)
         text = summarizer(chunk["page_content"], table_id, meta)
-        meta["table_summary_id"] = sid
+        # 生产 schema：`_table_chunks_*` 的 table_summary_id 是 VARCHAR，`_table_summary_*` 的 pk 是 INT64。
+        # 反了会被 Milvus 拒绝（实测 "comparisons between VarChar and Int64 are not supported"）。
+        meta["table_summary_id"] = str(sid)
         new_chunk = dict(chunk, metadata=meta)
         updated.append(new_chunk)
 

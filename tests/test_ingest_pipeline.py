@@ -157,7 +157,7 @@ def test_table_summary_channel_links_by_stable_id_not_text():
     assert all(s["index"] == "table_summary_kb_9" for s in sums)
     expected = table_summary_id("kb_9", "999011", "t1")
     assert sums[0]["pk"] == expected                       # 总结 pk = 表格块的 table_summary_id
-    assert updated[0]["metadata"]["table_summary_id"] == expected
+    assert updated[0]["metadata"]["table_summary_id"] == str(expected)   # 生产字段是 VARCHAR
     # 同一张表换一种写法/换一次 LLM 输出，id 不变
     assert table_summary_id("kb_9", "999011", "t1") == expected
     assert table_summary_id("kb_9", "999011", "t2") != expected

@@ -283,3 +283,25 @@ channels {'text': 46, 'table': 17}   missing ['table_summary']
 
 **未做**：Milvus 侧 `_table_summary_kb_10` 集合写入（候选脚本模板只覆盖 text/table，
 需要按集合模板分别克隆）；检索侧"总结→明细"两段式的端到端联调（需切 snapshot 读路径）。
+
+## 12. "总结 → 明细"两段式端到端联调（本轮，含两个真 bug）
+
+按检索真实查法在隔离集合上跑通：先用查询向量在 `v2cand_table_summary_kb_10` 取 top1，
+再按 `table_summary_id in ['<pk>']` 到 `v2cand_table_chunks_kb_10` 拉明细。
+
+```
+{"summary_pk": 346757280400448423, "score": 0.5752,
+ "linked_chunks": 1, "link_ok": true,
+ "sample": "文档编号 | RAG-ALG-GRAG-M1-001\n版本 / 状态 | V1.0 / 待评审\n上游依据 | 《Grap…"}
+```
+
+过程中撞到并修掉两处**真实**类型/主键错误：
+
+1. **id 类型反了**：生产 `_table_chunks_*` 的 `table_summary_id` 是 **VARCHAR**，
+   `_table_summary_*` 的 `pk` 是 **INT64**。最初写成"表格块存 int"，Milvus 直接拒绝：
+   `cannot parse expression: table_summary_id == 64, comparisons between VarChar and Int64 are not supported`。
+   现改为：总结 pk 用 int，写到表格块上转十进制字符串。
+2. **候选写入脚本把主键改成自增序号**，导致总结 pk 变成 1..17、与 `table_summary_id` 对不上，
+   表现为 `linked_chunks=0`。现改为使用投影里登记的 `pk`（总结 pk 必须等于关联值）。
+
+这两条都说明：**"字段名对上"不等于"类型与主键语义对上"**，只有真跑关联查询才暴露。
