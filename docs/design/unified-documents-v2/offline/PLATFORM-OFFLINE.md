@@ -149,3 +149,23 @@ wheelhouse 正在拉取/待拉取；两者做法相同，`models` 需注意"包 
 已做的兜底：`parse` venv 快照 `venv-r12-parse-py311.tar`（**1.36 GB**，
 sha256 `235ecd70eb012461…`，清单 `offline/r12-parse-venv-py311.snapshot.json`），
 仅作为"公开源不可重建"时的最后手段，不作为首选交付形态。
+
+## 11. graph 服务离线可重建（已实测，不只是清单）
+
+用 `offline/r12-graph-venv-py310.manifest.json` 在**全新 3.10 venv**安装（仅本地 wheel）：
+
+```
+install_offline_bundle -> {"status":"OK","wheels":106,...}
+```
+
+随后在同一环境导入图服务主模块（`index_graph_service/graph_summary.py`）：
+
+```
+首次: ValueError: server address & endpoint must not both none   ← 只缺 NACOS 配置，不是缺依赖
+带 NACOS_SERVER_ADDRESS/DATA_ID 后: graph_summary import ok
+```
+
+即：**依赖闭包完整**，剩下的只是运行配置。这也说明"能导入"和"能跑"要分开记录——
+上面第一次失败是配置缺失，若不追下去很容易误判成"离线包不全"。
+
+`graph` 因此是本项目里**第一个可以完全由公开源离线重建**的服务（0 个缺失版本，见 §10）。
