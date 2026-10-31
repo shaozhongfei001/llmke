@@ -1,4 +1,4 @@
-.PHONY: help generate check contract-all contract-v2-check framework-test framework-verify tooling-test oracle-readonly-guard-test p0-check p0-gate p0-status security-check baseline-check rules-check trace-check mutation-probe reuse-check discovery-verify business-verify run-dev memory-check evidence-check new-loop baton-transfer module-test python-info
+.PHONY: help generate check contract-all contract-v2-check offline-bundle-check framework-test framework-verify tooling-test oracle-readonly-guard-test p0-check p0-gate p0-status security-check baseline-check rules-check trace-check mutation-probe reuse-check discovery-verify business-verify run-dev memory-check evidence-check new-loop baton-transfer module-test python-info
 LOOP ?=
 EXECUTOR ?=
 PROFILE ?= L1
@@ -25,6 +25,10 @@ module-test:
 # 而通用 contract_toolchain 只做 registry 驱动的语义+联动，不校验样例一致性。
 ingest-slice-test:
 	@$(PY) -m pytest tests/test_parse_artifact_store.py tests/test_doc2md_adapter.py tests/test_rag_projection.py -q
+# 离线包清单自洽性（不需要 wheel 本体；wheel 在交付介质上，不进仓库）
+offline-bundle-check:
+	@$(PY) -m pytest tests/test_offline_bundle_manifest.py -q
+
 contract-v2-check:
 	@$(PY) scripts/document_pipeline_v2_offline_check.py
 	@$(PY) scripts/document_pipeline_v2_validate.py
