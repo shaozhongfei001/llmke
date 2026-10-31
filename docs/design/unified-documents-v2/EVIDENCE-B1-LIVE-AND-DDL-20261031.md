@@ -254,3 +254,32 @@ channels {'text': 46, 'table': 17}   missing ['table_summary']
 `file_parse_task` 里 file 51/52/53/54/55 的状态都是 4（失败），但 `knowledge_base_list`
 里对应文件是 3（成功），且确有索引内容（51: ES 1 + Milvus 1；52: ES table 1 + Milvus 总结集合 1 行）。
 同一事实在两处状态相反，会让"失败重试/验收"判据失真。未改，先记录，避免被当成"解析成功"的凭证。
+
+## 11. D-03 补齐：投影产出 `table_summary` 通道（本轮）
+
+实现：`ingest_pipeline/summary.py` + `ingest(..., summarize=...)`。
+
+约定（照检索侧真实用法对齐，不是自造）：
+- 表格块写入 `table_summary_id`；
+- 总结文档 `pk` = 该 `table_summary_id`（因为检索取的是 `doc.metadata["pk"]`，
+  再按 `table_summary_id in [...]` 拉明细，见 `multiple_retrieval.py:164`）；
+- id 种子 = `index|file_id|table_id`（**不用正文哈希**，与 legacy `create_table_pk` 的理由一致：
+  LLM 摘要文本每次不同）；
+- 两档 summarizer：`extractive`（离线/单测，输出带 `[extractive]` 标记）与 `llm`（本地端点），
+  LLM 失败自动退回抽取式并保留标记——不把兜底冒充成模型摘要。
+
+实测 999011（17 张表）：
+
+| 档位 | 通道计数 | 兜底条数 | 样例 |
+|---|---|---|---|
+| extractive | 46 / 17 / **17** | 17（全部） | `[extractive] 表格 t001：文档编号 | RAG-ALG-GRAG-M1-001…` |
+| llm（18092） | 46 / 17 / **17** | **0** | `这张表格概述了文档RAG-ALG-GRAG-M1-001的版本信息、上游依据、交付物及覆盖范围，数据源为…共145份素材。` |
+
+`missing_channels` 在生成总结后由 `['table_summary']` 变为 `[]`。
+
+写入验证（隔离索引 `v2cand_*`，ES 三通道）：apply 46/17/17 → verify 全部按 pk 与
+`parse_artifact_id` 命中 → rollback 后 `kb_10 11→11`、`table_chunks 24→24`、
+`table_summary 2→2` 未变。
+
+**未做**：Milvus 侧 `_table_summary_kb_10` 集合写入（候选脚本模板只覆盖 text/table，
+需要按集合模板分别克隆）；检索侧"总结→明细"两段式的端到端联调（需切 snapshot 读路径）。

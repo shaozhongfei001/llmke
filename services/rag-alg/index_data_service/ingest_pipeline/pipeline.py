@@ -26,6 +26,7 @@ from parse_artifact import store
 from rag_projection import projection as P
 
 from .enrich import build_payload
+from .summary import build_summary_payloads
 
 MODES = ("legacy", "shadow", "snapshot")
 
@@ -88,7 +89,7 @@ def channel_gaps(channels):
 
 def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
            chunk_chars=800, overlap_chars=0, file_name=None, file_path=None, file_size=None,
-           source=None):
+           source=None, summarize=None):
     """返回 {'status','mode','artifact_id','channels','counts','chunks','refusals','field_fill'}。"""
     mode = (mode or P.mode_from_env()).strip().lower()
     if mode not in MODES:
@@ -120,6 +121,17 @@ def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
         for name in part["filled"]:
             if name not in fill["filled"]:
                 fill["filled"].append(name)
+    # 表格总结通道（D-03）：只有调用方给了 summarizer 才生成，避免默认产生 LLM 成本。
+    # 生成后表格块会被回填 table_summary_id，检索侧才能按 `table_summary_id in [...]` 拉明细。
+    summary_payloads = []
+    if summarize is not None:
+        table_items = [p for p in payloads if p["metadata"]["channel"] == "table"]
+        if table_items:
+            summary_payloads, updated = build_summary_payloads(
+                table_items, index_name=index_name, summarizer=summarize)
+            by_pk = {p["pk"]: p for p in updated}
+            payloads = [by_pk.get(p["pk"], p) for p in payloads] + summary_payloads
+
     counts = {}
     for item in payloads:
         counts[item["index"]] = counts.get(item["index"], 0) + 1
@@ -131,7 +143,7 @@ def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
         "counts": counts,
         "channels": {"text": result.stats.get("chunks_text"),
                      "table": result.stats.get("chunks_table")},
-        "missing_channels": channel_gaps({"table": result.stats.get("chunks_table")}),
+        "missing_channels": channel_gaps({"table": 0 if summary_payloads else result.stats.get("chunks_table")}),
         "chunks": payloads,
         "field_fill": fill,
         "refusals": result.refusals,

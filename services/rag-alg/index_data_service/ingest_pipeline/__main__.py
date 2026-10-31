@@ -27,11 +27,21 @@ def main(argv=None):
     parser.add_argument("--file-size", default=None, help="展示用大小，如 47.3 MB")
     parser.add_argument("--source", default=None,
                         help="文件对象键（source 是文件身份键，不是解析产物路径）")
+    parser.add_argument("--summarize", default="none",
+                        choices=["none", "extractive", "llm"],
+                        help="表格总结通道：none 不产；extractive 离线抽取；llm 调本地端点")
     parser.add_argument("--out", default=None)
     args = parser.parse_args(argv)
 
     try:
+        summarizer = None
+        if args.summarize == "extractive":
+            from .summary import extractive_summarizer as summarizer
+        elif args.summarize == "llm":
+            from .summary import llm_summarizer as summarizer
+            summarizer = summarizer()
         result = ingest(args.artifact_dir, index_name=args.index, file_id=args.file_id,
+                        summarize=summarizer,
                         mode=args.mode, apply_index=args.apply,
                         chunk_chars=args.chunk_chars, file_name=args.file_name,
                         file_path=args.file_path, file_size=args.file_size,

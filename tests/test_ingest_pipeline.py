@@ -137,6 +137,40 @@ def test_table_summary_channel_gap_is_reported_not_silent(artifact_dir):
     assert result["missing_channels"] == channel_gaps(result["channels"])
 
 
+def _table_chunk(pk, table_id, text):
+    return {"index": "table_chunks_kb_9", "page_content": text, "pk": pk,
+            "metadata": {"file_id": "999011", "chunk_index": 1, "channel": "table",
+                         "table_id": table_id, "source": "k/a.docx/V0/a.docx",
+                         "parse_artifact_id": "a" * 64, "content_uid": "c" * 64,
+                         "knowledge_base_name": "kb_9"}}
+
+
+def test_table_summary_channel_links_by_stable_id_not_text():
+    """总结 id 必须由 (index, file_id, table_id) 决定，不能由 LLM 文本决定。"""
+    from ingest_pipeline.summary import build_summary_payloads, extractive_summarizer, table_summary_id
+
+    tables = [_table_chunk(11, "t1", "| 指标 | 值 |\n| 日均存款 | 100 |"),
+              _table_chunk(12, "t2", "| 产品 | 额度 |\n| 甲 | 8000万 |")]
+    sums, updated = build_summary_payloads(tables, index_name="kb_9",
+                                           summarizer=extractive_summarizer)
+    assert len(sums) == 2
+    assert all(s["index"] == "table_summary_kb_9" for s in sums)
+    expected = table_summary_id("kb_9", "999011", "t1")
+    assert sums[0]["pk"] == expected                       # 总结 pk = 表格块的 table_summary_id
+    assert updated[0]["metadata"]["table_summary_id"] == expected
+    # 同一张表换一种写法/换一次 LLM 输出，id 不变
+    assert table_summary_id("kb_9", "999011", "t1") == expected
+    assert table_summary_id("kb_9", "999011", "t2") != expected
+
+
+def test_llm_summarizer_falls_back_labeled_when_endpoint_unreachable():
+    from ingest_pipeline.summary import llm_summarizer
+
+    out = llm_summarizer(url="http://127.0.0.1:9/v1/chat/completions", timeout=2)(
+        "| 指标 | 值 |\n| 日均存款 | 100 |", "t1", {})
+    assert out.startswith("[extractive]")                   # 不许把兜底当成 LLM 摘要
+
+
 def test_compare_channels_reports_diff_without_forcing_equality():
     from ingest_pipeline import compare_channels
 
