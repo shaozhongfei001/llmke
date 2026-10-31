@@ -160,3 +160,31 @@ log: /tmp/wh-full.log   pid 见启动记录
 即使只用 OpenAI 兼容后端也绕不开 → 离线包必须带 vllm+torch+nvidia（≈4.5 GB）。
 若目标机只需 OpenAI 后端，可评估"CPU 版 torch + 受控 vllm 占位"把体积压到 ~1 GB，
 但这属于对上游行为的偏离，需要单独评审，不能默默替换。
+
+## 10. 断网安装与离线运行实证（U-03 关键项）
+
+`pip download --no-deps -r locks/hipporag-2.0.0a4-requirements.txt` 产出 wheelhouse：
+**184 个 wheel、3.5 GB**（`/tmp/wh-full`）。
+
+随后在**全新 venv** 中用 `--no-index --find-links /tmp/wh-full --no-deps` 安装（禁用网络）：
+
+```
+Successfully installed ... hipporag-2.0.0a4 torch-2.5.1 transformers-4.45.2 vllm-0.6.6.post1 ...
+offline import ok  /hipporag/__init__.py  torch 2.5.1+cu124
+```
+
+并在该离线环境里真跑索引+检索（LLM/embedding 用本机端点，不访问公网）：
+
+```json
+{"status":"OK","engine":{"version":"hipporag==2.0.0a4","chunk_id_rule":"chunk-<md5(text)>"},
+ "mapping":{"units":4,"engine_chunks":3,"shared_chunks":1,"max_sources_per_chunk":2},
+ "hits":[{"native_key":"chunk-89d6b39e…","sources":[{"file_id":"333"},{"file_id":"334"}]}]}
+```
+
+即：**断网可装、可导入、可跑通最小链路**，同文异源仍保留两个来源。
+
+两个必须记住的限制：
+1. `pip install -r`（带依赖解析）在冻结清单上会 `ResolutionImpossible`——清单里有历史钉版冲突；
+   离线安装必须 `--no-deps` 按冻结清单顺序装（本环境即如此建成），且需要在部署脚本里固化这一点；
+2. 安装后部分包版本与上游声明不一致（如 openai 3.x、pydantic 2.14），因为清单来自实际环境快照；
+   若后续要接更严格的依赖校验，需要单独做一次干净重建并重新冻结。
