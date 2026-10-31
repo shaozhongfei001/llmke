@@ -311,6 +311,34 @@ def check_rebuild_window():
            "真实引擎重建 + 线程采样；只覆盖单进程读者，多进程/多实例未测")
 
 
+def check_rebuild_consistency():
+    """写并发（重建期间新增文件→stale→重建转 fresh）与多进程读者（窗口内全拒、完成后代次一致）。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:写并发与多读者一致性", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    cmd = [py, str(REPO / "scripts/v2_rebuild_consistency_drill.py"), "--payloads", *payloads,
+           "--root", "/tmp/q-consistency", "--cjk-compat", "--out", "/tmp/q-consistency.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1200)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-consistency.json"):
+        record("graph:写并发与多读者一致性", "FAIL",
+               {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    data = json.loads(open("/tmp/q-consistency.json", encoding="utf-8").read())
+    readers = data["multi_reader"]["readers"]
+    record("graph:写并发与多读者一致性", "PASS" if data.get("passed") else "FAIL",
+           {"write_first_stale": data["write_concurrent"]["first_snapshot_stale"]["stale"],
+            "write_missing": data["write_concurrent"]["first_snapshot_stale"]["missing"],
+            "readers_blocked": [r["blocked"] for r in readers],
+            "readers_allowed": [r["allowed"] for r in readers],
+            "final_generation": data["multi_reader"]["pointer_generation_after"]},
+           "单机多进程读者；跨机器多实例与真实库规模窗口未测；窗口被 sleep 延长以便采样")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -490,6 +518,7 @@ def main(argv=None):
     check_visibility_fence()
     check_isolated_rebuild()
     check_rebuild_window()
+    check_rebuild_consistency()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

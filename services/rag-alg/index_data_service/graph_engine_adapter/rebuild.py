@@ -10,6 +10,7 @@
 测试用假实现即可验证编排顺序与失败语义。
 """
 
+import hashlib
 import json
 import os
 import shutil
@@ -34,6 +35,48 @@ def read_pointer(root: str) -> Optional[Dict[str, Any]]:
     if not os.path.isfile(path):
         return None
     return json.loads(open(path, encoding="utf-8").read())
+
+
+def docs_fingerprint(docs: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """文档集合指纹：文件名 + 内容哈希。用于判断"重建期间有没有新文件/改动"。"""
+    per_file: Dict[str, List[str]] = {}
+    for doc in docs:
+        fid = str(doc.get("file_id", ""))
+        digest = hashlib.sha256(str(doc.get("text", "")).encode("utf-8")).hexdigest()
+        per_file.setdefault(fid, []).append(digest)
+    frozen = {fid: sorted(v) for fid, v in per_file.items()}
+    blob = json.dumps(frozen, sort_keys=True).encode()
+    return {"files": sorted(frozen), "per_file": frozen,
+            "digest": hashlib.sha256(blob).hexdigest()}
+
+
+def check_freshness(pointer: Optional[Dict[str, Any]],
+                    live_docs: List[Dict[str, Any]],
+                    fence: Optional[FenceState] = None) -> Dict[str, Any]:
+    """快照是否覆盖当前存活文档。
+
+    注意语义：**缺文件 = 数据缺失，不是越权**。所以这里只报告 stale，不阻止读；
+    越权由 fence 管。两者不能混——把"缺数据"当"不安全"会让系统在无关故障时整体不可用。
+    """
+    # 已撤权文件不该算"缺失"：否则撤权后每次新鲜度检查都会误报 stale
+    if fence is not None:
+        live_docs = [d for d in live_docs if not fence.is_revoked(str(d.get("file_id", "")))]
+    current = docs_fingerprint(live_docs)
+    if not pointer:
+        return {"stale": True, "reason": "NO_POINTER", "missing": current["files"],
+                "changed": []}
+    recorded = pointer.get("fingerprint") or {}
+    recorded_files = set(recorded.get("files") or [])
+    missing = sorted(set(current["files"]) - recorded_files)
+    removed = sorted(recorded_files - set(current["files"]))
+    changed = []
+    for fid in sorted(set(recorded.get("per_file") or {}) & set(current["per_file"])):
+        if (recorded["per_file"][fid] != current["per_file"][fid]):
+            changed.append(fid)
+    fresh = not missing and not removed and not changed
+    return {"stale": not fresh,
+            "reason": "OK" if fresh else "SNAPSHOT_OUT_OF_DATE",
+            "missing": missing, "removed": removed, "changed": changed}
 
 
 def _write_pointer(root: str, payload: Dict[str, Any]) -> str:
@@ -76,6 +119,7 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
 
     payload = {"schema": SCHEMA, "dir": target, "generation": fence.generation,
                "documents": len(live), "dropped_revoked": dropped,
+               "fingerprint": docs_fingerprint(live),
                "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
                "previous": (previous or {}).get("dir")}
     pointer = _write_pointer(root, payload)

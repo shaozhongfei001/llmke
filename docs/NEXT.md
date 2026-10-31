@@ -111,6 +111,12 @@
        成功场景重建期间 588 次采样 blocked=588/allowed=0，完成后代次 1 放行，
        新快照仅 333 的 3 块、只剔除 329。Q 现 30 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
        自查纠错：首版采样窗口跨到完成之后，误报"窗口内放行 4 次"；另一处判据把合法剔除当泄漏，均已修
+    1m) 重建一致性（rebuild 指纹 + check_freshness + v2_rebuild_consistency_drill.py）：
+       写并发→首次快照 stale(missing=["340"])、再重建转 fresh；
+       4 个读者进程窗口内 blocked≈1347/1347/1348/1341、allowed=0，完成后代次全=1。
+       Q 现 31 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
+       新踩两坑：①`a == b is False` 链式比较恒假；②新鲜度检查没排除撤权文件→每次都误报 missing。
+       仍未做：跨机器多实例指针、重建积压/合并、修改与删除在窗口内的行为、真实库规模耗时
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

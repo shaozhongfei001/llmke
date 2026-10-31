@@ -80,3 +80,52 @@ def test_generation_follows_fence_so_readers_can_compare(tmp_path):
     assert out["current"]["generation"] == 1
     # 读者拿指针代次与 fence 代次比较即可判断"能不能读"
     assert read_pointer(root)["generation"] == fence.generation
+
+
+def test_fingerprint_detects_new_file_added_during_rebuild(tmp_path):
+    """重建期间新增文件 → 快照 stale（数据缺失，不是越权）。"""
+    from graph_engine_adapter.rebuild import check_freshness, docs_fingerprint
+
+    base = docs("333", "329")
+    rebuild(str(tmp_path / "idx"), FenceState(), base, lambda i, t: {"ok": 1})
+    pointer = read_pointer(str(tmp_path / "idx"))
+
+    fresh = check_freshness(pointer, base)
+    assert fresh["stale"] is False
+
+    with_new = base + docs("340")
+    stale = check_freshness(pointer, with_new)
+    assert stale["stale"] is True and stale["missing"] == ["340"]
+
+    assert docs_fingerprint(base)["digest"] != docs_fingerprint(with_new)["digest"]
+
+
+def test_fingerprint_detects_content_change(tmp_path):
+    from graph_engine_adapter.rebuild import check_freshness
+
+    base = docs("333")
+    rebuild(str(tmp_path / "idx"), FenceState(), base, lambda i, t: {"ok": 1})
+    pointer = read_pointer(str(tmp_path / "idx"))
+    edited = [{"file_id": "333", "text": "内容-333（已改）"}]
+    out = check_freshness(pointer, edited)
+    assert out["stale"] is True and out["changed"] == ["333"]
+
+
+def test_missing_pointer_is_stale_not_error():
+    from graph_engine_adapter.rebuild import check_freshness
+    out = check_freshness(None, docs("333"))
+    assert out["stale"] is True and out["reason"] == "NO_POINTER"
+
+
+def test_freshness_ignores_revoked_files(tmp_path):
+    """撤权文件不该被算成"缺失"，否则撤权后每次检查都误报 stale。"""
+    from graph_engine_adapter.rebuild import check_freshness
+
+    fence = FenceState()
+    all_docs = docs("333", "329")
+    rebuild(str(tmp_path / "idx"), fence, all_docs, lambda i, t: {"ok": 1})
+    fence.revoke(["329"])
+    pointer = read_pointer(str(tmp_path / "idx"))
+    assert check_freshness(pointer, all_docs, fence)["stale"] is True   # 还没重建
+    rebuild(str(tmp_path / "idx"), fence, all_docs, lambda i, t: {"ok": 1})
+    assert check_freshness(read_pointer(str(tmp_path / "idx")), all_docs, fence)["stale"] is False
