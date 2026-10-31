@@ -1,0 +1,54 @@
+{
+ "schema": "llmke.clean-install.v1",
+ "summary": {
+  "PASS": 4,
+  "FAIL": 0,
+  "SKIP": 0
+ },
+ "verdict": "PASS",
+ "results": [
+  {
+   "name": "parse",
+   "status": "PASS",
+   "stage": "done",
+   "imports_bad": [],
+   "extra_used": [
+    {
+     "wheel_dir": "wheels-r12-models",
+     "packages": [
+      "torch==2.6.0+cpu"
+     ]
+    }
+   ],
+   "seconds": 79.5,
+   "venv": "/tmp/v2-clean-install-79no6bkq/venv-parse"
+  },
+  {
+   "name": "alg",
+   "status": "PASS",
+   "stage": "done",
+   "imports_bad": [],
+   "extra_used": [],
+   "seconds": 26.1,
+   "venv": "/tmp/v2-clean-install-79no6bkq/venv-alg"
+  },
+  {
+   "name": "models",
+   "status": "PASS",
+   "stage": "done",
+   "imports_bad": [],
+   "extra_used": [],
+   "seconds": 153.5,
+   "venv": "/tmp/v2-clean-install-79no6bkq/venv-models"
+  },
+  {
+   "name": "graph",
+   "status": "PASS",
+   "stage": "done",
+   "imports_bad": [],
+   "extra_used": [],
+   "seconds": 19.2,
+   "venv": "/tmp/v2-clean-install-79no6bkq/venv-graph"
+  }
+ ]
+}
