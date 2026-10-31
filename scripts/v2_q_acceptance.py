@@ -221,6 +221,46 @@ def check_mineru():
 NOT_IMPLEMENTED = []
 
 
+def check_visibility_fence():
+    """撤权 fence：撤权后旧内容不得被检索到；索引代次落后必须拒绝读。"""
+    from graph_engine_adapter.assertions import Assertion, AssertionStore, SourceRef
+    from graph_engine_adapter.fence import FenceState, StaleIndexError, filter_hits
+    from graph_engine_adapter.pipeline import retrieve
+
+    class OldIndexRetriever:            # 故意返回已撤权内容，模拟"引擎不认识撤权"
+        last_executed_route = "GRAPH"
+
+        def dense(self, q, k):
+            return [{"text": "旧内容", "sources": [{"file_id": "999"}]}]
+
+        def graph(self, q, seeds, k):
+            return [{"text": "旧内容", "sources": [{"file_id": "999"}]}]
+
+    store = AssertionStore()
+    store.register_entity("p", "产品甲")
+    store.add(Assertion(subject="p", predicate="额度", object_value=1, unit="万元", key="额度",
+                        sources=[SourceRef("999", "a" * 64)]))
+
+    fence = FenceState()
+    fence.revoke(["999"])
+    filtered = filter_hits([{"text": "x", "sources": [{"file_id": "999"}]}], fence)
+    out = retrieve("产品甲的额度", store=store, retriever=OldIndexRetriever(),
+                   known_files={"999"}, fence=fence, index_generation=1)
+    stale_blocked = False
+    try:
+        retrieve("产品甲的额度", store=store, retriever=OldIndexRetriever(),
+                 fence=fence, index_generation=0)
+    except StaleIndexError:
+        stale_blocked = True
+
+    ok = (not filtered["hits"] and out["hit_count"] == 0 and stale_blocked)
+    record("graph:撤权 fence", "PASS" if ok else "FAIL",
+           {"dropped": out["fence"]["dropped"], "stale_blocked": stale_blocked,
+            "generation": fence.generation},
+           "平台侧 fence（先验索引代次再过滤）；引擎侧增量删除仍未实现，"
+           "首版靠隔离快照全量重建")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -397,6 +437,7 @@ def main(argv=None):
     check_retrieval_orchestration()
     check_mineru()
     check_business_semantics()
+    check_visibility_fence()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

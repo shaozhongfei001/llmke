@@ -73,3 +73,25 @@ def test_citations_are_validated_against_known_files():
 def test_report_policy_states_no_rag_substitute():
     report = build_report(make_store(), known_files={"333"})
     assert "不得" in report["policy"] or "不可" in report["policy"]
+
+
+def test_revoked_file_facts_are_excluded_from_report():
+    """撤权后报告里不能再出现该文件的事实——否则"已撤权"只是检索侧的说辞。"""
+    from graph_engine_adapter.fence import FenceState
+
+    store = make_store()
+    fence = FenceState()
+    fence.revoke(["333"])
+    # 333 撤权后剩 404 仍可见：333 的事实要被剔除，404 的保留 → PARTIAL
+    report = build_report(store, known_files=fence.live({"333", "404"}))
+    rendered = [f["text"] for s in report["communities"] for f in s["facts"]]
+    # 333 独有的"客户A 申请 产品甲"不能出现；404 上的"孤立实体 无关联"仍应保留
+    assert all("申请" not in text for text in rendered)
+    assert any("孤立实体" in text for text in rendered)
+    assert "SOURCE_NOT_VISIBLE" in {e["reason"] for e in report["excluded"]}
+
+    # 两边都撤权 → 没有任何可导出事实 → BLOCKED
+    fence.revoke(["404"])
+    blocked = build_report(store, known_files=fence.live({"333", "404"}))
+    assert blocked["status"] == "BLOCKED"
+    assert all(s["facts"] == [] for s in blocked["communities"])

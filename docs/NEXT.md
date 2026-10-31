@@ -95,6 +95,13 @@
        顺带修 name_of 渲染取到 ent: 前缀的缺陷（同时影响回答上下文）。
        Q 现 27 PASS / 0 FAIL / **0 NOT_IMPLEMENTED**（业务场景全部转真实检查），
        引擎侧缺口改由 describe() 承担，并用测试强制其 NOT_IMPLEMENTED ≥ 1，避免两处一起清空
+    1j) 撤权 fence 落地（fence.py，6 项测试，已接入 pipeline 与社区报告）：
+       revoke 幂等推进代次 → 检索前 assert_index_fresh（索引旧/未声明代次直接拒绝）
+       → 检索后 filter_hits（引擎返回旧内容也裁掉，全撤权则丢弃并记原因）。
+       实测：撤权后 hit_count=0、代次落后抛 StaleIndexError、未配 fence 行为不变。
+       社区报告用 fence.live 收窄 known_files，两侧都撤权时状态 BLOCKED。
+       Q 现 28 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。仍未做：引擎侧按文档删除图产物、
+       隔离快照重建编排、重建期间并发查询验证
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

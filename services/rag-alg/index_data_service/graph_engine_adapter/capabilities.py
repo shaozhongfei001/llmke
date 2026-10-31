@@ -46,9 +46,15 @@ CAPABILITIES = {
         "note": "首版按隔离快照全量重建；增量未实现",
         "evidence": None,
     },
+    "visibility_fence": {
+        "status": "VERIFIED",
+        "note": "撤权后先验索引代次再按来源过滤：旧内容即使被引擎返回也会被拦下；"
+                "代次落后直接拒绝读。引擎侧增量删除/全量重建编排仍未实现",
+        "evidence": "tests/test_graph_fence.py",
+    },
     "delete_document": {
         "status": "NOT_IMPLEMENTED",
-        "note": "撤权 fence 与按文档删除图产物未实现",
+        "note": "fence 已能把撤权挡在读之前；但按文档删除图产物+隔离快照重建的编排未实现",
         "evidence": None,
     },
     "graph_export": {
