@@ -22,6 +22,8 @@ SYSTEM_PROMPT = (
     "只输出这一个 JSON 对象本身，不要解释、不要序号、不要任何前后缀。\n"
     "quote 必须是从【材料】里**逐字复制**的原文片段，不得改写、不得拼接；"
     "不得引用任何推断、总结或表格之外的转述。\n"
+    "材料可能是表格行（用 | 分隔）：若答案在某一数据行里，就整行引用该行，"
+    "不要只引用列名，也不要把列名和数据拼成一行。\n"
     "示例：{\"answer\": \"8000万元\", \"citations\": [{\"file_id\": \"333\", "
     "\"quote\": \"最高额度 8000万元\"}]}"
 )
@@ -58,7 +60,19 @@ def split_table_rows(text: str, min_rows: int = 3) -> List[str]:
     return lines
 
 
+def _overlap(query: str, text: str) -> int:
+    """字二元组重合数：中文没有空格，用 bigram 比用词更稳。"""
+    q = _norm(query)
+    t = _norm(text)
+    if not q or not t:
+        return 0
+    qb = {q[i:i + 2] for i in range(len(q) - 1)}
+    tb = {t[i:i + 2] for i in range(len(t) - 1)}
+    return len(qb & tb)
+
+
 def build_context(store, hits: Sequence[Dict[str, Any]], *,
+                  query: str = "", max_items: int = 20,
                   max_passages: int = 6, include_derived: bool = False) -> List[Dict[str, Any]]:
     """上下文 = 命中段落（默认不含平台派生断言）。
 
@@ -77,6 +91,7 @@ def build_context(store, hits: Sequence[Dict[str, Any]], *,
                         "text": row, "files": files, "citable": True})
         seen_files.update(files)
 
+    ctx = _dedupe_and_rank(ctx, query, max_items)
     if not include_derived:
         return ctx
 
@@ -90,6 +105,26 @@ def build_context(store, hits: Sequence[Dict[str, Any]], *,
 def _norm(text: str) -> str:
     """核验引用时忽略空白差异（表格换行/空格），但**不**忽略字词改动。"""
     return re.sub(r"\s+", "", text or "")
+
+
+def _dedupe_and_rank(ctx: List[Dict[str, Any]], query: str,
+                     max_items: int) -> List[Dict[str, Any]]:
+    """去重 + 保序截断（**不按词面重合度排序**）。
+
+    实测教训：同一段表格既有 `| a | b |` 行又有无管道符版本，材料一半是重复，
+    7B 会答"材料不足"，所以必须去重。
+    但**不能**按字面重合度排序：表头行天然包含问题里的词（如"授信额度"），
+    排序会把只有表头没有数据的行顶到最前，数据行反被截断——实测通过率从 6/9 掉到 0/9。
+    保序截断保留"表头 + 紧随其后的数据行"这种结构，才是模型真正需要的。
+    """
+    seen, uniq = set(), []
+    for item in ctx:
+        key = _norm(item["text"])
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        uniq.append(item)
+    return uniq[:max_items]
 
 
 def _render_materials(context: Sequence[Dict[str, Any]]) -> str:
@@ -141,7 +176,7 @@ def assemble(query: str, *, store, retrieval: Dict[str, Any],
                 "reason": f"GRAPH_ROUTE_REQUIRED_BUT_{retrieval.get('executed_route')}",
                 "context_size": 0}
 
-    context = build_context(store, retrieval.get("hits") or [])
+    context = build_context(store, retrieval.get("hits") or [], query=query)
     if not context:
         return {"schema": SCHEMA, "query": query, "answer": None, "citations": [],
                 "invalid_citations": [], "passed": False, "reason": "EMPTY_CONTEXT",

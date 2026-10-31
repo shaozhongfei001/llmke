@@ -169,3 +169,25 @@ def test_single_row_citation_passes_but_stitched_one_fails():
     stitched = verify_citations([{"file_id": "329", "quote": "授信额度(万元) | 5000"}], ctx)
     assert not stitched["valid"]
     assert stitched["invalid"][0]["reason"] == "QUOTE_NOT_FOUND"
+
+
+def test_context_dedupes_and_keeps_original_order():
+    """重复材料会把 7B 绕晕（实测答"材料不足"）→ 必须去重；
+    但**不能**按字面重合度排序：表头行天然含问题词，排序会把有表头无数据的行顶到最前。"""
+    hits = [{"text": "指标 | 数据源 | 口径\n日均存款 | T-CORE-001 | 按业务日跨账户汇总/天数\n"
+                     "用电量 | T-EXT-001 | 月度同比",
+             "sources": [{"file_id": "333"}]},
+            {"text": "指标 | 数据源 | 口径\n日均存款 | T-CORE-001 | 按业务日跨账户汇总/天数",
+             "sources": [{"file_id": "333"}]}]
+    ctx = build_context(make_store(), hits, query="日均存款的口径是什么", max_items=3)
+    texts = [c["text"] for c in ctx]
+    assert len(texts) == len(set(texts))                 # 无重复
+    assert texts[0].startswith("指标 | 数据源 | 口径")      # 保序：表头仍在最前
+    assert len(texts) <= 3
+
+
+def test_context_respects_max_items():
+    rows = "\n".join(f"行{i} | 值{i}" for i in range(20))
+    ctx = build_context(make_store(), [{"text": rows, "sources": [{"file_id": "329"}]}],
+                        query="行5", max_items=5)
+    assert len(ctx) == 5
