@@ -448,3 +448,37 @@ v2cand_kb_10   -> docs=1 score=0.936  src=…/M1.docx                        tex
 1. 新上传文件的正文确实落到两个存储，且能被检索回指（Q1 样本可固定）；
 2. **仅 Milvus** 也能返回正确首条 → "ES 非必选 profile"在检索层面成立（不等于生产已验证）；
 3. 坏样本 `random-bytes.pdf` / `plain-text-pretend.pdf` 没有内容入库，不存在"坏文件也被算成功"。
+
+## 18. D-05（新发现，未修复）：删除文件后索引未清理，检索仍返回已删文件
+
+操作：`DELETE /index/api/knowledgeBase/file/delete?id=999014` → 返回 `{"success":true,"data":true}`。
+等待 70 秒后核对：
+
+```
+knowledge_base_list 中 id=999014 已查不到（DB 行已删）
+ES   kb_10 该 file_id 仍有 1 条
+Milvus _kb_10 该 file_id 仍有 1 行
+检索 /retrieval_documents（policy=2）仍把
+  r12-rag/kb_10/v2-auto-sample.txt/V0/v2-auto-sample.txt 作为结果返回（docs=2）
+```
+
+即：**用户删了文件，检索还能答出它的内容**。这违反"删除/撤权先阻断旧读"，属功能与合规问题，
+不是缓存延迟（等待 70s 后仍存在）。
+
+已定位的事实（不猜根因）：
+- 删除代码路径存在：`KnowledgeBaseListAppServiceImpl.deleteById` → `deleteRemoveFile` →
+  `chunnkDomainService.delFiles(primitiveName, filePaths)`，对
+  `<kb>` / `table_summary_<kb>` / `table_chunks_<kb>` 三个索引各调一次
+  （`KnowledgeBaseListAppServiceImpl.java:196-223`）；
+- `delFiles` 把 filePath 做 base64 后作为 `col_name=document_id` 的取值
+  （`ChunnkDomainServiceImpl.java:204-223`）；
+- ES 里该文档的 `metadata.document_id` 确实等于 `base64(source)`（已取样核对），
+  字段口径**是对的**；
+- 但全文检索服务日志里，最近一次"删除"记录是 11:13:15 的**解析前清旧数据**（"Deleted 0"），
+  我们 11:5x 的删除操作**没有任何到达索引服务的记录**，也没有异常日志。
+
+因此缺口更可能在"Java 删除分支没有真正走到 delFiles"（被吞/提前 return），
+下一步用最小复现定位：直接调全文/向量索引服务的删除端点，确认底层可删；再在 Java 侧打断点/加日志
+确认 `filePaths` 与 `primitiveName` 的实际取值。**本轮未改代码**，避免在没有根因时盲改删除逻辑。
+
+另：该文件在 DB 已删、索引仍留，本身就是"孤儿数据"；这条也说明需要一次索引/台账一致性巡检。
