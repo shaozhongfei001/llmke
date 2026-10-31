@@ -40,11 +40,13 @@ class RebuildScheduler:
         self._state = {"cycles": 0, "debounce_waits": 0, "idle": 0,
                        "backoff_waits": 0, "slept_s": 0.0, "stopped": False,
                        "not_leader": 0, "lost_lease": 0}
+        # 当前持有的 fencing 值：build 回调把它写进快照，旧主的晚到写入才会被拒
+        self.lease_fencing: Optional[int] = None
         self._lock = threading.Lock()
 
     def stats(self) -> Dict[str, Any]:
         with self._lock:
-            return {**self._state, **self.coordinator.stats()}
+            return {**self._state, "fencing": self.lease_fencing, **self.coordinator.stats()}
 
     def _sleep_bounded(self, seconds: float) -> None:
         seconds = max(0.0, min(seconds, self.max_sleep))
@@ -85,6 +87,7 @@ class RebuildScheduler:
                 self._sleep_bounded(self.idle_poll)
                 return {"schema": SCHEMA, "action": "NOT_LEADER",
                         "holder": acquired.get("holder"), "pending": pending}
+            self.lease_fencing = acquired.get("fencing", self.lease_fencing)
             if not self.lease.renew():
                 with self._lock:
                     self._state["lost_lease"] += 1

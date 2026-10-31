@@ -151,3 +151,33 @@ def test_rebuild_if_stale_skips_when_snapshot_covers_docs(tmp_path):
 
     third = rebuild_if_stale(root, fence, base + docs("340"), build)
     assert third["status"] == "BUILT" and calls == [2, 3]
+
+
+def test_stale_fencing_write_is_rejected_and_pointer_untouched(tmp_path):
+    """旧主晚到：fencing 落后于当前指针，写入必须被拒（只靠 TTL 挡不住）。"""
+    from graph_engine_adapter.rebuild import StaleFencingError
+
+    root = str(tmp_path / "idx")
+    fence = FenceState()
+    base = docs("333")
+
+    rebuild(root, fence, base, lambda i, t: {"ok": 1}, fencing=2)
+    pointer_before = read_pointer(root)
+    assert pointer_before["fencing"] == 2
+
+    with pytest.raises(StaleFencingError):
+        rebuild(root, fence, base, lambda i, t: {"ok": 1}, fencing=1)
+
+    assert read_pointer(root) == pointer_before          # 指针没被旧主覆盖
+
+
+def test_fencing_is_monotonic_and_recorded(tmp_path):
+    root = str(tmp_path / "idx")
+    fence = FenceState()
+    base = docs("333")
+    rebuild(root, fence, base, lambda i, t: {"ok": 1}, fencing=5)
+    assert read_pointer(root)["fencing"] == 5
+    rebuild(root, fence, base, lambda i, t: {"ok": 1}, fencing=6)
+    assert read_pointer(root)["fencing"] == 6
+    rebuild(root, fence, base, lambda i, t: {"ok": 1}, fencing=6)   # 相同值允许（同一主的重试）
+    assert read_pointer(root)["fencing"] == 6

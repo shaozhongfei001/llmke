@@ -78,6 +78,30 @@ class FileLease:
     def _lock_dir(self) -> str:
         return f"{self.path}.d"
 
+    @property
+    def _counter_path(self) -> str:
+        # 计数器必须独立于锁目录：锁目录被删（正常释放/接管）时计数不能跟着清零，
+        # 否则 fencing 会回退，旧主就能"合法"覆盖新快照。
+        return f"{self.path}.fencing"
+
+    def _next_fencing(self) -> int:
+        last = 0
+        try:
+            with open(self._counter_path, encoding="utf-8") as fh:
+                last = int(fh.read().strip() or 0)
+        except (FileNotFoundError, ValueError):
+            last = 0
+        payload = self._read() or {}
+        last = max(last, int(payload.get("fencing", 0) or 0))
+        nxt = last + 1
+        tmp = f"{self._counter_path}.{os.getpid()}.tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(str(nxt))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, self._counter_path)
+        return nxt
+
     def _read(self) -> Optional[Dict[str, Any]]:
         try:
             with open(os.path.join(self._lock_dir, "meta.json"), encoding="utf-8") as fh:
@@ -129,15 +153,20 @@ class FileLease:
                 if self._expired(payload):       # 过期：清掉再抢，抢不到就老实让位
                     shutil.rmtree(self._lock_dir, ignore_errors=True)
                     continue
-                # 自己已经持有：直接续约
+                # 自己已经持有：直接续约（fencing 不变）
+                current = int((payload or {}).get("fencing", 0) or 0)
                 self._write({"schema": SCHEMA, "owner": self.owner,
-                             "expires_at": self._clock() + self.ttl, "taken_at": self._clock()})
-                return {"schema": SCHEMA, "acquired": True, "owner": self.owner, "ttl": self.ttl}
+                             "expires_at": self._clock() + self.ttl, "taken_at": self._clock(),
+                             "fencing": current})
+                return {"schema": SCHEMA, "acquired": True, "owner": self.owner, "ttl": self.ttl,
+                        "fencing": current}
             else:
                 now = self._clock()
+                fencing = self._next_fencing()       # 每次真正抢到都拿一个更大的 fencing
                 self._write({"schema": SCHEMA, "owner": self.owner,
-                             "expires_at": now + self.ttl, "taken_at": now})
-                return {"schema": SCHEMA, "acquired": True, "owner": self.owner, "ttl": self.ttl}
+                             "expires_at": now + self.ttl, "taken_at": now, "fencing": fencing})
+                return {"schema": SCHEMA, "acquired": True, "owner": self.owner, "ttl": self.ttl,
+                        "fencing": fencing}
         payload = self._read()
         return {"schema": SCHEMA, "acquired": False, "holder": (payload or {}).get("owner"),
                 "expires_in_s": round(float((payload or {}).get("expires_at", 0)) - self._clock(), 1)}

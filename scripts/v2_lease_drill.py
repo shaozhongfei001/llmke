@@ -68,11 +68,11 @@ def main(argv=None):
         # 实测就是漏在外面，长构建超过 TTL 后租约过期，另一个实例合法接管，出现两次构建。
         with lease_guard(sched_lease, interval=3.0):
             time.sleep(args.build_sleep)             # 人为拉长窗口，让两个实例真的重叠
-            result = rebuild_if_stale(args.root, fence, docs,
-                                      lambda items, target: HippoRAGEngine(
-                                          save_dir=target, llm_base_url=args.llm,
-                                          embedding_base_url=args.embed).build(
-                                              [d["text"] for d in items]))
+            result = rebuild_if_stale(
+                args.root, fence, docs, fencing=sched.lease_fencing,
+                build_fn=lambda items, target: HippoRAGEngine(
+                    save_dir=target, llm_base_url=args.llm,
+                    embedding_base_url=args.embed).build([d["text"] for d in items]))
         if result["status"] == "SKIPPED_FRESH":
             skipped.append(1)
             return {"skipped": True}
@@ -104,7 +104,24 @@ def main(argv=None):
     except Exception:  # noqa: BLE001
         pass
 
+    # fencing 校验：用一个落后于当前指针的值模拟"被接管的旧主晚到"，必须被拒
+    stale_blocked = None
+    try:
+        from graph_engine_adapter.rebuild import StaleFencingError
+        from graph_engine_adapter.rebuild import rebuild as _rebuild
+        from graph_engine_adapter.rebuild import read_pointer
+        cur = int((read_pointer(args.root) or {}).get("fencing", 0) or 0)
+        # 只有指针里已有 fencing 时才谈"落后"：用 cur-1 模拟旧主晚到
+        if cur >= 1:
+            _rebuild(args.root, fence, docs, lambda i, t: {"ok": 1}, fencing=cur - 1)
+            stale_blocked = False
+        else:
+            stale_blocked = None
+    except Exception as exc:  # noqa: BLE001
+        stale_blocked = type(exc).__name__ == "StaleFencingError"
+
     report = {"owner": args.owner, "builds": len(builds), "skipped_fresh": len(skipped),
+              "fencing": sched.lease_fencing, "stale_write_blocked": stale_blocked,
               "documents": builds,
               "stats": sched.stats(), "stopped": not thread.is_alive()}
     if args.out:

@@ -26,6 +26,14 @@ class RebuildFailed(RuntimeError):
     pass
 
 
+class StaleFencingError(RuntimeError):
+    """fencing 值落后于当前指针：说明这是被接管的旧主，写入必须拒绝。
+
+    只靠租约 TTL 不够：旧主从"实际失去租约"到"发现自己失去"之间存在窗口，
+    这期间它可能已经写完指针。fencing 让旧主的写入在**落盘那一刻**被拒。
+    """
+
+
 def pointer_path(root: str) -> str:
     return os.path.join(root, "current.json")
 
@@ -93,7 +101,7 @@ def _write_pointer(root: str, payload: Dict[str, Any]) -> str:
 
 def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
             build_fn: Callable[[List[Dict[str, Any]], str], Any], *,
-            keep_last: int = 2) -> Dict[str, Any]:
+            keep_last: int = 2, fencing: Optional[int] = None) -> Dict[str, Any]:
     """执行一次隔离重建。失败时**不改指针**，旧索引继续由 fence 挡着。
 
     `docs` 里凡是来源已撤权的条目会在这里被剔除——重建不能依赖调用方自觉。
@@ -117,7 +125,16 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
         shutil.rmtree(target, ignore_errors=True)
         raise RebuildFailed(f"重建失败，指针未切换：{type(exc).__name__}: {exc}") from exc
 
+    # fencing 校验必须在写指针之前：旧主的写入要在这里被挡住
+    current_pointer = read_pointer(root)
+    current_fencing = int((current_pointer or {}).get("fencing", 0) or 0)
+    if fencing is not None and current_fencing > fencing:
+        shutil.rmtree(target, ignore_errors=True)
+        raise StaleFencingError(
+            f"fencing {fencing} 落后于当前指针 {current_fencing}：本实例已被接管，拒绝写入")
+
     payload = {"schema": SCHEMA, "dir": target, "generation": fence.generation,
+               "fencing": fencing if fencing is not None else current_fencing,
                "documents": len(live), "dropped_revoked": dropped,
                "fingerprint": docs_fingerprint(live),
                "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
@@ -137,7 +154,8 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
 
 
 def rebuild_if_stale(root: str, fence: FenceState, docs: List[Dict[str, Any]],
-                     build_fn: Callable[[List[Dict[str, Any]], str], Any]) -> Dict[str, Any]:
+                     build_fn: Callable[[List[Dict[str, Any]], str], Any],
+                     *, fencing: Optional[int] = None) -> Dict[str, Any]:
     """快照已经覆盖当前存活文档就跳过重建。
 
     多实例场景下这一条很关键：租约让多个实例**串行**，但如果第二个实例进来时
@@ -148,7 +166,7 @@ def rebuild_if_stale(root: str, fence: FenceState, docs: List[Dict[str, Any]],
     if not fresh["stale"]:
         return {"schema": SCHEMA, "status": "SKIPPED_FRESH", "pointer": pointer,
                 "documents": pointer.get("documents")}
-    return rebuild(root, fence, docs, build_fn)
+    return rebuild(root, fence, docs, build_fn, fencing=fencing)
 
 
 def _safe(value: Any) -> Any:

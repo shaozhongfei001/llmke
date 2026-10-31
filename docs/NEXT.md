@@ -138,7 +138,15 @@
        长构建必须 lease_guard 续租（首版只包住 sleep，漏掉构建本体仍双主）。
        实测 B 先启动：builds=1；A 后启动：not_leader=200、拿到租约后因指纹已新 skipped_fresh=1、
        builds=0 → 合计 1 次构建。Q 现 35 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
-       边界：文件租约（单机/共享盘），无 fencing token，跨机非共享盘不成立；重建本身幂等兜底
+       边界：文件租约（单机/共享盘），跨机非共享盘不成立；重建本身幂等兜底
+    1r) fencing token（lease 单调计数 + rebuild 写入前校验，测试 6+10 项 + 双进程演练）：
+       计数器独立于锁目录（放在锁目录里会随释放清零→fencing 回退）；每次真正抢到才 +1，
+       续租不变；写入前校验落后即删半成品并抛 StaleFencingError。
+       实测：fencing 1→2→3 不回退；旧主 fencing=1 写、指针=2 被拒且指针未变；
+       双实例：B builds=1(fencing=1)、A builds=0/skipped_fresh=1(fencing=2)，两者旧主写入均被拒。
+       Q 保持 35 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
+       未做：计数器文件写入无锁（双主时会跳号）、读路径不校验 fencing、外部存储实现、
+       真实网络分区下的抢占时序（演练是模拟）
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

@@ -465,11 +465,16 @@ def check_multi_instance_lease():
     a = json.loads(open(a_out, encoding="utf-8").read())
     b = json.loads(open(b_out, encoding="utf-8").read())
     total = a["builds"] + b["builds"]
-    ok = total == 1 and a["builds"] + b["builds"] == 1 and (a["builds"], b["builds"]) in ((1, 0), (0, 1))
+    stale_blocked = [a.get("stale_write_blocked"), b.get("stale_write_blocked")]
+    ok = (total == 1 and (a["builds"], b["builds"]) in ((1, 0), (0, 1))
+          and any(v is True for v in stale_blocked))     # 旧主晚到的写入必须被拒
     record("graph:多实例租约", "PASS" if ok else "FAIL",
            {"builds": {"A": a["builds"], "B": b["builds"]},
             "not_leader": {"A": a["stats"]["not_leader"], "B": b["stats"]["not_leader"]},
-            "skipped_fresh": {"A": a.get("skipped_fresh"), "B": b.get("skipped_fresh")}},
+            "skipped_fresh": {"A": a.get("skipped_fresh"), "B": b.get("skipped_fresh")},
+            "fencing": {"A": a.get("fencing"), "B": b.get("fencing")},
+            "stale_write_blocked": {"A": a.get("stale_write_blocked"),
+                                    "B": b.get("stale_write_blocked")}},
            "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）")
 
 
