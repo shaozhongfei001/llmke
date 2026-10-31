@@ -1,13 +1,17 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 46,
+  "PASS": 48,
   "FAIL": 0,
   "SKIP": 0,
-  "NOT_IMPLEMENTED": 0
+  "NOT_IMPLEMENTED": 1
  },
  "verdict": "PASS",
  "note": "NOT_IMPLEMENTED 表示能力未建，不计入 PASS，也不等于通过",
+ "payload_bootstrap": {
+  "generated": [],
+  "note": "已存在"
+ },
  "results": [
   {
    "item": "infra:es_19200",
@@ -129,9 +133,9 @@
    "status": "PASS",
    "evidence": {
     "counts": {
+     "NOT_IMPLEMENTED": 6,
      "NOT_VERIFIED": 1,
-     "VERIFIED": 10,
-     "NOT_IMPLEMENTED": 6
+     "VERIFIED": 10
     },
     "graph_route": "NOT_VERIFIED"
    },
@@ -281,7 +285,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 415,
+     "blocked": 331,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +301,10 @@
      "340"
     ],
     "readers_blocked": [
-     1997,
-     1994,
-     1998,
-     1995
+     854,
+     853,
+     852,
+     852
     ],
     "readers_allowed": [
      0,
@@ -390,14 +394,14 @@
      "B": 1
     },
     "fencing": {
-     "A": 2,
+     "A": null,
      "B": 1
     },
     "not_leader": {
-     "A": 158,
+     "A": 181,
      "B": 0
     },
-    "lease_key": "q-lease-1793468238"
+    "lease_key": "q-lease-1793470219"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -429,7 +433,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 35.9,
+    "elapsed_s": 35.7,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -449,7 +453,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:44059/hook",
+     "url": "http://127.0.0.1:33733/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -462,9 +466,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 38.4,
-    "delta_s": 3.7,
-    "speedup_x": 10.4,
+    "full_s": 32.5,
+    "delta_s": 8.1,
+    "speedup_x": 4.0,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -513,10 +517,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 01:43:09.156 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 01:43:10.145 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 01:43:10.145 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 01:43:10.150 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 02:16:11.639 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 02:16:12.628 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 02:16:12.628 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 02:16:12.633 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -555,6 +559,46 @@
    "boundary": "只验快照/比对闭环；真实降级（26 包）在 EVIDENCE-DEPLOY-CLOSEOUT 里"
   },
   {
+   "item": "deploy:验收载荷自举",
+   "status": "PASS",
+   "evidence": {
+    "detail": {
+     "333": {
+      "chunks": 3,
+      "meta_fields": 34,
+      "channels": {
+       "kb_9": 2,
+       "table_chunks_kb_9": 1
+      }
+     },
+     "329": {
+      "chunks": 2,
+      "meta_fields": 34,
+      "channels": {
+       "kb_9": 1,
+       "table_chunks_kb_9": 1
+      }
+     }
+    },
+    "problems": []
+   },
+   "boundary": "生成的是投影形状样本，不解析真实文档"
+  },
+  {
+   "item": "deploy:docx→pdf 转换能力",
+   "status": "NOT_IMPLEMENTED",
+   "evidence": {
+    "soffice": "/usr/bin/soffice",
+    "writer_libs": [],
+    "stderr_tail": [
+     "Warning: failed to launch javaldx - java may not function correctly",
+     "Error: source file could not be loaded"
+    ],
+    "fix": "安装 libreoffice-writer（或最小 Writer 过滤器包），无需重装整个套件"
+   },
+   "boundary": "只装了 LibreOffice core/calc，缺 Writer 过滤器（libswlo.so）；Office 文件走 MinerU 的路径仍然不通"
+  },
+  {
    "item": "deploy:systemd 单元渲染与校验",
    "status": "PASS",
    "evidence": {
@@ -578,7 +622,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:3179938",
+     "owner": "x2:3381688",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -586,6 +630,19 @@
     "problems": []
    },
    "boundary": "只验端点与停机；未验 systemd 托管、未验重建实际发生"
+  },
+  {
+   "item": "deploy:指标端点鉴权",
+   "status": "PASS",
+   "evidence": {
+    "health": {
+     "status": "ok",
+     "owner": "x2:3381727",
+     "fencing": null
+    },
+    "problems": []
+   },
+   "boundary": "只验 Bearer token 路径；IP 白名单与 loopback 策略由单元测试覆盖"
   },
   {
    "item": "biz:global 报告/引用失效识别",
@@ -608,7 +665,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款，数据源T-CORE-001，口径为按业务日跨账户汇总/天数；用电量，数据源T-EXT-00",
+    "answer": "日均存款：按业务日跨账户汇总/天数；用电量：月度同比。",
     "citations": 2,
     "model": "deepseek-flash"
    },

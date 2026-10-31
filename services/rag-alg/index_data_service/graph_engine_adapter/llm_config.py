@@ -47,8 +47,13 @@ def resolve(env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     base = (env.get("LLMKE_ANSWER_API_BASE") or DEFAULT_BASE).strip()
     model = (env.get("LLMKE_ANSWER_MODEL") or DEFAULT_MODEL).strip()
     key_env = (env.get("LLMKE_ANSWER_KEY_ENV") or DEFAULT_KEY_ENV).strip()
+    # 密钥来源链：环境变量优先，`LLMKE_ANSWER_KEY_FILE` 指向的文件兜底。
+    # 只加文件兜底、不改优先级——原来靠 env 的部署行为完全不变。
+    key_file = (env.get("LLMKE_ANSWER_KEY_FILE") or "").strip() or None
+    from .secret_source import SecretSource
+    key = SecretSource.from_env(key_env, key_file, environ=env).get()
     return {"schema": SCHEMA, "provider": provider, "base": base, "model": model,
-            "key_env": key_env, "key": env.get(key_env),
+            "key_env": key_env, "key_file": key_file, "key": key,
             "timeout": int(env.get("LLMKE_ANSWER_TIMEOUT", "120")),
             "max_tokens": int(env.get("LLMKE_ANSWER_MAX_TOKENS", "1024"))}
 

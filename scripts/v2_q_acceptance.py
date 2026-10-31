@@ -941,6 +941,142 @@ def check_graph_worker_service():
            "只验端点与停机；未验 systemd 托管、未验重建实际发生")
 
 
+def ensure_payloads():
+    """缺验收载荷就先自己造：否则 6 项图检查会整片 SKIP，验收范围悄悄缩水。"""
+    import subprocess
+
+    needed = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    missing = [p for p in needed if not os.path.isfile(p)]
+    if not missing:
+        return {"generated": [], "note": "已存在"}
+    proc = subprocess.run([sys.executable, str(REPO / "scripts/v2_make_payloads.py"),
+                           "--out-dir", "/tmp"], capture_output=True, text=True, timeout=120)
+    return {"generated": missing, "rc": proc.returncode,
+            "tail": (proc.stdout or proc.stderr or "").strip()[-160:]}
+
+
+def check_payload_bootstrap():
+    """载荷自举：能在空目录里造出与生产同形状的投影载荷（34 字段、双通道）。"""
+    import subprocess
+
+    tmp = tempfile.mkdtemp(prefix="q-payload-")
+    proc = subprocess.run([sys.executable, str(REPO / "scripts/v2_make_payloads.py"),
+                           "--out-dir", tmp], capture_output=True, text=True, timeout=120)
+    problems = []
+    if proc.returncode != 0:
+        problems.append(f"生成失败: {(proc.stderr or '')[-160:]}")
+    detail = {}
+    for file_id, expect in (("333", 3), ("329", 2)):
+        path = os.path.join(tmp, f"ingest-{file_id}.json")
+        if not os.path.isfile(path):
+            problems.append(f"缺 {file_id}")
+            continue
+        doc = json.loads(open(path, encoding="utf-8").read())
+        meta = doc["chunks"][0]["metadata"]
+        detail[file_id] = {"chunks": len(doc["chunks"]), "meta_fields": len(meta),
+                           "channels": doc.get("channels")}
+        if len(doc["chunks"]) != expect:
+            problems.append(f"{file_id} 块数 {len(doc['chunks'])} != {expect}")
+        if len(meta) != 34:
+            problems.append(f"{file_id} metadata 字段 {len(meta)} != 34")
+        for key in ("file_id", "source", "channel", "parse_artifact_id", "content_uid"):
+            if key not in meta:
+                problems.append(f"{file_id} 缺关键字段 {key}")
+    record("deploy:验收载荷自举", "PASS" if not problems else "FAIL",
+           {"detail": detail, "problems": problems},
+           "生成的是投影形状样本，不解析真实文档")
+
+
+def check_office_conversion():
+    """doc/docx → PDF 能力：能转就 PASS；缺 Writer 过滤器记为 NOT_IMPLEMENTED（能力未具备）。"""
+    import importlib.util
+
+    script = REPO / "scripts/v2_convert_probe.py"
+    if not script.is_file():
+        record("deploy:docx→pdf 转换能力", "SKIP", {"why": "探测脚本缺失"})
+        return
+    spec = importlib.util.spec_from_file_location("v2_convert_probe", script)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    out = mod.probe()
+    status = out["status"]
+    if status == "OK":
+        record("deploy:docx→pdf 转换能力", "PASS",
+               {"pdf_bytes": out["pdf_bytes"], "soffice": out["soffice"],
+                "writer_libs": out["writer_libs"]})
+    elif status == "NO_WRITER_FILTER":
+        # 能力确实不具备：记 NOT_IMPLEMENTED（不计入 PASS），并给出可执行修法
+        record("deploy:docx→pdf 转换能力", "NOT_IMPLEMENTED",
+               {"soffice": out["soffice"], "writer_libs": out["writer_libs"],
+                "stderr_tail": out.get("stderr_tail"), "fix": out.get("fix")},
+               "只装了 LibreOffice core/calc，缺 Writer 过滤器（libswlo.so）；"
+               "Office 文件走 MinerU 的路径仍然不通")
+    else:
+        record("deploy:docx→pdf 转换能力", "FAIL", out)
+
+
+def check_metrics_auth_endpoint():
+    """指标端点鉴权：无 token 401、错 token 401、对 token 200；/healthz 不鉴权。"""
+    import subprocess
+    import urllib.error
+    import urllib.request
+
+    payload = "/tmp/ingest-333.json"
+    if not os.path.isfile(payload):
+        record("deploy:指标端点鉴权", "SKIP", {"why": "缺少 /tmp/ingest-333.json"})
+        return
+    # token 必须是 ASCII：HTTP header 只能承载 latin-1，中文 token 会在客户端编码阶段就炸
+    port, token = 18872, "q-token-abc123"
+    root = tempfile.mkdtemp(prefix="q-auth-")
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    proc = subprocess.Popen([sys.executable, str(REPO / "scripts/v2_graph_worker.py"),
+                             "--root", root, "--payloads", payload,
+                             "--lease", os.path.join(root, "lease"),
+                             "--metrics-port", str(port), "--metrics-token", token],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
+
+    def code(headers=None):
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/metrics",
+                                     headers=headers or {})
+        try:
+            with urllib.request.urlopen(req, timeout=3) as r:
+                return r.status
+        except urllib.error.HTTPError as exc:
+            return exc.code
+        except Exception:  # noqa: BLE001
+            return None
+
+    problems, health = [], None
+    try:
+        deadline = time.time() + 30
+        while time.time() < deadline:
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/healthz", timeout=2) as r:
+                    health = json.loads(r.read())
+                break
+            except Exception:  # noqa: BLE001
+                time.sleep(0.5)
+        if not health:
+            problems.append("worker 未起来")
+        else:
+            if code() != 401:
+                problems.append(f"无 token 应为 401，实际 {code()}")
+            if code({"Authorization": "Bearer wrong"}) != 401:
+                problems.append("错 token 未被拒")
+            if code({"Authorization": f"Bearer {token}"}) != 200:
+                problems.append("正确 token 未放行")
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+
+    record("deploy:指标端点鉴权", "PASS" if not problems else "FAIL",
+           {"health": health, "problems": problems},
+           "只验 Bearer token 路径；IP 白名单与 loopback 策略由单元测试覆盖")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -1149,6 +1285,9 @@ def main(argv=None):
     ap.add_argument("--out", default=None)
     args = ap.parse_args(argv)
 
+    # 先保证验收载荷存在：缺了会让 6 项图检查 SKIP（"跳过"等于验收范围缩水）
+    payload_state = ensure_payloads()
+
     check_infra()
     check_legacy_channels()
     check_mapping()
@@ -1173,8 +1312,11 @@ def main(argv=None):
     check_use_mineru_switch()
     check_image_load_smoke()
     check_delta_upgrade_roundtrip()
+    check_payload_bootstrap()
+    check_office_conversion()
     check_systemd_units()
     check_graph_worker_service()
+    check_metrics_auth_endpoint()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
@@ -1187,6 +1329,7 @@ def main(argv=None):
               "summary": summary,
               "verdict": "PASS" if not fails else "FAIL",
               "note": "NOT_IMPLEMENTED 表示能力未建，不计入 PASS，也不等于通过",
+              "payload_bootstrap": payload_state,
               "results": RESULTS}
     if args.out:
         Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n",

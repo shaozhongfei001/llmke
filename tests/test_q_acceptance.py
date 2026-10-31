@@ -33,10 +33,14 @@ def test_q_acceptance_has_no_fail_and_keeps_unimplemented_visible(tmp_path):
     report = json.loads(out.read_text(encoding="utf-8"))
     assert report["summary"]["FAIL"] == 0
     assert report["verdict"] == "PASS"
-    # 仍未实现的能力必须留在报告里，不能被清空冒充"全部通过"
-    # 语义层 8 条已转成 PASS，剩下 global 消费与端到端两项必须一直是 NOT_IMPLEMENTED
-    # 任务书业务场景已全部转成真实检查；引擎侧缺口由 describe() 承担，不能两处都"清空"
-    assert report["summary"]["NOT_IMPLEMENTED"] == 0
+    # 仍未实现的能力必须留在报告里，不能被悄悄清空冒充"全部通过"。
+    # 注意：NOT_IMPLEMENTED 现在只用于**客观缺失的环境能力**（如缺 LibreOffice Writer），
+    # 所以数量可以 >0，但每一条都必须给出证据与原因，不能是空壳。
+    unimplemented = [r for r in report["results"] if r["status"] == "NOT_IMPLEMENTED"]
+    for item in unimplemented:
+        assert item.get("evidence"), f"{item['item']} 标了未实现却没给证据"
+        assert item.get("boundary") or item["evidence"].get("fix") or \
+            item["evidence"].get("why"), f"{item['item']} 未说明未实现原因/修法"
     describe_item = next(r for r in report["results"] if r["item"] == "graph:describe")
     assert describe_item["evidence"]["counts"]["NOT_IMPLEMENTED"] >= 1
     # 语义层 PASS 必须带 boundary，否则会被误读成端到端已通过

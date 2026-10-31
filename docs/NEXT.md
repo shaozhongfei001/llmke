@@ -233,6 +233,18 @@
        单元 verify PASS（注意 analyze 会扫全机 unit，只认本单元相关行；"Executable not found" 只警告不返非零）。
        自己踩坑：首版启动即 request("worker-ready") → 每次重启都触发全量重抽，已删。
        未做：真实 systemd enable/start、依赖恢复后自动拉起、payload 同步、/metrics 鉴权、parse 单元统一
+    3a) 阶段A（本轮，Q 48 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED）：
+       · Q 自举：scripts/v2_make_payloads.py（34 字段/双通道/幂等）+ main 里 ensure_payloads()，
+         缺 /tmp/ingest-*.json 时自造，避免 6 项图检查整片 SKIP；坑：生产 metadata.channel 是
+         索引名（kb_9/table_chunks_kb_9），不是 text/table，我第一版断言写错；
+       · /metrics 鉴权（角色交付 + TL 接线）：MetricGuard（compare_digest 前先 sha256、IP 白名单、
+         永不抛），worker 增 --metrics-token/--metrics-allow-ip；实测 401/401/200，healthz 不鉴权；
+         约束：token 必须 ASCII（HTTP header 只能 latin-1，中文 token 在客户端就炸）；
+       · 限流与密钥来源（角色交付）：TokenBucket / SecretSource（describe 只给指纹）；
+         llm_config 增加 LLMKE_ANSWER_KEY_FILE 兜底，env 优先级不变；
+       · docx→pdf 归因：soffice 7.3.7 在但缺 libswlo.so → NO_WRITER_FILTER（Q 记 NOT_IMPLEMENTED+fix）；
+         tests/test_q_acceptance 改为"NOT_IMPLEMENTED 必须带证据"，不再要求等于 0。
+       未做：TokenBucket 未接入 LLM 调用；反代下 X-Forwarded-For 未处理；Office 转换未打通
     2e) 部署剩余：灰度发布、真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）

@@ -58,11 +58,25 @@ def build_lease(args):
     return FileLease(args.lease, owner=args.owner, ttl=args.lease_ttl)
 
 
-def make_handler(sched, lease):
+def make_handler(sched, lease, guard=None):
     from graph_engine_adapter.metrics import render_with_lease
 
     class Handler(BaseHTTPRequestHandler):
+        def _deny(self, reason):
+            body = json.dumps({"status": "denied", "reason": reason}).encode()
+            self.send_response(401 if "TOKEN" in reason else 403)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
         def do_GET(self):  # noqa: N802
+            # /healthz 不鉴权（探活用），/metrics 可鉴权
+            if self.path.startswith("/metrics") and guard is not None:
+                allowed, reason = guard(dict(self.headers), self.client_address[0])
+                if not allowed:
+                    self._deny(reason)
+                    return
             if self.path in ("/healthz", "/health"):
                 body = json.dumps({"status": "ok", "owner": getattr(sched, "owner", None),
                                    "fencing": sched.lease_fencing}).encode()
@@ -99,6 +113,10 @@ def main(argv=None):
     ap.add_argument("--owner", default=f"{os.uname().nodename}:{os.getpid()}")
     ap.add_argument("--metrics-port", type=int, default=0, help="0 = 不监听（只写文件）")
     ap.add_argument("--metrics-out", default=None)
+    ap.add_argument("--metrics-token", default=None,
+                    help="/metrics 的 Bearer token（不配则不鉴权，仅建议内网）")
+    ap.add_argument("--metrics-allow-ip", action="append", default=[],
+                    help="/metrics 允许的客户端 IP，可重复；配了就先判 IP")
     ap.add_argument("--alert-webhook", default=None)
     ap.add_argument("--debounce", type=float, default=0.5)
     ap.add_argument("--idle-poll", type=float, default=1.0)
@@ -145,10 +163,15 @@ def main(argv=None):
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_a: stop.set())
 
+    guard = None
+    if args.metrics_token or args.metrics_allow_ip:
+        from graph_engine_adapter.metrics_auth import MetricGuard
+        guard = MetricGuard(token=args.metrics_token, allow_ips=args.metrics_allow_ip)
+
     server = None
     if args.metrics_port:
         server = ThreadingHTTPServer(("127.0.0.1", args.metrics_port),
-                                     make_handler(sched, lease))
+                                     make_handler(sched, lease, guard))
         threading.Thread(target=server.serve_forever, daemon=True).start()
 
     if args.enqueue_on_start:
@@ -158,7 +181,8 @@ def main(argv=None):
     print(json.dumps({"event": "start", "owner": args.owner,
                       "pid": os.getpid(), "docs": len(docs),
                       "metrics_port": args.metrics_port,
-                      "lease": args.lease_backend, "lease_key": args.lease_key},
+                      "lease": args.lease_backend, "lease_key": args.lease_key,
+                      "metrics_auth": bool(guard)},
                      ensure_ascii=False), flush=True)
 
     out = sched.run(stop)
