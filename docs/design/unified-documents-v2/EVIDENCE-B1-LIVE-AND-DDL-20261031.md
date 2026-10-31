@@ -249,11 +249,15 @@ channels {'text': 46, 'table': 17}   missing ['table_summary']
 未做（需择一，且有取舍）：① 投影产出表格摘要通道（要接 LLM，成本与一致性另算）；
 ② 让检索在 snapshot 模式改为 `table_chunks` 直检——改消费者，需契约确认。
 
-## 10. 顺带核对：任务状态与文件状态不一致（记录，未定性为缺陷）
+## 10. 【更正】任务状态 4 不是失败，是"处理成功"
 
-`file_parse_task` 里 file 51/52/53/54/55 的状态都是 4（失败），但 `knowledge_base_list`
-里对应文件是 3（成功），且确有索引内容（51: ES 1 + Milvus 1；52: ES table 1 + Milvus 总结集合 1 行）。
-同一事实在两处状态相反，会让"失败重试/验收"判据失真。未改，先记录，避免被当成"解析成功"的凭证。
+上一版把 `file_parse_task.status=4` 当成失败并与文件状态 3 对比，**判断错了**。
+`ParseTaskStatusEnums` 定义：`PENDING(1) / DEAL_ING(2) / RETRY_ING(3) / SUCESS(4, 处理成功) / DEAL_FAIL(5, 处理失败)`。
+所以 51/52/53/54/55（task 4 + file 3）与 999013（task 4 + file 3）都是**一致的正常终态**，
+并不存在"状态不一致"缺陷；§13 里"成功路径未回写任务状态"的说法同样作废。
+
+剩余的真实小瑕疵只有一条：成功路径没有清空 `error_msg`，历史 recover 文本会留在行上，
+排查时容易被误读（我自己就被误读了一次）。属可观测性问题，不是数据/功能缺陷。
 
 ## 11. D-03 补齐：投影产出 `table_summary` 通道（本轮）
 
@@ -328,15 +332,14 @@ channels {'text': 46, 'table': 17}   missing ['table_summary']
 11:02:30  parse 服务收到 POST /parse  <- 按真实 UI 任务形态补 user_id=1 后
 ES   kb_10 该文件 1 条，type=text，source=r12-rag/kb_10/v2-sysctx-sample.txt/V0/...
 Milvus _kb_10 该文件 1 行
-任务状态 4 / 文件状态 3
+任务状态 4（SUCESS）/ 文件状态 3
 ```
 
 即：**上传 → 调度 → 模型解析 → /parse → 切分 → ES+Milvus 写入**全链路通了（此前卡在模型解析，永不派发）。
 
 遗留两条真实问题（不掩盖）：
 
-1. `file_parse_task.status` 仍是 4（失败）且 `error_msg` 留着上一轮 recover 文本，而文件状态是 3、数据已入库
-   —— 成功路径没有回写任务状态，与 §10 记录的不一致是同一类缺陷；
+1. `error_msg` 在成功路径未清空，会残留上一轮 recover 文本（状态 4=SUCESS 本身是对的，见 §10 更正）；
 2. **user_id 必须来自 task_info**：缺失时回填 `create_by`（用户名）或 `0` 仍会 "用户不存在"。
    真实 UI 上传由 UserContext 写入 user_id 才有；纯 API/脚本入库的任务需要在入队时补数字 id，
    或由服务端按用户名反查 id —— 属待定契约，本轮未擅自改。
