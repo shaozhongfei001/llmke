@@ -204,7 +204,15 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
         Integer parseType = knowledgeBaseFile.getParseType();
         String fileType = knowledgeBaseFile.getFileName().substring(knowledgeBaseFile.getFileName().lastIndexOf(".") + 1);
         Integer status = knowledgeBaseFile.getStatus();
+        // V2/D-05：convertedFilePath 为空时（纯文本跳过转换、或未生成 PDF 的文件），
+        // 原实现直接跳过整个索引清理块、但仍 return true —— 表现为"删了文件、检索还答得出内容"。
+        // 这里回落到原始 filePath，保证清理分支一定拿到可用的对象键。
         String filePath = knowledgeBaseFile.getConvertedFilePath();
+        if (StringUtils.isBlank(filePath)) {
+            log.warn("[V2-DEL] convertedFilePath 为空，回落原始 filePath 执行索引清理 fileId={}",
+                    knowledgeBaseFile.getId());
+            filePath = knowledgeBaseFile.getFilePath();
+        }
 
         if (StringUtils.isNotBlank(filePath)) {
             if (FILE_TYPE_LIST.contains(fileType))

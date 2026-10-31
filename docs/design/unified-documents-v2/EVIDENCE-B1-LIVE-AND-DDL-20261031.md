@@ -482,3 +482,24 @@ Milvus _kb_10 该 file_id 仍有 1 行
 确认 `filePaths` 与 `primitiveName` 的实际取值。**本轮未改代码**，避免在没有根因时盲改删除逻辑。
 
 另：该文件在 DB 已删、索引仍留，本身就是"孤儿数据"；这条也说明需要一次索引/台账一致性巡检。
+
+## 19. D-05 已修复并验证（删除后索引不清）
+
+根因（代码定位，非猜测）：`KnowledgeBaseListAppServiceImpl.deleteRemoveFile()` 用
+`String filePath = knowledgeBaseFile.getConvertedFilePath()` 作为清理入口，
+**`convertedFilePath` 为空时整块索引清理被跳过，但方法仍 `return true`**。
+纯文本类文件在 D-01a 修复后不再生成 PDF，`convertedFilePath` 恒为空 → 删除必然漏清理；
+更早的文件若转换失败也可能为空，属同一类。
+
+修复：为空时回落到 `getFilePath()` 并打 `[V2-DEL]` 警告，保证清理分支拿到可用对象键。
+
+验证（file 999015，全新 txt，完整链路）：
+
+```
+上传（补 create_by=admin 模拟 UI）→ 解析成功 → ES kb_10=1、Milvus _kb_10=1
+DELETE /index/api/knowledgeBase/file/delete?id=999015 → success=true
+30s 后：ES=0、Milvus=0，日志出现 [V2-DEL] convertedFilePath 为空，回落原始 filePath 执行索引清理
+```
+
+另：修复前的孤儿数据（file 999014，DB 已删、索引仍在）已手工清理（ES delete_by_query + Milvus 按 pk 删除），
+复核 ES=0、Milvus=0；这类"台账与索引不一致"的巡检应固化成常规任务，不能靠人工想起来。
