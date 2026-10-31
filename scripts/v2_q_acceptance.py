@@ -261,6 +261,33 @@ def check_visibility_fence():
            "首版靠隔离快照全量重建")
 
 
+def check_isolated_rebuild():
+    """撤权 → 隔离重建 → 切读 的真实演练（需要 hipporag 环境与载荷）。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:隔离重建（撤权→重建→切读）", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    cmd = [py, str(REPO / "scripts/v2_rebuild_drill.py"), "--payloads", *payloads,
+           "--revoke", "329", "--root", "/tmp/q-rebuild", "--cjk-compat",
+           "--out", "/tmp/q-rebuild.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-rebuild.json"):
+        record("graph:隔离重建（撤权→重建→切读）", "FAIL",
+               {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    data = json.loads(open("/tmp/q-rebuild.json", encoding="utf-8").read())
+    record("graph:隔离重建（撤权→重建→切读）", "PASS" if data.get("passed") else "FAIL",
+           {"generation": data.get("fence_generation"), "chunks": data.get("snapshot_chunks"),
+            "revoked_text_leaked": data.get("new_snapshot_has_revoked_text"),
+            "stale_blocked": data.get("stale_index_blocked"),
+            "fresh_allowed": data.get("fresh_index_allowed")},
+           "真实引擎重建；引擎侧按文档删除图产物仍未实现，删文档走重建路径")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -438,6 +465,7 @@ def main(argv=None):
     check_mineru()
     check_business_semantics()
     check_visibility_fence()
+    check_isolated_rebuild()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

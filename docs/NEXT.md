@@ -100,8 +100,13 @@
        → 检索后 filter_hits（引擎返回旧内容也裁掉，全撤权则丢弃并记原因）。
        实测：撤权后 hit_count=0、代次落后抛 StaleIndexError、未配 fence 行为不变。
        社区报告用 fence.live 收窄 known_files，两侧都撤权时状态 BLOCKED。
-       Q 现 28 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。仍未做：引擎侧按文档删除图产物、
-       隔离快照重建编排、重建期间并发查询验证
+       Q 现 28 PASS / 0 FAIL / 0 NOT_IMPLEMENTED
+    1k) 隔离重建编排落地（rebuild.py，5 项测试 + v2_rebuild_drill.py 真跑）：
+       撤权→新目录建快照→写 .tmp+fsync+os.replace 原子切指针→代次=fence 代次；
+       失败删半成品、指针不动（宁可继续用被挡住的旧索引）。重建自己剔除撤权文件，
+       快照只留最近 2 个但不删当前指针指向的。真实演练（撤 329）：新快照仅 333 的 3 块、
+       无撤权正文，旧代次被拒、新代次放行。Q 现 29 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
+       仍未做：引擎侧按文档删除图产物（只能撤权+全量重建）、重建期间并发查询验证、告警/重试
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

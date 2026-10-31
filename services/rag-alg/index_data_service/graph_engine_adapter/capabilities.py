@@ -52,6 +52,12 @@ CAPABILITIES = {
                 "代次落后直接拒绝读。引擎侧增量删除/全量重建编排仍未实现",
         "evidence": "tests/test_graph_fence.py",
     },
+    "isolated_snapshot_rebuild": {
+        "status": "VERIFIED",
+        "note": "撤权后用存活文件在新目录重建快照，指针原子切换并带 fence 代次；"
+                "真实演练：撤 329 后新快照仅 333 的 3 块、无撤权正文，旧代次被拒、新代次可读",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-REBUILD-20261031.md",
+    },
     "delete_document": {
         "status": "NOT_IMPLEMENTED",
         "note": "fence 已能把撤权挡在读之前；但按文档删除图产物+隔离快照重建的编排未实现",
