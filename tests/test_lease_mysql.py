@@ -359,3 +359,33 @@ def test_real_mysql_lock_wait_returns_by_read_timeout_not_50s():
     assert out["acquired"] is True
     assert out["fencing"] >= 1
     taker.release()
+
+
+def test_two_lease_keys_are_independent():
+    """多租户：不同 lease_key 之间不能互相阻塞（按知识库分片选主的前提）。"""
+    store = {"rows": {}}
+
+    class MultiCursor(FakeCursor):
+        def execute(self, sql, params=None):
+            key = params[0] if params else None
+            if self.store["rows"].get(key) is None and not sql.strip().startswith("SELECT"):
+                self.store["rows"].setdefault(key, {})
+            self.store["row"] = self.store["rows"].setdefault(key, None)
+            # 让父类按"当前 key 的那一行"工作
+            view = {"row": self.store["row"]}
+            super().execute(sql, params)
+            self.store["rows"][key] = view["row"]
+
+    class MultiConn(FakeConn):
+        def cursor(self):
+            return MultiCursor(self.store)
+
+    def make(owner, key):
+        return MySqlLease(lambda: MultiConn(store), owner=owner, ttl=60,
+                          clock=Clock(), lease_key=key)
+
+    a, b = make("A", "kb-1"), make("B", "kb-2")
+    assert a.acquire()["acquired"] is True
+    assert b.acquire()["acquired"] is True     # 不同 key 不该被 A 挡住
+    assert a.acquire()["fencing"] == 1         # 自己续租不加 fencing
+    assert b.acquire()["fencing"] == 1

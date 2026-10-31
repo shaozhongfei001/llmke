@@ -245,6 +245,9 @@
        · docx→pdf 归因：soffice 7.3.7 在但缺 libswlo.so → NO_WRITER_FILTER（Q 记 NOT_IMPLEMENTED+fix）；
          tests/test_q_acceptance 改为"NOT_IMPLEMENTED 必须带证据"，不再要求等于 0。
        未做：TokenBucket 未接入 LLM 调用；反代下 X-Forwarded-For 未处理；Office 转换未打通
+    3b) 多租户 lease_key（本轮）：测试证明两个不同 key 互不阻塞（按知识库分片选主的前提），
+       同 key 自己续租不加 fencing。worker 已有 --lease-key，部署按 KB 传即可。
+       未做：key 的命名/配额校验（非法字符、超长、与 KB 生命周期的绑定）
     2e) 部署剩余：灰度发布、真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
