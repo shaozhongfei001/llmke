@@ -1,0 +1,15 @@
+{
+ "schema": "llmke.venv-snapshot.v1",
+ "name": "r12-parse-venv-py311",
+ "built_at": "2026-10-31T13:20:56+0800",
+ "source_venv": "/home/szf/data/dev/llmke-r12/platform/r12/venvs/parse",
+ "python": "3.11",
+ "file": "venv-r12-parse-py311.tar",
+ "bytes": 1463541760,
+ "sha256": "235ecd70eb0124611165e7ffdd3fa09bd5f0ba6a251c015ca51bdecc9f7ce1b7",
+ "restore": "tar -C /opt/r12/venvs -xf <file>；或解到同路径以保证 shebang 有效",
+ "caveats": [
+  "venv 内含绝对 shebang 与路径，换路径需重建入口脚本",
+  "仅作为“公开源无法重建”的兜底，不是首选交付形态"
+ ]
+}

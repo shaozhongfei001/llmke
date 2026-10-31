@@ -125,3 +125,27 @@ sdists 是 `alibabacloud-darabonba-*` 系列（上游只发 sdist）。离线安
 
 `parse`(151 包) 与 `models`(44 包，含 torch 714 MB / transformers 119 MB，**不含权重**) 的
 wheelhouse 正在拉取/待拉取；两者做法相同，`models` 需注意"包 ≠ 权重"。
+
+## 10. D-06（真实阻塞）：平台 venv 的部分锁定版本**公开源没有**
+
+对四份依赖锁逐包比对公开镜像（`pip index versions`，并发 12）：
+
+| venv | 包数 | 公开源缺失 | 缺失示例 |
+|---|---|---|---|
+| `graph` | 106 | **0** | —（可完全用公开 wheelhouse 重建） |
+| `alg` | 103 | **7** | httpcore2 2.16.0、httpx2 2.16.0、pyarrow 26.0.0、pydantic-settings 2.16.1… |
+| `parse` | 151 | **10** | soupsieve 3.0.4、pillow 13.0.0、scipy 1.17.1、SQLAlchemy 2.1.6… |
+| `models` | 43 | **6** | filelock 4.2.4、numpy 2.4.6、pillow 13.0.0… |
+
+这些版本在公开 PyPI/镜像上不存在（例如 `soupsieve` 公开最高 2.10，而环境里装的是 3.0.4），
+说明**这些 venv 是从私有/更超前索引构建的**。后果：
+**仅凭公开源无法重建 alg/parse/models 三个 venv**，`pip download -r lock` 会直接失败（实测
+`No matching distribution found for soupsieve==3.0.4`）。
+
+两条出路（都需要决策，不是能靠脚本绕过的）：
+1. 取得构建这些 venv 的**私有索引地址与凭据**，按同一锁重建 wheelhouse；
+2. 退化为**环境快照**交付（tar 整个 venv），代价是路径/shebang 绑定、体积大、不可审计到包级。
+
+已做的兜底：`parse` venv 快照 `venv-r12-parse-py311.tar`（**1.36 GB**，
+sha256 `235ecd70eb012461…`，清单 `offline/r12-parse-venv-py311.snapshot.json`），
+仅作为"公开源不可重建"时的最后手段，不作为首选交付形态。
