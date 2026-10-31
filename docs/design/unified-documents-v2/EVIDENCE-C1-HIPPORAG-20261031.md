@@ -188,3 +188,29 @@ offline import ok  /hipporag/__init__.py  torch 2.5.1+cu124
    离线安装必须 `--no-deps` 按冻结清单顺序装（本环境即如此建成），且需要在部署脚本里固化这一点；
 2. 安装后部分包版本与上游声明不一致（如 openai 3.x、pydantic 2.14），因为清单来自实际环境快照；
    若后续要接更严格的依赖校验，需要单独做一次干净重建并重新冻结。
+
+## 11. 离线包制品化（清单 + 校验安装 + 干净机复验）
+
+仓库只提交**清单**（wheels 3.5 GB 不进 git），清单里逐文件记录 sha256/字节数，以及冻结清单的 sha256：
+
+```
+scripts/build_offline_bundle.py   → offline/hipporag-2.0.0a4-py311-linux-x86_64.manifest.json
+                                   184 wheels / 3,526.1 MB / schema=llmke.offline-bundle.v1
+scripts/install_offline_bundle.py → 先逐文件校验 sha256 与大小，再 --no-index --no-deps 安装
+tests/test_offline_bundle_manifest.py → 清单自洽（数量/大小合计/同名重复/哈希格式）
+                                        + 冻结清单哈希与实际文件一致（防止"清单换了 wheel 没换"）
+```
+
+干净机验证（全新 venv，仅本地 wheel）：
+
+```
+install_offline_bundle -> {"status":"OK","wheels":184,...}
+hipporag 索引+检索       -> {"status":"OK", 4 units -> 3 engine_chunks, 命中回指 333 与 334}
+```
+
+失败过一次并已修正：清单里 `requirements.path` 只写了 basename，而冻结清单原本在 `locks/`，
+安装器在同级找不到 → 改为"冻结清单与 manifest 同级存放"，并在测试里钉住这个约束。
+
+安装期两个必须写进部署脚本的事实：
+1. 必须 `--no-deps`（带解析会 ResolutionImpossible）；
+2. 必须先校验 sha256 再装（离线环境里"同名不同内容的旧 wheel"是最隐蔽的故障源）。
