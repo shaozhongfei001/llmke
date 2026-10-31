@@ -111,3 +111,17 @@ sdists 是 `alibabacloud-darabonba-*` 系列（上游只发 sdist）。离线安
 `alg`(103 包) / `parse`(151 包) / `models`(44 包, 1.2 GB) 的 wheelhouse 尚未拉取；
 做法与 graph 完全一致（`pip download --no-deps -r locks/<venv>.txt`）。`models` 里若含权重，
 需要单独区分"包"与"模型文件"，不能混在一个清单里。
+
+## 9. 已完成的三份 wheelhouse（alg / graph / hipporag）
+
+| 清单 | 文件数 | 体积 | 解释器 |
+|---|---|---|---|
+| `hipporag-2.0.0a4-py311-linux-x86_64.manifest.json` | 184（全 wheel） | 3,526 MB | 3.11 |
+| `r12-graph-venv-py310.manifest.json` | 106（99 wheel + 7 sdist） | 95.4 MB | 3.10 |
+| `r12-alg-venv-py311.manifest.json` | 103（含 sdist） | 141.8 MB | 3.11 |
+
+清单里 `requirements.path` 改为**相对 manifest 的路径**（原来只写 basename，
+放到 `locks/` 下就找不到），并由测试钉住"清单同级/相对路径必须存在且哈希一致"。
+
+`parse`(151 包) 与 `models`(44 包，含 torch 714 MB / transformers 119 MB，**不含权重**) 的
+wheelhouse 正在拉取/待拉取；两者做法相同，`models` 需注意"包 ≠ 权重"。

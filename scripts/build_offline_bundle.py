@@ -71,7 +71,10 @@ def main(argv=None):
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "python": args.python,
         "platform": args.platform or sys.platform,
-        "requirements": {"path": os.path.basename(args.requirements), "sha256": req_sha},
+        # 相对 manifest 的路径，安装器据此找冻结清单；不能只写 basename
+        "requirements": {"path": os.path.relpath(os.path.abspath(args.requirements),
+                                                 os.path.dirname(os.path.abspath(args.out))),
+                         "sha256": req_sha},
         "install": {
             "command": ["pip", "install", "--no-index", "--find-links", ".",
                         "--no-deps", "-r", "requirements.txt"],

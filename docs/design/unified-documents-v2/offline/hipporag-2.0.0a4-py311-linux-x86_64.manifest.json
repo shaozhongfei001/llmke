@@ -1,7 +1,7 @@
 {
  "schema": "llmke.offline-bundle.v1",
  "name": "hipporag-2.0.0a4-py311-linux-x86_64",
- "built_at": "2026-10-31T13:14:19+0800",
+ "built_at": "2026-10-31T13:17:22+0800",
  "python": "3.11",
  "platform": "linux",
  "requirements": {

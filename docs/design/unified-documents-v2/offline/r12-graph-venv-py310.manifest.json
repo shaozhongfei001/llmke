@@ -1,11 +1,11 @@
 {
  "schema": "llmke.offline-bundle.v1",
  "name": "r12-graph-venv-py310",
- "built_at": "2026-10-31T13:14:19+0800",
+ "built_at": "2026-10-31T13:17:29+0800",
  "python": "3.10",
  "platform": "linux-x86_64",
  "requirements": {
-  "path": "r12-graph-venv.txt",
+  "path": "locks/r12-graph-venv.txt",
   "sha256": "5658da4350617f80145194b9c9d7dcc7c4f91c84a1d39dc686576813cbd09f47"
  },
  "install": {
