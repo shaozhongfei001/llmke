@@ -22,6 +22,8 @@ fail-closed
 import os
 
 MODES = ("legacy", "snapshot")
+DEFAULT_MODE = "legacy"
+DEFAULT_PREFIX = "v2cand"
 
 
 def _split(value):
@@ -31,13 +33,13 @@ def _split(value):
 def resolve(names, mode=None, prefix=None, only=None):
     """返回 (新的基础名列表, 说明)。`说明` 用于打点/对照，不含敏感信息。"""
     names = [n for n in (names or []) if n and n.strip()]
-    mode = (mode or os.environ.get("INGEST_READ_MODE") or "legacy").strip().lower()
+    mode = (mode or os.environ.get("INGEST_READ_MODE") or DEFAULT_MODE).strip().lower()
     if mode not in MODES:
         raise ValueError(f"INGEST_READ_MODE 非法: {mode!r}，允许 {MODES}")
     if mode == "legacy":
         return list(names), {"mode": "legacy", "switched": []}
 
-    prefix = (prefix or os.environ.get("INGEST_READ_PREFIX") or "v2cand").strip()
+    prefix = (prefix or os.environ.get("INGEST_READ_PREFIX") or DEFAULT_PREFIX).strip()
     if not prefix:
         raise ValueError("INGEST_READ_PREFIX 为空，snapshot 模式必须有前缀")
     only = set(only if only is not None else _split(os.environ.get("INGEST_READ_KBS")))

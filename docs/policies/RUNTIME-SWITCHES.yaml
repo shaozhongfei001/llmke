@@ -1,0 +1,22 @@
+# 运行时开关登记（谁改行为、默认是什么、怎么回退）
+# 规则：新增开关必须在这里登记，并写明默认值与回退方式；未登记的开关不得进主干。
+switches:
+  - key: INGEST_READ_MODE
+    module: services/rag-alg/alg_retrieval_service/app/projection_read.py
+    values: [legacy, snapshot]
+    default: legacy
+    scope: 检索读路径（正文/表格块/表格总结三条通道一起切）
+    rollback: 改回 legacy 并重启检索服务
+    notes: 未知值 fail-closed 抛错，不静默退回 legacy
+  - key: INGEST_READ_PREFIX
+    module: services/rag-alg/alg_retrieval_service/app/projection_read.py
+    values: [任意非空前缀]
+    default: v2cand
+    scope: snapshot 模式的索引前缀
+    rollback: 与 INGEST_READ_MODE 一起改回
+  - key: INGEST_READ_KBS
+    module: services/rag-alg/alg_retrieval_service/app/projection_read.py
+    values: [逗号分隔的知识库名, 空]
+    default: ""
+    scope: 按库灰度；空表示 snapshot 模式下全部库都切
+    rollback: 留空或改回 legacy
