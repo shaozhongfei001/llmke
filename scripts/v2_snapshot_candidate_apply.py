@@ -289,7 +289,9 @@ def _rollback(args, ns, es):
 
     for entry in manifest["es"]:
         target = entry["target"]
-        assert target.startswith(ns + "_"), target     # 只删本次命名空间内的对象
+        # 命名空间可能是前缀（v2cand_kb_10）或中间段（table_chunks_v2cand_kb_10），
+        # 判据是"名称里含有独立段 ns"，而不是简单 startswith。
+        assert ns in target.split("_"), target
         try:
             _req("DELETE", f"{es}/{target}")
             report["deleted"].append(f"es:{target}")
@@ -301,7 +303,7 @@ def _rollback(args, ns, es):
         client = MilvusClient(uri=args.milvus, db_name=args.db)
         for entry in manifest["milvus"]:
             target = entry["target"]
-            assert target.startswith(ns + "_"), target
+            assert ns in target.split("_"), target
             if client.has_collection(target):
                 client.drop_collection(target)
                 report["deleted"].append(f"milvus:{target}")
