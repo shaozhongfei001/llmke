@@ -87,3 +87,23 @@ CPU 单页扫描件 ~10 s（Layout 1.8s + OCR 1.3s），一页量级可接受；
 - **公式识别**：需要 MFR 的本地加载方式（HF 远程代码不可用），或换非 HF 的 `unimernet`（.pth）分支；
 - **表格结构**（`struct_eqtable` 1.8 GB）未下、未验；
 - 中文 OCR 的 det 权重替代件未做质量回归（只看了一页样例）。
+
+
+## 可复现的冒烟入口（已入库）
+
+```bash
+MINERU_TOOLS_CONFIG_JSON=/path/magic-pdf.json HF_HUB_OFFLINE=1 \
+  /path/mineru-venv/bin/python scripts/v2_mineru_smoke.py \
+  --pdf platform/r12/parse/fixtures/generated/cn-scan.pdf \
+  --expect "授信审批意见通知书" "5000 万元"
+# -> {"status":"OK","chars":121,"missing":[]}
+```
+
+`tests/test_mineru_smoke.py`：
+- 无 CLI → `NO_MINERU_CLI`；无配置 → `NO_CONFIG_ENV`（这两项在任何环境都跑，防止"没装却报通过"）；
+- 真实 OCR 项在缺环境时 **skip**，本机实跑通过（3 passed）。
+
+**为什么不直接 import 平台 `MinerUParser`**：它连带 `deepdoc.parser.__init__` 的一串云厂商 SDK
+（ali/textin/…），在没有完整 parse venv 的环境里 import 不进去（实测卡在
+`alibabacloud_docmind_api20220711`）。适配器接缝留给"部署进 parse venv 后再验"，
+不当成已验证。
