@@ -214,3 +214,23 @@ hipporag 索引+检索       -> {"status":"OK", 4 units -> 3 engine_chunks, 命�
 安装期两个必须写进部署脚本的事实：
 1. 必须 `--no-deps`（带解析会 ResolutionImpossible）；
 2. 必须先校验 sha256 再装（离线环境里"同名不同内容的旧 wheel"是最隐蔽的故障源）。
+
+## 12. 离线 + 规模：83 块跨文档跑通（并修掉一个 id 撞车缺陷）
+
+在"按清单装好的清洁环境"里跑 83 块（999011 的 46 正文 + 17 表格 + 17 摘要 + 333 的 3 块）：
+
+```json
+{"status":"OK","entities":204,"facts":280,
+ "input":{"chunks":83,"engine_chunks":83,"merged":0},
+ "queries":[{"query":"实体类型体系里对别名的处理规则是什么","hits":3,"resolved":3,"files":["999011"]},
+            {"query":"产品的最高额度和利率基准","hits":3,"resolved":3,"files":["333","999011"]},
+            {"query":"额度分项与总额度的关系","hits":3,"resolved":3,"files":["333","999011"]}]}
+```
+
+**跑出来的真实缺陷（已修）**：`input_unit_id` 原来只由 `(parse_artifact_id, seq)` 生成，
+而正文块与表格块**各自从 0 编号**，于是同一快照的"正文 seq=0"和"表格 seq=0"撞成同一个单元，
+映射层直接抛 `同一 input_unit_id 出现不同正文`。加入 `channel` 维度
+（`sha256(artifact:channel:seq)`）后正常，并在单测里补了这条断言：
+`input_unit_id(a,3) != input_unit_id(a,3,"table")`。
+
+这也说明：**只有把真实的多通道数据喂进去才会暴露**，3 块的手写样本永远发现不了这个。

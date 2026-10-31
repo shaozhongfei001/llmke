@@ -41,9 +41,13 @@ def native_key(text):
     return "chunk-" + hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
-def input_unit_id(parse_artifact_id, seq):
-    """平台侧稳定标识：同一快照的同一块永远得到同一个 id，换引擎不变。"""
-    return _sha256(f"{parse_artifact_id}:{seq}")
+def input_unit_id(parse_artifact_id, seq, channel="text"):
+    """平台侧稳定标识：同一快照 + 同一通道 + 同一块号 → 同一个 id，换引擎不变。
+
+    必须带 channel：投影的正文块与表格块各自从 0 编号，只有 (artifact, seq) 会撞车
+    （实测两个不同表的 seq=0 撞成同一个单元，直接抛"同一 id 不同正文"）。
+    """
+    return _sha256(f"{parse_artifact_id}:{channel}:{seq}")
 
 
 class InputUnit:
@@ -60,7 +64,7 @@ class InputUnit:
         self.seq = int(seq)
         self.source_ref = dict(source_ref)
         self.channel = channel
-        self.input_unit_id = input_unit_id(parse_artifact_id, seq)
+        self.input_unit_id = input_unit_id(parse_artifact_id, seq, channel)
         self.native_key = native_key(text)
 
     def as_dict(self):

@@ -34,6 +34,8 @@ def test_input_unit_id_is_stable_and_engine_agnostic():
     assert first == input_unit_id("a" * 64, 3)
     assert first != input_unit_id("a" * 64, 4)
     assert first != input_unit_id("b" * 64, 3)          # 换快照必须换身份
+    # 正文块与表格块各自从 0 编号：只有 (artifact, seq) 会撞车（实测踩过）
+    assert first != input_unit_id("a" * 64, 3, "table")
 
 
 def test_same_unit_twice_is_idempotent_but_content_change_is_refused():
