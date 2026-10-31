@@ -99,10 +99,15 @@ class AssertionStore:
         return sorted(self._aliases)
 
     def name_of(self, canonical_id: str) -> str:
-        """可读名（取登记时的第一个名字）；取不到就退回 id，但去掉 ent: 前缀。"""
+        """可读名：优先取**非 id 形式**的登记名，避免渲染出 `ent:xxx`。
+
+        normalize 会把原名与 `ent:<原名>` 一起登记，排序后 `ent:` 开头的反而更小，
+        直接取 names[0] 就会渲染成 id —— 实测社区报告里全是 `ent:北方重工配件厂 ...`。
+        """
         names = sorted(self._entities.get(canonical_id) or [])
-        if names:
-            return names[0]
+        readable = [n for n in names if n != canonical_id]
+        if readable:
+            return readable[0]
         return canonical_id[4:] if canonical_id.startswith("ent:") else canonical_id
 
     def render(self, assertion: Assertion) -> str:

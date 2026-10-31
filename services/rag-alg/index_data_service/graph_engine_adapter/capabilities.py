@@ -57,9 +57,10 @@ CAPABILITIES = {
         "evidence": None,
     },
     "community_report": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "未消费真实社区产物；不得用普通 RAG 顶替",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "社区/global 只消费经校验的标准事实导出（断言层），确定性标签传播，"
+                "报告引用逐条校验；真实语料 29 事实→5 社区、0 失效引用；叙述为可选步骤且带来源",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-COMMUNITY-REPORT-20261031.md",
     },
     "platform_assertion_layer": {
         "status": "VERIFIED",

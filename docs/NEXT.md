@@ -89,6 +89,12 @@
        本地 7B 同套 7/12。Q 的端到端已转真实检查 → 26 PASS/0 FAIL/1 NOT_IMPLEMENTED
        坑：max_tokens=512 导致 JSON 截断，被误判为"格式错误"，已按 finish_reason 分开处理
        产品化未做：密钥注入（现在依赖 ~/.bashrc）、限流/成本、失败降级策略
+    1i) 社区/global 报告已落地（community.py + v2_community_report.py，7 项测试）：
+       只消费经校验的标准事实导出（不读引擎内部图），确定性标签传播可复现，
+       报告逐条校验引用；真实语料 29 事实→5 社区、0 失效引用；--narrate 用 DeepSeek 可选生成。
+       顺带修 name_of 渲染取到 ent: 前缀的缺陷（同时影响回答上下文）。
+       Q 现 27 PASS / 0 FAIL / **0 NOT_IMPLEMENTED**（业务场景全部转真实检查），
+       引擎侧缺口改由 describe() 承担，并用测试强制其 NOT_IMPLEMENTED ≥ 1，避免两处一起清空
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

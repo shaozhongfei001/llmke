@@ -216,10 +216,41 @@ def check_mineru():
            {"path": str(weights)})
 
 
-NOT_IMPLEMENTED = [
-    ("biz:global 报告/引用失效识别（社区/global 真实产物消费）",
-     "引用校验已在断言层可用，但社区/global 处理器尚未消费真实产物，不得用普通 RAG 顶替"),
-]
+# 任务书业务场景已全部转成真实检查；引擎侧仍缺的能力由 describe() 的 NOT_IMPLEMENTED 体现，
+# 不在这里重复登记（避免两处口径不一致）。
+NOT_IMPLEMENTED = []
+
+
+def check_community_report():
+    """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py):
+        record("biz:global 报告/引用失效识别", "SKIP", {"why": "no hipporag venv"})
+        return
+    if not all(os.path.isfile(p) for p in payloads):
+        record("biz:global 报告/引用失效识别", "SKIP", {"why": "ingest payloads missing"})
+        return
+
+    cmd = [py, str(REPO / "scripts/v2_community_report.py"), "--payloads", *payloads,
+           "--save-dir", "/tmp/hippo-cjk", "--cjk-compat", "--out", "/tmp/q-community.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-community.json"):
+        record("biz:global 报告/引用失效识别", "FAIL",
+               {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    data = json.loads(open("/tmp/q-community.json", encoding="utf-8").read())
+    report = data.get("report") or {}
+    ok = (report.get("status") == "READY" and report.get("communities")
+          and not (report.get("citations") or {}).get("invalid"))
+    record("biz:global 报告/引用失效识别", "PASS" if ok else "FAIL",
+           {"status": report.get("status"), "export": report.get("export"),
+            "communities": len(report.get("communities") or []),
+            "invalid_citations": len((report.get("citations") or {}).get("invalid") or [])},
+           "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，"
+           "未参与判定" if ok else "报告状态或引用校验未通过")
 
 
 def check_end_to_end_answer():
@@ -366,6 +397,7 @@ def main(argv=None):
     check_retrieval_orchestration()
     check_mineru()
     check_business_semantics()
+    check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
         record(item, "NOT_IMPLEMENTED", why)

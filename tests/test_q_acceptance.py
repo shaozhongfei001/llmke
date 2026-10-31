@@ -35,10 +35,10 @@ def test_q_acceptance_has_no_fail_and_keeps_unimplemented_visible(tmp_path):
     assert report["verdict"] == "PASS"
     # 仍未实现的能力必须留在报告里，不能被清空冒充"全部通过"
     # 语义层 8 条已转成 PASS，剩下 global 消费与端到端两项必须一直是 NOT_IMPLEMENTED
-    remaining = {r["item"] for r in report["results"] if r["status"] == "NOT_IMPLEMENTED"}
-    # 端到端已转成真实检查（deepseek-flash 下 18/18），只剩社区/global 消费未做
-    assert report["summary"]["NOT_IMPLEMENTED"] >= 1
-    assert any("global" in item for item in remaining)
+    # 任务书业务场景已全部转成真实检查；引擎侧缺口由 describe() 承担，不能两处都"清空"
+    assert report["summary"]["NOT_IMPLEMENTED"] == 0
+    describe_item = next(r for r in report["results"] if r["item"] == "graph:describe")
+    assert describe_item["evidence"]["counts"]["NOT_IMPLEMENTED"] >= 1
     # 语义层 PASS 必须带 boundary，否则会被误读成端到端已通过
     biz_pass = [r for r in report["results"]
                 if r["item"].startswith("biz:") and r["status"] == "PASS"]

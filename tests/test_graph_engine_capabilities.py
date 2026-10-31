@@ -20,11 +20,13 @@ def test_every_verified_has_evidence():
             assert cap["evidence"], f"{name} 声明 VERIFIED 但没有证据指针"
 
 
-def test_graph_route_is_not_verified_and_communities_not_implemented():
+def test_graph_route_not_verified_but_community_now_verified():
     caps = describe()["capabilities"]
-    # 检索命中不等于图执行：没有 executed_route=GRAPH 的 trace 就只能 NOT_VERIFIED
+    # 未打补丁的上游行为：检索命中不等于图执行，只能 NOT_VERIFIED
     assert caps["retrieve_graph_route"]["status"] == "NOT_VERIFIED"
-    assert caps["community_report"]["status"] == "NOT_IMPLEMENTED"
+    # 社区/global 已按"消费标准事实导出"实现并有真实运行证据
+    assert caps["community_report"]["status"] == "VERIFIED"
+    assert caps["community_report"]["evidence"]
     assert caps["engine_predicate_normalization"]["status"] == "NOT_IMPLEMENTED"
     # 断言层语义已验证，但引擎接线未做——两者要分开记，不能互相顶替
     assert caps["platform_assertion_layer"]["status"] == "VERIFIED"
