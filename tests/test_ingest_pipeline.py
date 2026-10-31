@@ -126,6 +126,17 @@ def test_missing_source_is_reported_not_silently_blank(artifact_dir):
     assert "source" in result["field_fill"]["placeholder"]
 
 
+def test_table_summary_channel_gap_is_reported_not_silent(artifact_dir):
+    """检索侧会查 table_summary_<kb>（retrieval_service.py:54,70），投影不产出 → 必须显式报缺口。"""
+    from ingest_pipeline.pipeline import channel_gaps
+
+    assert channel_gaps({"table": 1}) == ["table_summary"]
+    assert channel_gaps({"table": 0}) == []
+    result = ingest(artifact_dir, index_name="kb_9", file_id="333", mode="shadow")
+    assert "missing_channels" in result
+    assert result["missing_channels"] == channel_gaps(result["channels"])
+
+
 def test_compare_channels_reports_diff_without_forcing_equality():
     from ingest_pipeline import compare_channels
 

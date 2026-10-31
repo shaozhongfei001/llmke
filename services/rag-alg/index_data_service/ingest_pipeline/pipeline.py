@@ -73,6 +73,19 @@ def compare_channels(legacy, projected):
                   "diff": projected.get(key, 0) - legacy.get(key, 0)} for key in keys}
 
 
+def channel_gaps(channels):
+    """投影相对检索侧实际消费的通道缺什么。
+
+    检索在 `enabled_summary=true` 时会查 `table_summary_<kb>`，并用命中 pk 反向拉
+    `table_chunks`（retrieval_service.py:54,70）。投影只有 text/table，没有 LLM 表格总结，
+    所以**只要这份文档有表格**，就存在该缺口；没有表格时不算缺口。
+    """
+    gaps = []
+    if (channels or {}).get("table"):
+        gaps.append("table_summary")
+    return gaps
+
+
 def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
            chunk_chars=800, overlap_chars=0, file_name=None, file_path=None, file_size=None,
            source=None):
@@ -118,6 +131,7 @@ def ingest(artifact_dir, *, index_name, file_id, mode=None, apply_index=False,
         "counts": counts,
         "channels": {"text": result.stats.get("chunks_text"),
                      "table": result.stats.get("chunks_table")},
+        "missing_channels": channel_gaps({"table": result.stats.get("chunks_table")}),
         "chunks": payloads,
         "field_fill": fill,
         "refusals": result.refusals,

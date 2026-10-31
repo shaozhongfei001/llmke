@@ -222,3 +222,29 @@ json-body     -> ApplicationException: 没有token          （下游 errorMsg �
 边界：该修复**不解除** D-01b 阻断（调度线程仍然无令牌），只让下一次上传失败时显式显示"未授权"而不是
 "解析失败"；要真正恢复"上传→自动解析"，仍需 A/B 选项之一（涉及权限语义，等授权）。
 部署提示：rag-index-service 是 fat jar，`rag-common` 变更后必须重新打包该服务才生效，本轮未重启运行栈。
+
+## 9. D-03（新发现，真实消费者证据）：投影缺 `table_summary` 通道
+
+检索侧在 `enabled_summary=true` 时会把 `table_summary_<kb>` 加进召回索引列表，
+并用命中的 `pk` 反向拉 `table_chunks`（`alg_retrieval_service/app/retrieval_service.py:54,70`，
+`retrieval_table_chunks()` 就是"总结→明细"两段式）。
+
+而投影只产 text 与 table 两个通道，**没有 LLM 表格总结**。实测 999011：
+
+```
+channels {'text': 46, 'table': 17}   missing ['table_summary']
+```
+
+后果：直接切 snapshot 后，"总结驱动"的表格召回会返回空（表格不会被检索到），
+而普通正文检索看起来正常——属于**静默功能回退**，比块数差异严重。
+
+已做（本轮）：`ingest_pipeline.channel_gaps()` 把缺口显式列进 `missing_channels`，
+只要文档含表格就报 `table_summary`；测试 `test_table_summary_channel_gap_is_reported_not_silent` 钉住。
+未做（需择一，且有取舍）：① 投影产出表格摘要通道（要接 LLM，成本与一致性另算）；
+② 让检索在 snapshot 模式改为 `table_chunks` 直检——改消费者，需契约确认。
+
+## 10. 顺带核对：任务状态与文件状态不一致（记录，未定性为缺陷）
+
+`file_parse_task` 里 file 51/52/53/54/55 的状态都是 4（失败），但 `knowledge_base_list`
+里对应文件是 3（成功），且确有索引内容（51: ES 1 + Milvus 1；52: ES table 1 + Milvus 总结集合 1 行）。
+同一事实在两处状态相反，会让"失败重试/验收"判据失真。未改，先记录，避免被当成"解析成功"的凭证。
