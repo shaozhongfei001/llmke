@@ -28,6 +28,9 @@ SECRET_ASSIGN_RE = re.compile(
 )
 BARE_IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 CALL_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*\($")
+# 值部分会按 `,` `)` 截断，`min(a, b)` 会被截成 `min(a`，CALL_RE 就失配了。
+# 判断"是不是调用"必须看**整段右侧表达式**，不能用截断后的值。
+RHS_CALL_RE = re.compile(r"^\s*[A-Za-z_][A-Za-z0-9_.]*\s*[\[(]")
 CONN_STR_RE = re.compile(
     r"(?i)\b[a-z][a-z0-9+.-]*://[^/\s:@]+:[^@\s]+@|jdbc:[a-z]+://\S+"
 )
@@ -143,7 +146,10 @@ def scan_file(path: Path, root: Path, allowlist: list[str],
             # unquoted bare identifier -> variable reference (e.g. password=password), not a literal
             is_var_ref = path.suffix in {".py", ".java", ".js", ".ts"} and not quoted and BARE_IDENT_RE.match(value)
             # unquoted call expression -> lookup (e.g. password=env("X")), not a literal
-            is_call = not quoted and CALL_RE.match(value)
+            # 用整段 RHS 判断调用/下标（value 被正则截断过，不能作为依据）
+            rhs = line[m.end(1):]
+            rhs = re.sub(r"^\s*[:=]\s*", "", rhs)
+            is_call = not quoted and (CALL_RE.match(value) or RHS_CALL_RE.match(rhs))
             if not is_placeholder and not is_var_ref and not is_call:
                 findings.append(f"{rel}:{i}: REAL_CREDENTIAL: {m.group(1)}=<value>")
         if CONN_STR_RE.search(line):
