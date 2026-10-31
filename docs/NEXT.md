@@ -41,11 +41,17 @@
      无图执行/版本治理/权限构建，显式未实现；tests/test_q_acceptance.py 钉住不得删清单
   离线交付：四个 venv wheelhouse + 6 镜像 tar（3.98G）+ 安装器已实测；前端 npm ci --offline 构建
      dist 141MB 已归档清单；MinerU 权重清单已入 offline/
+  本轮新增已完成：
+    · C1 NaN 反例落地（tests/test_c1_phrase_weight_divzero.py：必然 NaN + None 索引泄漏路径；
+      hipporag 环境另锁"上游仍是裸除法"）
+    · 图引擎 describe 能力声明（graph_engine_adapter/capabilities.py，VERIFIED 必须带证据指针；
+      GRAPH 路线只能是 NOT_VERIFIED；Q 增 graph:describe 检查，现 16 PASS/0 FAIL/8 NOT_IMPLEMENTED）
+    · 离线交付：四 wheelhouse 空 venv 安装 4 PASS（查清 parse 缺 torch，须由 models 包补）；
+      六镜像 tar 摘要/标签/层 6 PASS（刻意不 docker load，避免覆盖在用 tag）
   下一步（按依赖顺序，不询问）：
-    1) C1：把 phrase_weights 的 NaN 退化做成可复现反例并在适配层显式告警（不改上游算法结论）
-    2) 图业务能力：谓词归一/数值一致性/版本过滤的图执行层，逐项把 Q 的 8 项 NOT_IMPLEMENTED 转成可验
-    3) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
-    4) 离线：目标机干净部署与差分升级演练
+    1) 图业务能力：谓词归一/数值一致性/版本过滤/可见性隔离的图执行层，逐项把 Q 的 8 项转成可验
+    2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
+    3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层
 副作用/回退：doc2md dev 库 gits_ke 新增 3 条 content/instance（未删改既有）；
