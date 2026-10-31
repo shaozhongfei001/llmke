@@ -406,6 +406,32 @@ def check_rebuild_backpressure():
            "进程内协调器逻辑；真实告警通道、定时调度、多实例协调未接")
 
 
+def check_rebuild_scheduler():
+    """调度器：突发请求合并成一次构建、停机后不再构建、指针与新鲜度正确。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    payloads = ["/tmp/ingest-333.json", "/tmp/ingest-329.json"]
+    if not os.path.isfile(py) or not all(os.path.isfile(p) for p in payloads):
+        record("graph:重建调度器", "SKIP", {"why": "hipporag venv 或载荷缺失"})
+        return
+
+    root = f"/tmp/q-scheduler-{int(time.time())}"
+    cmd = [py, str(REPO / "scripts/v2_scheduler_drill.py"), "--payloads", *payloads,
+           "--root", root, "--cjk-compat", "--out", "/tmp/q-scheduler.json"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1200)
+    if proc.returncode != 0 or not os.path.isfile("/tmp/q-scheduler.json"):
+        record("graph:重建调度器", "FAIL", {"tail": (proc.stderr or proc.stdout)[-300:]})
+        return
+    data = json.loads(open("/tmp/q-scheduler.json", encoding="utf-8").read())
+    record("graph:重建调度器", "PASS" if data.get("passed") else "FAIL",
+           {"builds": data.get("builds"), "stopped": data.get("stopped_cleanly"),
+            "no_build_after_stop": data.get("no_build_after_stop"),
+            "debounce_waits": data["stats"].get("debounce_waits"),
+            "documents": data["pointer"].get("documents")},
+           "单进程后台线程；多实例/进程守护/监控接入未做")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -588,6 +614,7 @@ def main(argv=None):
     check_rebuild_consistency()
     check_rebuild_coalescing()
     check_rebuild_backpressure()
+    check_rebuild_scheduler()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

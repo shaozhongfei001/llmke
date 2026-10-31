@@ -127,7 +127,12 @@
        积压满→BACKPRESSURE 拒绝入队；连续失败指数退避 1→2→4（封顶），退避期返回 BACKOFF
        不碰下游；到阈值告警一次（回调在锁外）；成功复位；失败整批放回不丢请求。
        Q 增 graph:重建退避与背压（假时钟），现 33 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
-       未做：真实告警通道、退避到点的自动调度、多实例协调、BACKPRESSURE 的上游用户提示
+       未做：真实告警通道、多实例协调、BACKPRESSURE 的上游用户提示
+    1p) 重建调度器（rebuild_scheduler.py，5 项测试 + v2_scheduler_drill.py 真跑）：
+       run_cycle 单轮可断言、run 真循环；debounce 合并突发、退避期只睡不打模型、
+       max_sleep 切片睡眠保证停机及时、每轮检查 stop。实测 3 条突发→1 次构建、
+       再 1 条→第 2 次，停机后 1s 内无新构建，指针 5 块且 fresh。
+       Q 现 34 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。未做：进程守护、多实例、指标导出、定时全量重建
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
