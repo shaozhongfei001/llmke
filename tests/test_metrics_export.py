@@ -203,3 +203,15 @@ def test_stats_failure_does_not_blow_up_the_endpoint():
 
 def test_content_type_is_prometheus_text_format():
     assert "text/plain" in CONTENT_TYPE and "version=0.0.4" in CONTENT_TYPE
+
+
+def test_undelivered_alerts_are_exported_as_counter():
+    """投递失败必须能在面板上看见：这是"告警发了但没人收到"的唯一信号。"""
+    sched = StubScheduler({"alerts_sent": 7, "alerts_undelivered": 5,
+                           "alert_sink_errors": 0})
+    samples, types, _ = parse(render(sched))
+    name = PREFIX + "scheduler_alerts_undelivered_total"
+    assert samples[name] == ["5"]          # parse 保留原始字符串，避免替被测实现做数值转换
+    assert types[name] == ["counter"]
+    # 交给通道 7、投递失败 5 → 面板上能一眼算出实际送达 2
+    assert samples[PREFIX + "scheduler_alerts_sent_total"] == ["7"]

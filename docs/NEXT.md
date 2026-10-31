@@ -178,6 +178,9 @@
        已修 + 用真实本地 HTTP 服务器补回归测试；修后 5 条告警→1 次 POST、sent=1/deduped=4。
        真实锁等待实测：另一连接 FOR UPDATE 持锁，客户端 read_timeout=2s 先于服务端 50s 返回，
        放锁后立即可接管（上一轮遗留问题闭环）。
+       口径修正：alerts_sent 只表示"交给通道未抛"，新增 alerts_undelivered（通道返回 False）
+       并导出为 llmke_graph_scheduler_alerts_undelivered_total；sent-undelivered 才是实际送达。
+       metrics/alert_sink 已从 graph_engine_adapter 包导出。
        未做：服务未挂 /metrics 端点、告警不签名不落盘、未接真实网关、指标无 label
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练

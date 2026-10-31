@@ -54,6 +54,7 @@ class RebuildScheduler:
                        "backoff_waits": 0, "slept_s": 0.0, "stopped": False,
                        "not_leader": 0, "lost_lease": 0,
                        "lease_errors": 0, "alerts_sent": 0, "alert_sink_errors": 0,
+                       "alerts_undelivered": 0,
                        "slow_lease_ops": 0}
         # 当前持有的 fencing 值：build 回调把它写进快照，旧主的晚到写入才会被拒
         self.lease_fencing: Optional[int] = None
@@ -69,9 +70,14 @@ class RebuildScheduler:
         event = {"schema": "llmke.graph-engine.alert.v1", "kind": kind,
                  "at": self._clock(), **payload}
         try:
-            self.on_alert(event)
+            result = self.on_alert(event)
+            # `alerts_sent` 只表示"交给了通道且没抛"；通道明确返回 False 才是"投递失败"。
+            # 两个数刻意分开：webhook 全 500 时 sent 照样涨，只看它会以为告警都送到了。
+            delivered = result is not False
             with self._lock:
                 self._state["alerts_sent"] += 1
+                if not delivered:
+                    self._state["alerts_undelivered"] += 1
         except Exception as exc:  # noqa: BLE001
             with self._lock:
                 self._state["alert_sink_errors"] += 1

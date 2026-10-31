@@ -61,6 +61,26 @@ sent=1, failed=0, attempts=1, deduped=4
 `scripts/v2_lease_drill.py` 新增 `--metrics-out`（落 Prometheus 文本）与
 `--alert-webhook URL`（`on_alert` 同时本地记录 + 真实投递）。
 
+## 补上"告警到底送达没有"（角色回报里点出的语义陷阱）
+
+`obs-role` 交付时明确提示：`RebuildScheduler._emit` 只按"是否抛异常"记 `alerts_sent`，
+**不看 sink 返回值**。所以在 webhook 全 500 的情况下，`alerts_sent` 照样涨，
+面板会显示"告警都在发"，实际一条没到。
+
+这不是 bug 而是口径问题，但会让监控撒谎，所以补了两个数：
+
+- `alerts_sent`：交给通道且没抛（原义保留）；
+- `alerts_undelivered`：通道**明确返回 False**（新增，同时导出为
+  `llmke_graph_scheduler_alerts_undelivered_total`）。
+
+老回调返回 `None` 视为"不置可否"，不计入 undelivered——不能把"没约定"硬算成失败。
+面板上 `sent - undelivered` 才是实际送达量。
+
+顺带把 `metrics` / `alert_sink` 从 `graph_engine_adapter` 包导出，部署侧不用记模块路径。
+
+测试：sink 返回 False → `sent=1 / undelivered=1`；返回 None → `undelivered=0`；
+指标侧断言两条序列都在且类型为 counter（新增 3 项，共 41 项相关测试通过）。
+
 ## 还没做
 
 - **服务里没有 `/metrics` 端点**：模块有了，但 answer/graph 服务未挂载，需要部署侧接；

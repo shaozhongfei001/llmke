@@ -51,6 +51,8 @@ _SCHEDULER_METRICS: List[Tuple[str, str, str, str]] = [
      "Alerts handed to the sink without raising."),
     ("alert_sink_errors", "scheduler_alert_sink_errors_total", COUNTER,
      "Alerts whose sink raised (sink broken, main loop kept running)."),
+    ("alerts_undelivered", "scheduler_alerts_undelivered_total", COUNTER,
+     "Alerts the sink explicitly reported as undelivered (returned False)."),
     ("slept_s", "scheduler_slept_seconds_total", COUNTER,
      "Cumulative seconds spent inside the scheduler's own sleeps."),
     # ---- 合并/构建（RebuildCoordinator.stats() 透传）----

@@ -182,3 +182,34 @@ def test_slow_lease_is_reported_but_does_not_block_build():
     kinds = [a["kind"] for a in alerts]
     assert kinds.count("LEASE_SLOW") == 1       # 边沿节流：同一窗口只报一次
     assert alerts[0]["elapsed_s"] == 4.2
+
+
+def test_sink_returning_false_is_counted_as_undelivered():
+    """`alerts_sent` 只说明"交给了通道"；通道明确返回 False 必须另记一笔。
+
+    否则 webhook 全 500 时 sent 照样涨，面板会以为告警都送到了。
+    """
+    clock, alerts = Clock(), []
+
+    def sink(event):
+        alerts.append(event)
+        return False
+
+    sched = make_scheduler(BrokenLease(), [], clock)
+    sched.on_alert = sink
+
+    sched.run_cycle()
+
+    stats = sched.stats()
+    assert stats["alerts_sent"] == 1
+    assert stats["alerts_undelivered"] == 1
+    assert stats["alerts_sent"] - stats["alerts_undelivered"] == 0    # 实际送达 0
+
+
+def test_sink_returning_none_is_not_counted_as_undelivered():
+    """老回调（返回 None）不置可否，不能硬算成投递失败。"""
+    clock, alerts = Clock(), []
+    sched = make_scheduler(BrokenLease(), alerts, clock)
+    sched.run_cycle()
+    assert sched.stats()["alerts_sent"] == 1
+    assert sched.stats()["alerts_undelivered"] == 0
