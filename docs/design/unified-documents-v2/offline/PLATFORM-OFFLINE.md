@@ -44,12 +44,26 @@ python scripts/install_offline_bundle.py --manifest offline/r12-graph-venv-py311
   --wheel-dir /path/to/wh-graph --pip /opt/r12-graph/bin/pip
 ```
 
+## 3.5 前端产物：离线构建已实测（本轮补）
+
+```
+cd frontend/plateform
+npm ci --offline --legacy-peer-deps   # 1747 包，39s，仅用本地 npm 缓存
+npm run build                          # 产出 dist/，141 MB，1601 文件
+```
+
+- **必须 `--legacy-peer-deps`**：直接 `npm ci` 会 ERESOLVE（peer 冲突），这是历史安装方式；
+- **离线前提是 npm 缓存已暖**（本机 `~/.npm` 3.8 GB）；干净机要么带缓存、要么 vendor `node_modules`（1.3 GB）；
+- 产物已归档：`/home/szf/data/dev/delivery/web-dist-saicwebapp-1.7.0`（0.13 GB / 1601 文件），
+  清单 `offline/web-dist-saicwebapp-1.7.0.manifest.json`（含 index.html sha256 与最大文件清单）；
+- 旧的 `dist.bak-0006` 147 MB 与本次 141 MB 同量级，说明构建可复现（未逐文件比对）。
+
 ## 4. 仍未覆盖（不许当成已具备离线交付）
 
 1. **模型权重**：`models` venv 1.2 GB 里是否含权重未逐一核对；MinerU/OCR 权重在 ModelScope，
    HuggingFace（`huggingface.co`）本机不可达（实测 000），权重来源必须单独登记；
 2. **容器镜像**：Milvus / ES / MinIO / etcd / Redis / MySQL 的镜像 tar 未导出；
-3. **前端静态资源**：未见构建产物清单；
+3. ~~前端静态资源~~：**已补**（见 §3.5，离线构建 + 产物清单）；
 4. **venv wheelhouse 只下了 graph 一个**（后台作业，`/tmp/wh-graph`），其余三个未拉。
 
 ## 5. 制品存放位置（持久目录，非 /tmp）
