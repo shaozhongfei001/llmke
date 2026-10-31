@@ -305,3 +305,38 @@ channels {'text': 46, 'table': 17}   missing ['table_summary']
    表现为 `linked_chunks=0`。现改为使用投影里登记的 `pk`（总结 pk 必须等于关联值）。
 
 这两条都说明：**"字段名对上"不等于"类型与主键语义对上"**，只有真跑关联查询才暴露。
+
+## 13. D-01b 解除并部署验证（本轮，真实上传跑通）
+
+按"系统上下文"口径修了三处，并**实际换掉运行中的 index-service jar** 验证：
+
+| 改动 | 原因 | 位置 |
+|---|---|---|
+| 无用户上下文时按平台配置解析模型（`effectiveNeedAuth`） | 调度线程无令牌，auth 的 getUserType/getAllPermission 必 500 | `FileAppServiceImpl.setModel` |
+| task_info 缺 `user_id` 时回填并告警 | 解析服务校验 "传入knowledge_base_id时必须使用user_id"（422） | `FileAppServiceImpl.filesParse` |
+| 纯文本类跳过 LibreOffice 转换 | 缺 writer，txt 无回落直接失败 | `PdfConvertorUtils.isNeedConvert` |
+| Feign 空体/非 JSON 显式报错 | 原先把 500 空体伪装成 "Cannot parse null string" | `FeignErrorDecode`（上一轮） |
+
+部署事实：`mvn -o -pl rag-index-service -am package -DskipTests -Dmaven.compiler.source=17 -Dmaven.compiler.target=17`
+（只 `-pl` 构建会缺依赖，实测启动即 `NoClassDefFoundError: cn/hutool/core/date/DateUtil`；
+用 reactor `-am` + 显式 source/target 才能得到可运行 jar），jar 起在 18082，原 r12 实例已停。
+
+真实链路结果（file 999013 = `v2-sysctx-sample.txt`，kb_10）：
+
+```
+11:00:45  ERROR 用户不存在            <- 回填 userId=0，解析服务校验失败（诚实记录）
+11:02:30  parse 服务收到 POST /parse  <- 按真实 UI 任务形态补 user_id=1 后
+ES   kb_10 该文件 1 条，type=text，source=r12-rag/kb_10/v2-sysctx-sample.txt/V0/...
+Milvus _kb_10 该文件 1 行
+任务状态 4 / 文件状态 3
+```
+
+即：**上传 → 调度 → 模型解析 → /parse → 切分 → ES+Milvus 写入**全链路通了（此前卡在模型解析，永不派发）。
+
+遗留两条真实问题（不掩盖）：
+
+1. `file_parse_task.status` 仍是 4（失败）且 `error_msg` 留着上一轮 recover 文本，而文件状态是 3、数据已入库
+   —— 成功路径没有回写任务状态，与 §10 记录的不一致是同一类缺陷；
+2. **user_id 必须来自 task_info**：缺失时回填 `create_by`（用户名）或 `0` 仍会 "用户不存在"。
+   真实 UI 上传由 UserContext 写入 user_id 才有；纯 API/脚本入库的任务需要在入队时补数字 id，
+   或由服务端按用户名反查 id —— 属待定契约，本轮未擅自改。

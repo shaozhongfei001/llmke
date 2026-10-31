@@ -99,8 +99,20 @@ public class FileAppServiceImpl implements FileAppService {
         try {
             FileParseTaskInfo param = JSONObject.parseObject(task.getTaskInfo(), FileParseTaskInfo.class);
             boolean needAuth = param.isNeedAuth();
+            // V2/B1-D01b（第二层）：task_info 里没有 user_id 时（非 UI 直接入库的任务、或调度期任务），
+            // 解析服务的 /parse 会因 "传入knowledge_base_id的时候必须使用user_id" 直接 422。
+            // 后台任务没有请求身份，这里按任务创建者回填用户名；仍取不到则用 system 占位并告警，
+            // 保证"任务能跑"而不是让整条链在参数校验处静默失败。
+            String taskUserId = StringUtils.isNotBlank(param.getUserId()) ? param.getUserId()
+                    : (StringUtils.isNotBlank(task.getCreateBy()) ? task.getCreateBy() : "0");
+            String taskUserName = StringUtils.isNotBlank(param.getUserName()) ? param.getUserName()
+                    : (StringUtils.isNotBlank(task.getCreateBy()) ? task.getCreateBy() : "system");
+            if (StringUtils.isBlank(param.getUserId())) {
+                log.warn("[V2-SYSCTX] 任务缺 user_id，回填 userId={} userName={} taskId={}",
+                        taskUserId, taskUserName, task.getId());
+            }
             //设置用户上下文信息
-            setUserContext(param.getUserId(), param.getUserName());
+            setUserContext(taskUserId, taskUserName);
             kbId = param.getKnowledgeBaseId();
             taskId = task.getId();
             //文件解析
@@ -308,15 +320,27 @@ public class FileAppServiceImpl implements FileAppService {
     }
 
     private void setModel(FileParseTaskInfo param, boolean needAuth) {
+        // V2/B1-D01b：定时任务线程没有 HTTP 请求上下文，Feign 不带 Authorization，
+        // auth 的 getUserType / getAllPermission 会返回 500（空体），任务在派发前即失败
+        // （实测表现是 FeignErrorDecode 把空体解成 "Cannot parse null string"）。
+        // 系统上下文下按**平台配置**解析模型端点，不做用户级"模型可用性"过滤：
+        // 用户能否使用某模型应在入队/上传时判定，而非由后台任务在无身份的线程里重判。
+        // 该分支写审计日志，便于核对"哪个任务用了哪个模型"。
+        boolean systemContext = StringUtils.isEmpty(UserContext.getUser().getUserName());
+        boolean effectiveNeedAuth = needAuth && !systemContext;
+        if (systemContext) {
+            log.warn("[V2-SYSCTX] 无用户上下文，按平台配置解析模型（跳过模型权限过滤）kbId={} index={} model={}",
+                    param.getKnowledgeBaseId(), param.getKnowledgeBaseName(), param.getModelName());
+        }
         //String embeddingModelName = param.getEmbeddingModelName();
         KnowledgeBase kb = knowledgeBaseDomainService.findByKbId(param.getKnowledgeBaseId());
         JSONObject confJson = JSON.parseObject(kb.getConfig());
         String embeddingModelName = confJson.getString(EMBEDDING_MODEL_NAME);
         String modelName = param.getModelName();
         String multiModelName = param.getMultiModelName();
-        ModelSimpDTO embeddingModel = modelInfoAppService.getSimpByModeName(embeddingModelName, needAuth);
-        ModelSimpDTO model = modelInfoAppService.getSimpByModeName(modelName, needAuth);
-        ModelSimpDTO multiModel = modelInfoAppService.getSimpByModeName(multiModelName, needAuth);
+        ModelSimpDTO embeddingModel = modelInfoAppService.getSimpByModeName(embeddingModelName, effectiveNeedAuth);
+        ModelSimpDTO model = modelInfoAppService.getSimpByModeName(modelName, effectiveNeedAuth);
+        ModelSimpDTO multiModel = modelInfoAppService.getSimpByModeName(multiModelName, effectiveNeedAuth);
         param.setModelInfo(model);
         param.setEmbeddingNodelInfo(embeddingModel);
         param.setMultiModelInfo(multiModel);
