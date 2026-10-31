@@ -38,3 +38,17 @@
 - 只证明"真实载荷能进 HippoRAG 并检索回来、来源不丢"；**没有**消费社区/global、没有接 Nebula、
   没有做多跳问答质量评测；
 - 语料只有 5 个块，远小于真实知识库；NaN 退化路径未被真实命中。
+
+## 反例已落地（`tests/test_c1_phrase_weight_divzero.py`）
+
+不改上游，只用 numpy **原样复现**那段算术，钉住三条：
+
+1. **必然 NaN**：未被 fact 命中的顶点是 `0/0`，NaN 个数 == 未命中顶点数（不是偶发）。
+   例：5 个顶点只命中 2 个 → 3 个 NaN。
+2. **为什么实跑没炸**：后续只读"出现过"的顶点（`number_of_occurs>0`），这些值有限。
+3. **真正的泄漏路径**：`phrase_id` 为 `None` 时 `weights[None]` 返回形状 `(1, n)` 的**整个数组**
+   （不是标量），NaN 会跟着进 `phrase_scores`。下游若直接比较/求均值就会被污染。
+
+该目录在 `hipporag` 独立环境里另有一条断言：读 `graph_search_with_fact_entities` 源码确认
+**上游仍是裸除法**（若哪天改了，这条会红，提醒重新评估结论）。
+两处实跑：默认 venv 3 passed / 1 skipped；hipporag venv 4 passed。
