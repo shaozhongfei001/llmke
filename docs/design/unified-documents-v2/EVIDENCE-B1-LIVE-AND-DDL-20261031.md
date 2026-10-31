@@ -395,3 +395,36 @@ v2cand_kb_10   -> docs=1 score=0.936  src=…/M1.docx                        tex
 两臂都返回同一张表的内容；**分数不可直接比**（索引不同、块粒度不同、打分器也是各自的），
 能下的结论只有一条：**候选快照的数据能被真实检索服务查到并回指来源**。
 候选命名空间已回退并核对线上 `kb_10 / table_chunks / table_summary` 计数未变。
+
+## 16. 检索读路径切换（legacy / snapshot），可按库灰度、可回退
+
+实现：`alg_retrieval_service/app/projection_read.py` + `retrieval_service.retrieval_data` 入口处一行接入。
+
+为什么改"基础名"而不是改每个调用点：下游所有索引名都是
+`<kb>` / `table_chunks_<kb>` / `table_summary_<kb>` 拼出来的，换基础名三条通道一起走，
+不会出现"正文切了、表格没切"的半切换。
+
+开关（进程环境变量，调用时读取，非法值 fail-closed 抛错，不静默退回）：
+
+| 变量 | 取值 | 说明 |
+|---|---|---|
+| `INGEST_READ_MODE` | `legacy`（默认）/`snapshot` | 未知值直接报错 |
+| `INGEST_READ_PREFIX` | 默认 `v2cand` | snapshot 模式下的索引前缀 |
+| `INGEST_READ_KBS` | 逗号分隔，可空 | 只有列出的知识库走 snapshot，其余保持 legacy |
+
+真实两实例对照（同一 query、`search_policy=2`、`top_k=2`、`kb_10`）：
+
+```
+19995 legacy 基线   -> docs=1  src=…M1-实体类型体系与归一化方案.docx   text=「7 里程碑M1-2 与 M1-1 可并行…」
+19996 snapshot 模式 -> docs=1  src=…/kb_10/M1.docx/V0/M1.docx         text=「文档编号 | RAG-ALG-GRAG-M1-001」
+19997 legacy 回退   -> docs=1  src=…M1-实体类型体系与归一化方案.docx   text=「7 里程碑M1-2 与 M1-1 可并行…」
+```
+
+即：**切换生效、回退生效、按库灰度生效**；候选索引已回退并核对
+`kb_10 13→13` / `table_chunks 24→24` / `table_summary` 未变，实验实例已关停。
+
+单测 `tests/test_projection_read.py` 6 项：默认 legacy、snapshot 全通道、按库灰度、
+非法模式拒绝、环境变量按调用读取、空名剔除。
+
+边界：本轮验证用的是"另起实例 + 环境变量"，不是线上实例热切换；线上要切换需重启检索服务
+（或在配置中心加同名键后由部署流程注入），属运维动作，未做。
