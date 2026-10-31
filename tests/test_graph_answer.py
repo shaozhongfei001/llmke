@@ -140,3 +140,32 @@ def test_assertion_rendered_with_names_not_ids():
     assert assertion_texts
     assert all("ent:" not in t for t in assertion_texts)
     assert any("产品甲" in t for t in assertion_texts)
+
+
+def test_table_rows_are_split_so_single_row_quote_can_match():
+    from graph_engine_adapter.answer import split_table_rows
+
+    table = ("客户名称 | 所属产业链 | 授信额度(万元)\n"
+             "江南装备 | 装备制造 | 5000\n大河物流 | 交通运输 | 3000")
+    rows = split_table_rows(table)
+    assert len(rows) == 3
+    assert rows[1] == "江南装备 | 装备制造 | 5000"
+
+
+def test_plain_paragraph_is_not_split():
+    from graph_engine_adapter.answer import split_table_rows
+    assert split_table_rows("这是一段普通正文。") == ["这是一段普通正文。"]
+
+
+def test_single_row_citation_passes_but_stitched_one_fails():
+    table = ("客户名称 | 授信额度(万元)\n江南装备 | 5000\n大河物流 | 3000")
+    hits = [{"text": table, "sources": [{"file_id": "329"}]}]
+    ctx = build_context(make_store(), hits)
+
+    from graph_engine_adapter.answer import verify_citations
+    good = verify_citations([{"file_id": "329", "quote": "江南装备 | 5000"}], ctx)
+    assert good["valid"] and not good["invalid"]
+
+    stitched = verify_citations([{"file_id": "329", "quote": "授信额度(万元) | 5000"}], ctx)
+    assert not stitched["valid"]
+    assert stitched["invalid"][0]["reason"] == "QUOTE_NOT_FOUND"

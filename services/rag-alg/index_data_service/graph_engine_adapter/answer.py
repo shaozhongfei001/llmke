@@ -44,6 +44,20 @@ def parse_answer(raw: str) -> Dict[str, Any]:
     return data
 
 
+def split_table_rows(text: str, min_rows: int = 3) -> List[str]:
+    """把表格段落按行拆开，让每条引用能落在**单行**上。
+
+    起因：整张表塞成一段时，模型会拼出 `"授信额度(万元) | 3000"` 这种原文里不存在的组合，
+    核验必然拒绝，但回答就此失败。拆成单行后，模型引用一行就是逐字命中。
+    只对"多数行含 |"的文本动手，普通段落原样返回（不改变语义）。
+    """
+    lines = [ln for ln in (text or "").splitlines() if ln.strip()]
+    pipe_rows = [ln for ln in lines if "|" in ln]
+    if len(lines) < min_rows or len(pipe_rows) < len(lines) * 0.6:
+        return [text]
+    return lines
+
+
 def build_context(store, hits: Sequence[Dict[str, Any]], *,
                   max_passages: int = 6, include_derived: bool = False) -> List[Dict[str, Any]]:
     """上下文 = 命中段落（默认不含平台派生断言）。
@@ -56,9 +70,11 @@ def build_context(store, hits: Sequence[Dict[str, Any]], *,
     seen_files = set()
     for hit in hits[:max_passages]:
         files = [s.get("file_id") for s in hit.get("sources") or [] if s.get("file_id")]
-        # 只有段落是原文，可被引用；断言是平台派生物，只能辅助理解
-        ctx.append({"kind": "passage", "text": hit.get("text", ""), "files": files,
-                    "citable": True})
+        # 只有段落是原文，可被引用；断言是平台派生物，只能辅助理解。
+        # 表格段落按行拆开：引用落在单行上才可能逐字命中。
+        for row in split_table_rows(hit.get("text", "")):
+            ctx.append({"kind": "table_row" if row != hit.get("text") else "passage",
+                        "text": row, "files": files, "citable": True})
         seen_files.update(files)
 
     if not include_derived:
