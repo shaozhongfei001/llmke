@@ -764,6 +764,40 @@ def check_mineru_wheelhouse():
            "只验包完整与摘要；装入干净 venv 的实测在证据文档里")
 
 
+def check_use_mineru_switch():
+    """`use-mineru` 开关真跑：开 → 出正文；关 → 不出；MinerU 坏 → 走 bypass 不崩。"""
+    import subprocess
+
+    py = os.environ.get("V2_SWITCH_PYTHON") or os.environ.get("V2_MINERU_PYTHON")
+    if not py or not os.path.isfile(py):
+        record("mineru:use-mineru 开关", "SKIP", {"why": "未提供 V2_SWITCH_PYTHON（需装 MinerU 的 venv）"})
+        return
+    pdf = REPO / "platform/r12/parse/fixtures/generated/cn-scan.pdf"
+    if not pdf.is_file():
+        record("mineru:use-mineru 开关", "SKIP", {"why": "扫描件样本缺失"})
+        return
+    stamp = int(time.time())
+    out = f"/tmp/q-switch-{stamp}.json"
+    env = {**os.environ}
+    if not env.get("MINERU_TOOLS_CONFIG_JSON"):
+        record("mineru:use-mineru 开关", "SKIP", {"why": "缺 MINERU_TOOLS_CONFIG_JSON"})
+        return
+    proc = subprocess.run([py, str(REPO / "scripts/v2_switch_drill.py"),
+                           "--pdf", str(pdf), "--python", py, "--out", out],
+                          capture_output=True, text=True, timeout=2400, env=env)
+    if not os.path.isfile(out):
+        record("mineru:use-mineru 开关", "FAIL", {"tail": (proc.stderr or "")[-300:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    ok = d.get("status") == "OK"
+    record("mineru:use-mineru 开关", "PASS" if ok else "FAIL",
+           {"on": {"chars": d["on"]["chars"], "hit": d["on"]["hit"]},
+            "off": {"chars": d["off"]["chars"], "hit": d["off"]["hit"]},
+            "broken": {"chars": d["broken"]["chars"], "events": d["broken"].get("events")},
+            "problems": d.get("problems")},
+           "真实 nacos 开关 + MinIO 取文件；只测扫描 PDF，未测 doc/docx 转换路径")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -993,6 +1027,7 @@ def main(argv=None):
     check_metrics_and_alert_channel()
     check_incremental_rebuild()
     check_mineru_wheelhouse()
+    check_use_mineru_switch()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

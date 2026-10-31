@@ -201,7 +201,15 @@
        ②我 rm nvidia_*.whl 误删 nvidia-ml-py（ultralytics 依赖）；③omegaconf 运行时才 import；
        ④离线装会顶掉 parse 侧 httpx/pdfminer.six/openai（能跑，但未验长期兼容）。
        未做：无外网机器实测、openai 3.x 在线模式、联合约束文件、wheel 去重
-    2) A2 剩余：use-mineru 开关切换与回退演练（离线安装已通）
+    1z) use-mineru 开关真跑（本轮）：scripts/v2_switch_drill.py 用测试 data-id 发布 on/off/
+       broken 三份配置（不动线上），样本传 MinIO（v2probe/），子进程跑真实 load_files。
+       结果：开 → 111 字符且命中「授信审批意见通知书」；关 → 0 字符；MinerU 坏 → 日志依次
+       出现「使用minerU parser」→「外部解析器解析失败」→「使用parser」→ 空结果但不崩。
+       四个坑：①ParsedText 正文在 page_content 不在 .text（我差点误判解析失败）；
+       ②MinerUParser 拼 request_id.get()，无请求上下文即 TypeError；
+       ③平台 loguru enqueue 队列 sink 被 magic_pdf 多进程 pickle；④load_files 只认 MinIO 路径。
+       未做：doc/docx 转换路径（LibreOffice）、热切换并发、self-built OCR 模型齐套、线上 data-id 仍 false
+    2) 部署收口：镜像 tar 在干净机 load + 服务启动、差分升级演练
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层
