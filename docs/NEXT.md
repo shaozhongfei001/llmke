@@ -122,7 +122,12 @@
        实测 3 次快速变更→1 次构建，再一次变更→第 2 次；快照 5 块、两次后均 fresh。
        自查 bug：取批只复制没清空 → pending 重复计数（2 vs 1、4 vs 2），重试会重复构建；
        另修 Q 测试污染：固定 /tmp/q-window 目录导致"撤权后仍被拒"判定失真，改为按运行隔离目录。
-       Q 现 32 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。未做：多实例协调、积压上限/背压、定时窗口、告警与退避
+       Q 现 32 PASS / 0 FAIL / 0 NOT_IMPLEMENTED
+    1o) 重建故障边界（coordinator 加 max_pending/backoff/alert_after，测试 10 项）：
+       积压满→BACKPRESSURE 拒绝入队；连续失败指数退避 1→2→4（封顶），退避期返回 BACKOFF
+       不碰下游；到阈值告警一次（回调在锁外）；成功复位；失败整批放回不丢请求。
+       Q 增 graph:重建退避与背压（假时钟），现 33 PASS / 0 FAIL / 0 NOT_IMPLEMENTED。
+       未做：真实告警通道、退避到点的自动调度、多实例协调、BACKPRESSURE 的上游用户提示
        更正：提交 1cde4f7 信息里写"372 passed"是笔误，实测 371 passed / 11 skipped / 1 failed
       （既有 security_scan）
     2) A2：torch 构建选型（cu121 vs cpu）确定后补 wheelhouse，再谈 use-mineru 切换与回退

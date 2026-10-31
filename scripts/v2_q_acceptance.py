@@ -366,6 +366,46 @@ def check_rebuild_coalescing():
            "单进程协调器；多实例需外部协调（未做），失败重试/积压上限未做")
 
 
+def check_rebuild_backpressure():
+    """重建故障边界：背压拒绝、指数退避、到点重试、成功复位、阈值告警。"""
+    from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator
+
+    class Clock:
+        now = 1000.0
+
+        def __call__(self):
+            return self.now
+
+    clock = Clock()
+    alerts = []
+
+    def broken(batch):
+        raise RuntimeError("模型不可用")
+
+    c = RebuildCoordinator(broken, clock=clock, max_pending=2, backoff_base=1.0,
+                           backoff_factor=2.0, backoff_max=4.0, alert_after=2,
+                           on_alert=lambda e, p: alerts.append((e, p)))
+
+    c.request("u", files=["a"]); c.request("u", files=["b"])
+    rejected = c.request("u", files=["c"])["status"]
+    first = c.run_once()
+    during = c.run_once()["status"]
+    clock.now += first["retry_in_s"] + 0.1
+    second = c.run_once()
+    clock.now += second["retry_in_s"] + 0.1
+    third = c.run_once()
+
+    ok = (rejected == "BACKPRESSURE" and first["status"] == "FAILED"
+          and during == "BACKOFF"
+          and [first["retry_in_s"], second["retry_in_s"], third["retry_in_s"]] == [1.0, 2.0, 4.0]
+          and len(alerts) == 1 and c.stats()["pending"] == 2)
+    record("graph:重建退避与背压", "PASS" if ok else "FAIL",
+           {"rejected": rejected, "delays": [first["retry_in_s"], second["retry_in_s"],
+                                             third["retry_in_s"]],
+            "alerts": len(alerts), "pending_kept": c.stats()["pending"]},
+           "进程内协调器逻辑；真实告警通道、定时调度、多实例协调未接")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -547,6 +587,7 @@ def main(argv=None):
     check_rebuild_window()
     check_rebuild_consistency()
     check_rebuild_coalescing()
+    check_rebuild_backpressure()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:
