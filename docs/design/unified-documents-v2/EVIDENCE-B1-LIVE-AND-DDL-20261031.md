@@ -235,8 +235,14 @@ json-body     -> ApplicationException: 没有token          （下游 errorMsg �
 channels {'text': 46, 'table': 17}   missing ['table_summary']
 ```
 
-后果：直接切 snapshot 后，"总结驱动"的表格召回会返回空（表格不会被检索到），
-而普通正文检索看起来正常——属于**静默功能回退**，比块数差异严重。
+严重度更正（按实际代码复核，不夸大）：`retrieval_service.py:56-57` 把 `table_chunks_<kb>`
+**无条件**加入召回列表，所以切 snapshot 后表格仍能被**直接**检索到；缺的是
+"总结命中 → 按 pk 拉明细"的第二段（`retrieval_table_chunks()`）。
+因此后果是**表格匹配质量退化**（失去两段式召回），不是"表格完全检不到"。
+
+但该路径 `retrieval_service.py:397` 把 `enabled_summary=True` **写死**（不是配置项，
+`search_config.config_json` 里也没有该键），所以不能靠改配置绕开——要么投影补摘要通道，
+要么改消费者。
 
 已做（本轮）：`ingest_pipeline.channel_gaps()` 把缺口显式列进 `missing_channels`，
 只要文档含表格就报 `table_summary`；测试 `test_table_summary_channel_gap_is_reported_not_silent` 钉住。
