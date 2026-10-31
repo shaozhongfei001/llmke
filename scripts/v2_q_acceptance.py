@@ -865,6 +865,82 @@ def check_delta_upgrade_roundtrip():
            "只验快照/比对闭环；真实降级（26 包）在 EVIDENCE-DEPLOY-CLOSEOUT 里")
 
 
+def check_systemd_units():
+    """systemd 单元渲染 + `systemd-analyze verify`（只认与本单元相关的告警）。"""
+    import subprocess
+
+    out_dir = tempfile.mkdtemp(prefix="q-systemd-")
+    proc = subprocess.run([sys.executable, str(REPO / "scripts/install_systemd_units.py"),
+                           "--out", out_dir, "--verify"],
+                          capture_output=True, text=True, timeout=120)
+    text = (proc.stdout or "").strip().splitlines()
+    payload = None
+    for line in text:
+        if line.startswith("{"):
+            payload = json.loads(line)
+    units = sorted(os.listdir(out_dir))
+    ok = bool(payload) and payload.get("status") == "PASS" and units
+    record("deploy:systemd 单元渲染与校验", "PASS" if ok else "FAIL",
+           {"units": units, "result": payload,
+            "tail": (proc.stderr or "")[-160:] if not ok else ""},
+           "只验渲染与 systemd-analyze；未在真实 systemd 上 enable/start")
+
+
+def check_graph_worker_service():
+    """常驻进程：/healthz、/metrics、SIGTERM 优雅退出。"""
+    import subprocess
+    import urllib.request
+
+    payload = "/tmp/ingest-333.json"
+    if not os.path.isfile(payload):
+        record("deploy:常驻进程健康与优雅停机", "SKIP", {"why": "缺少 /tmp/ingest-333.json"})
+        return
+    port = 18871
+    root = tempfile.mkdtemp(prefix="q-worker-")
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    proc = subprocess.Popen([sys.executable, str(REPO / "scripts/v2_graph_worker.py"),
+                             "--root", root, "--payloads", payload,
+                             "--lease", os.path.join(root, "lease"),
+                             "--metrics-port", str(port)],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
+    problems, health, metrics = [], None, ""
+    try:
+        deadline = time.time() + 30
+        while time.time() < deadline:
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/healthz", timeout=2) as r:
+                    health = json.loads(r.read())
+                break
+            except Exception:  # noqa: BLE001
+                time.sleep(0.5)
+        if not health:
+            problems.append("/healthz 30s 内不可用")
+        else:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics", timeout=3) as r:
+                metrics = r.read().decode()
+            if "llmke_graph_scheduler_cycles_total" not in metrics:
+                problems.append("/metrics 缺核心计数器")
+            if "nan" in metrics or "inf" in metrics:
+                problems.append("/metrics 输出 nan/inf")
+        proc.terminate()
+        try:
+            code = proc.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            problems.append("SIGTERM 15s 内未退出")
+            code = None
+        if code not in (0, None):
+            problems.append(f"退出码 {code}")
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+
+    record("deploy:常驻进程健康与优雅停机", "PASS" if not problems else "FAIL",
+           {"health": health, "metrics_lines": len(metrics.splitlines()),
+            "exit_code": proc.returncode, "problems": problems},
+           "只验端点与停机；未验 systemd 托管、未验重建实际发生")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -1097,6 +1173,8 @@ def main(argv=None):
     check_use_mineru_switch()
     check_image_load_smoke()
     check_delta_upgrade_roundtrip()
+    check_systemd_units()
+    check_graph_worker_service()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

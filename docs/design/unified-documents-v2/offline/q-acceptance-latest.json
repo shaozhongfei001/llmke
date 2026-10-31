@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 44,
+  "PASS": 46,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 0
@@ -129,8 +129,8 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "VERIFIED": 10,
      "NOT_VERIFIED": 1,
+     "VERIFIED": 10,
      "NOT_IMPLEMENTED": 6
     },
     "graph_route": "NOT_VERIFIED"
@@ -281,7 +281,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 540,
+     "blocked": 415,
      "allowed": 0
     },
     "after_allowed": true
@@ -297,10 +297,10 @@
      "340"
     ],
     "readers_blocked": [
-     1386,
-     1384,
-     1386,
-     1375
+     1997,
+     1994,
+     1998,
+     1995
     ],
     "readers_allowed": [
      0,
@@ -390,14 +390,14 @@
      "B": 1
     },
     "fencing": {
-     "A": null,
+     "A": 2,
      "B": 1
     },
     "not_leader": {
-     "A": 183,
+     "A": 158,
      "B": 0
     },
-    "lease_key": "q-lease-1793465324"
+    "lease_key": "q-lease-1793468238"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -429,7 +429,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 36.3,
+    "elapsed_s": 35.9,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -449,7 +449,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:40141/hook",
+     "url": "http://127.0.0.1:44059/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -462,9 +462,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 38.1,
-    "delta_s": 6.3,
-    "speedup_x": 6.1,
+    "full_s": 38.4,
+    "delta_s": 3.7,
+    "speedup_x": 10.4,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -513,10 +513,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 00:54:45.149 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 00:54:46.161 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 00:54:46.161 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 00:54:46.166 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 01:43:09.156 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 01:43:10.145 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 01:43:10.145 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 01:43:10.150 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -555,6 +555,39 @@
    "boundary": "只验快照/比对闭环；真实降级（26 包）在 EVIDENCE-DEPLOY-CLOSEOUT 里"
   },
   {
+   "item": "deploy:systemd 单元渲染与校验",
+   "status": "PASS",
+   "evidence": {
+    "units": [
+     "llmke-v2-graph-worker.service"
+    ],
+    "result": {
+     "status": "PASS",
+     "units": [
+      "llmke-v2-graph-worker.service"
+     ],
+     "verify": "PASS"
+    },
+    "tail": ""
+   },
+   "boundary": "只验渲染与 systemd-analyze；未在真实 systemd 上 enable/start"
+  },
+  {
+   "item": "deploy:常驻进程健康与优雅停机",
+   "status": "PASS",
+   "evidence": {
+    "health": {
+     "status": "ok",
+     "owner": "x2:3179938",
+     "fencing": null
+    },
+    "metrics_lines": 66,
+    "exit_code": 0,
+    "problems": []
+   },
+   "boundary": "只验端点与停机；未验 systemd 托管、未验重建实际发生"
+  },
+  {
    "item": "biz:global 报告/引用失效识别",
    "status": "PASS",
    "evidence": {
@@ -575,7 +608,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款的数据源为T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源为T-EXT-",
+    "answer": "多指标对账口径包括：日均存款，数据源T-CORE-001，口径为按业务日跨账户汇总/天数；用电量，数据源T-EXT-00",
     "citations": 2,
     "model": "deepseek-flash"
    },

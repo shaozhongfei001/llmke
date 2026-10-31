@@ -225,7 +225,15 @@
        pandas 2.3.2→2.0.3、fastapi 0.162.0→0.109.1；注意 pydantic 基线 2.14.1 反而被升级降到
        2.10.6，再回滚回 2.14.1 —— "升级"不总是升，回滚必须按快照版本走。
        未做：服务进程真跑、extras 清理策略、缺 wheel 时的回滚失败演练、非原子回滚窗口
-    2b) 部署剩余：进程守护与启动顺序、灰度发布、真实告警通道接入
+    2d) 常驻进程与启动顺序（本轮）：scripts/v2_graph_worker.py（调度循环 + 租约 + /healthz +
+       /metrics + SIGTERM 优雅退出）；scripts/wait_ready.py（tcp/http/nacos 探针，超时退出码 2）；
+       deploy/systemd/llmke-v2-graph-worker.service（@REPO@/@PYTHON@ 占位 + StartLimit +
+       KillMode=control-group）+ install_systemd_units.py 渲染并交 systemd-analyze 校验。
+       实测：/healthz ok、/metrics 66 行、SIGTERM 3s 内退出；探针真依赖 READY、死端口 TIMEOUT；
+       单元 verify PASS（注意 analyze 会扫全机 unit，只认本单元相关行；"Executable not found" 只警告不返非零）。
+       自己踩坑：首版启动即 request("worker-ready") → 每次重启都触发全量重抽，已删。
+       未做：真实 systemd enable/start、依赖恢复后自动拉起、payload 同步、/metrics 鉴权、parse 单元统一
+    2e) 部署剩余：灰度发布、真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层

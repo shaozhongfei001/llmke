@@ -1,0 +1,183 @@
+#!/usr/bin/env python
+"""图重建常驻进程：把调度器 + 租约 + 指标 + 告警接成一个能交给 systemd 的服务。
+
+之前这些能力都只存在于演练脚本里：演练跑完进程就退出，没人守护、没有端点、没有优雅停机。
+这个入口把它们装成一个**长驻**进程：
+
+- 循环：`RebuildScheduler.run(stop_event)`，收到 SIGTERM/SIGINT 在下一个检查点退出；
+- 多实例：`--lease-backend file|mysql`，拿不到租约就只跟随、不构建；
+- 观测：`/healthz`（进程活着）与 `/metrics`（Prometheus 文本，标准库实现，不引依赖）；
+- 告警：`--alert-webhook` 时走 `WebhookAlertSink`（永不抛，失败只记账）。
+
+刻意不做的事：不从数据库拉待重建队列、不做灰度、不做鉴权。
+这个进程只做"把已有快照按当前文档集重建并原子切换"，数据来源由 `--payloads` 显式给出。
+"""
+
+import argparse
+import json
+import os
+import signal
+import sys
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(HERE, "services/rag-alg/index_data_service"))
+
+
+def load_docs(payloads):
+    docs = []
+    for path in payloads:
+        payload = json.load(open(path, encoding="utf-8"))
+        for chunk in payload.get("chunks", []):
+            meta = chunk.get("metadata", {})
+            docs.append({"file_id": str(meta.get("file_id", "")),
+                         "text": chunk["page_content"]})
+    return docs
+
+
+def build_lease(args):
+    if args.lease_backend == "mysql":
+        from graph_engine_adapter.lease_mysql import MySqlLease, make_pymysql_factory
+
+        env = os.environ
+        factory = make_pymysql_factory(
+            host=env["LLMKE_LEASE_MYSQL_HOST"],
+            port=int(env.get("LLMKE_LEASE_MYSQL_PORT", "3306")),
+            user=env["LLMKE_LEASE_MYSQL_USER"], password=env["LLMKE_LEASE_MYSQL_PASSWORD"],
+            database=env["LLMKE_LEASE_MYSQL_DB"])
+        lease = MySqlLease(factory, owner=args.owner, ttl=args.lease_ttl,
+                           lease_key=args.lease_key)
+        lease.ensure_schema()
+        return lease
+    from graph_engine_adapter.lease import FileLease
+
+    if not args.lease:
+        raise SystemExit("--lease-backend file 需要 --lease <path>")
+    return FileLease(args.lease, owner=args.owner, ttl=args.lease_ttl)
+
+
+def make_handler(sched, lease):
+    from graph_engine_adapter.metrics import render_with_lease
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802
+            if self.path in ("/healthz", "/health"):
+                body = json.dumps({"status": "ok", "owner": getattr(sched, "owner", None),
+                                   "fencing": sched.lease_fencing}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            if self.path.startswith("/metrics"):
+                text = render_with_lease(sched, lease).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+                self.send_header("Content-Length", str(len(text)))
+                self.end_headers()
+                self.wfile.write(text)
+                return
+            self.send_error(404)
+
+        def log_message(self, *args):
+            return None
+
+    return Handler
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--root", required=True, help="快照根目录（含 pointer.json）")
+    ap.add_argument("--payloads", nargs="+", required=True, help="当前文档投影（json）")
+    ap.add_argument("--lease-backend", choices=["file", "mysql"], default="file")
+    ap.add_argument("--lease", default=None)
+    ap.add_argument("--lease-key", default="rebuild")
+    ap.add_argument("--lease-ttl", type=float, default=120.0)
+    ap.add_argument("--owner", default=f"{os.uname().nodename}:{os.getpid()}")
+    ap.add_argument("--metrics-port", type=int, default=0, help="0 = 不监听（只写文件）")
+    ap.add_argument("--metrics-out", default=None)
+    ap.add_argument("--alert-webhook", default=None)
+    ap.add_argument("--debounce", type=float, default=0.5)
+    ap.add_argument("--idle-poll", type=float, default=1.0)
+    ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
+    ap.add_argument("--embed", default="http://127.0.0.1:18090/v1")
+    ap.add_argument("--cjk-compat", action="store_true")
+    ap.add_argument("--enqueue-on-start", action="store_true",
+                    help="启动时立刻请求一次重建（默认不请求，只等外部触发）")
+    args = ap.parse_args(argv)
+
+    if args.cjk_compat:
+        from graph_engine_adapter.hipporag_compat import install_cjk_text_processing
+        install_cjk_text_processing()
+
+    from graph_engine_adapter.alert_sink import WebhookAlertSink
+    from graph_engine_adapter.engine_hipporag import HippoRAGEngine
+    from graph_engine_adapter.fence import FenceState
+    from graph_engine_adapter.rebuild import rebuild_if_stale
+    from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator
+    from graph_engine_adapter.rebuild_scheduler import RebuildScheduler
+
+    docs = load_docs(args.payloads)
+    fence = FenceState()
+    lease = build_lease(args)
+
+    def build_once(batch):
+        def build_fn(items, target):
+            return HippoRAGEngine(save_dir=target, llm_base_url=args.llm,
+                                  embedding_base_url=args.embed).build(
+                [d["text"] for d in items])
+        result = rebuild_if_stale(args.root, fence, docs, build_fn,
+                                  fencing=sched.lease_fencing)
+        return {"status": result["status"],
+                "documents": (result.get("current") or {}).get("documents")}
+
+    coord = RebuildCoordinator(build_once)
+    webhook = WebhookAlertSink(args.alert_webhook) if args.alert_webhook else None
+    on_alert = (lambda event: webhook(event)) if webhook else None
+    sched = RebuildScheduler(coord, debounce=args.debounce, idle_poll=args.idle_poll,
+                             lease=lease, on_alert=on_alert, alert_every_s=60.0)
+    sched.owner = args.owner
+
+    stop = threading.Event()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, lambda *_a: stop.set())
+
+    server = None
+    if args.metrics_port:
+        server = ThreadingHTTPServer(("127.0.0.1", args.metrics_port),
+                                     make_handler(sched, lease))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+
+    if args.enqueue_on_start:
+        coord.request("startup", files=sorted({d["file_id"] for d in docs}))
+
+    started = time.time()
+    print(json.dumps({"event": "start", "owner": args.owner,
+                      "pid": os.getpid(), "docs": len(docs),
+                      "metrics_port": args.metrics_port,
+                      "lease": args.lease_backend, "lease_key": args.lease_key},
+                     ensure_ascii=False), flush=True)
+
+    out = sched.run(stop)
+    if server is not None:
+        server.shutdown()
+    if args.metrics_out:
+        from graph_engine_adapter.metrics import render_with_lease
+        with open(args.metrics_out, "w", encoding="utf-8") as fh:
+            fh.write(render_with_lease(sched, lease))
+    try:
+        lease.release()
+    except Exception:  # noqa: BLE001
+        pass
+
+    print(json.dumps({"event": "stop", "uptime_s": round(time.time() - started, 1),
+                      "cycles": out.get("cycles"), "stats": sched.stats()},
+                     ensure_ascii=False), flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
