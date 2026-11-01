@@ -33,7 +33,9 @@ def load_docs(payloads):
         for chunk in payload.get("chunks", []):
             meta = chunk.get("metadata", {})
             docs.append({"file_id": str(meta.get("file_id", "")),
-                         "text": chunk["page_content"]})
+                         "text": chunk["page_content"],
+                         # 可见范围必须一路带下来：丢掉它，--scope 就会把所有人都当 public
+                         "visibility": meta.get("visibility")})
     return docs
 
 
@@ -127,6 +129,9 @@ def main(argv=None):
     ap.add_argument("--lease-backend", choices=["file", "mysql"], default="file")
     ap.add_argument("--lease", default=None)
     ap.add_argument("--lease-key", default="rebuild")
+    ap.add_argument("--scope", default=None,
+                    help="按可见范围建索引：只收 visibility 含该范围（或 public）的文档；"
+                         "root 必须含 {scope}，否则多个范围会写同一目录")
     ap.add_argument("--lease-scope", choices=["global", "kb"], default="global",
                     help="global=全库单租约；kb=每知识库一个租约（可并行重建，需 --root 含 {kb}）")
     ap.add_argument("--kb-id", default="default", help="知识库标识，用于灰度策略判定")
@@ -162,8 +167,16 @@ def main(argv=None):
 
     if "{kb}" in args.root:
         args.root = args.root.replace("{kb}", args.kb_id)
+    if args.scope:
+        if "{scope}" not in args.root:
+            raise SystemExit("--scope 要求 --root 含 {scope}（不同范围必须写不同快照目录）")
+        args.root = args.root.replace("{scope}", args.scope)
 
     docs = load_docs(args.payloads)
+    if args.scope:
+        # 构建期隔离：不可见的文档**不进这个索引**，而不是建完再过滤。
+        from graph_engine_adapter.partition import build_plan
+        docs = build_plan(docs, [args.scope])[args.scope]
     fence = FenceState()
     lease = build_lease(args)
 

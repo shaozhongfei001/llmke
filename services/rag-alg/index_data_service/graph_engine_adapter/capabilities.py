@@ -135,10 +135,13 @@ CAPABILITIES = {
         "evidence": "tests/test_retrieval_filter.py",
     },
     "engine_visibility_isolation": {
-        "status": "NOT_VERIFIED",
-        "note": "查询侧后置过滤已接进 pipeline（filter_scopes + doc_scopes，查不到可见域时 "
-                "fail-closed 丢弃；与版本过滤方向相反是有意的）；构建期按可见集合隔离索引仍未做",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "构建期隔离：partition.build_plan 只把可见文档喂给该范围的索引（public 全局可见），"
+                "scopes.json 路由查不到即 fail-closed（绝不回退全量）；worker --scope 按范围建库。"
+                "真跑 10 块语料：dept-a 5 文档/9 块、dept-b 6 文档/10 块，"
+                "只对 dept-b 可见的文本在 dept-a 索引里检索不到（contains_target=false），dept-b 能检索到。"
+                "代价：索引数×磁盘/时间、共享内容重复抽取；跨范围合并检索未做",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-SCOPE-PARTITION-20261101.md",
     },
 }
 

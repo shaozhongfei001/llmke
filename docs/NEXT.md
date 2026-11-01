@@ -495,6 +495,15 @@
 - 真库验证：不同 key 两者都 acquired；同 key 第二个被拒。测试 5 项。
 - 未做：按 kb 的配额/限速、租约表的 key 清理策略、跨库可见性隔离。
 
+### 新增：构建期可见隔离（2026-11-01 晚，已完成）
+- `partition.py`（可见性规划 + 清单路由 fail-closed + 路径穿越安全）+ `v2_partition_drill.py`
+  + worker `--scope`（root 必须含 `{scope}`）。
+- 真跑：dept-a 5 文档/9 块、dept-b 6 文档/10 块；只对 dept-b 可见的文本在 dept-a 检索不到、
+  在 dept-b 能检索到；快照内容层面也无泄漏。
+- 测试 9 项（含"worker 读文档要把 visibility 带下来"）。
+- 代价：每范围一份索引（磁盘/构建时间线性增长）、共享内容重复抽取、跨范围合并未做。
+- 未做：跨范围合并检索、范围变更增量重建、文档内块级可见性继承。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。
