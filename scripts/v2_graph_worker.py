@@ -107,7 +107,8 @@ def make_handler(sched, lease, guard=None):
                 self.wfile.write(body)
                 return
             if self.path.startswith("/metrics"):
-                text = render_with_lease(sched, lease).encode("utf-8")
+                labels = {"kb": args.kb_id} if args.metrics_label_kb else None
+                text = render_with_lease(sched, lease, labels).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
                 self.send_header("Content-Length", str(len(text)))
@@ -141,6 +142,8 @@ def main(argv=None):
     ap.add_argument("--owner", default=f"{os.uname().nodename}:{os.getpid()}")
     ap.add_argument("--metrics-port", type=int, default=0, help="0 = 不监听（只写文件）")
     ap.add_argument("--metrics-out", default=None)
+    ap.add_argument("--metrics-label-kb", action="store_true",
+                    help="指标带 kb=<kb-id> 标签：一个 worker 服务一个库时，面板上才能按库切片")
     ap.add_argument("--metrics-token", default=None,
                     help="/metrics 的 Bearer token（不配则不鉴权，仅建议内网）")
     ap.add_argument("--metrics-allow-ip", action="append", default=[],
@@ -240,7 +243,8 @@ def main(argv=None):
     if args.metrics_out:
         from graph_engine_adapter.metrics import render_with_lease
         with open(args.metrics_out, "w", encoding="utf-8") as fh:
-            fh.write(render_with_lease(sched, lease))
+            labels = {"kb": args.kb_id} if args.metrics_label_kb else None
+            fh.write(render_with_lease(sched, lease, labels))
     try:
         lease.release()
     except Exception:  # noqa: BLE001

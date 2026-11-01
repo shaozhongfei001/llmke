@@ -142,7 +142,8 @@ def _stats_of(obj: Any) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------- 渲染
-def _render(stats: Dict[str, Any], lease: Any = None) -> str:
+def _render(stats: Dict[str, Any], lease: Any = None,
+            labels: Optional[Dict[str, Any]] = None) -> str:
     lines: List[str] = []
     emitted: Set[str] = set()
 
@@ -153,7 +154,7 @@ def _render(stats: Dict[str, Any], lease: Any = None) -> str:
         emitted.add(full)
         lines.append(f"# HELP {full} {_escape(help_text)}")
         lines.append(f"# TYPE {full} {kind}")
-        lines.append(f"{full} {_fmt(value)}")
+        lines.append(f"{full}{_label_text(labels)} {_fmt(value)}")
 
     for key, name, kind, help_text in _SCHEDULER_METRICS:
         if key not in stats:
@@ -175,16 +176,35 @@ def _render(stats: Dict[str, Any], lease: Any = None) -> str:
     return "".join(line + "\n" for line in lines)
 
 
-def render(scheduler: Any, lease: Any = None) -> str:
+def _label_text(labels: Optional[Dict[str, Any]]) -> str:
+    """把标签渲染成 `{k="v",...}`：**排序**保证同一组标签每次输出一致（面板/快照可比），
+    值按 Prometheus 文本格式转义（反斜杠、双引号、换行）。空标签返回空串（不改动原序列名）。
+    """
+    if not labels:
+        return ""
+    parts = []
+    for key in sorted(labels):
+        value = str(labels[key])
+        value = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+        parts.append(f'{key}="{value}"')
+    return "{" + ",".join(parts) + "}"
+
+
+def render(scheduler: Any, lease: Any = None,
+           labels: Optional[Dict[str, Any]] = None) -> str:
     """把调度器（含透传的协调器字段）渲染成 Prometheus 文本。
 
     `lease` 可选：传了才输出租约驱动自己的度量（慢操作次数/最近耗时/预算）。
     fencing 由 `scheduler.stats()["fencing"]` 带出；没有租约时为 None → 整条省略。
+
+    `labels` 可选：给**所有**序列加同一组标签（典型用法：一个 worker 服务一个知识库，
+    导出时带 `kb="kb_9"`，面板上才能按库切片）。不传则输出与原来逐字节一致。
     """
-    return _render(_stats_of(scheduler), lease)
+    return _render(_stats_of(scheduler), lease, labels)
 
 
-def render_with_lease(scheduler: Any, lease: Any = None) -> str:
+def render_with_lease(scheduler: Any, lease: Any = None,
+                      labels: Optional[Dict[str, Any]] = None) -> str:
     """`render()` 的"自动带租约"版本。
 
     与 `render()` 的差别只有两处，都是为了接部署侧方便：
@@ -197,4 +217,5 @@ def render_with_lease(scheduler: Any, lease: Any = None) -> str:
     stats = dict(_stats_of(scheduler))
     if "fencing" not in stats:
         stats["fencing"] = getattr(scheduler, "lease_fencing", None)
-    return _render(stats, lease if lease is not None else getattr(scheduler, "lease", None))
+    return _render(stats, lease if lease is not None else getattr(scheduler, "lease", None),
+                   labels)
