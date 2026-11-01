@@ -109,21 +109,26 @@ CAPABILITIES = {
         "evidence": "tests/test_graph_pipeline.py",
     },
     "engine_predicate_normalization": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "断言层已能表达方向与单位，但引擎抽取结果尚未归一进该层",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "normalize.build_store 把引擎 openie 三元组归一进断言层：谓词只查**显式字典**"
+                "（查不到原样保留，不猜不模糊匹配）、数值解析（万元等）、来源绑定（对不上来源"
+                "丢弃并计数）。真跑 dual-full：facts_in=50 → assertions=26 / entities=26 / "
+                "orphans=0；未映射谓词 8 个如实列出（五级分类/信用评级/到期日/已用额度(万元) 等）；"
+                "把来源查找换成空列表 → dropped_no_source=50（fail-closed，不挂空来源）",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-WAVE3-CLOSEOUT-20261101.md",
     },
     "engine_version_filtering": {
         "status": "NOT_VERIFIED",
-        "note": "检索结果后置过滤已实现（retrieval_filter.filter_hits：按断言 effective_from/to 判窗口，"
-                "部分来源过期不误杀整块，无日期事实计入 unknown_window 而非直接过期）；"
-                "11 项测试通过，但**未接进 pipeline 默认路径**——所以还不能说「引擎检索已按生效期约束」",
+        "note": "检索后置过滤已接进 pipeline（可选参数 as_of/filter_scopes，默认关闭不改变原行为）："
+                "按断言 effective_from/to 判窗口，部分来源过期不误杀整块，"
+                "无日期事实计入 unknown_window 而非直接过期；丢了多少回传 version_filter.stats。"
+                "16 项测试（11 过滤 + 5 接线）。仍是**平台侧过滤**，引擎自身没变——所以不写 VERIFIED",
         "evidence": "tests/test_retrieval_filter.py",
     },
     "engine_visibility_isolation": {
         "status": "NOT_VERIFIED",
-        "note": "查询侧后置过滤已实现（scopes + doc_scopes，查不到可见域时 fail-closed 丢弃；"
-                "与版本过滤方向相反是有意的）；构建期按可见集合隔离索引仍未做",
+        "note": "查询侧后置过滤已接进 pipeline（filter_scopes + doc_scopes，查不到可见域时 "
+                "fail-closed 丢弃；与版本过滤方向相反是有意的）；构建期按可见集合隔离索引仍未做",
         "evidence": None,
     },
 }

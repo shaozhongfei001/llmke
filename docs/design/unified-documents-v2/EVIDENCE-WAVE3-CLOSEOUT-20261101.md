@@ -85,6 +85,36 @@ ingest-329.json 4016 bytes, chunks 2
 11 项测试通过。**没有接进 pipeline 默认路径**，所以 `capabilities` 里只升到 `NOT_VERIFIED`，
 不写成"引擎检索已按生效期约束"。
 
+## 7. 谓词归一（更正一条过时结论）
+
+`capabilities` 里 `engine_predicate_normalization` 一直写着 NOT_IMPLEMENTED（"引擎抽取结果尚未归一"），
+但 `normalize.build_store` 早就在做这件事，且 `v2_answer_e2e` / `v2_community_report` / `v2_graph_bridge`
+三条真实链路都在用。真跑 dual-full：
+
+```
+facts_in=50 → assertions=26 / entities=26 / orphans=0
+unmapped_predicates=8（五级分类/信用评级/到期日/已用额度(万元)/所属产业链/授信额度(万元)/超过/须经）
+把来源查找换成空列表 → dropped_no_source=50（fail-closed，绝不挂空来源）
+```
+
+结论：这条能力是"已实现但声明过时"，不是"没做"。改为 VERIFIED 并指向本文档。
+未映射的 8 个谓词如实保留原名（只查显式字典，不猜不模糊匹配），这是设计而非缺陷。
+
+## 8. 版本/可见过滤接进 pipeline（可选开关）
+
+`pipeline.retrieve()` 增 `as_of` / `filter_scopes` / `doc_scopes`，**默认不传 = 行为完全不变**；
+打开后调 `retrieval_filter.filter_hits`，并把 `version_filter.stats` 回传（掉了多少必须能解释）。
+5 项接线测试用真 `AssertionStore` + 假 retriever：默认路径无新字段、窗口外丢弃并报 OUT_OF_WINDOW、
+窗口内保留、SCOPE_DENIED、UNKNOWN_SCOPE fail-closed。
+
+仍标 NOT_VERIFIED：这是**平台侧后置过滤**，引擎执行期没有约束，构建期也没有按可见集合隔离索引。
+
+## 9. 租约表预建迁移（DDL 权限收紧时的出路）
+
+新增 `graph_engine_adapter/sql/002_rebuild_lease.sql`，与 `lease_mysql.DDL` **逐字一致**，
+并加 3 项防漂移测试（空白归一后比较、必须有主键、必须 `IF NOT EXISTS`）。
+生产把 DDL 权限收紧后由 DBA 预建，应用不再依赖运行时建表权限。
+
 ## 能力声明变更
 
 | 能力 | 之前 | 现在 |

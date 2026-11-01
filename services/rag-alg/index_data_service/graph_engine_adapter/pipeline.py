@@ -54,7 +54,10 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
              require_graph: bool = False, fence: Optional[FenceState] = None,
              index_generation: Optional[int] = None,
              snapshot_fencing: Optional[int] = None,
-             min_snapshot_fencing: Optional[int] = None) -> Dict[str, Any]:
+             min_snapshot_fencing: Optional[int] = None,
+             as_of: Optional[str] = None,
+             filter_scopes: Optional[Set[str]] = None,
+             doc_scopes: Optional[Dict[str, Set[str]]] = None) -> Dict[str, Any]:
     """返回 {route, reason, hits, citations, invalid_citations, passed}。
 
     `require_graph=True` 用于强制图验收：一旦回退到稠密，`passed=False`，
@@ -84,6 +87,18 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
         fence_info["dropped"] = filtered["dropped"]
         if known_files is not None:
             known_files = {f for f in known_files if not fence.is_revoked(f)}
+
+    # 生效期 / 可见域的**后置过滤**：默认关闭（不传参数就完全不变），
+    # 因为它是业务语义而不是引擎能力；打开后必须留下 stats，否则"过滤掉了多少"无从解释。
+    version_info = None
+    if as_of is not None or filter_scopes is not None:
+        from .retrieval_filter import filter_hits as _filter_version
+
+        versioned = _filter_version(raw or [], as_of=as_of, scopes=filter_scopes,
+                                    store=store, doc_scopes=doc_scopes)
+        raw = versioned["hits"]
+        version_info = {"stats": versioned["stats"],
+                        "dropped": [d for d in versioned["dropped"]][:10]}
 
     hits = []
     for item in raw or []:
@@ -116,8 +131,11 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
         elif executed_route != GRAPH:
             passed = False
 
-    return {"schema": SCHEMA, "query": query, "route": route, "reason": reason,
+    out = {"schema": SCHEMA, "query": query, "route": route, "reason": reason,
             "executed_route": executed_route, "route_matches": route_matches,
             "seeds": seeds, "hit_count": len(hits), "hits": hits[:top_k],
             "citations": cited, "invalid_citations": invalid,
             "require_graph": require_graph, "fence": fence_info, "passed": passed}
+    if version_info is not None:
+        out["version_filter"] = version_info
+    return out

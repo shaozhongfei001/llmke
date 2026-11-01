@@ -1,12 +1,12 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 53,
-  "FAIL": 1,
+  "PASS": 54,
+  "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 1
  },
- "verdict": "FAIL",
+ "verdict": "PASS",
  "note": "NOT_IMPLEMENTED 表示能力未建，不计入 PASS，也不等于通过",
  "payload_bootstrap": {
   "payloads": [
@@ -138,8 +138,8 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "NOT_IMPLEMENTED": 1,
-     "VERIFIED": 13,
+     "VERIFIED": 14,
+     "NOT_IMPLEMENTED": 0,
      "NOT_VERIFIED": 3
     },
     "graph_route": "NOT_VERIFIED"
@@ -290,7 +290,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 444,
+     "blocked": 447,
      "allowed": 0
     },
     "after_allowed": true
@@ -306,10 +306,10 @@
      "340"
     ],
     "readers_blocked": [
-     1153,
-     1156,
-     1158,
-     1151
+     1258,
+     1267,
+     1255,
+     1260
     ],
     "readers_allowed": [
      0,
@@ -368,24 +368,24 @@
    "status": "PASS",
    "evidence": {
     "builds": {
-     "A": 1,
-     "B": 0
+     "A": 0,
+     "B": 1
     },
     "not_leader": {
-     "A": 0,
-     "B": 104
+     "A": 104,
+     "B": 0
     },
     "skipped_fresh": {
      "A": 0,
      "B": 0
     },
     "fencing": {
-     "A": 1,
-     "B": null
+     "A": null,
+     "B": 1
     },
     "stale_write_blocked": {
-     "A": true,
-     "B": null
+     "A": null,
+     "B": true
     }
    },
    "boundary": "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）"
@@ -403,10 +403,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 147,
+     "A": 132,
      "B": 0
     },
-    "lease_key": "q-lease-1793528483"
+    "lease_key": "q-lease-1793529639"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -438,7 +438,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 36.0,
+    "elapsed_s": 36.3,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -458,7 +458,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:36297/hook",
+     "url": "http://127.0.0.1:46633/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -471,9 +471,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 31.6,
-    "delta_s": 6.2,
-    "speedup_x": 5.1,
+    "full_s": 32.3,
+    "delta_s": 3.5,
+    "speedup_x": 9.2,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -522,10 +522,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 18:27:09.353 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 18:27:10.331 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 18:27:10.331 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 18:27:10.336 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 18:46:16.410 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 18:46:17.378 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 18:46:17.378 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 18:46:17.383 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -627,7 +627,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:866182",
+     "owner": "x2:987603",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -642,7 +642,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:866345",
+     "owner": "x2:988234",
      "fencing": null
     },
     "problems": []
@@ -657,14 +657,14 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.99862840599963,
+    "retry_after": 29.998371403984493,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 4.630160013522715e-05,
+     "tokens": 5.492570053315936e-05,
      "exhausted": true
     },
     "problems": []
@@ -723,7 +723,7 @@
     "top1_rate": 1.0,
     "ordered_rate": 1.0,
     "avg_jaccard": 1.0,
-    "elapsed_s": 22.2,
+    "elapsed_s": 15.2,
     "problems": []
    },
    "boundary": "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）"
@@ -787,26 +787,27 @@
    "evidence": {
     "status": "READY",
     "export": {
-     "total": 1,
-     "exported": 1,
+     "total": 5,
+     "exported": 5,
      "excluded": 0
     },
-    "communities": 1,
+    "communities": 2,
     "invalid_citations": 0
    },
    "boundary": "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，未参与判定"
   },
   {
    "item": "biz:端到端业务问答",
-   "status": "FAIL",
+   "status": "PASS",
    "evidence": {
     "route": "GRAPH",
-    "reason": "INVALID_CITATION",
-    "answer": "多指标对账口径为：日均存款的数据源是T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源是T-EXT-0",
-    "citations": 0,
+    "reason": "OK",
+    "answer": "日均存款：数据源 T-CORE-001，口径为按业务日跨账户汇总/天数；用电量：数据源 T-EXT-001，口径为月度同",
+    "citations": 2,
+    "attempts": 1,
     "model": "deepseek-flash"
    },
-   "boundary": "回答未通过核验或图路线未执行"
+   "boundary": "真实端到端（外部回答模型 + 本地引擎 + CJK 补丁），单问句；多跳/合计/跨文档未覆盖"
   }
  ]
 }

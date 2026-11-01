@@ -42,7 +42,10 @@ def test_q_acceptance_has_no_fail_and_keeps_unimplemented_visible(tmp_path):
         assert item.get("boundary") or item["evidence"].get("fix") or \
             item["evidence"].get("why"), f"{item['item']} 未说明未实现原因/修法"
     describe_item = next(r for r in report["results"] if r["item"] == "graph:describe")
-    assert describe_item["evidence"]["counts"]["NOT_IMPLEMENTED"] >= 1
+    # 不能要求"必须有 NOT_IMPLEMENTED"——能力真做完时这个数会归零，硬编码会逼人留假账。
+    # 真正要守的是：**没有全部 VERIFIED**，且每个非 VERIFIED 的项都有说明。
+    counts = describe_item["evidence"]["counts"]
+    assert counts["NOT_IMPLEMENTED"] + counts["NOT_VERIFIED"] >= 1
     # 语义层 PASS 必须带 boundary，否则会被误读成端到端已通过
     biz_pass = [r for r in report["results"]
                 if r["item"].startswith("biz:") and r["status"] == "PASS"]

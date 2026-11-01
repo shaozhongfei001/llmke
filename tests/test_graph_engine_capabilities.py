@@ -27,7 +27,9 @@ def test_graph_route_not_verified_but_community_now_verified():
     # 社区/global 已按"消费标准事实导出"实现并有真实运行证据
     assert caps["community_report"]["status"] == "VERIFIED"
     assert caps["community_report"]["evidence"]
-    assert caps["engine_predicate_normalization"]["status"] == "NOT_IMPLEMENTED"
+    # 谓词归一已落在 normalize.build_store（显式字典 + 数值解析 + 来源绑定），有真跑证据
+    assert caps["engine_predicate_normalization"]["status"] == "VERIFIED"
+    assert caps["engine_predicate_normalization"]["evidence"]
     # 断言层语义已验证，但引擎接线未做——两者要分开记，不能互相顶替
     assert caps["platform_assertion_layer"]["status"] == "VERIFIED"
 

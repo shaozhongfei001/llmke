@@ -296,7 +296,14 @@
        图导出（稳定排序 JSONL + --compare；真跑 30 节点/109 边/50 事实，delta 差 1 节点/2 边/1 事实）。
        修两处：①端到端问答偶发 INVALID_CITATION 是回答模型采样抖动，改为失败重试一次并记 attempts；
        ②自举产物是简化投影，跑完要把原载荷还原——自举是兜底，不能覆盖真实样本。
-       未做：真实告警通道（无网关可用）、doc2md 5 项 CLI-help（在另一仓库）、谓词归一、大库灰度
+       追加：谓词归一声明更正（normalize.build_store 早已在 answer/community/bridge 三条链路使用，
+       真跑 facts_in=50 → assertions=26/orphans=0，未映射 8 个如实保留）→ 改 VERIFIED；
+       版本/可见过滤接进 pipeline（as_of/filter_scopes 默认关闭，5 项接线测试）；
+       租约表预建 SQL（sql/002_rebuild_lease.sql + 3 项防漂移测试）；
+       两处过时断言更新（capabilities 不再要求"必须有 NOT_IMPLEMENTED"——能力真做完时该数会归零，
+       硬编码会逼人留假账）。
+       最终 Q：54 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED（缺 LibreOffice Writer）。
+       未做：真实告警通道（无网关可用）、doc2md 5 项 CLI-help（在另一仓库）、大库灰度
     2e) 部署剩余：真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
