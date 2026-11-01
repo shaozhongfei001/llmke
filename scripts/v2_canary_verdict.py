@@ -92,7 +92,36 @@ def _baseline_problems(baseline):
     return problems
 
 
-def judge(chunks=None, facts=None, retrieval=None, baseline=None):
+def _within_noise(chunks, facts, retrieval, tolerance):
+    """把 a-vs-b 的差异放进"同语料自身波动"的区间里看。
+
+    没有这一步，基线一不稳就只能 INCONCLUSIVE——可实际上"差异 3 条事实"在
+    facts 波动 9 条的语料上根本不稀奇。有分布就应当给出更明确的结论：
+    **在噪声范围内**，既不能判回归，也不能判等价。
+    """
+    if not isinstance(tolerance, dict):
+        return False, "缺少容差数据"
+    if not isinstance(chunks, dict) or chunks.get("identical") is not True:
+        return False, "块集合不一致（结构变化不在噪声范围内）"
+    facts_diff = max(_count((facts or {}).get("only_a")), _count((facts or {}).get("only_b")))
+    limit = tolerance.get("facts_diff_max")
+    if limit is None or facts_diff > limit:
+        return False, f"事实差异 {facts_diff} 超出噪声上限 {limit}"
+    if isinstance(retrieval, dict):
+        top1 = retrieval.get("top1_rate")
+        floor = tolerance.get("top1_min")
+        if top1 is not None and floor is not None and top1 < floor:
+            return False, f"检索 top1={top1} 低于噪声下限 {floor}"
+        routes = retrieval.get("route_changed") or []
+        route_limit = tolerance.get("route_change_max")
+        if routes and (route_limit is None or len(routes) > route_limit):
+            # 只有超出"同语料自身也会翻转的次数"才算异常：
+            # 抽取不稳时同语料两次构建都可能一次走图、一次回退稠密。
+            return False, f"检索路线变化 {len(routes)} 条，超出噪声上限 {route_limit}"
+    return True, f"事实差异 {facts_diff} ≤ 噪声上限 {limit}，检索未低于下限"
+
+
+def judge(chunks=None, facts=None, retrieval=None, baseline=None, tolerance=None):
     """纯函数：只吃已算好的统计，不碰文件、不加载引擎。
 
     入参形状（缺字段一律按"证据不足"处理，绝不默认成"一致"）：
@@ -110,8 +139,23 @@ def judge(chunks=None, facts=None, retrieval=None, baseline=None):
     if baseline_problems:
         reasons = ["基线不稳定，无法归因（同一语料两份全量快照本身不一致）：" + p
                    for p in baseline_problems]
+        # 块集合是**确定性**的（不经过 LLM 采样）：它不同就是内容真的变了，
+        # 与"抽取抽得不一样"是两回事，不该被基线噪声掩盖。
+        if isinstance(chunks, dict) and chunks.get("identical") is False:
+            hard = [f"块集合不一致：only_a={_count(chunks.get('only_a'))} "
+                    f"only_b={_count(chunks.get('only_b'))}（结构变化与抽取噪声无关）"]
+            return {"verdict": "UNSAFE", "exit_code": EXIT_CODES["UNSAFE"],
+                    "reasons": reasons + hard, "hard": reasons + hard, "soft": []}
+        ok, why = _within_noise(chunks, facts, retrieval, tolerance)
+        if ok:
+            # 有分布可比时，结论从"测不出"升级为"在噪声范围内"——仍需人工看差异清单，
+            # 但不是"什么都说明不了"。
+            return {"verdict": "REVIEW", "exit_code": EXIT_CODES["REVIEW"],
+                    "reasons": reasons + [f"差异落在噪声范围内：{why}（容差来自同语料多次构建）"],
+                    "hard": [], "soft": [f"噪声容差：{tolerance}"]}
         return {"verdict": "INCONCLUSIVE", "exit_code": EXIT_CODES["INCONCLUSIVE"],
-                "reasons": reasons, "hard": reasons, "soft": []}
+                "reasons": reasons + ([f"未能归入噪声范围：{why}"] if tolerance else []),
+                "hard": reasons, "soft": []}
 
     # ---- 1) 结构层（chunks）：块集合不同 = 两条路径看的就不是同一批文本，
     #         后面比事实/检索都没有意义，属硬否决。
@@ -253,7 +297,7 @@ def _safe_retrieval(a_dir, b_dir, queries, top_k, llm, embed):
 
 def build_report(a_dir, a2_dir, b_dir, top_k=5, queries=None,
                  llm="http://127.0.0.1:18092/v1", embed="http://127.0.0.1:18090/v1",
-                 baseline_retrieval=True):
+                 baseline_retrieval=True, tolerance=None):
     """a=当前全量，a2=同语料第二份全量（基线），b=待切快照。"""
     queries = list(queries or DEFAULT_QUERIES)
     t0 = time.time()
@@ -294,6 +338,7 @@ def build_report(a_dir, a2_dir, b_dir, top_k=5, queries=None,
         facts=(main_struct or {}).get("_judge_facts"),
         retrieval=main_ret,
         baseline=baseline,
+        tolerance=tolerance,
     )
 
     if errors:
@@ -336,13 +381,23 @@ def main(argv=None):
     ap.add_argument("--no-baseline-retrieval", action="store_true",
                     help="跳过 a vs a2 的检索基线段（省一次引擎加载），"
                          "结构/事实基线仍会采集")
+    ap.add_argument("--baseline-distribution", default=None,
+                    help="同语料波动分布（v2_baseline_distribution.py 的输出）；给了就把差异放进噪声区间判")
     ap.add_argument("--json", dest="json_out", default=None, help="完整报告输出路径")
     ap.add_argument("--quiet", action="store_true", help="不在 stdout 打印摘要")
     args = ap.parse_args(argv)
 
+    tolerance = None
+    if args.baseline_distribution:
+        dist = json.loads(open(args.baseline_distribution, encoding="utf-8").read())
+        tolerance = (dist.get("summary") or {}).get("tolerance")
+        if tolerance is None:
+            errors_tol = "分布文件里没有 tolerance（样本不足？）"
+
     report = build_report(args.a, args.a2, args.b, top_k=args.top_k,
                           queries=args.queries, llm=args.llm, embed=args.embed,
-                          baseline_retrieval=not args.no_baseline_retrieval)
+                          baseline_retrieval=not args.no_baseline_retrieval,
+                          tolerance=tolerance)
 
     if args.json_out:
         with open(args.json_out, "w", encoding="utf-8") as fh:

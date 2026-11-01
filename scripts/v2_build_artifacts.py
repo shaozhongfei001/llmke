@@ -83,15 +83,47 @@ def main(argv=None):
     ap.add_argument("--only", choices=["all", "standard", "stress"], default="all")
     ap.add_argument("--skip-existing", action="store_true",
                     help="清单里已有的产物不再重建（省时间，但不会发现语料漂移）")
+    ap.add_argument("--adopt", action="store_true",
+                    help="不重建，只把磁盘上已有的演练输出（<root>/<name>.json）补进清单")
     args = ap.parse_args(argv)
 
     root = os.path.abspath(args.root)
     os.makedirs(root, exist_ok=True)
     manifest_path = os.path.join(root, "artifacts.json")
+    # 合并而不是覆盖：分两次跑（先 standard 后 stress）时，后一次不能把前一次从清单里抹掉——
+    # 实测抹掉后 Q 的图检查会因为"清单里没有快照"整片 SKIP，而报告仍 PASS。
     manifest = {"schema": "llmke.artifacts.v1", "root": root, "built_at": None,
                 "sets": {}}
-    if os.path.isfile(manifest_path) and args.skip_existing:
-        manifest = json.loads(open(manifest_path, encoding="utf-8").read())
+    if os.path.isfile(manifest_path):
+        try:
+            old = json.loads(open(manifest_path, encoding="utf-8").read())
+            manifest["sets"] = dict(old.get("sets") or {})
+            manifest["payloads"] = old.get("payloads") or []
+        except ValueError:
+            pass
+
+    if args.adopt:
+        for name in ("standard", "standard_b", "stress", "stress_b"):
+            report_path = os.path.join(root, f"{name}.json")
+            if not os.path.isfile(report_path):
+                continue
+            try:
+                rep = json.loads(open(report_path, encoding="utf-8").read())
+            except ValueError:
+                continue
+            if rep.get("status") == "OK":
+                manifest["sets"][name] = {
+                    "kind": name, "ok": True, "seconds": rep["full"].get("seconds"),
+                    "full": rep["full"]["dir"], "delta": rep["delta"]["dir"],
+                    "meta": {"full_s": rep["full"].get("seconds"),
+                             "delta_s": rep["delta"].get("seconds"),
+                             "speedup_x": rep.get("speedup_x"),
+                             "apply": rep["delta"].get("apply")}}
+        manifest["built_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+        with open(manifest_path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n")
+        print(json.dumps({"ok": True, "adopted": sorted(manifest["sets"])}, ensure_ascii=False))
+        return 0
 
     payload_dir = os.path.join(root, "payloads")
     os.makedirs(payload_dir, exist_ok=True)

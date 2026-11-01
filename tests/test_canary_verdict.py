@@ -141,3 +141,42 @@ def test_exit_codes_are_ci_friendly():
     assert run()["exit_code"] == 0
     assert run(facts={"only_a": 1, "only_b": 0})["exit_code"] == 1
     assert run(chunks={"identical": False})["exit_code"] == 2
+
+
+def test_baseline_unstable_but_within_noise_is_review():
+    """有分布可比时：差异落在噪声范围内 → REVIEW（既不能判回归，也不能判等价）。"""
+    baseline = copy.deepcopy(BASELINE_OK)
+    baseline["facts_only_b"] = 1
+    out = mod.judge(chunks={"identical": True, "only_a": 0, "only_b": 0},
+                    facts={"only_a": 0, "only_b": 3},
+                    retrieval={"top1_rate": 0.83, "ordered_rate": 0.83, "avg_jaccard": 0.9},
+                    baseline=baseline,
+                    tolerance={"facts_diff_max": 9, "top1_min": 0.667})
+    assert out["verdict"] == "REVIEW"
+    assert out["exit_code"] == 1
+    assert any("噪声范围" in r for r in out["reasons"])
+
+
+def test_baseline_unstable_and_beyond_noise_is_inconclusive():
+    baseline = copy.deepcopy(BASELINE_OK)
+    baseline["facts_only_b"] = 1
+    out = mod.judge(chunks={"identical": True, "only_a": 0, "only_b": 0},
+                    facts={"only_a": 0, "only_b": 20},          # 超出 facts_diff_max=9
+                    retrieval={"top1_rate": 1.0, "ordered_rate": 1.0, "avg_jaccard": 1.0},
+                    baseline=baseline,
+                    tolerance={"facts_diff_max": 9, "top1_min": 0.667})
+    assert out["verdict"] == "INCONCLUSIVE"
+    assert any("未能归入噪声范围" in r for r in out["reasons"])
+
+
+def test_chunk_change_is_unsafe_even_when_baseline_unstable():
+    """块集合是确定性证据（不经 LLM 采样）：不同就是内容真的变了，不能被噪声掩盖。"""
+    baseline = copy.deepcopy(BASELINE_OK)
+    baseline["facts_only_b"] = 1
+    out = mod.judge(chunks={"identical": False, "only_a": 1, "only_b": 0},
+                    facts={"only_a": 0, "only_b": 0},
+                    retrieval={"top1_rate": 1.0, "ordered_rate": 1.0, "avg_jaccard": 1.0},
+                    baseline=baseline,
+                    tolerance={"facts_diff_max": 9, "top1_min": 0.667})
+    assert out["verdict"] == "UNSAFE"
+    assert any("结构变化与抽取噪声无关" in r for r in out["reasons"])

@@ -478,6 +478,16 @@
 - 测试：test_seed_match 11 项 + test_seed_expansion 3 项。
 - 未做：概念式问句的种子（需抽取侧或向量召回）、乱序简称、两字实体。
 
+### 新增：基线噪声分布（2026-11-01 晚，已完成）
+- `v2_baseline_distribution.py`：同语料 N 份快照两两比较，输出
+  `tolerance={facts_diff_max, top1_min, route_change_max}`（取最坏情况）。
+  stress 语料实测：facts 6 / top1 0.667 / 路线翻转 1。
+- `v2_canary_verdict.py --baseline-distribution`：基线不稳时把差异放进区间，
+  落区间内 → REVIEW；超出 → INCONCLUSIVE；**块集合不同 → UNSAFE**（确定性证据优先）。
+- 实测：同内容对照 REVIEW(exit 1)；真实变更 UNSAFE(exit 2)。
+- 测试：test_canary_verdict 17 项（含"块集合变化不能被噪声掩盖"）。
+- 未做：样本仅 2 份（容差是下界）、跨语料不可复用、不覆盖内容正确性。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。
