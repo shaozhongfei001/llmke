@@ -419,6 +419,63 @@
 
 ---
 
+## 恢复点（2026-11-01 暂停，等待下次接续）
+
+### 已完成到哪
+- 最近提交：`4116aae`（版本/可见过滤接线 + 谓词归一声明更正 + 租约表预建 SQL）、
+  `da2b6ae`（C4 灰度判定 + 图导出 + 镜像 load + Q 自举/续跑）。
+- Q 最终（全新一轮、非续跑）：**54 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED**（缺 LibreOffice Writer）。
+- 全量测试：**737 passed / 14 skipped / 1 failed**（既有 security_scan）；`make check` PASS。
+- 工作树在暂停时应为空（未提交的只有本轮新增的 `scripts/v2_stress_corpus.py` 与本节）。
+
+### 正在做的事（**下次从这里开始**）
+用**高相似度语料**检验 C3/C4 结论能否外推——现有 5 块语料每块主题完全不同，
+"full 与 delta 检索完全一致"很可能是语料太容易，不代表真实库。
+
+已生成 `scripts/v2_stress_corpus.py`（10 块 / 6 份文档）：
+两份授信台账（结构相同、客户不重叠）、新旧两版政策（99% 相同，只差"超五亿须董事会"一句）、
+担保方式、五级分类。
+
+真跑（`v2_delta_drill.py --drop-file s-401 --add-text "补充条款：单笔授信超过五亿元须经董事会审议通过…"`）：
+
+```
+全量 63.5s（10 块）→ 增量 7.3s（8.7×），deleted=1 added=1 reused=9 remaining=10
+快照：/tmp/stress-root/snapshot-20261101185642-048723-g0（full）
+      /tmp/stress-root/snapshot-20261101185745-506878-g0（delta）
+```
+
+检索等价性（top_k=3，6 条查询）：**top1 0.667 / ordered 0.5 / jaccard 0.75**，3 条 DIFF：
+
+| 查询 | 结果 | 判断 |
+|---|---|---|
+| 五级分类中的关注是什么意思 | DIFF | **预期**（该文件已被删） |
+| 单笔授信超过五亿元由谁审议通过 | DIFF | 待判（delta 新增了同义条款） |
+| 华东精密制造有限公司的授信额度 | DIFF | **异常：内容完全没变却检索不同** |
+| 信用评级AA/抵押率/施行日期 | SAME | 正常 |
+
+**关键待查**：第三条说明增量路径可能改变了未变更内容的检索排序
+（`apply_delta` 是"增量抽取 + **全量重建图**"，图结构与权重会变）。
+这决定了 C3 那句"检索完全一致"到底能推广到哪，也决定 delta 能不能上生产。
+
+### 下次的具体动作
+1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
+   看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。
+2. 查清"华东精密"这条为什么变：对比两份快照的 `graph.json` 块集合与 PPR 排序，
+   判断是**图重建导致的排序漂移**还是抽取差异；若属前者，需要决定 delta 是否只用于
+   "新增文件"场景、变更场景仍走全量。
+3. 若确认排序漂移：在 `apply_delta` 里记录"重建后图规模与边数变化"，并给灰度判定加一条
+   "非变更内容召回稳定性"检查。
+4. 之后回到原计划剩余项：真实告警通道（缺外部网关）、doc2md 5 项 CLI-help（在他人分支仓库）、
+   `retrieve_graph_route`（上游中文缺陷，需显式打补丁才成立）。
+
+### 环境与凭据（续跑必需）
+- MySQL 隔离库：`127.0.0.1:13306`，root，密码在 `~/data/dev/llmke-r12/platform/r12/.env` 的
+  `R12_MYSQL_ROOT_PASSWORD`；库 `gienrag_v2_restore`。
+- 回答模型 key：`~/.bashrc` 里 `DSEEK_2026_SZF_KEY`（需 `eval "$(grep -E "^export DSEEK_2026_SZF_KEY=" ~/.bashrc)"`）。
+- 运行环境：工具 venv `/home/szf/data/dev/llmke-v2-toolenv/bin/python`；
+  图引擎 venv `/home/szf/data/dev/hipporag-toolenv/bin/python`；交付目录 `/home/szf/data/dev/delivery`。
+- Q 全量命令（带断点续跑）：见本文件 8a 段与 `scripts/v2_q_acceptance.py --help`。
+
 ## 执行契约（2026-10-31 补，因"汇报即停"被指出）
 
 1. **阶段完成 ≠ 回合结束**：完成一个阶段后，不得以"下一动作是……"作为回复收尾；
