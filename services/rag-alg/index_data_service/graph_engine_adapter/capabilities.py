@@ -95,6 +95,15 @@ CAPABILITIES = {
                 "打补丁后真实语料 graph_calls=1、executed_route=GRAPH（未打补丁时恒为 0）",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-CJK-COMPAT-20261031.md",
     },
+    "cross_scope_merged_retrieval": {
+        "status": "VERIFIED",
+        "note": "跨可见范围合并检索：RRF（名次融合，k=60）而非比分数——不同索引的分数不可比。"
+                "去重按文本、平手按 sha256 排序（结果可复现）。范围查不到跳过并记录，"
+                "全查不到 fail-closed（不回退全量）。真跑 dept-a/dept-b：单范围用户看不到"
+                "只属于 dept-b 的文档，双范围用户能取到。副作用：RRF 奖励多路共识，"
+                "只在单范围出现的相关文档可能排在多范围重复出现的文档之后（未做语义重排）",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-MERGED-SCOPE-20261101.md",
+    },
     "query_seed_recognition": {
         "status": "VERIFIED",
         "note": "查询侧种子识别：精确子串 → 去机构后缀 → 中间省略简称（最短 4 字），"
