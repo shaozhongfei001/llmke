@@ -277,7 +277,7 @@
        结论：差异不是抖动而是**批处理差异**（full 三块一批、delta 只对新块 index），
        方向上是 delta 更全；因此"块数/openie 条数对得上"不足以判定增量正确，灰度必须带差异清单。
        未做：大库差异率、检索质量对比、多采几对基线噪声、按同批次抽取的严格等价方案
-    7a) 阶段C3 检索等价性（本轮，Q 增至 51 PASS）：
+    7a) 阶段C3 检索等价性（本轮，Q **50 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED**）：
        scripts/v2_retrieval_equivalence.py（先跑 A 释放引擎再跑 B，避免双引擎 OOM；
        命中按文本哈希比 top-k；带基线对照）。
        实测：基线 full-vs-full2 = top1/ordered/jaccard 全 1.0；**full-vs-delta 也全 1.0**
@@ -285,6 +285,9 @@
        两个坑：①引擎层返回 `docs` 不是 `hits`，读错字段得到全空，"两个空列表恰好完全一致"
        差点写成假绿；②检索要调 LLM 做 query 实体抽取，不传 llm_base_url 直接 APIConnectionError。
        未做：大库/高相似语料、top_k=1 与重排后、端到端答案评分、多轮与时序 query
+       更正：提交 c13ea63 的信息里写成「51 PASS / 0 FAIL / 0 SKIP」，实际全量 Q 是
+       50 PASS / 1 NOT_IMPLEMENTED（缺 Office Writer 那条一直存在）。当时只单独跑了新检查项
+       就写进提交信息，没等全量结果——这正是我自己反复强调的「不得声称已通过而没有真实输出」。
     2e) 部署剩余：真实告警通道接入
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）

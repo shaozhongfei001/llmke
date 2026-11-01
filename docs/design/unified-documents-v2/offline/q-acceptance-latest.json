@@ -285,7 +285,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 547,
+     "blocked": 346,
      "allowed": 0
     },
     "after_allowed": true
@@ -301,10 +301,10 @@
      "340"
     ],
     "readers_blocked": [
-     926,
-     924,
-     924,
-     922
+     2343,
+     2334,
+     2339,
+     2353
     ],
     "readers_allowed": [
      0,
@@ -367,7 +367,7 @@
      "B": 1
     },
     "not_leader": {
-     "A": 104,
+     "A": 109,
      "B": 0
     },
     "skipped_fresh": {
@@ -394,14 +394,14 @@
      "B": 1
     },
     "fencing": {
-     "A": null,
+     "A": 2,
      "B": 1
     },
     "not_leader": {
-     "A": 177,
+     "A": 175,
      "B": 0
     },
-    "lease_key": "q-lease-1793495051"
+    "lease_key": "q-lease-1793501696"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -433,7 +433,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 37.2,
+    "elapsed_s": 39.6,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -453,7 +453,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:45513/hook",
+     "url": "http://127.0.0.1:38573/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -466,9 +466,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 33.7,
-    "delta_s": 4.1,
-    "speedup_x": 8.2,
+    "full_s": 38.8,
+    "delta_s": 5.0,
+    "speedup_x": 7.7,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -517,10 +517,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 09:10:09.994 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 09:10:10.964 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 09:10:10.964 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 09:10:10.969 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 11:00:53.804 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 11:00:54.812 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 11:00:54.812 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 11:00:54.817 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -622,7 +622,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:1701132",
+     "owner": "x2:2371334",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -637,7 +637,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:1701317",
+     "owner": "x2:2371378",
      "fencing": null
     },
     "problems": []
@@ -652,14 +652,14 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.99850941399927,
+    "retry_after": 29.99852855401696,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 5.050453376805504e-05,
+     "tokens": 4.950886650466242e-05,
      "exhausted": true
     },
     "problems": []
@@ -731,7 +731,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款的数据源为T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源为T-EXT-",
+    "answer": "多指标对账口径包括：日均存款按T-CORE-001数据源，按业务日跨账户汇总/天数；用电量按T-EXT-001数据源，月",
     "citations": 2,
     "model": "deepseek-flash"
    },
