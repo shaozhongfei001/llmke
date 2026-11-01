@@ -1182,6 +1182,39 @@ def check_incremental_rebuild():
            "真跑 5 块语料；未测检索质量变化（需重排模型，波动大）")
 
 
+def check_retrieval_equivalence():
+    """检索层等价性：同一批 query 在 full 与 delta 两份快照上命中是否一致。"""
+    import subprocess
+
+    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    pairs = [("/tmp/dual-full", "/tmp/delta-drill/snapshot-20261031230249-560368-g0")]
+    pairs = [(a, b) for a, b in pairs if os.path.isdir(a) and os.path.isdir(b)]
+    if not os.path.isfile(py) or not pairs:
+        record("graph:检索层等价性", "SKIP",
+               {"why": "hipporag venv 或对照快照缺失（需 dual-full 与 delta 快照）"})
+        return
+    a, b = pairs[0]
+    out = tempfile.mktemp(suffix=".json")
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    proc = subprocess.run([py, str(REPO / "scripts/v2_retrieval_equivalence.py"),
+                           "--a", a, "--b", b, "--top-k", "3",
+                           "--queries", "授信额度是多少", "华东精密制造有限公司的信用评级",
+                           "单笔授信超过五亿元由谁审议通过",
+                           "--out", out],
+                          capture_output=True, text=True, timeout=1200, env=env)
+    if not os.path.isfile(out):
+        record("graph:检索层等价性", "FAIL", {"tail": (proc.stderr or "")[-200:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    r = d["a_vs_b"]
+    ok = d["status"] == "OK" and r["top1_rate"] == 1.0 and r["avg_jaccard"] == 1.0
+    record("graph:检索层等价性", "PASS" if ok else "FAIL",
+           {"queries": r["queries"], "top1_rate": r["top1_rate"],
+            "ordered_rate": r["ordered_rate"], "avg_jaccard": r["avg_jaccard"],
+            "elapsed_s": d["elapsed_s"], "problems": d["problems"]},
+           "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）")
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
