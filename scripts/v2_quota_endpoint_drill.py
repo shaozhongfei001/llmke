@@ -55,7 +55,7 @@ def main(argv=None):
                                    database=env["LLMKE_LEASE_MYSQL_DB"])
     ensure_schema(factory)
 
-    stamp = int(time.time())
+    stamp = f"{int(time.time() * 1000)}-{os.getpid()}"
     tenant = f"drill-quota-{stamp}"
     control = f"drill-control-{stamp}"
     counter = SharedQuotaCounter(factory, limit=args.limit, window_s=args.window_s)

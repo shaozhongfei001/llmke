@@ -190,6 +190,43 @@ def _label_text(labels: Optional[Dict[str, Any]]) -> str:
     return "{" + ",".join(parts) + "}"
 
 
+def render_quota(quota_stats: Any, labels: Optional[Dict[str, Any]] = None) -> str:
+    """把按租户的配额用量渲染成指标：`{tenant="kb_1"}`。
+
+    为什么单独一个函数而不是塞进 `_render`：配额来自**另一个数据源**（共享计数器的
+    `stats()`，可能查库失败），失败时只应丢掉这一段，不能连调度器指标一起丢。
+    租户名来自外部（kb_id），必须排序 + 转义，否则面板解析会出错。
+    """
+    tenants = ((quota_stats or {}).get("tenants") or {}) if isinstance(quota_stats, dict) else {}
+    if not tenants:
+        return ""
+    rows = []
+    for tenant in sorted(tenants):
+        item = tenants[tenant] or {}
+        used = _as_number(item.get("used"))
+        limit = _as_number(item.get("limit"))
+        if used is None:
+            continue
+        merged = dict(labels or {})
+        merged["tenant"] = tenant
+        suffix = _label_text(merged)
+        rows.append(("used", suffix, used, float))
+        if limit is not None:
+            rows.append(("limit", suffix, limit, float))
+    if not rows:
+        return ""
+    lines = ["# HELP llmke_graph_quota_used Tokens used by tenant in current window.",
+             "# TYPE llmke_graph_quota_used gauge"]
+    used_rows = [r for r in rows if r[0] == "used"]
+    limit_rows = [r for r in rows if r[0] == "limit"]
+    lines += [f"llmke_graph_quota_used{r[1]} {_fmt(r[2])}" for r in used_rows]
+    if limit_rows:
+        lines += ["# HELP llmke_graph_quota_limit Per-tenant quota limit.",
+                  "# TYPE llmke_graph_quota_limit gauge"]
+        lines += [f"llmke_graph_quota_limit{r[1]} {_fmt(r[2])}" for r in limit_rows]
+    return "".join(line + "\n" for line in lines)
+
+
 def render(scheduler: Any, lease: Any = None,
            labels: Optional[Dict[str, Any]] = None) -> str:
     """把调度器（含透传的协调器字段）渲染成 Prometheus 文本。

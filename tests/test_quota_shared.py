@@ -342,3 +342,61 @@ def test_invalid_arguments_rejected():
         params = {"limit": 3, **kwargs}
         with pytest.raises(ValueError):
             SharedQuotaCounter(lambda: FakeConn(FakeDb()), **params)
+
+
+class _FakeCause(Exception):
+    pass
+
+
+def _quota_for_retry():
+    from graph_engine_adapter.quota_shared import SharedQuotaCounter
+    counter = SharedQuotaCounter(lambda: None, limit=5, window_s=1.0)
+    counter._sleep = lambda s: None
+    return counter
+
+
+def test_deadlock_is_retried_and_counted_once():
+    """多进程同时 UPSERT 同一行时 InnoDB 会判死锁；死锁会回滚事务，所以重试安全。"""
+    from graph_engine_adapter.quota_shared import SharedQuotaError
+
+    counter = _quota_for_retry()
+    calls = []
+
+    def fake(name, window_start, count, prune):
+        calls.append(1)
+        if len(calls) < 3:
+            err = SharedQuotaError("deadlock")
+            cause = _FakeCause()
+            cause.args = (1213, "Deadlock found")
+            err.__cause__ = cause
+            raise err
+        return True, 1
+
+    counter._consume = fake
+    out = counter.take("t-deadlock")
+    assert out["allowed"] is True and out["used"] == 1
+    assert len(calls) == 3
+
+
+def test_non_retryable_error_fails_fast():
+    from graph_engine_adapter.quota_shared import SharedQuotaError
+
+    counter = _quota_for_retry()
+    calls = []
+
+    def fake(*args, **kwargs):
+        calls.append(1)
+        err = SharedQuotaError("permission denied")
+        cause = _FakeCause()
+        cause.args = (1142, "command denied")
+        err.__cause__ = cause
+        raise err
+
+    counter._consume = fake
+    try:
+        counter.take("t-fatal")
+    except SharedQuotaError:
+        pass
+    else:
+        raise AssertionError("不可重试的错误应该直接抛出")
+    assert len(calls) == 1

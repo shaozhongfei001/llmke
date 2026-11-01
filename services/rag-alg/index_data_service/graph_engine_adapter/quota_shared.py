@@ -256,7 +256,7 @@ class SharedQuotaCounter:
         now = self._clock()
         window_start = self._window_start(now)
         prune = self._should_prune(name, window_start)
-        allowed, used = self._consume(name, window_start, count, prune)
+        allowed, used = self._consume_with_retry(name, window_start, count, prune)
         return {
             "schema": SCHEMA,
             "tenant": name,
@@ -266,6 +266,25 @@ class SharedQuotaCounter:
             "window_start": window_start,
             "retry_after_s": None if allowed else round(self._retry_after(now, window_start), 3),
         }
+
+    # 可重试的瞬时错误：多进程同时 UPSERT 同一行时 InnoDB 会判死锁(1213)或锁等待超时(1205)。
+    # 死锁会**回滚整个事务**，所以重试是安全的（自增已被撤销），但必须显式 rollback 后再试。
+    _RETRYABLE = (1213, 1205)
+
+    def _consume_with_retry(self, name, window_start, count, prune, attempts: int = 3):
+        last = None
+        for attempt in range(1, attempts + 1):
+            try:
+                return self._consume(name, window_start, count, prune)
+            except SharedQuotaError as exc:
+                code = getattr(getattr(exc, "__cause__", None), "args", [None])[0]
+                retryable = bool(code in self._RETRYABLE)
+                if not retryable or attempt == attempts:
+                    raise
+                last = exc
+                # 退避带抖动：三个进程同时重试仍可能再次撞上
+                self._sleep(0.005 * attempt + (0.001 * (id(exc) % 7)))
+        raise last  # pragma: no cover
 
     def wait_take(self, tenant: Any, n: int = 1,
                   timeout: Optional[float] = None) -> Dict[str, Any]:

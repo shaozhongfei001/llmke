@@ -155,12 +155,16 @@ class _QuotaAdapter:
     def take(self, tenant=None):
         return self.counter.take(tenant or self.default_tenant)
 
+    def stats(self):
+        """透传计数器的按租户统计，供 /metrics 渲染；查询失败由调用方兜住。"""
+        return self.counter.stats()
+
 
 def make_handler(sched, lease, guard=None, metric_labels=None,
                  coord=None, quota=None, request_token=None):
     """`metric_labels` 必须由调用方传进来：handler 在工厂里定义，
     它**看不到** main() 的局部变量（这里曾直接引用 `args`，一请求 /metrics 就 NameError）。"""
-    from graph_engine_adapter.metrics import render_with_lease
+    from graph_engine_adapter.metrics import render_quota, render_with_lease
 
     class Handler(BaseHTTPRequestHandler):
         def _deny(self, reason):
@@ -188,7 +192,14 @@ def make_handler(sched, lease, guard=None, metric_labels=None,
                 self.wfile.write(body)
                 return
             if self.path.startswith("/metrics"):
-                text = render_with_lease(sched, lease, metric_labels).encode("utf-8")
+                body_text = render_with_lease(sched, lease, metric_labels)
+                if quota is not None:
+                    # 配额查询走数据库，失败只掉这一段：不能因为配额库抖动把整页指标变成 500。
+                    try:
+                        body_text += render_quota(quota.stats())
+                    except Exception as exc:  # noqa: BLE001
+                        body_text += f"# quota_stats_unavailable {type(exc).__name__}\n"
+                text = body_text.encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
                 self.send_header("Content-Length", str(len(text)))
@@ -221,7 +232,16 @@ def make_handler(sched, lease, guard=None, metric_labels=None,
                 from urllib.parse import parse_qs, urlparse
                 tenant = (parse_qs(urlparse(self.path).query).get("kb") or [None])[0]
             if quota is not None:
-                decision = quota.take(tenant)
+                try:
+                    decision = quota.take(tenant)
+                except Exception as exc:  # noqa: BLE001
+                    # 配额库查不通时**不能静默放行**（等于配额失效），也不要让连接直接断开
+                    # （客户端只看到 RemoteDisconnected，无从判断）。明确回 503。
+                    # 同一个库同时是租约存储，真挂了重建本来也走 LEASE_ERROR。
+                    print(f"[warn] 配额查询失败：{type(exc).__name__}: {exc}", file=sys.stderr)
+                    self._json(503, {"status": "QUOTA_UNAVAILABLE", "tenant": tenant,
+                                     "hint": "配额库暂时不可用，请稍后重试"})
+                    return
                 if not decision.get("allowed"):
                     retry = decision.get("retry_after_s")
                     headers = {"Retry-After": str(max(1, int(retry or 1)))} if retry else {}

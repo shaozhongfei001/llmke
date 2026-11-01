@@ -146,3 +146,60 @@ def test_unknown_post_path_is_404():
         assert srv.post(path="/nope")[0] == 404
     finally:
         srv.close()
+
+
+class QuotaWithStats(Quota):
+    def __init__(self, stats, **kw):
+        super().__init__(**kw)
+        self._stats = stats
+
+    def stats(self):
+        if isinstance(self._stats, Exception):
+            raise self._stats
+        return self._stats
+
+
+def _get(port, path="/metrics"):
+    with urllib.request.urlopen(f"http://127.0.0.1:{port}{path}", timeout=5) as resp:
+        return resp.status, resp.read().decode()
+
+
+def test_metrics_include_per_tenant_quota():
+    q = QuotaWithStats({"tenants": {"kb_1": {"used": 2, "limit": 5},
+                                    "kb_2": {"used": 0, "limit": 5}}})
+    srv = Server(coord=Coord(), quota=q)
+    try:
+        code, text = _get(srv.port)
+        assert code == 200
+        assert 'llmke_graph_quota_used{tenant="kb_1"} 2' in text
+        assert 'llmke_graph_quota_limit{tenant="kb_2"} 5' in text
+    finally:
+        srv.close()
+
+
+def test_metrics_survive_quota_stats_failure():
+    """配额统计失败只能掉那一段，不能让整页 /metrics 变成 500。"""
+    q = QuotaWithStats(RuntimeError("db down"))
+    srv = Server(coord=Coord(), quota=q)
+    try:
+        code, text = _get(srv.port)
+        assert code == 200
+        assert "quota_stats_unavailable" in text
+        assert "llmke_graph_lease_fencing" in text      # 其它指标照常输出
+    finally:
+        srv.close()
+
+
+class QuotaRaises(Quota):
+    def take(self, tenant=None):
+        raise RuntimeError("db down")
+
+
+def test_quota_failure_is_503_not_connection_reset():
+    """配额库坏了要给出可读状态，而不是让客户端看到 RemoteDisconnected。"""
+    srv = Server(coord=Coord(), quota=QuotaRaises())
+    try:
+        code, body, _ = srv.post()
+        assert code == 503 and body["status"] == "QUOTA_UNAVAILABLE"
+    finally:
+        srv.close()

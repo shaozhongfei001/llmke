@@ -1673,6 +1673,21 @@ def check_shared_quota():
                                capture_output=True, text=True, timeout=600,
                                env={**os.environ,
                                     "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")})
+        # 多副本：三个独立进程共用同一计数器，合计放行必须等于 limit（不是 3×limit）。
+        out_multi = tempfile.mktemp(suffix=".json")
+        subprocess.run([sys.executable, str(REPO / "scripts/v2_quota_multinode_drill.py"),
+                        "--nodes", "3", "--limit", "3", "--requests", "12",
+                        "--out", out_multi],
+                       capture_output=True, text=True, timeout=600,
+                       env={**os.environ,
+                            "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")})
+        multi = None
+        if os.path.isfile(out_multi):
+            multi = json.loads(open(out_multi, encoding="utf-8").read())
+            ok = ok and multi.get("status") == "PASS"
+        else:
+            ok = False
+
         concurrent = None
         if os.path.isfile(out):
             concurrent = json.loads(open(out, encoding="utf-8").read())
@@ -1684,7 +1699,10 @@ def check_shared_quota():
                {"serial_allowed": allowed, "tenant": tenant,
                 "concurrent": {k: (concurrent or {}).get(k) for k in
                                ("accepted", "denied", "used_in_db", "coordinator_calls")},
-                "concurrent_status": (concurrent or {}).get("status")},
+                "concurrent_status": (concurrent or {}).get("status"),
+                "multinode": {k: (multi or {}).get(k) for k in
+                              ("accepted", "denied", "used_in_db", "per_node_accepted")},
+                "multinode_status": (multi or {}).get("status")},
                "隔离库 v2_quota_window；并发经真实 POST /rebuild 入口；未做多副本跨进程压测")
     except Exception as exc:  # noqa: BLE001
         record("deploy:跨实例共享配额", "FAIL",

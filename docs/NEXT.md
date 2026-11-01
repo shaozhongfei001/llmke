@@ -559,6 +559,18 @@
 - 测试 7 项（test_worker_rebuild_api）。
 - 未做：多副本跨进程压测、滑动窗口、租户维度指标导出。
 
+### 新增：多副本配额 + 租户指标（2026-11-02，已完成）
+- `v2_quota_multinode_drill.py`：3 个**独立进程**各起入口，共用 MySQL 计数；30 请求 limit=6 →
+  **accepted=6（不是 18）**、used=6、每个进程都收到 10 个请求。
+- 压出并修三处：①并发 UPSERT 同一行会死锁 1213 → 对 1213/1205 重试 3 次（死锁回滚，重试不重复计数），
+  修后连跑 5 次全 PASS；②压测租户名用秒级时间戳会自己打自己（同窗口 used 已满）→ 改毫秒+pid；
+  ③配额查询异常原来直接断连（客户端只看到 RemoteDisconnected）→ 明确 503 QUOTA_UNAVAILABLE。
+- 租户维度指标：`metrics.render_quota` → `llmke_graph_quota_used{tenant=...}` / `_limit`；
+  worker `/metrics` 自动追加，**配额查询失败只掉这一段**（`# quota_stats_unavailable`）。
+  真跑：202/202/429 + `quota_used{tenant="demo"} 2`。
+- 测试：worker API 10 项、quota_shared 19 项。
+- 未做：跨机压测、滑动窗口（边界仍有 2×limit 突发）、租户指标历史（需外部 TSDB）。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。
