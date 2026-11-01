@@ -95,6 +95,15 @@ CAPABILITIES = {
                 "打补丁后真实语料 graph_calls=1、executed_route=GRAPH（未打补丁时恒为 0）",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-CJK-COMPAT-20261031.md",
     },
+    "query_seed_recognition": {
+        "status": "VERIFIED",
+        "note": "查询侧种子识别：精确子串 → 去机构后缀 → 中间省略简称（最短 4 字），"
+                "歧义按解析出的**实体 id** 判（同一实体的 ent:名 与原名不算歧义）。"
+                "真实索引 50 个名字：3 条简称问句 seeds 0→1；概念式问句仍 0（抽取缺口，非匹配问题）。"
+                "配套：pipeline 调引擎前把规范名补进查询——简称问句从\"计划 GRAPH/执行稠密\""
+                "变成真正执行 GRAPH，答 3000 万元 + 1 条引用",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-SEED-MATCH-20261101.md",
+    },
     "platform_answer_assembly": {
         "status": "VERIFIED",
         "note": "回答组装 + 引用核验（quote 必须是原文子串，空白归一；只在 citable=True 的材料里找）。"

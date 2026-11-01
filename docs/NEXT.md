@@ -469,6 +469,15 @@
   `artifacts.json` 清单 + 解释器自动探测；`python scripts/v2_build_artifacts.py` 可一键重建。
 - Q 最终（全新一轮）：**54 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED**。
 
+### 新增：种子识别（2026-11-01 晚，已完成）
+- `seed_match.py`：精确 → 去机构后缀 → 中间省略简称（≥4 字），歧义按**实体 id** 判；
+  `pipeline` 调引擎前把规范名补进查询。
+- 真实索引 50 名：3 条简称问句 seeds 0→1；概念式问句仍 0（抽取缺口）。
+- 端到端：「华东精密的授信额度是多少」由"计划 GRAPH / 执行稠密 / 无答案"变为
+  **执行 GRAPH / 答 3000 万元 / 引用 1 条 / passed=True**。
+- 测试：test_seed_match 11 项 + test_seed_expansion 3 项。
+- 未做：概念式问句的种子（需抽取侧或向量召回）、乱序简称、两字实体。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。

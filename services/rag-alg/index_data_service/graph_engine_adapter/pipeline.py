@@ -37,14 +37,14 @@ def _norm_sources(raw: Iterable[Any]) -> List[Dict[str, str]]:
 
 
 def find_seeds(query: str, store: AssertionStore) -> List[str]:
-    """从查询里认出已知实体名；认不出就是没有种子，不要瞎猜。"""
-    seeds = []
-    for name in list(store.entity_names()):
-        if name and name in query:
-            cid = store.resolve(name)
-            if cid and cid not in seeds:
-                seeds.append(cid)
-    return seeds
+    """从查询里认出已知实体名；认不出就是没有种子，不要瞎猜。
+
+    先用精确子串，再退一档"去机构后缀"（问句写简称是常态）。规则与取舍见 `seed_match`。
+    """
+    from .seed_match import match_seeds
+
+    result = match_seeds(query, list(store.entity_names()), store.resolve)
+    return list(result["seeds"])
 
 
 def retrieve(query: str, *, store: AssertionStore, retriever: Any,
@@ -67,10 +67,23 @@ def retrieve(query: str, *, store: AssertionStore, retriever: Any,
     decision = decide_route(graph_enabled, seeds, store, scopes)
     route, reason = decision["route"], decision["reason"]
 
+    # 种子认出来了，但**引擎自己还要再认一次**：它拿原始 query 做实体链接，
+    # 简称（"华东精密"）常认不出 → 内部回退稠密。这里把种子的规范名补进查询，
+    # 不动原 query 的语义，只把"用户怎么说"补成"库里怎么存"。
+    engine_query = query
+    if seeds:
+        try:
+            canonical = [store.name_of(s) for s in seeds]
+        except Exception:  # noqa: BLE001
+            canonical = []
+        extra = [n for n in canonical if n and n not in query]
+        if extra:
+            engine_query = f"{query} {' '.join(extra)}"
+
     if route == GRAPH:
-        raw = retriever.graph(query, seeds, top_k)
+        raw = retriever.graph(engine_query, seeds, top_k)
     else:
-        raw = retriever.dense(query, top_k)
+        raw = retriever.dense(engine_query, top_k)
 
     # 撤权 fence：先验索引代次，再按来源过滤。顺序不能反——
     # 只过滤不验代次，等于赌引擎一定会把撤权内容吐出来让我们拦。
