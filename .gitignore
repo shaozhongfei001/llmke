@@ -93,3 +93,6 @@ platform/r12/dist/offline/
 
 # Nacos 容器挂载的快照目录：含明文口令，属运行态产物，不入库
 nacos-data/
+
+# 验收产物（快照/载荷，可由 scripts/v2_build_artifacts.py 重建）
+.artifacts/

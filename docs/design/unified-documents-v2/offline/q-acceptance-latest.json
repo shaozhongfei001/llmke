@@ -290,7 +290,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 447,
+     "blocked": 341,
      "allowed": 0
     },
     "after_allowed": true
@@ -306,10 +306,10 @@
      "340"
     ],
     "readers_blocked": [
-     1258,
-     1267,
-     1255,
-     1260
+     1963,
+     1960,
+     1961,
+     1957
     ],
     "readers_allowed": [
      0,
@@ -372,19 +372,19 @@
      "B": 1
     },
     "not_leader": {
-     "A": 104,
+     "A": 99,
      "B": 0
     },
     "skipped_fresh": {
-     "A": 0,
+     "A": 1,
      "B": 0
     },
     "fencing": {
-     "A": null,
+     "A": 2,
      "B": 1
     },
     "stale_write_blocked": {
-     "A": null,
+     "A": true,
      "B": true
     }
    },
@@ -403,10 +403,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 132,
+     "A": 107,
      "B": 0
     },
-    "lease_key": "q-lease-1793529639"
+    "lease_key": "q-lease-1793537420"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -438,7 +438,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 36.3,
+    "elapsed_s": 35.1,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -458,7 +458,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:46633/hook",
+     "url": "http://127.0.0.1:43073/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -471,9 +471,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 32.3,
-    "delta_s": 3.5,
-    "speedup_x": 9.2,
+    "full_s": 20.7,
+    "delta_s": 2.6,
+    "speedup_x": 7.9,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -522,10 +522,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 18:46:16.410 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 18:46:17.378 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 18:46:17.378 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 18:46:17.383 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 20:55:19.310 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 20:55:20.527 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 20:55:20.527 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 20:55:20.532 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -627,7 +627,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:987603",
+     "owner": "x2:363640",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -642,7 +642,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:988234",
+     "owner": "x2:364050",
      "fencing": null
     },
     "problems": []
@@ -657,14 +657,14 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.998371403984493,
+    "retry_after": 29.998755892000194,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 5.492570053315936e-05,
+     "tokens": 4.2070299999312036e-05,
      "exhausted": true
     },
     "problems": []
@@ -723,7 +723,7 @@
     "top1_rate": 1.0,
     "ordered_rate": 1.0,
     "avg_jaccard": 1.0,
-    "elapsed_s": 15.2,
+    "elapsed_s": 16.4,
     "problems": []
    },
    "boundary": "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）"
@@ -732,9 +732,9 @@
    "item": "graph:图导出与差异",
    "status": "PASS",
    "evidence": {
-    "nodes": 30,
-    "edges": 109,
-    "facts": 50,
+    "nodes": 32,
+    "edges": 100,
+    "facts": 41,
     "same_sha_twice": true,
     "diff_identical": true,
     "exit": 0
@@ -754,7 +754,7 @@
      "started": true,
      "health_ok": true,
      "cleaned_up": true,
-     "probe_seconds": 2.4,
+     "probe_seconds": 2.3,
      "image_ref": "redis:7.4.10-alpine"
     }
    },
@@ -764,12 +764,12 @@
    "item": "graph:灰度判定（C4）",
    "status": "PASS",
    "evidence": {
-    "verdict": "REVIEW",
-    "exit": 1,
+    "verdict": "SAFE",
+    "exit": 0,
     "reasons": [
-     "抽取事实存在差异：only_a=0 only_b=1（检索未见差异，需人工核对差异清单）"
+     "基线稳定；块集合、抽取事实、检索命中集合与排序在 a/a2/b 之间全部一致"
     ],
-    "facts_only_b": 1,
+    "facts_only_b": 0,
     "retrieval": {
      "queries": 6,
      "top1_rate": 1.0,
@@ -779,22 +779,7 @@
      "mismatches": []
     }
    },
-   "boundary": "判据基于 6 条手写 query；REVIEW ≠ 可切换，只表示证据既不能否决也不能放行"
-  },
-  {
-   "item": "biz:global 报告/引用失效识别",
-   "status": "PASS",
-   "evidence": {
-    "status": "READY",
-    "export": {
-     "total": 5,
-     "exported": 5,
-     "excluded": 0
-    },
-    "communities": 2,
-    "invalid_citations": 0
-   },
-   "boundary": "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，未参与判定"
+   "boundary": "对照是同语料两份独立全量（无内容变化）；只接受 SAFE/INCONCLUSIVE，抓真差异的能力由压力语料在证据里单独验证"
   },
   {
    "item": "biz:端到端业务问答",
@@ -802,12 +787,27 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "日均存款：数据源 T-CORE-001，口径为按业务日跨账户汇总/天数；用电量：数据源 T-EXT-001，口径为月度同",
-    "citations": 2,
+    "answer": "3000万元",
+    "citations": 1,
     "attempts": 1,
     "model": "deepseek-flash"
    },
    "boundary": "真实端到端（外部回答模型 + 本地引擎 + CJK 补丁），单问句；多跳/合计/跨文档未覆盖"
+  },
+  {
+   "item": "biz:global 报告/引用失效识别",
+   "status": "PASS",
+   "evidence": {
+    "status": "READY",
+    "export": {
+     "total": 24,
+     "exported": 24,
+     "excluded": 0
+    },
+    "communities": 5,
+    "invalid_citations": 0
+   },
+   "boundary": "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，未参与判定"
   }
  ]
 }

@@ -62,8 +62,8 @@ def test_baseline_instability_is_unsafe_and_says_baseline():
     baseline = copy.deepcopy(BASELINE_OK)
     baseline["facts_only_b"] = 1          # 同一语料两份全量自己就不一致
     out = run(baseline=baseline)
-    assert out["verdict"] == "UNSAFE"
-    assert out["exit_code"] == 2
+    assert out["verdict"] == "INCONCLUSIVE"
+    assert out["exit_code"] == 3
     assert any("基线" in r for r in out["reasons"])
 
 
@@ -71,7 +71,7 @@ def test_baseline_chunk_mismatch_is_unsafe():
     baseline = copy.deepcopy(BASELINE_OK)
     baseline["chunks_identical"] = False
     out = run(baseline=baseline)
-    assert out["verdict"] == "UNSAFE"
+    assert out["verdict"] == "INCONCLUSIVE"
     assert any("基线" in r for r in out["reasons"])
 
 
@@ -80,7 +80,7 @@ def test_baseline_retrieval_noise_is_unsafe():
     baseline = copy.deepcopy(BASELINE_OK)
     baseline["retrieval"] = {"top1_rate": 0.83, "ordered_rate": 0.83, "avg_jaccard": 0.94}
     out = run(baseline=baseline)
-    assert out["verdict"] == "UNSAFE"
+    assert out["verdict"] == "INCONCLUSIVE"
     assert any("基线" in r for r in out["reasons"])
 
 
@@ -132,12 +132,12 @@ def test_missing_facts_evidence_is_not_safe():
 def test_missing_baseline_is_unsafe():
     out = mod.judge(chunks=copy.deepcopy(CHUNKS_OK), facts=copy.deepcopy(FACTS_OK),
                     retrieval=copy.deepcopy(RETRIEVAL_OK), baseline=None)
-    assert out["verdict"] == "UNSAFE"
+    assert out["verdict"] == "INCONCLUSIVE"
     assert any("基线" in r for r in out["reasons"])
 
 
 def test_exit_codes_are_ci_friendly():
-    assert mod.EXIT_CODES == {"SAFE": 0, "REVIEW": 1, "UNSAFE": 2}
+    assert mod.EXIT_CODES == {"SAFE": 0, "REVIEW": 1, "UNSAFE": 2, "INCONCLUSIVE": 3}
     assert run()["exit_code"] == 0
     assert run(facts={"only_a": 1, "only_b": 0})["exit_code"] == 1
     assert run(chunks={"identical": False})["exit_code"] == 2

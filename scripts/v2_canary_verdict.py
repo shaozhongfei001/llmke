@@ -39,7 +39,10 @@ from v2_retrieval_equivalence import (                                # noqa: E4
     DEFAULT_QUERIES, compare as retrieval_compare, run_queries)
 
 SCHEMA = "llmke.canary-verdict.v1"
-EXIT_CODES = {"SAFE": 0, "REVIEW": 1, "UNSAFE": 2}
+# INCONCLUSIVE 与 UNSAFE 必须分开：UNSAFE = "查出了缺陷，别切"；
+# INCONCLUSIVE = "基线自己都不稳，这个实验测不出结论"。
+# 把噪声记成缺陷，运维会去修一个不存在的问题，下次就没人信这个判定。
+EXIT_CODES = {"SAFE": 0, "REVIEW": 1, "UNSAFE": 2, "INCONCLUSIVE": 3}
 
 
 # ---------------------------------------------------------------- 纯判定层
@@ -107,7 +110,7 @@ def judge(chunks=None, facts=None, retrieval=None, baseline=None):
     if baseline_problems:
         reasons = ["基线不稳定，无法归因（同一语料两份全量快照本身不一致）：" + p
                    for p in baseline_problems]
-        return {"verdict": "UNSAFE", "exit_code": EXIT_CODES["UNSAFE"],
+        return {"verdict": "INCONCLUSIVE", "exit_code": EXIT_CODES["INCONCLUSIVE"],
                 "reasons": reasons, "hard": reasons, "soft": []}
 
     # ---- 1) 结构层（chunks）：块集合不同 = 两条路径看的就不是同一批文本，

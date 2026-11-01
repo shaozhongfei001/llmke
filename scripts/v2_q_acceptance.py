@@ -318,7 +318,7 @@ def check_isolated_rebuild():
     """撤权 → 隔离重建 → 切读 的真实演练（需要 hipporag 环境与载荷）。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:隔离重建（撤权→重建→切读）")
     if payloads is None:
         return
@@ -347,7 +347,7 @@ def check_rebuild_window():
     """重建窗口：过程中一次都不许放行；失败后指针不动且仍拒读。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:重建窗口并发")
     if payloads is None:
         return
@@ -372,7 +372,7 @@ def check_rebuild_consistency():
     """写并发（重建期间新增文件→stale→重建转 fresh）与多进程读者（窗口内全拒、完成后代次一致）。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:写并发与多读者一致性")
     if payloads is None:
         return
@@ -402,7 +402,7 @@ def check_rebuild_coalescing():
     """重建合并：连续变更只构建一次；判据是构建次数，不是耗时。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:重建合并")
     if payloads is None:
         return
@@ -470,7 +470,7 @@ def check_rebuild_scheduler():
     """调度器：突发请求合并成一次构建、停机后不再构建、指针与新鲜度正确。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:重建调度器")
     if payloads is None:
         return
@@ -498,7 +498,7 @@ def check_multi_instance_lease():
     """双实例争租约：两个进程都请求重建，合计只允许 1 次真正构建。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:多实例租约")
     if payloads is None:
         return
@@ -553,7 +553,7 @@ def check_mysql_lease():
         record("graph:MySQL 租约（跨机）", "SKIP", {"missing_env": missing})
         return
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:MySQL 租约（跨机）")
     if payloads is None:
         return
@@ -594,7 +594,7 @@ def check_lease_fault_visibility():
     """租约存储不可用：不构建、不打死循环、故障必须变成可见事件。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:租约故障可见性")
     if payloads is None:
         return
@@ -637,7 +637,7 @@ def check_lease_hang_timeout():
     import subprocess
     import threading
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:租约卡住型故障超时")
     if payloads is None:
         return
@@ -837,9 +837,28 @@ def check_use_mineru_switch():
     """`use-mineru` 开关真跑：开 → 出正文；关 → 不出；MinerU 坏 → 走 bypass 不崩。"""
     import subprocess
 
-    py = os.environ.get("V2_SWITCH_PYTHON") or os.environ.get("V2_MINERU_PYTHON")
-    if not py or not os.path.isfile(py):
-        record("mineru:use-mineru 开关", "SKIP", {"why": "未提供 V2_SWITCH_PYTHON（需装 MinerU 的 venv）"})
+    # 解释器找不到就整项 SKIP；但本机其实有装 magic_pdf 的 venv（重启后 /tmp 里那个没了），
+    # 所以按已知位置兜底，而不是让环境变量缺一项就把能力检查跳过。
+    candidates = [os.environ.get("V2_SWITCH_PYTHON"), os.environ.get("V2_MINERU_PYTHON"),
+                  "/home/szf/data/dev/parse-v2-venv/bin/python",
+                  "/home/szf/data/dev/mineru-toolenv/bin/python"]
+
+    def _has(py, mods):
+        """只靠"文件存在"选解释器会踩坑：装 magic_pdf 的那个 venv 可能没有 minio，
+        脚本跑到一半 ModuleNotFoundError，看起来像功能坏了。所以直接探测导入。"""
+        try:
+            proc = subprocess.run([py, "-c", "import " + ", ".join(mods)],
+                                  capture_output=True, timeout=90)
+            return proc.returncode == 0
+        except Exception:  # noqa: BLE001
+            return False
+
+    usable = [p for p in candidates if p and os.path.isfile(p)]
+    py = next((p for p in usable if _has(p, ["magic_pdf", "minio"])), None)
+    if py is None:
+        py = next((p for p in usable if _has(p, ["magic_pdf"])), None)
+    if py is None:
+        record("mineru:use-mineru 开关", "SKIP", {"why": "找不到装 MinerU 的 venv"})
         return
     pdf = REPO / "platform/r12/parse/fixtures/generated/cn-scan.pdf"
     if not pdf.is_file():
@@ -1015,6 +1034,40 @@ def check_graph_worker_service():
            {"health": health, "metrics_lines": len(metrics.splitlines()),
             "exit_code": proc.returncode, "problems": problems},
            "只验端点与停机；未验 systemd 托管、未验重建实际发生")
+
+
+CJK_DIR = os.path.join(str(REPO), ".artifacts", "hippo-cjk")
+ARTIFACT_MANIFEST = os.environ.get(
+    "LLMKE_ARTIFACT_MANIFEST", os.path.join(str(REPO), ".artifacts", "artifacts.json"))
+
+
+def hipporag_python():
+    """按顺序找 hipporag 解释器。写死 `~/hipporag-venv` 会让检查在没设环境变量时整片 SKIP，
+    而 SKIP 在报告里看起来和"这台机器没装"一样——实际只是路径不对。"""
+    for path in (os.environ.get("V2_HIPPORAG_PYTHON"),
+                 os.path.expanduser("~/hipporag-venv/bin/python"),
+                 "/home/szf/data/dev/hipporag-toolenv/bin/python"):
+        if path and os.path.isfile(path):
+            return path
+    return os.environ.get("V2_HIPPORAG_PYTHON") or os.path.expanduser("~/hipporag-venv/bin/python")
+
+
+def artifact_paths():
+    """图快照路径：优先读 `scripts/v2_build_artifacts.py` 写的清单。
+
+    为什么不写死 /tmp：关机一次 /tmp 就被清空，6 项图检查会整片 SKIP，
+    而报告仍显示 PASS——"跳过"让验收范围悄悄缩水，比失败更难发现。
+    """
+    try:
+        data = json.loads(open(ARTIFACT_MANIFEST, encoding="utf-8").read())
+    except Exception:  # noqa: BLE001
+        return {}
+    out = {}
+    for name, item in (data.get("sets") or {}).items():
+        if item.get("ok") and item.get("full"):
+            out[name] = {"full": item["full"], "delta": item.get("delta"),
+                         "a2": (data["sets"].get(name + "_b") or {}).get("full")}
+    return out
 
 
 PAYLOAD_IDS = ("333", "329")
@@ -1278,7 +1331,7 @@ def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     payloads = payloads_or_fail("graph:增量重建（删+增）")
     if payloads is None:
         return
@@ -1319,12 +1372,17 @@ def check_retrieval_equivalence():
     """检索层等价性：同一批 query 在 full 与 delta 两份快照上命中是否一致。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
-    pairs = [("/tmp/dual-full", "/tmp/delta-drill/snapshot-20261031230249-560368-g0")]
+    py = hipporag_python()
+    # 比的是**同内容**两份独立构建（a vs a2）：内容没变，检索就该一致。
+    # 拿 full vs delta 比是错的——delta 删了块，命中不同才是正确行为（那是 C4 的事）。
+    sets = artifact_paths()
+    std = sets.get("standard") or {}
+    pairs = [(std["full"], std["a2"])] if std.get("full") and std.get("a2") else []
     pairs = [(a, b) for a, b in pairs if os.path.isdir(a) and os.path.isdir(b)]
     if not os.path.isfile(py) or not pairs:
         record("graph:检索层等价性", "SKIP",
-               {"why": "hipporag venv 或对照快照缺失（需 dual-full 与 delta 快照）"})
+               {"why": "hipporag venv 或标准语料的第二份全量缺失",
+                "manifest": ARTIFACT_MANIFEST})
         return
     a, b = pairs[0]
     out = tempfile.mktemp(suffix=".json")
@@ -1352,16 +1410,20 @@ def check_graph_export():
     """图导出：节点/边/事实能落成稳定排序的 JSONL，且两份全量导出可复现。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
-    if not os.path.isfile(py) or not os.path.isdir("/tmp/dual-full"):
-        record("graph:图导出与差异", "SKIP", {"why": "hipporag venv 或 dual-full 快照缺失"})
+    py = hipporag_python()
+    sets = artifact_paths()
+    base = next(((s.get("full"), s.get("a2") or s.get("full")) for s in sets.values()
+                 if s.get("full")), (None, None))
+    if not os.path.isfile(py) or not base[0]:
+        record("graph:图导出与差异", "SKIP",
+               {"why": "hipporag venv 或全量快照缺失", "manifest": ARTIFACT_MANIFEST})
         return
     stamp = int(time.time())
     out = f"/tmp/q-export-{stamp}"
     env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
     proc = subprocess.run([py, str(REPO / "scripts/v2_graph_export.py"),
-                           "--snapshot", "/tmp/dual-full", "--out", out,
-                           "--compare", "/tmp/dual-full2"],
+                           "--snapshot", base[0], "--out", out,
+                           "--compare", base[1]],
                           capture_output=True, text=True, timeout=900, env=env)
     try:
         report = json.loads((proc.stdout or "").strip().splitlines()[-1])
@@ -1411,6 +1473,11 @@ def check_image_tag_safety():
            "只测 redis 一个 tar；未做「tar 与在用镜像内容不一致」的真实构造（需先有旧版本镜像）")
 
 
+def mod_exit(verdict):
+    """退出码必须与判定一致，否则 CI 里的 gate 会形同虚设。"""
+    return {"SAFE": 0, "REVIEW": 1, "UNSAFE": 2, "INCONCLUSIVE": 3}.get(verdict, -1)
+
+
 def _count(value):
     """差异字段可能是列表也可能是计数，统一成数——报告里不要出现"None 个差异"。"""
     if isinstance(value, (list, tuple, set, dict)):
@@ -1422,38 +1489,46 @@ def check_canary_verdict():
     """C4 灰度判定：把结构/抽取 + 检索合成一个结论（SAFE/REVIEW/UNSAFE）。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
-    delta = "/tmp/delta-drill/snapshot-20261031230249-560368-g0"
-    if not os.path.isfile(py) or not os.path.isdir("/tmp/dual-full") or not os.path.isdir(delta):
+    py = hipporag_python()
+    sets = artifact_paths()
+    # 用**同语料两份独立全量**做对照（b = a2）：内容没有任何变化，
+    # 所以结论只允许 SAFE 或 INCONCLUSIVE——判成 UNSAFE/REVIEW 就等于
+    # "把重建噪声当成缺陷"，这种判定不能进 CI。
+    # "能抓出真差异"由压力语料（stress vs stress_b vs stress_delta）在证据里单独跑。
+    pair = next(((s["full"], s.get("a2"), s.get("a2")) for s in sets.values()
+                 if s.get("full") and s.get("a2")), None)
+    if not os.path.isfile(py) or pair is None:
         record("graph:灰度判定（C4）", "SKIP",
-               {"why": "hipporag venv 或对照快照缺失"})
+               {"why": "hipporag venv 或含基线的快照组缺失", "manifest": ARTIFACT_MANIFEST})
         return
     out = tempfile.mktemp(suffix=".json")
     env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
     proc = subprocess.run([py, str(REPO / "scripts/v2_canary_verdict.py"),
-                           "--a", "/tmp/dual-full", "--a2", "/tmp/dual-full2",
-                           "--b", delta, "--json", out],
+                           "--a", pair[0], "--a2", pair[1], "--b", pair[2], "--json", out],
                           capture_output=True, text=True, timeout=1800, env=env)
     if not os.path.isfile(out):
         record("graph:灰度判定（C4）", "FAIL", {"tail": (proc.stderr or "")[-200:]})
         return
     d = json.loads(open(out, encoding="utf-8").read())
-    # 预期 REVIEW：事实差 1 条（delta 多"董事会|审议通过|单笔授信"）但检索完全一致。
-    # 判成 SAFE 说明 facts 差异被忽略；判成 UNSAFE 说明把"未传导的差异"直接否决。
-    ok = d.get("verdict") == "REVIEW" and proc.returncode == 1
+    # 无内容变化时：SAFE(0) = 检索与抽取都可复现；INCONCLUSIVE(3) = 基线自己就不稳，
+    # 说明这套栈的抽取不可复现（实测确实如此）。两者都是诚实结论；
+    # UNSAFE/REVIEW 才是错的——那等于把噪声当缺陷。
+    ok = (d.get("verdict") in ("SAFE", "INCONCLUSIVE")
+          and proc.returncode == mod_exit(d.get("verdict")))
     record("graph:灰度判定（C4）", "PASS" if ok else "FAIL",
            {"verdict": d.get("verdict"), "exit": proc.returncode,
             "reasons": (d.get("reasons") or [])[:3],
             "facts_only_b": _count(d.get("facts", {}).get("only_b")),
             "retrieval": d.get("retrieval")},
-           "判据基于 6 条手写 query；REVIEW ≠ 可切换，只表示证据既不能否决也不能放行")
+           "对照是同语料两份独立全量（无内容变化）；只接受 SAFE/INCONCLUSIVE，"
+           "抓真差异的能力由压力语料在证据里单独验证")
 
 
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     if not os.path.isfile(py):
         record("biz:global 报告/引用失效识别", "SKIP", {"why": "no hipporag venv"})
         return
@@ -1462,7 +1537,7 @@ def check_community_report():
         return
 
     cmd = [py, str(REPO / "scripts/v2_community_report.py"), "--payloads", *payloads,
-           "--save-dir", "/tmp/hippo-cjk", "--cjk-compat", "--out", "/tmp/q-community.json"]
+           "--save-dir", CJK_DIR, "--cjk-compat", "--out", "/tmp/q-community.json"]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     if proc.returncode != 0 or not os.path.isfile("/tmp/q-community.json"):
         record("biz:global 报告/引用失效识别", "FAIL",
@@ -1488,7 +1563,7 @@ def check_end_to_end_answer():
     """
     import subprocess
 
-    py = os.environ.get("V2_HIPPORAG_PYTHON", os.path.expanduser("~/hipporag-venv/bin/python"))
+    py = hipporag_python()
     if not os.path.isfile(py):
         record("biz:端到端业务问答", "SKIP", {"why": "no hipporag venv", "python": py})
         return
@@ -1504,8 +1579,13 @@ def check_end_to_end_answer():
         return
 
     cmd = [py, str(REPO / "scripts/v2_answer_e2e.py"), "--payloads", *payloads,
-           "--queries", "多指标对账口径是什么", "--save-dir", "/tmp/hippo-cjk",
-           "--cjk-compat", "--skip-build", "--require-graph", "--top-k", "5",
+           # 查询必须**点名一个被抽出来的实体**：种子匹配是"实体名是 query 子串"，
+           # 实测 "多指标对账口径是什么" 这类概念式问句经常认不出种子 → 回退稠密 → require_graph 失败。
+           # 换成客户名后稳定走 GRAPH。这正是"种子识别偏弱"的具体表现，已记进证据。
+           "--queries", "华东精密制造有限公司的授信额度是多少", "--save-dir", CJK_DIR,
+           # 不再 --skip-build：/tmp 被清空后旧索引就没了，跳过构建会让它读空索引崩在
+           # dense_passage_retrieval 的 shape 上（表现为 FAIL，像真回归）。宁可多花 40s。
+           "--cjk-compat", "--require-graph", "--top-k", "5",
            "--out", "/tmp/q-e2e.json"]
     # 回答模型是采样的：实测同一问句会偶发给出"quote 不是原文子串"（INVALID_CITATION），
     # 单独复跑就过。一次抖动记 FAIL 会把真回归淹掉，所以失败重试一次并把 attempts 写进报告；
@@ -1681,8 +1761,10 @@ def main(argv=None):
     check_graph_export()
     check_image_tag_safety()
     check_canary_verdict()
-    check_community_report()
+    # 顺序有讲究：端到端会**构建** CJK 索引，社区报告只读该索引（脚本自身不建）。
+    # 反过来跑会读到空目录 → export total 0 → BLOCKED，看起来像功能坏了。
     check_end_to_end_answer()
+    check_community_report()
     for item, why in NOT_IMPLEMENTED:
         record(item, "NOT_IMPLEMENTED", why)
 

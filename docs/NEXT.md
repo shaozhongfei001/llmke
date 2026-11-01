@@ -457,6 +457,18 @@
 （`apply_delta` 是"增量抽取 + **全量重建图**"，图结构与权重会变）。
 这决定了 C3 那句"检索完全一致"到底能推广到哪，也决定 delta 能不能上生产。
 
+### 续跑结果（2026-11-01 晚，已做完，勿重做）
+- 上一条"华东精密内容没变却检索不同"**是误判**：top1/top2 完全相同，只有第 3 名变，
+  而第 3 名正是被删掉的块。`ordered_rate` 对尾部变化过敏，不能单独当判据。
+- 10 块语料上**基线本身不稳**（同语料两份独立全量：facts 6 vs 5、retrieval top1 0.667）；
+  5 块语料上基线稳定。显式 temperature=0/seed=42 也不可复现（62 vs 72 条事实）——
+  当前端点不保证可复现，所以判定必须有 INCONCLUSIVE 这一档（已实现，exit 3）。
+- 种子识别偏弱有实证：概念式问句（"多指标对账口径是什么"）抽不到种子 → 回退稠密；
+  点名实体的问句稳定走 GRAPH。
+- 重启把 /tmp 清空 → 6 项图检查静默 SKIP、端到端读空索引崩。已改为 `.artifacts/` 持久目录 +
+  `artifacts.json` 清单 + 解释器自动探测；`python scripts/v2_build_artifacts.py` 可一键重建。
+- Q 最终（全新一轮）：**54 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED**。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。

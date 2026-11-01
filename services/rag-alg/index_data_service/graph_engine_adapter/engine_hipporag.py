@@ -39,11 +39,19 @@ class HippoRAGEngine:
             from hipporag.utils.config_utils import BaseConfig
 
             os.environ.setdefault("OPENAI_API_KEY", "sk-local")
+            extra = {}
+            # 抽取是 LLM 采样的：同一语料两次全量构建会得到不同三元组，进而让"检索是否一致"
+            # 无法归因（实测基线 top1 只有 0.667）。这里允许用环境变量显式固定温度/种子，
+            # **不默认写死**——是否可复现取决于服务端实现，声称"设了 0 就一定确定"是骗人。
+            if os.environ.get("LLMKE_LLM_TEMPERATURE"):
+                extra["temperature"] = float(os.environ["LLMKE_LLM_TEMPERATURE"])
+            if os.environ.get("LLMKE_LLM_SEED"):
+                extra["seed"] = int(os.environ["LLMKE_LLM_SEED"])
             cfg = BaseConfig(save_dir=self.save_dir, llm_name=self._cfg["llm_name"],
                              llm_base_url=self._cfg["llm_base_url"],
                              embedding_model_name=self._cfg["embedding_model_name"],
                              embedding_base_url=self._cfg["embedding_base_url"],
-                             openie_mode="online")
+                             openie_mode="online", **extra)
             self._hp = HippoRAG(global_config=cfg)
             self.save_dir = self._hp.global_config.save_dir
         return self._hp
