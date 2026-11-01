@@ -109,7 +109,55 @@ def build_alert_sink(args):
     return None
 
 
-def make_handler(sched, lease, guard=None, metric_labels=None):
+def build_quota(args):
+    """按需构造跨实例配额（MySQL 原子计数）。
+
+    **失败时 fail-open 并大声告警**：配额是保护措施，不是正确性前提。
+    数据库不可用时若一律拒绝，会把"配额库抖动"升级成"所有重建被拒"——
+    比没有配额更糟。这里返回 None 等于"本实例不限额"，必须在日志里说清楚。
+    """
+    limit = float(getattr(args, "quota_limit", 0) or 0)
+    if limit <= 0:
+        return None
+    env = os.environ
+    need = ("LLMKE_LEASE_MYSQL_HOST", "LLMKE_LEASE_MYSQL_USER",
+            "LLMKE_LEASE_MYSQL_PASSWORD", "LLMKE_LEASE_MYSQL_DB")
+    missing = [k for k in need if not env.get(k)]
+    if missing:
+        print(f"[warn] 配额已配置但缺少环境变量 {missing}，本实例不限额", file=sys.stderr)
+        return None
+    from graph_engine_adapter.lease_mysql import make_pymysql_factory
+    from graph_engine_adapter.quota_shared import SharedQuotaCounter, ensure_schema
+
+    factory = make_pymysql_factory(host=env["LLMKE_LEASE_MYSQL_HOST"],
+                                   port=int(env.get("LLMKE_LEASE_MYSQL_PORT", "3306")),
+                                   user=env["LLMKE_LEASE_MYSQL_USER"],
+                                   password=env["LLMKE_LEASE_MYSQL_PASSWORD"],
+                                   database=env["LLMKE_LEASE_MYSQL_DB"])
+    try:
+        ensure_schema(factory)
+        counter = SharedQuotaCounter(factory, limit=limit,
+                                     window_s=float(getattr(args, "quota_window_s", 1.0)))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] 配额库不可用（{type(exc).__name__}: {exc}），本实例不限额", file=sys.stderr)
+        return None
+    return _QuotaAdapter(counter, getattr(args, "kb_id", "default"))
+
+
+class _QuotaAdapter:
+    """把 SharedQuotaCounter 包成 `take(tenant) -> {allowed, retry_after_s}`，
+    并允许请求自带 kb（多库共用一个 worker 时按请求里的 kb 计费）。"""
+
+    def __init__(self, counter, default_tenant):
+        self.counter = counter
+        self.default_tenant = default_tenant
+
+    def take(self, tenant=None):
+        return self.counter.take(tenant or self.default_tenant)
+
+
+def make_handler(sched, lease, guard=None, metric_labels=None,
+                 coord=None, quota=None, request_token=None):
     """`metric_labels` 必须由调用方传进来：handler 在工厂里定义，
     它**看不到** main() 的局部变量（这里曾直接引用 `args`，一请求 /metrics 就 NameError）。"""
     from graph_engine_adapter.metrics import render_with_lease
@@ -149,6 +197,49 @@ def make_handler(sched, lease, guard=None, metric_labels=None):
                 return
             self.send_error(404)
 
+        # ---------- POST /rebuild：真实请求入口（配额在这里生效） ----------
+        def _json(self, code, payload, extra_headers=None):
+            body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            for key, value in (extra_headers or {}).items():
+                self.send_header(key, value)
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_POST(self):  # noqa: N802
+            if not self.path.startswith("/rebuild"):
+                self.send_error(404)
+                return
+            if request_token:
+                if self.headers.get("Authorization", "") != f"Bearer {request_token}":
+                    self._json(401, {"status": "UNAUTHORIZED"})
+                    return
+            tenant = self.headers.get("X-KB-Id")
+            if not tenant:
+                from urllib.parse import parse_qs, urlparse
+                tenant = (parse_qs(urlparse(self.path).query).get("kb") or [None])[0]
+            if quota is not None:
+                decision = quota.take(tenant)
+                if not decision.get("allowed"):
+                    retry = decision.get("retry_after_s")
+                    headers = {"Retry-After": str(max(1, int(retry or 1)))} if retry else {}
+                    self._json(429, {"status": "TENANT_QUOTA", "tenant": tenant,
+                                     "retry_after_s": retry,
+                                     "hint": "该知识库的配额已用尽，稍后重试"}, headers)
+                    return
+            if coord is None:
+                self._json(503, {"status": "NOT_READY"})
+                return
+            got = coord.request("api", [])
+            if got.get("status") == "BACKPRESSURE":
+                self._json(429, {"status": "BACKPRESSURE", "pending": got.get("pending"),
+                                 "hint": "重建积压已满，先排空再上传"})
+                return
+            self._json(202, {"status": "QUEUED", "pending": got.get("pending"),
+                             "tenant": tenant or "default"})
+
         def log_message(self, *args):
             return None
 
@@ -174,6 +265,11 @@ def main(argv=None):
     ap.add_argument("--owner", default=f"{os.uname().nodename}:{os.getpid()}")
     ap.add_argument("--metrics-port", type=int, default=0, help="0 = 不监听（只写文件）")
     ap.add_argument("--metrics-out", default=None)
+    ap.add_argument("--request-token", default=None,
+                    help="POST /rebuild 的 Bearer token（不配则仅本机可用）")
+    ap.add_argument("--quota-limit", type=float, default=0,
+                    help="每个知识库每窗口允许的重建请求数；0=不限额")
+    ap.add_argument("--quota-window-s", type=float, default=1.0)
     ap.add_argument("--metrics-label-kb", action="store_true",
                     help="指标带 kb=<kb-id> 标签：一个 worker 服务一个库时，面板上才能按库切片")
     ap.add_argument("--metrics-token", default=None,
@@ -264,7 +360,9 @@ def main(argv=None):
         server = ThreadingHTTPServer(("127.0.0.1", args.metrics_port),
                                      make_handler(
                                          sched, lease, guard,
-                                         {"kb": args.kb_id} if args.metrics_label_kb else None))
+                                         {"kb": args.kb_id} if args.metrics_label_kb else None,
+                                         coord=coord, quota=build_quota(args),
+                                         request_token=args.request_token))
         threading.Thread(target=server.serve_forever, daemon=True).start()
 
     if args.enqueue_on_start:

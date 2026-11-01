@@ -548,6 +548,17 @@
 - 测试 7 项（+32 项相关回归）。
 - 未做：无真实企微/钉钉账号；通道不做去重；无频控/token 轮换/NTP 漂移检测。
 
+### 新增：配额接进真实入口 + 并发验证（2026-11-02，已完成）
+- worker 增 `POST /rebuild`（`?kb=` / `X-KB-Id`）：202 入队、429 TENANT_QUOTA(+Retry-After)、
+  429 BACKPRESSURE、401（配了 token）、503（未就绪）；**被拒的请求不碰 coordinator**。
+- 配额库不可用 → fail-open + stderr 告警（与租约 fail-closed 方向相反，性质不同）。
+- 并发真跑：30 并发 / limit=5 → accepted=5、denied=25、**库中 used=5（拒绝不占额度）**、
+  coordinator 只被调 5 次、对照租户不受影响。
+- 压出并修两处：默认 HTTPServer backlog=5 导致 RST（worker 改 ThreadingHTTPServer，
+  顺带解决"慢请求堵住 /healthz"）；drill 外部猜窗口起点读到 0（改为读最新一行）。
+- 测试 7 项（test_worker_rebuild_api）。
+- 未做：多副本跨进程压测、滑动窗口、租户维度指标导出。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。

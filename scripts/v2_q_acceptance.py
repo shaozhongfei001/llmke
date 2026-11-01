@@ -1663,9 +1663,29 @@ def check_shared_quota():
         counter = SharedQuotaCounter(factory, limit=3, window_s=3.0)
         allowed = [counter.take(tenant)["allowed"] for _ in range(5)]
         ok = allowed == [True, True, True, False, False]
+
+        # 再加一次**并发**验证：配额最容易错的地方是两个请求同时读到 used=limit-1。
+        # 走真实 HTTP 入口（POST /rebuild）+ 真 MySQL 计数器。
+        import subprocess
+        out = tempfile.mktemp(suffix=".json")
+        drill = subprocess.run([sys.executable, str(REPO / "scripts/v2_quota_endpoint_drill.py"),
+                                "--limit", "3", "--requests", "12", "--out", out],
+                               capture_output=True, text=True, timeout=600,
+                               env={**os.environ,
+                                    "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")})
+        concurrent = None
+        if os.path.isfile(out):
+            concurrent = json.loads(open(out, encoding="utf-8").read())
+            ok = ok and concurrent.get("status") == "PASS"
+        else:
+            ok = False
+
         record("deploy:跨实例共享配额", "PASS" if ok else "FAIL",
-               {"allowed": allowed, "tenant": tenant},
-               "隔离库 v2_quota_window；未验证多副本并发下的总量上限")
+               {"serial_allowed": allowed, "tenant": tenant,
+                "concurrent": {k: (concurrent or {}).get(k) for k in
+                               ("accepted", "denied", "used_in_db", "coordinator_calls")},
+                "concurrent_status": (concurrent or {}).get("status")},
+               "隔离库 v2_quota_window；并发经真实 POST /rebuild 入口；未做多副本跨进程压测")
     except Exception as exc:  # noqa: BLE001
         record("deploy:跨实例共享配额", "FAIL",
                {"error": f"{type(exc).__name__}: {exc}"})
