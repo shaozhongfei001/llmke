@@ -64,7 +64,14 @@ def build_lease(args):
             database=env["LLMKE_LEASE_MYSQL_DB"])
         lease = MySqlLease(factory, owner=args.owner, ttl=args.lease_ttl,
                            lease_key=resolve_lease_key(args))
-        lease.ensure_schema()
+        # 建表失败不在启动期退出：数据库不可用正是"要发出告警"的场景，
+        # 在这里 SystemExit 等于"故障时最该报警的时候进程直接不启动"。
+        # 后续 acquire 会走 LEASE_ERROR 路径，由调度器计数并告警。
+        try:
+            lease.ensure_schema()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[warn] 租约建表失败，继续以失败态运行：{type(exc).__name__}: {exc}",
+                  file=sys.stderr)
         return lease
     from graph_engine_adapter.lease import FileLease
 
@@ -76,6 +83,30 @@ def build_lease(args):
         resolve_lease_key(args)          # 复用占位校验，避免两库写同一目录
         path = f"{args.lease}-{args.kb_id}"
     return FileLease(path, owner=args.owner, ttl=args.lease_ttl)
+
+
+def build_alert_sink(args):
+    """按参数装配告警出口：群机器人通道优先，其次通用 webhook，都没有返回 None。
+
+    secret 只从**环境变量**读（`--alert-secret-env` 指定变量名）：把密钥写在命令行上，
+    `ps` 与 shell history 都会留底，等于把告警通道的钥匙贴出去。
+    """
+    if getattr(args, "alert_channel", None):
+        from graph_engine_adapter.alert_channels import make_channel
+
+        if not getattr(args, "alert_url", None):
+            raise SystemExit("--alert-channel 需要 --alert-url")
+        secret = None
+        if args.alert_channel == "dingtalk":
+            secret = os.environ.get(args.alert_secret_env or "")
+            if not secret:
+                raise SystemExit(
+                    f"钉钉通道需要签名密钥：请设置环境变量 {args.alert_secret_env}")
+        return make_channel(args.alert_channel, args.alert_url, secret=secret)
+    if getattr(args, "alert_webhook", None):
+        from graph_engine_adapter.alert_sink import WebhookAlertSink
+        return WebhookAlertSink(args.alert_webhook)
+    return None
 
 
 def make_handler(sched, lease, guard=None, metric_labels=None):
@@ -149,7 +180,14 @@ def main(argv=None):
                     help="/metrics 的 Bearer token（不配则不鉴权，仅建议内网）")
     ap.add_argument("--metrics-allow-ip", action="append", default=[],
                     help="/metrics 允许的客户端 IP，可重复；配了就先判 IP")
-    ap.add_argument("--alert-webhook", default=None)
+    ap.add_argument("--alert-webhook", default=None,
+                    help="通用 JSON webhook（旧方式，保留兼容）")
+    ap.add_argument("--alert-channel", choices=["wecom", "dingtalk"], default=None,
+                    help="群机器人通道；与 --alert-webhook 二选一")
+    ap.add_argument("--alert-url", default=None,
+                    help="通道地址（wecom 带 key，dingtalk 带 access_token）")
+    ap.add_argument("--alert-secret-env", default="LLMKE_ALERT_SECRET",
+                    help="钉钉签名密钥所在的**环境变量名**（不把密钥写进命令行，避免进 ps/历史）")
     ap.add_argument("--debounce", type=float, default=0.5)
     ap.add_argument("--idle-poll", type=float, default=1.0)
     ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
@@ -206,8 +244,8 @@ def main(argv=None):
                 "documents": (result.get("current") or {}).get("documents")}
 
     coord = RebuildCoordinator(build_once)
-    webhook = WebhookAlertSink(args.alert_webhook) if args.alert_webhook else None
-    on_alert = (lambda event: webhook(event)) if webhook else None
+    sink = build_alert_sink(args)
+    on_alert = (lambda event: sink(event)) if sink else None
     sched = RebuildScheduler(coord, debounce=args.debounce, idle_poll=args.idle_poll,
                              lease=lease, on_alert=on_alert, alert_every_s=60.0)
     sched.owner = args.owner

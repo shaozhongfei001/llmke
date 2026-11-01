@@ -179,7 +179,9 @@ def _render_markdown(event: Any, *, title_prefix: str, max_chars: int, max_bytes
     lines: List[str] = [f"### {_text(title_prefix, 40)}: {kind}",
                         f"> 级别: {severity}"]
 
-    stamp = _format_epoch(fields.get("at"))
+    # at 可能是 monotonic（调度器注入的时钟），直接格式化会得到 1970；
+    # 优先用事件里的墙钟字段，其次才退回 at。
+    stamp = _format_epoch(fields.get("wall_time") or fields.get("ts") or fields.get("at"))
     if stamp:
         lines.append(f"> 时间: {stamp}")
     else:

@@ -68,7 +68,9 @@ class RebuildScheduler:
         if self.on_alert is None:
             return
         event = {"schema": "llmke.graph-engine.alert.v1", "kind": kind,
-                 "at": self._clock(), **payload}
+                 # `at` 用注入的时钟（多为 monotonic）做节流判断；告警里要的是**墙钟**，
+                 # 否则发到群里的时间是 "1970-01-01"（实测踩过）。
+                 "at": self._clock(), "wall_time": time.time(), **payload}
         try:
             result = self.on_alert(event)
             # `alerts_sent` 只表示"交给了通道且没抛"；通道明确返回 False 才是"投递失败"。

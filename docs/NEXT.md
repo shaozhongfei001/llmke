@@ -537,6 +537,17 @@
 - Q 增 4 项检查（跨范围合并、告警报文、网络分区、共享配额）：**58 PASS / 0 FAIL / 0 SKIP /
   1 NOT_IMPLEMENTED**。
 
+### 新增：告警通道接线（2026-11-01 深夜，已完成）
+- worker 增 `--alert-channel wecom|dingtalk` + `--alert-url` + `--alert-secret-env`（只存变量名，
+  密钥不进命令行）；缺配置 fail-fast；群机器人通道优先于旧 webhook。
+- `build_lease` 建表失败不再启动即退出（数据库不可用正是该告警的时刻），改由 LEASE_ERROR 路径告警。
+- 真跑（MySQL 指向 127.0.0.1:1）：cycles=5 / lease_errors=5 / alerts_sent=1 / builds=0，
+  本地网关收到 1 条 markdown（含真实错误与影响说明）。
+- 端到端抓出真 bug：告警时间是 **1970**——事件 `at` 是 monotonic 时钟，通道按 epoch 格式化。
+  已加 `wall_time` 并优先使用；单测发现不了，只有真跑才看得到。
+- 测试 7 项（+32 项相关回归）。
+- 未做：无真实企微/钉钉账号；通道不做去重；无频控/token 轮换/NTP 漂移检测。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。
