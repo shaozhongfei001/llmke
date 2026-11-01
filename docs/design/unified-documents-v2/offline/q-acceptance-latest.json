@@ -138,9 +138,9 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "NOT_IMPLEMENTED": 0,
+     "VERIFIED": 18,
      "NOT_VERIFIED": 2,
-     "VERIFIED": 18
+     "NOT_IMPLEMENTED": 0
     },
     "graph_route": "NOT_VERIFIED"
    },
@@ -290,7 +290,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 445,
+     "blocked": 298,
      "allowed": 0
     },
     "after_allowed": true
@@ -306,10 +306,10 @@
      "340"
     ],
     "readers_blocked": [
-     927,
-     928,
-     927,
-     924
+     956,
+     955,
+     953,
+     954
     ],
     "readers_allowed": [
      0,
@@ -403,10 +403,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 124,
+     "A": 136,
      "B": 0
     },
-    "lease_key": "q-lease-1793550619"
+    "lease_key": "q-lease-1793552577"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -438,7 +438,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 36.3,
+    "elapsed_s": 32.2,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -458,7 +458,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:42351/hook",
+     "url": "http://127.0.0.1:44989/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -471,9 +471,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 26.8,
-    "delta_s": 6.7,
-    "speedup_x": 4.0,
+    "full_s": 22.0,
+    "delta_s": 4.1,
+    "speedup_x": 5.4,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -522,10 +522,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-02 00:35:36.605 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-02 00:35:38.208 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-02 00:35:38.208 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-02 00:35:38.213 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-02 01:07:57.999 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-02 01:07:59.419 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-02 01:07:59.419 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-02 01:07:59.424 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -627,7 +627,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:1728196",
+     "owner": "x2:1931789",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -642,7 +642,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:1728326",
+     "owner": "x2:1931994",
      "fencing": null
     },
     "problems": []
@@ -657,14 +657,14 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.99840789999871,
+    "retry_after": 29.99858726200182,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 5.372466669838853e-05,
+     "tokens": 4.771153326137423e-05,
      "exhausted": true
     },
     "problems": []
@@ -723,7 +723,7 @@
     "top1_rate": 1.0,
     "ordered_rate": 1.0,
     "avg_jaccard": 1.0,
-    "elapsed_s": 14.0,
+    "elapsed_s": 7.9,
     "problems": []
    },
    "boundary": "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）"
@@ -810,7 +810,7 @@
    "evidence": {
     "before": {
      "acquired": true,
-     "latency": 0.0572,
+     "latency": 0.0107,
      "fencing": 1
     },
     "cut": {
@@ -820,7 +820,7 @@
      "scheduler_action": "LEASE_ERROR",
      "scheduler_builds": 0,
      "scheduler_lease_errors": 1,
-     "fail_latency": 0.0022,
+     "fail_latency": 0.0012,
      "established_conn": {
       "opened": true,
       "killed_conns": 1,
@@ -831,7 +831,7 @@
     },
     "restored": {
      "acquired": true,
-     "recovered_after_s": 0.0719,
+     "recovered_after_s": 0.0697,
      "last_error": null,
      "scheduler_action": "BUILT",
      "scheduler_builds": 1
@@ -851,14 +851,25 @@
      false,
      false
     ],
-    "tenant": "q-quota-1793551023",
+    "tenant": "q-quota-1793552956",
     "concurrent": {
      "accepted": 3,
      "denied": 9,
      "used_in_db": 3,
      "coordinator_calls": 3
     },
-    "concurrent_status": "PASS"
+    "concurrent_status": "PASS",
+    "multinode": {
+     "accepted": 3,
+     "denied": 9,
+     "used_in_db": 3,
+     "per_node_accepted": {
+      "37293": 1,
+      "36283": 2,
+      "43565": 0
+     }
+    },
+    "multinode_status": "PASS"
    },
    "boundary": "隔离库 v2_quota_window；并发经真实 POST /rebuild 入口；未做多副本跨进程压测"
   },
@@ -868,7 +879,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "华东精密制造有限公司的授信额度是3000万元。",
+    "answer": "3000万元",
     "citations": 1,
     "attempts": 1,
     "model": "deepseek-flash"
