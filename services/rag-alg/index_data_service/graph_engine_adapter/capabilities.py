@@ -42,9 +42,12 @@ CAPABILITIES = {
         "evidence": "tests/test_graph_engine_mapping.py",
     },
     "incremental_update": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "首版按隔离快照全量重建；增量未实现",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "复制上一份快照后就地应用差异：hp.delete 去掉多余块、hp.index(to_add) 复用 "
+                "load_existing_openie 只对新块抽取（**增量抽取 + 全量重建图**，两件事分开说）。"
+                "真跑 5 块：全量 32.4s → 增量 7.5s（4.3×），删 3 增 1 复用 2，"
+                "openie 5→3 == 期望 5-3+1；检索层 full vs delta 命中完全一致",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-DELTA-REBUILD-20261031.md",
     },
     "visibility_fence": {
         "status": "VERIFIED",
@@ -59,14 +62,20 @@ CAPABILITIES = {
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-REBUILD-20261031.md",
     },
     "delete_document": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "fence 已能把撤权挡在读之前；但按文档删除图产物+隔离快照重建的编排未实现",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "删除走**文本差集**而非命令式 delete(document_id)：调用方给全量存活文档，"
+                "apply_delta 先 hp.delete(多出来的块) 再增量，删除在隔离快照内完成、"
+                "指针切换后才对读者可见。真跑删除 3 块后快照内已无被删正文、检索不再命中。"
+                "边界：同文本来自不同文档时会合并成一块（无法只删其一）",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-DELTA-REBUILD-20261031.md",
     },
     "graph_export": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "标准事实导出未实现，社区/global 因此无法消费真实产物",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "节点/边/事实导出为稳定排序的 JSONL（同输入两次 sha256 相同），"
+                "支持最小边权过滤与按度数截断（不留悬空边）；`--compare` 直接给结构化差异。"
+                "真跑 30 节点/109 边/50 事实；full vs delta 差异恰为 1 节点/2 边/1 事实"
+                "（董事会-审议通过-单笔授信），与 C2 抽取差异一致",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-GRAPH-EXPORT-20261101.md",
     },
     "community_report": {
         "status": "VERIFIED",
@@ -105,13 +114,16 @@ CAPABILITIES = {
         "evidence": None,
     },
     "engine_version_filtering": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "as-of 过滤在断言层成立；引擎检索尚未按生效期约束",
-        "evidence": None,
+        "status": "NOT_VERIFIED",
+        "note": "检索结果后置过滤已实现（retrieval_filter.filter_hits：按断言 effective_from/to 判窗口，"
+                "部分来源过期不误杀整块，无日期事实计入 unknown_window 而非直接过期）；"
+                "11 项测试通过，但**未接进 pipeline 默认路径**——所以还不能说「引擎检索已按生效期约束」",
+        "evidence": "tests/test_retrieval_filter.py",
     },
     "engine_visibility_isolation": {
-        "status": "NOT_IMPLEMENTED",
-        "note": "查询侧 scope 过滤在断言层成立；构建期按可见集合隔离索引未做",
+        "status": "NOT_VERIFIED",
+        "note": "查询侧后置过滤已实现（scopes + doc_scopes，查不到可见域时 fail-closed 丢弃；"
+                "与版本过滤方向相反是有意的）；构建期按可见集合隔离索引仍未做",
         "evidence": None,
     },
 }

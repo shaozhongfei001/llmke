@@ -1,16 +1,21 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 50,
-  "FAIL": 0,
+  "PASS": 53,
+  "FAIL": 1,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 1
  },
- "verdict": "PASS",
+ "verdict": "FAIL",
  "note": "NOT_IMPLEMENTED 表示能力未建，不计入 PASS，也不等于通过",
  "payload_bootstrap": {
-  "generated": [],
-  "note": "已存在"
+  "payloads": [
+   "/tmp/ingest-333.json",
+   "/tmp/ingest-329.json"
+  ]
+ },
+ "resume": {
+  "resumed_functions": []
  },
  "results": [
   {
@@ -133,9 +138,9 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "NOT_VERIFIED": 1,
-     "VERIFIED": 10,
-     "NOT_IMPLEMENTED": 6
+     "NOT_IMPLEMENTED": 1,
+     "VERIFIED": 13,
+     "NOT_VERIFIED": 3
     },
     "graph_route": "NOT_VERIFIED"
    },
@@ -285,7 +290,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 346,
+     "blocked": 444,
      "allowed": 0
     },
     "after_allowed": true
@@ -301,10 +306,10 @@
      "340"
     ],
     "readers_blocked": [
-     2343,
-     2334,
-     2339,
-     2353
+     1153,
+     1156,
+     1158,
+     1151
     ],
     "readers_allowed": [
      0,
@@ -363,24 +368,24 @@
    "status": "PASS",
    "evidence": {
     "builds": {
-     "A": 0,
-     "B": 1
+     "A": 1,
+     "B": 0
     },
     "not_leader": {
-     "A": 109,
-     "B": 0
+     "A": 0,
+     "B": 104
     },
     "skipped_fresh": {
      "A": 0,
      "B": 0
     },
     "fencing": {
-     "A": null,
-     "B": 1
+     "A": 1,
+     "B": null
     },
     "stale_write_blocked": {
-     "A": null,
-     "B": true
+     "A": true,
+     "B": null
     }
    },
    "boundary": "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）"
@@ -398,10 +403,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 175,
+     "A": 147,
      "B": 0
     },
-    "lease_key": "q-lease-1793501696"
+    "lease_key": "q-lease-1793528483"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -433,7 +438,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 39.6,
+    "elapsed_s": 36.0,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -453,7 +458,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:38573/hook",
+     "url": "http://127.0.0.1:36297/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -466,9 +471,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 38.8,
-    "delta_s": 5.0,
-    "speedup_x": 7.7,
+    "full_s": 31.6,
+    "delta_s": 6.2,
+    "speedup_x": 5.1,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -517,10 +522,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 11:00:53.804 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 11:00:54.812 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 11:00:54.812 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 11:00:54.817 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 18:27:09.353 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 18:27:10.331 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 18:27:10.331 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 18:27:10.336 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -622,7 +627,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:2371334",
+     "owner": "x2:866182",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -637,7 +642,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:2371378",
+     "owner": "x2:866345",
      "fencing": null
     },
     "problems": []
@@ -652,14 +657,14 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.99852855401696,
+    "retry_after": 29.99862840599963,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 4.950886650466242e-05,
+     "tokens": 4.630160013522715e-05,
      "exhausted": true
     },
     "problems": []
@@ -711,31 +716,97 @@
    "boundary": "假 builder 验调度决策；真引擎下的切换质量未测"
   },
   {
+   "item": "graph:检索层等价性",
+   "status": "PASS",
+   "evidence": {
+    "queries": 3,
+    "top1_rate": 1.0,
+    "ordered_rate": 1.0,
+    "avg_jaccard": 1.0,
+    "elapsed_s": 22.2,
+    "problems": []
+   },
+   "boundary": "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）"
+  },
+  {
+   "item": "graph:图导出与差异",
+   "status": "PASS",
+   "evidence": {
+    "nodes": 30,
+    "edges": 109,
+    "facts": 50,
+    "same_sha_twice": true,
+    "diff_identical": true,
+    "exit": 0
+   },
+   "boundary": "与同语料第二份全量比较；未测大图截断与增量导出"
+  },
+  {
+   "item": "infra:镜像 load 覆盖检测",
+   "status": "PASS",
+   "evidence": {
+    "image_ref": "redis:7.4.10-alpine",
+    "already_present": true,
+    "overwrote_existing": false,
+    "previous_image_id": "2a51817f7925",
+    "load_seconds": 0.1,
+    "container": {
+     "started": true,
+     "health_ok": true,
+     "cleaned_up": true,
+     "probe_seconds": 2.4,
+     "image_ref": "redis:7.4.10-alpine"
+    }
+   },
+   "boundary": "只测 redis 一个 tar；未做「tar 与在用镜像内容不一致」的真实构造（需先有旧版本镜像）"
+  },
+  {
+   "item": "graph:灰度判定（C4）",
+   "status": "PASS",
+   "evidence": {
+    "verdict": "REVIEW",
+    "exit": 1,
+    "reasons": [
+     "抽取事实存在差异：only_a=0 only_b=1（检索未见差异，需人工核对差异清单）"
+    ],
+    "facts_only_b": 1,
+    "retrieval": {
+     "queries": 6,
+     "top1_rate": 1.0,
+     "ordered_rate": 1.0,
+     "avg_jaccard": 1.0,
+     "route_changed": [],
+     "mismatches": []
+    }
+   },
+   "boundary": "判据基于 6 条手写 query；REVIEW ≠ 可切换，只表示证据既不能否决也不能放行"
+  },
+  {
    "item": "biz:global 报告/引用失效识别",
    "status": "PASS",
    "evidence": {
     "status": "READY",
     "export": {
-     "total": 29,
-     "exported": 29,
+     "total": 1,
+     "exported": 1,
      "excluded": 0
     },
-    "communities": 5,
+    "communities": 1,
     "invalid_citations": 0
    },
    "boundary": "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，未参与判定"
   },
   {
    "item": "biz:端到端业务问答",
-   "status": "PASS",
+   "status": "FAIL",
    "evidence": {
     "route": "GRAPH",
-    "reason": "OK",
-    "answer": "多指标对账口径包括：日均存款按T-CORE-001数据源，按业务日跨账户汇总/天数；用电量按T-EXT-001数据源，月",
-    "citations": 2,
+    "reason": "INVALID_CITATION",
+    "answer": "多指标对账口径为：日均存款的数据源是T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源是T-EXT-0",
+    "citations": 0,
     "model": "deepseek-flash"
    },
-   "boundary": "真实端到端（外部回答模型 + 本地引擎 + CJK 补丁），单问句；多跳/合计/跨文档未覆盖"
+   "boundary": "回答未通过核验或图路线未执行"
   }
  ]
 }
