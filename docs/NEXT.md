@@ -522,6 +522,21 @@
 - 已知副作用：RRF 奖励"多路共识"，只在单范围出现的相关文档可能排在多范围重复文档之后
   （要解决需跨索引语义重排，未做）。测试 7 项。
 
+### 新增：收尾总攻（2026-11-01 深夜，五路并行完成）
+- 范围增量重建（scope-delta-role）：`delta_plan` + `scope_delta_build`；真跑 78.7s→9.9s（7.8×，
+  相对"范围数×全量"15.1×），未变更范围三项 sha 全未变。能力 scope_incremental_rebuild → VERIFIED。
+- 跨索引重排（rerank-role）：`merged_rerank.py`，scorer 可注入，失败**回退 RRF 顺序**不返空。
+- 断网演练（netfault-role）：进程内 TCP 代理造分区，before/cut/restored 三段实测
+  （cut 时 OperationalError 2003/2013，调度器 LEASE_ERROR、builds=0，恢复后 BUILT）。
+- 告警网关（alert-role）：企微/钉钉报文 + 钉钉 HMAC 签名（与独立实现逐字符比对），
+  secret 不入请求/stats/日志；本地 HTTP 服务器收到 2 条。
+- 跨实例共享配额（quota-role）：MySQL 原子窗口计数，真库 [T,T,T,F,F]，**拒绝不占额度**。
+- TL 修三处集成问题：①manifest 存相对路径（换 cwd 解析失败→误当隔离生效），改存绝对路径；
+  ②`check_graph_worker_service` 的 /metrics 未兜异常，worker 崩了会打断整轮验收；
+  ③worker `make_handler` 里引用 `args`（我盲改引入的 NameError），改为工厂参数传 labels。
+- Q 增 4 项检查（跨范围合并、告警报文、网络分区、共享配额）：**58 PASS / 0 FAIL / 0 SKIP /
+  1 NOT_IMPLEMENTED**。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。

@@ -95,6 +95,16 @@ CAPABILITIES = {
                 "打补丁后真实语料 graph_calls=1、executed_route=GRAPH（未打补丁时恒为 0）",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-CJK-COMPAT-20261031.md",
     },
+    "scope_incremental_rebuild": {
+        "status": "VERIFIED",
+        "note": "按可见范围增量重建：复用 rebuild_delta，每个范围有自己的根与指针，"
+                "清单是**一张总表**（成功后读旧清单→合并本范围条目→整表写回，"
+                "否则重建 A 范围会把 B 范围从清单里抹掉，B 从此 fail-closed 查不到）。"
+                "无基线默认拒绝（不静默降级全量），失败不动清单/指针。"
+                "真跑：全量 78.7s → 增量 9.9s（7.8×；相对'范围数×全量' 15.1×），"
+                "未变更范围 dept-a 的目录/内容 sha/指针 sha 三项全未变",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-SCOPE-DELTA-20261101.md",
+    },
     "cross_scope_merged_retrieval": {
         "status": "VERIFIED",
         "note": "跨可见范围合并检索：RRF（名次融合，k=60）而非比分数——不同索引的分数不可比。"

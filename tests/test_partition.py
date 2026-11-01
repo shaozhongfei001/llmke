@@ -92,3 +92,26 @@ def test_worker_load_docs_preserves_visibility(tmp_path):
     docs = worker.load_docs([str(payload)])
     plan = partition.build_plan(docs, ["dept-a"])
     assert [d["text"] for d in plan["dept-a"]] == ["公开块"]
+
+
+def test_manifest_stores_absolute_snapshot(tmp_path, monkeypatch):
+    """清单是给**另一个进程**读的：存相对路径时它的 cwd 未必相同，
+    解析失败会被误认为“该范围本来就查不到”，极难排查。"""
+    snapshot = tmp_path / "snap"
+    snapshot.mkdir()
+    root = tmp_path / "root"
+    root.mkdir()
+    partition.write_manifest(str(root), {"dept-a": {"snapshot": "relative/snap"}})
+    data = json.loads((root / "scopes.json").read_text(encoding="utf-8"))
+    assert os.path.isabs(data["scopes"]["dept-a"]["snapshot"])
+
+
+def test_resolve_handles_legacy_relative_manifest(tmp_path, monkeypatch):
+    snapshot = tmp_path / "snap"
+    snapshot.mkdir()
+    root = tmp_path / "root"
+    root.mkdir()
+    legacy = {"schema": partition.SCHEMA,
+              "scopes": {"dept-a": {"snapshot": str(snapshot)}}}
+    (root / "scopes.json").write_text(json.dumps(legacy), encoding="utf-8")
+    assert partition.resolve(str(root), "dept-a")["snapshot"] == str(snapshot)

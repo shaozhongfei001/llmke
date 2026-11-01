@@ -1009,14 +1009,21 @@ def check_graph_worker_service():
             except Exception:  # noqa: BLE001
                 time.sleep(0.5)
         if not health:
-            problems.append("/healthz 30s 内不可用")
+            # 进程可能已经死了：把退出码带上，否则只看到"30s 不可用"，不知道是慢还是崩。
+            problems.append(f"/healthz 30s 内不可用（进程退出码 {proc.poll()}）")
         else:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics", timeout=3) as r:
-                metrics = r.read().decode()
-            if "llmke_graph_scheduler_cycles_total" not in metrics:
-                problems.append("/metrics 缺核心计数器")
-            if "nan" in metrics or "inf" in metrics:
-                problems.append("/metrics 输出 nan/inf")
+            # 这里必须兜住异常：worker 可能在 /healthz 之后崩掉，
+            # 未捕获的 RemoteDisconnected 会把**整轮验收**打断（实测过一次）。
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics", timeout=3) as r:
+                    metrics = r.read().decode()
+            except Exception as exc:  # noqa: BLE001
+                problems.append(f"/metrics 读取失败：{type(exc).__name__}: {exc}")
+            if metrics:
+                if "llmke_graph_scheduler_cycles_total" not in metrics:
+                    problems.append("/metrics 缺核心计数器")
+                if "nan" in metrics or "inf" in metrics:
+                    problems.append("/metrics 输出 nan/inf")
         proc.terminate()
         try:
             code = proc.wait(timeout=15)
@@ -1524,6 +1531,146 @@ def check_canary_verdict():
            "抓真差异的能力由压力语料在证据里单独验证")
 
 
+def check_scope_merge():
+    """跨范围合并检索：单范围看不到越界内容，多范围能取到。"""
+    import subprocess
+
+    py = hipporag_python()
+    scoped = os.path.join(str(REPO), ".artifacts", "scoped", "scopes.json")
+    if not os.path.isfile(py) or not os.path.isfile(scoped):
+        record("graph:跨范围合并检索", "SKIP",
+               {"why": "hipporag venv 或范围索引缺失", "manifest": scoped})
+        return
+    out = tempfile.mktemp(suffix=".json")
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    proc = subprocess.run([py, str(REPO / "scripts/v2_scope_merge_drill.py"),
+                           "--cjk-compat", "--out", out],
+                          capture_output=True, text=True, timeout=1200, env=env)
+    if not os.path.isfile(out):
+        record("graph:跨范围合并检索", "FAIL", {"tail": (proc.stderr or "")[-200:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    ok = d.get("status") == "OK" and proc.returncode == 0
+    record("graph:跨范围合并检索", "PASS" if ok else "FAIL",
+           {"single_contains": d["single"]["contains_needle"],
+            "merged_contains": d["merged"]["contains_needle"],
+            "merged_used": d["merged"]["used"], "problems": d["problems"]},
+           "RRF 融合（名次），未做跨索引语义重排；多范围用户的相关文档可能排在多路重复文档之后")
+
+
+def check_alert_channels():
+    """企业微信/钉钉报文与签名：本地 HTTP 服务器接收，不外连。"""
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from graph_engine_adapter.alert_channels import DingtalkChannel, WecomChannel
+
+    received = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length", 0))
+            received.append({"path": self.path, "body": json.loads(self.rfile.read(length))})
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{"errcode":0}')
+
+        def log_message(self, *args):
+            return None
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    problems = []
+    try:
+        base = f"http://127.0.0.1:{server.server_port}"
+        secret = "SEC0123456789"
+        wecom = WecomChannel(base + "/wecom?key=k")
+        # 时间戳由 clock 注入（通道内部用 now_ms），不是构造参数
+        ding = DingtalkChannel(base + "/ding?access_token=t", secret=secret,
+                               clock=lambda: 1767225600.0)
+        ok_w = wecom({"kind": "LEASE_UNAVAILABLE", "error": "MySQL down", "impact": "重建暂停"})
+        ok_d = ding({"kind": "LEASE_UNAVAILABLE", "error": "MySQL down"})
+
+        if not ok_w or not ok_d:
+            problems.append("通道发送返回 False")
+        if len(received) != 2:
+            problems.append(f"服务端收到 {len(received)} 条，应为 2")
+        else:
+            w = received[0]["body"]
+            if w.get("msgtype") != "markdown" or "LEASE_UNAVAILABLE" not in \
+                    json.dumps(w, ensure_ascii=False):
+                problems.append("企微报文结构不对")
+            d = received[1]["body"]
+            if "sign" not in d or "timestamp" not in d:
+                problems.append("钉钉报文缺 sign/timestamp")
+            if "sign=" not in received[1]["path"]:
+                problems.append("钉钉 URL 未带签名")
+            if secret in json.dumps(received, ensure_ascii=False):
+                problems.append("secret 出现在请求里（应只参与签名）")
+    finally:
+        server.shutdown()
+
+    record("obs:告警通道报文", "PASS" if not problems else "FAIL",
+           {"received": len(received), "problems": problems},
+           "本地模拟网关；未验证真实企业微信/钉钉是否接受（无账号）")
+
+
+def check_network_partition():
+    """网络分区：TCP 通→断→恢复，租约与调度器都要跟着变。"""
+    import subprocess
+
+    env_keys = ("LLMKE_TEST_MYSQL_HOST", "LLMKE_TEST_MYSQL_PASSWORD")
+    if not all(os.environ.get(k) for k in env_keys):
+        record("lease:网络分区恢复", "SKIP", {"why": "缺 LLMKE_TEST_MYSQL_*"})
+        return
+    out = tempfile.mktemp(suffix=".json")
+    env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    proc = subprocess.run([sys.executable, str(REPO / "scripts/v2_network_partition_drill.py"),
+                           "--out", out],
+                          capture_output=True, text=True, timeout=900, env=env)
+    if not os.path.isfile(out):
+        record("lease:网络分区恢复", "FAIL", {"tail": (proc.stderr or "")[-250:]})
+        return
+    d = json.loads(open(out, encoding="utf-8").read())
+    phases = d.get("phase") or {}
+    ok = (d.get("status") in ("OK", "PASS")
+          and (phases.get("before") or {}).get("acquired") is True
+          and (phases.get("cut") or {}).get("error_type")
+          and (phases.get("restored") or {}).get("acquired") is True)
+    record("lease:网络分区恢复", "PASS" if ok else "FAIL",
+           {"before": phases.get("before"), "cut": phases.get("cut"),
+            "restored": phases.get("restored"), "problems": d.get("problems")},
+           "本地 TCP 代理制造分区；未做真实主从切换与脑裂")
+
+
+def check_shared_quota():
+    """跨实例共享配额：MySQL 原子计数，拒绝不占额度。"""
+    if not all(os.environ.get(k) for k in ("LLMKE_LEASE_MYSQL_HOST", "LLMKE_LEASE_MYSQL_PASSWORD")):
+        record("deploy:跨实例共享配额", "SKIP", {"why": "缺 LLMKE_LEASE_MYSQL_*"})
+        return
+    try:
+        from graph_engine_adapter.lease_mysql import make_pymysql_factory
+        from graph_engine_adapter.quota_shared import SharedQuotaCounter, ensure_schema
+
+        factory = make_pymysql_factory(
+            host=os.environ["LLMKE_LEASE_MYSQL_HOST"],
+            port=int(os.environ.get("LLMKE_LEASE_MYSQL_PORT", "3306")),
+            user=os.environ["LLMKE_LEASE_MYSQL_USER"],
+            password=os.environ["LLMKE_LEASE_MYSQL_PASSWORD"],
+            database=os.environ["LLMKE_LEASE_MYSQL_DB"])
+        ensure_schema(factory)
+        tenant = f"q-quota-{int(time.time())}"
+        counter = SharedQuotaCounter(factory, limit=3, window_s=3.0)
+        allowed = [counter.take(tenant)["allowed"] for _ in range(5)]
+        ok = allowed == [True, True, True, False, False]
+        record("deploy:跨实例共享配额", "PASS" if ok else "FAIL",
+               {"allowed": allowed, "tenant": tenant},
+               "隔离库 v2_quota_window；未验证多副本并发下的总量上限")
+    except Exception as exc:  # noqa: BLE001
+        record("deploy:跨实例共享配额", "FAIL",
+               {"error": f"{type(exc).__name__}: {exc}"})
+
+
 def check_community_report():
     """社区/global：只消费校验过的标准事实导出，报告引用必须全部可解析。"""
     import subprocess
@@ -1761,6 +1908,10 @@ def main(argv=None):
     check_graph_export()
     check_image_tag_safety()
     check_canary_verdict()
+    check_scope_merge()
+    check_alert_channels()
+    check_network_partition()
+    check_shared_quota()
     # 顺序有讲究：端到端会**构建** CJK 索引，社区报告只读该索引（脚本自身不建）。
     # 反过来跑会读到空目录 → export total 0 → BLOCKED，看起来像功能坏了。
     check_end_to_end_answer()

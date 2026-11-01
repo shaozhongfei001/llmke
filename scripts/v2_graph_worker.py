@@ -78,7 +78,9 @@ def build_lease(args):
     return FileLease(path, owner=args.owner, ttl=args.lease_ttl)
 
 
-def make_handler(sched, lease, guard=None):
+def make_handler(sched, lease, guard=None, metric_labels=None):
+    """`metric_labels` 必须由调用方传进来：handler 在工厂里定义，
+    它**看不到** main() 的局部变量（这里曾直接引用 `args`，一请求 /metrics 就 NameError）。"""
     from graph_engine_adapter.metrics import render_with_lease
 
     class Handler(BaseHTTPRequestHandler):
@@ -107,8 +109,7 @@ def make_handler(sched, lease, guard=None):
                 self.wfile.write(body)
                 return
             if self.path.startswith("/metrics"):
-                labels = {"kb": args.kb_id} if args.metrics_label_kb else None
-                text = render_with_lease(sched, lease, labels).encode("utf-8")
+                text = render_with_lease(sched, lease, metric_labels).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
                 self.send_header("Content-Length", str(len(text)))
@@ -223,7 +224,9 @@ def main(argv=None):
     server = None
     if args.metrics_port:
         server = ThreadingHTTPServer(("127.0.0.1", args.metrics_port),
-                                     make_handler(sched, lease, guard))
+                                     make_handler(
+                                         sched, lease, guard,
+                                         {"kb": args.kb_id} if args.metrics_label_kb else None))
         threading.Thread(target=server.serve_forever, daemon=True).start()
 
     if args.enqueue_on_start:

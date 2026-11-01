@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 54,
+  "PASS": 58,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 1
@@ -138,9 +138,9 @@
    "status": "PASS",
    "evidence": {
     "counts": {
-     "VERIFIED": 14,
      "NOT_IMPLEMENTED": 0,
-     "NOT_VERIFIED": 3
+     "NOT_VERIFIED": 2,
+     "VERIFIED": 17
     },
     "graph_route": "NOT_VERIFIED"
    },
@@ -290,7 +290,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 341,
+     "blocked": 649,
      "allowed": 0
     },
     "after_allowed": true
@@ -306,10 +306,10 @@
      "340"
     ],
     "readers_blocked": [
-     1963,
-     1960,
-     1961,
-     1957
+     1106,
+     1107,
+     1105,
+     1101
     ],
     "readers_allowed": [
      0,
@@ -372,19 +372,19 @@
      "B": 1
     },
     "not_leader": {
-     "A": 99,
+     "A": 104,
      "B": 0
     },
     "skipped_fresh": {
-     "A": 1,
+     "A": 0,
      "B": 0
     },
     "fencing": {
-     "A": 2,
+     "A": null,
      "B": 1
     },
     "stale_write_blocked": {
-     "A": true,
+     "A": null,
      "B": true
     }
    },
@@ -403,10 +403,10 @@
      "B": 1
     },
     "not_leader": {
-     "A": 107,
+     "A": 130,
      "B": 0
     },
-    "lease_key": "q-lease-1793537420"
+    "lease_key": "q-lease-1793547730"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -438,7 +438,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 35.1,
+    "elapsed_s": 35.2,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -458,7 +458,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:43073/hook",
+     "url": "http://127.0.0.1:46399/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -471,9 +471,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 20.7,
-    "delta_s": 2.6,
-    "speedup_x": 7.9,
+    "full_s": 26.7,
+    "delta_s": 3.6,
+    "speedup_x": 7.4,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -522,10 +522,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 20:55:19.310 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 20:55:20.527 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 20:55:20.527 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 20:55:20.532 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 23:47:28.963 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 23:47:30.291 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 23:47:30.291 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 23:47:30.296 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -627,7 +627,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:363640",
+     "owner": "x2:1428468",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -642,7 +642,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:364050",
+     "owner": "x2:1428565",
      "fencing": null
     },
     "problems": []
@@ -657,14 +657,14 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.998755892000194,
+    "retry_after": 29.998564012001225,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 4.2070299999312036e-05,
+     "tokens": 4.849546664151087e-05,
      "exhausted": true
     },
     "problems": []
@@ -723,7 +723,7 @@
     "top1_rate": 1.0,
     "ordered_rate": 1.0,
     "avg_jaccard": 1.0,
-    "elapsed_s": 16.4,
+    "elapsed_s": 12.3,
     "problems": []
    },
    "boundary": "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）"
@@ -754,7 +754,7 @@
      "started": true,
      "health_ok": true,
      "cleaned_up": true,
-     "probe_seconds": 2.3,
+     "probe_seconds": 2.4,
      "image_ref": "redis:7.4.10-alpine"
     }
    },
@@ -780,6 +780,80 @@
     }
    },
    "boundary": "对照是同语料两份独立全量（无内容变化）；只接受 SAFE/INCONCLUSIVE，抓真差异的能力由压力语料在证据里单独验证"
+  },
+  {
+   "item": "graph:跨范围合并检索",
+   "status": "PASS",
+   "evidence": {
+    "single_contains": false,
+    "merged_contains": true,
+    "merged_used": [
+     "dept-a",
+     "dept-b"
+    ],
+    "problems": []
+   },
+   "boundary": "RRF 融合（名次），未做跨索引语义重排；多范围用户的相关文档可能排在多路重复文档之后"
+  },
+  {
+   "item": "obs:告警通道报文",
+   "status": "PASS",
+   "evidence": {
+    "received": 2,
+    "problems": []
+   },
+   "boundary": "本地模拟网关；未验证真实企业微信/钉钉是否接受（无账号）"
+  },
+  {
+   "item": "lease:网络分区恢复",
+   "status": "PASS",
+   "evidence": {
+    "before": {
+     "acquired": true,
+     "latency": 0.0533,
+     "fencing": 1
+    },
+    "cut": {
+     "error_type": "OperationalError",
+     "error_len": 105,
+     "error": "OperationalError: (2003, \"Can't connect to MySQL server on '127.0.0.1' ([Errno 111] Connection refused)\")",
+     "scheduler_action": "LEASE_ERROR",
+     "scheduler_builds": 0,
+     "scheduler_lease_errors": 1,
+     "fail_latency": 0.0008,
+     "established_conn": {
+      "opened": true,
+      "killed_conns": 1,
+      "error_type": "OperationalError",
+      "error_len": 72,
+      "error": "OperationalError: (2013, 'Lost connection to MySQL server during query')"
+     }
+    },
+    "restored": {
+     "acquired": true,
+     "recovered_after_s": 0.0636,
+     "last_error": null,
+     "scheduler_action": "BUILT",
+     "scheduler_builds": 1
+    },
+    "problems": null
+   },
+   "boundary": "本地 TCP 代理制造分区；未做真实主从切换与脑裂"
+  },
+  {
+   "item": "deploy:跨实例共享配额",
+   "status": "PASS",
+   "evidence": {
+    "allowed": [
+     true,
+     true,
+     true,
+     false,
+     false
+    ],
+    "tenant": "q-quota-1793548146"
+   },
+   "boundary": "隔离库 v2_quota_window；未验证多副本并发下的总量上限"
   },
   {
    "item": "biz:端到端业务问答",
