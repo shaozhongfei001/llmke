@@ -37,6 +37,19 @@ def load_docs(payloads):
     return docs
 
 
+def resolve_lease_key(args) -> str:
+    """租约键的粒度：global（默认，全库一个键）或 kb（每个知识库一个键）。
+
+    kb 粒度下两个不同知识库可以**并行重建**，互不阻塞；代价是它们会同时写盘，
+    所以 `--root` 必须按 kb 分开（用 `{kb}` 占位），否则两个进程会抢同一份快照目录。
+    """
+    if getattr(args, "lease_scope", "global") != "kb":
+        return args.lease_key
+    if "{kb}" not in (args.root or ""):
+        raise SystemExit("--lease-scope kb 要求 --root 含 {kb} 占位（不同库必须写到不同快照目录）")
+    return f"{args.lease_key}:{args.kb_id}"
+
+
 def build_lease(args):
     if args.lease_backend == "mysql":
         from graph_engine_adapter.lease_mysql import MySqlLease, make_pymysql_factory
@@ -48,14 +61,19 @@ def build_lease(args):
             user=env["LLMKE_LEASE_MYSQL_USER"], password=env["LLMKE_LEASE_MYSQL_PASSWORD"],
             database=env["LLMKE_LEASE_MYSQL_DB"])
         lease = MySqlLease(factory, owner=args.owner, ttl=args.lease_ttl,
-                           lease_key=args.lease_key)
+                           lease_key=resolve_lease_key(args))
         lease.ensure_schema()
         return lease
     from graph_engine_adapter.lease import FileLease
 
     if not args.lease:
         raise SystemExit("--lease-backend file 需要 --lease <path>")
-    return FileLease(args.lease, owner=args.owner, ttl=args.lease_ttl)
+    # 文件租约的 kb 粒度落在**不同文件**上：同一个文件里换 key 等于没隔离（mkdir 互斥）。
+    path = args.lease
+    if getattr(args, "lease_scope", "global") == "kb":
+        resolve_lease_key(args)          # 复用占位校验，避免两库写同一目录
+        path = f"{args.lease}-{args.kb_id}"
+    return FileLease(path, owner=args.owner, ttl=args.lease_ttl)
 
 
 def make_handler(sched, lease, guard=None):
@@ -109,6 +127,8 @@ def main(argv=None):
     ap.add_argument("--lease-backend", choices=["file", "mysql"], default="file")
     ap.add_argument("--lease", default=None)
     ap.add_argument("--lease-key", default="rebuild")
+    ap.add_argument("--lease-scope", choices=["global", "kb"], default="global",
+                    help="global=全库单租约；kb=每知识库一个租约（可并行重建，需 --root 含 {kb}）")
     ap.add_argument("--kb-id", default="default", help="知识库标识，用于灰度策略判定")
     ap.add_argument("--canary-file", default=None,
                     help="灰度策略文件（JSON）；每次重建前重读，改文件即回退，不用重启")
@@ -139,6 +159,9 @@ def main(argv=None):
     from graph_engine_adapter.fence import FenceState
     from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator
     from graph_engine_adapter.rebuild_scheduler import RebuildScheduler
+
+    if "{kb}" in args.root:
+        args.root = args.root.replace("{kb}", args.kb_id)
 
     docs = load_docs(args.payloads)
     fence = FenceState()
