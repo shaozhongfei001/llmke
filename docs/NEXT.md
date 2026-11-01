@@ -262,7 +262,15 @@
        角色回报补充：①local 分支原先没有 budget 键（配了静默不生效）→ 已统一补上并加测试；
        ②make_llm_call 在 services/ 内无调用点（answer.assemble 由调用方注入 llm_call），
          限流目前只覆盖脚本路径，服务入口落地时再收口——已写进证据，不当成已覆盖
-    2e) 部署剩余：灰度发布、真实告警通道接入
+    5a) 阶段C 灰度开关（本轮，Q 50 PASS / 0 FAIL / 0 SKIP / 1 NOT_IMPLEMENTED）：
+       · canary.py（角色交付，32 项测试）：scope 白名单 + mode(full/delta) + default，
+         文件 > 环境 > 默认；文件损坏/未知 mode 抛 CanaryConfigError（fail-fast，不静默降级）；
+       · rebuild_by_policy（TL）：按 kb_id 选 rebuild / rebuild_delta，返回 requested_mode 与
+         effective_mode 供对账；**delta 无基准快照时明确报错，不偷偷跑全量**；
+       · worker：--kb-id / --canary-file，**每次重建前重读策略**（改文件即回退，无需重启）；
+       · 演练 v2_canary_drill.py：灰度内 delta、灰度外 full、改文件后回退 full、回退后快照仍可读。
+       未做：解析器(use-mineru)未纳入同一灰度、不支持按比例分流、无双写对比(C2)、一进程一 KB
+    2e) 部署剩余：真实告警通道接入、灰度期双写对比
     3) 离线：镜像 tar 在干净目标机实际 load + 服务启动 + 差分升级演练
   Q1 固定真实样本与失败反例（333/329 已有；补新上传文件）
 成功后：提交并更新本文件；失败后：先判 producer/投影/消费者/数据/运行版本哪一层

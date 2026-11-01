@@ -1117,6 +1117,32 @@ def check_answer_rate_limit():
            "用本地假 OpenAI 服务；只验「单进程内按次数限流」，未验多进程/分布式配额")
 
 
+def check_canary_switch():
+    """灰度开关：按 KB 选 full/delta，改配置即回退，回退后仍可读。"""
+    import subprocess
+
+    script = REPO / "scripts/v2_canary_drill.py"
+    if not script.is_file():
+        record("graph:灰度开关", "SKIP", {"why": "演练脚本缺失"})
+        return
+    out = tempfile.mktemp(suffix=".json")
+    proc = subprocess.run([sys.executable, str(script), "--out", out],
+                          capture_output=True, text=True, timeout=300)
+    if not os.path.isfile(out):
+        record("graph:灰度开关", "FAIL", {"tail": (proc.stderr or proc.stdout or "")[-300:]})
+        return
+    try:
+        d = json.loads(open(out, encoding="utf-8").read())
+    except Exception as exc:  # noqa: BLE001
+        record("graph:灰度开关", "FAIL", {"why": f"{type(exc).__name__}: {exc}"})
+        return
+    ok = d.get("status") == "OK"
+    record("graph:灰度开关", "PASS" if ok else "FAIL",
+           {"steps": d["steps"], "policy": d["policy"],
+            "read_after_revert": d["read_after_revert"], "problems": d.get("problems")},
+           "假 builder 验调度决策；真引擎下的切换质量未测")
+
+
 def check_incremental_rebuild():
     """增量重建真跑：全量一次 → 删一个文件 + 加一段 → 只走增量，存量不重抽。"""
     import subprocess
@@ -1358,6 +1384,7 @@ def main(argv=None):
     check_graph_worker_service()
     check_metrics_auth_endpoint()
     check_answer_rate_limit()
+    check_canary_switch()
     check_community_report()
     check_end_to_end_answer()
     for item, why in NOT_IMPLEMENTED:

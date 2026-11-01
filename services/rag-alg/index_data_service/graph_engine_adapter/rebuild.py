@@ -230,6 +230,34 @@ def rebuild_if_stale(root: str, fence: FenceState, docs: List[Dict[str, Any]],
     return rebuild(root, fence, docs, build_fn, fencing=fencing)
 
 
+def rebuild_by_policy(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
+                      kb_id: str, policy: Any,
+                      full_build: Callable[[List[Dict[str, Any]], str], Any],
+                      delta_apply: Callable[[str, List[str]], Any], *,
+                      keep_last: int = 2, fencing: Optional[int] = None) -> Dict[str, Any]:
+    """按灰度策略选 `full` 或 `delta` 重建。
+
+    **没有"delta 失败自动退回 full"**：那会让"配置说的是 delta、实际跑的是 full"变得不可见，
+    而灰度最怕的就是"以为在灰度、其实没灰度"。没有基准快照就明确报错，让人先做一次全量。
+
+    返回里带 `requested_mode`（策略要求）与 `effective_mode`（实际执行），两者不等就是 bug。
+    """
+    mode = policy.mode_for(kb_id)
+    if mode == "delta":
+        out = rebuild_delta(root, fence, docs, delta_apply,
+                            keep_last=keep_last, fencing=fencing)
+        out["effective_mode"] = "delta"
+    elif mode == "full":
+        out = rebuild(root, fence, docs, full_build,
+                      keep_last=keep_last, fencing=fencing)
+        out["effective_mode"] = "full"
+    else:                                   # pragma: no cover - 策略层已校验
+        raise RebuildFailed(f"未知的重建模式：{mode!r}（支持 full / delta）")
+    out["requested_mode"] = mode
+    out["kb_id"] = kb_id
+    return out
+
+
 def _safe(value: Any) -> Any:
     try:
         json.dumps(value)

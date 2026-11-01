@@ -1,7 +1,7 @@
 {
  "schema": "llmke.q-acceptance.v1",
  "summary": {
-  "PASS": 49,
+  "PASS": 50,
   "FAIL": 0,
   "SKIP": 0,
   "NOT_IMPLEMENTED": 1
@@ -285,7 +285,7 @@
      "reader_allowed": false
     },
     "during": {
-     "blocked": 362,
+     "blocked": 547,
      "allowed": 0
     },
     "after_allowed": true
@@ -301,10 +301,10 @@
      "340"
     ],
     "readers_blocked": [
-     957,
-     955,
-     952,
-     955
+     926,
+     924,
+     924,
+     922
     ],
     "readers_allowed": [
      0,
@@ -401,7 +401,7 @@
      "A": 177,
      "B": 0
     },
-    "lease_key": "q-lease-1793474596"
+    "lease_key": "q-lease-1793495051"
    },
    "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
   },
@@ -433,7 +433,7 @@
      "LEASE_UNAVAILABLE",
      "LEASE_UNAVAILABLE"
     ],
-    "elapsed_s": 35.9,
+    "elapsed_s": 37.2,
     "connections_accepted": 5,
     "read_timeout_s": 2
    },
@@ -453,7 +453,7 @@
      "deduped": 0,
      "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
      "last_status": 500,
-     "url": "http://127.0.0.1:36503/hook",
+     "url": "http://127.0.0.1:45513/hook",
      "retries": 2,
      "dedupe_window_s": 0
     },
@@ -466,9 +466,9 @@
    "item": "graph:增量重建（删+增）",
    "status": "PASS",
    "evidence": {
-    "full_s": 40.3,
-    "delta_s": 3.4,
-    "speedup_x": 11.8,
+    "full_s": 33.7,
+    "delta_s": 4.1,
+    "speedup_x": 8.2,
     "apply": {
      "schema": "llmke.graph-engine.hipporag.v1",
      "deleted": 3,
@@ -517,10 +517,10 @@
     "broken": {
      "chars": 0,
      "events": [
-      "2026-11-01 03:29:10.518 | INFO     | server.loader:load_file:298 - 使用minerU parser",
-      "2026-11-01 03:29:11.557 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
-      "2026-11-01 03:29:11.557 | INFO     | server.loader:load_file:312 - 使用parser",
-      "2026-11-01 03:29:11.562 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+      "2026-11-01 09:10:09.994 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-01 09:10:10.964 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-01 09:10:10.964 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-01 09:10:10.969 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
      ]
     },
     "problems": []
@@ -622,7 +622,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:3827185",
+     "owner": "x2:1701132",
      "fencing": null
     },
     "metrics_lines": 66,
@@ -637,7 +637,7 @@
    "evidence": {
     "health": {
      "status": "ok",
-     "owner": "x2:3827278",
+     "owner": "x2:1701317",
      "fencing": null
     },
     "problems": []
@@ -652,19 +652,63 @@
     "limited_ok": 2,
     "limited_denied": 1,
     "server_hits_under_limit": 2,
-    "retry_after": 29.99872412098921,
+    "retry_after": 29.99850941399927,
     "budget": {
      "schema": "llmke.answer-llm-budget.v1",
      "capacity": 2.0,
      "refill_per_s": 0.03333333333333333,
      "allowed": 2,
      "denied": 1,
-     "tokens": 4.316020009963081e-05,
+     "tokens": 5.050453376805504e-05,
      "exhausted": true
     },
     "problems": []
    },
    "boundary": "用本地假 OpenAI 服务；只验「单进程内按次数限流」，未验多进程/分布式配额"
+  },
+  {
+   "item": "graph:灰度开关",
+   "status": "PASS",
+   "evidence": {
+    "steps": [
+     {
+      "step": "canary-delta",
+      "requested": "delta",
+      "effective": "delta",
+      "pointer_mode": "DELTA"
+     },
+     {
+      "step": "outside-full",
+      "requested": "full",
+      "effective": "full",
+      "pointer_mode": "FULL"
+     },
+     {
+      "step": "reverted-full",
+      "requested": "full",
+      "effective": "full",
+      "pointer_mode": "FULL"
+     }
+    ],
+    "policy": {
+     "schema": "llmke.graph-engine.canary-policy.v1",
+     "scope": [],
+     "count": 0,
+     "mode": "delta",
+     "default": "full",
+     "sources": {
+      "scope": "file",
+      "mode": "file",
+      "default": "file"
+     }
+    },
+    "read_after_revert": {
+     "readable": true,
+     "chunks": 3
+    },
+    "problems": []
+   },
+   "boundary": "假 builder 验调度决策；真引擎下的切换质量未测"
   },
   {
    "item": "biz:global 报告/引用失效识别",
@@ -687,7 +731,7 @@
    "evidence": {
     "route": "GRAPH",
     "reason": "OK",
-    "answer": "多指标对账口径为：日均存款取自T-CORE-001，口径为按业务日跨账户汇总/天数；用电量取自T-EXT-001，口径为",
+    "answer": "多指标对账口径包括：日均存款的数据源为T-CORE-001，口径为按业务日跨账户汇总/天数；用电量的数据源为T-EXT-",
     "citations": 2,
     "model": "deepseek-flash"
    },

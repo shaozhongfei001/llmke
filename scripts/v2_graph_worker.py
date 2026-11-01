@@ -109,6 +109,9 @@ def main(argv=None):
     ap.add_argument("--lease-backend", choices=["file", "mysql"], default="file")
     ap.add_argument("--lease", default=None)
     ap.add_argument("--lease-key", default="rebuild")
+    ap.add_argument("--kb-id", default="default", help="知识库标识，用于灰度策略判定")
+    ap.add_argument("--canary-file", default=None,
+                    help="灰度策略文件（JSON）；每次重建前重读，改文件即回退，不用重启")
     ap.add_argument("--lease-ttl", type=float, default=120.0)
     ap.add_argument("--owner", default=f"{os.uname().nodename}:{os.getpid()}")
     ap.add_argument("--metrics-port", type=int, default=0, help="0 = 不监听（只写文件）")
@@ -134,7 +137,6 @@ def main(argv=None):
     from graph_engine_adapter.alert_sink import WebhookAlertSink
     from graph_engine_adapter.engine_hipporag import HippoRAGEngine
     from graph_engine_adapter.fence import FenceState
-    from graph_engine_adapter.rebuild import rebuild_if_stale
     from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator
     from graph_engine_adapter.rebuild_scheduler import RebuildScheduler
 
@@ -142,14 +144,25 @@ def main(argv=None):
     fence = FenceState()
     lease = build_lease(args)
 
+    def engine_at(target):
+        return HippoRAGEngine(save_dir=target, llm_base_url=args.llm,
+                              embedding_base_url=args.embed)
+
+    def full_build(items, target):
+        return engine_at(target).build([d["text"] for d in items])
+
+    def delta_apply(target, texts):
+        return engine_at(target).apply_delta(texts)
+
     def build_once(batch):
-        def build_fn(items, target):
-            return HippoRAGEngine(save_dir=target, llm_base_url=args.llm,
-                                  embedding_base_url=args.embed).build(
-                [d["text"] for d in items])
-        result = rebuild_if_stale(args.root, fence, docs, build_fn,
-                                  fencing=sched.lease_fencing)
-        return {"status": result["status"],
+        # 每次重建前重读灰度策略：改文件即回退，不需要重启进程。
+        from graph_engine_adapter.canary import load as load_policy
+        from graph_engine_adapter.rebuild import rebuild_by_policy
+        policy = load_policy(args.canary_file or os.environ.get("LLMKE_CANARY_FILE"))
+        result = rebuild_by_policy(args.root, fence, docs, args.kb_id, policy,
+                                   full_build, delta_apply,
+                                   fencing=sched.lease_fencing)
+        return {"status": result["status"], "mode": result.get("effective_mode"),
                 "documents": (result.get("current") or {}).get("documents")}
 
     coord = RebuildCoordinator(build_once)
