@@ -1,29 +1,27 @@
 # S3 问答检索接线（19995 `/retrieval_documents` → 18094 `/v2/graph/query`）证据
 
-## 0. 先看这条：同一路径被两个会话同时在写
+## 0. 当前状态（TL 裁决后：我是唯一写者）
 
-我按任务在 `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`
-落盘后，**另一个 agent 会话持续在同一路径/同一端口上改写**（父进程都是
-`/bin/bash -c eval "$(cat)"`，即 agent 执行 shell）。时间线（均为本机 2026-11-02）：
+TL 裁决：保留「我的实现 + TL 叠加的 Java 字段映射」的合并版本，已落库
+`f1a54ad`（检索兼容层接管 qa-service）、`7281f8b`（`source` 不再填 id/文件名）。
+之后我在同一文件上追加了 global 端点的接线（见 §4.3），仍是唯一写者。
 
-| 时刻 | 事实 |
-|---|---|
-| 22:45:49 | 他人会话起 uvicorn 19532，加载的是**另一份**同路径实现（health schema `llmke.retrieval-shim.v1`，只有 3 个键） |
-| ~22:46:3x | 我的 `write_to_file` 覆盖了那份源码（我开工时该文件名搜索 0 命中，无法提前察觉；那份源码/字节码已不可取回） |
-| 22:48 | 我交付版本：353 行、md5 `9dce9706dcd568c738b1cf861b93d985`，测试 `20 passed` |
-| 22:49:15 | 他人会话改写实现（15347 B） |
-| 22:49:21 | 他人会话重启 19532，此时跑的是「我的实现 + 它的改写」 |
-| 22:49:57 | 再次改写实现（16189 B、371 行） |
-| 22:50:15 | 同时改写了我的 `tests/test_retrieval_shim.py`（如把 `file_id` 断言改成接受 int） |
+本轮快照（2026-11-02 22:54:39 取，工作区未提交）：
 
-现在磁盘上的快照（22:51:10 取）：
-`retrieval_shim.py` 371 行 / md5 `4bc1f9019fedd06bd08e2c82f4f400a8`；
-`tests/test_retrieval_shim.py` / md5 `d9571597769b6e94a0a54cb3f64385a5`；`20 passed in 0.35s`。
-内容 = 我的实现 + 他人叠加的 Java 字段映射（见 §5.1 的审计意见）。
+| 文件 | 行数 | md5 |
+|---|---|---|
+| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py` | 421 | `7bf7b047d577f4d8ee52aff45bedbbf3` |
+| `tests/test_retrieval_shim.py` | 306 | `9a0e063372004d5c27c3e36958acd6bf` |
 
-**我没有继续写这两个文件**（避免和对方互相覆盖），也没 kill 19532 上别人的进程。
-真实验证全部在我自己的端口上做（19534 验我的版本，19536 验当前版本），验完已 kill；
-18094 / 19995 / 19531 / 19532 全程未启停。**§5.1 的 Java 风险请 TL 裁决后再定稿。**
+测试：`23 passed`（原 20 项 + global 3 项）。
+19532 已重启为新代码（pid 1488099），18094 / 19995 / 19531 / 19527 未启停。
+
+历史（供追溯，别再据此判断现状）：22:45–22:50 期间同一路径与同一端口曾被另一个 agent 会话
+并发改写（它先起 19532、我落盘覆盖了它那份源码、随后它两次改实现并改过我的测试文件）。
+那段过程由 TL 裁决收口为上面的合并版本，`import re` 的重复引入已在追加 global 时顺手去掉。
+
+**遗留提醒**：同一目录下另有 `docs/v2-tasks/evidence/S3-retrieval-wiring.md`
+（另一会话建的同类证据），本文件是 TL 指定我维护的那一份（`S3-retrieval-shim.md`）。
 
 ## 1. 真实契约（读代码 + 实测）
 
@@ -105,9 +103,19 @@ PYTHONPATH=services/rag-alg/index_data_service \
   /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest tests/test_retrieval_shim.py -q
 ```
 
-我交付时：`20 passed in 0.38s`（Python 3.11.15 / fastapi 0.162.0 / httpx 0.28.1）；
-当前磁盘版本：`20 passed in 0.35s`。连跑邻近接线测试
+当前：`23 passed in 0.38s`（原 20 项 + global 3 项；Python 3.11.15 / fastapi 0.162.0 / httpx 0.28.1）。
+上一轮（未加 global 时）：`20 passed`；连跑邻近接线测试
 （`test_legacy_shim.py test_graph_api.py test_retrieval_shim.py`，后两者未改）：`52 passed`。
+
+global 追加的 3 项：
+
+- `test_global_returns_501_and_never_calls_upstream`：`code=501`、msg 逐字等于
+  `global not ready: community report not wired`、`data is None`、**出站 0 次**（既没调上游，
+  也没把普通 chunk 塞进 data 冒充摘要）；
+- `test_global_with_graph_disabled_is_400_not_501`：`enabled_graph=false` → `code=400` 且出站 0 次
+  （请求侧问题比能力缺失先说清，不用 501 掩盖）；
+- `test_health_reports_global_as_not_wired`：`/health.global` 可见
+  `endpoint/wired=false/reason/why`。
 
 TL 指定 6 项 + 补充，逐项对应：
 
@@ -168,7 +176,10 @@ executed_route= GRAPH   reason= GRAPH_CALLED   hit_count= 1
 {"code":400,"msg":"query 为空（rewritten_query 与 query 都没有可用文本）","data":null}
 ```
 
-### 4.2 当前磁盘版本（实例 19536，改写后的实现）
+### 4.2 7281f8b 修复前的中间版本（实例 19536，仅留档）
+
+> 下面是 `7281f8b` **修复 source 之前**抓到的那一版，`"source": "999016"` 已在修复中去掉
+> （现在恒为 `null`）。留在这里是为了对上 §5.1 的记录，不代表现状。
 
 同一请求 `[HTTP 200, 0.038538s]`，`code=200`，`documents_list[0].metadata`：
 
@@ -184,11 +195,56 @@ executed_route= GRAPH   reason= GRAPH_CALLED   hit_count= 1
 
 两个实例验完均 kill（`ss` 确认 19534/19535/19536 无监听）。
 
+### 4.3 global 端点：501（19532 重启后真实调用）
+
+契约依据：legacy `alg_retrieval_service/app/view/urls.py:24 RetrievalGlobalView(path="/retrieval_documents_global")`
+是"GraphRAG 社区摘要 map-reduce"入口；Java `NacosConfig.java:27` 默认
+`http://127.0.0.1:19995/retrieval_documents_global`，由 `AiServiceImpl.java:2259/2366/2498`
+在 `query_mode=global` 时调用，答案取 `RetrievedData.getGlobalAnswer:62-63`（`data.global_answer`）。
+实测上游能力：`GET 18094/openapi.json` 只有 `/health`、`/v2/graph/build`、`/v2/graph/query`
+（`api.py:156/174/212`），`community.py` 未暴露 HTTP → **社区报告不存在**。
+
+重启 19532（pid 1488099，新代码）后真实调用：
+
+```
+$ curl -X POST http://127.0.0.1:19532/retrieval_documents_global -H 'Content-Type: application/json' \
+   -d '{"query":"单笔授信超过五亿元由谁审议通过","query_mode":"global","knowledge_base_name":["kb_9"],
+        "top_k":3,"summary_top_k":5}'
+[HTTP 200, 0.001195s]
+{"code":501,"msg":"global not ready: community report not wired","data":null}
+```
+
+`enabled_graph=false` 时同路径（单元测试覆盖，见 §3）→ `code=400`，原因写"global 建立在图社区摘要之上"。
+`/health` 自述（同实例真实响应）：
+
+```json
+{"endpoint": "/retrieval_documents_global", "wired": false,
+ "reason": "global not ready: community report not wired",
+ "why": "18094 无社区报告端点（只有 /health、/v2/graph/build、/v2/graph/query），community.py 未暴露 HTTP；拿普通检索结果顶替 global 等于造假"}
+```
+
+**验证期间遇到的真实上游故障（不是我引入的）**：22:54:22 有人在 `/tmp/v2-shim-root` 下重建了图快照
+（health 显示 `nodes=5, edges=12, facts=3`，新 `sources.json` 已带 `title`），此后
+`POST 18094/v2/graph/query` 对**任何**问句都返回 `HTTP 500`（实测 `单笔授信…` 3.9s/500、`a` 0.99s/500）。
+此时 19532 上的 `/retrieval_documents` 如实回 502：
+
+```
+{"code":502,"msg":"上游图服务 http://127.0.0.1:18094/v2/graph/query 返回 HTTP 500: Internal Server Error","data":null}
+```
+
+即 §4.1 那条成功记录是**旧快照**（`/tmp/s1-...`/`snapshot-20261102220217` 时期）的结果；
+要用新快照复验 200 路径，得先修好 18094 的 query（属上游/建图侧，不在本层）。
+
 ## 5. 实测落差与审计意见（别当成已解决）
 
-### 5.1 【需 TL 裁决】当前版本把 `file_id` 塞进 `metadata.source`，会踩 Java 的解析缺陷
+### 5.1 已修：`source` 恒为 `null`（原风险：拿 `file_id`/裸文件名顶 `source` 会踩 Java 解析缺陷）
 
-当前改写加入 `"source": primary.get("title") or str(raw_file_id)`，实测在这份快照上取到
+**状态：已修并复验通过**（TL 在 `7281f8b` 中把 `source` 固定为 `null`）：
+Java 侧不再有任何非路径串进入 `source`，`buildParsedFilePath` 的 `substring` 分支不会被触发；
+同时 `file_id=999016`（Long）与 `position.locator` 保留，引用所需信息不丢。
+下面保留原始风险推导，作为"为什么不能把 id 填进 source"的依据。
+
+历史：中间版本曾写 `"source": primary.get("title") or str(raw_file_id)`，实测在这份快照上取到
 `"source": "999016"`。而 `Document.buildParsedFilePath`（`rag-common/.../dto/Document.java:62-93`）
 假设 `source` 是 minio 对象路径，直接做三次 `substring`：
 
@@ -203,19 +259,26 @@ sourceFileName    = substring.substring(0, substring.indexOf("/"));       // ind
 `RetrievedData.getSimpleDocuments(minioUrl)` → `getDocumentsByStr`（`RetrievedData.java:108-116`
 对每篇 `forEach(d -> d.buildParsedFilePath(minioUrl))`，**无 try/catch**），
 上游调用点在 `AiServiceImpl.java:2902` 与 `:3010`。
-→ 建议：`source` 只在**有真实路径**时给；拿不到路径时宁可留空，别用 `file_id` 顶。
+→ 结论（已执行）：`source` 恒为 `null`，不给 `file_id`、也不给裸文件名。
 （`RetrieveDoc.RetrieveMetaData` 确实有 `source/position/chunk_index/file_id/search_type` 这些
 驼峰映射字段，`RetrieveDoc.java:36-96` 可证；问题在 `source` 的**取值语义**，不在键名。）
 
-顺带一个数据保真问题：`file_id = int(str(raw_file_id))` 失败时被置 `None`
-（当前实现 `:209-212`）。上游 `file_id` 若出现非数字（如 `file-xxx`），标识会**静默丢失**；
-而 Jackson/fastjson 对数字字符串转 `Long` 本来就会自行转换，无需本层提前转。
+`file_id` 的 int 转换经 TL 裁决保留（Jackson 能收 `Long`），非数字时置 `null` 的原因已在代码里
+注释说明——这是有意为之的取舍，不是遗漏。
 
-### 5.2 `title` 实测恒为 `null`
+### 5.2 `title` 曾实测恒为 `null`（现已具备条件，待上游可查后复验）
 
 18094 的 `sources.json` 在 build 时按 `BuildDoc{file_id,text,locator,title?}` 写，`api.py:119-122`
-只写非空字段；当前快照 build 未传 `title`，检索侧就拿不到文件名（`file_id=999016` 是有的）。
-要出文件名只能：build 时带上 `title`，或本层按 `file_id` 反查文件服务（本层不做）。
+只写非空字段。旧快照 build 未传 `title`，所以 §4.1/§4.2 里 `title` 都是 `null`（`file_id=999016` 有）。
+`1088280`（兼容层透传文件标题）落地后，重建出的新快照 `sources.json` **已带 title**，实测：
+
+```json
+{"chunk-5789841d879302e41a7eaf65ae020f81":[{"file_id":"999010",
+  "locator":"page=-;offset=[[0, 66]];chunk=0","title":"丙-额度分项.docx"}]}
+```
+
+即本层映射（`title` 取 `sources[0].title`）无需改动，就会在新快照上给出真实文件名；
+但因为该快照的 `/v2/graph/query` 现在 500（见 §4.3 末段），端到端还没能复验到。
 
 ### 5.3 `locator` 里的 `page=-`
 
@@ -245,7 +308,10 @@ sourceFileName    = substring.substring(0, substring.indexOf("/"));       // ind
 - 没改任何既有文件（`api.py`、`legacy_shim.py`、`assertions.py`、Java、`application-r12.yml` 均未动）；
 - **没切 19995**（那是配置变更），只在自己的端口验证；
 - 没实现 dense / FAQ / 表格 / 联网检索，也没把它们的空结果包装成"成功且有内容"；
-- 没启停 18094 / 19995 / 19527 / 19531 / 19532；只起停自己的 19534、19535、19536（已关）；
-- 没 `git add` / `commit`；
-- 发现同一路径有第二个会话在改写后，**停止继续写实现与测试文件**（避免互相覆盖），
-  也没去动 19532 上别人的进程；§0 与 §5.1 留给 TL 裁决。
+- **没实现 global**：只接了一个如实 501 的端点，没有社区检测/摘要（18094 无该能力），
+  也没有"用普通检索凑一个答案"的降级；
+- 没启停 18094 / 19995 / 19527 / 19531；19532 按 TL 指令重启到新代码后**保持运行**
+  （pid 1488099，供 TL 复验；需要关请说一声）；我自己的 19534/19535/19536 已关；
+- 没 `git add` / `commit`（`f1a54ad`、`7281f8b`、`1088280` 都是 TL 那边提交的；
+  本轮 global 改动还在工作区未提交）；
+- 没去修 18094 重建后 `/v2/graph/query` 的 500（属建图/上游侧，我只如实回 502 并记录）。

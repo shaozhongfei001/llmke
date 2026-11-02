@@ -270,3 +270,37 @@ def test_health_self_reports_wiring():
     assert d["route_passthrough"] == {"GRAPH": "graph", "DENSE_FALLBACK": "dense_fallback"}
     # 未实现的部分必须自己说出来
     assert "knowledge_base_scope" in d["not_implemented"]
+
+
+# ---------- global（社区摘要）：没有社区报告就必须说不可用 ----------
+
+def test_global_returns_501_and_never_calls_upstream():
+    """global 必须 501：18094 没有社区报告端点，拿普通检索顶替就是造假。"""
+    c, fake = client()
+    r = c.post("/retrieval_documents_global", json=dict(QA_REQUEST, query_mode="global"))
+    assert r.status_code == 200          # legacy 习惯：HTTP 200 + body.code
+    body = r.json()
+    assert body["code"] == 501
+    assert body["msg"] == "global not ready: community report not wired"
+    assert body["data"] is None
+    # 关键：既没调上游，也没把普通 chunk 塞进 data 冒充摘要
+    assert fake.calls == []
+
+
+def test_global_with_graph_disabled_is_400_not_501():
+    c, fake = client()
+    r = c.post("/retrieval_documents_global", json=dict(QA_REQUEST, enabled_graph=False))
+    body = r.json()
+    assert body["code"] == 400
+    assert "enabled_graph" in body["msg"]
+    assert body["data"] is None
+    assert fake.calls == []
+
+
+def test_health_reports_global_as_not_wired():
+    c, _ = client()
+    g = c.get("/health").json()["global"]
+    assert g["endpoint"] == "/retrieval_documents_global"
+    assert g["wired"] is False
+    assert g["reason"] == "global not ready: community report not wired"
+    assert "社区报告" in g["why"]

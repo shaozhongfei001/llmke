@@ -65,6 +65,11 @@ sources_available}`。
 - `search_policy`（1 混合 / 2 文本 / 3 语义）、`enabled_rerank`、`enabled_faq`、
   `condition_json` 本层都不实现，也不转成别的检索去凑数。
 - 不产出 `faq_result_list` / `database_documents` / `web_documents_list`（恒为 `[]`）。
+- **`/retrieval_documents_global` 只回 501**（`global not ready: community report not wired`）：
+  18094 没有社区报告端点（实测 openapi 只有 `/health`、`/v2/graph/build`、`/v2/graph/query`），
+  global 的"社区摘要 map-reduce"无从执行；拿普通 chunk 冒充会被 Java 当全局摘要直接喂模型
+  （`AiServiceImpl.java:2259` 的 `query_mode=global`），故宁可报不可用。
+  请求里 `enabled_graph=false` 时该路径先回 400（请求侧问题比能力缺失更该先说清）。
 
 ## 环境变量
 
@@ -79,7 +84,6 @@ sources_available}`。
 
 import json
 import os
-import re
 import re
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -103,6 +107,16 @@ DATA_KEYS = ("faq_result_list", "database_documents", "documents_list",
              "web_documents_list", "log_list")
 
 WIRED = ("POST /retrieval_documents",)
+
+# global（社区摘要 map-reduce）在 18094 没有落点：实测 `GET 18094/openapi.json` 只有
+# `/health`、`/v2/graph/build`、`/v2/graph/query`（`api.py:156/174/212`），
+# `graph_engine_adapter/community.py` 只在脚本内被调用、没暴露 HTTP。
+# legacy 该路径见 `alg_retrieval_service/app/view/urls.py:24 RetrievalGlobalView`，
+# Java 侧 `NacosConfig.java:27` 默认指向 `19995/retrieval_documents_global`，
+# 由 `AiServiceImpl.java:2259/2366/2498` 在 `query_mode=global` 时调用，
+# 答案走 `RetrievedData.getGlobalAnswer:62-63`（data.global_answer）。
+# 没有社区报告就答不了 global——所以这里如实 501，绝不拿普通检索结果冒充。
+GLOBAL_NOT_WIRED = "global not ready: community report not wired"
 
 
 def _resp(code: int, msg: str, data: Any = None) -> Dict[str, Any]:
@@ -273,6 +287,14 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             "upstream_endpoint": "/v2/graph/query",
             "timeout": _timeout(),
             "wired": list(WIRED),
+            # 没接的东西必须自己说出来，别让"路径存在"被当成"能力存在"。
+            "global": {
+                "endpoint": "/retrieval_documents_global",
+                "wired": False,
+                "reason": GLOBAL_NOT_WIRED,
+                "why": "18094 无社区报告端点（只有 /health、/v2/graph/build、/v2/graph/query），"
+                       "community.py 未暴露 HTTP；拿普通检索结果顶替 global 等于造假",
+            },
             "data_keys": list(DATA_KEYS),
             "route_passthrough": dict(SEARCH_TYPE),
             "not_implemented": {
@@ -368,6 +390,30 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             "web_documents_list": [],
             "log_list": [],
         })
+
+    @app.post("/retrieval_documents_global")
+    def retrieval_documents_global(body: Any = Body(default=None)) -> Dict[str, Any]:
+        """legacy 的 GraphRAG 社区摘要入口：本层**不可用**，如实 501。
+
+        为什么不是"尽量给点结果"：global 的语义是"先按社区摘要做 map-reduce，
+        再让模型基于摘要回答"（`urls.py:24`，Java `RetrievedData.getGlobalAnswer`）。
+        18094 没有社区报告端点，拿普通 chunk 顶替出来的"答案"会被 Java 当全局摘要直接喂给
+        模型（`AiServiceImpl.java:2259` 的 `query_mode=global` 分支），调用方无从分辨
+        ——那是把回退伪装成能力，比报错更糟。
+        """
+        req, bad = _parse_body(body)
+        if bad:
+            return bad
+
+        # 调用方自己关了图，global 更无从谈起：先给 400 说清原因，别让 501 掩盖请求侧问题。
+        if req.get("enabled_graph") is False:
+            return _resp(
+                400,
+                "enabled_graph=false：global 问答建立在图社区摘要之上，关图后本层无法提供该能力，"
+                "请改用 19995 legacy 的 /retrieval_documents_global",
+            )
+
+        return _resp(501, GLOBAL_NOT_WIRED, data=None)
 
     return app
 
