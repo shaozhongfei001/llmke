@@ -272,24 +272,124 @@ def test_health_self_reports_wiring():
     assert "knowledge_base_scope" in d["not_implemented"]
 
 
-# ---------- global（社区摘要）：没有社区报告就必须说不可用 ----------
+# ---------- global（社区摘要）：转发真实报告，不可用时如实报业务码 ----------
 
-def test_global_returns_501_and_never_calls_upstream():
-    """global 必须 501：18094 没有社区报告端点，拿普通检索顶替就是造假。"""
-    c, fake = client()
-    r = c.post("/retrieval_documents_global", json=dict(QA_REQUEST, query_mode="global"))
-    assert r.status_code == 200          # legacy 习惯：HTTP 200 + body.code
+GLOBAL_BODY = {
+    "schema": "llmke.graph-api.v1",
+    "snapshot": "/tmp/snap",
+    "query": "单笔授信超过五亿元由谁审议通过",
+    "status": "READY",
+    "communities": 2,
+    "answer": "- 北方重工 额度 8000万元（来源：999010）\n- 星航贷 担保方式 保证（来源：999016）",
+    "citations": [{"community": "c-1", "text": "北方重工 额度 8000万元", "sources": ["999010"]},
+                  {"community": "c-2", "text": "星航贷 担保方式 保证", "sources": ["999016"]}],
+    "sections": [
+        {"id": "c-1", "size": 2, "isolated": False,
+         "entities": ["ent:北方重工", "ent:额度"],
+         "facts": [{"text": "北方重工 额度 8000万元", "sources": ["999010"]}],
+         "fact_count": 1, "sources": ["999010"]},
+        {"id": "c-2", "size": 2, "isolated": False,
+         "entities": ["ent:星航贷", "ent:保证"],
+         "facts": [{"text": "星航贷 担保方式 保证", "sources": ["999016"]}],
+         "fact_count": 1, "sources": ["999016"]},
+    ],
+    "citation_check": {"ok": True, "checked": 2, "valid": ["c-1:999010", "c-2:999016"],
+                       "invalid": [], "sources_available": True, "reason": None},
+    "used_communities": ["c-1", "c-2"],
+    "reason": None,
+}
+
+
+def global_call(body=None, *results):
+    c, fake = client(*results or (FakeResponse(200, GLOBAL_BODY),))
+    payload = dict(QA_REQUEST, query_mode="global", summary_top_k=5)
+    payload.update(body or {})
+    return c.post("/retrieval_documents_global", json=payload), fake
+
+
+def test_global_forwards_report_and_returns_legacy_shape():
+    r, fake = global_call()
+    assert r.status_code == 200
+    body = r.json()
+    assert body["code"] == 200
+    data = body["data"]
+    # Java `RetrievedData.getGlobalAnswer` 读的就是 global_answer
+    assert data["global_answer"] == GLOBAL_BODY["answer"]
+    # 正文是"事实 + 来源"，不是没有出处的结论
+    doc = data["documents_list"][0]
+    assert "（来源：999010）" in doc["page_content"]
+    assert doc["metadata"]["search_type"] == ["global"]      # 不混成 graph/dense_fallback
+    assert doc["metadata"]["source"] is None
+    assert doc["metadata"]["file_id"] == 999010
+    assert doc["metadata"]["sources"] == [{"file_id": "999010"}]
+    # 社区号进 metadata.community，不占 idx（idx 是块 id 语义）
+    assert doc["metadata"]["community"] == "c-1"
+    assert doc["metadata"]["idx"] is None
+    # 五键仍然齐全（legacy 形状）
+    for key in ("faq_result_list", "database_documents", "web_documents_list", "log_list"):
+        assert data[key] == []
+
+    # 出站：打到 global 端点，社区条数取 Java global 分支真实发的 summary_top_k=5
+    assert len(fake.calls) == 1
+    assert fake.calls[0]["url"].endswith("/v2/graph/global")
+    assert fake.calls[0]["payload"] == {"query": QA_REQUEST["query"], "max_communities": 5}
+
+
+def test_global_only_ships_communities_used_in_answer():
+    """上游给了 used_communities 时，只把这些社区转成文档，别把全部社区整包下发。"""
+    body = dict(GLOBAL_BODY)
+    body["sections"] = GLOBAL_BODY["sections"] + [
+        {"id": "c-3", "size": 3, "isolated": True, "entities": ["ent:无关"],
+         "facts": [{"text": "无关事实", "sources": ["999099"]}], "fact_count": 1,
+         "sources": ["999099"]}]
+    body["used_communities"] = ["c-1"]
+
+    r, _ = global_call(None, FakeResponse(200, body))
+    data = r.json()["data"]
+    assert len(data["documents_list"]) == 1
+    assert "（来源：999010）" in data["documents_list"][0]["page_content"]
+    assert all("999099" not in doc["page_content"] for doc in data["documents_list"])
+
+
+def test_global_without_report_is_501():
+    upstream = dict(GLOBAL_BODY, reason="NO_COMMUNITY_REPORT", communities=0,
+                    answer="", citations=[], sections=[],
+                    citation_check={"ok": False, "checked": 0, "valid": [], "invalid": [],
+                                    "sources_available": False,
+                                    "reason": "NO_COMMUNITY_REPORT"})
+    r, _ = global_call(None, FakeResponse(200, upstream))
     body = r.json()
     assert body["code"] == 501
     assert body["msg"] == "global not ready: community report not wired"
     assert body["data"] is None
-    # 关键：既没调上游，也没把普通 chunk 塞进 data 冒充摘要
-    assert fake.calls == []
 
 
-def test_global_with_graph_disabled_is_400_not_501():
-    c, fake = client()
-    r = c.post("/retrieval_documents_global", json=dict(QA_REQUEST, enabled_graph=False))
+def test_global_without_communities_is_501():
+    upstream = dict(GLOBAL_BODY, reason="NO_COMMUNITIES", communities=0, answer="",
+                    citations=[], sections=[])
+    r, _ = global_call(None, FakeResponse(200, upstream))
+    body = r.json()
+    assert body["code"] == 501
+    assert body["msg"] == "global not ready: no communities in snapshot"
+    assert body["data"] is None
+
+
+def test_global_with_invalid_citations_is_502_not_success():
+    upstream = dict(GLOBAL_BODY, reason="CITATION_INVALID")
+    r, _ = global_call(None, FakeResponse(200, upstream))
+    body = r.json()
+    assert body["code"] == 502
+    assert "citation" in body["msg"].lower()
+    assert body["data"] is None
+
+
+def test_global_upstream_down_is_502():
+    r, _ = global_call(None, ConnectionRefusedError("refused"))
+    assert r.json()["code"] == 502
+
+
+def test_global_with_graph_disabled_is_400_and_never_forwards():
+    r, fake = global_call({"enabled_graph": False})
     body = r.json()
     assert body["code"] == 400
     assert "enabled_graph" in body["msg"]
@@ -297,10 +397,12 @@ def test_global_with_graph_disabled_is_400_not_501():
     assert fake.calls == []
 
 
-def test_health_reports_global_as_not_wired():
+def test_health_reports_global_wired_with_upstream_endpoint():
     c, _ = client()
     g = c.get("/health").json()["global"]
     assert g["endpoint"] == "/retrieval_documents_global"
-    assert g["wired"] is False
-    assert g["reason"] == "global not ready: community report not wired"
-    assert "社区报告" in g["why"]
+    assert g["wired"] is True
+    assert g["upstream_endpoint"] == "/v2/graph/global"
+    # 不可用条件仍要写清楚，别让 wired=true 被读成"永远有答案"
+    assert set(g["unavailable_when"]) == {"NO_COMMUNITY_REPORT", "NO_COMMUNITIES",
+                                          "CITATION_INVALID"}

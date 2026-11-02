@@ -65,11 +65,12 @@ sources_available}`。
 - `search_policy`（1 混合 / 2 文本 / 3 语义）、`enabled_rerank`、`enabled_faq`、
   `condition_json` 本层都不实现，也不转成别的检索去凑数。
 - 不产出 `faq_result_list` / `database_documents` / `web_documents_list`（恒为 `[]`）。
-- **`/retrieval_documents_global` 只回 501**（`global not ready: community report not wired`）：
-  18094 没有社区报告端点（实测 openapi 只有 `/health`、`/v2/graph/build`、`/v2/graph/query`），
-  global 的"社区摘要 map-reduce"无从执行；拿普通 chunk 冒充会被 Java 当全局摘要直接喂模型
-  （`AiServiceImpl.java:2259` 的 `query_mode=global`），故宁可报不可用。
-  请求里 `enabled_graph=false` 时该路径先回 400（请求侧问题比能力缺失更该先说清）。
+- **`/retrieval_documents_global` 转发到 18094 `/v2/graph/global`**（读建图时落盘的
+  `community.json`）：答案只由社区事实拼装、每行带来源，`data.global_answer` 给 Java
+  （`RetrievedData.getGlobalAnswer:62-63`）。不可用时如实给业务码：
+  无 `community.json` → 501 `global not ready: community report not wired`；
+  报告里 0 个社区 → 501 `global not ready: no communities in snapshot`；
+  引用校验不过 → 502（不给无来源结论）。请求里 `enabled_graph=false` 时先回 400。
 
 ## 环境变量
 
@@ -108,15 +109,24 @@ DATA_KEYS = ("faq_result_list", "database_documents", "documents_list",
 
 WIRED = ("POST /retrieval_documents",)
 
-# global（社区摘要 map-reduce）在 18094 没有落点：实测 `GET 18094/openapi.json` 只有
-# `/health`、`/v2/graph/build`、`/v2/graph/query`（`api.py:156/174/212`），
-# `graph_engine_adapter/community.py` 只在脚本内被调用、没暴露 HTTP。
-# legacy 该路径见 `alg_retrieval_service/app/view/urls.py:24 RetrievalGlobalView`，
+# global（社区摘要 map-reduce）现在接到了 18094 `POST /v2/graph/global`：
+# 那边读的是**建图时落盘的 community.json**（`global_report.py`），答案只由社区事实拼装、
+# 每行带来源。legacy 该路径见 `alg_retrieval_service/app/view/urls.py:24 RetrievalGlobalView`，
 # Java 侧 `NacosConfig.java:27` 默认指向 `19995/retrieval_documents_global`，
 # 由 `AiServiceImpl.java:2259/2366/2498` 在 `query_mode=global` 时调用，
 # 答案走 `RetrievedData.getGlobalAnswer:62-63`（data.global_answer）。
-# 没有社区报告就答不了 global——所以这里如实 501，绝不拿普通检索结果冒充。
+# 报告缺失时仍如实 501——绝不拿普通检索结果冒充社区摘要。
 GLOBAL_NOT_WIRED = "global not ready: community report not wired"
+
+# global 已接线后仍然"不可用"的两种上游状态 → 沿用 legacy 业务码并在 msg 里说清原因。
+GLOBAL_REASON_MSG = {
+    "NO_COMMUNITY_REPORT": GLOBAL_NOT_WIRED,
+    "NO_COMMUNITIES": "global not ready: no communities in snapshot",
+}
+# global 的 search_type 只有这一个取值：它既不是 graph 也不是 dense_fallback，
+# 混用会让下游把"社区摘要答案"当成"图检索命中"。
+GLOBAL_SEARCH_TYPE = "global"
+DEFAULT_MAX_COMMUNITIES = 3
 
 
 def _resp(code: int, msg: str, data: Any = None) -> Dict[str, Any]:
@@ -193,6 +203,47 @@ def _pick_top_k(req: Dict[str, Any]) -> Tuple[int, bool]:
         return DEFAULT_TOP_K, False
     clamped = min(max(raw, UPSTREAM_TOP_K_MIN), UPSTREAM_TOP_K_MAX)
     return clamped, clamped != raw
+
+
+def _max_communities(req: Dict[str, Any]) -> int:
+    """global 的社区条数：优先 `summary_top_k`（Java global 分支真实发的键，
+    `AiServiceImpl.java:2256`），其次 legacy `top_n`（rerank 返回条数），都没有就 3。
+    夹到 18094 的 [1,20]。
+    """
+    for key in ("summary_top_k", "top_n"):
+        raw = _as_int(req.get(key))
+        if raw is not None:
+            return min(max(raw, UPSTREAM_TOP_K_MIN), UPSTREAM_TOP_K_MAX)
+    return DEFAULT_MAX_COMMUNITIES
+
+
+def _global_documents(sections: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """把一个社区压成一条 legacy 文档：正文是"事实 + 来源"，来源进 metadata.sources。
+
+    这样 Java 侧拿到的是"有出处的摘要文本"，而不是一段没有引用、无法核验的结论。
+    """
+    items: List[Dict[str, Any]] = []
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        lines: List[str] = []
+        file_ids: List[str] = []
+        for fact in section.get("facts") or []:
+            if not isinstance(fact, dict):
+                continue
+            sources = sorted({str(s) for s in (fact.get("sources") or [])})
+            if not sources:
+                continue          # 没来源的事实不进正文，也不进引用
+            lines.append("- " + str(fact.get("text") or "") + "（来源：" + ",".join(sources) + "）")
+            file_ids.extend(sources)
+        if not lines:
+            continue
+        items.append({"text": "\n".join(lines),
+                      # idx 是**块 id** 的语义，社区号不能塞进去（会让下游误当 chunk 反查）。
+                      "idx": None,
+                      "community": section.get("community") or section.get("id"),
+                      "sources": [{"file_id": fid} for fid in sorted(set(file_ids))]})
+    return items
 
 
 def _sources_of(item: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -287,13 +338,19 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             "upstream_endpoint": "/v2/graph/query",
             "timeout": _timeout(),
             "wired": list(WIRED),
-            # 没接的东西必须自己说出来，别让"路径存在"被当成"能力存在"。
+            # global 已接线：转发到 18094 /v2/graph/global（读建图时落盘的 community.json）。
+            # 仍然如实写明"什么情况下不可用"，别让路径可达被当成能力存在。
             "global": {
                 "endpoint": "/retrieval_documents_global",
-                "wired": False,
-                "reason": GLOBAL_NOT_WIRED,
-                "why": "18094 无社区报告端点（只有 /health、/v2/graph/build、/v2/graph/query），"
-                       "community.py 未暴露 HTTP；拿普通检索结果顶替 global 等于造假",
+                "wired": True,
+                "upstream_endpoint": "/v2/graph/global",
+                "report": "快照内 community.json（建图时生成）",
+                "unavailable_when": {
+                    "NO_COMMUNITY_REPORT": "该快照没有 community.json → 501",
+                    "NO_COMMUNITIES": "报告里没有社区 → 501",
+                    "CITATION_INVALID": "引用校验不过 → 502（不给无来源结论）",
+                },
+                "why": "答案只由社区事实拼装并逐条带来源；任何一条引用回不到真实文件就不出答案",
             },
             "data_keys": list(DATA_KEYS),
             "route_passthrough": dict(SEARCH_TYPE),
@@ -393,13 +450,14 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
 
     @app.post("/retrieval_documents_global")
     def retrieval_documents_global(body: Any = Body(default=None)) -> Dict[str, Any]:
-        """legacy 的 GraphRAG 社区摘要入口：本层**不可用**，如实 501。
+        """legacy 的 GraphRAG 社区摘要入口：转发到 18094 `/v2/graph/global`。
 
-        为什么不是"尽量给点结果"：global 的语义是"先按社区摘要做 map-reduce，
-        再让模型基于摘要回答"（`urls.py:24`，Java `RetrievedData.getGlobalAnswer`）。
-        18094 没有社区报告端点，拿普通 chunk 顶替出来的"答案"会被 Java 当全局摘要直接喂给
-        模型（`AiServiceImpl.java:2259` 的 `query_mode=global` 分支），调用方无从分辨
-        ——那是把回退伪装成能力，比报错更糟。
+        上游的答案只由建图时落盘的 `community.json` 里的社区事实拼装，每条都带来源；
+        本层只做形状转换，不补写、不改写结论。三种不可用情形如实回业务码：
+        - 快照没有 community.json → 501 `global not ready: community report not wired`
+        - 报告里有 0 个社区 → 501 `global not ready: no communities in snapshot`
+        - 引用校验不过 → 502（结论挂不上真实来源，不能交给模型当摘要）
+        任何情况下都不拿普通检索结果顶替 global。
         """
         req, bad = _parse_body(body)
         if bad:
@@ -413,7 +471,64 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
                 "请改用 19995 legacy 的 /retrieval_documents_global",
             )
 
-        return _resp(501, GLOBAL_NOT_WIRED, data=None)
+        query, _ = _pick_query(req)
+        url = _graph_api() + "/v2/graph/global"
+        payload = {"query": query or "", "max_communities": _max_communities(req)}
+
+        try:
+            result = post(url, payload, _timeout())
+        except Exception as exc:  # noqa: BLE001 - 超时/连接失败都要带原因回调用方
+            return _resp(502, f"上游图服务 {url} 不可达 {type(exc).__name__}: {str(exc)[:180]}")
+
+        status, upstream, parsed = _read_response(result)
+        if status != 200:
+            return _resp(502, f"上游图服务 {url} 返回 HTTP {status}: "
+                              f"{_reason_of(upstream) or '无响应体'}")
+        if not parsed or not isinstance(upstream, dict):
+            return _resp(502, f"上游 global 响应不是 JSON 对象（{url}）")
+
+        reason = upstream.get("reason")
+        if reason == "CITATION_INVALID":
+            return _resp(502, "global citation check failed: 结论里存在无法回到真实来源的引用，"
+                              "不交给调用方使用")
+        if reason in GLOBAL_REASON_MSG:
+            return _resp(501, GLOBAL_REASON_MSG[reason], data=None)
+        if reason:
+            return _resp(502, f"上游 global 未给出可用结果: {reason}")
+
+        sections = upstream.get("sections") or []
+        # 只把答案真正用到的社区转成文档（上游给了 used_communities 时）；
+        # 否则退回全部社区——但那只是兼容老响应，不是默认路径。
+        used = upstream.get("used_communities")
+        if isinstance(used, list) and used:
+            wanted = set(used)
+            sections = [s for s in sections
+                        if (s.get("community") or s.get("id")) in wanted]
+        documents: List[Dict[str, Any]] = []
+        for item in _global_documents(sections):
+            doc = _to_document(item, GLOBAL_SEARCH_TYPE, None)
+            if not doc:
+                continue
+            # 哪个社区贡献了这段正文：写进 metadata 便于核对（不占 idx，idx 仍是块 id 语义）。
+            doc["metadata"]["community"] = item.get("community")
+            documents.append(doc)
+        answer = str(upstream.get("answer") or "")
+        if not documents or not answer:
+            # 结构上不该发生；真发生了也不能回 200 空答案冒充成功。
+            return _resp(501, "global not ready: upstream returned no usable community facts",
+                         data=None)
+
+        return _resp(200, "查询成功", data={
+            "faq_result_list": [],
+            "database_documents": [],
+            "documents_list": documents,
+            "web_documents_list": [],
+            "log_list": [],
+            # Java `RetrievedData.getGlobalAnswer:62-63` 读的就是这个键。
+            "global_answer": answer,
+            "citation_check": upstream.get("citation_check"),
+            "communities": upstream.get("communities"),
+        })
 
     return app
 

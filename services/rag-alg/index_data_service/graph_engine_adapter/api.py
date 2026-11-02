@@ -27,12 +27,20 @@ from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from . import global_report
+
 SCHEMA = "llmke.graph-api.v1"
 
 
 class QueryRequest(BaseModel):
     query: str = Field(min_length=1)
     top_k: int = Field(default=3, ge=1, le=20)
+
+
+class GlobalRequest(BaseModel):
+    """global 问答：只读建图时落盘的 community.json，不现场改图、不另做检索。"""
+    query: str = ""
+    max_communities: int = Field(default=3, ge=1, le=20)
 
 
 class BuildDoc(BaseModel):
@@ -162,13 +170,16 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         facts = None
         if hasattr(eng, "openie_docs"):
             facts = sum(len(d.get("extracted_triples") or []) for d in eng.openie_docs())
+        snapshot = getattr(eng, "save_dir", None)
         return {
             "schema": SCHEMA,
             "status": "ok",
-            "snapshot": getattr(eng, "save_dir", None),
+            "snapshot": snapshot,
             "nodes": graph.vcount() if graph is not None else None,
             "edges": graph.ecount() if graph is not None else None,
             "facts": facts,
+            # 数字全部来自快照里的 community.json；没有报告就说没接上，不填 0 冒充。
+            "community": global_report.stats(snapshot),
         }
 
     @app.post("/v2/graph/build")
@@ -207,7 +218,16 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         if bound is not None:
             out = {**out, "artifact_id": bound["artifact_id"],
                    "content_hash": bound["content_hash"]}
-        return {"schema": SCHEMA, "status": "BUILT", **out}
+        # 建图成功即产社区报告（global 的前提）：报告读的是刚落盘快照里的 openie 结果与
+        # sources.json，所以和查询用的是同一份数据，不存在"报告说 A、检索给 B"。
+        # 报告失败不影响建图结果（图已经建好了），但必须在响应里写明失败原因，不能装作没这回事。
+        snapshot = str(state["snapshot"] or "")
+        try:
+            community = global_report.write(snapshot, [d.file_id for d in docs])
+        except Exception as exc:  # noqa: BLE001 - 报告失败要带原因回调用方
+            community = {"status": "FAILED", "error": f"{type(exc).__name__}: {exc}",
+                         "snapshot": snapshot}
+        return {"schema": SCHEMA, "status": "BUILT", **out, "community": community}
 
     @app.post("/v2/graph/query")
     def query(req: QueryRequest) -> Dict[str, Any]:
@@ -232,6 +252,54 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             "citations": [s for it in items for s in it["sources"]],
             "sources_available": bool(sources),
         }
+
+    @app.post("/v2/graph/global")
+    def graph_global(req: GlobalRequest) -> Dict[str, Any]:
+        """global 问答：答案只能由 community.json 里的社区事实拼装，逐条带来源。
+
+        三种"不给答案"的情形都返回 200 + 空答案 + 原因，不用普通检索顶替：
+        报告不存在（NOT_READY）、没有社区（NO_COMMUNITIES）、引用校验不过（CITATION_INVALID）。
+        """
+        eng = engine()
+        snapshot = getattr(eng, "save_dir", None) or state["snapshot"]
+        report = global_report.load(snapshot)
+        base = {"schema": SCHEMA, "snapshot": snapshot, "query": req.query}
+        if report is None:
+            return {**base, "status": "NOT_READY", "communities": 0, "answer": "",
+                    "citations": [], "sections": [],
+                    "citation_check": {"ok": False, "checked": 0, "valid": [], "invalid": [],
+                                       "sources_available": False,
+                                       "reason": "NO_COMMUNITY_REPORT",
+                                       "detail": "该快照没有 community.json（重建图后才会生成）"},
+                    "reason": "NO_COMMUNITY_REPORT"}
+
+        check = dict(report.get("citation_check") or {})
+        sections = list(report.get("communities") or [])
+        answer, citations = global_report.assemble_answer(
+            sections, max_communities=req.max_communities, query=req.query)
+
+        reason = None
+        if not check.get("ok"):
+            # 引用失效比"没有社区"更能解释问题（幽灵来源会把事实全挡在导出阶段，
+            # 只报 NO_COMMUNITIES 就等于把"引用坏了"说成"语料没社区"）。
+            reason = check.get("reason") or "CITATION_INVALID"
+            if reason == "NO_FACTS" and not sections:
+                reason = "NO_COMMUNITIES"
+        elif not sections:
+            reason = "NO_COMMUNITIES"
+        if reason:
+            # 引用不过或没有社区时，答案与引用一律留空：宁可说不可用，不给无来源结论。
+            answer, citations = "", []
+
+        # 只有答案真正用到的那几个社区要出去，别把 34 个社区整包塞给调用方。
+        used: List[str] = []
+        for item in citations:
+            cid = item.get("community")
+            if cid not in used:
+                used.append(cid)
+        return {**base, "status": report.get("status"), "communities": len(sections),
+                "answer": answer, "citations": citations, "sections": sections,
+                "used_communities": used, "citation_check": check, "reason": reason}
 
     return app
 

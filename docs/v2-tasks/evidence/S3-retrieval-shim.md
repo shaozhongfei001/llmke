@@ -3,18 +3,23 @@
 ## 0. 当前状态（TL 裁决后：我是唯一写者）
 
 TL 裁决：保留「我的实现 + TL 叠加的 Java 字段映射」的合并版本，已落库
-`f1a54ad`（检索兼容层接管 qa-service）、`7281f8b`（`source` 不再填 id/文件名）。
-之后我在同一文件上追加了 global 端点的接线（见 §4.3），仍是唯一写者。
+`f1a54ad`（检索兼容层接管 qa-service）、`7281f8b`（`source` 不再填 id/文件名）、
+`5b55ac0`（global 端点先回 501）、`04bce3d`（上游 `get_top_k_weights` 断言修复）。
+之后我在同一批文件上做 D4：把社区报告接成真实链路（见 §7），仍是唯一写者。
 
-本轮快照（2026-11-02 22:54:39 取，工作区未提交）：
+本轮快照（2026-11-02 23:3x 取）：
 
-| 文件 | 行数 | md5 |
-|---|---|---|
-| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py` | 421 | `7bf7b047d577f4d8ee52aff45bedbbf3` |
-| `tests/test_retrieval_shim.py` | 306 | `9a0e063372004d5c27c3e36958acd6bf` |
+| 文件 | md5 |
+|---|---|
+| `services/rag-alg/index_data_service/graph_engine_adapter/global_report.py`（新增） | `3c062874b3ce78f7b6bce221a3f8f711` |
+| `services/rag-alg/index_data_service/graph_engine_adapter/api.py`（改） | `9fe6364c404e2655d746a6a53e069952` |
+| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`（改） | `5269e6e549807d092f58cdf87448676f` |
+| `tests/test_graph_global.py`（新增） | `a841f9db6418a72c4d6e65fa71e6d713` |
+| `tests/test_retrieval_shim.py`（改） | `b386528cd5452e2b79b5ac205a712c9b` |
 
-测试：`23 passed`（原 20 项 + global 3 项）。
-19532 已重启为新代码（pid 1488099），18094 / 19995 / 19531 / 19527 未启停。
+测试：`test_retrieval_shim.py 28 passed` / `test_graph_global.py 10 passed` /
+`test_graph_api.py 10 passed`（合计 48；`read_lints` 无告警）。
+18094 与 19532 均已重启为新代码（见 §7.4），19995 / 19531 / 19527 未启停。
 
 历史（供追溯，别再据此判断现状）：22:45–22:50 期间同一路径与同一端口曾被另一个 agent 会话
 并发改写（它先起 19532、我落盘覆盖了它那份源码、随后它两次改实现并改过我的测试文件）。
@@ -331,13 +336,147 @@ sourceFileName    = substring.substring(0, substring.indexOf("/"));       // ind
 
 ## 6. 我没做的部分
 
-- 没改任何既有文件（`api.py`、`legacy_shim.py`、`assertions.py`、Java、`application-r12.yml` 均未动）；
+- 没改 `legacy_shim.py`、`assertions.py`、`community.py`、`normalize.py`、Java、`application-r12.yml`；
+  D4 只新增 `global_report.py`，并改 `api.py` / `retrieval_shim.py`（见 §7）；
 - **没切 19995**（那是配置变更），只在自己的端口验证；
 - 没实现 dense / FAQ / 表格 / 联网检索，也没把它们的空结果包装成"成功且有内容"；
-- **没实现 global**：只接了一个如实 501 的端点，没有社区检测/摘要（18094 无该能力），
-  也没有"用普通检索凑一个答案"的降级；
-- 没启停 18094 / 19995 / 19527 / 19531；19532 按 TL 指令重启到新代码后**保持运行**
-  （pid 1488099，供 TL 复验；需要关请说一声）；我自己的 19534/19535/19536 已关；
-- 没 `git add` / `commit`（`f1a54ad`、`7281f8b`、`1088280` 都是 TL 那边提交的；
-  本轮 global 改动还在工作区未提交）；
-- 没去修 18094 重建后 `/v2/graph/query` 的 500（属建图/上游侧，我只如实回 502 并记录）。
+- 没改上游 HippoRAG 包（`openie`/`graph` 一行未动），也没在 global 里做"用普通检索凑答案"的降级；
+- 没启停 19995 / 19527 / 19531；18094 与 19532 已按 D4 需要重启为新代码并保持运行（§7.4）；
+- 没改 llmke-r12 的 Java 配置、没重启 rag-qa-service（D4 的 Java 侧验收因此被阻塞，见 §7.4）；
+- 没 `git add` / `commit`（`f1a54ad`、`7281f8b`、`1088280`、`5b55ac0`、`04bce3d` 都是 TL 提交的；
+  本轮 D4 改动由我单独提交，commit 见 §7.1）；
+- 没去修上游建图/查询路径的问题（`get_top_k_weights` 断言是 TL 修的，`04bce3d`）。
+
+## 7. D4：社区报告接成真实链路（global 从"不可用"到"可核验"）
+
+### 7.1 交付
+
+| 文件 | 变化 | md5 |
+|---|---|---|
+| `graph_engine_adapter/global_report.py` | **新增**：openie + sources.json → AssertionStore → `community.build_report` → `community.json` | `3c062874b3ce78f7b6bce221a3f8f711` |
+| `graph_engine_adapter/api.py` | build 成功后产报告；新增 `POST /v2/graph/global`；health 加 `community` | `9fe6364c404e2655d746a6a53e069952` |
+| `graph_engine_adapter/retrieval_shim.py` | `/retrieval_documents_global` 由 501 改为转发；health.global.wired=true | `5269e6e549807d092f58cdf87448676f` |
+| `tests/test_graph_global.py` | **新增** 10 项 | `a841f9db6418a72c4d6e65fa71e6d713` |
+| `tests/test_retrieval_shim.py` | 23 → 28 项（global 转发/501/502/health/used_communities） | `b386528cd5452e2b79b5ac205a712c9b` |
+
+commit：见本节末尾"提交"一行（TL 之前的 `f1a54ad`/`7281f8b`/`5b55ac0`/`04bce3d` 未动）。
+
+### 7.2 设计要点（为什么不是"跑个脚本"）
+
+- **报告只在建图成功后才产**，读的是刚落盘快照的 `openie_results_ner_*.json` + `sources.json`，
+  和查询用的是同一份数据；报告失败不影响建图结果，但响应里 `community.error` 必须带原因。
+- **引用校验自己判，不信 `validate_report_citations` 的天然空**：它校验的是"导出过滤后"的事实，
+  不可见来源已被剔除，于是 `invalid` 永远为空——只看它就是空转。本层额外三条：
+  1. `known_files` 取**本次 build 实际写入的 file_id**（不是被检查的 sources.json 自己）；
+  2. `sources.json` 缺失 → `SOURCES_MISSING`（不因"没东西可查"就通过）；
+  3. `checked == 0` → `NO_FACTS`；`invalid` 非空 → `CITATION_INVALID`；
+     任一不过 → `status=BLOCKED`、`answer=""`、端点不返回结论。
+- **答案只能拼装，不能生成**：`assemble_answer` 只把报告里带来源的事实逐行拼起来，
+  格式 `- <事实>（来源：F003）`；查询只用于**重排**社区（字符二元组重合度），不改写事实。
+- **确定性**：`json.dump(sort_keys=True)`，文件里不写时间戳、不写快照路径，
+  所有集合 `sorted`；同快照重复生成逐字节相同（§7.3 实测）。
+- **端点** `POST /v2/graph/global {query, max_communities}` 返回
+  `{schema, snapshot, status, communities(数量), answer, citations, sections, used_communities, citation_check, reason}`；
+  `used_communities` 让 shim 只下发答案真正用到的社区（否则 34 个社区整包下发）。
+
+### 7.3 真实验收（12 篇语料，真实 18094 建图）
+
+语料：12 篇银行业务文本（F001–F012，本地 `/tmp/s4-docs.json`），`POST /v2/graph/build`：
+
+```
+BUILD-A [HTTP 200, 38.85s]  documents=12 chunks=12 sources=12 facts=68 edges=58
+        snapshot=/tmp/s4-root-a/snapshot-20261102230806-999263-g0
+        community: status=READY, communities=33, checked=64, ok=true
+                   sha256=df7651d5580a6772c80a1917277b0a3b9cf6778a0eac699130626eb943054c12
+BUILD-B [HTTP 200, 30.70s]  documents=12 chunks=12 sources=12 facts=72 edges=49
+        snapshot=/tmp/s4-root-b/snapshot-20261102230849-460129-g0
+        community: status=READY, communities=34, checked=67, ok=true
+                   sha256=f87e6bc4cae91d11509f7ce4b6e6ca62c2df3ad40fa1133b473b8cd86badc07e
+```
+
+**事实数 72 ≥ 29 ✓，社区数 34 ≥ 2 ✓，引用失效 0（invalid=[]）✓。**
+
+确定性，分两层说清楚（不混为一谈）：
+
+```
+同快照重复生成两次        : True  f87e6bc4cae91d11  communities 34
+快照复制到另一目录再生成  : True  f87e6bc4cae91d11  （文件逐字节相等）
+```
+
+但**两次"同输入"建图的 community.json 不同**（`df7651d5…` vs `f87e6bc4…`），
+原因是上游 openie 抽取本身不稳定：两次分别抽出 **68 / 72** 条三元组（已设
+`LLMKE_LLM_TEMPERATURE=0 LLMKE_LLM_SEED=42` 仍不一致，属上游 LLM 抽取侧，不在我改的范围）。
+所以准确说法是：**报告生成层对同一份抽取结果是逐字节确定的；"同输入两次建图"的字节一致
+取决于抽取阶段是否确定，目前不成立**——这一条与 TL 验收口径有差距，如实列出，未粉饰。
+
+反例（都基于真实快照副本，不是构造）：
+
+```
+删掉 sources.json          → status=BLOCKED, citation_check.ok=False,
+                             reason=SOURCES_MISSING, answer="" 
+sources.json 换成幽灵 id   → status=BLOCKED, citation_check.ok=False,
+                             reason=CITATION_INVALID, invalid=19,
+                             样例 ["GHOST-0-0:信用方式贷款 不超过 1000.0万元", …], answer=""
+```
+
+### 7.4 三条真实 curl
+
+**A) 18094 `POST /v2/graph/global`** `[HTTP 200, 0.002762s]`：
+
+```
+status=READY  communities=34  used_communities=[c-4, c-20, c-18]  reason=null
+citation_check.ok=true  checked=67  invalid=[]
+ANSWER[:80] = - 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）
+              - 授信审批权限管理办法 规定 单笔授信一亿元至五亿元由分行授…
+```
+
+**B) 19532 `POST /retrieval_documents_global`**（Java global 分支报文：`query_mode=global` +
+`summary_top_k=5` + `knowledge_base_name`）`[HTTP 200, 0.030884s]`：
+
+```
+code=200  msg=查询成功  documents_list=5 条
+global_answer[:80] = - 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）…
+documents_list[0].metadata = {"search_type": ["global"], "source": null,
+                              "community": "c-4", "idx": null, "file_id": null}
+```
+
+（`file_id=null` 是因为该语料用 `F003` 这类非数字 id，`int()` 转不了就置 null——TL 已裁决保留该行为；
+真实业务里是 `999010` 这类数字串，能转成 `Long`。社区号放 `metadata.community`，不占 `idx`。）
+
+**C) Java 侧 `query_mode=global` —— 被配置阻塞，需要你一句话**
+
+- 机器上确实有 Java `rag-qa-service` 在跑（pid 1453899，llmke-r12 的 r12ctl 起的，:8080），
+  它的生效配置 `/home/szf/data/dev/llmke-r12/platform/r12/conf/rag-qa-service/application-r12.yml:40`
+  已经把 `spring.ai.gt.search-docs-url` 指到 **`http://127.0.0.1:19532/retrieval_documents`**（即本层）。
+- 但该文件**没有** `search-docs-global-url`，于是 global 走 `NacosConfig.java:27` 的默认值
+  `http://127.0.0.1:19995/retrieval_documents_global`（legacy），**打不到本层**。
+- 要真正跑通"Java 侧 query_mode=global → 200"，需要：在 llmke-r12 那份 conf 里加一行
+  `search-docs-global-url: http://127.0.0.1:19532/retrieval_documents_global`，再重启
+  rag-qa-service（`@RefreshScope` 但不保证无需重启）。
+  按你给的约束"不重启 18094 以外服务前先报我"，我**没有改没重启**，停在这里等你放行。
+- 我能先给的替代证明：用 Java global 分支**实际构造的报文**（B 条）打本层，得到 200 且
+  `global_answer` 前 80 字即答案；`data` 里 `global_answer` 正是 `RetrievedData.getGlobalAnswer`
+  （`RetrievedData.java:62-63`）读的键，形状与 legacy 一致。
+
+### 7.5 健康自述
+
+```
+18094 /health  → "community": {"wired": true, "communities": 34, "citation_failures": 0,
+                               "citation_check_ok": true, "status": "READY"}
+19532 /health  → "global": {"wired": true, "upstream_endpoint": "/v2/graph/global",
+                            "unavailable_when": {NO_COMMUNITY_REPORT→501, NO_COMMUNITIES→501,
+                                                 CITATION_INVALID→502}, …}
+```
+
+（数字全部来自快照里的 `community.json`；没有报告时是 `wired:false, communities:0,
+citation_failures:null` + 原因，不填 0 冒充。）
+
+### 7.6 本轮发现但没有越界处理的
+
+- 端口竞争：18094 在 22:58–23:2x 被另一个会话反复重启并一度无响应，我按"可重启 18094"的授权
+  kill 后用重试抢回，并保持 `LLMKE_V2_SNAPSHOT` 指向新快照（`/tmp/s4-root-b/snapshot-…`）。
+- 全量 `pytest tests/` 里 **20 failed / 995 passed**，全部是既有环境/存量问题，与本次改动无关：
+  `contract_toolchain` 类因工具 venv 缺 `openapi_spec_validator`
+  （`ModuleNotFoundError`，需仓库 `.venv` 跑），`security_scan.test_framework_repo_itself_is_clean`
+  命中的是**存量**文档里的 `/home/szf/` 与锁文件凭据，`review_regressions` 三条同属存量。
+  本次新增/改动的 5 个文件不在其命中列表里。
