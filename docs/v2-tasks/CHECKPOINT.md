@@ -37,3 +37,15 @@
 ## 不得重复或擅自执行
 - 已完成副作用：演示环境启动；18094 服务运行；两次真实建图（/tmp 下快照）
 - 待授权：无
+
+## 产品接线调查（2026-11-02 21:45）
+
+- 构建入口：`services/rag-java/rag-parent/rag-index-service/.../application-r12.yml`
+  把 `generate-graph` / `generate-community` / `del-graph-*` 指向 `127.0.0.1:19529`
+  （legacy `index_graph_service`，Nebula）。
+- 图谱查看：`rag-graph-service` 直连 Nebula `127.0.0.1:9669`（`graph.type=nebula`），
+  不经过 Python 图服务；`GraphController` 只有 `/info/nodes`、`/info/edges`。
+- 因此 D0 有两处要换：构建链路（index-service → 19529）与查看/查询链路
+  （graph-service → Nebula）。
+- 最小切法：先做 19529 兼容层（实现 generate_triple_data/generate_community 等，
+  内部转 18094），再把 nebula 查询替换为图服务查询；契约差异需逐字段对齐。
