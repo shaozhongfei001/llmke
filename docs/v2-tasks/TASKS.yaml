@@ -110,10 +110,10 @@ tasks:
     loop: L1
     owner: A
     depends_on: [T-V2-02]
-    state: DOING
+    state: VERIFIED
     next_action: "19529 兼容层：generate_triple_data 转 18094，其余端点 501"
     acceptance: [D0]
-    evidence: ""
+    evidence: "docs/v2-tasks/evidence/S1-acceptance.md"
     blocker: ""
     artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/legacy_shim.py"]
 
@@ -122,10 +122,10 @@ tasks:
     loop: L1
     owner: B
     depends_on: [T-V2-02]
-    state: DOING
+    state: VERIFIED
     next_action: "ParseArtifact 绑定：artifact_id/hash/locator 校验"
     acceptance: [D1, D7]
-    evidence: ""
+    evidence: "docs/v2-tasks/evidence/S1-acceptance.md"
     blocker: ""
     artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py"]
 
@@ -134,9 +134,9 @@ tasks:
     loop: L2
     owner: C
     depends_on: [T-V2-01]
-    state: DOING
+    state: VERIFIED
     next_action: "方向语义：非对称谓词双向保留，对称谓词合并"
     acceptance: [D2, D5]
-    evidence: ""
+    evidence: "docs/v2-tasks/evidence/S1-acceptance.md"
     blocker: ""
     artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/normalize.py"]

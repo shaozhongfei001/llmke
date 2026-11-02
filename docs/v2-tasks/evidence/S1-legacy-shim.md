@@ -1,257 +1,184 @@
 # S1 legacy 兼容层（19529 → 18094）证据
 
-任务：T-S1A。交付：`services/rag-alg/index_data_service/graph_engine_adapter/legacy_shim.py`（301 行，md5 `5be0f9bd8856f65862d4dec709f3a7f4`）、
-`tests/test_legacy_shim.py`（235 行，md5 `1b9534e0c8e4e3d279ca72c88b687f6f`）与本文件。
-未修改任何既有文件（`git status` 中我名下只有这两个 `??` 新文件）。
+任务 T-S1A。本次迭代按 TL 要求改为**复用 `legacy_es.fetch_docs`**，本文件不再自带 ES 查询。
 
-## 1. 真实契约（读代码得出，不是猜）
+交付（只改这三个文件）：
+- `services/rag-alg/index_data_service/graph_engine_adapter/legacy_shim.py`
+- `tests/test_legacy_shim.py`
+- 本文件
+
+未改动 `legacy_es.py`、`api.py`、任何 Java / yml；未执行 `git add`/`commit`。
+
+## 1. 真实契约（读代码 + 实测）
 
 ### 1.1 legacy 19529 注册的路由
 
-`services/rag-alg/index_data_service/index_graph_service/graph_api_start.py`
+`index_graph_service/graph_api_start.py`：`:97 /del_space`、`:103 /generate_triple_data`、
+`:130 /generate_community`。实测 `GET 19529/openapi.json` 路径表：
+`['/batch_insert_vertex','/create_attribute','/create_space','/create_space_attribute',
+'/del_community','/del_space','/generate_community','/generate_triple_data',
+'/query_community','/query_graph_data']`。
 
-| 行 | 路径 | 处理函数 |
-|---|---|---|
-| 97 | `POST /del_space` | `del_space_data` |
-| 103 | `POST /generate_triple_data` | `_safe_entry(generate_triple_data)` |
-| 130 | `POST /generate_community` | `generate_community` |
+**既有缺陷（非本层引入）**：`application-r12.yml:91-92` 配的
+`del-graph-entity → http://127.0.0.1:19529/del_doc_entity` 在 19529 上并不存在
+（`/del_doc_entity` 属 19526，`index_vector_service/.../view/urls.py:33`）。
+实测 `POST 19529/del_doc_entity` → **HTTP 404**。
 
-实测 `GET http://127.0.0.1:19529/openapi.json` 的实际路由表：
+### 1.2 请求 / 响应模型（`index_graph_service/base.py`）
 
-```
-['/batch_insert_vertex', '/create_attribute', '/create_space', '/create_space_attribute',
- '/del_community', '/del_space', '/generate_community', '/generate_triple_data',
- '/query_community', '/query_graph_data']
-```
-
-**发现的既有缺陷（不是本层引入）**：`application-r12.yml:91-92` 把
-`remote.del-graph-entity.url` 配成 `http://127.0.0.1:19529/del_doc_entity`，
-但 19529 上**没有**这个路由（`/del_doc_entity` 属于 19526 向量服务，
-`index_vector_service/src/index_vector_service_pactera/view/urls.py:33`）。
-实测 `POST http://127.0.0.1:19529/del_doc_entity` → **HTTP 404**。
-即 Java `GraphDomainServiceImpl.delGraphEntity`（`:50-70`）今天必然走
-`RemoteGraphUtils.doExchange` 的非 200 分支抛 `FILE_PARSE_ERROR`，原因丢失。
-
-### 1.2 请求模型（`index_graph_service/base.py`）
-
-`QueryDocChunk`（`:64`，继承 `GraphModel`）——`/generate_triple_data` 的 body：
-
-```python
-space_name: str            # 必填，ES 索引名（Java 传 primitiveName，如 kb_9）
-partition_num: int = 10
-replica_factor: int = 1
-generation: str = ""
-col_name: str = ''         # 条件查询列
-col_values: List[str] = [] # 条件查询值
-model_info: dict           # 必填
-embed_model_name: str = "bge-large-zh-v1.5"
-top_k: int = 30
-system_prompt: Optional[str] = None
-entity_types: Optional[List[str]] = None
-```
-
-`DelModel`（`:93`）——`/del_space` 的 body：`space_name`、`generation`、`condition_json: dict = {}`。
-
+`QueryDocChunk`（`:64`）：`space_name, partition_num, replica_factor, generation,
+col_name, col_values, model_info, embed_model_name, top_k, system_prompt, entity_types`
+—— **请求里没有正文**。`DelModel`（`:93`）：`space_name, generation, condition_json`。
 `BaseResponse`（`:16`）：`{code:int=200, msg:str, data:Any}`。
 
-### 1.3 返回形状（`graph_service.py`）
+### 1.3 Java 发送与判定
 
-- `/generate_triple_data` 成功（`:762-769`）：
-  `code=200, msg="添加成功，新增和更新N条图数据,新增M条实体",
-   data={error_edge_data_list, error_tag_data_list, triples_total, edges_total, edges_failed, ...}`
-- `/del_space` 成功（`:208`）：`code=200, msg="删除成功"`。
-- 错误约定：`graph_api_start.py:25 _safe_entry` 把异常折成 `BaseResponse(code=500, msg=...)`，
-  **HTTP 仍是 200**。
+`FileAppServiceImpl.java:634-657`：`{space_name(kb.getPrimitiveName()), embedding_model_name,
+model_info, col_name:"title", col_values:[原始文件名], generation, entity_types?}`。
+`:659-673`：`code==200` 且 `data.edges_total>0` 且 `data.edges_written>0`，否则
+`GRAPH_PARSE_ERROR`（文件记失败）。`GraphDomainServiceImpl.java:29-70`：删除请求。
+`RemoteGraphUtils.doExchange:65-77`：HTTP≠200 直接抛错且丢 body —— 故本层沿用
+legacy 的「HTTP 200 + body.code」。
 
-### 1.4 Java 侧实际发出的 body（`rag-index-service`）
+### 1.4 正文来源
 
-`application/service/impl/FileAppServiceImpl.java:634-657`：
+`legacy_es.fetch_docs(space_name, col_name, col_values, post=None)`，与 legacy
+`graph_fun_tool.py:908-957` 同一读法：`/search_by_custom_param`，
+`index_name=["{space}", "table_chunks_{space}"]`，`col_name`/`col_values` 过滤。
 
-```java
-graphReq.put("space_name", spaceName);              // kb.getPrimitiveName() 原始名
-graphReq.put("embedding_model_name", ...);          // 注意：legacy 模型字段叫 embed_model_name
-graphReq.put("model_info", modelInfo);
-graphReq.put("col_name", "title");
-graphReq.put("col_values", Arrays.asList(matchTitle));
-graphReq.put("generation", knowledgeBaseFile.getVersion());
-graphReq.put("entity_types", ...);                  // 仅当 kb.graphPrompt 非空
+## 2. 必须记录的实测落差：19527 返回的是**扁平 hit**
+
+`fetch_docs` 的文档注释与测试里的 fixture 都是**折形** `{chunk_id: source}`
+（legacy 在 `graph_fun_tool.py:956` 做的转换），但**代理 19527 直接返回的原始响应是扁平 hit**。
+实测（2026-11-02，只读查询）：
+
+```
+$ curl -X POST 19527/search_by_custom_param \
+   -d '{"index_name":["kb_9","table_chunks_kb_9"],"col_name":"title","col_values":["丙-额度分项.docx"]}'
+{"code":200,"msg":"查询成功","data":{"total_count":1,"result_data":[
+  {"_index":"kb_9","_id":"144729756366911329","_score":1.0,
+   "_source":{"page_content":"星航贷额度分项说明星航贷单户最高授信额度为8000万元。…",
+              "metadata":{"file_id":999010,"title":"丙-额度分项.docx",
+                          "page_number":[0,0,0,0],"chunk_index":0,"offset":[[0,66]],…}}}]}}
 ```
 
-`domain/service/impl/GraphDomainServiceImpl.java:29-47`（del_space）：
-`{space_name, condition_json:{file_id}}`；`:50-70`（del_doc_entity）：
-`{db_name, index_name="graph_entity_<space>", update_condition_json:{file_id[],title[]}}`。
+把这份真实响应喂给 `fetch_docs`（未改其代码），得到的实际产出：
 
-`application-r12.yml:89-97`：
-`del-graph-space→19529/del_space`、`del-graph-entity→19529/del_doc_entity`、
-`generate-graph→19529/generate_triple_data`、`generate-community→19529/generate_community`。
+```
+$ PYTHONPATH=services/rag-alg/index_data_service python -c \
+  "from graph_engine_adapter.legacy_es import fetch_docs; print(fetch_docs('kb_9','title',['丙-额度分项.docx']))"
+err= None
+n= 1
+{"file_id": "999010", "text": "星航贷额度分项说明星航贷单户最高授信额度为8000万元。…",
+ "locator": "page=[0, 0, 0, 0];offset=[[0, 66]];chunk=0", "es_id": "_source"}
+```
 
-### 1.5 V2 目标契约（18094，`graph_engine_adapter/api.py`）
+即：正文与 `file_id` 正确，但 `es_id` 变成字符串 `"_source"`（遍历时命中 `_source` 这个键），
+`locator` 里出现 `page=[0, 0, 0, 0]`。`es_id="_source"` 若写进快照的 `sources.json`，
+检索引用会指向一个不存在的块。
 
-`BuildRequest`（`:44-46`）= `{docs:[{file_id:str, text:str, locator:Optional[str]}], root:Optional[str]}`，
-`docs` 至少 1 条；`POST /v2/graph/build`（`:163-183`）成功返回
-`{schema:"llmke.graph-api.v1", status:"BUILT", snapshot, generation, documents, chunks, sources}`，
-内部异常 → HTTP 500 + `detail`。
+**本层的处置（`_to_build_docs`，带计数，不静默）**：BuildDoc 只需要
+`{file_id,text,locator}`，`es_id` 一律丢弃；当 `es_id == "_source"`（或 locator 恰为
+`es:_source`）时判定为"拿不到真实 chunk id"，locator 降级为 `file:<file_id>`
+（文件级可回溯），并在响应 `data.es.locator_degraded` 计数。其余 locator 原样透传
+（`page=[0, 0];offset=…;chunk=0` 这类含真实 offset/chunk 的串不改写）。
 
-## 2. 关键落差：legacy 请求里没有正文
+**给 TL 的修法建议（我没改 `legacy_es.py`）**：遍历时若 `row` 里存在 `_source` 就用
+`row.get("_id")` 当 chunk id、`row["_source"]` 当 source，否则再退回折形分支；
+`page_number` 全 0 时不要拼进 locator。两行改动即可，改完本层的降级分支自然不再触发。
 
-`/generate_triple_data` 的请求**只有 `space_name` + `col_name`/`col_values`**，
-正文是 legacy 自己按标题去 ES 捞的（`graph_fun_tool.py:908 get_document_chunk`
-→ `search_by_custom_param`），然后 `llm_generate_triple` 抽三元组。
-V2 `/v2/graph/build` 相反：**必须由调用方带 `docs`**。
+## 3. legacy_shim 行为
 
-因此本兼容层的取舍是（已写进模块 docstring 与 400 响应文案）：
-
-- 请求带 `docs` → 归一成 `{file_id, text, locator}` 转发；
-- 请求不带 `docs`（= 今天 Java 真实发的报文）→ **`code=400` + 说明**，
-  不复刻 ES 查询、不凭空生成正文、不静默回 200。
-
-**结论（需要产品侧决策）**：仅靠本层无法让 Java 现有抓图链路真正建成图，
-必须二选一：①Java 请求里带上 `docs`；②另立"V2 侧读 ParseArtifact 取正文"的通道
-（与 T-S1B artifact 绑定天然相关）。本层已按①预留字段，①落地时 Java 只需加一个 `docs` 字段。
-
-## 3. 实现要点
-
-- `create_app(http_post=None)`：注入 `http_post(url, payload, timeout)`，
-  返回值需带 `status_code` 与 `.json()`；直接返回 dict 视为已解析的 200 体（便于测试）。
-- 环境变量：`LLMKE_V2_GRAPH_API`（默认 `http://127.0.0.1:18094`）、
-  `LLMKE_V2_ROOT`（默认 `.artifacts/api-root`，请求里 `root` 优先）、
-  `LLMKE_V2_GRAPH_TIMEOUT`（默认 600s）。
-- 错误语义：**HTTP 200 + body.code**，与 legacy `_safe_entry` 一致；
-  这样 Java `RemoteGraphUtils.doExchange:70-75`（HTTP≠200 直接抛错丢 body）仍能读到 `msg`。
-
-| 场景 | code | 说明 |
-|---|---|---|
-| 正常转发且上游 `status=BUILT` 且有 snapshot | 200 | data 透传 chunks/sources/snapshot/generation + `upstream` 原文 |
-| 上游 HTTP 非 200 | 502 | `msg` 带上游 `detail`/`msg`，`data.upstream_status` |
-| 上游超时/连接异常 | 502 | `msg` 形如 `上游图服务不可达 TimeoutError: read timed out`，**不产生 HTML 500** |
-| 上游 200 但 `status≠BUILT` 或无 snapshot | 502 | fail-closed，不回成功 |
-| `/generate_community` | 501 | `msg="community not wired yet"`，不调用上游 |
-| `/del_space`、`/del_doc_entity` | 501 | `msg="delete not wired yet"`，不调用上游 |
-| 缺 `docs` / `docs=[]` / 某条 `text` 为空 | 400 | 带原因，不调用上游 |
-
-- `file_id` 兜底顺序：`doc.file_id` → `body.col_values[0]` → `body.space_name`，
-  每次兜底计入 `data.file_id_fallbacks`（不做无声替换）。
-- `locator` 缺失 → 传 `None`（符合 BuildDoc 定义）；兼容 `page_num`/`page`。
-- **不伪造边统计**：HippoRAG build 不返回边写入数，故 `triples_total/edges_total/
-  edges_written/edges_failed` 显式置 `null` + `legacy_edge_metrics="UNAVAILABLE_V2_GRAPH_API"`，
-  绝不拿 `chunks` 冒充 `edges_total`。
+- 文档来源：请求带 `docs` → 直接用（仅做结构校验，text 空 → 400）；
+  没有 → `fetch_docs(space_name, col_name, col_values, post=适配器)`。
+  `fetch_docs` 的 post 是两参 `(url, payload)`，本层用 `_es_post` 适配到统一的
+  `http_post(url, payload, timeout)` 注入口，测试用一个假客户端覆盖"ES + 建图"两条链路。
+- `error` 非空 → `code=500` + 原因（**不再返回 400**；`space_name` 为空也由
+  `fetch_docs` 给出可读 error，实测回 `space_name 为空，无法定位 ES 索引`）。
+- 计数回填：`triples_total = edges_total = 上游 facts`、`edges_written = 上游 edges`，
+  并写 `data.edges_semantics` 注明语义；`facts`/`edges` 任一为 0/缺失/bool → `code=500`。
+- 上游异常：HTTP 非 200 → 502；超时/连接异常 → 502 + 异常类型；未 BUILT 或无 snapshot → 502。
+- 未接线端点：`/generate_community`、`/del_space`、`/del_doc_entity` → `code=501`，
+  `data.upstream_called=false`，绝不调上游。
+- 环境变量：`LLMKE_V2_GRAPH_API`(18094) / `LLMKE_V2_ES_PROXY`(19527，由 legacy_es 读取) /
+  `LLMKE_V2_ROOT`(.artifacts/api-root) / `LLMKE_V2_GRAPH_TIMEOUT`(600s)。
 
 ## 4. 测试
-
-命令：
 
 ```
 cd /home/szf/data/dev/llmke-v2
 PYTHONPATH=services/rag-alg/index_data_service \
-  /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest tests/test_legacy_shim.py -q
+  /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest tests/test_legacy_shim.py tests/test_legacy_es.py -q
 ```
 
-真实输出：
+真实输出：`28 passed in 0.44s`（我的 22 项 + TL 的 `test_legacy_es.py` 6 项，后者未改动）。
+
+TL 指定的四项：
+1. 无 docs + ES 2 块 → 转发成功；断言 ES payload 逐字段
+   `{"index_name":["kb_9","table_chunks_kb_9"],"col_name":"title","col_values":["丙-额度分项.docx"]}`，
+   转发 docs 的 `text`/`file_id`(metadata.file_id=999010)/`locator`
+   (`page=[0, 0];offset=[[0, 66]];chunk=0`)，第二条无 file_id → 兜底 `丙-额度分项.docx`、
+   locator `es:chunk-b`；并断言 BuildDoc 只有三个键（`es_id` 不进）。
+2. ES 失败（连接异常 / HTTP 503）→ `code=500` 且 `build_calls == []`。
+3. 上游 `facts=3, edges=5` → `edges_total=3`、`edges_written=5`、`triples_total=3`。
+4. 原"无 docs → 400"已改为"ES 也查不到才 500"，断言 `build_calls == []`。
+
+补充：`test_flat_es_hit_degrades_locator_instead_of_writing_fake_id` 用真实扁平 hit fixture
+锁住 §2 的降级行为（locator `file:999010` + `locator_degraded=1`），防止将来有人
+"顺手"把 `es:_source` 放回产物。另有 facts/edges 零或缺失的 5 例参数化、501 零调用、
+未 BUILT、非 JSON、JSON 字符串 body、health 自述等。
+
+## 5. 真实端到端（真实 ES 19527 + 真实 18094，legacy 形状请求）
+
+**19531 被一个跑旧代码的实例占用**（pid 1188940，`LLMKE_V2_ROOT=/tmp/v2-shim-root`，
+探针返回旧版 `data.es_url` 结构），我不杀别人的进程，改在 **19533** 起新版本实例，
+验证完已 kill（`ss` 确认无监听）。19527 / 18094 / 19529 全程未启停。
+
+请求（只有 space_name/col_name/col_values，与 Java 实际报文同形）：
 
 ```
-..............                                                           [100%]
-14 passed in 0.43s
+curl -X POST http://127.0.0.1:19533/generate_triple_data -H 'Content-Type: application/json' -d '{
+ "space_name":"kb_9","embedding_model_name":"text-embedding-bge-m3",
+ "model_info":{"modelName":"qwen2.5-7b-instruct"},
+ "col_name":"title","col_values":["丙-额度分项.docx"],"generation":"V0"}'
 ```
 
-（复跑一次：`14 passed in 0.48s`）
-
-14 项覆盖：正常转发字段（file_id/text/locator、尾斜杠不叠 `//`、默认与覆盖 root）、
-上游 500→非 200 code 带原因、上游超时→JSON 不抛 HTML、上游 200 但未 BUILT、
-上游非 JSON 体、community 501 且零上游调用、del_space/del_doc_entity 501 且零上游调用、
-缺 docs/空 docs→400、某条 text 空→400、file_id 从 col_values 兜底并留痕、
-边统计不伪造、JSON 字符串 body、health 自述接线且不访问上游。
-
-## 5. 真实建图验证（打到真实 18094）
-
-19530 已被别的进程占用（`ss -ltn` 有监听，`GET /health` 回 404，非本任务实例），
-故改用 **19531**；用完已 kill（`ss` 确认端口关闭）。
-
-启动：
+真实响应 `[HTTP 200 5.339825s]`：
 
 ```
-cd /home/szf/data/dev/llmke-v2
-PYTHONPATH=services/rag-alg/index_data_service nohup \
-  /home/szf/data/dev/hipporag-toolenv/bin/python -m uvicorn \
-  graph_engine_adapter.legacy_shim:app --host 127.0.0.1 --port 19531 \
-  > /tmp/s1-legacy-shim-20261102/uvicorn-19531.log 2>&1 &
+code            = 200
+msg             = V2 建图完成 docs=1 chunks=1 facts=3 edges=12
+docs/chunks/sources = 1 / 1 / 1
+triples_total   = 3
+edges_total     = 3        ← 上游 facts
+edges_written   = 12       ← 上游 edges
+snapshot        = /tmp/s1-legacy-shim-20261102/root-es2/snapshot-20261102220217-185597-g0
+generation      = 0
+es              = {"es_proxy":"http://127.0.0.1:19527",
+                   "es_query":{"space_name":"kb_9","col_name":"title",
+                               "col_values":["丙-额度分项.docx"]},
+                   "es_docs_used":1,"locator_degraded":1}
 ```
 
-真实请求（Java 真实字段 + `docs`，`root` 指向 /tmp 避免动共享 `.artifacts`）：
-
-```
-curl -s -X POST http://127.0.0.1:19531/generate_triple_data -H 'Content-Type: application/json' -d '{
- "space_name":"kb_9","col_name":"title","col_values":["授信审批指引.docx"],
- "embedding_model_name":"text-embedding-bge-m3",
- "model_info":{"modelName":"qwen2.5-7b-instruct"},"generation":"V0",
- "root":"/tmp/s1-legacy-shim-20261102/root",
- "docs":[{"file_id":"343","text":"单笔授信金额超过五亿元须提交分行信贷审查委员会审批。","locator":"p12"},
-         {"file_id":"343","text":"贷后检查每季度开展一次，重点核查借款人经营现金流与担保物状态。"}]}'
-```
-
-真实响应（`[HTTP 200 in 11.472775s]`）：
+落盘证明降级生效（`sources.json` 里不是 `es:_source`）：
 
 ```json
-{"code":200,"msg":"V2 建图完成 docs=2 chunks=2 sources=2",
- "data":{"docs":2,"documents":2,"chunks":2,"sources":2,
-  "snapshot":"/tmp/s1-legacy-shim-20261102/root/snapshot-20261102215354-365190-g0",
-  "generation":0,"error_edge_data_list":[],"error_tag_data_list":[],
-  "triples_total":null,"edges_total":null,"edges_written":null,"edges_failed":null,
-  "legacy_edge_metrics":"UNAVAILABLE_V2_GRAPH_API","file_id_fallbacks":0,
-  "legacy_fields_seen":["col_name","col_values","embedding_model_name","generation","model_info","space_name"],
-  "graph_api":"http://127.0.0.1:18094/v2/graph/build",
-  "upstream_schema":"llmke.graph-api.v1",
-  "upstream":{"schema":"llmke.graph-api.v1","status":"BUILT",
-   "snapshot":"/tmp/s1-legacy-shim-20261102/root/snapshot-20261102215354-365190-g0",
-   "generation":0,"documents":2,"chunks":2,"sources":2}}}
+{"chunk-5789841d879302e41a7eaf65ae020f81":[{"file_id":"999010","locator":"file:999010"}]}
 ```
 
-**图是真的建了**（不是我说的，是 18094 自己报的）：
+失败面（同实例、真实 ES）：
 
 ```
-GET http://127.0.0.1:18094/health
-{"schema":"llmke.graph-api.v1","status":"ok",
- "snapshot":"/tmp/s1-legacy-shim-20261102/root/snapshot-20261102215354-365190-g0",
- "nodes":3,"edges":2,"facts":7}
+不存在的文件名 → {"code":500,"msg":"知识库 kb_9 未查询到可建图文本（ES total=0）", …}
 ```
 
-落盘目录：`openie_results_ner_qwen2.5-7b-instruct.json`、`sources.json`、
-`qwen2.5-7b-instruct_text-embedding-bge-m3/`、`llm_cache`。
-`sources.json` 证明 legacy 字段到来源映射确实贯通（第一条带 `locator=p12`，第二条无 locator 就不写）：
+**语义提醒**：`edges_written(12) > edges_total(3)` —— `facts` 是 LLM 抽的三元组数，
+`edges` 是 HippoRAG 图里的边数（含 passage↔entity 结构边），两者不是同一集合。
+Java 闸门只要求 >0 所以可用；若要做质量闸门需重新定义语义。
 
-```json
-{"chunk-a86887f7bb126d95771f0f129947c4ed":[{"file_id":"343","locator":"p12"}],
- "chunk-f58f4822e4252ccaf36b97c78da29cec":[{"file_id":"343"}]}
-```
+## 6. 我没做的部分
 
-三个未接线端点的真实响应（均 HTTP 200 + code 501 + `upstream_called:false`）：
-
-```json
-{"code":501,"msg":"community not wired yet","data":{"endpoint":"/generate_community","wired":false,"upstream_called":false,...}}
-{"code":501,"msg":"delete not wired yet","data":{"endpoint":"/del_space","wired":false,"upstream_called":false,...}}
-{"code":501,"msg":"delete not wired yet","data":{"endpoint":"/del_doc_entity","wired":false,"upstream_called":false,...}}
-```
-
-收尾：`kill 1167416` → `19531 closed`；18094 与 19529 未被停（仍在监听）。
-
-## 6. 已知落差（未解决，需决策，不在本任务范围）
-
-1. **Java 请求没有 `docs`** → 真实链路今天会拿到 `code=400`（见 §2）。
-2. **Java 零产出闸门会判失败**：`FileAppServiceImpl.java:661-673` 要求
-   `data.edges_total>0 && data.edges_written>0`，而 V2 build 不返回边统计 →
-   本层只能给 `null`（不伪造），故**即使带上 docs，Java 侧仍会把这次建图记成失败**。
-   要闭环需二选一：V2 `/v2/graph/build` 返真实的图规模（从快照读 nodes/edges），
-   或改 Java 闸门读 `chunks/sources`。
-3. `generate_community` / `del_space` / `del_doc_entity` 一律 501：
-   Java 侧 `delGraphSpace`/`delGraphEntity` 会把 501 当错误抛 `DELETE_GRAPH_ERROR`；
-   `generateCommunity` 的失败仅告警不影响图状态（`FileAppServiceImpl.java:692-694`），
-   行为可接受。V2 侧要真支持删除/社区，需先在 18094 开对应端点。
-4. legacy 的 `model_info` / `entity_types` / `generation` 本层只记录（`legacy_fields_seen`）
-   不消费：HippoRAG 的 LLM 由 18094 进程环境决定，代次由 rebuild 自己维护。
-
-## 7. 我没做的部分
-
-- 没改 `api.py`、没改任何 Java/yml（含 `application-r12.yml`）、没改 `TASKS.yaml`；
-- 没实现社区检测/删除端点，没在 18094 上加接口；
-- 没启动/停止 18094、19529（只 kill 了自己起的 19531）；
-- 没 git add/commit（两个新文件仍是 `??`）；
-- 没动共享 `.artifacts/api-root`：真实 curl 用 `root=/tmp/s1-legacy-shim-20261102/root`。
+- 没改 `legacy_es.py`（含 §2 的缺陷，只在本层降级 + 建议）、没改 `api.py`、Java、yml；
+- 没实现社区检测 / 删除端点；
+- 没启停 19527 / 18094 / 19529；只起停自己用的 19533（已关）；
+- 没 `git add`/`commit`；没动共享 `.artifacts/api-root`（真实 build 用 `/tmp/...` 下的独立 root）。

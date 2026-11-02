@@ -33,7 +33,9 @@ def test_two_chunks_map_file_id_and_locator():
     assert err is None
     assert [d["text"] for d in docs] == ["第一段", "|客户|额度|"]
     assert docs[0]["file_id"] == "999010"
-    assert "page=[0, 0]" in docs[0]["locator"] and "chunk=0" in docs[0]["locator"]
+    # page_number 全 0 = 未分页，不能拼成"第 0 页"；offset/chunk 仍保留
+    assert "page=-" in docs[0]["locator"]
+    assert "offset=[[0, 66]]" in docs[0]["locator"] and "chunk=0" in docs[0]["locator"]
 
 
 def test_missing_metadata_falls_back_without_inventing_page():

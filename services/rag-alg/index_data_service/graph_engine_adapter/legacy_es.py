@@ -33,12 +33,28 @@ def _field(meta: Dict[str, Any], *names: str) -> Optional[str]:
     return None
 
 
-def _locator(meta: Dict[str, Any], chunk_id: str) -> str:
-    """定位串：优先页码 + offset + chunk 序号；都没有才退回 ES 文档 id。
+def _real_page(meta: Dict[str, Any]) -> Optional[str]:
+    """页码只在"真有页"时返回。
 
-    不编页码：缺页码时写 `es:<id>`，调用方一眼能看出"这条只能回指到块级"。
+    实测 kb_9 的 `page_number` 是字符串 `[0, 0, 0, 0]`：既可能全 0（未分页），
+    也可能是列表。把全 0 当第 0 页会给出假定位，所以这里显式剔除。
     """
     page = _field(meta, "page_number", "page_num", "page")
+    if not page:
+        return None
+    text = str(page).strip().strip("[]")
+    try:
+        parts = [int(p.strip()) for p in text.split(",") if p.strip()]
+    except ValueError:
+        return str(page)
+    if not parts or all(p == 0 for p in parts):
+        return None
+    return str(page)
+
+
+def _locator(meta: Dict[str, Any], chunk_id: str) -> str:
+    """定位串：页码/offset/chunk 序号只拼真实存在的；都没有退回 `es:<id>`。"""
+    page = _real_page(meta)
     offset = _field(meta, "offset")
     index = _field(meta, "chunk_index")
     if page or offset or index:
@@ -81,7 +97,16 @@ def fetch_docs(space_name: str, col_name: Optional[str] = None,
     for row in rows:
         if not isinstance(row, dict):
             continue
-        for chunk_id, source in row.items():
+        # 19527 真实返回是扁平 hit：{_index,_id,_score,_source}；
+        # legacy 的 Python 侧才折成 {_id: _source}。两种都要认，
+        # 否则扁平 hit 会被当成"内容是 _source 字段"，产出 es_id="_source" 的假定位。
+        if isinstance(row.get("_source"), dict):
+            hits = [(row.get("_id"), row["_source"])]
+        elif len(row) == 1:
+            hits = list(row.items())
+        else:
+            hits = []
+        for chunk_id, source in hits:
             if not isinstance(source, dict):
                 continue
             text = source.get("page_content")
@@ -90,8 +115,9 @@ def fetch_docs(space_name: str, col_name: Optional[str] = None,
             meta = source.get("metadata") or {}
             file_id = _field(meta, "file_id", "fileId", "document_id") or (
                 col_values[0] if col_values else space_name)
+            locator = _locator(meta, str(chunk_id))
             docs.append({"file_id": str(file_id), "text": text,
-                         "locator": _locator(meta, str(chunk_id)),
+                         "locator": locator,
                          "es_id": str(chunk_id)})
     if not docs:
         return [], f"知识库 {space_name} 未查询到可建图文本（ES total={((body.get('data') or {}).get('total_count'))}）"
