@@ -71,3 +71,14 @@
   2) 只停 19995 上的 legacy 检索进程（不动 19526/19527/19996），用 shim 顶 19995；
   3) 用 qa-service 真实问答请求验证 documents_list 走 GRAPH。
 - 约束：executed_route 必须透传；DENSE_FALLBACK 不能标成图检索。
+
+## S3 收口（2026-11-02 23:05）
+
+- 检索：qa-service → 19532 → 18094 已通；Java 实测 200、1 条、search_type=["graph"]、
+  locator=page=-;offset=[[0, 66]];chunk=0。
+- global：`/retrieval_documents_global` 显式 501（community 未接入），不冒充；
+  enabled_graph=false → 400；health 自述 wired=false。
+- 上游 500 已修：HippoRAG `get_top_k_weights` 零权重重断言 → 适配器跳过自检并记
+  trace.weights_assert_skipped；复验 18094 200/GRAPH。
+- 证据：S3-retrieval-wiring.md（TL）+ S3-retrieval-shim.md（角色），两份并存不合并。
+- 未完成：真实社区报告（D4）、页面浏览器端到端。
