@@ -1,0 +1,54 @@
+# 页面端到端：问答链路通，引用点击 UI 缺失（2026-11-03）
+
+## 结论
+
+页面 → 8088 → rag-qa-service → 19532（V2 shim）→ 18094（V2 图服务）链路真实可用，
+问答答案能在页面渲染；但**页面上没有可点击的引用入口**，无法完成“点引用看原文”。
+
+这是前端/交互缺口，不是后端链路问题。
+
+## 环境
+
+- 前端：`frontend/plateform/dist`（2026-10-31 构建），用临时 nginx 容器在 **18088** 提供，
+  反代配置 `frontend/plateform/nginx/r12-18088.conf`；验证后容器已删除。
+- 直接 `npm run dev` 失败：Vite 监听 `dist.bak-0006` 触发 `ENOSPC`（inotify 上限），
+  与代码无关；改用静态 dist 验证。
+- 登录页不可用（dist 里 `getUrlPrefix()` 为空），按调查结论注入 token：
+  `localStorage["gitech_ril:rag_ai"] = {"userInfo":{"token":"…"}}`。
+- 页面实际请求：`POST /proxy/qa/ai/question_re`（浏览器 → 8088 → `:18083`）。
+- 图服务快照：为验证数字 `file_id` 引用，用 19531 重建单文档快照
+  `snapshot-20261103012952-439603-g0`（file_id=999010），验证后 18094 已还原到
+  `s4-root-c/snapshot-20261103000343`（facts=69、33 社区）。
+
+## 实测
+
+1. **global 问答渲染**（R13 Global 助手 + 全局开关）：
+   页面显示 3 条授信审批事实，带“（来源：F003）”，与 18094 `/v2/graph/global` 输出一致；
+   无关的集团客户/20 亿条款已不再出现。
+2. **普通问答渲染**（R12 默认助手）：单文档快照下显示
+   “星航贷 单户最高授信额度为 8000.0万元（来源：999010）”。
+3. **引用入口**：答案底部只有 4 个按钮——复制、赞、踩、重新生成；
+   没有“参考来源/引用”按钮，DOM 中也查不到 `ref/cite/source` 相关节点。
+   点击第 4 个按钮触发“重新生成”，不是引用。
+4. **答案位置**：流式结束后列表会自动滚到推荐问题，答案落在视口上方（y≈-545），
+   需要向上滚动才能看到；不是内容丢失。
+
+## 判断
+
+- 后端 `reply.reference` 有数据时（数字 file_id）页面仍不渲染引用列表，
+  说明该构建/助手没有启用 vendor 的 `references:click` 入口，或未注册引用渲染配置。
+- 因此“点引用看原文（段落/单元格/图片定位）”**当前不可验收**，需前端改动：
+  确认 `@gientech/modual` 的 reference list 启用条件，或在宿主接
+  `references:click` / `knowledge_referenceFile_title:click` 并渲染抽屉。
+- 不建议把“答案里带（来源：xxx）”当成引用交互已验证。
+
+## 复现步骤
+
+```bash
+# 1) 临时静态服务（验证后删除）
+docker run -d --name v2-fe-e2e --network host \
+  -v $PWD/frontend/plateform/dist:/usr/share/nginx/html/rag:ro \
+  -v $PWD/frontend/plateform/nginx/r12-18088.conf:/etc/nginx/conf.d/default.conf:ro nginx:alpine
+# 2) 注入 token 后打开 http://127.0.0.1:18088/chats/main
+# 3) 选 R13 Global 助手 + 全局开关，提问；观察答案底部按钮
+```
