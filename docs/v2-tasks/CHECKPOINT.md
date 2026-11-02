@@ -93,3 +93,16 @@
   code=200、edges_total=3（facts）、edges_written=12（edges）、locator_degraded=0；
   generate_community / del_space / del_doc_entity 仍 501 且 upstream_called=false。
 - 待办：B01 在 r12 的 pair_key 修复（S1-C）；Java global 验收（需 /qa/ai/question）。
+
+## B01 关系方向修复（2026-11-03 00:30，r12 轨）
+
+- 提交：llmke-r12 `0bac08a`（feature/R12-real-rag，未 push），严格 2 文件：
+  `index_graph_service/graph_types.py` +399/−52、`tests/test_graph_direction_b01.py` 新增 140 行。
+- 实现：`pair_key` 保序为 `(rel,(src,dst))`，仅契约 `symmetric=true`（相似/关联）走无序键；
+  方向由 domain/range 裁决，未登记/domain==range/通配 → unknown → 双向保留；
+  `undirected_pair_key` 仅服务拓扑投影，不再作事实身份。
+- 独立复验：`tests/test_graph_direction_b01.py` **28 passed**；`sorted()` 只剩于
+  `undirected_pair_key`（有 doc 警告）；提交未带 `platform/r12/conf/**`。
+- 基线：r12 `make framework-test` 为 20 failed / 286 passed / 44 skipped，20 个失败在
+  HEAD 干净工作树同样复现（契约工具链/安全扫描/旧回归），与本次无关。
+- **未做**：真实入库/图库端到端（W 项）；未 push；未改本体契约。
