@@ -359,7 +359,7 @@ sourceFileName    = substring.substring(0, substring.indexOf("/"));       // ind
 | `tests/test_graph_global.py` | **新增** 10 项 | `a841f9db6418a72c4d6e65fa71e6d713` |
 | `tests/test_retrieval_shim.py` | 23 → 28 项（global 转发/501/502/health/used_communities） | `b386528cd5452e2b79b5ac205a712c9b` |
 
-commit：见本节末尾"提交"一行（TL 之前的 `f1a54ad`/`7281f8b`/`5b55ac0`/`04bce3d` 未动）。
+commit：`ea6eb83`（本次 6 个文件一起提交；TL 之前的 `f1a54ad`/`7281f8b`/`5b55ac0`/`04bce3d` 未动）。
 
 ### 7.2 设计要点（为什么不是"跑个脚本"）
 
