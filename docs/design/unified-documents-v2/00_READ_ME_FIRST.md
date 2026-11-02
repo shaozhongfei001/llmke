@@ -20,6 +20,10 @@
 | 05_ES_AND_GRAPH_INPUT_DECISION.md | 用户建议的合理部分、需限制部分及去ES判据 |
 | 02_RECONCILIATION_AND_DECISIONS.md | 原设计/原合同/源码事实与本次裁定的区别 |
 | 03_CONTRACT_CHANGE_MATRIX.md | 机器合同、所有者、版本与迁移边界 |
+| 07_BACKUP_AND_RECOVERY.md | 快照/元数据/指针的备份、恢复流程与 RPO/RTO（设计草案） |
+| 08_CAPACITY_AND_PERFORMANCE.md | 容量目标、瓶颈顺序、压测方法（设计草案） |
+| 09_AUDIT_TRAIL.md | 谁在何时查了什么：字段、写入、留存、防篡改（设计草案） |
+| 10_FRONTEND_INTERACTION.md | 问答/引用/失败/积压的前端状态与展示（设计草案） |
 | VALIDATION_REPORT.md / OFFLINE_CHECK.json / UPSTREAM_IR_CHECK.json | 本轮实际验证及不能推出的结论 |
 | SOURCE_INVENTORY.json | 原包摘要、核对过的材料、代码基线和外部来源 |
 
