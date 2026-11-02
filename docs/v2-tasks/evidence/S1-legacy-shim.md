@@ -9,6 +9,23 @@
 
 未改动 `legacy_es.py`、`api.py`、任何 Java / yml；未执行 `git add`/`commit`。
 
+> ## 读这份证据前必须知道：两个 legacy 字段名与含义不一致（不是统计错误）
+>
+> `data.edges_total` 与 `data.edges_written` 是 **legacy 侧的既有字段名**，但它们的值现在来自
+> V2 图服务的两个**不同**统计：
+>
+> | legacy 字段 | 实际取值 | 含义 |
+> |---|---|---|
+> | `data.edges_total` | 上游 `facts` | **抽取出的三元组（事实）总数**，不是边数 |
+> | `data.edges_written` | 上游 `edges` | **真正进图的边数**（含 passage↔entity 等结构边） |
+> | `data.triples_total` | 上游 `facts` | 与 `edges_total` 同源，保留供 legacy 语义对齐 |
+>
+> 于是真机上会出现 `edges_total=3` 而 `edges_written=12`，**这不是统计错误**：
+> 3 条事实扩展出的图里有 12 条边（`facts` 与 `edges` 本来就不是同一集合，谁大谁小都有可能）。
+> Java `FileAppServiceImpl.java:661-673` 只要求两者 `>0`，所以该映射可用；
+> 但**不能**把它们当"写入率 = written/total"来读，要做质量闸门必须重新定义语义。
+> 每次响应里同时带 `data.edges_semantics` 字符串复述这件事，避免只看数字的评审误读。
+
 ## 1. 真实契约（读代码 + 实测）
 
 ### 1.1 legacy 19529 注册的路由
@@ -130,51 +147,80 @@ TL 指定的四项：
 
 ## 5. 真实端到端（真实 ES 19527 + 真实 18094，legacy 形状请求）
 
-**19531 被一个跑旧代码的实例占用**（pid 1188940，`LLMKE_V2_ROOT=/tmp/v2-shim-root`，
-探针返回旧版 `data.es_url` 结构），我不杀别人的进程，改在 **19533** 起新版本实例，
-验证完已 kill（`ss` 确认无监听）。19527 / 18094 / 19529 全程未启停。
-
-请求（只有 space_name/col_name/col_values，与 Java 实际报文同形）：
+统一请求（只有 space_name/col_name/col_values，与 Java `FileAppServiceImpl.java:634-657`
+实际报文同形）：
 
 ```
-curl -X POST http://127.0.0.1:19533/generate_triple_data -H 'Content-Type: application/json' -d '{
+curl -X POST http://127.0.0.1:<port>/generate_triple_data -H 'Content-Type: application/json' -d '{
  "space_name":"kb_9","embedding_model_name":"text-embedding-bge-m3",
  "model_info":{"modelName":"qwen2.5-7b-instruct"},
  "col_name":"title","col_values":["丙-额度分项.docx"],"generation":"V0"}'
 ```
 
-真实响应 `[HTTP 200 5.339825s]`：
+### 5.1 现役实例复验（19531，pid 1486048，2026-11-02 22:53:36 启动）
+
+不重启他人进程，直接对现役实例复验：
+
+```
+进程：pid 1486048  /home/szf/data/dev/hipporag-toolenv/bin/python -m uvicorn \
+        graph_engine_adapter.legacy_shim:app --host 127.0.0.1 --port 19531
+启动：Mon Nov  2 22:53:36 2026
+health：graph_api=http://127.0.0.1:18094, es_proxy=http://127.0.0.1:19527, root=/tmp/v2-shim-root
+```
+
+真实响应 **`[HTTP 200 total=8.238235s]`**：
 
 ```
 code            = 200
 msg             = V2 建图完成 docs=1 chunks=1 facts=3 edges=12
 docs/chunks/sources = 1 / 1 / 1
-triples_total   = 3
-edges_total     = 3        ← 上游 facts
-edges_written   = 12       ← 上游 edges
-snapshot        = /tmp/s1-legacy-shim-20261102/root-es2/snapshot-20261102220217-185597-g0
+triples_total   = 3        ← 上游 facts（事实总数）
+edges_total     = 3        ← 上游 facts，同名不同义：这是「事实数」不是边数
+edges_written   = 12       ← 上游 edges，这才是「图里真实边数」
+snapshot        = /tmp/v2-shim-root/snapshot-20261103000241-588151-g0
 generation      = 0
 es              = {"es_proxy":"http://127.0.0.1:19527",
                    "es_query":{"space_name":"kb_9","col_name":"title",
                                "col_values":["丙-额度分项.docx"]},
-                   "es_docs_used":1,"locator_degraded":1}
+                   "es_docs_used":1,"locator_degraded":0}
 ```
 
-落盘证明降级生效（`sources.json` 里不是 `es:_source`）：
+落盘 `sources.json`（`locator_degraded=0`：扁平 hit 的修复已生效，`es:_source` 与
+`page=[0, 0, 0, 0]` 假页码都消失，且带上了文件标题）：
 
 ```json
-{"chunk-5789841d879302e41a7eaf65ae020f81":[{"file_id":"999010","locator":"file:999010"}]}
+{"chunk-5789841d879302e41a7eaf65ae020f81":[
+  {"file_id":"999010","locator":"page=-;offset=[[0, 66]];chunk=0",
+   "title":"丙-额度分项.docx"}]}
 ```
 
-失败面（同实例、真实 ES）：
+三端点仍如实 501（同一实例实测，均 `upstream_called=false`）：
+
+```
+/generate_community → code=501 "community not wired yet"
+/del_space          → code=501 "delete not wired yet"
+/del_doc_entity     → code=501 "delete not wired yet"
+```
+
+失败面（真实 ES，同链路）：
 
 ```
 不存在的文件名 → {"code":500,"msg":"知识库 kb_9 未查询到可建图文本（ES total=0）", …}
 ```
 
-**语义提醒**：`edges_written(12) > edges_total(3)` —— `facts` 是 LLM 抽的三元组数，
-`edges` 是 HippoRAG 图里的边数（含 passage↔entity 结构边），两者不是同一集合。
-Java 闸门只要求 >0 所以可用；若要做质量闸门需重新定义语义。
+### 5.2 交班前的独立实例复验（19533，已 kill）
+
+19531 当时被一个跑旧代码的实例占用（pid 1188940，探针返回旧版 `data.es_url` 结构），
+为不杀他人进程，曾在 **19533** 起新版本实例复验，验证完已 kill（`ss` 确认无监听）。
+结果与 §5.1 一致（`[HTTP 200 5.339825s]`，`edges_total=3` / `edges_written=12`），
+差异只在当时 `locator_degraded=1`（扁平 hit 修复前的降级生效），落盘为
+`{"file_id":"999010","locator":"file:999010"}`。19527 / 18094 / 19529 全程未启停。
+
+### 5.3 再强调一次字段语义
+
+`edges_total=3`（事实数）与 `edges_written=12`（边数）**不是同一集合，也互不约束**：
+3 条事实扩展成图后有 12 条边（含 passage↔entity 等结构边）。不要读成
+"写入率 = 12/3 或 3/12"，那是误读；Java 闸门只看两者 `>0`。
 
 ## 6. 我没做的部分
 
