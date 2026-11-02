@@ -39,6 +39,7 @@ class BuildDoc(BaseModel):
     file_id: str = Field(min_length=1)
     text: str = Field(min_length=1)
     locator: Optional[str] = None
+    title: Optional[str] = None
 
 
 class BuildRequest(BaseModel):
@@ -95,7 +96,8 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     from .rebuild import rebuild
 
     urls = _urls()
-    live = [{"file_id": d.file_id, "text": d.text, "locator": d.locator} for d in docs]
+    live = [{"file_id": d.file_id, "text": d.text, "locator": d.locator,
+             "title": d.title} for d in docs]
     fence = FenceState()
 
     def full_build(items, target):
@@ -115,7 +117,8 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
         if not idx:
             continue
         sources.setdefault(idx, []).append(
-            {k: v for k, v in (("file_id", item["file_id"]), ("locator", item["locator"])) if v}
+            {k: v for k, v in (("file_id", item["file_id"]), ("locator", item["locator"]),
+                               ("title", item.get("title"))) if v}
         )
     with open(os.path.join(target, "sources.json"), "w", encoding="utf-8") as fh:
         json.dump(sources, fh, ensure_ascii=False, indent=1)

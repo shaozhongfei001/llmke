@@ -116,8 +116,10 @@ def fetch_docs(space_name: str, col_name: Optional[str] = None,
             file_id = _field(meta, "file_id", "fileId", "document_id") or (
                 col_values[0] if col_values else space_name)
             locator = _locator(meta, str(chunk_id))
+            title = _field(meta, "title", "file_name") or (
+                col_values[0] if col_values else None)
             docs.append({"file_id": str(file_id), "text": text,
-                         "locator": locator,
+                         "locator": locator, "title": title,
                          "es_id": str(chunk_id)})
     if not docs:
         return [], f"知识库 {space_name} 未查询到可建图文本（ES total={((body.get('data') or {}).get('total_count'))}）"
