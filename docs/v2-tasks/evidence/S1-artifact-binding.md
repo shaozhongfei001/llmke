@@ -103,6 +103,21 @@ PYTHONPATH=services/rag-alg/index_data_service \
 期望哈希不是调被测模块算的：`expected_content_hash()` 里 spec 字符串与序列化参数是**手写常量**，
 模块改口径它就会失败（防"期望值跟着实现一起漂移"）。
 
+### 4.1 解释器口径与 skip 说明（不把 skip 记成 pass）
+
+本文件用例在**两个**环境都实跑过，结论一致（**30 passed，0 skipped**，无 skip）：
+
+| 环境 | 解释器 | 本文件结果 |
+|---|---|---|
+| v2 环境 | `/home/szf/data/dev/llmke-v2-toolenv/bin/python`（3.10.12，**无 fastapi**） | `30 passed in 0.05s` |
+| 图/兼容层环境 | `/home/szf/data/dev/hipporag-toolenv/bin/python`（3.11.15，fastapi 0.162.0） | `30 passed in 0.04s` |
+
+对照：同一批文件在 v2 环境跑三个文件是 `37 passed, 1 skipped`，skip 的是
+`tests/test_legacy_shim.py` **整个文件**（`could not import 'fastapi': No module named 'fastapi'`）；
+在 hipporag 环境同一命令是 `59 passed`（=30+7+22）。**skip 不等于 pass**，故：
+图/兼容层（含 `test_legacy_shim.py`、`test_graph_api.py`）必须用 hipporag 环境跑，
+纯 normalize 与本文档模块在 v2 环境即可。本模块不依赖 fastapi，因此不受此环境影响。
+
 ## 5. 真实中文 2 块的一次性验证（真实输出）
 
 ```
