@@ -72,3 +72,24 @@ Java 返回（`/qa/ai/retrieveDocs4Plat`，HTTP 200）：
 ```
 
 测试 20 passed。
+
+## title 透传（重建快照后）
+
+`legacy_es` 取 `metadata.title` 后，兼容层转发 `title`；18094 写入 `sources.json`。
+重建 kb_9「丙-额度分项.docx」后：
+
+```json
+{"chunk-5789841d...":[{"file_id":"999010",
+  "locator":"page=-;offset=[[0, 66]];chunk=0",
+  "title":"丙-额度分项.docx"}]}
+```
+
+经 Java `/qa/ai/retrieveDocs4Plat` 复验（HTTP 200，docs=1）：
+
+```json
+{"file_id":999010,
+ "position":{"locator":"page=-;offset=[[0, 66]];chunk=0",
+             "sources":[{"file_id":"999010","locator":"...","title":"丙-额度分项.docx"}]}}
+```
+
+`source` 仍为 null（避免路径解析崩溃）；标题从 `position.sources` 读取。

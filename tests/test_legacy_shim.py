@@ -127,7 +127,7 @@ def test_no_docs_fetches_chunks_from_es_then_forwards(monkeypatch):
     assert sent[0]["locator"] == "page=-;offset=[[0, 66]];chunk=0"    # 全 0 页码不算页
     assert sent[1]["file_id"] == "丙-额度分项.docx"                          # 缺 file_id 兜底
     assert sent[1]["locator"] == "es:chunk-b"                               # 无元数据 → es:<id>
-    assert set(sent[0]) == {"file_id", "text", "locator"}                   # es_id 不进 BuildDoc
+    assert set(sent[0]) == {"file_id", "text", "locator", "title"}                   # es_id 不进 BuildDoc
     assert out["data"]["es"]["es_docs_used"] == 2
 
 

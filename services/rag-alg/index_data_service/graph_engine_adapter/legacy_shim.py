@@ -214,7 +214,8 @@ def _to_build_docs(es_docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]],
             locator = f"file:{file_id}" if file_id else None
         else:
             locator = str(locator)
-        docs.append({"file_id": file_id, "text": text, "locator": locator})
+        docs.append({"file_id": file_id, "text": text, "locator": locator,
+                     "title": item.get("title")})
     return docs, {"locator_degraded": degraded}
 
 
