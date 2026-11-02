@@ -351,6 +351,24 @@ def test_global_only_ships_communities_used_in_answer():
     assert all("999099" not in doc["page_content"] for doc in data["documents_list"])
 
 
+def test_global_no_relevant_facts_is_200_not_501():
+    """能力正常但没命中：必须 200 + 空答案 + reason，不能借 501（未接入）表达。"""
+    upstream = dict(GLOBAL_BODY, reason="NO_RELEVANT_FACTS", answer="", citations=[],
+                    answer_stats={"facts_seen": 3, "facts_emitted": 0,
+                                  "facts_dropped_low_relevance": 3, "query_filtered": True})
+    r, _ = global_call(None, FakeResponse(200, upstream))
+    assert r.status_code == 200
+    body = r.json()
+    assert body["code"] == 200                 # 不是 501，也不是 502
+    assert body["code"] not in (501, 502)
+    data = body["data"]
+    assert data["global_answer"] == ""
+    assert data["documents_list"] == []
+    assert data["reason"] == "NO_RELEVANT_FACTS"   # 原因必须可见
+    assert "no relevant facts" in body["msg"]
+    assert data["answer_stats"]["facts_dropped_low_relevance"] == 3
+
+
 def test_global_without_report_is_501():
     upstream = dict(GLOBAL_BODY, reason="NO_COMMUNITY_REPORT", communities=0,
                     answer="", citations=[], sections=[],
@@ -405,4 +423,6 @@ def test_health_reports_global_wired_with_upstream_endpoint():
     assert g["upstream_endpoint"] == "/v2/graph/global"
     # 不可用条件仍要写清楚，别让 wired=true 被读成"永远有答案"
     assert set(g["unavailable_when"]) == {"NO_COMMUNITY_REPORT", "NO_COMMUNITIES",
-                                          "CITATION_INVALID"}
+                                          "CITATION_INVALID", "NO_RELEVANT_FACTS"}
+    # 未命中不是"未接入"：自述里必须写明它回 200 而不是 501
+    assert "200" in g["unavailable_when"]["NO_RELEVANT_FACTS"]

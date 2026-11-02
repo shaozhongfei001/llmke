@@ -13,12 +13,12 @@ TL 裁决：保留「我的实现 + TL 叠加的 Java 字段映射」的合并�
 |---|---|
 | `services/rag-alg/index_data_service/graph_engine_adapter/global_report.py`（新增） | `fc09a13d3956fd12bfdca1ef92bfdbe5` |
 | `services/rag-alg/index_data_service/graph_engine_adapter/api.py`（改） | `7f817beef6710ba8221d3a25c79bd275` |
-| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`（改） | `5269e6e549807d092f58cdf87448676f` |
+| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`（改） | `915ed6edd00ad6f61e2c0b897dc0ac97` |
 | `tests/test_graph_global.py`（新增） | `d4ca15d13d3052d863dd0398007dd737` |
-| `tests/test_retrieval_shim.py`（改） | `b386528cd5452e2b79b5ac205a712c9b` |
+| `tests/test_retrieval_shim.py`（改） | `7df1f25cbc10299e036708ec3ebfbc34` |
 
-测试：`test_graph_global.py 15 passed` / `test_retrieval_shim.py 28 passed` /
-`test_graph_api.py 10 passed`（合计 53；`read_lints` 无告警）。
+测试：`test_graph_global.py 15 passed` / `test_retrieval_shim.py 29 passed` /
+`test_graph_api.py 10 passed`（合计 54；`read_lints` 无告警）。
 18094 与 19532 均已重启为新代码（见 §7.4），19995 / 19531 / 19527 未启停。
 
 历史（供追溯，别再据此判断现状）：22:45–22:50 期间同一路径与同一端口曾被另一个 agent 会话
@@ -584,7 +584,7 @@ route / search_type / 引用都对，是社区粒度粗 + 无事实级截断导�
 
 ```
 BEFORE  HTTP 200 0.2275s  393 字  含"集团客户"=True  含"20亿"=True   reference 0（F003 非数字 id）
-AFTER   HTTP 200 0.1664s  137 字  含"集团客户"=False 含"20亿"=False  含"利率"=False
+AFTER   HTTP 200 0.1664s（复跑 0.1518s）  137 字  含"集团客户"=False 含"20亿"=False  含"利率"=False
         content[:80] = - 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）
                        | - 授信审批权限管理办法 规定 单笔授信一亿元至五亿元由分行授…
 ```
@@ -599,12 +599,42 @@ AFTER   HTTP 200 0.1664s  137 字  含"集团客户"=False 含"20亿"=False  含
 
 即：22 条候选里发出 3 条，19 条被相关性阈值挡掉并**计数上报**，没有静默丢弃。
 
+**shim 侧的语义分层（按 TL 指示，不混用业务码）**：
+
+| 情形 | 码 | 含义 |
+|---|---|---|
+| 报告缺失 / 未接线 | 501 | 能力未接入 |
+| 报告里 0 个社区 | 501 | 同上（沿用 D4 已批口径） |
+| 引用校验不过 | 502 | 上游给出的结论不可信 |
+| **能力正常但该问句没命中** | **200** | `global_answer=""` + `reason="NO_RELEVANT_FACTS"` |
+| 上游 HTTP 异常 / 不可达 | 502 | 上游故障 |
+
+真实响应（`POST 19532/retrieval_documents_global`，问句与语料零重合）：
+
+```
+[HTTP 200, 0.003491s]
+{"code":200,"msg":"no relevant facts for query","data":{
+  "faq_result_list":[],"database_documents":[],"documents_list":[],"web_documents_list":[],
+  "log_list":[],"global_answer":"","reason":"NO_RELEVANT_FACTS",
+  "answer_stats":{"communities_used":0,"facts_seen":22,"facts_emitted":0,
+                  "facts_dropped_low_relevance":22,"min_fact_hits":3,"query_filtered":true}}}
+```
+
+**`query` 为空时行为不变**（同一实例、同一快照，18094 直连）：
+
+```
+POST /v2/graph/global {"query":"","max_communities":3}  → [HTTP 200, 0.001478s]
+lines=14  facts_emitted=14  facts_seen=14  facts_dropped_low_relevance=0
+query_filtered=false  reason=null
+```
+
+即：只要不给 query，就与改动前完全一致（全部事实、不裁剪、不重排），不会出现"无 query 全空"。
+
 **仍存在的代价（不要当成"质量已解决"）**：
 - 字面二元组对同义改写不友好，阈值偏严会掉相关但不直接作答的条款（本例
-  "审批权限不得转授权" 1 分被滤掉）；
+  "审批权限不得转授权" 1 分被滤掉，TL 已确认可接受）；
 - 只做排序+截断，不做语义重排，也不引入 rerank 模型（按 TL 要求不引入模型调用）；
-- `NO_RELEVANT_FACTS` 目前在 shim 侧落到通用 502 分支（"上游 global 未给出可用结果"），
-  本轮边界不含 shim，若要更精确的 501 文案需另批 2 行改动。
+- `community.json` 仍是完整事实（不裁剪），所以报告文件体积不变，只影响答案。
 
 ### 8.2 合成语料的非数字 `file_id` 会让 Java 引用字段为空
 

@@ -67,10 +67,13 @@ sources_available}`。
 - 不产出 `faq_result_list` / `database_documents` / `web_documents_list`（恒为 `[]`）。
 - **`/retrieval_documents_global` 转发到 18094 `/v2/graph/global`**（读建图时落盘的
   `community.json`）：答案只由社区事实拼装、每行带来源，`data.global_answer` 给 Java
-  （`RetrievedData.getGlobalAnswer:62-63`）。不可用时如实给业务码：
-  无 `community.json` → 501 `global not ready: community report not wired`；
+  （`RetrievedData.getGlobalAnswer:62-63`）。        不可用时如实给业务码，且**按语义分开**，不混用：
+  无 `community.json` → 501 `global not ready: community report not wired`（能力未接入）；
   报告里 0 个社区 → 501 `global not ready: no communities in snapshot`；
-  引用校验不过 → 502（不给无来源结论）。请求里 `enabled_graph=false` 时先回 400。
+  引用校验不过 → 502（不给无来源结论）；
+  **能力正常但该问句没命中** → **200** + `global_answer=""` + `reason="NO_RELEVANT_FACTS"`
+  （501 表示"没接入"，这里的语义是"接了但没命中"，混用会让评审误判）。
+  请求里 `enabled_graph=false` 时先回 400。
 
 ## 环境变量
 
@@ -346,9 +349,10 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
                 "upstream_endpoint": "/v2/graph/global",
                 "report": "快照内 community.json（建图时生成）",
                 "unavailable_when": {
-                    "NO_COMMUNITY_REPORT": "该快照没有 community.json → 501",
+                    "NO_COMMUNITY_REPORT": "该快照没有 community.json → 501（能力未接入）",
                     "NO_COMMUNITIES": "报告里没有社区 → 501",
                     "CITATION_INVALID": "引用校验不过 → 502（不给无来源结论）",
+                    "NO_RELEVANT_FACTS": "能力正常、该问句没命中 → **200** + 空答案 + reason",
                 },
                 "why": "答案只由社区事实拼装并逐条带来源；任何一条引用回不到真实文件就不出答案",
             },
@@ -491,6 +495,21 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         if reason == "CITATION_INVALID":
             return _resp(502, "global citation check failed: 结论里存在无法回到真实来源的引用，"
                               "不交给调用方使用")
+        if reason == "NO_RELEVANT_FACTS":
+            # 能力是通的、只是这条问句没命中相关事实：**不能**借 501（未接入）表达，也不是 502
+            # （上游异常）。按 legacy 习惯回 200 + 空答案 + 原因，让调用方自己决定是否降级。
+            return _resp(200, "no relevant facts for query", data={
+                "faq_result_list": [],
+                "database_documents": [],
+                "documents_list": [],
+                "web_documents_list": [],
+                "log_list": [],
+                "global_answer": "",
+                "reason": reason,
+                "communities": upstream.get("communities"),
+                "citation_check": upstream.get("citation_check"),
+                "answer_stats": upstream.get("answer_stats"),
+            })
         if reason in GLOBAL_REASON_MSG:
             return _resp(501, GLOBAL_REASON_MSG[reason], data=None)
         if reason:
