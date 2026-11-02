@@ -117,3 +117,20 @@ global reduce 分支的 reference 改为三级回落：
   CSS 方案只能保证“手动滚到中间后可点”，**不能修复自动定位**。
 - 真实鼠标：手动滚动后 hit-test 命中按钮、点击可开面板；但“出答案即可见可点”未达成。
 - 结论：需要 JS 在流式结束后把最新消息滚到可视区（或改 vendor 布局），属前端逻辑修复，非 CSS。
+
+## 追加：自动滚动修复后，生产包点引用通过（2026-11-03 05:50）
+
+改动：`AIChat/index.tsx` 加 `shellRef` + MutationObserver（600ms 去抖），
+流式结束后找最新一条含「知识溯源」的动作行，`scrollIntoView({block:"center"})`。
+
+生产 dist（重建 3m14s）实测，同一 global 问句，**无需手动滚动**：
+```
+答案 y=160（视口可见区 111~441）
+知识溯源 y=321
+elementFromPoint 命中按钮 = true
+真实鼠标 click → 右侧「知识溯源」面板打开（知识库文档 1 条）
+```
+dev 与 18088 生产静态包结果一致。
+
+仍未闭环：抽屉条目仍显示“未知文档”（global reference 无 title/locator），
+点条目无法定位原文；需在检索侧补 title/locator 或由前端用 file_id 回查。

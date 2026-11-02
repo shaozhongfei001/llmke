@@ -12,7 +12,7 @@ import {
   TempBaseUrl,
   useAppPassport
 } from "@root/src/core/helps";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ConfigProvider, Drawer, message } from "antd";
 import { DeleteModal } from "./components/DeleteModal";
 import SdqaDrawer from "@root/src/components/SdqaDrawer";
@@ -123,6 +123,7 @@ const mockSenderConfig = {
 };
 
 const ChatPage = () => {
+  const shellRef = useRef<HTMLDivElement>(null);
   const { getToken } = useAppPassport();
   const token: any = getToken();
   const AI_CHAT = useMemo(() => {
@@ -239,6 +240,38 @@ const ChatPage = () => {
     setGlobalMode(readGlobalMode());
     const release = installGlobalModeFetchPatch();
     return release;
+  }, []);
+
+  // 流式结束后把最新一条消息（含“知识溯源”动作行）滚到可视区中间。
+  // vendor 的消息列表是 rotate(180deg) 的反向滚动容器，且只给底部留 20px，
+  // 实测新答案会落在 sticky 头部/输入区下面，用户看不到也点不到引用。
+  useEffect(() => {
+    const root = shellRef.current;
+    if (!root) return;
+    let timer: number | undefined;
+    let lastKey = "";
+    const scrollLatest = () => {
+      const sc = root.querySelector('[style*="overflow-y: scroll"]');
+      if (!sc) return;
+      const buttons = Array.from(sc.querySelectorAll("button")).filter(b =>
+        (b.textContent || "").includes("知识溯源")
+      ) as HTMLElement[];
+      const target = buttons[buttons.length - 1];
+      if (!target) return;
+      const key = (target.parentElement?.parentElement?.textContent || "").slice(0, 80);
+      if (!key || key === lastKey) return;
+      lastKey = key;
+      target.scrollIntoView({ block: "center" });
+    };
+    const observer = new MutationObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(scrollLatest, 600);
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const handleSd = (type: string, data?: any) => {
@@ -516,7 +549,7 @@ const ChatPage = () => {
             GraphRAG 全局
           </div>
         )}
-        <div className="h-full v2-chat-shell">{renderAIChat}</div>
+        <div ref={shellRef} className="h-full v2-chat-shell">{renderAIChat}</div>
       </div>
       <RenameModal
         isModalOpen={isRenameModalOpen}
