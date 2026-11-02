@@ -369,6 +369,21 @@ def test_global_no_relevant_facts_is_200_not_501():
     assert data["answer_stats"]["facts_dropped_low_relevance"] == 3
 
 
+def test_global_upstream_without_usable_facts_is_200_not_501():
+    """上游没给 reason、但答案/事实为空：同样按"没命中"处理成 200，不许退回 501。"""
+    upstream = dict(GLOBAL_BODY, reason=None, answer="", citations=[], used_communities=[],
+                    sections=[], answer_stats={"facts_seen": 4, "facts_emitted": 0})
+    r, _ = global_call(None, FakeResponse(200, upstream))
+    body = r.json()
+    assert body["code"] == 200
+    assert body["code"] != 501
+    assert body["msg"] == "no relevant facts for query"
+    data = body["data"]
+    assert data["global_answer"] == "" and data["documents_list"] == []
+    assert data["reason"] == "NO_RELEVANT_FACTS"
+    assert data["answer_stats"]["facts_emitted"] == 0
+
+
 def test_global_without_report_is_501():
     upstream = dict(GLOBAL_BODY, reason="NO_COMMUNITY_REPORT", communities=0,
                     answer="", citations=[], sections=[],

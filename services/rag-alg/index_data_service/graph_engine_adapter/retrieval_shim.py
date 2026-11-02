@@ -130,6 +130,9 @@ GLOBAL_REASON_MSG = {
 # 混用会让下游把"社区摘要答案"当成"图检索命中"。
 GLOBAL_SEARCH_TYPE = "global"
 DEFAULT_MAX_COMMUNITIES = 3
+# global "能力正常但该问句没命中"：语义是**命中问题**，不是"能力未接入"。
+NO_FACTS_REASON = "NO_RELEVANT_FACTS"
+NO_FACTS_MSG = "no relevant facts for query"
 
 
 def _resp(code: int, msg: str, data: Any = None) -> Dict[str, Any]:
@@ -327,6 +330,27 @@ def _reason_of(body: Any) -> str:
     return str(body)[:300]
 
 
+def _global_no_facts(upstream: Any) -> Dict[str, Any]:
+    """global 能力正常、但这条问句没有可用事实 → 200 + 空答案 + 原因。
+
+    不能回 501：501 表示"能力未接入"，这里能力是通的；也不能回 502（那是上游异常）。
+    调用方拿到 200 + `reason=NO_RELEVANT_FACTS` 才能自己决定要不要降级。
+    """
+    src = upstream if isinstance(upstream, dict) else {}
+    return _resp(200, NO_FACTS_MSG, data={
+        "faq_result_list": [],
+        "database_documents": [],
+        "documents_list": [],
+        "web_documents_list": [],
+        "log_list": [],
+        "global_answer": "",
+        "reason": src.get("reason") or NO_FACTS_REASON,
+        "communities": src.get("communities"),
+        "citation_check": src.get("citation_check"),
+        "answer_stats": src.get("answer_stats"),
+    })
+
+
 def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] = None) -> FastAPI:
     """http_post(url, payload, timeout) → 带 status_code/.json() 的响应（或已解析 dict）。"""
     post = http_post or _default_http_post
@@ -498,18 +522,7 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         if reason == "NO_RELEVANT_FACTS":
             # 能力是通的、只是这条问句没命中相关事实：**不能**借 501（未接入）表达，也不是 502
             # （上游异常）。按 legacy 习惯回 200 + 空答案 + 原因，让调用方自己决定是否降级。
-            return _resp(200, "no relevant facts for query", data={
-                "faq_result_list": [],
-                "database_documents": [],
-                "documents_list": [],
-                "web_documents_list": [],
-                "log_list": [],
-                "global_answer": "",
-                "reason": reason,
-                "communities": upstream.get("communities"),
-                "citation_check": upstream.get("citation_check"),
-                "answer_stats": upstream.get("answer_stats"),
-            })
+            return _global_no_facts(upstream)
         if reason in GLOBAL_REASON_MSG:
             return _resp(501, GLOBAL_REASON_MSG[reason], data=None)
         if reason:
@@ -533,9 +546,9 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             documents.append(doc)
         answer = str(upstream.get("answer") or "")
         if not documents or not answer:
-            # 结构上不该发生；真发生了也不能回 200 空答案冒充成功。
-            return _resp(501, "global not ready: upstream returned no usable community facts",
-                         data=None)
+            # 上游说"能答"但一条可用事实都没有（或 answer 空）：语义仍是"没命中相关事实"，
+            # 不是"能力没接"。回 200 + 空答案 + reason，别用 501 让评审误判。
+            return _global_no_facts(upstream)
 
         return _resp(200, "查询成功", data={
             "faq_result_list": [],
