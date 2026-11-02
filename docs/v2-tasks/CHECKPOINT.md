@@ -58,3 +58,16 @@
 - sources.json 含 `{"file_id":"999016","locator":"page=-;offset=[[0, 459]];chunk=0"}`。
 - 证据：`docs/v2-tasks/evidence/S2-product-build-path.md`。
 - 下一步：查询/答案链路（qa-service / 前端）仍走 legacy，需要接 18094 并让引用可点开。
+
+## S3（2026-11-02 22:50 起）
+
+目标：问答检索从 legacy 19995 切到 HippoRAG。
+
+- Java qa-service 配置：`rag-qa-service.application-r12.yml:50 retrieve-url: http://127.0.0.1:19995`，
+  Feign `POST /retrieval_documents`；响应形状见 `alg_retrieval_service/app/retrieval_service.py:577`
+  （faq_result_list / database_documents / documents_list / web_documents_list / log_list）。
+- 计划：
+  1) 新增 `graph_engine_adapter/retrieval_shim.py` 实现同路径，内部调 18094 /v2/graph/query；
+  2) 只停 19995 上的 legacy 检索进程（不动 19526/19527/19996），用 shim 顶 19995；
+  3) 用 qa-service 真实问答请求验证 documents_list 走 GRAPH。
+- 约束：executed_route 必须透传；DENSE_FALLBACK 不能标成图检索。
