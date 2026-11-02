@@ -106,3 +106,15 @@
 - 基线：r12 `make framework-test` 为 20 failed / 286 passed / 44 skipped，20 个失败在
   HEAD 干净工作树同样复现（契约工具链/安全扫描/旧回归），与本次无关。
 - **未做**：真实入库/图库端到端（W 项）；未 push；未改本体契约。
+
+## Java global 端到端（2026-11-03 01:20）
+
+- 配置：`application-r12.yml` 增 `search-docs-global-url: http://127.0.0.1:19532/retrieval_documents_global`
+  （备份 .bak-20261102，未入 git）；仅重启 rag-qa-service（pid 1685670，:18083）。
+- 复验命令：`POST :18083/qa/ai/question`（X-UserID:5 / X-UserName:r13_reader，
+  sessionId/queryId/type=1、configId=8、globalMode=true）→ SSE 200。
+  answer 393 字符、逐条带来源；reference 5 条，metadata `search_type=["global"]`、`community="c-3"`。
+- 限制：合成语料 `file_id=F003` 非数字，Java DTO `Long` 收不到（生产数字 ID 正常）；
+  answer 会把所用社区内与问题无关的事实一并列出（实测问授信却带出集团客户条款），
+  属社区粒度/选取质量问题，非链路不通。
+- B01 收尾证据：llmke-r12 `100e261`（仅 1 文档，88 行），原修复 `0bac08a` 未改写。
