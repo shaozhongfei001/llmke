@@ -26,9 +26,9 @@ tasks:
     owner: TL
     depends_on: [T-V2-01]
     state: DOING
-    next_action: "图路由已真实执行（rerank 兜底修复）；下一步：暴露 HTTP 建图/查询边界并接产品"
+    next_action: "建图/查询/引用已通 HTTP；下一步：产品 Java/前端从 legacy 切到该服务"
     acceptance: []
-    evidence: "docs/v2-tasks/evidence/VL1-graph-route-20261102.log"
+    evidence: "docs/v2-tasks/evidence/VL1-build-and-cite-20261102.log"
     blocker: ""
     artifacts: []
 

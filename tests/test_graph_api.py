@@ -74,3 +74,48 @@ def test_query_without_sources_must_not_fake_citations():
 
 def test_empty_query_is_rejected():
     assert client().post("/v2/graph/query", json={"query": ""}).status_code == 422
+
+
+def test_build_delegates_and_returns_snapshot(tmp_path):
+    seen = {}
+
+    def builder(docs, root):
+        seen["docs"] = docs
+        seen["root"] = root
+        return {"snapshot": str(tmp_path), "chunks": len(docs), "sources": 1}
+
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(), builder=builder))
+    r = c.post("/v2/graph/build", json={"docs": [{"file_id": "f1", "text": "正文"}],
+                                        "root": str(tmp_path)})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["status"] == "BUILT" and d["chunks"] == 1
+    assert seen["docs"][0].file_id == "f1"
+
+
+def test_build_failure_returns_reason_not_silent(tmp_path):
+    def boom(docs, root):
+        raise RuntimeError("llm down")
+
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(), builder=boom))
+    r = c.post("/v2/graph/build", json={"docs": [{"file_id": "f1", "text": "正文"}]})
+    assert r.status_code == 500
+    assert "llm down" in r.json()["detail"]
+
+
+def test_query_attaches_sources_when_snapshot_has_mapping(tmp_path):
+    (tmp_path / "sources.json").write_text(
+        '{"c1": [{"file_id": "333", "locator": "p1"}]}', encoding="utf-8")
+
+    class EngineWithSources(FakeEngine):
+        save_dir = str(tmp_path)
+
+        def openie_docs(self):
+            return [{"idx": "c1", "passage": "块一", "extracted_triples": [["a", "r", "b"]]}]
+
+    c = TestClient(create_app(engine_factory=lambda: EngineWithSources()))
+    d = c.post("/v2/graph/query", json={"query": "x", "top_k": 2}).json()
+    assert d["sources_available"] is True
+    assert d["docs"][0]["idx"] == "c1"
+    assert d["citations"][0]["file_id"] == "333"
+    assert d["docs"][1]["sources"] == []          # 没映射的块不硬凑来源
