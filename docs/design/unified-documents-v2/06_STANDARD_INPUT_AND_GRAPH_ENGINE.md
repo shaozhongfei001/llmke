@@ -123,6 +123,27 @@ Python库内部调用和HTTP worker可以共享此语义；本合同不强制引
 5. `executed_route=GRAPH`须有实际图执行trace；普通查询允许明确的DENSE_FALLBACK，强制图验收查询不能以回退通过。
 6. 私有序列化产物仅来自受信构建，不接收上传文件充当引擎索引；平台公共资产不使用pickle作为交换规范。
 
+### 6.1 实施状态（2026-11-03）
+
+第 4 条的能力边界仍然成立，但接线状态已变化，按实际写：
+
+- **已接线**：建图完成后由快照的 OpenIE 结果 + `sources.json` 建断言层，生成 `community.json`
+  （社区成员、代表事实、来源、逐条引用校验）；`POST /v2/graph/global` 返回
+  `answer + citations + citation_check`；19532 的 `/retrieval_documents_global` 转发该端点，
+  `health.community` 暴露社区数与引用失效数。
+- **实测**：12 篇语料两次建图分别 68 / 72 条事实 → 33 / 34 个社区，引用失效 0；
+  `/v2/graph/global` 与 shim 均 200，答案逐条带来源；反例（删 `sources.json`、
+  换成幽灵 `file_id`）分别返回 `SOURCES_MISSING` / `CITATION_INVALID` 且答案为空。
+- **不宣称**：
+  1. 不做自然语言综合——`answer` 只逐条拼装报告里带来源的事实，避免无来源结论；
+  2. 相关社区选择用字符二元组重合度，不是语义排序；
+  3. 同一快照重复生成逐字节可复现；两次同输入建图因上游 LLM 抽取 68/72 波动，
+     端到端不可复现；
+  4. Java 侧只有 `/qa/ai/question` 有 global 分支，`retrieveDocs4Plat` 没有；
+  5. `generate_community`、`del_space`、`del_doc_entity` 仍为 501（未接，不用假 200 顶替）。
+
+结论：可以说“社区报告已接到 HTTP 并可被 shim 消费”，不能说“global 回答质量/跨机确定性已验证”。
+
 ## 7. 换引擎的判据与成本边界
 
 - 从同一KnowledgeInputBundle重放，不重跑doc2md；只有源解析变化才重解析。

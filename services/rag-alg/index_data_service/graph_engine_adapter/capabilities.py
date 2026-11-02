@@ -80,8 +80,13 @@ CAPABILITIES = {
     "community_report": {
         "status": "VERIFIED",
         "note": "社区/global 只消费经校验的标准事实导出（断言层），确定性标签传播，"
-                "报告引用逐条校验；真实语料 29 事实→5 社区、0 失效引用；叙述为可选步骤且带来源",
-        "evidence": "docs/design/unified-documents-v2/EVIDENCE-COMMUNITY-REPORT-20261031.md",
+                "报告引用逐条校验；真实语料 29 事实→5 社区、0 失效引用。"
+                "已接线到 HTTP：建图后写 community.json，POST /v2/graph/global 返回 answer+citations，"
+                "19532 /retrieval_documents_global 转发；12 篇语料 68/72 事实→33/34 社区、引用 0 失效。"
+                "限制：answer 只逐条拼装带来源事实，不做自然语言综合；相关社区用字符二元组重合度；"
+                "同一快照报告逐字节可复现，但端到端因上游 LLM 抽取非确定（68/72）不可复现",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-COMMUNITY-REPORT-20261031.md；"
+                    "docs/v2-tasks/evidence/S3-retrieval-shim.md",
     },
     "platform_assertion_layer": {
         "status": "VERIFIED",

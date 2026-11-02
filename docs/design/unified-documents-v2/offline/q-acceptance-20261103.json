@@ -1,0 +1,891 @@
+{
+ "schema": "llmke.q-acceptance.v1",
+ "summary": {
+  "PASS": 53,
+  "FAIL": 1,
+  "SKIP": 4,
+  "NOT_IMPLEMENTED": 1
+ },
+ "verdict": "FAIL",
+ "note": "NOT_IMPLEMENTED 表示能力未建，不计入 PASS，也不等于通过",
+ "payload_bootstrap": {
+  "payloads": [
+   "/tmp/ingest-333.json",
+   "/tmp/ingest-329.json"
+  ]
+ },
+ "resume": {
+  "resumed_functions": []
+ },
+ "results": [
+  {
+   "item": "infra:es_19200",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:es_proxy_19527",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:minio_19000",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:parse_12340",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:index_18082",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:milvus_19630",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "infra:mysql_13306",
+   "status": "PASS",
+   "evidence": "reachable",
+   "boundary": null
+  },
+  {
+   "item": "legacy:kb_9:333",
+   "status": "PASS",
+   "evidence": {
+    "docs": 1,
+    "distinct_source": 1,
+    "chunk_index": [
+     0
+    ]
+   },
+   "boundary": null
+  },
+  {
+   "item": "legacy:table_chunks_kb_9:333",
+   "status": "PASS",
+   "evidence": {
+    "docs": 1,
+    "distinct_source": 1,
+    "chunk_index": [
+     1
+    ]
+   },
+   "boundary": "chunk_index 起点=1（legacy 既有编号，不要求从 0）"
+  },
+  {
+   "item": "legacy:kb_9:329",
+   "status": "PASS",
+   "evidence": {
+    "docs": 0,
+    "distinct_source": 0,
+    "chunk_index": []
+   },
+   "boundary": "xlsx 只走表格通道（实测）"
+  },
+  {
+   "item": "legacy:table_chunks_kb_9:329",
+   "status": "PASS",
+   "evidence": {
+    "docs": 1,
+    "distinct_source": 1,
+    "chunk_index": [
+     0
+    ]
+   },
+   "boundary": "chunk_index 起点=0（legacy 既有编号，不要求从 0）"
+  },
+  {
+   "item": "mapping:same_text_multi_source",
+   "status": "PASS",
+   "evidence": {
+    "stats": {
+     "units": 2,
+     "engine_chunks": 1,
+     "shared_chunks": 1,
+     "max_sources_per_chunk": 2
+    },
+    "sources": [
+     "333",
+     "334"
+    ]
+   },
+   "boundary": null
+  },
+  {
+   "item": "mapping:delete_one_keep_rest",
+   "status": "PASS",
+   "evidence": {
+    "remaining": [
+     "334"
+    ]
+   },
+   "boundary": null
+  },
+  {
+   "item": "graph:describe",
+   "status": "PASS",
+   "evidence": {
+    "counts": {
+     "NOT_IMPLEMENTED": 0,
+     "VERIFIED": 18,
+     "NOT_VERIFIED": 2
+    },
+    "graph_route": "NOT_VERIFIED"
+   },
+   "boundary": null
+  },
+  {
+   "item": "graph:检索编排不变量",
+   "status": "PASS",
+   "evidence": {
+    "graph": "GRAPH",
+    "fallback": "NO_SEED_ENTITY",
+    "forced_passed": false,
+    "invalid": 1
+   },
+   "boundary": "编排层（假 retriever）；真实引擎接线未做"
+  },
+  {
+   "item": "mineru:config",
+   "status": "PASS",
+   "evidence": {
+    "models_dir": "/home/szf/magic-pdf-models/PDF-Extract-Kit-1.0/models",
+    "device": "cpu",
+    "formula": true
+   },
+   "boundary": null
+  },
+  {
+   "item": "mineru:weights_root",
+   "status": "PASS",
+   "evidence": {
+    "path": "/home/szf/magic-pdf-models/PDF-Extract-Kit-1.0/models"
+   },
+   "boundary": null
+  },
+  {
+   "item": "biz:同谓词双向不误合并",
+   "status": "PASS",
+   "evidence": {
+    "forward": true,
+    "reverse": false
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:加/减/零调整，总额与分项一致",
+   "status": "PASS",
+   "evidence": {
+    "total": 9500,
+    "components": 3
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:多文件别名与同名异体",
+   "status": "PASS",
+   "evidence": {
+    "alias": "甲产品->p1",
+    "homonym_ids": [
+     "x1",
+     "x2"
+    ]
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:同事实多来源删一保留",
+   "status": "PASS",
+   "evidence": {
+    "after_first_delete": 1
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:合法孤点",
+   "status": "PASS",
+   "evidence": {
+    "route": "SEEDS_WITHOUT_ASSERTIONS"
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:新旧政策有效版本",
+   "status": "PASS",
+   "evidence": {
+    "as_of_0315": 5000,
+    "as_of_1031": 8000
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:不可见文件变化不污染可见构建",
+   "status": "PASS",
+   "evidence": {
+    "visible_before": 8000,
+    "visible_after": 8000
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "biz:图禁用/无种子时路线准确",
+   "status": "PASS",
+   "evidence": {
+    "disabled": "GRAPH_DISABLED",
+    "no_seed": "NO_SEED_ENTITY"
+   },
+   "boundary": "语义层（构造数据）；端到端未做"
+  },
+  {
+   "item": "graph:撤权 fence",
+   "status": "PASS",
+   "evidence": {
+    "dropped": [
+     {
+      "text": "旧内容",
+      "sources": [
+       "999"
+      ],
+      "reason": "ALL_SOURCES_REVOKED"
+     }
+    ],
+    "stale_blocked": true,
+    "generation": 1
+   },
+   "boundary": "平台侧 fence（先验索引代次再过滤）；引擎侧增量删除仍未实现，首版靠隔离快照全量重建"
+  },
+  {
+   "item": "graph:隔离重建（撤权→重建→切读）",
+   "status": "PASS",
+   "evidence": {
+    "generation": 1,
+    "chunks": 3,
+    "revoked_text_leaked": [],
+    "stale_blocked": true,
+    "fresh_allowed": true
+   },
+   "boundary": "真实引擎重建；引擎侧按文档删除图产物仍未实现，删文档走重建路径"
+  },
+  {
+   "item": "graph:重建窗口并发",
+   "status": "PASS",
+   "evidence": {
+    "failure_case": {
+     "rebuild_failed": true,
+     "pointer_unchanged": true,
+     "pointer_generation": 0,
+     "fence_generation": 1,
+     "reader_allowed": false
+    },
+    "during": {
+     "blocked": 787,
+     "allowed": 0
+    },
+    "after_allowed": true
+   },
+   "boundary": "真实引擎重建 + 线程采样；只覆盖单进程读者，多进程/多实例未测"
+  },
+  {
+   "item": "graph:写并发与多读者一致性",
+   "status": "PASS",
+   "evidence": {
+    "write_first_stale": true,
+    "write_missing": [
+     "340"
+    ],
+    "readers_blocked": [
+     1059,
+     1060,
+     1061,
+     1061
+    ],
+    "readers_allowed": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "final_generation": 1
+   },
+   "boundary": "单机多进程读者；跨机器多实例与真实库规模窗口未测；窗口被 sleep 延长以便采样"
+  },
+  {
+   "item": "graph:重建合并",
+   "status": "PASS",
+   "evidence": {
+    "first_requests": 3,
+    "second_requests": 1,
+    "builds": 2,
+    "documents": 5,
+    "expected": 5
+   },
+   "boundary": "单进程协调器；多实例需外部协调（未做），失败重试/积压上限未做"
+  },
+  {
+   "item": "graph:重建退避与背压",
+   "status": "PASS",
+   "evidence": {
+    "rejected": "BACKPRESSURE",
+    "delays": [
+     1.0,
+     2.0,
+     4.0
+    ],
+    "alerts": 1,
+    "pending_kept": 2
+   },
+   "boundary": "进程内协调器逻辑；真实告警通道、定时调度、多实例协调未接"
+  },
+  {
+   "item": "graph:重建调度器",
+   "status": "PASS",
+   "evidence": {
+    "builds": [
+     5,
+     5
+    ],
+    "stopped": true,
+    "no_build_after_stop": true,
+    "debounce_waits": 2,
+    "documents": 5
+   },
+   "boundary": "单进程后台线程；多实例/进程守护/监控接入未做"
+  },
+  {
+   "item": "graph:多实例租约",
+   "status": "PASS",
+   "evidence": {
+    "builds": {
+     "A": 0,
+     "B": 1
+    },
+    "not_leader": {
+     "A": 104,
+     "B": 0
+    },
+    "skipped_fresh": {
+     "A": 0,
+     "B": 0
+    },
+    "fencing": {
+     "A": null,
+     "B": 1
+    },
+    "stale_write_blocked": {
+     "A": null,
+     "B": true
+    }
+   },
+   "boundary": "单机双进程 + 文件租约；跨机需共享存储，两端时钟漂移会带来短暂双主（重建本身幂等）"
+  },
+  {
+   "item": "graph:MySQL 租约（跨机）",
+   "status": "PASS",
+   "evidence": {
+    "builds": {
+     "A": 0,
+     "B": 1
+    },
+    "fencing": {
+     "A": 2,
+     "B": 1
+    },
+    "not_leader": {
+     "A": 136,
+     "B": 0
+    },
+    "lease_key": "q-lease-1793639278"
+   },
+   "boundary": "隔离库 gienrag_v2_restore + 表 v2_rebuild_lease；未做断网/主从切换下的租约行为"
+  },
+  {
+   "item": "graph:租约故障可见性",
+   "status": "PASS",
+   "evidence": {
+    "builds": 0,
+    "lease_errors": 5,
+    "alert_kinds": [
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE"
+    ],
+    "alerts_sent": 5,
+    "thread_stopped": true,
+    "schema_error": "OperationalError: (2003, \"Can't connect to MySQL server on '"
+   },
+   "boundary": "用 127.0.0.1:1 制造连接拒绝；未测「连上但查询超时」与锁等待"
+  },
+  {
+   "item": "graph:租约卡住型故障超时",
+   "status": "PASS",
+   "evidence": {
+    "builds": 0,
+    "lease_errors": 3,
+    "alert_kinds": [
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE",
+     "LEASE_UNAVAILABLE"
+    ],
+    "elapsed_s": 35.7,
+    "connections_accepted": 5,
+    "read_timeout_s": 2
+   },
+   "boundary": "对端只 accept 不回包；read_timeout=2s。未测真实 MySQL 的锁等待(50s)场景"
+  },
+  {
+   "item": "graph:指标导出与告警通道",
+   "status": "PASS",
+   "evidence": {
+    "metrics_lines": 66,
+    "metrics_series": 22,
+    "content_type": "text/plain; version=0.0.4; charset=utf-8",
+    "webhook": {
+     "sent": 2,
+     "failed": 1,
+     "attempts": 5,
+     "deduped": 0,
+     "last_error": "HTTP 500: HTTP Error 500: Internal Server Error",
+     "last_status": 500,
+     "url": "http://127.0.0.1:37457/hook",
+     "retries": 2,
+     "dedupe_window_s": 0
+    },
+    "http_requests_received": 5,
+    "problems": []
+   },
+   "boundary": "本地 HTTP 服务器；未接真实企业微信/钉钉网关，未验签名与鉴权"
+  },
+  {
+   "item": "graph:增量重建（删+增）",
+   "status": "PASS",
+   "evidence": {
+    "full_s": 28.6,
+    "delta_s": 3.2,
+    "speedup_x": 8.8,
+    "apply": {
+     "schema": "llmke.graph-engine.hipporag.v1",
+     "deleted": 3,
+     "added": 1,
+     "reused": 2,
+     "duplicates": 0,
+     "remaining": 3,
+     "expected": 3,
+     "consistent": true
+    },
+    "openie": {
+     "base": 5,
+     "after": 3,
+     "expected": 3
+    },
+    "pointer_mode": "DELTA",
+    "deleted_still_present": [],
+    "problems": []
+   },
+   "boundary": "真跑 5 块语料；未测检索质量变化（需重排模型，波动大）"
+  },
+  {
+   "item": "mineru:离线 wheelhouse",
+   "status": "SKIP",
+   "evidence": {
+    "why": "wheel 目录不存在（部署机才有）",
+    "expected": "/home/szf/delivery/wheels-mineru-py311"
+   },
+   "boundary": null
+  },
+  {
+   "item": "mineru:use-mineru 开关",
+   "status": "FAIL",
+   "evidence": {
+    "on": {
+     "chars": 0,
+     "hit": false
+    },
+    "off": {
+     "chars": 0,
+     "hit": false
+    },
+    "broken": {
+     "chars": 0,
+     "events": [
+      "2026-11-03 01:13:14.587 | INFO     | server.loader:load_file:298 - 使用minerU parser",
+      "2026-11-03 01:13:15.953 | ERROR    | server.loader:load_file:307 - 外部解析器解析失败，尝试使用自建解析",
+      "2026-11-03 01:13:15.953 | INFO     | server.loader:load_file:312 - 使用parser",
+      "2026-11-03 01:13:15.958 | ERROR    | server.loader:load_file:507 - v2probe/cn-scan.pdf解析失败"
+     ]
+    },
+    "problems": [
+     "开开关后没抽到关键中文（chars=0, err=None）"
+    ]
+   },
+   "boundary": "真实 nacos 开关 + MinIO 取文件；只测扫描 PDF，未测 doc/docx 转换路径"
+  },
+  {
+   "item": "infra:镜像条件 load 与冒烟",
+   "status": "SKIP",
+   "evidence": {
+    "why": "交付目录缺失",
+    "delivery": "/home/szf/delivery"
+   },
+   "boundary": null
+  },
+  {
+   "item": "deploy:升级快照与回滚",
+   "status": "PASS",
+   "evidence": {
+    "packages": 153,
+    "restore": 0,
+    "matches": true,
+    "extras": 0,
+    "status": "PASS"
+   },
+   "boundary": "只验快照/比对闭环；真实降级（26 包）在 EVIDENCE-DEPLOY-CLOSEOUT 里"
+  },
+  {
+   "item": "deploy:验收载荷自举",
+   "status": "PASS",
+   "evidence": {
+    "detail": {
+     "333": {
+      "chunks": 3,
+      "meta_fields": 34,
+      "channels": {
+       "kb_9": 2,
+       "table_chunks_kb_9": 1
+      }
+     },
+     "329": {
+      "chunks": 2,
+      "meta_fields": 34,
+      "channels": {
+       "kb_9": 1,
+       "table_chunks_kb_9": 1
+      }
+     }
+    },
+    "problems": []
+   },
+   "boundary": "生成的是投影形状样本，不解析真实文档"
+  },
+  {
+   "item": "deploy:docx→pdf 转换能力",
+   "status": "NOT_IMPLEMENTED",
+   "evidence": {
+    "soffice": "/usr/bin/soffice",
+    "writer_libs": [],
+    "stderr_tail": [
+     "Warning: failed to launch javaldx - java may not function correctly",
+     "Error: source file could not be loaded"
+    ],
+    "fix": "安装 libreoffice-writer（或最小 Writer 过滤器包），无需重装整个套件"
+   },
+   "boundary": "只装了 LibreOffice core/calc，缺 Writer 过滤器（libswlo.so）；Office 文件走 MinerU 的路径仍然不通"
+  },
+  {
+   "item": "deploy:systemd 单元渲染与校验",
+   "status": "PASS",
+   "evidence": {
+    "units": [
+     "llmke-v2-graph-worker.service"
+    ],
+    "result": {
+     "status": "PASS",
+     "units": [
+      "llmke-v2-graph-worker.service"
+     ],
+     "verify": "PASS"
+    },
+    "tail": ""
+   },
+   "boundary": "只验渲染与 systemd-analyze；未在真实 systemd 上 enable/start"
+  },
+  {
+   "item": "deploy:常驻进程健康与优雅停机",
+   "status": "PASS",
+   "evidence": {
+    "health": {
+     "status": "ok",
+     "owner": "x2:2230095",
+     "fencing": null
+    },
+    "metrics_lines": 72,
+    "metric_contract": {
+     "series": 24,
+     "quota": {
+      "tenants": [
+       "default"
+      ],
+      "used_series": 1,
+      "limit_series": 1
+     },
+     "require_quota": true
+    },
+    "exit_code": 0,
+    "problems": []
+   },
+   "boundary": "只验端点与停机；未验 systemd 托管、未验重建实际发生"
+  },
+  {
+   "item": "deploy:指标端点鉴权",
+   "status": "PASS",
+   "evidence": {
+    "health": {
+     "status": "ok",
+     "owner": "x2:2230230",
+     "fencing": null
+    },
+    "problems": []
+   },
+   "boundary": "只验 Bearer token 路径；IP 白名单与 loopback 策略由单元测试覆盖"
+  },
+  {
+   "item": "biz:回答段限流",
+   "status": "PASS",
+   "evidence": {
+    "unlimited_ok": 3,
+    "limited_ok": 2,
+    "limited_denied": 1,
+    "server_hits_under_limit": 2,
+    "retry_after": 29.99856308101153,
+    "budget": {
+     "schema": "llmke.answer-llm-budget.v1",
+     "capacity": 2.0,
+     "refill_per_s": 0.03333333333333333,
+     "allowed": 2,
+     "denied": 1,
+     "tokens": 4.881009954256222e-05,
+     "exhausted": true
+    },
+    "problems": []
+   },
+   "boundary": "用本地假 OpenAI 服务；只验「单进程内按次数限流」，未验多进程/分布式配额"
+  },
+  {
+   "item": "graph:灰度开关",
+   "status": "PASS",
+   "evidence": {
+    "steps": [
+     {
+      "step": "canary-delta",
+      "requested": "delta",
+      "effective": "delta",
+      "pointer_mode": "DELTA"
+     },
+     {
+      "step": "outside-full",
+      "requested": "full",
+      "effective": "full",
+      "pointer_mode": "FULL"
+     },
+     {
+      "step": "reverted-full",
+      "requested": "full",
+      "effective": "full",
+      "pointer_mode": "FULL"
+     }
+    ],
+    "policy": {
+     "schema": "llmke.graph-engine.canary-policy.v1",
+     "scope": [],
+     "count": 0,
+     "mode": "delta",
+     "default": "full",
+     "sources": {
+      "scope": "file",
+      "mode": "file",
+      "default": "file"
+     }
+    },
+    "read_after_revert": {
+     "readable": true,
+     "chunks": 3
+    },
+    "problems": []
+   },
+   "boundary": "假 builder 验调度决策；真引擎下的切换质量未测"
+  },
+  {
+   "item": "graph:检索层等价性",
+   "status": "PASS",
+   "evidence": {
+    "queries": 3,
+    "top1_rate": 1.0,
+    "ordered_rate": 1.0,
+    "avg_jaccard": 1.0,
+    "elapsed_s": 13.5,
+    "problems": []
+   },
+   "boundary": "只比 top-k 命中集合与顺序；未做端到端答案质量评分（需人工/模型判定）"
+  },
+  {
+   "item": "graph:图导出与差异",
+   "status": "PASS",
+   "evidence": {
+    "nodes": 32,
+    "edges": 100,
+    "facts": 41,
+    "same_sha_twice": true,
+    "diff_identical": true,
+    "exit": 0
+   },
+   "boundary": "与同语料第二份全量比较；未测大图截断与增量导出"
+  },
+  {
+   "item": "infra:镜像 load 覆盖检测",
+   "status": "SKIP",
+   "evidence": {
+    "why": "redis tar 缺失",
+    "tar": "/home/szf/delivery/images-r12/redis_7.4.10-alpine.tar"
+   },
+   "boundary": null
+  },
+  {
+   "item": "graph:灰度判定（C4）",
+   "status": "PASS",
+   "evidence": {
+    "verdict": "SAFE",
+    "exit": 0,
+    "reasons": [
+     "基线稳定；块集合、抽取事实、检索命中集合与排序在 a/a2/b 之间全部一致"
+    ],
+    "facts_only_b": 0,
+    "retrieval": {
+     "queries": 6,
+     "top1_rate": 1.0,
+     "ordered_rate": 1.0,
+     "avg_jaccard": 1.0,
+     "route_changed": [],
+     "mismatches": []
+    }
+   },
+   "boundary": "对照是同语料两份独立全量（无内容变化）；只接受 SAFE/INCONCLUSIVE，抓真差异的能力由压力语料在证据里单独验证"
+  },
+  {
+   "item": "graph:跨范围合并检索",
+   "status": "PASS",
+   "evidence": {
+    "single_contains": false,
+    "merged_contains": true,
+    "merged_used": [
+     "dept-a",
+     "dept-b"
+    ],
+    "problems": []
+   },
+   "boundary": "RRF 融合（名次），未做跨索引语义重排；多范围用户的相关文档可能排在多路重复文档之后"
+  },
+  {
+   "item": "obs:告警通道报文",
+   "status": "PASS",
+   "evidence": {
+    "received": 2,
+    "problems": []
+   },
+   "boundary": "本地模拟网关；未验证真实企业微信/钉钉是否接受（无账号）"
+  },
+  {
+   "item": "lease:网络分区恢复",
+   "status": "PASS",
+   "evidence": {
+    "before": {
+     "acquired": true,
+     "latency": 0.0635,
+     "fencing": 1
+    },
+    "cut": {
+     "error_type": "OperationalError",
+     "error_len": 105,
+     "error": "OperationalError: (2003, \"Can't connect to MySQL server on '127.0.0.1' ([Errno 111] Connection refused)\")",
+     "scheduler_action": "LEASE_ERROR",
+     "scheduler_builds": 0,
+     "scheduler_lease_errors": 1,
+     "fail_latency": 0.0013,
+     "established_conn": {
+      "opened": true,
+      "killed_conns": 1,
+      "error_type": "OperationalError",
+      "error_len": 97,
+      "error": "OperationalError: (2013, 'Lost connection to MySQL server during query ([Errno 32] Broken pipe)')"
+     }
+    },
+    "restored": {
+     "acquired": true,
+     "recovered_after_s": 0.0607,
+     "last_error": null,
+     "scheduler_action": "BUILT",
+     "scheduler_builds": 1
+    },
+    "problems": null
+   },
+   "boundary": "本地 TCP 代理制造分区；未做真实主从切换与脑裂"
+  },
+  {
+   "item": "deploy:跨实例共享配额",
+   "status": "PASS",
+   "evidence": {
+    "serial_allowed": [
+     true,
+     true,
+     true,
+     false,
+     false
+    ],
+    "tenant": "q-quota-1793639684",
+    "concurrent": {
+     "accepted": 3,
+     "denied": 9,
+     "used_in_db": 3,
+     "coordinator_calls": 3
+    },
+    "concurrent_status": "PASS",
+    "multinode": {
+     "accepted": 3,
+     "denied": 9,
+     "used_in_db": 3,
+     "per_node_accepted": {
+      "38401": 3,
+      "34105": 0,
+      "33765": 0
+     }
+    },
+    "multinode_status": "PASS"
+   },
+   "boundary": "隔离库 v2_quota_window；并发经真实 POST /rebuild 入口；未做多副本跨进程压测"
+  },
+  {
+   "item": "biz:端到端业务问答",
+   "status": "SKIP",
+   "evidence": {
+    "why": "answer LLM key missing",
+    "key_env": "DSEEK_2026_SZF_KEY"
+   },
+   "boundary": null
+  },
+  {
+   "item": "biz:global 报告/引用失效识别",
+   "status": "PASS",
+   "evidence": {
+    "status": "READY",
+    "export": {
+     "total": 24,
+     "exported": 24,
+     "excluded": 0
+    },
+    "communities": 5,
+    "invalid_citations": 0
+   },
+   "boundary": "结构化报告（断言层导出 + 确定性标签传播 + 引用校验）；叙述为可选步骤，未参与判定"
+  }
+ ]
+}
