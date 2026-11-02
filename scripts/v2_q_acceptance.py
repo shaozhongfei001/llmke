@@ -26,6 +26,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "services/rag-alg/index_data_service"))
+sys.path.insert(0, str(REPO / "scripts"))
 
 ES = "http://127.0.0.1:19200"
 RESULTS = []
@@ -739,30 +740,12 @@ def check_metrics_and_alert_channel():
         coord.request("upload", ["f-1"])          # 有 pending，stats 才有非零信号
         text = render_with_lease(sched, lease)
 
-        problems = []
-        types_seen = {}
-        for line in text.splitlines():
-            if not line or line.startswith("#"):
-                if line.startswith("# TYPE "):
-                    name = line.split()[2]
-                    types_seen[name] = types_seen.get(name, 0) + 1
-                continue
-            parts = line.split()
-            if len(parts) != 2:
-                problems.append(f"样本行格式错误: {line[:60]}")
-                continue
-            try:
-                value = float(parts[1])
-            except ValueError:
-                problems.append(f"样本值非法: {line[:60]}")
-                continue
-            if value != value or value in (float("inf"), float("-inf")):
-                problems.append(f"输出了 nan/inf: {line[:60]}")
-        dup = [k for k, v in types_seen.items() if v > 1]
-        if dup:
-            problems.append(f"TYPE 重复: {dup[:3]}")
-        if "llmke_graph_rebuild_pending" not in types_seen:
-            problems.append("缺少核心 gauge: rebuild_pending")
+        # 用统一契约（v2_metrics_contract）：语法/TYPE/数值/配额自洽一次查完。
+        # 原来这里是手写循环，与 worker 侧各写一份，两边会慢慢漂移。
+        from v2_metrics_contract import validate as validate_metrics
+        verdict = validate_metrics(text, required=("llmke_graph_rebuild_pending",))
+        problems = list(verdict["problems"])
+        metrics_series = verdict["series"]
 
         url = f"http://127.0.0.1:{server.server_port}/hook"
         sink = WebhookAlertSink(url, timeout=2, retries=2, sleep=lambda s: None,
@@ -786,7 +769,7 @@ def check_metrics_and_alert_channel():
             problems.append(f"服务端应收到 5 次请求，实际 {len(received)}")
 
         record("graph:指标导出与告警通道", "PASS" if not problems else "FAIL",
-               {"metrics_lines": len(text.splitlines()), "metrics_series": len(types_seen),
+               {"metrics_lines": len(text.splitlines()), "metrics_series": metrics_series,
                 "content_type": CONTENT_TYPE, "webhook": stats,
                 "http_requests_received": len(received), "problems": problems[:5]},
                "本地 HTTP 服务器；未接真实企业微信/钉钉网关，未验签名与鉴权")
@@ -993,12 +976,18 @@ def check_graph_worker_service():
     port = 18871
     root = tempfile.mkdtemp(prefix="q-worker-")
     env = {**os.environ, "PYTHONPATH": str(REPO / "services/rag-alg/index_data_service")}
+    # 有 MySQL 就顺带开配额：/metrics 里才会出现 quota 族，契约断言才有东西可验。
+    quota_args, require_quota = [], False
+    if all(os.environ.get(k) for k in ("LLMKE_LEASE_MYSQL_HOST", "LLMKE_LEASE_MYSQL_USER",
+                                       "LLMKE_LEASE_MYSQL_PASSWORD", "LLMKE_LEASE_MYSQL_DB")):
+        quota_args = ["--quota-limit", "3", "--quota-window-s", "120"]
+        require_quota = True
     proc = subprocess.Popen([sys.executable, str(REPO / "scripts/v2_graph_worker.py"),
                              "--root", root, "--payloads", payload,
                              "--lease", os.path.join(root, "lease"),
-                             "--metrics-port", str(port)],
+                             "--metrics-port", str(port), *quota_args],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
-    problems, health, metrics = [], None, ""
+    problems, health, metrics, metric_contract = [], None, "", None
     try:
         deadline = time.time() + 30
         while time.time() < deadline:
@@ -1015,15 +1004,25 @@ def check_graph_worker_service():
             # 这里必须兜住异常：worker 可能在 /healthz 之后崩掉，
             # 未捕获的 RemoteDisconnected 会把**整轮验收**打断（实测过一次）。
             try:
+                if require_quota:
+                    # 先打一次 /rebuild：配额族只在有计数时才出现，空表等于"没得验"。
+                    req = urllib.request.Request(f"http://127.0.0.1:{port}/rebuild",
+                                                 data=b"{}", method="POST")
+                    try:
+                        urllib.request.urlopen(req, timeout=5).read()
+                    except Exception:  # noqa: BLE001  配额/队列状态由后面的断言看，这里只要副作用
+                        pass
                 with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics", timeout=3) as r:
                     metrics = r.read().decode()
             except Exception as exc:  # noqa: BLE001
                 problems.append(f"/metrics 读取失败：{type(exc).__name__}: {exc}")
             if metrics:
-                if "llmke_graph_scheduler_cycles_total" not in metrics:
-                    problems.append("/metrics 缺核心计数器")
-                if "nan" in metrics or "inf" in metrics:
-                    problems.append("/metrics 输出 nan/inf")
+                # 用统一契约断言，而不是零散 includes：语法/TYPE/数值/配额自洽一次查完。
+                from v2_metrics_contract import validate as validate_metrics
+                verdict = validate_metrics(metrics, require_quota=require_quota)
+                problems.extend(verdict["problems"])
+                metric_contract = {"series": verdict["series"], "quota": verdict["quota"],
+                                   "require_quota": require_quota}
         proc.terminate()
         try:
             code = proc.wait(timeout=15)
@@ -1039,6 +1038,7 @@ def check_graph_worker_service():
 
     record("deploy:常驻进程健康与优雅停机", "PASS" if not problems else "FAIL",
            {"health": health, "metrics_lines": len(metrics.splitlines()),
+            "metric_contract": metric_contract,
             "exit_code": proc.returncode, "problems": problems},
            "只验端点与停机；未验 systemd 托管、未验重建实际发生")
 

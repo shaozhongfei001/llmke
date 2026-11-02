@@ -571,6 +571,15 @@
 - 测试：worker API 10 项、quota_shared 19 项。
 - 未做：跨机压测、滑动窗口（边界仍有 2×limit 突发）、租户指标历史（需外部 TSDB）。
 
+### 新增：指标契约 + quota 接进巡检（2026-11-02，已完成）
+- `scripts/v2_metrics_contract.py`：语法/数值/TYPE/配额四类判定，可当巡检 CLI
+  （`--url ... --require-quota`，退出码 0/1/2）。真跑：24 条序列、quota tenant=kb_9、exit 0。
+- 接进 Q 两处：`deploy:常驻进程健康与优雅停机`（有 MySQL 就带 --quota-limit，先 POST 一次
+  再抓 /metrics 跑契约，require_quota=True）、`graph:指标导出与告警通道`（替换手写解析，
+  消除两份会漂移的实现）。
+- 测试 11 项（nan、TYPE 重复、counter 无 _total、used 缺 limit、used>limit、缺 tenant 等）。
+- 未做：不校验业务阈值；不支持直方图；未接真实 Prometheus 抓取端；CLI 无批量目标。
+
 ### 下次的具体动作
 1. 对同一对快照跑 `v2_canary_verdict.py --a <full> --a2 <full 复制一份或第二次全量> --b <delta>`，
    看它判 REVIEW 还是 UNSAFE（预期 UNSAFE，因为内容真被删了——这同时是"工具能抓出差异"的负对照）。
