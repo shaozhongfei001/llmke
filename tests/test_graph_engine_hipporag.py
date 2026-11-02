@@ -68,3 +68,46 @@ def test_engine_retriever_records_path_and_route():
     assert hits[0]["sources"] == [{"file_id": "333"}]
     assert r.calls[0]["path"] == "graph"
     assert r.calls[0]["executed_route"] == "GRAPH"
+
+
+class FakeHPBrokenRerank(FakeHP):
+    """模拟真实故障：事实候选存在，但 rerank 过滤器解析失败返回空。
+
+    上游此时会静默走 dense，图检索一次都不调用——"有答案"掩盖"图没跑"。
+    """
+
+    def __init__(self, docs):
+        super().__init__(docs, call_graph=False)
+        self.rerank_calls = 0
+        self.global_config = type("Cfg", (), {"linking_top_k": 2})()
+
+    def rerank_facts(self, query, scores):
+        self.rerank_calls += 1
+        return [], [], {"facts_before_rerank": [("甲", "rel", "乙"), ("丙", "rel", "丁")]}
+
+    def retrieve(self, queries, num_to_retrieve=3):
+        # 复刻上游顺序：先 rerank，有事实才走图
+        _, facts, _ = self.rerank_facts(queries[0], [0.9, 0.8])
+        if facts:
+            self.graph_search_with_fact_entities(queries[0])
+        return [FakeSolution(self._docs)]
+
+
+def test_empty_rerank_falls_back_to_candidates_and_keeps_graph_route():
+    hp = FakeHPBrokenRerank(["甲", "乙"])
+    eng = HippoRAGEngine(hp=hp, save_dir="/tmp/x")
+    out = eng.retrieve("查询", top_k=2)
+    assert out["executed_route"] == "GRAPH"          # 图检索真的被调用了
+    assert out["trace"]["rerank_fallback"] is True   # 且明确标记是兜底
+    assert out["trace"]["fact_candidates"] == 2
+    assert out["hit_count"] == 2
+
+
+def test_rerank_patch_is_removed_after_call():
+    hp = FakeHPBrokenRerank(["甲"])
+    eng = HippoRAGEngine(hp=hp, save_dir="/tmp/x")
+    eng.retrieve("查询")
+    assert "rerank_facts" not in hp.__dict__
+    # 第二次仍工作（恢复成原方法，而不是被包装坏）
+    out = eng.retrieve("查询")
+    assert out["trace"]["rerank_fallback"] is True

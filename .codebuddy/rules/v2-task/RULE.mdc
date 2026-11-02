@@ -1,0 +1,8 @@
+---
+description: V2 后续任务入口与纪律
+alwaysApply: true
+globs: "docs/v2-tasks/**,services/**,tests/**"
+---
+开工先读 docs/v2-tasks/TASKBOOK.md 与 docs/v2-tasks/TASKS.yaml。
+按 depends_on 顺序派工，阶段收口后继续下一阶段。
+只有真实外部阻塞才停，其余情况持续推进。

@@ -1,0 +1,105 @@
+# V2 后续任务台账（真实施工状态）
+# state: TODO | DOING | BLOCKED | VERIFIED（VERIFIED 需 evidence 路径）
+
+meta:
+  run_id: V2-POST-REVIEW-20261102
+  taskbook: docs/v2-tasks/TASKBOOK.md
+  base_commit: bb32876
+  updated: "2026-11-02T20:25:38+08:00"
+
+tasks:
+  - id: T-V2-01
+    parent: VL0
+    loop: L0
+    owner: TL
+    depends_on: []
+    state: VERIFIED
+    next_action: "吸收设计与契约，make contract-all / contract-v2-check 全 PASS"
+    acceptance: []
+    evidence: "docs/v2-tasks/evidence/VL0-contract-20261102.log"
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-02
+    parent: VL1
+    loop: L1
+    owner: TL
+    depends_on: [T-V2-01]
+    state: DOING
+    next_action: "图路由已真实执行（rerank 兜底修复）；下一步：暴露 HTTP 建图/查询边界并接产品"
+    acceptance: []
+    evidence: "docs/v2-tasks/evidence/VL1-graph-route-20261102.log"
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-03
+    parent: VL2
+    loop: L2
+    owner: TL
+    depends_on: [T-V2-01]
+    state: TODO
+    next_action: "B01–B05 关闭 + 抽取计划最小版"
+    acceptance: []
+    evidence: ""
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-04
+    parent: VL3
+    loop: L3
+    owner: TL
+    depends_on: [T-V2-01, T-V2-02]
+    state: TODO
+    next_action: "GraphEnginePort + HippoRAG 适配器 + 隔离索引"
+    acceptance: []
+    evidence: ""
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-05
+    parent: VL4
+    loop: L4
+    owner: TL
+    depends_on: [T-V2-04]
+    state: TODO
+    next_action: "全库有效图→算法社区→带支持组报告→global 消费"
+    acceptance: []
+    evidence: ""
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-06
+    parent: VL5
+    loop: L5
+    owner: TL
+    depends_on: [T-V2-04, T-V2-05]
+    state: TODO
+    next_action: "文件级可见集、撤权围栏、代次/租约/发布 CAS"
+    acceptance: []
+    evidence: ""
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-07
+    parent: VL6
+    loop: L6
+    owner: TL
+    depends_on: [T-V2-04, T-V2-05]
+    state: TODO
+    next_action: "Java 合服务、Nacos/MQ 退出、ES 职责迁移"
+    acceptance: []
+    evidence: ""
+    blocker: ""
+    artifacts: []
+
+  - id: T-V2-08
+    parent: VL7
+    loop: L7
+    owner: TL
+    depends_on: [T-V2-02, T-V2-03, T-V2-04, T-V2-05, T-V2-06, T-V2-07]
+    state: TODO
+    next_action: "离线包、干净安装、差分升级/恢复、全量回归"
+    acceptance: []
+    evidence: ""
+    blocker: ""
+    artifacts: []

@@ -114,7 +114,8 @@ class HippoRAGEngine:
     def retrieve(self, query: str, seeds: Optional[Sequence[str]] = None,
                  top_k: int = 3) -> Dict[str, Any]:
         hp = self.hp
-        trace = {"graph_calls": 0, "seed_hits": [], "fact_candidates": None}
+        trace = {"graph_calls": 0, "seed_hits": [], "fact_candidates": None,
+                 "rerank_fallback": False}
 
         original = getattr(hp, "graph_search_with_fact_entities", None)
         if original is None:
@@ -128,8 +129,36 @@ class HippoRAGEngine:
             except TypeError:
                 raise
 
+        # 上游 rerank 期望 DSPy 标记格式（[[ ## fact_after_filter ## ]]）。
+        # qwen 常直接回 JSON，解析为空后 hp.retrieve 会静默走 dense，图检索一次都没跑。
+        # 这里在“有候选、过滤后为空”时退回按向量分取前 link_top_k，并记 rerank_fallback；
+        # 只在过滤【异常为空】时兜底，正常过滤出结果时完全不动上游行为。
+        original_rerank = getattr(hp, "rerank_facts", None)
+        rerank_state = {"candidates": 0}
+
+        def rerank_guard(query, scores, _orig=original_rerank):
+            idx, facts, log = _orig(query, scores)
+            cands = list(log.get("facts_before_rerank") or [])
+            rerank_state["candidates"] = len(cands)
+            if facts or not cands:
+                return idx, facts, log
+            try:
+                import numpy as np
+
+                k = int(getattr(hp.global_config, "linking_top_k", len(cands)) or len(cands))
+                order = (np.argsort(scores)[-k:][::-1] if len(scores) > k
+                         else np.argsort(scores)[::-1]).tolist()
+            except Exception:  # noqa: BLE001 - 兜底路径不因 numpy/配置形状失败
+                k = min(len(cands), 5)
+                order = list(range(k))
+            trace["rerank_fallback"] = True
+            return order, cands[:min(k, len(cands))], log
+
         had_instance_attr = "graph_search_with_fact_entities" in getattr(hp, "__dict__", {})
+        had_rerank_attr = "rerank_facts" in getattr(hp, "__dict__", {})
         setattr(hp, "graph_search_with_fact_entities", traced)
+        if original_rerank is not None:
+            setattr(hp, "rerank_facts", rerank_guard)
         try:
             solutions = hp.retrieve([query], num_to_retrieve=top_k)
         finally:
@@ -141,6 +170,15 @@ class HippoRAGEngine:
                     delattr(hp, "graph_search_with_fact_entities")
                 except AttributeError:
                     pass
+            if original_rerank is not None:
+                if had_rerank_attr:
+                    setattr(hp, "rerank_facts", original_rerank)
+                else:
+                    try:
+                        delattr(hp, "rerank_facts")
+                    except AttributeError:
+                        pass
+        trace["fact_candidates"] = rerank_state["candidates"]
 
         # 种子是否真的落在图里：这决定 PPR 有没有起点。
         # 平台 id 是 "ent:<名称>"，引擎键是 "entity-" + mdhash(text_processing(名称))，
