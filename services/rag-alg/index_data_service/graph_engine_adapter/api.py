@@ -275,7 +275,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
 
         check = dict(report.get("citation_check") or {})
         sections = list(report.get("communities") or [])
-        answer, citations = global_report.assemble_answer(
+        answer, citations, answer_stats = global_report.assemble_answer(
             sections, max_communities=req.max_communities, query=req.query)
 
         reason = None
@@ -287,7 +287,11 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
                 reason = "NO_COMMUNITIES"
         elif not sections:
             reason = "NO_COMMUNITIES"
-        if reason:
+        elif not answer:
+            # 社区在、但按 query 过滤后一条相关事实都不剩：如实说"没有相关事实"，
+            # 不拿无关条款拼一个看起来能答的答案（也不要静默返回 200 + 空串 + reason=null）。
+            reason = "NO_RELEVANT_FACTS"
+        if reason and reason != "NO_RELEVANT_FACTS":
             # 引用不过或没有社区时，答案与引用一律留空：宁可说不可用，不给无来源结论。
             answer, citations = "", []
 
@@ -299,7 +303,9 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
                 used.append(cid)
         return {**base, "status": report.get("status"), "communities": len(sections),
                 "answer": answer, "citations": citations, "sections": sections,
-                "used_communities": used, "citation_check": check, "reason": reason}
+                "used_communities": used, "citation_check": check, "reason": reason,
+                # 过滤明细（只增不改既有键）：多少条事实被阈值/上限挡掉，避免静默丢数据。
+                "answer_stats": answer_stats}
 
     return app
 

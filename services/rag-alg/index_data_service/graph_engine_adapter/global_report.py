@@ -32,6 +32,7 @@ RAG 结果顶替。所以本模块不读引擎的图结构，只吃两样东西�
 
 import hashlib
 import json
+import math
 import os
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -146,29 +147,71 @@ def _relevance(query: str, section: Dict[str, Any]) -> int:
 
 
 def assemble_answer(sections: Sequence[Dict[str, Any]], *,
-                    max_communities: int = 3, query: str = "") -> Tuple[str, List[Dict[str, Any]]]:
+                    max_communities: int = 3, query: str = "",
+                    max_facts_per_community: int = 5,
+                    min_fact_ratio: float = 0.2
+                    ) -> Tuple[str, List[Dict[str, Any]], Dict[str, Any]]:
     """把报告里的社区事实拼成答案：每行一条事实、逐条带来源，不写无来源的结论。
 
-    `query` 只用来**重排**社区（相关度高的排前面，同分保持报告原序），不新增、不改写事实。
+    相关性截断（只在给了 query 时生效，**query 为空保持原行为**，否则 global 无 query 会全空）：
+
+    - 阈值 = max(1, ceil(len(query 二元组) × min_fact_ratio))。默认 0.2 不是拍的：
+      问"单笔授信超过五亿元由谁审议通过"（14 个二元组）时，相关事实 4–12 分、
+      "集团客户…统一授信额度为20亿元"只有 2 分——**只滤"0 重合"拦不住它**，
+      按 0.2（=3 分）才把无关条款清掉，同时保住 4 分以上的相关条款。
+    - 每个社区最多 `max_facts_per_community` 条，社区内按重合度降序（同分保持原序，稳定）。
+    - 只影响**答案组装**：`community.json` 里的完整事实不动，审计与引用校验照旧。
+
+    返回 `(answer, citations, stats)`；stats 说明一共多少条、输出多少条、被阈值/上限各挡掉多少，
+    避免"过滤"变成静默丢数据。
     """
-    ordered = list(sections)
-    if query and query.strip():
+    grams = _bigrams(query) if query and query.strip() else set()
+    threshold = max(1, math.ceil(len(grams) * min_fact_ratio)) if grams else 0
+    cap = max(1, int(max_facts_per_community))
+
+    cutoff = min(len(sections), max(0, int(max_communities)))
+    ordered = list(sections[:cutoff])
+    if grams:
         order = sorted(enumerate(ordered),
                        key=lambda pair: (-_relevance(query, pair[1]), pair[0]))
         ordered = [section for _, section in order]
 
     lines: List[str] = []
     citations: List[Dict[str, Any]] = []
-    for section in ordered[:max_communities]:
-        for fact in section.get("facts") or []:
-            sources = sorted({str(s) for s in (fact.get("sources") or [])})
-            if not sources:
-                # 防御：报告生成时就不会有这种事实，真出现也不许进答案。
+    stats: Dict[str, Any] = {"communities_used": 0, "facts_seen": 0, "facts_emitted": 0,
+                             "facts_dropped_low_relevance": 0, "facts_dropped_by_cap": 0,
+                             "min_fact_hits": threshold, "max_facts_per_community": cap,
+                             "query_filtered": bool(grams)}
+    for section in ordered:
+        scored: List[Tuple[int, int, Dict[str, Any], List[str]]] = []
+        for i, fact in enumerate(section.get("facts") or []):
+            if not isinstance(fact, dict):
                 continue
+            sources = sorted({str(s) for s in (fact.get("sources") or [])})
+            # 防御：报告生成时就不会有无来源的事实，真出现也不许进答案。
+            blocked = not sources or not str(fact.get("text") or "").strip()
+            stats["facts_seen"] += 1
+            if blocked:
+                stats["facts_dropped_low_relevance"] += 1
+                continue
+            hits = len(grams & _bigrams(fact["text"])) if grams else 0
+            if grams and hits < threshold:
+                stats["facts_dropped_low_relevance"] += 1
+                continue
+            scored.append((hits, i, fact, sources))
+        # 稳定排序：重合度降序，同分保持报告原序 → 同输入同输出
+        scored.sort(key=lambda row: (-row[0], row[1]))
+        if len(scored) > cap:
+            stats["facts_dropped_by_cap"] += len(scored) - cap
+            scored = scored[:cap]
+        for _, _, fact, sources in scored:
             lines.append("- " + fact["text"] + SOURCE_HINT.format(files=",".join(sources)))
             citations.append({"community": section_id(section), "text": fact["text"],
                               "sources": sources})
-    return "\n".join(lines), citations
+            stats["facts_emitted"] += 1
+        if scored:
+            stats["communities_used"] += 1
+    return "\n".join(lines), citations, stats
 
 
 def build_report_for_snapshot(snapshot: Optional[str], built_file_ids: Sequence[str]) -> Dict[str, Any]:
@@ -197,8 +240,11 @@ def build_report_for_snapshot(snapshot: Optional[str], built_file_ids: Sequence[
     base = build_report(store, known_all)
     check = _citation_check(base, sources_available=sources is not None, fact_total=fact_total)
     # 引用不过或没有社区时答案留空：报告本身也不许存一份"看起来能答"的文本。
-    answer, citations = (assemble_answer(base["communities"])
-                         if check["ok"] and base["communities"] else ("", []))
+    # 这里是**无 query 的基线样本**（不做相关性截断），端点每次按真实 query 重算。
+    if check["ok"] and base["communities"]:
+        answer, citations, _ = assemble_answer(base["communities"])
+    else:
+        answer, citations = "", []
 
     report = {
         "schema": SCHEMA,

@@ -11,14 +11,14 @@ TL 裁决：保留「我的实现 + TL 叠加的 Java 字段映射」的合并�
 
 | 文件 | md5 |
 |---|---|
-| `services/rag-alg/index_data_service/graph_engine_adapter/global_report.py`（新增） | `3c062874b3ce78f7b6bce221a3f8f711` |
-| `services/rag-alg/index_data_service/graph_engine_adapter/api.py`（改） | `9fe6364c404e2655d746a6a53e069952` |
+| `services/rag-alg/index_data_service/graph_engine_adapter/global_report.py`（新增） | `fc09a13d3956fd12bfdca1ef92bfdbe5` |
+| `services/rag-alg/index_data_service/graph_engine_adapter/api.py`（改） | `7f817beef6710ba8221d3a25c79bd275` |
 | `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`（改） | `5269e6e549807d092f58cdf87448676f` |
-| `tests/test_graph_global.py`（新增） | `a841f9db6418a72c4d6e65fa71e6d713` |
+| `tests/test_graph_global.py`（新增） | `d4ca15d13d3052d863dd0398007dd737` |
 | `tests/test_retrieval_shim.py`（改） | `b386528cd5452e2b79b5ac205a712c9b` |
 
-测试：`test_retrieval_shim.py 28 passed` / `test_graph_global.py 10 passed` /
-`test_graph_api.py 10 passed`（合计 48；`read_lints` 无告警）。
+测试：`test_graph_global.py 15 passed` / `test_retrieval_shim.py 28 passed` /
+`test_graph_api.py 10 passed`（合计 53；`read_lints` 无告警）。
 18094 与 19532 均已重启为新代码（见 §7.4），19995 / 19531 / 19527 未启停。
 
 历史（供追溯，别再据此判断现状）：22:45–22:50 期间同一路径与同一端口曾被另一个 agent 会话
@@ -554,21 +554,57 @@ reference    = []   ← file_id 非数字（F003）被转成 null，Java 的 Lon
 本次口径：`test_retrieval_shim.py` + `test_graph_global.py` + `test_graph_api.py` = **48 passed**；
 全量是 `20 failed / 995 passed / 13 skipped`，失败项与本能力无关。
 
-## 8. 已知质量限制（TL 复验发现，必须随能力一起交代）
+## 8. 已知质量限制与已做的相关性截断
 
-### 8.1 global 答案是"所选社区事实的逐条拼接"，社区粒度粗时会带出无关事实
+### 8.1 事实级相关性截断（TL 批准后已实现）
 
-`assemble_answer` 现在的行为是：按 query 给**社区**排序 → 取前 `max_communities` 个 →
-把每个社区里的**全部事实**逐行输出（每行带来源）。**没有按单条事实做相关性截断。**
+**改之前的问题**（TL 复验发现）：`assemble_answer` 按 query 给社区排序 → 取前
+`max_communities` 个 → 把每个社区里的**全部事实**逐行输出，**没有按单条事实过滤**。
+问"单笔授信超过五亿元由谁审议通过"时，答案 393 字里混进了"集团客户 需要 按季报送财务数据"
+"集团客户授信方案 规定 集团客户统一授信额度为20亿元"这类无关条款（链路本身没问题，
+route / search_type / 引用都对，是社区粒度粗 + 无事实级截断导致的召回噪声）。
 
-后果（TL 实测）：问"单笔授信超过五亿元由谁审议通过"时，`community.json` 里"授信审批权限"
-与"集团客户报送/统一授信 20 亿"落在同一个连通社区（它们通过共享实体被标签传播连到一起），
-于是答案里混进了"集团客户须按季报送财务数据""集团客户统一授信额度为 20 亿元"这类无关条款。
-**这不是链路问题**（`executed_route`/`search_type`/引用都对），是社区粒度 + 无事实级截断导致的召回噪声。
+**现在的行为**（只改答案组装层，`community.json` 与引用校验不动）：
 
-当前状态：**不裁剪**。理由与代价都写在这里，避免被当成"已解决"：
-- 好处：不漏事实、可审计（社区里的每条事实都有来源，读者能自行判断）；
-- 代价：社区粒度粗时答案冗长、混入无关条款，直接交给模型当摘要会污染结论。
+- 阈值 = `max(1, ceil(len(query 二元组) × min_fact_ratio))`，默认 `min_fact_ratio=0.2`；
+  低于阈值的事实**不输出**；`query` 为空时**保持原行为**（否则 global 无 query 会全空）。
+- 每个社区最多 `max_facts_per_community=5` 条，社区内按重合度降序、同分保持原序（稳定）。
+- 引用不变：每条仍带来源；`citation_check` 逻辑未动；过滤后一条不剩时 `answer=""` +
+  `reason="NO_RELEVANT_FACTS"`（不再 200+空串+reason=null，也不拿无关条款凑）。
+- 过滤明细进 `answer_stats`（**只增键、不改既有键**）：
+  `{communities_used, facts_seen, facts_emitted, facts_dropped_low_relevance,
+  facts_dropped_by_cap, min_fact_hits, max_facts_per_community, query_filtered}`。
+
+**为什么不是"只滤 0 重合"**（与批准条件 1 的差异，实测依据）：问句的 14 个二元组下，
+相关事实 4–12 分，而"集团客户…统一授信额度为20亿元"有 **2 分**（共享"授信/额度"），
+只滤 0 分它仍会留在答案里，验收里"不得再出现 20 亿"就做不到。按 0.2（=3 分）实测：
+相关条款 4 分以上全留、无关条款 ≤2 分全剔。该口径是 0 重合过滤的超集（0 分必然被滤）。
+
+**真实前后对比**（同一个 Java 问句、同一份 33 社区快照，`:18083/qa/ai/question` + `globalMode=true`）：
+
+```
+BEFORE  HTTP 200 0.2275s  393 字  含"集团客户"=True  含"20亿"=True   reference 0（F003 非数字 id）
+AFTER   HTTP 200 0.1664s  137 字  含"集团客户"=False 含"20亿"=False  含"利率"=False
+        content[:80] = - 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）
+                       | - 授信审批权限管理办法 规定 单笔授信一亿元至五亿元由分行授…
+```
+
+同一次调用的 18094 侧 `answer_stats`：
+
+```json
+{"communities_used":1,"facts_seen":22,"facts_emitted":3,
+ "facts_dropped_low_relevance":19,"facts_dropped_by_cap":0,
+ "min_fact_hits":3,"max_facts_per_community":5,"query_filtered":true}
+```
+
+即：22 条候选里发出 3 条，19 条被相关性阈值挡掉并**计数上报**，没有静默丢弃。
+
+**仍存在的代价（不要当成"质量已解决"）**：
+- 字面二元组对同义改写不友好，阈值偏严会掉相关但不直接作答的条款（本例
+  "审批权限不得转授权" 1 分被滤掉）；
+- 只做排序+截断，不做语义重排，也不引入 rerank 模型（按 TL 要求不引入模型调用）；
+- `NO_RELEVANT_FACTS` 目前在 shim 侧落到通用 502 分支（"上游 global 未给出可用结果"），
+  本轮边界不含 shim，若要更精确的 501 文案需另批 2 行改动。
 
 ### 8.2 合成语料的非数字 `file_id` 会让 Java 引用字段为空
 

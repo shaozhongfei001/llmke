@@ -202,6 +202,91 @@ def test_health_reports_community_stats(tmp_path):
     assert community["citation_check_ok"] is True
 
 
+def _sections(facts):
+    """造一个单社区 section，facts 为 [(文本, file_id)]，用于纯组装层测试。"""
+    return [{"community": "c-1", "size": 2, "isolated": False,
+             "entities": ["ent:占位实体"],
+             "facts": [{"text": t, "sources": [f]} for t, f in facts],
+             "fact_count": len(facts), "sources": ["F1"]}]
+
+
+def test_answer_filters_zero_overlap_facts():
+    """问"授信"时，利率/集团客户报送这类零重合条款不得进答案。"""
+    sections = _sections([
+        ("授信审批权限管理办法 规定 单笔授信超过五亿元由总行审议", "F1"),
+        ("AAA级客户 执行利率 为一年期LPR加30个基点", "F2"),
+        ("集团客户 需要 按季报送财务数据", "F3"),
+    ])
+    answer, citations, stats = global_report.assemble_answer(
+        sections, query="授信", max_communities=3)
+
+    assert "授信审批权限" in answer
+    assert "利率" not in answer and "按季报送财务数据" not in answer
+    assert len(citations) == stats["facts_emitted"] == 1
+    assert stats["facts_dropped_low_relevance"] == 2
+    assert stats["query_filtered"] is True
+
+
+def test_answer_is_empty_when_nothing_relevant_and_endpoint_says_so(tmp_path):
+    """全部零重合：返回空 answer + reason，而不是拿无关条款乱拼。"""
+    sections = _sections([
+        ("AAA级客户 执行利率 为一年期LPR加30个基点", "F1"),
+        ("集团客户 需要 按季报送财务数据", "F2"),
+    ])
+    answer, citations, stats = global_report.assemble_answer(
+        sections, query="单笔授信超过五亿元由谁审议通过", max_communities=3)
+    assert answer == "" and citations == []
+    assert stats["facts_emitted"] == 0
+
+    # 端点这一层也必须给出 reason，不能 200 + 空串 + reason=null
+    snap, _ = make_snapshot(tmp_path, name="snap-empty-answer")
+    report = {"schema": "llmke.graph-engine.global-report.v1", "status": "READY",
+              "sources_available": True, "communities": sections, "community_count": 1,
+              "citation_check": {"ok": True, "checked": 2, "valid": ["c-1:F1", "c-1:F2"],
+                                 "invalid": [], "sources_available": True, "reason": None}}
+    (snap / "community.json").write_text(json.dumps(report, ensure_ascii=False),
+                                        encoding="utf-8")
+
+    d = client_for(snap).post("/v2/graph/global",
+                              json={"query": "单笔授信超过五亿元由谁审议通过"}).json()
+    assert d["answer"] == "" and d["citations"] == []
+    assert d["reason"] == "NO_RELEVANT_FACTS"
+    assert d["answer_stats"]["facts_dropped_low_relevance"] == 2
+
+
+def test_answer_without_query_keeps_all_facts(tmp_path):
+    """query 为空时保持原行为（不截断）——否则 global 无 query 会全空。"""
+    sections = _sections([("事实甲 包含 授信", "F1"), ("事实乙 包含 集团客户", "F2"),
+                          ("事实丙 包含 利率", "F3")])
+    answer, citations, stats = global_report.assemble_answer(
+        sections, query="", max_communities=3)
+
+    assert len(answer.splitlines()) == 3
+    assert stats["facts_emitted"] == 3
+    assert stats["facts_dropped_low_relevance"] == 0
+    assert stats["query_filtered"] is False
+
+
+def test_answer_caps_facts_per_community(tmp_path):
+    sections = _sections([(f"授信事实{i} 单笔授信 超过 限额", "F1") for i in range(6)])
+    answer, _, stats = global_report.assemble_answer(
+        sections, query="单笔授信", max_communities=3, max_facts_per_community=5)
+
+    assert len(answer.splitlines()) == 5
+    assert stats["facts_emitted"] == 5
+    assert stats["facts_dropped_by_cap"] == 1
+
+
+def test_answer_is_deterministic_for_same_query(tmp_path):
+    sections = _sections([("授信事实甲 单笔授信 五亿元", "F1"),
+                          ("授信事实乙 单笔授信 一亿元", "F2"),
+                          ("无关事实 集团客户 报送", "F3")])
+    one = global_report.assemble_answer(sections, query="单笔授信 五亿元", max_communities=3)
+    two = global_report.assemble_answer(sections, query="单笔授信 五亿元", max_communities=3)
+    assert one[0] == two[0] and [c["text"] for c in one[1]] == [c["text"] for c in two[1]]
+    assert one[2] == two[2]
+
+
 def test_health_says_not_wired_without_report(tmp_path):
     snap, _ = make_snapshot(tmp_path)
     community = client_for(snap).get("/health").json()["community"]
