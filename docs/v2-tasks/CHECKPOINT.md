@@ -49,3 +49,12 @@
   （graph-service → Nebula）。
 - 最小切法：先做 19529 兼容层（实现 generate_triple_data/generate_community 等，
   内部转 18094），再把 nebula 查询替换为图服务查询；契约差异需逐字段对齐。
+
+## S2（2026-11-02 22:40）
+
+- 配置：r12 运行态 `generate-graph` 指向 `http://127.0.0.1:19531/generate_triple_data`（已备份）。
+- 真实链路：上传 docx → 解析成功 → graphParse → Java 日志显示 19531 → 响应 code=200
+  → DB `graph_parse_status=3`；快照 `/tmp/v2-shim-root/snapshot-20261102223531-579610-g0`。
+- sources.json 含 `{"file_id":"999016","locator":"page=-;offset=[[0, 459]];chunk=0"}`。
+- 证据：`docs/v2-tasks/evidence/S2-product-build-path.md`。
+- 下一步：查询/答案链路（qa-service / 前端）仍走 legacy，需要接 18094 并让引用可点开。
