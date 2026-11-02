@@ -111,3 +111,24 @@ def test_rerank_patch_is_removed_after_call():
     # 第二次仍工作（恢复成原方法，而不是被包装坏）
     out = eng.retrieve("查询")
     assert out["trace"]["rerank_fallback"] is True
+
+
+class FakeHPZeroWeightAssert(FakeHP):
+    """复刻上游：被选中短语权重为 0 时 get_top_k_weights 抛 AssertionError。"""
+
+    def get_top_k_weights(self, link_top_k, weights, linking_map):
+        raise AssertionError
+
+    def retrieve(self, queries, num_to_retrieve=3):
+        self.get_top_k_weights(2, [1.0, 0.0], {"甲": 1.0, "乙": 0.5})
+        self.graph_search_with_fact_entities(queries[0])
+        return [FakeSolution(self._docs)]
+
+
+def test_zero_weight_assert_is_skipped_and_traced():
+    hp = FakeHPZeroWeightAssert(["甲"])
+    eng = HippoRAGEngine(hp=hp, save_dir="/tmp/x")
+    out = eng.retrieve("查询", top_k=1)
+    assert out["executed_route"] == "GRAPH"          # 断言不再把查询打成 500
+    assert out["trace"]["weights_assert_skipped"] is True
+    assert "get_top_k_weights" not in hp.__dict__    # 调用后还原

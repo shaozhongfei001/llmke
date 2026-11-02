@@ -154,11 +154,30 @@ class HippoRAGEngine:
             trace["rerank_fallback"] = True
             return order, cands[:min(k, len(cands))], log
 
+        # 上游 `get_top_k_weights` 结尾断言"被选中的短语权重都非零"。
+        # 实测小语料/CJK 短语会出现 number_of_occurs=0 的短语，被选中但权重为 0，
+        # 断言直接抛 AssertionError，整个查询 500。这里只跳过这条**自检**：
+        # 仍按上游规则截断 linking_score_map，PPR 照常执行；跳过事实记入 trace，
+        # 不允许静默当成正常路径。
+        original_weights = getattr(hp, "get_top_k_weights", None)
+        weights_state = {"skipped": False}
+
+        def weights_guard(link_top_k, weights, map_, _orig=original_weights):
+            try:
+                return _orig(link_top_k, weights, map_)
+            except AssertionError:
+                weights_state["skipped"] = True
+                ordered = dict(sorted(map_.items(), key=lambda kv: kv[1], reverse=True)[:link_top_k])
+                return weights, ordered
+
+        had_weights_attr = "get_top_k_weights" in getattr(hp, "__dict__", {})
         had_instance_attr = "graph_search_with_fact_entities" in getattr(hp, "__dict__", {})
         had_rerank_attr = "rerank_facts" in getattr(hp, "__dict__", {})
         setattr(hp, "graph_search_with_fact_entities", traced)
         if original_rerank is not None:
             setattr(hp, "rerank_facts", rerank_guard)
+        if original_weights is not None:
+            setattr(hp, "get_top_k_weights", weights_guard)
         try:
             solutions = hp.retrieve([query], num_to_retrieve=top_k)
         finally:
@@ -178,7 +197,16 @@ class HippoRAGEngine:
                         delattr(hp, "rerank_facts")
                     except AttributeError:
                         pass
+            if original_weights is not None:
+                if had_weights_attr:
+                    setattr(hp, "get_top_k_weights", original_weights)
+                else:
+                    try:
+                        delattr(hp, "get_top_k_weights")
+                    except AttributeError:
+                        pass
         trace["fact_candidates"] = rerank_state["candidates"]
+        trace["weights_assert_skipped"] = weights_state["skipped"]
 
         # 种子是否真的落在图里：这决定 PPR 有没有起点。
         # 平台 id 是 "ent:<名称>"，引擎键是 "entity-" + mdhash(text_processing(名称))，
