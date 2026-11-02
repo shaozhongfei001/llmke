@@ -77,3 +77,13 @@ global reduce 分支的 reference 改为三级回落：
   点击打开右侧“知识溯源”面板，标签“知识库文档”，条目 1 条。
 - 已知不足：条目显示 **“未知文档”**——global reference 的 metadata 只有 file_id，
   没有 title/locator；生产数字 ID 语料仍需验证标题与原文定位是否可打开。
+
+### 修后仍未闭环的一点（不能算通过）
+
+用真实浏览器点击「知识溯源」时，hit-test 报：
+`Element is covered by <div.p-3 inside div#root> at its click point`，
+即按钮中心被输入区容器覆盖；改用 JS `button.click()` 才能打开面板。
+
+所以当前状态是：**按钮出现、面板能开，但鼠标正常点击可能落不到按钮上**。
+需前端确认是输入区容器高度/z-index 覆盖，还是按钮被放在滚动容器边缘；
+在真实鼠标可点之前，“点引用”仍不能算验收通过。
