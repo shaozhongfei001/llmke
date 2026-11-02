@@ -67,12 +67,12 @@ sources_available}`。
 - 不产出 `faq_result_list` / `database_documents` / `web_documents_list`（恒为 `[]`）。
 - **`/retrieval_documents_global` 转发到 18094 `/v2/graph/global`**（读建图时落盘的
   `community.json`）：答案只由社区事实拼装、每行带来源，`data.global_answer` 给 Java
-  （`RetrievedData.getGlobalAnswer:62-63`）。        不可用时如实给业务码，且**按语义分开**，不混用：
-  无 `community.json` → 501 `global not ready: community report not wired`（能力未接入）；
-  报告里 0 个社区 → 501 `global not ready: no communities in snapshot`；
+  （`RetrievedData.getGlobalAnswer:62-63`）。不可用时如实给业务码，且**按语义分开**，不混用：
+  无 `community.json` → 501 `global not ready: community report not wired`（**唯一** 501 场景）；
+  报告里 0 个社区 → **200** `no communities in snapshot` + `reason="NO_COMMUNITIES"`；
   引用校验不过 → 502（不给无来源结论）；
   **能力正常但该问句没命中** → **200** + `global_answer=""` + `reason="NO_RELEVANT_FACTS"`
-  （501 表示"没接入"，这里的语义是"接了但没命中"，混用会让评审误判）。
+  （501 只表示"没接入"；"接了但没数据/没命中"一律 200，混用会让评审误判）。
   请求里 `enabled_graph=false` 时先回 400。
 
 ## 环境变量
@@ -121,11 +121,8 @@ WIRED = ("POST /retrieval_documents",)
 # 报告缺失时仍如实 501——绝不拿普通检索结果冒充社区摘要。
 GLOBAL_NOT_WIRED = "global not ready: community report not wired"
 
-# global 已接线后仍然"不可用"的两种上游状态 → 沿用 legacy 业务码并在 msg 里说清原因。
-GLOBAL_REASON_MSG = {
-    "NO_COMMUNITY_REPORT": GLOBAL_NOT_WIRED,
-    "NO_COMMUNITIES": "global not ready: no communities in snapshot",
-}
+# 只剩"能力未接入"这一种才回 501；"接了但没数据/没命中"都回 200（见 _global_empty）。
+GLOBAL_REASON_MSG = {"NO_COMMUNITY_REPORT": GLOBAL_NOT_WIRED}
 # global 的 search_type 只有这一个取值：它既不是 graph 也不是 dense_fallback，
 # 混用会让下游把"社区摘要答案"当成"图检索命中"。
 GLOBAL_SEARCH_TYPE = "global"
@@ -133,6 +130,8 @@ DEFAULT_MAX_COMMUNITIES = 3
 # global "能力正常但该问句没命中"：语义是**命中问题**，不是"能力未接入"。
 NO_FACTS_REASON = "NO_RELEVANT_FACTS"
 NO_FACTS_MSG = "no relevant facts for query"
+NO_COMMUNITIES_REASON = "NO_COMMUNITIES"
+NO_COMMUNITIES_MSG = "no communities in snapshot"
 
 
 def _resp(code: int, msg: str, data: Any = None) -> Dict[str, Any]:
@@ -330,21 +329,21 @@ def _reason_of(body: Any) -> str:
     return str(body)[:300]
 
 
-def _global_no_facts(upstream: Any) -> Dict[str, Any]:
-    """global 能力正常、但这条问句没有可用事实 → 200 + 空答案 + 原因。
+def _global_empty(upstream: Any, reason: str, msg: str) -> Dict[str, Any]:
+    """global 能力已接、但没有可用结果（没命中 / 没社区）→ 200 + 空答案 + 原因。
 
     不能回 501：501 表示"能力未接入"，这里能力是通的；也不能回 502（那是上游异常）。
-    调用方拿到 200 + `reason=NO_RELEVANT_FACTS` 才能自己决定要不要降级。
+    调用方拿到 200 + `reason` 才能自己决定要不要降级。
     """
     src = upstream if isinstance(upstream, dict) else {}
-    return _resp(200, NO_FACTS_MSG, data={
+    return _resp(200, msg, data={
         "faq_result_list": [],
         "database_documents": [],
         "documents_list": [],
         "web_documents_list": [],
         "log_list": [],
         "global_answer": "",
-        "reason": src.get("reason") or NO_FACTS_REASON,
+        "reason": reason,
         "communities": src.get("communities"),
         "citation_check": src.get("citation_check"),
         "answer_stats": src.get("answer_stats"),
@@ -374,7 +373,7 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
                 "report": "快照内 community.json（建图时生成）",
                 "unavailable_when": {
                     "NO_COMMUNITY_REPORT": "该快照没有 community.json → 501（能力未接入）",
-                    "NO_COMMUNITIES": "报告里没有社区 → 501",
+                    "NO_COMMUNITIES": "报告里没有社区 → **200** + 空答案 + reason（能力已接）",
                     "CITATION_INVALID": "引用校验不过 → 502（不给无来源结论）",
                     "NO_RELEVANT_FACTS": "能力正常、该问句没命中 → **200** + 空答案 + reason",
                 },
@@ -481,10 +480,13 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         """legacy 的 GraphRAG 社区摘要入口：转发到 18094 `/v2/graph/global`。
 
         上游的答案只由建图时落盘的 `community.json` 里的社区事实拼装，每条都带来源；
-        本层只做形状转换，不补写、不改写结论。三种不可用情形如实回业务码：
+        本层只做形状转换，不补写、不改写结论。不可用情形按语义分开回码：
         - 快照没有 community.json → 501 `global not ready: community report not wired`
-        - 报告里有 0 个社区 → 501 `global not ready: no communities in snapshot`
+          （**唯一** 501：这是"能力未接入"）
+        - 报告里有 0 个社区 → **200** `no communities in snapshot` + `reason="NO_COMMUNITIES"`
+          （能力已接、只是没数据，501 会被读成"没实现"）
         - 引用校验不过 → 502（结论挂不上真实来源，不能交给模型当摘要）
+        - 有社区但该问句没命中 → **200** + `reason="NO_RELEVANT_FACTS"`
         任何情况下都不拿普通检索结果顶替 global。
         """
         req, bad = _parse_body(body)
@@ -522,7 +524,10 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         if reason == "NO_RELEVANT_FACTS":
             # 能力是通的、只是这条问句没命中相关事实：**不能**借 501（未接入）表达，也不是 502
             # （上游异常）。按 legacy 习惯回 200 + 空答案 + 原因，让调用方自己决定是否降级。
-            return _global_no_facts(upstream)
+            return _global_empty(upstream, NO_FACTS_REASON, NO_FACTS_MSG)
+        if reason == NO_COMMUNITIES_REASON:
+            # 能力已接、只是这份报告没有社区：同 NO_RELEVANT_FACTS，不能用 501（会被读成"没实现"）。
+            return _global_empty(upstream, NO_COMMUNITIES_REASON, NO_COMMUNITIES_MSG)
         if reason in GLOBAL_REASON_MSG:
             return _resp(501, GLOBAL_REASON_MSG[reason], data=None)
         if reason:
@@ -548,7 +553,7 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         if not documents or not answer:
             # 上游说"能答"但一条可用事实都没有（或 answer 空）：语义仍是"没命中相关事实"，
             # 不是"能力没接"。回 200 + 空答案 + reason，别用 501 让评审误判。
-            return _global_no_facts(upstream)
+            return _global_empty(upstream, NO_FACTS_REASON, NO_FACTS_MSG)
 
         return _resp(200, "查询成功", data={
             "faq_result_list": [],

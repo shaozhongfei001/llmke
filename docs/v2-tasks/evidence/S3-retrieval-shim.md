@@ -13,9 +13,9 @@ TL 裁决：保留「我的实现 + TL 叠加的 Java 字段映射」的合并�
 |---|---|
 | `services/rag-alg/index_data_service/graph_engine_adapter/global_report.py`（新增） | `fc09a13d3956fd12bfdca1ef92bfdbe5` |
 | `services/rag-alg/index_data_service/graph_engine_adapter/api.py`（改） | `7f817beef6710ba8221d3a25c79bd275` |
-| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`（改） | `f07724c36328bb63d78c33f67adea3ce` |
+| `services/rag-alg/index_data_service/graph_engine_adapter/retrieval_shim.py`（改） | `d1de43f8876fd2dd5e77a798b221390d` |
 | `tests/test_graph_global.py`（新增） | `d4ca15d13d3052d863dd0398007dd737` |
-| `tests/test_retrieval_shim.py`（改） | `793a1d645a922375faa02119f018dc02` |
+| `tests/test_retrieval_shim.py`（改） | `59178b8b1c2dd1e3db7f01a3ba59e12c` |
 
 测试：`test_graph_global.py 15 passed` / `test_retrieval_shim.py 30 passed` /
 `test_graph_api.py 10 passed`（合计 55；`read_lints` 无告警）。
@@ -466,8 +466,8 @@ documents_list[0].metadata = {"search_type": ["global"], "source": null,
 18094 /health  → "community": {"wired": true, "communities": 34, "citation_failures": 0,
                                "citation_check_ok": true, "status": "READY"}
 19532 /health  → "global": {"wired": true, "upstream_endpoint": "/v2/graph/global",
-                            "unavailable_when": {NO_COMMUNITY_REPORT→501, NO_COMMUNITIES→501,
-                                                 CITATION_INVALID→502}, …}
+                            "unavailable_when": {NO_COMMUNITY_REPORT→501, NO_COMMUNITIES→200,
+                                                 CITATION_INVALID→502, NO_RELEVANT_FACTS→200}, …}
 ```
 
 （数字全部来自快照里的 `community.json`；没有报告时是 `wired:false, communities:0,
@@ -603,8 +603,8 @@ AFTER   HTTP 200 0.1664s（复跑 0.1518s）  137 字  含"集团客户"=False �
 
 | 情形 | 码 | 含义 |
 |---|---|---|
-| 报告缺失 / 未接线 | 501 | 能力未接入 |
-| 报告里 0 个社区 | 501 | 同上（沿用 D4 已批口径） |
+| 报告缺失 / 未接线 | 501 | 能力未接入（**唯一** 501 场景） |
+| 报告里 0 个社区 | **200** | `global_answer=""` + `reason="NO_COMMUNITIES"` + `communities=0`（能力已接、只是没数据） |
 | 引用校验不过 | 502 | 上游给出的结论不可信 |
 | **能力正常但该问句没命中** | **200** | `global_answer=""` + `reason="NO_RELEVANT_FACTS"` |
 | 上游 HTTP 异常 / 不可达 | 502 | 上游故障 |
@@ -624,6 +624,18 @@ AFTER   HTTP 200 0.1664s（复跑 0.1518s）  137 字  含"集团客户"=False �
 ②上游没给 reason、但 `answer` 为空或没有一条可用事实（原来的 501 兜底）。两处现在都走同一个
 `_global_no_facts()`，`retrieval_shim.py` 里 `_resp(501, …)` **只剩** `GLOBAL_REASON_MSG`
 （报告缺失 / 0 社区）一处，可用 `grep -n '_resp(501' ` 复核。
+
+0 社区场景的真实响应（用真实快照的文件做成 symlink 副本，只把 `community.json` 换成
+`communities: []`，起临时 18095 让 shim 打它；验证完已 kill、shim 已指回 18094）：
+
+```
+POST /retrieval_documents_global {"query":"单笔授信超过五亿元由谁审议通过", ...}
+[HTTP 200, 0.006384s]
+{"code":200,"msg":"no communities in snapshot","data":{
+  "faq_result_list":[],"database_documents":[],"documents_list":[],"web_documents_list":[],
+  "log_list":[],"global_answer":"","reason":"NO_COMMUNITIES","communities":0,
+  "citation_check":{"ok":true,"checked":66,"invalid":[]},"answer_stats":{"facts_seen":0,...}}}
+```
 
 **`query` 为空时行为不变**（同一实例、同一快照，18094 直连）：
 

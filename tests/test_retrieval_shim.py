@@ -397,14 +397,19 @@ def test_global_without_report_is_501():
     assert body["data"] is None
 
 
-def test_global_without_communities_is_501():
+def test_global_without_communities_is_200_not_501():
+    """报告在、只是没有社区：能力已接，回 200 + 空答案 + reason，不能借 501。"""
     upstream = dict(GLOBAL_BODY, reason="NO_COMMUNITIES", communities=0, answer="",
                     citations=[], sections=[])
     r, _ = global_call(None, FakeResponse(200, upstream))
     body = r.json()
-    assert body["code"] == 501
-    assert body["msg"] == "global not ready: no communities in snapshot"
-    assert body["data"] is None
+    assert body["code"] == 200
+    assert body["code"] != 501
+    assert body["msg"] == "no communities in snapshot"
+    data = body["data"]
+    assert data["global_answer"] == "" and data["documents_list"] == []
+    assert data["reason"] == "NO_COMMUNITIES"
+    assert data["communities"] == 0
 
 
 def test_global_with_invalid_citations_is_502_not_success():
