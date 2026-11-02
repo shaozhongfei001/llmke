@@ -223,17 +223,43 @@ $ curl -X POST http://127.0.0.1:19532/retrieval_documents_global -H 'Content-Typ
  "why": "18094 无社区报告端点（只有 /health、/v2/graph/build、/v2/graph/query），community.py 未暴露 HTTP；拿普通检索结果顶替 global 等于造假"}
 ```
 
-**验证期间遇到的真实上游故障（不是我引入的）**：22:54:22 有人在 `/tmp/v2-shim-root` 下重建了图快照
-（health 显示 `nodes=5, edges=12, facts=3`，新 `sources.json` 已带 `title`），此后
-`POST 18094/v2/graph/query` 对**任何**问句都返回 `HTTP 500`（实测 `单笔授信…` 3.9s/500、`a` 0.99s/500）。
-此时 19532 上的 `/retrieval_documents` 如实回 502：
+### 4.4 上游 500 故障与修复后的复验（故障不是本层引入的）
+
+故障：22:54:22 有人在 `/tmp/v2-shim-root` 下重建了图快照（health 显示 `nodes=5, edges=12, facts=3`），
+此后 `POST 18094/v2/graph/query` 对**任何**问句都 500（实测 `单笔授信…` 3.9s/500、`a` 0.99s/500）。
+本层当时如实回 502（这就是它该做的）：
 
 ```
 {"code":502,"msg":"上游图服务 http://127.0.0.1:18094/v2/graph/query 返回 HTTP 500: Internal Server Error","data":null}
 ```
 
-即 §4.1 那条成功记录是**旧快照**（`/tmp/s1-...`/`snapshot-20261102220217` 时期）的结果；
-要用新快照复验 200 路径，得先修好 18094 的 query（属上游/建图侧，不在本层）。
+TL 定位上游根因并修复（提交 `04bce3d`）：`HippoRAG.get_top_k_weights` 的自检
+`count_nonzero(weights)==len(map)` 在小语料/CJK 下失败（选中短语权重为 0）；适配器现在只跳过这条
+自检、仍按上游规则截断 map，并记 `trace.weights_assert_skipped`。
+
+修复后复验（同一实例 19532、同一快照，无重启本层）：
+
+```
+$ curl -X POST 127.0.0.1:18094/v2/graph/query -d '{"query":"单笔授信超过五亿元由谁审议通过","top_k":3}'
+[HTTP 200, 0.003051s] route=GRAPH reason=GRAPH_CALLED hit=1
+  idx=chunk-5789841d879302e41a7eaf65ae020f81
+  sources=[{"file_id":"999010","locator":"page=-;offset=[[0, 66]];chunk=0","title":"丙-额度分项.docx"}]
+
+$ curl -X POST 127.0.0.1:19532/retrieval_documents -d '{"query":"单笔授信超过五亿元由谁审议通过","knowledge_base_name":["kb_9"],"top_k":3}'
+[HTTP 200, 0.005919s] code=200 msg=查询成功
+  {"file_id": 999010, "source": null,
+   "position": {"locator": "page=-;offset=[[0, 66]];chunk=0",
+                "sources": [{"file_id":"999010","locator":"page=-;offset=[[0, 66]];chunk=0","title":"丙-额度分项.docx"}]},
+   "chunk_index": 0, "title": "丙-额度分项.docx",
+   "locator": "page=-;offset=[[0, 66]];chunk=0",
+   "search_type": ["graph"], "score": null,
+   "idx": "chunk-5789841d879302e41a7eaf65ae020f81",
+   "sources": [{"file_id":"999010","locator":"page=-;offset=[[0, 66]];chunk=0","title":"丙-额度分项.docx"}]}
+```
+
+要点：`search_type=["graph"]` 与上游 `executed_route=GRAPH` 一致（仍只透传不猜）；`source=null`
+（`7281f8b` 的修复生效）；`file_id` 为 int；**`title` 已能端到端给出真实文件名**（见 §5.2 更新）。
+注意这是**新快照**（1 条命中、`chunk-5789…`），与 §4.1 旧快照（`chunk-ca1d8268…`）不是同一份语料。
 
 ## 5. 实测落差与审计意见（别当成已解决）
 
@@ -266,19 +292,19 @@ sourceFileName    = substring.substring(0, substring.indexOf("/"));       // ind
 `file_id` 的 int 转换经 TL 裁决保留（Jackson 能收 `Long`），非数字时置 `null` 的原因已在代码里
 注释说明——这是有意为之的取舍，不是遗漏。
 
-### 5.2 `title` 曾实测恒为 `null`（现已具备条件，待上游可查后复验）
+### 5.2 `title`：旧快照为 `null`，新快照已端到端给出真实文件名（已解决）
 
 18094 的 `sources.json` 在 build 时按 `BuildDoc{file_id,text,locator,title?}` 写，`api.py:119-122`
-只写非空字段。旧快照 build 未传 `title`，所以 §4.1/§4.2 里 `title` 都是 `null`（`file_id=999016` 有）。
-`1088280`（兼容层透传文件标题）落地后，重建出的新快照 `sources.json` **已带 title**，实测：
+只写非空字段。**旧**快照 build 未传 `title`，所以 §4.1/§4.2 里 `title` 都是 `null`（`file_id=999016` 有）。
+`1088280`（兼容层透传文件标题）落地后，重建的新快照 `sources.json` 已带 `title`：
 
 ```json
 {"chunk-5789841d879302e41a7eaf65ae020f81":[{"file_id":"999010",
   "locator":"page=-;offset=[[0, 66]];chunk=0","title":"丙-额度分项.docx"}]}
 ```
 
-即本层映射（`title` 取 `sources[0].title`）无需改动，就会在新快照上给出真实文件名；
-但因为该快照的 `/v2/graph/query` 现在 500（见 §4.3 末段），端到端还没能复验到。
+本层映射（`title` 取 `sources[0].title`）无需改动即生效，上游 500 修复后已端到端复验
+（§4.4）：`metadata.title = "丙-额度分项.docx"`、`position.sources[0].title` 同值。
 
 ### 5.3 `locator` 里的 `page=-`
 
