@@ -42,8 +42,10 @@ class BuildDoc(BaseModel):
 
 
 class BuildRequest(BaseModel):
-    docs: List[BuildDoc] = Field(min_length=1)
+    docs: List[BuildDoc] = Field(default_factory=list)
     root: Optional[str] = None
+    # 同一份 ParseArtifact 的绑定信息；给了就必须通过校验，否则 400，不允许"降级成裸文本"。
+    artifact: Optional[Dict[str, Any]] = None
 
 
 def _urls() -> Dict[str, str]:
@@ -118,12 +120,18 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     with open(os.path.join(target, "sources.json"), "w", encoding="utf-8") as fh:
         json.dump(sources, fh, ensure_ascii=False, indent=1)
 
+    # 真实计数供 legacy 兼容层回填 edges_total/edges_written：
+    # 不返回就会出现"建图成功但 Java 判 0 边失败"的假阴性。
+    facts = sum(len(d.get("extracted_triples") or []) for d in engine.openie_docs())
+    graph = getattr(getattr(engine, "hp", None), "graph", None)
     return {
         "snapshot": target,
         "generation": result["current"].get("generation"),
         "documents": result["current"].get("documents"),
         "chunks": (result.get("build_result") or {}).get("chunks"),
         "sources": len(sources),
+        "facts": facts,
+        "edges": graph.ecount() if graph is not None else None,
     }
 
 
@@ -162,9 +170,22 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
 
     @app.post("/v2/graph/build")
     def build(req: BuildRequest) -> Dict[str, Any]:
+        docs = req.docs
+        bound: Optional[Dict[str, Any]] = None
+        if req.artifact is not None:
+            from .artifact_binding import ArtifactBindingError, bind_artifact
+
+            try:
+                bound = bind_artifact(req.artifact)
+            except ArtifactBindingError as exc:
+                raise HTTPException(status_code=400, detail=f"artifact invalid: {exc}") from exc
+            docs = [BuildDoc(**d) for d in bound["docs"]]
+        if not docs:
+            raise HTTPException(status_code=400,
+                                detail="docs 与 artifact 至少给一个（空请求不能建图）")
         root = req.root or os.environ.get("LLMKE_V2_ROOT") or ".artifacts/api-root"
         try:
-            out = (builder or _default_build)(req.docs, root)
+            out = (builder or _default_build)(docs, root)
         except Exception as exc:  # noqa: BLE001 - 失败要带原因回到调用方
             raise HTTPException(status_code=500,
                                 detail=f"build failed: {type(exc).__name__}: {exc}") from exc
@@ -180,6 +201,9 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
                 hp.prepare_retrieval_objects()
         except Exception:  # noqa: BLE001
             pass
+        if bound is not None:
+            out = {**out, "artifact_id": bound["artifact_id"],
+                   "content_hash": bound["content_hash"]}
         return {"schema": SCHEMA, "status": "BUILT", **out}
 
     @app.post("/v2/graph/query")

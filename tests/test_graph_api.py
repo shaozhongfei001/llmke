@@ -119,3 +119,36 @@ def test_query_attaches_sources_when_snapshot_has_mapping(tmp_path):
     assert d["docs"][0]["idx"] == "c1"
     assert d["citations"][0]["file_id"] == "333"
     assert d["docs"][1]["sources"] == []          # 没映射的块不硬凑来源
+
+
+def test_build_accepts_bound_artifact(tmp_path):
+    seen = {}
+
+    def builder(docs, root):
+        seen["docs"] = docs
+        return {"snapshot": str(tmp_path), "chunks": len(docs)}
+
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(), builder=builder))
+    r = c.post("/v2/graph/build", json={
+        "artifact": {"artifact_id": "a" * 64, "document_id": "doc-1",
+                     "chunks": [{"text": "正文", "locator": "p1"}]},
+        "root": str(tmp_path)})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["artifact_id"] == "a" * 64 and d["content_hash"]
+    assert seen["docs"][0].file_id == "doc-1"
+
+
+def test_build_rejects_invalid_artifact(tmp_path):
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(),
+                              builder=lambda docs, root: {"snapshot": str(tmp_path)}))
+    r = c.post("/v2/graph/build", json={
+        "artifact": {"artifact_id": "not-a-hash", "chunks": [{"text": "x", "locator": "p1"}]}})
+    assert r.status_code == 400
+    assert "artifact invalid" in r.json()["detail"]
+
+
+def test_build_without_docs_or_artifact_is_rejected():
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(),
+                              builder=lambda docs, root: {"snapshot": "/tmp/x"}))
+    assert c.post("/v2/graph/build", json={}).status_code == 400

@@ -103,3 +103,40 @@ tasks:
     evidence: ""
     blocker: ""
     artifacts: []
+
+  # ── S1 并行批次（2026-11-02）──
+  - id: T-S1A
+    parent: VL1
+    loop: L1
+    owner: A
+    depends_on: [T-V2-02]
+    state: DOING
+    next_action: "19529 兼容层：generate_triple_data 转 18094，其余端点 501"
+    acceptance: [D0]
+    evidence: ""
+    blocker: ""
+    artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/legacy_shim.py"]
+
+  - id: T-S1B
+    parent: VL1
+    loop: L1
+    owner: B
+    depends_on: [T-V2-02]
+    state: DOING
+    next_action: "ParseArtifact 绑定：artifact_id/hash/locator 校验"
+    acceptance: [D1, D7]
+    evidence: ""
+    blocker: ""
+    artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py"]
+
+  - id: T-S1C
+    parent: VL2
+    loop: L2
+    owner: C
+    depends_on: [T-V2-01]
+    state: DOING
+    next_action: "方向语义：非对称谓词双向保留，对称谓词合并"
+    acceptance: [D2, D5]
+    evidence: ""
+    blocker: ""
+    artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/normalize.py"]

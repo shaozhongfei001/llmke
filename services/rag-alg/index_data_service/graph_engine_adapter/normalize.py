@@ -11,9 +11,9 @@
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-from .assertions import Assertion, AssertionStore, SourceRef
+from .assertions import FORWARD, SYMMETRIC, Assertion, AssertionStore, SourceRef
 
 SCHEMA = "llmke.graph-engine.normalize.v1"
 
@@ -32,6 +32,40 @@ PREDICATE_MAP = {
 
 _NUM_RE = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s*([万亿千百]?元|个月|年|%|天|倍)?\s*$")
 _UNIT_ALIAS = {"亿元": "万元", "千元": "元"}
+
+# 谓词的方向语义必须**显式**，不允许靠猜。
+# 只有这里列出的谓词，`甲 -X-> 乙` 与 `乙 -X-> 甲` 才被认定为**同一条事实**（去重键无序）。
+# 不在表里的谓词一律按**非对称**处理，两个方向各存一条。
+#
+# 为什么默认非对称：两类错误的代价不对称。
+#   · 误合并（把有向谓词当对称）：`乙 -担保-> 甲` 这条真实事实被整条丢掉，
+#     而且丢掉之后从图里看不出来——facts_out 照样计数，只有断言数少一条，
+#     下游"图里有答案"的判断会被悄悄带偏；
+#   · 多留一条（把对称谓词当有向）：最坏只是同一事实重复一次，可去重、可核对，不会失真。
+# 所以查不到就保留两条：宁可重复，也不替抽取结果猜方向。
+SYMMETRIC_PREDICATES = {"相似", "关联"}
+
+
+def predicate_direction(predicate: str) -> str:
+    """谓词方向：显式字典命中 → symmetric，其余一律 forward。"""
+    return SYMMETRIC if predicate in SYMMETRIC_PREDICATES else FORWARD
+
+
+def dedup_key(predicate: str, subject_id: str, object_id: str) -> Tuple[str, str, str]:
+    """事实去重键 —— **这是唯一决定"两条三元组算不算同一事实"的地方**。
+
+    非对称谓词：(predicate, subject, object)，有序。`甲 -担保-> 乙` 与 `乙 -担保-> 甲`
+                键不同，两个方向都保留；
+    对称谓词  ：端点先排序再用，即无序键。正反两向键相同，交给 AssertionStore 按内容合并
+                （来源会合并到同一条断言上，事实不丢）。
+
+    副作用要说明白：对称谓词的断言以"排序在前的端点"作 subject，所以
+    `store.facts(某个端点)` 对对称谓词只命中排序在前的那一侧；方向无关的查询请用
+    `store.related()`（它认 direction="symmetric"，两个方向都返回 True）。
+    """
+    if predicate_direction(predicate) == SYMMETRIC and object_id < subject_id:
+        return (predicate, object_id, subject_id)
+    return (predicate, subject_id, object_id)
 
 
 def normalize_predicate(raw: str) -> str:
@@ -117,7 +151,11 @@ def build_store(docs: Sequence[Dict[str, Any]],
             else:
                 oid = entity_id(obj)
                 store.register_entity(oid, obj, oid)
-                store.add(Assertion(subject=sid, predicate=predicate, object_entity=oid,
+                # 方向语义与去重键在此决定：对称谓词端点排序后入账（正反两向并一条），
+                # 其余保持 甲→乙 的原序（两个方向是两条事实）。
+                _, subj_id, obj_id = dedup_key(predicate, sid, oid)
+                store.add(Assertion(subject=subj_id, predicate=predicate, object_entity=obj_id,
+                                    direction=predicate_direction(predicate),
                                     sources=refs, visibility=set(vis)))
                 stats.relational += 1
             stats.facts_out += 1
