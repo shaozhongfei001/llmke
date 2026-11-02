@@ -443,7 +443,9 @@ documents_list[0].metadata = {"search_type": ["global"], "source": null,
 （`file_id=null` 是因为该语料用 `F003` 这类非数字 id，`int()` 转不了就置 null——TL 已裁决保留该行为；
 真实业务里是 `999010` 这类数字串，能转成 `Long`。社区号放 `metadata.community`，不占 `idx`。）
 
-**C) Java 侧 `query_mode=global` —— 被配置阻塞，需要你一句话**
+**C) Java 侧 `query_mode=global` —— TL 放行后已通，见 §7.7**
+
+（以下为放行前的阻塞记录，保留以说明"为什么必须先改配置"）
 
 - 机器上确实有 Java `rag-qa-service` 在跑（pid 1453899，llmke-r12 的 r12ctl 起的，:8080），
   它的生效配置 `/home/szf/data/dev/llmke-r12/platform/r12/conf/rag-qa-service/application-r12.yml:40`
@@ -480,3 +482,74 @@ citation_failures:null` + 原因，不填 0 冒充。）
   （`ModuleNotFoundError`，需仓库 `.venv` 跑），`security_scan.test_framework_repo_itself_is_clean`
   命中的是**存量**文档里的 `/home/szf/` 与锁文件凭据，`review_regressions` 三条同属存量。
   本次新增/改动的 5 个文件不在其命中列表里。
+
+### 7.7 Java 侧 `query_mode=global` 验收（TL 放行后执行）
+
+按 TL 四条约束做的：
+
+1. **备份 + 只加一行**（`llmke-r12/platform/r12/conf/rag-qa-service/`，配置文件不入 git）：
+
+```
+$ diff -u application-r12.yml.bak-20261102 application-r12.yml
+@@ -38,6 +38,7 @@
+   ai:
+     gt:
+       search-docs-url: http://127.0.0.1:19532/retrieval_documents
++      search-docs-global-url: http://127.0.0.1:19532/retrieval_documents_global
+       llm-url: http://127.0.0.1:19996
+```
+
+2. **只重启 rag-qa-service**：`r12ctl.sh restart rag-qa-service`，旧 pid `1453899` → 新 pid
+   **`1685670`**（23:30:44 起，:18083）；19995 / 19527 / 19531 / 18094 全程未重启。
+
+3. **真实调用**：`POST http://127.0.0.1:18083/qa/ai/question`（context-path=`/qa`）。
+   该接口先过 `assertKnowledgeBaseReadable`：**没有主体一律 0 → 30016**（实测匿名 403
+   `{"success":false,"errorMsg":"没有足够权限","errorCode":"30016"}`），故用
+   `X-UserID: 5 / X-UserName: r13_reader`（`user_privilege` 里对 kb_9 权限=1）+ `configId=8`
+   （`R13 Global 测试助手`，`knowledge_base_name=kb_9`）。
+
+   **结果 1（当时快照 file_id 是数字 999010）** `[HTTP 200, 0.463389s]`：
+
+```
+data:{"sessionId":"s4-global-3",...,"reply":{"content":"- 星航贷 单户最高授信额度为 8000.0万元（来源：999010）
+  \n- 星航贷 信用方式分项上限为 1000.0万元（来源：999010）\n- 星航贷 担保方式分项上限为 7000.0万元（来源：999010）",
+  "type":"markdown"},"reference":"[{\"metadata\":{\"file_id\":999010,\"search_type\":[\"global\"],
+  \"community\":\"c-1\",\"title\":\"丙-额度分项.docx\",...}}]"}
+```
+
+   **结果 2（我的 33 社区语料，F001–F012）** `[HTTP 200, 0.227503s]`，本层 `POST /retrieval_documents_global`
+   被多打 1 次（4→5，确认是 Java 打过来的）：
+
+```
+content[:80] = - 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）
+               | - 授信审批权限管理办法 规定 单笔授信一亿元至五亿元由分行授…
+reference    = []   ← file_id 非数字（F003）被转成 null，Java 的 Long fileId 收不到就不进引用列表
+```
+
+   **两点如实记**：① Java global 已 200 且答案非空、逐条带来源；② 结果是空引用列表，根因是
+   我这份**合成语料用了非数字 file_id**（`int("F003")` 失败 → null，TL 已裁决保留该行为），
+   生产里 file_id 是 `999010` 这类数字串，走结果 1 的路径（引用正常）。
+   若将来要支持非数字 id，需要动 Java 的 `RetrieveMetaData.fileId: Long`，不在本层范围。
+
+### 7.8 确定性口径（按 TL 指示定稿）
+
+原文照录，作为本能力的**对外口径**：
+
+> 同一份抽取结果下报告逐字节可复现；端到端同输入因上游 LLM 抽取 68/72 波动，不宣称可复现。
+
+已核对 `capabilities.py` 的 `community_report`（`:80-85`）没有超范围声明：它只写
+"社区/global 只消费经校验的标准事实导出（断言层），确定性标签传播，报告引用逐条校验；
+真实语料 29 事实→5 社区、0 失效引用"——**没有**"同输入两次 sha256 相同"这类说法。
+（"同输入两次 sha256 相同"只出现在 `graph_export` 条目 `:74`，指的是 JSONL 导出的确定性，
+与本能力无关，也不需要改。）
+
+### 7.9 存量失败清单（20 条，均非本次改动；不写"全绿"）
+
+| 文件 | 条数 | 原因 |
+|---|---|---|
+| `tests/test_contract_toolchain.py` | 16 | 工具 venv 缺 `openapi_spec_validator`：子进程 `scripts/contract_*.py` 直接 `ModuleNotFoundError`（须用仓库 `.venv` 跑）。含 `test_real_generate_and_check_pass`、`test_missing_generator_fails`、`test_noop_generator_fails`、`test_duplicate_id_fails`、`test_drift_after_contract_change_fails`、`test_tampered_generated_output_fails` 等 |
+| `tests/test_review_regressions.py` | 3 | 同一根因：`P04_noop_cannot_certify_stale_output` / `P05_empty_output_report_rejected` / `P06_unresolvable_ref_rejected` 内部调用 `contract_generate.py`，同样缺依赖 |
+| `tests/test_security_scan.py` | 1 | `test_framework_repo_itself_is_clean` 命中**存量**文档/锁文件（`/home/szf/` 绝对路径、lock 里的凭据样式、`10.3.5.147`），非本次文件 |
+
+本次口径：`test_retrieval_shim.py` + `test_graph_global.py` + `test_graph_api.py` = **48 passed**；
+全量是 `20 failed / 995 passed / 13 skipped`，失败项与本能力无关。
