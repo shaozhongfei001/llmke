@@ -82,3 +82,14 @@
   trace.weights_assert_skipped；复验 18094 200/GRAPH。
 - 证据：S3-retrieval-wiring.md（TL）+ S3-retrieval-shim.md（角色），两份并存不合并。
 - 未完成：真实社区报告（D4）、页面浏览器端到端。
+
+## S1 收口（2026-11-03 00:10）
+
+- S1-B 产物绑定 / S1-C 方向语义：已随 4f8ce74 入库，工作区干净；
+  测试环境口径：hipporag-toolenv（有 fastapi）59 passed = 30+7+22；
+  v2-toolenv（无 fastapi）37 passed + 1 skipped（test_legacy_shim 整文件 skip）。
+  **skip 不计 pass**，证据须写解释器与原因。
+- S1-A 兼容层：19531 现役 pid 1486048（22:53 启动，已含 9f4cae1）；真机 legacy 形状请求
+  code=200、edges_total=3（facts）、edges_written=12（edges）、locator_degraded=0；
+  generate_community / del_space / del_doc_entity 仍 501 且 upstream_called=false。
+- 待办：B01 在 r12 的 pair_key 修复（S1-C）；Java global 验收（需 /qa/ai/question）。
