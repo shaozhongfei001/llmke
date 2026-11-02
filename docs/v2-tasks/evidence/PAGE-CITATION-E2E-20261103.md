@@ -87,3 +87,21 @@ global reduce 分支的 reference 改为三级回落：
 所以当前状态是：**按钮出现、面板能开，但鼠标正常点击可能落不到按钮上**。
 需前端确认是输入区容器高度/z-index 覆盖，还是按钮被放在滚动容器边缘；
 在真实鼠标可点之前，“点引用”仍不能算验收通过。
+
+### 追加：底部留白修复与真实鼠标点击（2026-11-03 01:45）
+
+改动（仅宿主，不动 vendor）：
+- `AIChat/index.tsx` 容器加 `v2-chat-shell`，新增 `chat-shell.css`：
+  `.v2-chat-shell [style*="overflow-y: scroll"][style*="padding-bottom: 20px"] { padding-bottom: 220px !important; }`
+  （vendor 消息列表硬编码 `paddingBottom:20`，输入区绝对定位高约 155–200px，动作行被压在其下。）
+
+实测（dev 15174，global 问句）：
+- `getComputedStyle(scroll).paddingBottom = "220px"`（改前 20px），选择器命中。
+- 把「知识溯源 1」滚到视口中间后，`elementFromPoint` 命中按钮内 `SPAN`；
+  agent-browser **真实鼠标 click 成功**，右侧「知识溯源」面板打开（知识库文档 1 条）。
+- 但**刚出答案、未滚动时**按钮可能落在顶部/输入区覆盖范围内（实测一次 y=84，hit 为透明 DIV），
+  需要用户滚动后才可点。auto-scroll 到最新消息的行为仍不理想，属 vendor 布局欠账。
+
+仍未闭环：
+- 抽屉条目标题是“未知文档”（global reference 无 title/locator）；
+- 生产 `dist` 尚未重建，部署包仍是旧前端；本次只在 dev 验证源码改动。

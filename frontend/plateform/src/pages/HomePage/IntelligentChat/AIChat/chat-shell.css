@@ -1,0 +1,6 @@
+/* vendor 的消息滚动容器写死 paddingBottom:20，输入区绝对定位高约 155~200px，
+   最后一条消息的「知识溯源」被输入区透明容器覆盖，鼠标点不到。
+   这里只抬高底部留白，不动 vendor 结构。 */
+.v2-chat-shell [style*="overflow-y: scroll"][style*="padding-bottom: 20px"] {
+  padding-bottom: 220px !important;
+}

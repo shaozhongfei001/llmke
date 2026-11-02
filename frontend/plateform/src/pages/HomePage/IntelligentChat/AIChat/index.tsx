@@ -26,6 +26,7 @@ import { api_getFileStatusByUid } from "@root/src/components/AiInputer/common/se
 import DrawerGraphPreview from "./components/DrawerGraphPreview";
 import { registerPreviewViewer } from "@mxmweb/nodegraph";
 import "@gientech/modual/style.css";
+import "./chat-shell.css";
 import { Brain, Globe, Paperclip, Search } from "lucide-react";
 import { ReactComponent as Net } from "./assets/net.svg";
 import { ReactComponent as Mind } from "./assets/mind.svg";
@@ -515,7 +516,7 @@ const ChatPage = () => {
             GraphRAG 全局
           </div>
         )}
-        <div className="h-full">{renderAIChat}</div>
+        <div className="h-full v2-chat-shell">{renderAIChat}</div>
       </div>
       <RenameModal
         isModalOpen={isRenameModalOpen}
