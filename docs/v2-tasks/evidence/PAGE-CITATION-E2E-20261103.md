@@ -52,3 +52,28 @@ docker run -d --name v2-fe-e2e --network host \
 # 2) 注入 token 后打开 http://127.0.0.1:18088/chats/main
 # 3) 选 R13 Global 助手 + 全局开关，提问；观察答案底部按钮
 ```
+
+## 追加：修好「知识溯源」入口（2026-11-03 01:40）
+
+### 根因
+
+`question_re` 的 global 分支（`AiServiceImpl.java`）reference 只取“本次上传文件”：
+没上传就恒为 `"[]"`，而 vendor 的「知识溯源」按钮在 `hasAny=false` 时直接 `return null`。
+答案里的“（来源：F003）”只是正文文本，不进 reference 数组。
+
+实测确认：修前 `POST /qa/ai/question_re`（globalMode=true）返回 `reference="[]"`。
+
+### 改动（v2 与 r12 同步）
+
+global reduce 分支的 reference 改为三级回落：
+上传文件 > `retrievedData.getDocumentString()`（documents_list） > `"[]"`。
+前端无需改动；vendor 固定 `referenceMode="button"`，按数组长度渲染。
+
+### 修后实测
+
+- `question_re`：`reference` 由 `"[]"` 变为 327 字节，1 条，metadata 含
+  `search_type=["global"]`、`community="c-3"`、`sources[{file_id:F003}]`。
+- 页面（dev 15174 / 生产 dist 同源）：答案下方出现 **「知识溯源 1」**；
+  点击打开右侧“知识溯源”面板，标签“知识库文档”，条目 1 条。
+- 已知不足：条目显示 **“未知文档”**——global reference 的 metadata 只有 file_id，
+  没有 title/locator；生产数字 ID 语料仍需验证标题与原文定位是否可打开。

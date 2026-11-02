@@ -387,7 +387,17 @@ public class AiServiceImpl implements AiService {
             boolean reqGlobalMode = Boolean.TRUE.equals(aiRequest.getGlobalMode());
             if (StringUtils.isNotBlank(reduceAnswer)) {
                 Long respTime = System.currentTimeMillis() - llmChatRequstTime;
-                String reference = CollectionUtils.isEmpty(filePathDTOS) ? "[]" : JSONObject.toJSONString(filePathDTOS);
+                // R15-F05：global 答案来自社区报告，但 reference 原来只取"本次上传文件"，
+                // 没上传就恒为 "[]"，页面因此没有「知识溯源」按钮。改为回落到检索侧
+                // documents_list（与普通路径同形：page_content + metadata）。
+                String reference;
+                if (!CollectionUtils.isEmpty(filePathDTOS)) {
+                    reference = JSONObject.toJSONString(filePathDTOS);
+                } else if (retrievedData != null && StringUtils.isNotBlank(retrievedData.getDocumentString())) {
+                    reference = retrievedData.getDocumentString();
+                } else {
+                    reference = "[]";
+                }
                 log.info("R15-F04 question_re 采用 global reduce 答案，跳过二次生成 len={}", reduceAnswer.length());
                 addQuestionAndAnswerRe(alParams, dialogueId, aiRequest, reduceAnswer, reference,
                         AIResultTypeEnum.LLM.getCode(), respTime);
