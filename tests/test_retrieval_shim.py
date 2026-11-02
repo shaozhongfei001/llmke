@@ -112,7 +112,7 @@ def test_graph_route_maps_documents_and_metadata():
     first = docs[0]
     assert first["page_content"] == "单笔授信金额超过五亿元须提交总行授信审查委员会审议。"
     assert first["metadata"]["file_id"] == 999016          # Java Long
-    assert first["metadata"]["source"] == "999016"       # 无 title 时回退 file_id
+    assert first["metadata"]["source"] is None           # 不把 id/文件名塞进路径字段
     assert "offset=[[0, 459]]" in first["metadata"]["position"]["locator"]
     assert first["metadata"]["chunk_index"] == 0
     assert first["metadata"]["locator"] == "page=-;offset=[[0, 459]];chunk=0"

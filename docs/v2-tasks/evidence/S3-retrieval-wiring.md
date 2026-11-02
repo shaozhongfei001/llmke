@@ -53,3 +53,22 @@ Java 返回（`/qa/ai/retrieveDocs4Plat`，HTTP 200）：
 - `source` 当前回退为 file_id：快照构建于 title 透传之前，重建后才会是文件名；
 - 只接了 `/retrieval_documents`；`/retrieval_documents_global`（global 问答）尚未实现；
 - 页面端到端（浏览器点击引用）未验证。
+
+## 安全修正：source 不能填 id/文件名
+
+`rag-common/Document.java:70-72` 对 `metadata.source` 连做三次 `indexOf("/") + substring`；
+没有斜杠时 `substring(0,-1)` 抛 `StringIndexOutOfBoundsException`。
+本层曾把 file_id 当 source，实测返回 `source="999016"`——在问答组装路径（RetrievedData）会崩。
+
+修正：`source` 恒为 null，不再填 id 或裸文件名；文件路径由 Java 侧
+`addConvertedFilePath(file_id)` 补齐。
+
+复验（经 Java，HTTP 200）：
+
+```json
+{"file_id":"999016","source":null,"chunk_index":0,
+ "search_type":["graph"],
+ "position":{"locator":"page=-;offset=[[0, 459]];chunk=0"}}
+```
+
+测试 20 passed。

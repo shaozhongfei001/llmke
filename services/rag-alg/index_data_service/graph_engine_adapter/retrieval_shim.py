@@ -218,7 +218,11 @@ def _to_document(item: Any, search_type: str, reason: Optional[str]) -> Optional
         # 没有来源就是 null：legacy 的 file_id 用来反查文件路径（AiServiceImpl:3099-3103），
         # 编一个会让引用指到别的文件。
         "file_id": file_id,
-        "source": primary.get("title") or (str(raw_file_id) if raw_file_id else None),
+        # source 不能放文件名或 file_id：Document.buildParsedFilePath 假设它是
+        # "bucket/path/name" 形式，会连做三次 indexOf("/") 后 substring；
+        # 没有斜杠时 substring(0,-1) 直接抛 StringIndexOutOfBounds（rag-common Document.java:70-72）。
+        # 同理文件名也不放——保留 null，由 Java 用 file_id 走 addConvertedFilePath 补路径。
+        "source": None,
         "position": {"locator": locator, "sources": sources},
         "chunk_index": chunk_index,
         "title": primary.get("title"),
