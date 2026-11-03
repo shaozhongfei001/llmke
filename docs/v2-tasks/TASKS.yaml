@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T21:45:00+08:00'
+  updated: '2026-11-03T22:00:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -62,7 +62,7 @@ tasks:
   depends_on:
   - T-V2-04
   state: TODO
-  next_action: 全库有效图→算法社区→带支持组报告→global 消费
+  next_action: 全库有效图→算法社区→带支持组报告→global 消费（FE 真接口契约见 docs/v2-tasks/D4-FE-API.md）
   acceptance: []
   evidence: ''
   blocker: ''
@@ -411,3 +411,18 @@ tasks:
   - services/rag-alg/index_data_service/graph_engine_adapter/fence.py
   - services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
   - services/rag-alg/index_data_service/graph_engine_adapter/api.py
+- id: T-D10
+  parent: VL7
+  loop: L7
+  owner: TL
+  depends_on: []
+  state: DOING
+  next_action: d10_eval 结构层评估器+spec(9 用例)+分档已落地(6 tests)；剩：真实语料固化+真机跑 9 用例+语义层 M4/用户抽查
+  acceptance:
+  - D10
+  evidence: tests/test_d10_eval.py
+  blocker: 语料未固化/服务未恢复
+  artifacts:
+  - services/rag-alg/index_data_service/graph_engine_adapter/d10_eval.py
+  - tests/fixtures/d10_spec.json
+  - docs/v2-tasks/D10-ACCEPTANCE-SPEC.md

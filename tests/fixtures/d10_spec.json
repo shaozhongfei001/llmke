@@ -1,0 +1,15 @@
+{
+  "schema": "llmke.d10.spec.v1",
+  "corpus": "待固化：F001-F012 不满足真实上传要求，须以真实上传文档（数字 file_id）重建快照后固化",
+  "cases": [
+    {"id": "T-01", "question": "华东精密拟申请星航贷的定价与额度约束是什么", "requires_citation": true, "disable_control": false, "note": "跨文档实体/事实关联"},
+    {"id": "T-02", "question": "日均存款的对账口径是什么", "requires_citation": true, "disable_control": false, "note": "表格/单元格来源"},
+    {"id": "T-03", "question": "信用方式贷款不超过多少", "requires_citation": true, "disable_control": false, "note": "数值/方向"},
+    {"id": "T-04", "question": "AAA档执行利率加点是多少（LPR+30BP，不得反号）", "requires_citation": true, "disable_control": false, "note": "加减号/方向"},
+    {"id": "T-05", "question": "单笔授信超过五亿元由谁审议通过", "requires_citation": true, "disable_control": true, "note": "禁用图对照"},
+    {"id": "T-06", "question": "撤权文件的内容在撤权后是否仍可被检索", "requires_citation": false, "disable_control": false, "note": "D8 撤权"},
+    {"id": "T-07", "question": "多前提结论的支持组是否完整", "requires_citation": true, "disable_control": false, "note": "D7 支持组"},
+    {"id": "T-08", "question": "换版/删来源/重启后同问句 top1 是否稳定", "requires_citation": false, "disable_control": false, "note": "D3 稳定性"},
+    {"id": "T-09", "question": "中文实体与图检索在默认配置下是否生效", "requires_citation": true, "disable_control": false, "note": "D9 中文默认"}
+  ]
+}
