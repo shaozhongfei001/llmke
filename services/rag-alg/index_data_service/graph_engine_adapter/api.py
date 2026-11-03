@@ -301,8 +301,18 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             cid = item.get("community")
             if cid not in used:
                 used.append(cid)
+        # 来源元数据：sources.json 里 file_id -> {locator,title}。
+        # 报告本身只记 file_id（引用校验的最小集合），但页面/Java 需要 title 才能显示文件名。
+        source_meta: Dict[str, Any] = {}
+        for items in (global_report.read_sources(snapshot) or {}).values():
+            for src in items or []:
+                fid = str(src.get("file_id") or "")
+                if fid and fid not in source_meta:
+                    source_meta[fid] = {"file_id": fid, "locator": src.get("locator"),
+                                        "title": src.get("title")}
         return {**base, "status": report.get("status"), "communities": len(sections),
                 "answer": answer, "citations": citations, "sections": sections,
+                "source_meta": source_meta,
                 "used_communities": used, "citation_check": check, "reason": reason,
                 # 过滤明细（只增不改既有键）：多少条事实被阈值/上限挡掉，避免静默丢数据。
                 "answer_stats": answer_stats}

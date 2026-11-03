@@ -412,6 +412,19 @@ def test_global_without_communities_is_200_not_501():
     assert data["communities"] == 0
 
 
+def test_global_source_meta_fills_title_and_locator():
+    """上游 source_meta 有 title/locator 时，global 文档的 metadata 必须带上，
+    页面才能显示文件名并定位原文；没有就保持 null，不从 file_id 猜。"""
+    upstream = dict(GLOBAL_BODY, source_meta={
+        "999010": {"file_id": "999010", "locator": "page=1;chunk=0", "title": "授信审批权限管理办法.docx"}})
+    r, _ = global_call(None, FakeResponse(200, upstream))
+    doc = r.json()["data"]["documents_list"][0]
+    meta = doc["metadata"]
+    assert meta["title"] == "授信审批权限管理办法.docx"
+    assert meta["locator"] == "page=1;chunk=0"
+    assert meta["position"]["sources"][0]["title"] == "授信审批权限管理办法.docx"
+
+
 def test_global_with_invalid_citations_is_502_not_success():
     upstream = dict(GLOBAL_BODY, reason="CITATION_INVALID")
     r, _ = global_call(None, FakeResponse(200, upstream))

@@ -222,7 +222,8 @@ def _max_communities(req: Dict[str, Any]) -> int:
     return DEFAULT_MAX_COMMUNITIES
 
 
-def _global_documents(sections: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _global_documents(sections: List[Dict[str, Any]],
+                      source_meta: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     """把一个社区压成一条 legacy 文档：正文是"事实 + 来源"，来源进 metadata.sources。
 
     这样 Java 侧拿到的是"有出处的摘要文本"，而不是一段没有引用、无法核验的结论。
@@ -247,7 +248,10 @@ def _global_documents(sections: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                       # idx 是**块 id** 的语义，社区号不能塞进去（会让下游误当 chunk 反查）。
                       "idx": None,
                       "community": section.get("community") or section.get("id"),
-                      "sources": [{"file_id": fid} for fid in sorted(set(file_ids))]})
+                      "sources": [dict({"file_id": fid},
+                                       **{k: v for k, v in (source_meta or {}).get(fid, {}).items()
+                                          if k in ("locator", "title") and v})
+                                  for fid in sorted(set(file_ids))]})
     return items
 
 
@@ -542,7 +546,7 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             sections = [s for s in sections
                         if (s.get("community") or s.get("id")) in wanted]
         documents: List[Dict[str, Any]] = []
-        for item in _global_documents(sections):
+        for item in _global_documents(sections, upstream.get("source_meta")):
             doc = _to_document(item, GLOBAL_SEARCH_TYPE, None)
             if not doc:
                 continue

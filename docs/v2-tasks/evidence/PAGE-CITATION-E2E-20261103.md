@@ -134,3 +134,23 @@ dev 与 18088 生产静态包结果一致。
 
 仍未闭环：抽屉条目仍显示“未知文档”（global reference 无 title/locator），
 点条目无法定位原文；需在检索侧补 title/locator 或由前端用 file_id 回查。
+
+## 追加：引用条目显示真实文件名（2026-11-03 10:15）
+
+改动：
+- `api.py` 的 `/v2/graph/global` 从快照 `sources.json` 生成 `source_meta`（file_id → locator/title）随响应下发；
+- `retrieval_shim.py` 的 `_global_documents` 用 `source_meta` 填充每条 source 的 title/locator，
+  `_to_document` 已有映射会把它们写进 metadata；
+- 新增测试 `test_global_source_meta_fills_title_and_locator`，31 passed。
+
+实测：
+- 19532 global 文档 metadata：`title=授信审批权限管理办法.docx`、`locator=page=1;chunk=0`；
+- Java `question_re` reference 同上；
+- 页面抽屉由「未知文档」变为 **「授信审批权限管理办法.docx」**（无“未知文档”）。
+
+仍未闭环：点击条目提示
+`加载失败：缺少原文地址或登录态，无法打开原文`。
+global reference 只有 `page_content + metadata`，没有 `convertedFilePath`；
+Java 的 global 分支没有像普通路径那样用 file_id 回查 KB 文件路径。
+合成语料 999010 在 KB 里也没有上传记录，无法区分“缺字段”与“缺记录”，
+需用真实上传文档再验，或在 global 分支补 `addConvertedFilePath` 等价逻辑。
