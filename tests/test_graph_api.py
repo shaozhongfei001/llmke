@@ -203,3 +203,52 @@ def test_auto_seed_none_when_no_match_or_no_snapshot():
     assert d["seeds_source"] == "none"
     assert d["seeds"] == []
 
+def test_graph_view_returns_nodes_and_edges():
+    """D0：库级图谱查看数据源 —— nodes/edges 稳定排序返回。"""
+
+    class V:
+        def __init__(self, name):
+            self.name = name
+
+        def attributes(self):
+            return {"name": self.name, "content": None, "hash_id": None}
+
+        def __getitem__(self, key):
+            return getattr(self, key)
+
+    class E:
+        def __init__(self, s, t, w=1.0):
+            self.source, self.target, self._w = s, t, w
+
+        def attributes(self):
+            return {"weight": self._w}
+
+    class G:
+        vs = [V("乙"), V("甲")]
+        es = [E(1, 0, 0.5)]
+
+    class EngineWithView(FakeEngine):
+        hp = FakeHP()
+
+    EngineWithView.hp.graph = G()
+    c = TestClient(create_app(engine_factory=lambda: EngineWithView()))
+    d = c.get("/v2/graph/view").json()
+    assert d["status"] == "ok"
+    assert d["node_count"] == 2 and d["edge_count"] == 1
+    # 按 id（Unicode 码点）确定性排序：U+4E59 乙 < U+7532 甲
+    assert [n["name"] for n in d["nodes"]] == ["乙", "甲"]
+    assert d["edges"] == [{"source": "甲", "target": "乙", "weight": 0.5}]
+
+
+def test_graph_view_unavailable_is_not_500():
+    """图缺失 → 200 + GRAPH_UNAVAILABLE + 空列表（前端可渲染空态，不炸）。"""
+
+    class EngineNoGraph(FakeEngine):
+        hp = FakeHP()
+
+    EngineNoGraph.hp.graph = None
+    c = TestClient(create_app(engine_factory=lambda: EngineNoGraph()))
+    d = c.get("/v2/graph/view").json()
+    assert d["status"] == "GRAPH_UNAVAILABLE"
+    assert d["nodes"] == [] and d["edges"] == []
+

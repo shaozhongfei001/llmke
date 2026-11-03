@@ -338,6 +338,32 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             "sources_available": bool(sources),
         }
 
+    @app.get("/v2/graph/view")
+    def graph_view() -> Dict[str, Any]:
+        """D0：库级图谱查看数据源（nodes/edges，读引擎图，不落盘）。
+
+        前端 GraphCanvas 需要的 {nodeList, edgeList} 形状由本端点提供；
+        图不可用/未构建时如实返回 200 + 空列表 + GRAPH_UNAVAILABLE，不冒充。
+        """
+        from . import export as _export
+
+        eng = engine()
+        graph = getattr(getattr(eng, "hp", None), "graph", None)
+        base = {"schema": SCHEMA, "snapshot": getattr(eng, "save_dir", None)}
+        try:
+            names = [str(v["name"]) for v in graph.vs]
+            nodes = [_export._node_record(v) for v in graph.vs]
+            nodes.sort(key=lambda n: n["id"])
+            edges = [_export._edge_record(e, names) for e in graph.es]
+            edges.sort(key=lambda e: (e["source"], e["target"], e["weight"]))
+        except Exception:  # noqa: BLE001 - 图缺失/形状不符一律当不可用，不 500
+            return {**base, "status": "GRAPH_UNAVAILABLE",
+                    "node_count": 0, "edge_count": 0,
+                    "nodes": [], "edges": []}
+        return {**base, "status": "ok",
+                "node_count": len(nodes), "edge_count": len(edges),
+                "nodes": nodes, "edges": edges}
+
     @app.post("/v2/graph/global")
     def graph_global(req: GlobalRequest) -> Dict[str, Any]:
         """global 问答：答案只能由 community.json 里的社区事实拼装，逐条带来源。
