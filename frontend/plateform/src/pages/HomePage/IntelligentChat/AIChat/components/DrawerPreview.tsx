@@ -130,8 +130,19 @@ const DrawerPreview = ({
       try {
         const pdfjsLib = (await import("pdfjs-dist")).default || (await import("pdfjs-dist"));
         pdfjsLib.GlobalWorkerOptions.workerSrc = "/worker/pdf.worker.min.js";
+        // previewStream 是 POST + PageFileStreamReq{convertedFilePath,pageNo,stream}；
+        // 此前裸 GET（无 body）→ 405 → 高亮被跳过（T-A5 页面级实测定位到此处）。
         const resp = await fetch(target.streamApiUrl, {
-          headers: { Authorization: meta.token || "" }
+          method: "POST",
+          headers: {
+            Authorization: meta.token || "",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            convertedFilePath: target.filePath,
+            pageNo,
+            stream: true
+          })
         });
         if (!resp.ok) return;
         const buf = await resp.arrayBuffer();

@@ -1,0 +1,31 @@
+{
+ "schema": "llmke.page-e2e.v1",
+ "time": "2026-11-03T20:37+08:00",
+ "checks": [
+  {
+   "step": "登录注入 token",
+   "result": "PASS",
+   "detail": "API 登录 token len=237，注入 saic_store/gitech_ril:rag_ai 两键，页面进入主界面"
+  },
+  {
+   "step": "UI 提问 global",
+   "result": "PASS",
+   "detail": "输入框+全局(GraphRAG)按钮，答案=4 条（来源：333）与 18094 /v2/graph/global 同文"
+  },
+  {
+   "step": "知识溯源抽屉",
+   "result": "PASS",
+   "detail": "知识溯源 1 → 抽屉显示知识库文档 docx-table.docx"
+  },
+  {
+   "step": "打开原文预览",
+   "result": "PASS",
+   "detail": "预览器渲染 1 页 canvas（1/1, 111%），上一页/下一页/缩放控件在位"
+  },
+  {
+   "step": "locator 高亮渲染",
+   "result": "FAIL(已定位根因)",
+   "detail": "annotation 矩形未渲染：DrawerPreview 高亮 fetch 对 previewStream 用裸 GET（应为 POST+PageFileStreamReq body）→ 405 被跳过。已修复（POST+convertedFilePath+pageNo），待 dist 重建后复验。"
+  }
+ ]
+}
