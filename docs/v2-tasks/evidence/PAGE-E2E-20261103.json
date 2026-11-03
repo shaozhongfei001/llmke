@@ -1,31 +1,28 @@
 {
  "schema": "llmke.page-e2e.v1",
- "time": "2026-11-03T20:37+08:00",
- "checks": [
+ "time": "2026-11-03T21:00+08:00",
+ "round": "26 补记",
+ "d7b_progress": [
   {
-   "step": "登录注入 token",
-   "result": "PASS",
-   "detail": "API 登录 token len=237，注入 saic_store/gitech_ril:rag_ai 两键，页面进入主界面"
+   "fix": "previewStream POST",
+   "verify": "network POST /proxy/.../previewStream 200 ×2",
+   "status": "PASS"
   },
   {
-   "step": "UI 提问 global",
-   "result": "PASS",
-   "detail": "输入框+全局(GraphRAG)按钮，答案=4 条（来源：333）与 18094 /v2/graph/global 同文"
+   "fix": "引用片段进入 metadata.page_content",
+   "verify": "API 级：新提问 reference 每条 metadata.page_content 与顶层 page_content 同值（64/60 字符）",
+   "status": "PASS"
   },
   {
-   "step": "知识溯源抽屉",
-   "result": "PASS",
-   "detail": "知识溯源 1 → 抽屉显示知识库文档 docx-table.docx"
+   "fix": "匹配降级（最长公共 token；表格散落单元格→单 token≥4）",
+   "verify": "tsc 0 新增错误；纯函数逻辑",
+   "status": "CODE_OK"
   },
   {
-   "step": "打开原文预览",
-   "result": "PASS",
-   "detail": "预览器渲染 1 页 canvas（1/1, 111%），上一页/下一页/缩放控件在位"
-  },
-  {
-   "step": "locator 高亮渲染",
-   "result": "FAIL(已定位根因)",
-   "detail": "annotation 矩形未渲染：DrawerPreview 高亮 fetch 对 previewStream 用裸 GET（应为 POST+PageFileStreamReq body）→ 405 被跳过。已修复（POST+convertedFilePath+pageNo），待 dist 重建后复验。"
+   "step": "页面级高亮渲染",
+   "verify": "首次流程打开原文渲染 1 页 PASS；二次流程点击抽屉条目触发 chat.js（node_modules @mxmweb/aichat）标签匹配丢 file_id → FileViewCom 载荷无 file_id → 打开失败提示（该缺陷在第三方包内，非本仓库代码）",
+   "status": "PARTIAL(第三方包抽屉载荷缺陷)"
   }
- ]
+ ],
+ "note": "页面级『点引用→抽屉→打开原文→渲染』已在首次流程实测通过；高亮最后渲染待绕过 chat.js 标签匹配缺陷后复验（可行路径：抽屉直接以 reference 原始条目构建 FileViewCom 载荷，属前端集成债务）。"
 }
