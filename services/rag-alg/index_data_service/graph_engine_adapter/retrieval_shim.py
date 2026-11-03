@@ -210,6 +210,26 @@ def _pick_top_k(req: Dict[str, Any]) -> Tuple[int, bool]:
     return clamped, clamped != raw
 
 
+def _pick_seeds(req: Dict[str, Any]) -> List[str]:
+    """把调用方给的实体种子原样透传给图服务（T-A6：产品链路 seeds 透传）。
+
+    只接受 list[str]；单个字符串也收（宽容旧调用方）。非法形态一律返回 []，
+    不回 400——种子缺失只是"图检索没有实体引导"，不是请求错误。
+    """
+    raw = req.get("seeds")
+    if raw is None:
+        return []
+    if isinstance(raw, str):
+        return [raw] if raw.strip() else []
+    if not isinstance(raw, list):
+        return []
+    out: List[str] = []
+    for item in raw:
+        if isinstance(item, str) and item.strip():
+            out.append(item.strip())
+    return out
+
+
 def _max_communities(req: Dict[str, Any]) -> int:
     """global 的社区条数：优先 `summary_top_k`（Java global 分支真实发的键，
     `AiServiceImpl.java:2256`），其次 legacy `top_n`（rerank 返回条数），都没有就 3。
@@ -413,8 +433,10 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             )
 
         top_k, clamped = _pick_top_k(req)
+        seeds = _pick_seeds(req)
         url = _graph_api() + "/v2/graph/query"
-        payload = {"query": query, "top_k": top_k}
+        # T-A6：seeds 透传（为空时也显式下发 []，让上游 trace.seed_hits 可审计）
+        payload = {"query": query, "top_k": top_k, "seeds": seeds}
 
         try:
             result = post(url, payload, _timeout())

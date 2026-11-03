@@ -129,7 +129,7 @@ def test_graph_route_maps_documents_and_metadata():
     # 出站报文与地址
     assert len(fake.calls) == 1
     assert fake.calls[0]["url"].endswith("/v2/graph/query")
-    assert fake.calls[0]["payload"] == {"query": "单笔授信超过五亿元由谁审议通过", "top_k": 3}
+    assert fake.calls[0]["payload"] == {"query": "单笔授信超过五亿元由谁审议通过", "top_k": 3, "seeds": []}
 
 
 def test_rewritten_query_takes_precedence_and_is_reported():
@@ -459,3 +459,22 @@ def test_health_reports_global_wired_with_upstream_endpoint():
                                           "CITATION_INVALID", "NO_RELEVANT_FACTS"}
     # 未命中不是"未接入"：自述里必须写明它回 200 而不是 501
     assert "200" in g["unavailable_when"]["NO_RELEVANT_FACTS"]
+
+def test_seeds_passthrough_and_sanitize():
+    """T-A6：seeds 原样透传给图服务；空/非法形态降级为空列表不回 400。"""
+    body = dict(QA_REQUEST, seeds=["ent:智造贷", "ent:授信额度"])
+    r, fake = call(body)
+    assert r.status_code == 200
+    assert fake.calls[-1]["payload"]["seeds"] == ["ent:智造贷", "ent:授信额度"]
+
+    # 非 list 且非 str（dict/数字）→ []；list 内非字符串元素与空串 → 过滤
+    for bad in ([1, 2, None], ["", "  "], {"k": "v"}):
+        body2 = dict(QA_REQUEST, seeds=bad)
+        r2, fake2 = call(body2)
+        assert r2.status_code == 200
+        assert fake2.calls[-1]["payload"]["seeds"] == []
+
+    single = dict(QA_REQUEST, seeds="ent:智造贷")
+    r3, fake3 = call(single)
+    assert r3.status_code == 200
+    assert fake3.calls[-1]["payload"]["seeds"] == ["ent:智造贷"]
