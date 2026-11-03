@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T22:00:00+08:00'
+  updated: '2026-11-03T23:00:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -163,13 +163,10 @@ tasks:
   - T-V2-02
   state: VERIFIED
   scope: 仅 D7a：点引用 → 抽屉 → 预览打开原文（含路径反查与取回字节）；**不含** locator 高亮，高亮见 T-A5
-  next_action: 已通过：v2 dist + agent-browser 实录——新建对话→R13 Global→提问→知识溯源→点 docx-plain.docx→PDF
-    预览打开（canvas 612×792、页标 1/1）；Network presign 200 + previewStream 200，presign 的
-    key 正是后端补出的桶内键 r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx
+  next_action: D7a 打开原文（§9 后端两通道 + §11 v2 dist 页面实录）；高亮在 T-A5
   acceptance:
   - D7a
-  evidence: docs/v2-tasks/evidence/A1-open-original.md（§9 后端两通道 + §11 页面实录，commit
-    f43764f）
+  evidence: docs/v2-tasks/evidence/A1-open-original.md
   blocker: ''
   screenshots:
   - docs/v2-tasks/evidence/screens/A1/01-answer-v2.png
