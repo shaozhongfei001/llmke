@@ -478,3 +478,12 @@ def test_seeds_passthrough_and_sanitize():
     r3, fake3 = call(single)
     assert r3.status_code == 200
     assert fake3.calls[-1]["payload"]["seeds"] == ["ent:智造贷"]
+
+def test_document_metadata_carries_page_content():
+    """D7b：metadata.page_content 与顶层 page_content 同值（抽屉重组后前端仍有片段可用）。"""
+    from graph_engine_adapter.retrieval_shim import _to_document
+    item = {"text": "事实A（来源：333）", "sources": [{"file_id": "333", "locator": "page=1;chunk=0"}]}
+    doc = _to_document(item, "global", None)
+    assert doc["page_content"] == "事实A（来源：333）"
+    assert doc["metadata"]["page_content"] == "事实A（来源：333）"
+

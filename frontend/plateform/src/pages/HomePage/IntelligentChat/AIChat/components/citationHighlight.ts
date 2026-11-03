@@ -41,6 +41,19 @@ export interface PageTextItem {
   height?: number;
 }
 
+/** 归一化串上的 token 区间（用于降级匹配）。 */
+function tokenizeRanges(
+  text: string
+): { token: string; start: number; end: number }[] {
+  const out: { token: string; start: number; end: number }[] = [];
+  const re = /[\u4e00-\u9fff]+|[A-Za-z0-9]+/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    out.push({ token: m[0], start: m.index, end: m.index + m[0].length });
+  }
+  return out;
+}
+
 /**
  * 在单页文本项里找 snippet 的首个连续命中，返回并集矩形（PDF 坐标系，左上原点）。
  * 找不到/片段为空返回 null。
@@ -64,9 +77,46 @@ export function buildHighlightRect(
   }
   if (!acc) return null;
 
-  const hit = acc.indexOf(target);
-  if (hit < 0) return null;
-  const hitEnd = hit + target.length;
+  let hit = acc.indexOf(target);
+  let hitEnd = hit >= 0 ? hit + target.length : -1;
+
+  if (hit < 0) {
+    // 降级匹配：全文未命中时（如引用片段是"主语+谓语+宾语"而文档是表格单元格），
+    // 改用"最长公共 token 连续串"（中文串/字母数字串切词），≥2 个 token 才画，
+    // 单个 token 不画（太泛，容易画错行）。
+    const accTokens = tokenizeRanges(acc);
+    const tgtTokens = normalizeText(snippet).match(/[\u4e00-\u9fff]+|[A-Za-z0-9]+/g) || [];
+    let bestStart = -1;
+    let bestEnd = -1;
+    for (let i = 0; i < accTokens.length; i++) {
+      for (let j = 0; j < tgtTokens.length && i + j < accTokens.length; j++) {
+        if (accTokens[i + j].token !== tgtTokens[j]) break;
+        if (j + 1 >= 2 && j + 1 > bestEnd - bestStart) {
+          bestStart = i;
+          bestEnd = i + j + 1;
+        }
+      }
+    }
+    if (bestEnd - bestStart < 2) {
+      // 单 token 降级：表格型文档（事实散在单元格）找不到连续 ≥2 token 时，
+      // 退到"最长目标 token（≥4 字符）"的首个命中，给用户一个确定的视觉锚点；
+      // 找不到足够长的 token 才放弃（返回 null 静默降级跳页）。
+      let bestTok: { token: string; start: number; end: number } | null = null;
+      for (const t of accTokens) {
+        if (t.token.length < 4) continue;
+        if (tgtTokens.includes(t.token) &&
+            (!bestTok || t.token.length > bestTok.token.length)) {
+          bestTok = t;
+        }
+      }
+      if (!bestTok) return null;
+      hit = bestTok.start;
+      hitEnd = bestTok.end;
+    } else {
+      hit = accTokens[bestStart].start;
+      hitEnd = accTokens[bestEnd - 1].end;
+    }
+  }
 
   const matched = spans.filter(sp => sp.end > hit && sp.start < hitEnd);
   if (!matched.length) return null;

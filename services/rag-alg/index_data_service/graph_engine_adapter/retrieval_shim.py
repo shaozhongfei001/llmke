@@ -329,6 +329,10 @@ def _to_document(item: Any, search_type: str, reason: Optional[str]) -> Optional
     if search_type == SEARCH_TYPE[DENSE_FALLBACK]:
         # 回退必须自证：不写这个键，调用方无法区分"图真跑了"和"图没跑、捡了向量结果"。
         metadata["graph_reason"] = reason
+    # D7b：事实文本同时进 metadata——页面知识溯源抽屉（@mxmweb/aichat）重组 FileViewCom 入参时
+    # 只保留 metadata 而丢顶层 page_content；前端 DrawerPreview 有 metadata.page_content 回退，
+    # 这里补一份才能让"引用片段文本搜索高亮"拿到输入。
+    metadata["page_content"] = text
     return {"page_content": text, "metadata": metadata}
 
 
