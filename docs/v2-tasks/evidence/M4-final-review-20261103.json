@@ -1,0 +1,44 @@
+{
+ "schema": "llmke.m4-review.v1",
+ "model": "qwen-max",
+ "round": "final",
+ "verdicts": [
+  {
+   "id": "F-D0",
+   "verdict": "supported",
+   "note": "事实中明确提到图谱增强页有112节点/251关系，并且数据流经了gateway→graph-service→18094 /v2/graph/view。",
+   "caught": false
+  },
+  {
+   "id": "F-D6",
+   "verdict": "supported",
+   "note": "事实中提到图检索链路成立，使用了真实语料A组GRAPH+seed_hits（seeds_source=auto）+禁用对照显式回退。页面级产品A/B未做也与事实描述一致。",
+   "caught": false
+  },
+  {
+   "id": "F-D9",
+   "verdict": "supported",
+   "note": "事实中提到中文补丁默认安装和升级重验实测PASS，D9达成。",
+   "caught": false
+  },
+  {
+   "id": "F-D10",
+   "verdict": "supported",
+   "note": "事实中提到D10结构层9/9 PASS，但语义质量未评，因此D10未达验收。",
+   "caught": false
+  },
+  {
+   "id": "F-D7",
+   "verdict": "supported",
+   "note": "事实中提到点引用打开原文页面级成立，但locator文本高亮页面渲染未成立（第三方包缺陷），因此D7未达验收。",
+   "caught": false
+  },
+  {
+   "id": "F-PUSH",
+   "verdict": "supported",
+   "note": "事实中提到38个提交已就绪、工作树干净、回归122 passed，但未push、未merge main（需用户确认）。",
+   "caught": false
+  }
+ ],
+ "conclusion": "终审 6/6 supported：D0/D6/D9/D10(结构)/D7(打开原文部分)/PUSH 口径与证据一致；未达验收项（D7 高亮、D10 语义、Nebula 清库、产品级 A/B）均如实标注。"
+}
