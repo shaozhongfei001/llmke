@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T19:05:00+08:00'
+  updated: '2026-11-03T19:40:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -198,10 +198,9 @@ tasks:
   owner: FE
   depends_on:
   - T-A1
-  state: TODO
+  state: DOING
   scope: D7 的另一半：打开原文后按 locator（如 page=-;offset=[[0,45]];chunk=0）在预览里高亮正确位置
-  next_action: 前端会话已提交页码定位(initialPage)；chunk 级高亮需 snippet 文本定位（本会话接管后实现，或先补 position
-    契约）
+  next_action: 前端 PDF 高亮已接入（citationHighlight+annotations，纯函数验证通过）；真机渲染验证待服务恢复
   acceptance:
   - D7b
   evidence: ''
@@ -328,3 +327,17 @@ tasks:
   evidence: ''
   blocker: 缺 nebula3 客户端与清库授权
   artifacts: []
+- id: T-D9
+  parent: VL7
+  loop: L7
+  owner: TL
+  depends_on: []
+  state: VERIFIED
+  next_action: 中文补丁默认安装(api._ensure_cjk_compat+health.cjk_compat)+升级重验脚本 scripts/v2_cjk_revalidate.py（实测
+    PASS）
+  acceptance:
+  - D9
+  evidence: docs/v2-tasks/UPGRADE-CJK.md
+  blocker: ''
+  artifacts:
+  - scripts/v2_cjk_revalidate.py
