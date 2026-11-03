@@ -202,3 +202,18 @@
   → Java enrichReferenceSources → **source=r12-rag/kb_9/docx-table.docx/V0/docx-table.docx**，locator/community 未破坏。
 - 取原文链路实测未通：19000 直连 403；网关 /minio/ 404；Office 预览配置 `application-r12.yml:80 → 18095/stream` 当时未监听。
 - 端口纪律：A2 的临时实例曾占 18095（= 预览服务默认端口），已停止并释放；18094/19531/19532/8088/18083 未受影响。
+
+### T-A1 三步放行执行结果（15:20）
+- ① 重启 18083：before_pid=2363389（r12 jar md5 35e8b120…）→ 打包 v2（md5 c441d760…）→ after_pid=2403983，
+  Started in 7.983s；JVM 参数与 r12 配置照旧，只换 jar；环境变量从 platform/r12/.env 载入。
+  curl① question_re(r13_reader) 200；curl② question_re(admin) 200 且 metadata.source 被补出。
+- ② 取原文正确入口（team-lead 指正，我原先试的全错）：
+  `GET /index/knowledgeBase/file/presign?key=<桶内键>` → 200 → 预签名 GET → 200 / 36716 字节 / docx；
+  预签名的是上传时同一文件（fileSize 36716.0）。`/proxy/...` 前缀返回 404；`previewStream` 500（预览服务未起）。
+- ③ 快照：19531 + space_name=kb_1002 + col_values=["docx-plain.docx"] → 快照 /tmp/v2-shim-root/snapshot-20261103151221-873115-g0
+  （sources.json file_id=999017；1 社区/3 事实/citation ok）→ Java 引用 source 原样 presign 成功 → 闭环。
+  已还原 18094 到 /tmp/s4-root-c/snapshot-20261103000343-927116-g0（26 节点/49 边/69 事实/33 社区，与基线一致）；
+  19532 复测 code=200 docs=3 正常。
+- 权限边界实测有效：r13_reader 提问 → 日志「resolve source by file_id 999017 failed: 没有足够权限」，source 置空不越权。
+- 唯一断点：前端未运行（:80 是 WeKnora；LLMKE 前端临时 nginx 已删、Vite 受 inotify ENOSPC）→ 页面点引用/抽屉/高亮未做。
+- Java 行号：resolveSourceByFileId:2669 / enrichReferenceSources:2719 / 内部调用:2747 / publicQuestion:736 / global 接线:400。

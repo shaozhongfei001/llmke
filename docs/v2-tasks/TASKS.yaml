@@ -148,10 +148,10 @@ tasks:
     owner: TL
     depends_on: [T-V2-02]
     state: BLOCKED
-    next_action: "已完成：kb_9 真实上传 id=999019（converted_file_path 已记）；用 kb_9 产品侧已解析真实文档 id=333 跑通全链——产品解析块建图→global 社区事实→shim 映射出的 Java 实际输入→enrichReferenceSources→source=r12-rag/kb_9/docx-table.docx/V0/docx-table.docx 且 locator=page=1;chunk=0 保留（6/6 PASS）。待办：①重启 :18083 让新代码生效（需授权）②打通取原文/预览通道（/minio/ 404、18095/stream 未运行）③页面抽屉实录"
+    next_action: "API 层全链已做实：重启 18083（pid 2363389→2403983，换 v2 jar）→ question_re(admin) 返回 metadata.source=r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx、locator=page=-;offset=[[0,45]];chunk=0 → presign 200 → 预签名 GET 200/36716 字节（与 fileSize 逐字节相等）。临时快照 /tmp/v2-shim-root/snapshot-20261103151221-873115-g0 已还原为 /tmp/s4-root-c/snapshot-20261103000343-927116-g0。剩：前端未运行，页面点引用→抽屉→高亮未做"
     acceptance: [D7]
     evidence: "docs/v2-tasks/evidence/A1-open-original.md"
-    blocker: "页面级「点引用→抽屉→打开原文→高亮 locator」UNVERIFIED：需重启运行中的 rag-qa-service(:18083)（未授权）+ 取原文链路 403/404（对象存储未签名、网关 /minio/ 无该对象、Office 预览 18095/stream 未运行）"
+    blocker: "断点=前端未运行（80 端口是另一个产品 WeKnora；LLMKE 前端临时 nginx 容器已删、Vite 受 inotify ENOSPC 限制）。前端起来后用 admin 对 kb_1002 提问并点引用即可验收；预期 GET /index/knowledgeBase/file/presign?key=<source> 返回 200"
     artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "scripts/a1_reference_resolve_check/", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
 
   - id: T-A2

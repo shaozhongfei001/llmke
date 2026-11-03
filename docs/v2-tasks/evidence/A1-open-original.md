@@ -209,3 +209,130 @@ $ curl -I http://127.0.0.1:8088/minio/r12-rag/kb_9/docx-table.docx/V0/docx-table
 反查逻辑已抽成唯一实现并接进 global 分支，**用 kb_9 真实上传、产品侧已解析的 id=333 文档跑通了
 "真实文档 → 真实 global 社区事实 → Java 实际输入 → 反查 → source=真实桶内对象键 + locator 保留" 全链（6/6 PASS）**；
 仍缺的只剩两件需外部动作的事：重启运行中的 `:18083`，以及打通取原文/预览通道（实测 `/minio/` 404、18095/stream 未运行）。
+
+## 9. 补充（2026-11-03 15:20）：按 team-lead 放行的三步做实，端到端在 API 层跑通
+
+### 9.1 重启 18083（先打包，只重启 qa-service）
+
+运行中的 18083 原本跑的是 **r12 工作树的 jar**，新代码在 v2 —— 所以是"换 jar 部署"，不是原地重启：
+
+| 项 | 值 |
+|---|---|
+| 重启前 pid | `2363389` |
+| 重启前 jar | `/home/szf/data/dev/llmke-r12/.../rag-qa-service-0.0.1-SNAPSHOT.jar`，md5 `35e8b1200a98c11203adcee26cf7b7c3`（回滚基准） |
+| 打包 | `mvn -o -q -pl rag-qa-service -DskipTests package` → v2 jar md5 `c441d760cf3bb4e074151d0ff9838fb3` |
+| 重启后 pid | `2403983`，`Started RagQaServiceApplication in 7.983 seconds` |
+| 启动参数 | 与原进程一致的 JVM 参数 + `--spring.profiles.active=r12 --spring.config.additional-location=file:/home/szf/data/dev/llmke-r12/platform/r12/conf/rag-qa-service/`，只把 `-jar` 换成 v2 的包 |
+| 环境变量 | 从 `platform/r12/.env` 载入（首次未载入时启动失败过一次：`Could not resolve placeholder 'R12_REDIS_PASSWORD'`，如实记录） |
+| 未动 | 8088 / 18094 / 19532 |
+
+**curl ①（重启后服务可用性）**：`POST /qa/ai/question_re`，`X-UserID:5 / X-UserName:r13_reader`，globalMode=true
+
+```
+http=200
+data:{"sessionId":"t-a1-restart-check","queryId":"q1",...,"reply":{"content":"- 集团客户授信方案 规定 集团客户统一授信额度为20亿元（来源：F012）",...
+```
+
+**curl ②（真实文件 global 提问）**：同端点，`X-UserID:1 / X-UserName:admin`
+
+```
+http=200
+answer: - 客户 拥有 日均存款（来源：999017）
+        - 日均存款 金额 2,983,333.33元（来源：999017）
+reference[0].metadata.source = "r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx"     ← 修复后补出来
+reference[0].metadata.file_id = 999017
+reference[0].metadata.locator = "page=-;offset=[[0, 45]];chunk=0"                        ← locator 未丢
+```
+
+### 9.2 取原文：按 team-lead 给的两个真实入口实测
+
+```
+GET  /index/knowledgeBase/file/presign?key=r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx
+  -> 200 {"success":true,"data":{"url":"http://127.0.0.1:19000/r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx?....X-Amz-Signature=..."}}
+GET  <presigned url>
+  -> 200 bytes=36716 ct=application/vnd.openxmlformats-officedocument.wordprocessingml.document
+```
+
+`36716` 与上传时的 `fileSize=36716.0` **逐字节相等** —— 拿到的就是那份真实上传文件，不是我拼的路径。
+
+补充事实（与我上一版的错误尝试对照，team-lead 的判断正确）：
+
+| 入口 | 实测 |
+|---|---|
+| `/proxy/index/knowledgeBase/file/presign` | **404**（网关没有 `/proxy` 前缀映射） |
+| `/index/knowledgeBase/file/presign` | **200**，签发成功（对象级授权 + `statObject` 存在性检查） |
+| `/index/knowledgeBase/file/previewStream` | **500 `源文件转换格式失败`（6001）** —— 因为 Office→PDF 预览服务 `18095/stream` 当时没起（§6） |
+| 直连 `19000` / 网关 `/minio/` | 403 / 404（都不对，已作废） |
+
+### 9.3 建进 global 快照 → 引用→原文闭环
+
+按放行要求用 **19531**、`space_name=kb_1002`、`col_values=["docx-plain.docx"]`（ES 取块，file_id 来自 legacy 元数据）：
+
+```
+$ curl -X POST http://127.0.0.1:19531/generate_triple_data \
+   -d '{"space_name":"kb_1002","col_name":"title","col_values":["docx-plain.docx"],...}'
+http=200 {"code":200,"msg":"V2 建图完成 docs=1 chunks=1 facts=3 edges=4",
+ "data":{"snapshot":"/tmp/v2-shim-root/snapshot-20261103151221-873115-g0",
+         "es":{"es_docs_used":1,"locator_degraded":0}, ...}}
+```
+
+新快照 `sources.json` 确认绑定到真实上传文件：
+
+```json
+{"chunk-d452c50cbac0c9ebc94f52e1c9351cd6":[{"file_id":"999017",
+  "locator":"page=-;offset=[[0, 45]];chunk=0","title":"docx-plain.docx"}]}
+```
+
+该快照 `community.json`：1 社区 / 3 事实 / `citation_check.ok=true`、`invalid=[]`。
+
+chain 闭环（同一份 source 串原样喂 presign）：
+
+```
+Java 下发的 source = 'r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx'
+presign -> 200
+presigned GET -> 200 bytes= 36716 ct= application/vnd.openxmlformats-officedocument.wordprocessingml.document
+locator = page=-;offset=[[0, 45]];chunk=0
+```
+
+**两个快照路径（按要求记录）**
+
+| 用途 | 路径 |
+|---|---|
+| 临时（含真实文件 999017） | `/tmp/v2-shim-root/snapshot-20261103151221-873115-g0` |
+| 已还原（原基线） | `/tmp/s4-root-c/snapshot-20261103000343-927116-g0` |
+
+18094 还原后实测：`{"status":"ok","snapshot":"/tmp/s4-root-c/snapshot-20261103000343-927116-g0","nodes":26,"edges":49,"facts":69,"community":{"communities":33,"citation_check_ok":true,"status":"READY"}}`，
+与 CHECKPOINT 记录的基线一致；19532 检索链路复测 `POST /retrieval_documents` → `code=200 查询成功 docs=3`，未受影响。
+（一次还原失败留证：漏了 `PYTHONPATH` 导致 `ModuleNotFoundError: No module named 'graph_engine_adapter'`，补上后起来。）
+
+### 9.4 Java 改动行号（评审逐行核对用）
+
+| 位置 | 内容 |
+|---|---|
+| `AiServiceImpl.java:2669` | `private String resolveSourceByFileId(JSONObject metadata)`（R13-GRAPH-11 唯一实现） |
+| `AiServiceImpl.java:2719` | `private String enrichReferenceSources(String reference)` |
+| `AiServiceImpl.java:2747` | 内部逐条调用 `resolveSourceByFileId` |
+| `AiServiceImpl.java:736` | publicQuestion 内联块改为调用（原 26 行内联被替换） |
+| `AiServiceImpl.java:400` | global 分支接线 `reference = enrichReferenceSources(...)` |
+
+### 9.5 权限边界是有效的（不是缺陷）
+
+同一问题用 `X-UserName:r13_reader` 提问时，日志给出：
+
+```
+WARN … resolve source by file_id 999017 failed: 没有足够权限
+INFO … T-A1 enrichReferenceSources: items=1 resolved=0 unresolved=1
+```
+
+即：**看不到这个知识库的用户，不会因为反查而拿到原文路径**。此时 `metadata.source` 被置空（前端显示不可点），
+而不是给出一个越权可下载的链接。这条与 D8 的可见性要求方向一致。
+
+### 9.6 剩下的唯一断点
+
+**页面级（浏览器）「点引用 → 抽屉 → 原文 → 高亮」未做**，原因是前端没在跑：
+`http://127.0.0.1/`（80）返回的是另一个产品（`<title>WeKnora</title>`）；LLMKE 前端此前用临时 nginx 提供，
+容器已删除，Vite dev 受 inotify ENOSPC 限制起不来（CHECKPOINT 已记，非代码问题）。
+
+复现条件：把 LLMKE 前端起来（nginx 指向 dist 或解决 inotify），用 admin 登录、对 kb_1002 提问
+"日均存款是多少"、点引用；预期请求 `GET /index/knowledgeBase/file/presign?key=<source>` 返回 200。
+在此之前 T-A1 保持 BLOCKED（断点=前端未运行），其余链路（上传→图→global→反查→presign→取回字节→locator）已全部实测通过。
