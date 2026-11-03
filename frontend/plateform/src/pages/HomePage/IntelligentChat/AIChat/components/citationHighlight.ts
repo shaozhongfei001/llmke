@@ -85,7 +85,8 @@ export function buildHighlightRect(
     // 改用"最长公共 token 连续串"（中文串/字母数字串切词），≥2 个 token 才画，
     // 单个 token 不画（太泛，容易画错行）。
     const accTokens = tokenizeRanges(acc);
-    const tgtTokens = normalizeText(snippet).match(/[\u4e00-\u9fff]+|[A-Za-z0-9]+/g) || [];
+    const tgtTokens: string[] =
+      normalizeText(snippet).match(/[\u4e00-\u9fff]+|[A-Za-z0-9]+/g) || [];
     let bestStart = -1;
     let bestEnd = -1;
     for (let i = 0; i < accTokens.length; i++) {

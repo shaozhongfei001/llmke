@@ -201,23 +201,27 @@ export const httpAdapter: GraphLifecycleAdapter = {
       )
         ? status
         : "READY") as SegmentStatus;
+    const st = (status: string, reason?: string) => ({
+      status: seg(status),
+      ...(reason ? { reason } : {})
+    });
     // 后端尚未给五段细粒度状态：全部映射自 pointer/fence（构图为 READY，
-    // 社区按 citation_check_ok 判 READY/PARTIAL，发布按 pointer 有无判 READY/PENDING）
+    // 社区按 citation_check_ok 判 READY/FAILED/PENDING，发布按 pointer 有无判 READY/PENDING）
     const pointer = d?.pointer || {};
     const comm = d?.community || {};
     const hasSnapshot = Boolean(d?.snapshot);
-    const segments: Record<string, SegmentStatus> = {
-      parse: hasSnapshot ? "READY" : "PENDING",
-      extract: hasSnapshot ? "READY" : "PENDING",
-      graph: hasSnapshot ? "READY" : "PENDING",
+    const segments: Record<string, { status: SegmentStatus; reason?: string }> = {
+      parse: st(hasSnapshot ? "READY" : "PENDING"),
+      extract: st(hasSnapshot ? "READY" : "PENDING"),
+      graph: st(hasSnapshot ? "READY" : "PENDING"),
       community: hasSnapshot
         ? comm.citation_check_ok === true
-          ? "READY"
+          ? st("READY")
           : comm.citation_check_ok === false
-            ? "FAILED"
-            : "PENDING"
-        : "PENDING",
-      publish: pointer.fencing ? "READY" : "PENDING"
+            ? st("FAILED", "引用校验未通过")
+            : st("PENDING")
+        : st("PENDING"),
+      publish: st(pointer.fencing ? "READY" : "PENDING")
     };
     return {
       generation: Number(pointer.generation || 0),

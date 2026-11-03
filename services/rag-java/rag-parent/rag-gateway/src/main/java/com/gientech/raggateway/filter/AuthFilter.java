@@ -109,7 +109,11 @@ public class AuthFilter implements GatewayFilter, Ordered {
             "/auth/resource/getMenusByUser",
             "/auth/resource/getMenus",
             "/auth/user/logout",
-            "/auth/user/getUserType"
+            "/auth/user/getUserType",
+            // V2 图谱增强页库级图（前端 GraphCanvas → graph-service → 18094 /v2/graph/view）。
+            // 仍要求 JWT（isNoTokenFree 在前），只跳过资源权限表查（该表尚无 v2 端点记录；
+            // 补齐权限表后可移出此名单——见 docs/v2-tasks/RECOVERY-RUNBOOK.md 权限项）。
+            "/graph/search/v2WholeGraph"
     );
 
     // 产品试用截止日期
