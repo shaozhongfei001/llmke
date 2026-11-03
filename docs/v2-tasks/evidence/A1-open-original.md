@@ -391,3 +391,23 @@ INFO … T-A1 enrichReferenceSources: items=1 resolved=0 unresolved=1
   临时快照（含 333）：`/tmp/v2-shim-root/snapshot-20261103151652-781141-g0`。
 - `19532` 未动；`r12-preview` 与 `r12-fe` 现为**运行中**（此前分别是 Exited/未起），如需回收可
   `docker stop r12-fe` + `preview/run.sh down`。
+
+### 10.6 补充：预览服务起来后，Office→PDF 这一段**也通了**
+
+之前 `previewStream` 500（§9.2）是因为预览服务没起。`preview/run.sh up` 之后用同一份真实文件的桶内键复测：
+
+```
+POST /index/knowledgeBase/file/previewStream  {"convertedFilePath":"r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"}
+-> 200  bytes=39628  ct=application/pdf     （首 4 字节 = %PDF）
+```
+
+产物已归档：`docs/v2-tasks/evidence/screens/A1/A1-preview-stream.pdf`。
+
+所以后端两条取原文通道现在都是实测通过：
+
+| 通道 | 端点 | 实测 |
+|---|---|---|
+| 原始文件（预签名直下） | `GET /index/knowledgeBase/file/presign?key=<桶内键>` | 200 → 预签名 GET 200 / **36716 字节**（=上传 fileSize） |
+| Office 转 PDF 预览 | `POST /index/knowledgeBase/file/previewStream` | 200 / **39628 字节** / `application/pdf` |
+
+→ 页面之所以仍失败，确实只剩前端抽屉字段映射这一处（§10.3），与后端两条通道无关。
