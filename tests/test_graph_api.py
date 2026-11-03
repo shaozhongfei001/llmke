@@ -373,3 +373,21 @@ def test_status_view_shape(tmp_path, monkeypatch):
     assert d["fence"]["generation"] == 0
     assert "cjk_compat" in d
 
+def test_entities_view_works_without_build_when_engine_has_snapshot(tmp_path):
+    """启动即挂快照（未经过本进程 build）时，entities/status 也应可用（D4 修复回归）。"""
+    import json
+
+    (tmp_path / "openie_results_ner_t.json").write_text(json.dumps({
+        "docs": [{"idx": "c1", "passage": "正文", "extracted_entities": ["甲"],
+                  "extracted_triples": [["甲", "拟申请", "乙"]]}]
+    }, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "sources.json").write_text(
+        '{"c1": [{"file_id": "f1", "locator": "p1", "title": "t"}]}', encoding="utf-8")
+
+    class EngineWithSnapshot(FakeEngine):
+        save_dir = str(tmp_path)
+
+    c = TestClient(create_app(engine_factory=lambda: EngineWithSnapshot()))
+    d = c.get("/v2/entities").json()
+    assert d["entity_count"] == 2
+

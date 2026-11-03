@@ -376,7 +376,8 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         """D4 Tab2：库级实体聚合（id/名/别名/事实/多来源），消费归并后的断言层。"""
         from .normalize import build_store
 
-        snapshot = state["snapshot"]
+        # 启动即指定快照（未经过本进程 build）时同样可用：回退到引擎 save_dir
+        snapshot = state["snapshot"] or getattr(engine(), "save_dir", None)
         sources = global_report.read_sources(snapshot)
         store_result = build_store(global_report._openie_docs(snapshot),
                                    global_report._resolver(sources))
@@ -418,7 +419,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         root = os.environ.get("LLMKE_V2_ROOT") or ".artifacts/api-root"
         pointer = read_pointer(root)
         fence_state = state.get("fence") or FenceState()
-        snapshot = state["snapshot"]
+        snapshot = state["snapshot"] or getattr(engine(), "save_dir", None)
         community = {"communities": None, "citation_check_ok": None}
         if snapshot:
             report = global_report.load(snapshot)
