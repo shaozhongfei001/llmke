@@ -69,6 +69,163 @@ ALLOWED_TYPES, _TYPES_SOURCE, _TYPES_REASON = _load_contract_types()
 logging.getLogger(__name__).info(
     f"类型白名单来源={_TYPES_REASON} 共{len(ALLOWED_TYPES)}类 path={_TYPES_SOURCE}")
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# R15 / T-B01：关系本体契约（symmetric + domain/range）
+#
+# 缺陷（外部评审 B01，graph_types.py:283 起）：pair_key 用 sorted() 把端点对一律当无序，
+# `甲 -担保-> 乙` 与 `乙 -担保-> 甲` 落成同一个键，只留**先到者** ——
+# 两条不同的业务事实被压成一条，且丢哪条取决于抽取顺序（不可复现、不可审计）。
+#
+# 修法：方向语义由本体声明，不由代码猜。
+#   · symmetric=true（当前只有 相似/关联）→ 同一事实的两种写法，用无序键去重；
+#   · symmetric=false 且 domain/range 可判定 → 方向由端点类型裁决，反向即伪反向边；
+#   · 谓词未登记 / 类型未判定 / domain==range → 方向**不可裁决**，两个方向都保留，
+#     记 direction_unresolved 审计，不静默合并（不可裁决 ≠ 重复）。
+# 无向键降级为"拓扑投影专用"（undirected_pair_key：社区/相似边/连通分量），
+# 不再充当业务事实身份 —— 这就是评审要求的"无向投影仅供社区，不回写业务事实"。
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _load_relations_contract():
+    """读 contracts/ontology/relations.v1.json：每个谓词的 symmetric/domain/range/aliases。
+
+    返回 (relations, source_path, reason)；relations = {name: {symmetric, domain, range, aliases}}。
+
+    健壮性：找不到/解析失败一律返回空表。空表意味着"所有谓词都按有向且方向不可裁决处理"，
+    即**不合并任何方向** —— 宁可多留一条候选，也不把两条事实压成一条。
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        cand = os.path.join(here, "contracts", "ontology", "relations.v1.json")
+        if os.path.isfile(cand):
+            try:
+                with open(cand, encoding="utf-8") as fh:
+                    spec = json.load(fh)
+                rels = {}
+                for r in spec.get("relations", []):
+                    nm = (r.get("name") or "").strip()
+                    if not nm:
+                        continue
+                    rels[nm] = {
+                        "symmetric": bool(r.get("symmetric")),
+                        "domain": (r.get("domain") or "").strip(),
+                        "range": (r.get("range") or "").strip(),
+                        "aliases": [a.strip() for a in (r.get("aliases") or []) if str(a).strip()],
+                    }
+                return rels, cand, ("contract" if rels else "contract_empty_relations")
+            except Exception as e:  # noqa: BLE001
+                return {}, cand, f"contract_invalid:{e}"
+        here = os.path.dirname(here)
+    return {}, "", "contract_not_found"
+
+
+def _load_type_codes():
+    """读 entity-types.v1.json，得到 {中文名/别名 -> code}，供 domain/range 比对。
+
+    取 legacy / label / aliases 三个来源，均映射到 code；冲突时先到者优先（确定性）。
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        cand = os.path.join(here, "contracts", "ontology", "entity-types.v1.json")
+        if os.path.isfile(cand):
+            try:
+                with open(cand, encoding="utf-8") as fh:
+                    spec = json.load(fh)
+                out = {}
+                for t in spec.get("types", []):
+                    code = (t.get("code") or "").strip()
+                    if not code:
+                        continue
+                    for nm in [t.get("legacy"), t.get("label")] + list(t.get("aliases") or []):
+                        nm = (nm or "").strip()
+                        if nm:
+                            out.setdefault(nm, code)
+                return out
+            except Exception:  # noqa: BLE001
+                return {}
+        here = os.path.dirname(here)
+    return {}
+
+
+RELATIONS, _REL_SOURCE, _REL_REASON = _load_relations_contract()
+SYMMETRIC_RELATIONS = frozenset(n for n, s in RELATIONS.items() if s.get("symmetric"))
+_REL_ALIAS_TO_NAME = {}
+for _rel_name, _rel_spec in RELATIONS.items():
+    _REL_ALIAS_TO_NAME[_rel_name] = _rel_name
+    for _alias in _rel_spec.get("aliases") or []:
+        _REL_ALIAS_TO_NAME.setdefault(_alias, _rel_name)
+_TYPE_CODE_BY_NAME = _load_type_codes()
+
+logging.getLogger(__name__).info(
+    f"关系本体来源={_REL_REASON} 共{len(RELATIONS)}个谓词 对称谓词={sorted(SYMMETRIC_RELATIONS)} "
+    f"path={_REL_SOURCE}；类型码映射{len(_TYPE_CODE_BY_NAME)}项")
+
+
+def relation_spec(rel):
+    """按契约取谓词本体声明；未登记返回 None（别名先归一到契约名）。"""
+    name = _REL_ALIAS_TO_NAME.get(clean_name(rel))
+    return RELATIONS.get(name) if name else None
+
+
+def canonical_relation(rel):
+    """谓词归一到契约名（仅用于本体判定，不在此处改写落库数据）。"""
+    s = clean_name(rel)
+    return _REL_ALIAS_TO_NAME.get(s, s)
+
+
+def is_symmetric_relation(rel):
+    """契约显式声明 symmetric=true 才算对称；未登记一律按**有向**处理（保守）。"""
+    spec = relation_spec(rel)
+    return bool(spec and spec.get("symmetric"))
+
+
+def direction_determinable(rel):
+    """方向能否由本体裁决。返回 (bool, reason)。"""
+    spec = relation_spec(rel)
+    if spec is None:
+        return False, "predicate_unregistered"
+    if spec.get("symmetric"):
+        return False, "symmetric"
+    dom, rng = spec.get("domain") or "", spec.get("range") or ""
+    if not dom or not rng or "*" in (dom, rng):
+        return False, "domain_range_wildcard"
+    if dom == rng:
+        return False, "domain_eq_range"
+    return True, "domain_range"
+
+
+def type_code_of(entity_type):
+    """实体类型（图中存的中文 legacy 名）→ 契约 code；未判定/兜底类返回 None。"""
+    t = clean_name(entity_type)
+    if not t:
+        return None
+    code = _TYPE_CODE_BY_NAME.get(t)
+    if code in (None, "unknown", "other"):
+        return None
+    return code
+
+
+def resolve_direction(rel, src_type, dst_type):
+    """按 domain/range 判定这条边的方向是否成立。
+
+    返回 "forward"（当前方向成立）/ "reverse"（反向才成立）/ "unknown"（不可裁决）。
+    只看端点类型，不看先后顺序 —— 这是 B01 与旧实现（sorted() + 先到者）的根本差别。
+    """
+    ok, _why = direction_determinable(rel)
+    if not ok:
+        return "unknown"
+    spec = relation_spec(rel)
+    sc, dc = type_code_of(src_type), type_code_of(dst_type)
+    if not sc or not dc:
+        return "unknown"
+    fwd = (sc == spec.get("domain") and dc == spec.get("range"))
+    rev = (sc == spec.get("range") and dc == spec.get("domain"))
+    if fwd and not rev:
+        return "forward"
+    if rev and not fwd:
+        return "reverse"
+    return "unknown"
+
 # 规则推断：LLM 没给出合法类型时，按名称形态兜底
 RULES = [
     ("金额", re.compile(r"(人民币)?\s*[\d,.]+\s*(万元|亿元|元)")),
@@ -278,34 +435,48 @@ def canonical_of(name, all_names, alias_map=None):
 #
 # 因此把判定抽成可复用纯函数：调用方（graph_service）在**写入前**把存储里已存在的
 # 三元组索引传进来，由本模块判定"这条是不重复/是重复"，本模块不认识 Nebula/Milvus。
+#
+# R15/T-B01：键的粒度从"一律无序"改为"按本体分流"（见文件上方 B01 说明）。
 # ─────────────────────────────────────────────────────────────────────────────
 
-def pair_key(rel, src, dst):
-    """(关系名, 无序端点对) 的稳定键 —— 方向无关，是"同一条业务事实"的身份。
+PAIR_KEY_SCHEME = "b01-ontology-directed-v1"
 
-    刻意不含方向：反向边 `A -rel-> B` 与 `B -rel-> A` 是同一事实的两种写法，
-    而 `A -rel1-> B` 与 `A -rel2-> B` 是不同事实（D7 同端点两谓词必须都保留）。
+
+def undirected_pair_key(rel, src, dst):
+    """(谓词, 无序端点对) —— **只用于拓扑投影**：社区 / 相似边 / 连通分量。
+
+    不要拿它当业务事实身份：`甲 -担保-> 乙` 与 `乙 -担保-> 甲` 在拓扑上相邻，
+    业务上却是两条事实。写事实账本必须用 pair_key。
     """
-    return (clean_name(rel), tuple(sorted((clean_name(src), clean_name(dst)))))
+    return (canonical_relation(rel), tuple(sorted((clean_name(src), clean_name(dst)))))
 
 
-def as_pair_index(existing_pairs):
-    """把多种形态的"已有三元组"统一成 pair 索引（set of pair_key）。
+def pair_key(rel, src, dst):
+    """业务事实身份（R15/T-B01）。
+
+    - 对称谓词（契约 symmetric=true，当前只有 相似/关联）：无序端点对，
+      `A 相似 B` 与 `B 相似 A` 是同一事实的两种写法；
+    - 其余谓词：**有向**。方向对不对由 resolve_direction 按 domain/range 裁决，
+      不由 sorted() 把方向抹掉 —— 抹掉就会把"甲担保乙"与"乙担保甲"压成一条（B01）。
+    - 未登记谓词一律按有向处理：宁可多留一条候选，也不静默丢一条事实。
+    """
+    r = canonical_relation(rel)
+    a, b = clean_name(src), clean_name(dst)
+    if is_symmetric_relation(rel):
+        return (r, tuple(sorted((a, b))))
+    return (r, (a, b))
+
+
+def _iter_triples(existing_pairs):
+    """把多种形态的"已有三元组"摊平成 (src, rel, dst)。
 
     接受：
-      - None / 空           -> 空索引（等于只做批内去重，行为与旧版一致）
-      - 三元组序列           -> [(src, rel, dst), ...] 或 [[src, rel, dst], ...]
-      - 字典行               -> {"src|source": .., "rel|relationship": .., "dst|dest": ..}
-      - 已构建的 pair 索引   -> {(rel, (a, b)), ...}（幂等，可反复传入）
-
-    刻意 **fail-closed**：遇到无法识别的元素直接抛 ValueError，而不是跳过。
-    理由：静默跳过会让索引变空 -> 去重全程空转却仍报"去重已启用"，
-    正是本项目反复出现的"假绿"形态（断言恒真、门禁全绿而结论为空）。
+      - 三元组序列  [(src, rel, dst), ...] / [[src, rel, dst], ...]
+      - 字典行      {"src|source": .., "rel|relationship": .., "dst|dest": ..}
+      - 已构建键    {(rel, (a, b)), ...}（幂等，可反复传入）
+    形态无法识别时抛 ValueError（fail-closed，见 as_pair_index 说明）。
     """
-    if not existing_pairs:
-        return set()
-    index = set()
-    for item in existing_pairs:
+    for item in existing_pairs or []:
         if isinstance(item, dict):
             src = item.get("src", item.get("source"))
             rel = item.get("rel", item.get("relationship"))
@@ -314,7 +485,7 @@ def as_pair_index(existing_pairs):
             if len(item) == 3:
                 src, rel, dst = item[0], item[1], item[2]
             elif len(item) == 2 and isinstance(item[1], (tuple, list, set, frozenset)):
-                # 已是 pair_key 形态：(rel, (a, b))
+                # 已是键形态：(rel, (a, b))
                 rel, ends = item[0], tuple(item[1])
                 if len(ends) != 2:
                     raise ValueError(f"pair 索引端点不是 2 个: {item!r}")
@@ -325,40 +496,69 @@ def as_pair_index(existing_pairs):
             raise ValueError(f"无法识别的已有三元组形态: {item!r}")
         if rel is None or src is None or dst is None:
             raise ValueError(f"已有三元组缺字段(src/rel/dst): {item!r}")
-        index.add(pair_key(rel, src, dst))
-    return index
+        yield src, rel, dst
+
+
+def as_pair_index(existing_pairs):
+    """把已有三元组统一成**有向**事实键索引（set of pair_key）。
+
+    刻意 **fail-closed**：遇到无法识别的元素直接抛 ValueError，而不是跳过。
+    理由：静默跳过会让索引变空 -> 去重全程空转却仍报"去重已启用"，
+    正是本项目反复出现的"假绿"形态（断言恒真、门禁全绿而结论为空）。
+    """
+    return {pair_key(rel, src, dst) for src, rel, dst in _iter_triples(existing_pairs)}
+
+
+def as_undirected_index(existing_pairs):
+    """拓扑投影用的无序索引。只服务"同谓词反向是否已存在"这一判断，不写回事实账本。"""
+    return {undirected_pair_key(rel, src, dst) for src, rel, dst in _iter_triples(existing_pairs)}
 
 
 def is_reverse_duplicate(src, rel, dst, existing_pairs):
-    """该三元组是否与 existing_pairs 中已有事实"同关系名 + 同无序端点对"。
+    """这条三元组是否**已是既有事实**（不是"同无序对"就算）。
 
-    existing_pairs 可以是 as_pair_index() 的结果，也可以直接传原始三元组序列。
-    方向是否相反由证据/原文决定，本函数不做业务猜测 —— 它只回答
-    "同一个 (关系, 无序对) 是否已经被写过"，避免同一事实在存储里出现两个方向。
+    判定分三种（R15/T-B01）：
+      1) 有向键命中 -> 同一事实同一方向，重复；
+      2) 对称谓词 -> 有向键本身就是无序键，已由 1) 覆盖；
+      3) 非对称且方向可由 domain/range 裁决、无序对已存在 -> 反向是**伪反向边**，算重复；
+      4) 非对称但方向不可裁决（未登记谓词/domain==range/通配）-> 反向是**另一条事实**，
+         不算重复（"甲担保乙"与"乙担保甲"必须都在）。
     """
     if not existing_pairs:
         return False
     if isinstance(existing_pairs, (set, frozenset)):
-        # set 里可能是已构建的 pair_key（2 元组），也可能是原始三元组（3 元组）
+        # set 里可能是已构建的键（2 元组），也可能是原始三元组（3 元组）
         first = next(iter(existing_pairs), None)
-        index = existing_pairs if (first is not None and len(first) == 2) else as_pair_index(existing_pairs)
-    else:
-        index = as_pair_index(existing_pairs)
-    return pair_key(rel, src, dst) in index
+        if first is not None and len(first) == 2:
+            if pair_key(rel, src, dst) in existing_pairs:
+                return True
+            if not direction_determinable(rel)[0]:
+                return False
+            return undirected_pair_key(rel, src, dst) in existing_pairs
+    if pair_key(rel, src, dst) in as_pair_index(existing_pairs):
+        return True
+    if not direction_determinable(rel)[0]:
+        return False
+    return undirected_pair_key(rel, src, dst) in as_undirected_index(existing_pairs)
 
 
 def build_pair_index(triples):
-    """从三元组序列构建 pair 索引（写入前给 is_reverse_duplicate / filter 用）。"""
+    """从三元组序列构建**有向**事实索引（写入前给 filter_reverse_duplicates 用）。"""
     return as_pair_index(triples)
 
 
 def filter_reverse_duplicates(triples, existing_pairs=None):
-    """按"同关系名 + 同无序端点对"过滤三元组，返回 (kept, skipped)。
+    """写入前过滤"同一事实"，返回 (kept, skipped)。
 
-    - existing_pairs：存储里已存在的三元组（跨批次）；不传则等价于"只去批内重复"。
+    - existing_pairs：存储里已存在的三元组 / 键（跨批次）；不传等价于"只去批内重复"。
     - skipped 原样返回被跳过的三元组，供调用方记录/审计，**不静默丢弃**。
+
+    R15/T-B01：不再"同无序对一刀切"。只有**方向可由本体裁决**的谓词，
+    才把反向视作同一事实；未登记谓词（如"担保"）或 domain==range 的谓词，
+    正反两个方向是两条事实，都保留 —— 否则互相担保这类事实会被丢掉一条。
     """
-    seen = as_pair_index(existing_pairs)
+    seen_directed = as_pair_index(existing_pairs)
+    seen_undirected = as_undirected_index(existing_pairs)
     kept, skipped = [], []
     for triple in triples or []:
         try:
@@ -367,10 +567,14 @@ def filter_reverse_duplicates(triples, existing_pairs=None):
             kept.append(triple)   # 形态不合法的交给下游既有校验，不在这里吞掉
             continue
         key = pair_key(rel, src, dst)
-        if key in seen:
+        if key in seen_directed:
             skipped.append(triple)
             continue
-        seen.add(key)
+        if direction_determinable(rel)[0] and undirected_pair_key(rel, src, dst) in seen_undirected:
+            skipped.append(triple)
+            continue
+        seen_directed.add(key)
+        seen_undirected.add(undirected_pair_key(rel, src, dst))
         kept.append(triple)
     return kept, skipped
 
@@ -517,9 +721,12 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
     report 里带 schema_version、被过滤实体及原因、合并映射、未分类实体。
 
     existing_pairs（R15-W02，可选）：存储里**已存在**的三元组（跨写入批次），
-    形态见 as_pair_index()。传入后，与已有事实"同关系名 + 同无序端点对"的新三元组
-    会被跳过并记入 report['dropped_reverse_existing'] / report['reverse_dup_skipped']。
-    不传时行为与旧版一致（只做批内去重），调用方无需改动即可保持兼容。
+    形态见 as_pair_index()。传入后，与本批共用同一套"本体分流"判定
+    （R15/T-B01：对称谓词按无序对判重；非对称谓词按 domain/range 裁决方向；
+    方向不可裁决时两个方向都保留），跳过项记入 report['dropped_reverse_existing'] /
+    report['reverse_dup_skipped']，方向判定明细记入 spurious_direction /
+    direction_conflict / direction_unresolved。
+    不传时等价于"只做批内去重"，调用方无需改动即可保持兼容。
     """
     alias_map = load_alias_map()
     raw_names = [n for n, v in entity_source_dict.items() if v.get("entity_type") == "1"]
@@ -660,32 +867,110 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
     # 它和 `最高额度->8000万元` 不再同键，不会在下一步被误当重复丢掉。
     new_triples, predicate_conflicts, rel_map = split_total_predicate(new_triples)
 
-    # R15 W02：逆否去重。抽取模型会把同一事实正反各输出一次
-    #（实测 '智造贷 -最高额度-> 8000万元' 与 '8000万元 -最高额度-> 智造贷' 并存），
-    # 进图后社区摘要会重复计数、reduce 也会把方向说反。
-    # 同一 (关系, 无序实体对) 只保留首次出现的方向；方向是否正确由抽取与证据回指保证，
-    # 这里不做业务猜测。
+    # R15 W02 + R15/T-B01：反向去重改为"本体分流"，不再"同无序对一刀切"。
     #
-    # R15-W02/A02：seen_pairs 预置 existing_pairs（存储里已存在的三元组），
-    # 于是"本批已写过的"与"历史批次已写过的"用同一套判定 —— 内存窗口之外的反向事实
-    # 也能在这里被拦住（前提是调用方把存储回读传进来）。
+    # 旧实现：同 (谓词, 无序端点对) 只留先到者 —— 抽取模型把同一事实正反各输出一次时
+    # 确实能挡住，但代价是 `甲 -担保-> 乙` 与 `乙 -担保-> 甲` 也被判成同一条，
+    # 丢哪条取决于抽取顺序（B01）。现在按契约分流：
+    #   1) 完全相同的有向三元组 -> 重复（批内 / 存量），丢；
+    #   2) 对称谓词（相似/关联）-> 无序键，两种写法是同一事实，丢后者；
+    #   3) 非对称 + domain/range 可裁决 -> 用端点类型判方向：
+    #        · 本方向不成立            -> 伪反向边，丢（记 spurious_direction）
+    #        · 本方向成立、反向在批内  -> 用本方向**替换**反向那条（保留正确方向，不增边）
+    #        · 本方向成立、反向在存量  -> 不动存量（清存量另行处理），本方向丢弃并记
+    #          direction_conflict，避免同一事实在库里出现两个可见方向（A02/N1）
+    #   4) 非对称但方向不可裁决（谓词未登记 / 类型未判定 / domain==range / 通配）
+    #        -> **两个方向都保留**，记 direction_unresolved。不可裁决 ≠ 重复。
+    #
+    # existing_pairs 仍只作为"已见"的预置集合（跨批次），判定口径与本批完全一致。
+    _type_of = {}
+    for _n, _v in kept.items():
+        _et = (_v.get("e_type") or [""])
+        _type_of[_n] = _et[0] if _et else ""
+
+    def _dir_of(src, rel, dst):
+        return resolve_direction(rel, _type_of.get(src, ""), _type_of.get(dst, ""))
+
     existing_index = as_pair_index(existing_pairs)
-    deduped, seen_pairs = [], set(existing_index)
-    dropped_reverse = 0            # 批内重复
-    dropped_reverse_existing = 0   # 与存储已有事实重复（跨批次）
+    existing_undirected = as_undirected_index(existing_pairs)
+    seen_pairs = set(existing_index)
+    seen_undirected = set(existing_undirected)
+    deduped = []
+    pos_of_undirected = {}          # 无序键 -> 批内已接受条目下标（供"替换伪反向"）
+    dropped_reverse = 0             # 批内重复（含对称谓词两种写法）
+    dropped_reverse_existing = 0    # 与存储已有事实重复（跨批次）
+    symmetric_dedup = 0
+    spurious_direction = []         # 伪反向边（本体判定本方向不成立）
+    direction_conflict = []         # 本方向成立但存量已有反向
+    direction_unresolved = []       # 方向不可裁决，两个方向都保留
     reverse_dup_skipped = []
     for src, rel, dst in new_triples:
         pair = pair_key(rel, src, dst)
+        uk = undirected_pair_key(rel, src, dst)
         if pair in seen_pairs:
+            _sym = is_symmetric_relation(rel)
             if pair in existing_index:
                 dropped_reverse_existing += 1
             else:
                 dropped_reverse += 1
+            if _sym:
+                # 对称谓词的有向键本身就是无序键，落到这里就是"同一事实的另一种写法"
+                symmetric_dedup += 1
             if len(reverse_dup_skipped) < 50:   # 审计用，不无限增长
                 reverse_dup_skipped.append({"src": src, "rel": rel, "dst": dst,
-                                            "scope": "existing" if pair in existing_index else "batch"})
+                                            "scope": ("symmetric:" if _sym else "")
+                                                     + ("existing" if pair in existing_index else "batch")})
             continue
+
+        symmetric = is_symmetric_relation(rel)
+        if not symmetric and uk in seen_undirected:
+            verdict = _dir_of(src, rel, dst)
+            if verdict == "reverse":
+                spurious_direction.append({
+                    "src": src, "rel": rel, "dst": dst, "rule": "ontology_domain_range",
+                    "reason": f"端点类型 {_type_of.get(src, '?')}/{_type_of.get(dst, '?')} "
+                              f"不满足 {canonical_relation(rel)} 的 domain/range，本方向是伪反向边",
+                })
+                continue
+            if verdict == "forward":
+                pos = pos_of_undirected.get(uk)
+                old = deduped[pos] if (pos is not None and pos < len(deduped)) else None
+                if old is not None and pair_key(old[1], old[0], old[2]) == pair_key(rel, dst, src):
+                    # 批内反向那条才是伪反向：换成当前（本体判定成立）的方向
+                    deduped[pos] = (src, rel, dst)
+                    seen_pairs.discard(pair_key(old[1], old[0], old[2]))
+                    seen_pairs.add(pair)
+                    spurious_direction.append({
+                        "src": old[0], "rel": old[1], "dst": old[2], "rule": "ontology_domain_range",
+                        "replaced_by": f"{src} -{rel}-> {dst}",
+                        "reason": "批内同谓词反向；本体判定当前方向成立，反向那条是伪反向边",
+                    })
+                    continue
+                if uk in existing_undirected:
+                    direction_conflict.append({
+                        "src": src, "rel": rel, "dst": dst, "scope": "existing",
+                        "reason": "存量已有同谓词反方向；本方向本体判定成立，需清存量后重写",
+                    })
+                    continue
+            if verdict == "unknown":
+                direction_unresolved.append({
+                    "src": src, "rel": rel, "dst": dst,
+                    "why": direction_determinable(rel)[1],
+                    "types": [clean_name(_type_of.get(src, "")), clean_name(_type_of.get(dst, ""))],
+                })
+        elif symmetric and uk in seen_undirected:
+            # 理论不可达（对称谓词的 pair_key 已是无序键，会被上面的重复分支接住）。
+            # 保留为显式断言式兜底：真走到这里说明 pair_key 的对称分支被改坏了。
+            symmetric_dedup += 1
+            dropped_reverse += 1
+            if len(reverse_dup_skipped) < 50:
+                reverse_dup_skipped.append({"src": src, "rel": rel, "dst": dst,
+                                            "scope": "symmetric:fallback"})
+            continue
+
         seen_pairs.add(pair)
+        seen_undirected.add(uk)
+        pos_of_undirected.setdefault(uk, len(deduped))
         deduped.append((src, rel, dst))
     new_triples = deduped
 
@@ -729,5 +1014,15 @@ def normalize_graph_data(triples_data_list, entity_source_dict, triples_source_d
         "predicate_rewritten": len(predicate_conflicts),
         "triples_source_rel_renamed": rel_renamed,
         "existing_pairs_loaded": len(existing_index),
+        # R15/T-B01 新增：方向判定不再靠"先到者"，这些字段是它的可审计证据。
+        "pair_key_scheme": PAIR_KEY_SCHEME,
+        "relation_contract_source": _REL_REASON,
+        "symmetric_dedup": symmetric_dedup,
+        "spurious_direction": spurious_direction[:50],
+        "spurious_direction_count": len(spurious_direction),
+        "direction_conflict": direction_conflict[:50],
+        "direction_conflict_count": len(direction_conflict),
+        "direction_unresolved": direction_unresolved[:50],
+        "direction_unresolved_count": len(direction_unresolved),
     }
     return new_triples, kept, new_triples_source, report
