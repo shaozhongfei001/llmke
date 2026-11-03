@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T20:05:00+08:00'
+  updated: '2026-11-03T20:15:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -355,3 +355,15 @@ tasks:
   blocker: ''
   artifacts:
   - services/rag-alg/index_data_service/graph_engine_adapter/api.py
+- id: T-D1
+  parent: VL1
+  loop: L1
+  owner: TL
+  depends_on: []
+  state: TODO
+  next_action: 按 D1-PARSE-ACTIVATION.md：shadow 对齐窗口→primary 分支→同源绑定→回滚；四格式样本集验收
+  acceptance:
+  - D1
+  evidence: docs/v2-tasks/D1-PARSE-ACTIVATION.md
+  blocker: 需解析服务运行与样本集
+  artifacts: []
