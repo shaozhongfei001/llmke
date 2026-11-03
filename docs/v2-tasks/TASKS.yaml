@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T20:15:00+08:00'
+  updated: '2026-11-03T20:55:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -367,3 +367,17 @@ tasks:
   evidence: docs/v2-tasks/D1-PARSE-ACTIVATION.md
   blocker: 需解析服务运行与样本集
   artifacts: []
+- id: T-D2
+  parent: VL2
+  loop: L2
+  owner: TL
+  depends_on: []
+  state: DOING
+  next_action: entity_link 第一版已落地（规则归并+同名异体名单+5 tests）；剩：接入 build 管线与业务语料反例验证
+  acceptance:
+  - D2
+  evidence: tests/test_entity_link.py
+  blocker: ''
+  artifacts:
+  - services/rag-alg/index_data_service/graph_engine_adapter/entity_link.py
+  - contracts/ontology/homonyms.v1.json

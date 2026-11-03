@@ -1,0 +1,5 @@
+{
+  "schema": "llmke.ontology.homonyms.v1",
+  "description": "同名异体隔离名单：同一组内的名字永不互相归并（D2 实体链接）。名单为空 = 默认按 alias_key 归并。",
+  "separate": []
+}
