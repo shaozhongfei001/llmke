@@ -240,6 +240,39 @@ def test_graph_view_returns_nodes_and_edges():
     assert d["edges"] == [{"source": "甲", "target": "乙", "weight": 0.5}]
 
 
+def test_graph_view_file_index_from_sources(tmp_path):
+    """D0 subGraph：/v2/graph/view 带 file_index（sources.json idx→file_id）。"""
+    import json
+
+    (tmp_path / "sources.json").write_text(
+        '{"c1": [{"file_id": "f1", "locator": "p1"}], "c2": [{"file_id": "f2", "locator": "p2"}]}',
+        encoding="utf-8")
+
+    class V:
+        def __init__(self, name):
+            self.name = name
+
+        def attributes(self):
+            return {"name": self.name, "content": None, "hash_id": None}
+
+        def __getitem__(self, key):
+            return getattr(self, key)
+
+    class G:
+        vs = [V("c1"), V("c2")]
+        es = []
+
+    class EngineWithView(FakeEngine):
+        hp = FakeHP()
+        save_dir = str(tmp_path)
+
+    EngineWithView.hp.graph = G()
+    c = TestClient(create_app(engine_factory=lambda: EngineWithView()))
+    d = c.get("/v2/graph/view").json()
+    assert d["file_index"]["f1"] == ["c1"]
+    assert d["file_index"]["f2"] == ["c2"]
+
+
 def test_graph_view_unavailable_is_not_500():
     """图缺失 → 200 + GRAPH_UNAVAILABLE + 空列表（前端可渲染空态，不炸）。"""
 

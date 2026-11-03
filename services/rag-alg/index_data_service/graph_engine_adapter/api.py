@@ -467,9 +467,23 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             return {**base, "status": "GRAPH_UNAVAILABLE",
                     "node_count": 0, "edge_count": 0,
                     "nodes": [], "edges": []}
+        # D0 subGraph：按文件归属索引（sources.json idx→file_id），供前端按文件过滤子图；
+        # 实体节点（无 idx 归属）不入 file_index，属库级。
+        file_index: Dict[str, List[str]] = {}
+        for refs in (global_report.read_sources(getattr(eng, "save_dir", None)) or {}).values():
+            for ref in refs or []:
+                if isinstance(ref, dict) and ref.get("file_id"):
+                    file_index.setdefault(str(ref["file_id"]), [])
+        # 节点 id 即 openie idx（engine 块键）；按 idx 把节点挂到 file_index
+        for refs in (global_report.read_sources(getattr(eng, "save_dir", None)) or {}).items():
+            idx, ref_list = refs
+            for ref in ref_list or []:
+                if isinstance(ref, dict) and ref.get("file_id") and idx not in                         file_index[str(ref["file_id"])]:
+                    file_index[str(ref["file_id"])].append(idx)
         return {**base, "status": "ok",
                 "node_count": len(nodes), "edge_count": len(edges),
-                "nodes": nodes, "edges": edges}
+                "nodes": nodes, "edges": edges,
+                "file_index": file_index}
 
     @app.post("/v2/graph/global")
     def graph_global(req: GlobalRequest) -> Dict[str, Any]:
