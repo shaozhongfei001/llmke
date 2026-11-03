@@ -151,7 +151,7 @@ tasks:
     next_action: "页面 E2E 已通过（v2 dist + agent-browser）：新建对话→R13 Global→提问→知识溯源→点 docx-plain.docx→PDF 预览打开（canvas 612×792/1-1 页），Network presign 200 + previewStream 200，key 正是后端补出的桶内键。唯一缺口=前端无 locator 高亮实现（DOM 无 .highlight/mark，代码里 highlight 只在编辑器组件）。下一步：前端实现按 locator 高亮即可转 VERIFIED"
     acceptance: [D7]
     evidence: "docs/v2-tasks/evidence/A1-open-original.md"
-    blocker: "断点=前端问答 PDF 预览没有按 locator 高亮的能力（打开原文/定位数据均已成立）。另：页面必须用 llmke-v2 的 dist，r12 旧 dist 会报「缺少原文地址或登录态」——属新旧前端产物契约差异，非后端缺陷"
+    blocker: "BLOCKED（owner=前端/llmke-r12 frontend）：真实剩余缺口=前端问答 PDF 预览无 locator 高亮实现（DOM .highlight/mark/[class*=highlight] 命中 0）。后端 presign 与 previewStream 已实测 200，无需再动。注意：team-lead 口径写的是「vendor referencelist 未透传 filePath」，但 §11 实测已否证其为打开原文的必要条件——换 v2 dist 后同一动线点条目即打开 PDF（Network 双 200），故不得再据此改 Java 或加平台字段"
     screenshots: ["docs/v2-tasks/evidence/screens/A1/01-answer.png", "docs/v2-tasks/evidence/screens/A1/02-drawer.png", "docs/v2-tasks/evidence/screens/A1/03-after-click-item.png", "docs/v2-tasks/evidence/screens/A1/04-answer2.png", "docs/v2-tasks/evidence/screens/A1/05-preview.png", "docs/v2-tasks/evidence/screens/A1/06-drawer3.png", "docs/v2-tasks/evidence/screens/A1/07-preview3.png", "docs/v2-tasks/evidence/screens/A1/08-preview4.png"]
     artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "scripts/a1_reference_resolve_check/", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
 

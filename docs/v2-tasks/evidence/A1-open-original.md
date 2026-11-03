@@ -506,3 +506,48 @@ agent-browser open http://127.0.0.1:18088/chats/main      # 这次停在 /chats/
 **locator 全链路不丢**（reference 与 sources[] 均带 `page=-;offset=[[0,45]];chunk=0`）；
 唯一没做到的是**打开后按 locator 高亮**——前端没有这个能力（DOM 无高亮层、代码里问答预览未实现）。
 按 D7 原文（"点引用打开并高亮正确位置"）这一条仍缺高亮，故 T-A1 不写 VERIFIED，断点收窄为"前端无 locator 高亮实现"。
+
+## 12. 收尾登记（2026-11-03 15:40）
+
+### 12.1 截图逐一对应（哪张是什么、失败还是通过）
+
+截图目录：`/home/szf/data/dev/llmke-v2/docs/v2-tasks/evidence/screens/A1/`
+
+| 文件 | 用哪个前端产物 | 画面内容 | 结果 |
+|---|---|---|---|
+| `01-answer.png` | r12 旧 dist | kb_9 提问后的答案 + `知识溯源 1` 按钮 | 通过（答案正常） |
+| `02-drawer.png` | r12 旧 dist | 抽屉列出 `知识库文档 / docx-table.docx` | 通过（列文件名正常） |
+| `03-after-click-item.png` | r12 旧 dist | 点条目后弹窗：`加载失败：缺少原文地址或登录态，无法打开原文` + `重 试` | **失败点（旧 dist）** |
+| `04-answer2.png` | r12 旧 dist | 第二次提问的答案（补 metadata 字段后重试） | 通过 |
+| `05-preview.png` | r12 旧 dist | 同 03，仍同一句失败（只补 `metadata.source`） | **失败点（旧 dist）** |
+| `06-drawer3.png` | r12 旧 dist | 抽屉列表（补 `sources[].source` 后重试前） | 通过 |
+| `07-preview3.png` | r12 旧 dist | 仍失败（补 `sources[].source/filePath` 后） | **失败点（旧 dist）** |
+| `08-preview4.png` | r12 旧 dist | 仍失败（再补顶层 `doc.filePath` 后） | **失败点（旧 dist）** |
+| `01-answer-v2.png` | **v2 dist** | kb_1002/999017 提问的答案 `客户 拥有 日均存款（来源：999017）` | **通过** |
+| `02-drawer-v2.png` | **v2 dist** | 抽屉列出 `docx-plain.docx` | **通过** |
+| `03-preview-v2.png` | **v2 dist** | 点条目后 PDF 预览打开（上一页/下一页、1/1 页） | **通过** |
+| `04-preview-final.png` | **v2 dist** | 同一预览的最终态（PDF 已渲染） | **通过** |
+| `A1-preview-stream.pdf` | — | `previewStream` 返回的 PDF 产物（39628 字节，`application/pdf`，首 4 字节 `%PDF`） | 后端通道产物 |
+
+即：**03 / 05 / 07 / 08 四张是失败点，全部发生在 r12 旧 dist 上；01-answer-v2 起的四张是 v2 dist 下的通过实录。**
+
+### 12.2 previewStream 产物路径
+
+- 归档：`/home/szf/data/dev/llmke-v2/docs/v2-tasks/evidence/screens/A1/A1-preview-stream.pdf`
+- 生成时临时路径：`/tmp/a1-preview.pdf`
+- 复现命令（预览服务起来后）：
+  `POST http://127.0.0.1:8088/index/knowledgeBase/file/previewStream {"convertedFilePath":"r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"}` → 200 / 39628 字节 / `application/pdf`
+
+### 12.3 关于恢复条件的一处事实分歧（必须写清，不能含糊）
+
+团队口径（team-lead）为："`@gientech/modual` 的 referencelist 项需透传 `filePath`，或平台改自绘引用列表"。
+本文件 §11 的实测**否证了"必须改 vendor 才能打开原文"这一半**：
+
+- 同一份后端响应、同一个账号、同一条动线，**换用 v2 的 dist 后点条目直接打开 PDF**（§11.3–§11.5，Network `presign` 与 `previewStream` 均 200）。
+- 说明 `filePath` 缺失只是**旧 dist 的产物差异**，不是打开原文的必要条件。
+
+因此本项保持 BLOCKED 的**真实理由只有一条**：
+**前端问答 PDF 预览没有按 locator 画高亮**（DOM 中 `.highlight` / `mark` / `[class*=highlight]` 命中数均为 0；
+`frontend/plateform/src` 里 `highlight` 仅出现在 Template/AiEditor 等编辑器组件）。
+owner=前端（llmke-r12 frontend）；后端 `presign` 与 `previewStream` 均已实测 200，不需要再动。
+若团队认可"高亮"拆为独立前端票，则 D7 的"点引用打开原文"部分已可判通过。

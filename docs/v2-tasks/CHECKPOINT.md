@@ -241,3 +241,13 @@
 - 截图：docs/v2-tasks/evidence/screens/A1/{01-answer-v2,02-drawer-v2,03-preview-v2,04-preview-final}.png
 - 唯一缺口：**locator 高亮未实现**（DOM .highlight/mark 命中 0；前端 highlight 只在编辑器组件）→ T-A1 仍 BLOCKED，断点收窄到"前端无高亮实现"。
 - 收尾：18094 已还原 s4-root-c（26/49/69/33）；v2-fe-e2e 已删；r12-preview 已 down；18088/18095 占用 0；浏览器已 close；19532 未动。
+
+### T-A1 收尾（15:40，BLOCKED 定稿）
+- 预览：`preview/run.sh status` → `down`（healthz 连接被拒），18095 占用 0，r12-preview 容器已移除；r12-fe 仍 Exited(0)，未再动。
+- 证据补齐：A1 证据 §12 逐张标注截图 01–08 的失败点（03/05/07/08 四张失败，全部发生在 r12 旧 dist 上）
+  与 v2 dist 下通过的四张（01-answer-v2 / 02-drawer-v2 / 03-preview-v2 / 04-preview-final）；
+  previewStream 产物归档 docs/v2-tasks/evidence/screens/A1/A1-preview-stream.pdf（39628 字节 PDF）。
+- 恢复条件（BLOCKED 理由，owner=前端/llmke-r12 frontend）：问答 PDF 预览需按 locator 画高亮。
+  说明：team-lead 口径「vendor referencelist 未透传 filePath」已被 §11 实测否证——换 v2 dist 后点条目即打开 PDF、
+  presign/previewStream 双 200，故不得再据此改 Java 或加平台字段。
+- 历史 commit message 未改（d52a1b9 反引号被 shell 吃掉那半句，已在证据 §10.3 记录完整表述）。
