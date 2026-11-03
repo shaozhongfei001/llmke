@@ -252,3 +252,46 @@ def test_graph_view_unavailable_is_not_500():
     assert d["status"] == "GRAPH_UNAVAILABLE"
     assert d["nodes"] == [] and d["edges"] == []
 
+def test_build_persists_and_exposes_fence(tmp_path):
+    """D8：build 从快照 fence.json 恢复并暴露 GET /v2/fence。"""
+
+    def builder(docs, root):
+        (tmp_path / "fence.json").write_text(
+            '{"generation": 2, "revoked": {"r9": {"reason": "REVOKED", "generation": 1}}}',
+            encoding="utf-8")
+        return {"snapshot": str(tmp_path), "chunks": len(docs), "sources": 1}
+
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(), builder=builder))
+    c.post("/v2/graph/build", json={"docs": [{"file_id": "f1", "text": "正文"}]})
+    d = c.get("/v2/fence").json()
+    assert d["generation"] == 2 and d["revoked"] == ["r9"] and d["count"] == 1
+
+
+def test_query_drops_fully_revoked_hits(tmp_path):
+    """D8：检索命中来源全部被撤权 → 剔除并计数，不返回旧内容。"""
+    (tmp_path / "sources.json").write_text(
+        '{"c1": [{"file_id": "r9", "locator": "p1"}]}', encoding="utf-8")
+    (tmp_path / "fence.json").write_text(
+        '{"generation": 1, "revoked": {"r9": {"reason": "REVOKED", "generation": 1}}}',
+        encoding="utf-8")
+
+    def builder(docs, root):
+        return {"snapshot": str(tmp_path), "chunks": len(docs), "sources": 1}
+
+    class EngineRevoked(FakeEngine):
+        save_dir = str(tmp_path)
+
+        def openie_docs(self):
+            return [{"idx": "c1", "passage": "块一", "extracted_triples": []}]
+
+        def retrieve(self, query, seeds=None, top_k=3, use_graph=True):
+            return {"executed_route": "GRAPH", "reason": "GRAPH_CALLED",
+                    "trace": {"graph_calls": 1}, "docs": ["块一"], "hit_count": 1}
+
+    c = TestClient(create_app(engine_factory=lambda: EngineRevoked(), builder=builder))
+    c.post("/v2/graph/build", json={"docs": [{"file_id": "r9", "text": "块一"}]})
+    d = c.post("/v2/graph/query", json={"query": "q"}).json()
+    assert d["hit_count"] == 0
+    assert d["dropped_revoked"] == 1
+    assert d["fence_generation"] == 1
+

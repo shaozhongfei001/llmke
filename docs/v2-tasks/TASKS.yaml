@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T21:25:00+08:00'
+  updated: '2026-11-03T21:45:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -396,3 +396,18 @@ tasks:
   artifacts:
   - services/rag-alg/index_data_service/graph_engine_adapter/stability.py
   - docs/v2-tasks/D3-STABILITY-PLAN.md
+- id: T-D8
+  parent: VL5
+  loop: L5
+  owner: TL
+  depends_on: []
+  state: DOING
+  next_action: fence 持久化(fence.json 跨构建/重启)+query 撤权过滤+指针 CAS(flock 宿主机级)已落地(26 tests)；剩：撤权写入端点、跨机租约、两账号真机验收
+  acceptance:
+  - D8
+  evidence: tests/test_d8_fence_cas.py
+  blocker: ''
+  artifacts:
+  - services/rag-alg/index_data_service/graph_engine_adapter/fence.py
+  - services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+  - services/rag-alg/index_data_service/graph_engine_adapter/api.py

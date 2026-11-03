@@ -12,6 +12,8 @@
 一旦引擎换了行为（比如做缓存），这个假设就不成立了。
 """
 
+import json
+import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set
 
@@ -44,6 +46,36 @@ class FenceState:
 
     def snapshot(self) -> Dict[str, Any]:
         return {"generation": self.generation, "revoked": dict(self.revoked)}
+
+    @classmethod
+    def restore(cls, data: Optional[Dict[str, Any]]) -> "FenceState":
+        """从 snapshot() 的字典恢复；None/坏数据 → 空 fence（fail-closed 由 assert_index_fresh 保证）。"""
+        if not isinstance(data, dict):
+            return cls()
+        try:
+            return cls(generation=int(data.get("generation", 0)),
+                       revoked=dict(data.get("revoked") or {}))
+        except Exception:  # noqa: BLE001
+            return cls()
+
+    def save(self, path: str) -> None:
+        """持久化到快照目录 fence.json（原子替换，读者不会看到写一半的 fence）。"""
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(self.snapshot(), fh, ensure_ascii=False, sort_keys=True)
+        os.replace(tmp, path)
+
+    @classmethod
+    def load(cls, path: str) -> "FenceState":
+        """读 fence.json；不存在/损坏 → 空 fence（不抛，交由调用方按"未知"处理）。"""
+        try:
+            with open(path, encoding="utf-8") as fh:
+                return cls.restore(json.load(fh))
+        except Exception:  # noqa: BLE001
+            return cls()
+
+
+FENCE_FILE = "fence.json"
 
 
 def assert_index_fresh(index_generation: Optional[int], fence: FenceState) -> None:

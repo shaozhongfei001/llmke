@@ -27,6 +27,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from .fence import FENCE_FILE, FenceState
 from . import global_report
 
 SCHEMA = "llmke.graph-api.v1"
@@ -134,15 +135,20 @@ def _auto_seeds(query: str, snapshot: Optional[str]) -> List[str]:
 
 def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     from .engine_hipporag import HippoRAGEngine
-    from .fence import FenceState
-    from .rebuild import rebuild
+    from .fence import FENCE_FILE, FenceState
+    from .rebuild import read_pointer, rebuild
 
     # 建图前装中文补丁：index() 期就调用 text_processing 做实体键，装晚了中文实体全是空串。
     _ensure_cjk_compat()
     urls = _urls()
     live = [{"file_id": d.file_id, "text": d.text, "locator": d.locator,
              "title": d.title} for d in docs]
+    # D8：撤权 fence 跨构建/重启持久化——从当前指针指向的快照目录恢复，再随新快照落盘。
     fence = FenceState()
+    _cur = read_pointer(root)
+    _prev_dir = (_cur or {}).get("dir")
+    if _prev_dir:
+        fence = FenceState.load(os.path.join(_prev_dir, FENCE_FILE))
 
     def full_build(items, target):
         engine = HippoRAGEngine(save_dir=target, llm_base_url=urls["llm"],
@@ -151,6 +157,7 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
 
     result = rebuild(root, fence, live, full_build, fencing=1)
     target = result["current"]["dir"]
+    fence.save(os.path.join(target, FENCE_FILE))
 
     # 写来源映射：idx → [{file_id, locator}]。不写的话查询层只能返回空引用。
     engine = HippoRAGEngine(save_dir=target)
@@ -222,7 +229,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
     # 之前只有 scripts/v2_* 里显式调用，服务端从不安装 —— 结果 18094 上
     # text_processing 仍把中文清成空串，事实变成 ("","","5000")、种子换算撞空实体。
     # 可用 LLMKE_V2_CJK_COMPAT=0 显式关掉（对照实验用），关掉时 health 必须如实报。
-    state: Dict[str, Any] = {"engine": None, "text_to_idx": None, "snapshot": None}
+    state: Dict[str, Any] = {"engine": None, "text_to_idx": None, "snapshot": None, "fence": None}
 
     def engine() -> Any:
         if state["engine"] is None:
@@ -282,6 +289,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         state["engine"] = None
         state["text_to_idx"] = None
         state["snapshot"] = str(out.get("snapshot") or "")
+        state["fence"] = FenceState.load(os.path.join(state["snapshot"], FENCE_FILE))
         # 构建后立刻预热：否则首次查询要现场加载图与向量，实测会空响应/超时。
         # 预热失败不影响构建结果，查询时会再报真实错误。
         try:
@@ -307,6 +315,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
     @app.post("/v2/graph/query")
     def query(req: QueryRequest) -> Dict[str, Any]:
         eng = engine()
+        fence_state = state.get("fence") or FenceState()
         seeds = list(req.seeds)
         seeds_source = "caller" if seeds else "none"
         if not seeds and req.enable_graph:
@@ -323,9 +332,22 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             idx = mapping.get(text)
             items.append({"rank": i + 1, "text": text, "idx": idx,
                           "sources": sources.get(idx, []) if idx else []})
+        # D8：检索后再过一遍撤权 fence——命中来源全部被撤权即剔除，不把旧内容返回给用户。
+        dropped_revoked = 0
+        if fence_state.generation > 0:
+            live_items = []
+            for item in items:
+                sids = {str(src.get("file_id")) for src in item["sources"] if src.get("file_id")}
+                if sids and all(fence_state.is_revoked(f) for f in sids):
+                    dropped_revoked += 1
+                    continue
+                live_items.append(item)
+            items = live_items
         return {
             "schema": SCHEMA,
             "query": req.query,
+            "fence_generation": fence_state.generation,
+            "dropped_revoked": dropped_revoked,
             "seeds": list(seeds),
             "seeds_source": seeds_source,
             "graph_enabled": bool(req.enable_graph),
@@ -337,6 +359,14 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             "citations": [s for it in items for s in it["sources"]],
             "sources_available": bool(sources),
         }
+
+    @app.get("/v2/fence")
+    def fence_view() -> Dict[str, Any]:
+        """D8：撤权 fence 只读视图（generation + 已撤权 file_id 列表）。"""
+        fence_state = state.get("fence") or FenceState()
+        return {"schema": SCHEMA, "generation": fence_state.generation,
+                "revoked": sorted(fence_state.revoked),
+                "count": len(fence_state.revoked)}
 
     @app.get("/v2/graph/view")
     def graph_view() -> Dict[str, Any]:

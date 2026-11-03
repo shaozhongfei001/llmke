@@ -132,6 +132,29 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
             "current": payload, "build_result": _safe(result), "previous": previous}
 
 
+def _cas_write_pointer(root: str, payload: Dict[str, Any]) -> None:
+    """D8：指针 CAS 写——flock 内重读当前 fencing，落后即拒绝，再原子替换写指针。
+
+    诚实边界：这是**宿主机内的**文件锁 CAS（flock），不跨机；跨机租约仍由 lease_mysql 负责。
+    用途是把 `_promote` 的"先读后写"变成"锁内校验+写"，旧主晚到写会被拒绝。
+    """
+    import fcntl
+
+    lock_path = os.path.join(root, ".pointer.lock")
+    with open(lock_path, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            current = read_pointer(root)
+            current_fencing = int((current or {}).get("fencing", 0) or 0)
+            fencing = int(payload.get("fencing", current_fencing) or 0)
+            if current_fencing > fencing:
+                raise StaleFencingError(
+                    f"fencing {fencing} 落后于当前指针 {current_fencing}：本实例已被接管，拒绝写入")
+            _write_pointer(root, payload)
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
+
+
 def _promote(root: str, fence: FenceState, live: List[Dict[str, Any]], target: str,
              previous: Optional[Dict[str, Any]], result: Any, *,
              fencing: Optional[int], dropped: List[Any], keep_last: int,
@@ -155,7 +178,7 @@ def _promote(root: str, fence: FenceState, live: List[Dict[str, Any]], target: s
                "mode": mode,
                "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
                "previous": (previous or {}).get("dir")}
-    _write_pointer(root, payload)
+    _cas_write_pointer(root, payload)
 
     # 只保留最近 keep_last 个快照目录，避免磁盘无限增长（不删当前指针指向的那个）
     snapshots = sorted(d for d in os.listdir(root) if d.startswith("snapshot-"))
