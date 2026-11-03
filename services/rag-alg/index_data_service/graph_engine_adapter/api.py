@@ -105,6 +105,33 @@ def _text_to_idx(engine: Any) -> Dict[str, str]:
     return out
 
 
+def _auto_seeds(query: str, snapshot: Optional[str]) -> List[str]:
+    """T-A6：调用方没给种子时，从快照 openie 实体里自动识别。
+
+    与服务端 pipeline.find_seeds 同一套匹配口径（唯一实体才算种子），
+    认不出就返回空列表，不瞎猜。bare 名由引擎 `_to_engine_key` 换算。
+    """
+    if not query or not str(query).strip():
+        return []
+    names: List[str] = []
+    for doc in global_report._openie_docs(snapshot):
+        for e in doc.get("extracted_entities") or []:
+            if isinstance(e, str) and e.strip():
+                names.append(e.strip())
+        for t in doc.get("extracted_triples") or []:
+            if isinstance(t, (list, tuple)):
+                for end in (t[0], t[-1]):
+                    if isinstance(end, str) and end.strip():
+                        names.append(end.strip())
+    names = sorted(set(names))
+    if not names:
+        return []
+    from . import seed_match
+
+    result = seed_match.match_seeds(query, names, resolve=lambda n: n)
+    return list(result["seeds"])
+
+
 def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     from .engine_hipporag import HippoRAGEngine
     from .fence import FenceState
@@ -280,7 +307,13 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
     @app.post("/v2/graph/query")
     def query(req: QueryRequest) -> Dict[str, Any]:
         eng = engine()
-        out = eng.retrieve(req.query, seeds=req.seeds, top_k=req.top_k,
+        seeds = list(req.seeds)
+        seeds_source = "caller" if seeds else "none"
+        if not seeds and req.enable_graph:
+            auto = _auto_seeds(req.query, getattr(eng, "save_dir", None))
+            if auto:
+                seeds, seeds_source = auto, "auto"
+        out = eng.retrieve(req.query, seeds=seeds, top_k=req.top_k,
                            use_graph=req.enable_graph)
         docs = list(out.get("docs") or [])
         mapping = idx_map()
@@ -293,7 +326,8 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         return {
             "schema": SCHEMA,
             "query": req.query,
-            "seeds": list(req.seeds),
+            "seeds": list(seeds),
+            "seeds_source": seeds_source,
             "graph_enabled": bool(req.enable_graph),
             "executed_route": out.get("executed_route"),
             "reason": out.get("reason"),

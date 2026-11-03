@@ -172,3 +172,34 @@ def test_build_without_docs_or_artifact_is_rejected():
     c = TestClient(create_app(engine_factory=lambda: FakeEngine(),
                               builder=lambda docs, root: {"snapshot": "/tmp/x"}))
     assert c.post("/v2/graph/build", json={}).status_code == 400
+
+def test_auto_seed_from_snapshot_when_caller_gives_none(tmp_path):
+    """T-A6：调用方没给 seeds 时，服务端从快照 openie 实体自动识别（唯一实体才算）。"""
+    import json
+
+    snap = tmp_path / "snap"
+    snap.mkdir()
+    (snap / "openie_results_ner_test.json").write_text(json.dumps({
+        "docs": [{"idx": "c1", "extracted_entities": ["智造贷", "5000万元"],
+                  "extracted_triples": [["智造贷", "单户最高授信额度为", "5000万元"]]}]
+    }, ensure_ascii=False), encoding="utf-8")
+
+    class EngineWithSnapshot(FakeEngine):
+        save_dir = str(snap)
+
+    eng = EngineWithSnapshot()
+    c = TestClient(create_app(engine_factory=lambda: eng))
+    d = c.post("/v2/graph/query", json={"query": "智造贷的单户最高授信额度是多少"}).json()
+    assert d["seeds_source"] == "auto"
+    assert "智造贷" in d["seeds"]
+    assert "智造贷" in eng.last_call["seeds"]
+
+
+def test_auto_seed_none_when_no_match_or_no_snapshot():
+    """认不出实体/无快照 → seeds_source=none，不瞎猜。"""
+    eng = FakeEngine()  # save_dir=/tmp/snap 无 openie 文件
+    c = TestClient(create_app(engine_factory=lambda: eng))
+    d = c.post("/v2/graph/query", json={"query": "一个完全不存在的问句xyz"}).json()
+    assert d["seeds_source"] == "none"
+    assert d["seeds"] == []
+
