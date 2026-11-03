@@ -162,3 +162,31 @@
 ### 不得重复/擅自执行
 - 不要重启 18094（S3 在用）；18095 为本批次临时实例。
 - 不要用 F001–F012/999010 证明"打开原文"（T-A1 禁止）。
+
+### T-A1 D7 打开原文（BLOCKED，代码已落地）
+- 真实上传：走产品网关 8088 上传 coordination/samples/docx-plain.docx（真实 docx，非 F001–F012/999010）
+  → gienrag.knowledge_base_list id=999017、kb_id=1002、converted_file_path 有值、status=3。
+  注意：Java 写的是 `gienrag` 库，不是 ENV.md 写的 `gienrag_v2_restore`（后者该表 0 行）。
+- 代码：AiServiceImpl 抽出 resolveSourceByFileId（:2680）+ 新增 enrichReferenceSources（:2712），
+  publicQuestion 内联块改为调用，question_re global 分支 :396-402 接线。
+- 验证：mvn -o compile 通过；离线仓库 surefire 2.12.4 缺 junit3 provider 跑不了 mvn test，
+  改为对已编译真实类打私有方法（动态代理桩 KbClient + Mockito 桩 StorageProperties）→ 4/4 PASS。
+- 未完成（BLOCKED 原因）：需重启 :18083 让新代码生效；且实测直连 :19000 403、网关 /minio/ 404，
+  取原文链路待确认；global 快照里还没有这份真实文件。页面级实录未做。
+
+### T-A3 D4 社区同源（VERIFIED）
+- 脚本 scripts/v2_a3_lineage_probe.py；事实 智造贷 适用于 制造业中小微企业 五跳闭合：
+  openie(chunk-ddb6…) → 断言(subject=智造贷, source F001 page=1;chunk=0) → export 67/68 → 社区 c-3(size=5)
+  → community.json（inputs.facts=67/triples=68）。
+- 两次生成 sha256 相同 c7c09b82894d61d0c976251df034b4508f3ed2e325c800231831f98f266e8661；
+  citation_check ok、invalid=[]、checked=64；孤点社区 1 个保留。
+- 不是相似图的依据：community.build_report 输入是断言对象（community.py:104-110）；引擎图 251 边 vs 输入 68 三元组。
+
+### 下一精确动作
+1. 等授权：重启 rag-qa-service(:18083) → 跑一次 global 提问，确认 reference 里 metadata.source 非空。
+2. 确认前端取原文的真实地址（19000 直连 403、/minio/ 404），再用真实文档走页面点击。
+3. 18095 临时实例用完后关闭（当前仍在跑，供 A2/A3 复跑）。
+
+### 不得重复/擅自执行
+- 不要重启 18094 / 18083（18083 需授权）。
+- 不要用 F001–F012/999010 证明"打开原文"。

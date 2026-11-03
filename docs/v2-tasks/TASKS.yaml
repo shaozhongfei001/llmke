@@ -147,12 +147,12 @@ tasks:
     loop: L1
     owner: TL
     depends_on: [T-V2-02]
-    state: TODO
-    next_action: "question_re global 分支补 convertedFilePath 反查，真实上传文档点引用打开原文"
+    state: BLOCKED
+    next_action: "已完成：真实上传 docx-plain.docx（gienrag.knowledge_base_list id=999017，非演示语料）、Java 编译通过、反查逻辑对真实类跑 4/4 PASS、global 分支已接线。待办：①重启 :18083 让新代码生效（需授权）②确认前端取原文地址（实测 :19000 直连 403、网关 /minio/ 404）③把该真实文件建进 global 快照"
     acceptance: [D7]
-    evidence: ""
-    blocker: ""
-    artifacts: ["docs/v2-tasks/evidence/A1-open-original.md"]
+    evidence: "docs/v2-tasks/evidence/A1-open-original.md"
+    blocker: "页面级「点引用→抽屉→打开原文→高亮 locator」UNVERIFIED：需重启运行中的 rag-qa-service(:18083) + 确认取原文链路；两项都需外部授权，未擅自执行"
+    artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
 
   - id: T-A2
     parent: VL3
@@ -171,12 +171,12 @@ tasks:
     loop: L4
     owner: TL
     depends_on: [T-V2-02]
-    state: TODO
-    next_action: "openie→断言→community.json 逐跳溯源自证"
+    state: VERIFIED
+    next_action: "已五跳闭合：智造贷-适用于-制造业中小微企业（chunk-ddb6…→断言 source F001 page=1;chunk=0→export 67/68→社区 c-3 size=5→community.json），两次 sha256 相同 c7c09b82…，citation_check ok/invalid=[]/checked=64，孤点 1 保留。脚本 scripts/v2_a3_lineage_probe.py"
     acceptance: [D4]
-    evidence: ""
-    blocker: ""
-    artifacts: ["docs/v2-tasks/evidence/A3-community-lineage.md"]
+    evidence: "docs/v2-tasks/evidence/A3-community-lineage.md"
+    blocker: "语料为 F001–F012（18094 现有块）；业务语料社区溯源未做"
+    artifacts: ["docs/v2-tasks/evidence/A3-community-lineage.md", "scripts/v2_a3_lineage_probe.py"]
 
   - id: T-A4
     parent: VL2
