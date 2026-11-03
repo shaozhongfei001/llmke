@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T20:55:00+08:00'
+  updated: '2026-11-03T21:10:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -373,7 +373,8 @@ tasks:
   owner: TL
   depends_on: []
   state: DOING
-  next_action: entity_link 第一版已落地（规则归并+同名异体名单+5 tests）；剩：接入 build 管线与业务语料反例验证
+  next_action: entity_link 已接入 build 管线（global_report+社区/溯源脚本），71 tests；剩：业务语料反例验证与
+    build 响应透出 link 报告
   acceptance:
   - D2
   evidence: tests/test_entity_link.py

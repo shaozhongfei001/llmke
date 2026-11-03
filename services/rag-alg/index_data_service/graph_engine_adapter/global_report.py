@@ -39,6 +39,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from .assertions import SourceRef
 from .community import build_report
 from .normalize import build_store
+from . import entity_link
 
 SCHEMA = "llmke.graph-engine.global-report.v1"
 FILE_NAME = "community.json"
@@ -235,6 +236,9 @@ def build_report_for_snapshot(snapshot: Optional[str], built_file_ids: Sequence[
     docs = _openie_docs(snapshot)
     store_result = build_store(docs, _resolver(sources))
     store = store_result["store"]
+    # D2：跨文档实体链接（规则归并 + 同名异体隔离），社区/global 消费归并后的实体。
+    # 归并报告写入 inputs.entity_link，可审计；名单损坏按空名单处理（entity_link 内部兜底）。
+    store, link_report = entity_link.apply_linking(store, entity_link.load_homonyms())
     fact_total = len(store._assertions)
 
     base = build_report(store, known_all)
@@ -254,7 +258,8 @@ def build_report_for_snapshot(snapshot: Optional[str], built_file_ids: Sequence[
                    "documents": len(docs),
                    "triples": sum(len(d.get("extracted_triples") or []) for d in docs),
                    "facts": fact_total,
-                   "normalize": store_result["stats"]},
+                   "normalize": store_result["stats"],
+                   "entity_link": link_report},
         "communities": base["communities"],
         "community_count": len(base["communities"]),
         "answer": answer,

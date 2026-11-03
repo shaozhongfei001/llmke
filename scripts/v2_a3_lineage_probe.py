@@ -15,7 +15,8 @@ sys.path.insert(0, "/home/szf/data/dev/llmke-v2/services/rag-alg/index_data_serv
 
 from graph_engine_adapter import global_report                      # noqa: E402
 from graph_engine_adapter.community import build_communities, export_facts  # noqa: E402
-from graph_engine_adapter.normalize import build_store              # noqa: E402
+from graph_engine_adapter.normalize import build_store
+from graph_engine_adapter import entity_link              # noqa: E402
 
 print("SNAPSHOT:", SNAP)
 
@@ -51,6 +52,7 @@ print("        原文片段: %s" % (doc.get("passage") or "")[:80])
 # ── 跳 2：normalize → 断言（谓词走平台字典、来源绑定、数值解析） ──────────
 sources = global_report.read_sources(SNAP)
 res = build_store(docs, global_report._resolver(sources))
+store = entity_link.apply_linking(res["store"])[0]
 store = res["store"]
 print("\n[跳 2] normalize stats:", json.dumps(res["stats"], ensure_ascii=False, default=list))
 print("        assertions=%d  orphans=%d" % (len(store._assertions), len(store._orphans)))
