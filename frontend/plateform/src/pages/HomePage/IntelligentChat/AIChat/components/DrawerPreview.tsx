@@ -12,6 +12,7 @@ import {
   resolvePreviewTarget
 } from "@root/src/core/helps/fileAccess";
 import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { buildHighlightRect, type HighlightAnnotation } from "./citationHighlight";
 
 /**
  * R14-D-FIX-01：引用"打开原文"。
@@ -33,6 +34,7 @@ const DrawerPreview = ({
   const [target, setTarget] = useState<any>(null);
   const [error, setError] = useState<string>("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [highlight, setHighlight] = useState<HighlightAnnotation[]>([]);
 
   const meta = useMemo(() => {
     const token: any = getToken();
@@ -58,9 +60,17 @@ const DrawerPreview = ({
       const m = /(?:^|[;\s])page=(\d+)/i.exec(String(loc || ""));
       return m ? Math.max(1, parseInt(m[1], 10)) : undefined;
     })();
+    // T-A5：引用片段（fact/答案文本），用于 PDF 文本层搜索高亮；拿不到就只跳页。
+    const snippet =
+      curFileInfo?.page_content ||
+      curFileInfo?.excerpt ||
+      curFileInfo?.content ||
+      curFileInfo?.metadata?.page_content ||
+      "";
     return {
       token,
       source,
+      snippet,
       fileName: getFileName(content),
       // R14-D-FIX-01：优先用“源文件名后缀”判类型。
       // getFileType(content, rawPath) 对 Office 会拿到 /preview/convert?key=… 这类路径，
@@ -70,7 +80,7 @@ const DrawerPreview = ({
         getFileType(content, rawPath),
       totalPages: content.pdfPages || 0,
       citationError,
-      initialPage: locatorPage
+      initialPage: locatorPage,
     };
   }, [curFileInfo]);
 
@@ -84,6 +94,7 @@ const DrawerPreview = ({
       );
       return;
     }
+    setHighlight([]);
     resolvePreviewTarget({
       source: meta.source,
       fileType: meta.fileType,
@@ -102,6 +113,51 @@ const DrawerPreview = ({
       cancelled = true;
     };
   }, [meta, reloadKey]);
+
+  // T-A5：目标解析后，用 pdfjs 文本层搜索引用片段 → 矩形高亮（尽力而为）。
+  useEffect(() => {
+    let cancelled = false;
+    if (
+      !target ||
+      target.streamApiUrl !== PREVIEW_STREAM_API ||
+      !meta.snippet ||
+      !meta.initialPage
+    ) {
+      return;
+    }
+    const pageNo = meta.initialPage; // guard 之后收窄为 number
+    (async () => {
+      try {
+        const pdfjsLib = (await import("pdfjs-dist")).default || (await import("pdfjs-dist"));
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "/worker/pdf.worker.min.js";
+        const resp = await fetch(target.streamApiUrl, {
+          headers: { Authorization: meta.token || "" }
+        });
+        if (!resp.ok) return;
+        const buf = await resp.arrayBuffer();
+        const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+        const page = await doc.getPage(pageNo);
+        const content = await page.getTextContent();
+        const rect = buildHighlightRect(
+          (content.items || []).map((it: any) => ({
+            str: it.str,
+            transform: it.transform,
+            width: it.width,
+            height: it.height
+          })),
+          meta.snippet,
+          pageNo
+        );
+        if (!cancelled && rect) setHighlight([rect]);
+      } catch (e) {
+        // 高亮失败不影响打开原文：静默降级为页码跳转
+        console.warn("citation highlight skipped:", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [target, meta.snippet, meta.initialPage, meta.token]);
 
   if (error) {
     return (
@@ -135,6 +191,7 @@ const DrawerPreview = ({
         totalPages={meta.totalPages}
         authorization={meta.token}
         streamApiUrl={target.streamApiUrl}
+        annotations={highlight}
         eventsEmit={(type: string) => {
           switch (type) {
             case "viewer:close":
