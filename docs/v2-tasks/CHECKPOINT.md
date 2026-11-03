@@ -260,3 +260,13 @@
   需前端按 locator offsets 画层；owner=前端/llmke-r12 frontend。locator 数据本身全链路没丢。
 - **读法纪律：T-A1 的 VERIFIED 只覆盖"打开原文"，不覆盖高亮；D7 未全通。**
 - 服务保持已停：18088/18095 均不监听（预览 down、临时前端容器已删），r12-fe 仍 Exited；不为验证再起。
+
+### VERIFIED 的边界单列（15:55，TL 定）
+- **T-A1 = D7a 打开原文 → VERIFIED**（证据 f43764f：页面实录 + presign/previewStream 双 200）。不含高亮。
+- **T-A5 = D7b locator 高亮 → TODO**：前端问答 PDF 预览无高亮实现（DOM .highlight/mark 命中 0）；owner=前端/llmke-r12 frontend；后端 presign/previewStream 已 200，不需再动。
+- **T-A6 = 产品链路 seeds 透传 → TODO**：Java→19532 shim 仍只发 {query,top_k}；retrieval_shim.py:416-417；owner=s3-retrieval-shim（单写者）。
+- **T-A7 = 业务语料社区溯源 → TODO**：T-A3 只证 F001–F012 夹具；需真实业务语料重跑 scripts/v2_a3_lineage_probe.py 同一五跳。
+- **读法纪律**：T-A2 / T-A3 的 VERIFIED 都是 **scope-limited**（分别只证引擎路径与夹具脚本路径），
+  产品透传看 T-A6、业务语料看 T-A7；**不要把任何一条 VERIFIED 读成该验收项全通**。
+- 事实分歧已按实测收口：「vendor 未透传 filePath」**作废**，旧 r12 dist 才是那轮误报原因。
+- 服务保持已停：18088/18095 不监听。
