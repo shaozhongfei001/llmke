@@ -230,3 +230,14 @@
 - 终态：18094 已还原到 /tmp/s4-root-c/snapshot-20261103000343-927116-g0（26/49/69/33）；
   临时快照 /tmp/v2-shim-root/snapshot-20261103151652-781141-g0；19532 未动；
   r12-preview 与 r12-fe 现为运行中（回收：docker stop r12-fe + preview/run.sh down）。
+
+### T-A1 页面 E2E 通过（15:32–15:36，v2 dist + agent-browser）
+- 关键：之前 §10 失败是用了 **r12 的旧 dist**；换成 **v2 的 dist**（v2-fe-e2e 容器，18088，/chats/main 200）后同样操作直接成功。
+  故"抽屉缺字段"的正确表述是"旧 dist 不适配新后端字段"，v2 dist 适配良好。r12-fe 已 docker stop（回到原 Exited）。
+- 动线：新建对话 → R13 Global → 问「日均存款是多少」→ 答案带（来源：999017）→ 点「知识溯源 1」→ 抽屉列出 docx-plain.docx
+  → 点条目 → **PDF 预览打开**（canvas 612×792，页标 1/1）。
+- Network：`GET /proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_1002%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx` **200**；
+  `POST /proxy/index/knowledgeBase/file/previewStream` **200**；pdf.worker.min.js 加载。
+- 截图：docs/v2-tasks/evidence/screens/A1/{01-answer-v2,02-drawer-v2,03-preview-v2,04-preview-final}.png
+- 唯一缺口：**locator 高亮未实现**（DOM .highlight/mark 命中 0；前端 highlight 只在编辑器组件）→ T-A1 仍 BLOCKED，断点收窄到"前端无高亮实现"。
+- 收尾：18094 已还原 s4-root-c（26/49/69/33）；v2-fe-e2e 已删；r12-preview 已 down；18088/18095 占用 0；浏览器已 close；19532 未动。

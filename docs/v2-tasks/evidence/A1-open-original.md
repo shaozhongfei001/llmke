@@ -411,3 +411,98 @@ POST /index/knowledgeBase/file/previewStream  {"convertedFilePath":"r12-rag/kb_9
 | Office 转 PDF 预览 | `POST /index/knowledgeBase/file/previewStream` | 200 / **39628 字节** / `application/pdf` |
 
 → 页面之所以仍失败，确实只剩前端抽屉字段映射这一处（§10.3），与后端两条通道无关。
+
+## 11. 页面 E2E **通过**（2026-11-03 15:32–15:36，用 **v2 的 dist** + agent-browser）
+
+### 11.1 关键发现：之前失败是因为用了 **r12 的旧 dist**
+
+§10 用的是 `r12-fe` 容器（挂 `llmke-r12/frontend/plateform/dist`），点条目报"缺少原文地址"。
+这次改用 **v2 的 dist**（`llmke-v2/frontend/plateform/dist`）后同样的操作直接成功 —— 说明那不是 Java 的问题，
+也不是"抽屉缺字段"的产品缺陷，而是**旧前端产物与新后端字段契约不匹配**（旧 dist 不认 `metadata.source`/`filePath`）。
+§10.3 的第一版结论（"前端硬契约缺 filePath"）应以此段为准：**正确表述是"旧 dist 不适配"，v2 dist 适配良好**。
+
+### 11.2 环境（按批准执行，逐个留痕）
+
+```
+$ platform/r12/preview/run.sh status
+r12-preview  Up 14 minutes (healthy)  r12/preview-office:r13
+  healthz: {"ok":true,"soffice":"LibreOffice 25.2.3.2",...}      # 18095 在监听
+
+$ docker stop r12-fe                     # 先把占 18088 的旧前端停掉（它原本就是 Exited）
+$ docker rm -f v2-fe-e2e
+$ docker run -d --name v2-fe-e2e --network host \
+    -v /home/szf/data/dev/llmke-v2/frontend/plateform/dist:/usr/share/nginx/html/rag:ro \
+    -v /home/szf/data/dev/llmke-v2/frontend/plateform/nginx/r12-18088.conf:/etc/nginx/conf.d/default.conf:ro \
+    nginx:alpine
+$ curl -I http://127.0.0.1:18088/chats/main   ->  200
+
+# 18094 临时切到含 999017 的快照
+$ LLMKE_V2_SNAPSHOT=/tmp/v2-shim-root/snapshot-20261103151221-873115-g0 \
+  PYTHONPATH=…/graph_engine_adapter uvicorn … --port 18094
+$ curl /health -> {"snapshot":"/tmp/v2-shim-root/snapshot-20261103151221-873115-g0",
+                   "nodes":3,"edges":4,"facts":3,"community":{"communities":1,"citation_check_ok":true,"status":"READY"}}
+```
+
+登录用 API token 注入（页面有图形验证码）：
+
+```
+agent-browser open http://127.0.0.1:18088/chats/main      # 先跳 /login
+agent-browser eval "localStorage.setItem('gitech_ril:rag_ai', {...token...}); …"
+agent-browser open http://127.0.0.1:18088/chats/main      # 这次停在 /chats/main
+```
+
+### 11.3 页面动线（agent-browser，真实点击，未用 JS .click() 冒充）
+
+1. 新建对话 → 选 `R13 Global 测试助手` → 问 **"日均存款是多少"**
+   → 答案：`客户 拥有 日均存款（来源：999017）` / `日均存款 金额 2,983,333.33元（来源：999017）`
+   截图：`/home/szf/data/dev/llmke-v2/docs/v2-tasks/evidence/screens/A1/01-answer-v2.png`
+2. 点 **`知识溯源 1`** → 抽屉列出 `知识库文档 / docx-plain.docx`
+   截图：`…/screens/A1/02-drawer-v2.png`
+3. 点该文档条目 → **预览打开成功**：出现「上一页/下一页」控件、PDF 画布 `612×792`、页标 `1 / 1`
+   截图：`…/screens/A1/03-preview-v2.png`、`…/screens/A1/04-preview-final.png`
+
+### 11.4 Network 关键帧（agent-browser network requests，原样）
+
+```
+[2521744.2234] GET  http://127.0.0.1:18088/proxy/index/knowledgeBase/file/presign?key=r12-rag%2Fkb_1002%2Fdocx-plain.docx%2FV0%2Fdocx-plain.docx (Fetch) 200
+[2521744.2235] POST http://127.0.0.1:18088/proxy/index/knowledgeBase/file/previewStream (XHR) 200
+[ A1E264A5E95C2B039DB8D113ACFEF372 ] GET http://127.0.0.1:18088/worker/pdf.worker.min.js (Script)
+```
+
+两条关键请求都是 **200**，`key` 就是 Java 反查出来的桶内键 `r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx`
+——**前端拿到的路径正是后端补出来的那一个**，闭环。
+
+渲染确认（`agent-browser eval`）：
+
+```
+{"canvas":1,"canvasSize":[612,792],"pageLabels":["1 / 1"]}
+```
+
+### 11.5 断言逐条
+
+| 断言 | 结果 | 证据 |
+|---|---|---|
+| 抽屉出现文件名 | **PASS** | 截图 02；snapshot 节点 `generic "docx-plain.docx"` |
+| Network 里 presign/previewStream 200 | **PASS** | §11.4 原样两行 |
+| 正文可见（PDF 已渲染） | **PASS** | canvas 612×792、页标 1/1、截图 03/04 |
+| 打开的是"这份引用对应的原文" | **PASS** | presign 的 key = 该引用的 `metadata.source`；文件字节数与上传时一致（§9.2 36716） |
+| **locator 高亮** | **未实现** | 页面 DOM 里 `.highlight` / `mark` / `[class*=highlight]` 命中数均为 **0**；`frontend/plateform/src` 里 `highlight` 只出现在编辑器类组件（Template/AiEditor），问答 PDF 预览没有按 locator 画高亮 |
+
+### 11.6 收尾（已执行）
+
+| 项 | 处置 |
+|---|---|
+| 18094 | 已还原 `/tmp/s4-root-c/snapshot-20261103000343-927116-g0`，health 实测 26 节点/49 边/69 事实/33 社区 |
+| `v2-fe-e2e` | `docker rm -f` 已删 |
+| `r12-fe` | 我先前 `docker start` 过、本次 `docker stop`，现回到它原本的 Exited 状态 |
+| `r12-preview` | `preview/run.sh down` → `[ok] removed r12-preview`，回到原本 Exited |
+| 端口 | `ss` 复查 18088/18095 占用数 = 0 |
+| 浏览器 | `agent-browser close` |
+| 19532 | 全程未动 |
+
+### 11.7 结论
+
+**"点引用 → 打开原文"在页面里真实成立**（v2 dist + 后端反查 + presign/previewStream 全 200 + PDF 渲染）；
+**locator 全链路不丢**（reference 与 sources[] 均带 `page=-;offset=[[0,45]];chunk=0`）；
+唯一没做到的是**打开后按 locator 高亮**——前端没有这个能力（DOM 无高亮层、代码里问答预览未实现）。
+按 D7 原文（"点引用打开并高亮正确位置"）这一条仍缺高亮，故 T-A1 不写 VERIFIED，断点收窄为"前端无 locator 高亮实现"。
