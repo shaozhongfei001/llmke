@@ -443,3 +443,41 @@ ngql: SHOW SPACES;  USE g_kb_9;
 ## 7. 一行结论
 
 B01 在 r12 的 28 项测试、3 组变异（23/1/3 failed）、基线 20 failed（与 B01 前全量 258 passed 对照 → 修复后 286 passed，失败数不变）**三条全部按原文复现**；补丁对 V2 可干净应用（`git apply --check` exit 0，三文件指纹同源、契约字段等价、换 V2 契约仍 28 passed），存储格式零变更，迁移路径 = 打补丁 + 按 KB 清库重建；**存量 `g_kb_9` 的实际边数与丢失量 UNVERIFIED，因 Nebula 9669 未启动**。
+
+## 8. 更正（2026-11-03 15:25）：Nebula **是在跑的**，只是宿主端口是 19669
+
+§5.7 当时写"Nebula 9669 未监听 → 无法取证"。这句话本身没错（宿主机 9669 确实没监听），但**结论容易被误读成"Nebula 没跑"**，必须更正：
+
+```
+$ docker ps --format '{{.Names}} {{.Ports}}' | grep -i nebula
+r12-nebula-graphd    19669-19670/tcp, 127.0.0.1:19669->9669/tcp      ← 宿主 19669 → 容器 9669
+r12-nebula-storaged  9777-9780/tcp, 127.0.0.1:19779->19779/tcp
+r12-nebula-metad     9559-9560/tcp, 127.0.0.1:19559->19559/tcp
+```
+
+即 Nebula graphd 以容器形式在跑，客户端应连 **127.0.0.1:19669**。
+
+**仍未取证的真正原因**（不是"Nebula 没起"）：本机两个可用解释器都没有 nebula3 客户端；
+容器 `r12-nebula-graphd` 内也没有 `nebula-console`（`docker exec … ls /usr/local/bin` 无输出）。
+
+```
+$ /home/szf/data/dev/hipporag-toolenv/bin/python -c "import nebula3"
+ModuleNotFoundError: No module named 'nebula3'
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python -c "import nebula3"
+ModuleNotFoundError: No module named 'nebula3'
+```
+
+**补齐方式**（拿到 nebula3 客户端后一条命令即可，不涉及写库）：
+
+```python
+from nebula3.gclient.net import ConnectionPool
+from nebula3.Config import Config
+cfg = Config(); pool = ConnectionPool(); pool.init([("127.0.0.1", 19669)], cfg)
+s = pool.get_session("root", "nebula")          # 口令见 platform/r12/.env，不入日志
+s.execute("USE g_kb_9")
+print(s.execute("MATCH ()-[e:relationship]->() RETURN count(e) AS edges").rows())
+# 反向对：按 (relationship, 无序端点对) 分组取 count>1
+```
+
+结论不变：**B01 的代码/测试/变异/基线四条已复演；存量边数与反向重复计数仍 UNVERIFIED**，
+但现在给出的是真实原因（缺客户端），而不是"Nebula 没跑"。
