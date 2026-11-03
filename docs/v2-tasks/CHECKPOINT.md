@@ -270,3 +270,10 @@
   产品透传看 T-A6、业务语料看 T-A7；**不要把任何一条 VERIFIED 读成该验收项全通**。
 - 事实分歧已按实测收口：「vendor 未透传 filePath」**作废**，旧 r12 dist 才是那轮误报原因。
 - 服务保持已停：18088/18095 不监听。
+
+### 边界条目措辞对齐（16:00，按 TL 指定的三句）
+- T-A2 note：`scope-limited：仅证引擎/直连 18095；产品透传见 T-A6`
+- T-A3 note：`scope-limited：仅 F001–F012；业务语料见 T-A7`
+- T-A6 blocker：`Java→19532 shim 仍只发 {query,top_k}；retrieval_shim.py:416-417；seeds 未透传，产品链路未验。`（owner=s3-retrieval-shim）
+- T-A7 blocker：`T-A3 仅证 F001–F012 夹具；需真实业务语料重跑 scripts/v2_a3_lineage_probe.py 同一五跳。`（owner=TL/数据）
+- 任务总数 **18**；T-A1 / T-A5 内容未动。

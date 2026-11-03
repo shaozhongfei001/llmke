@@ -184,21 +184,21 @@ tasks:
     next_action: "让 Java→19532 shim→18094 的 seeds 真正过去；当前 retrieval_shim.py:416-417 只发 {query,top_k}，图检索拿不到平台识别出的实体种子"
     acceptance: [D6]
     evidence: ""
-    blocker: "Java→19532 shim 仍只发 {query,top_k}；retrieval_shim.py 为 s3-retrieval-shim 单写者文件，本批次未改；owner=s3-retrieval-shim（单写者）"
+    blocker: "Java→19532 shim 仍只发 {query,top_k}；retrieval_shim.py:416-417；seeds 未透传，产品链路未验。"
     artifacts: []
 
   - id: T-A7
     title: "业务语料社区溯源"
     parent: VL4
     loop: L4
-    owner: TL
+    owner: TL/数据
     depends_on: [T-A3]
     state: TODO
     note: "T-A3 是 scope-limited VERIFIED：五跳只证了 F001–F012 夹具"
     next_action: "用真实业务语料重建快照，重跑 scripts/v2_a3_lineage_probe.py 同一五跳，断言仍闭合、引用仍 0 失效"
     acceptance: [D4]
     evidence: ""
-    blocker: "T-A3 目前只证 F001–F012 夹具；需真实业务语料重跑同一五跳脚本"
+    blocker: "T-A3 仅证 F001–F012 夹具；需真实业务语料重跑 scripts/v2_a3_lineage_probe.py 同一五跳。"
     artifacts: []
     artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "scripts/a1_reference_resolve_check/", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
 
@@ -208,7 +208,7 @@ tasks:
     owner: TL
     depends_on: [T-V2-02]
     state: VERIFIED
-    note: "scope-limited VERIFIED：仅证引擎/脚本路径，产品透传见 T-A6"
+    note: "scope-limited：仅证引擎/直连 18095；产品透传见 T-A6"
     next_action: "已接通 seeds/enable_graph；A 组 GRAPH+graph_calls=1+rerank_fallback=false+facts_after_rerank=1+seed_hits=['ent:智造贷']，B 组 DENSE_FALLBACK/GRAPH_DISABLED；中文补丁改为服务端默认安装。capabilities.retrieve_graph_route 升 VERIFIED（附 sha256）"
     acceptance: [D6]
     evidence: "docs/v2-tasks/evidence/A2-pure-graph-route.md"
@@ -221,7 +221,7 @@ tasks:
     owner: TL
     depends_on: [T-V2-02]
     state: VERIFIED
-    note: "scope-limited VERIFIED：仅证引擎/脚本路径（F001–F012 夹具），业务语料见 T-A7"
+    note: "scope-limited：仅 F001–F012；业务语料见 T-A7"
     next_action: "已五跳闭合：智造贷-适用于-制造业中小微企业（chunk-ddb6…→断言 source F001 page=1;chunk=0→export 67/68→社区 c-3 size=5→community.json），两次 sha256 相同 c7c09b82…，citation_check ok/invalid=[]/checked=64，孤点 1 保留。脚本 scripts/v2_a3_lineage_probe.py"
     acceptance: [D4]
     evidence: "docs/v2-tasks/evidence/A3-community-lineage.md"
