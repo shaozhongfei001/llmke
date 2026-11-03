@@ -25,6 +25,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .fence import FENCE_FILE, FenceState
@@ -225,6 +226,16 @@ def _ensure_cjk_compat() -> Dict[str, Any]:
 def create_app(engine_factory=None, builder=None) -> FastAPI:
     """engine_factory / builder 用于测试注入；生产按环境变量加载。"""
     app = FastAPI(title="LLMKE V2 Graph API", version=SCHEMA)
+    # D4 前端直连（dev）：放行本机前端源；生产走网关，此列表按部署收紧。
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[o for o in (
+            os.environ.get("LLMKE_V2_CORS_ORIGINS") or
+            "http://127.0.0.1:18088,http://localhost:18088,http://127.0.0.1:5173,http://localhost:5173"
+        ).split(",") if o.strip()],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     # 中文兼容补丁：产品路径（HTTP）**默认安装**，因为交付要求"中文默认可用"。
     # 之前只有 scripts/v2_* 里显式调用，服务端从不安装 —— 结果 18094 上
     # text_processing 仍把中文清成空串，事实变成 ("","","5000")、种子换算撞空实体。

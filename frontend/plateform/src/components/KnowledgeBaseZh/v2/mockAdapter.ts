@@ -179,14 +179,97 @@ export const mockAdapter: GraphLifecycleAdapter = {
 };
 
 /**
- * 真实接口适配器（等待后端契约）：
- * 后端未提供"库级生命周期 / route trace / 社区报告"前端接口前，
- * getLifecycle 一律抛错，由调用方回落 mockAdapter；契约补齐后在这里对接。
- * 待确认的后端契约见交接文件 §10 / 验收清单。
+ * 真实接口适配器（D4 后端契约已收口：/v2/status、/v2/entities、/v2/graph/global）。
+ *
+ * baseUrl 取值：VITE_V2_GRAPH_API（dev 直连 18094，需后端 CORS 放行）；
+ * 生产经网关映射（待网关配置）后改为 /graphapi。失败时抛错 → 调用方回落 mock 并标注。
  */
 export const httpAdapter: GraphLifecycleAdapter = {
-  name: "http(等待后端契约)",
-  async getLifecycle(_kbId: string): Promise<LifecycleState> {
-    throw new Error("等待后端契约：库级五段生命周期接口未接线");
+  name: "http",
+  async getLifecycle(kbId: string): Promise<LifecycleState> {
+    const base =
+      (import.meta as any).env?.VITE_V2_GRAPH_API || "http://127.0.0.1:18094";
+    const token = (window as any).__gientechToken || "";
+    const res = await fetch(`${base}/v2/status`, {
+      headers: token ? { Authorization: token } : {}
+    });
+    if (!res.ok) throw new Error(`/v2/status HTTP ${res.status}`);
+    const d = await res.json();
+    const seg = (status: string, reason?: string): SegmentStatus =>
+      (["READY", "READY_EMPTY", "PENDING", "RUNNING", "FAILED", "INVALIDATED"].includes(
+        status
+      )
+        ? status
+        : "READY") as SegmentStatus;
+    // 后端尚未给五段细粒度状态：全部映射自 pointer/fence（构图为 READY，
+    // 社区按 citation_check_ok 判 READY/PARTIAL，发布按 pointer 有无判 READY/PENDING）
+    const pointer = d?.pointer || {};
+    const comm = d?.community || {};
+    const hasSnapshot = Boolean(d?.snapshot);
+    const segments: Record<string, SegmentStatus> = {
+      parse: hasSnapshot ? "READY" : "PENDING",
+      extract: hasSnapshot ? "READY" : "PENDING",
+      graph: hasSnapshot ? "READY" : "PENDING",
+      community: hasSnapshot
+        ? comm.citation_check_ok === true
+          ? "READY"
+          : comm.citation_check_ok === false
+            ? "FAILED"
+            : "PENDING"
+        : "PENDING",
+      publish: pointer.fencing ? "READY" : "PENDING"
+    };
+    return {
+      generation: Number(pointer.generation || 0),
+      publishedVersion: pointer.built_at ? `release-${pointer.built_at}` : "",
+      segments: segments as LifecycleState["segments"],
+      global: hasSnapshot
+        ? comm.citation_check_ok === true
+          ? "READY"
+          : comm.citation_check_ok === false
+            ? "PARTIAL"
+            : "NOT_READY"
+        : "NOT_READY",
+      globalReason: comm.citation_check_ok === false ? "引用校验未通过" : undefined,
+      visibleDomain: undefined,
+      showingOldGeneration: pointer.generation
+        ? Number(pointer.generation) - 1
+        : undefined
+    };
+  },
+  async getGlobalAnswer(kbId: string, question: string) {
+    const base =
+      (import.meta as any).env?.VITE_V2_GRAPH_API || "http://127.0.0.1:18094";
+    const token = (window as any).__gientechToken || "";
+    const res = await fetch(`${base}/v2/graph/global`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: token } : {})
+      },
+      body: JSON.stringify({ query: question, max_communities: 3 })
+    });
+    if (!res.ok) return undefined;
+    const d = await res.json();
+    if (!d?.answer) return undefined; // NOT_READY / NO_RELEVANT_FACTS → 不冒充
+    const route: RouteKind =
+      d.reason === "NO_RELEVANT_FACTS" || d.citation_check?.ok === false
+        ? "DENSE_FALLBACK"
+        : "COMMUNITY_REPORT";
+    return {
+      answer: String(d.answer),
+      route,
+      routeReason: d.reason === "NO_RELEVANT_FACTS" ? String(d.reason) : undefined,
+      citationCheckPassed: d.citation_check?.ok !== false,
+      citations: (d.citations || []).map((c: any) => ({
+        fileId: String((c.sources || [])[0] || ""),
+        title:
+          (d.source_meta || {})[String((c.sources || [])[0])]?.title ||
+          "",
+        locator:
+          (d.source_meta || {})[String((c.sources || [])[0])]?.locator || "",
+        snippet: String(c.text || "")
+      }))
+    };
   }
 };
