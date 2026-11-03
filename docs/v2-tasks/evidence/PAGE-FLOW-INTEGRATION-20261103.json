@@ -1,0 +1,27 @@
+{
+ "request": {
+  "sessionId": "r25-integration",
+  "queryId": "q2",
+  "type": "TEXT",
+  "content": "日均存款的对账口径是什么",
+  "kbIds": [],
+  "globalMode": true
+ },
+ "http": 200,
+ "content_type": "text/event-stream",
+ "answer": "- 日均存款 口径 按业务日跨账户汇总/天数（来源：333）\n- 日均存款 数据源 T-CORE-001（来源：333）\n- DOCX contains 下表为多指标对账口径（来源：333）\n- 下表为多指标对账口径 is table（来源：333）",
+ "reference_metadata": [
+  {
+   "file_id": 333,
+   "locator": "page=1;chunk=0",
+   "source": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "docx-table.docx"
+  },
+  {
+   "file_id": 333,
+   "locator": "page=1;chunk=0",
+   "source": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+   "title": "docx-table.docx"
+  }
+ ]
+}
