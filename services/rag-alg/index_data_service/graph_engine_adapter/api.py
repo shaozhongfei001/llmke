@@ -28,7 +28,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from .fence import FENCE_FILE, FenceState
-from . import global_report
+from . import entity_link, global_report
 
 SCHEMA = "llmke.graph-api.v1"
 
@@ -359,6 +359,72 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             "citations": [s for it in items for s in it["sources"]],
             "sources_available": bool(sources),
         }
+
+    @app.get("/v2/entities")
+    def entities_view() -> Dict[str, Any]:
+        """D4 Tab2：库级实体聚合（id/名/别名/事实/多来源），消费归并后的断言层。"""
+        from .normalize import build_store
+
+        snapshot = state["snapshot"]
+        sources = global_report.read_sources(snapshot)
+        store_result = build_store(global_report._openie_docs(snapshot),
+                                   global_report._resolver(sources))
+        store, link_report = entity_link.apply_linking(store_result["store"])
+        # 标题回查：sources.json idx→refs 有 title，这里按 file_id 聚合补进来源
+        title_by_fid: Dict[str, str] = {}
+        for refs in (sources or {}).values():
+            for ref in refs or []:
+                if isinstance(ref, dict) and ref.get("file_id") and ref.get("title"):
+                    title_by_fid.setdefault(str(ref["file_id"]), str(ref["title"]))
+        entities = []
+        for cid in sorted(store._entities):
+            readable = store.name_of(cid)
+            names = sorted(store._entities[cid])
+            aliases = [n for n in names if n not in (cid, readable)]
+            facts = []
+            for a in store._assertions.values():
+                if a.subject != cid:
+                    continue
+                facts.append({
+                    "predicate": a.predicate,
+                    "object_entity": (store.name_of(a.object_entity)
+                                      if a.object_entity else None),
+                    "value": a.object_value,
+                    "unit": a.unit,
+                    "direction": a.direction,
+                    "sources": [{"file_id": src.file_id, "locator": src.locator,
+                                 "title": title_by_fid.get(str(src.file_id))}
+                                for src in a.sources]})
+            entities.append({"id": cid, "name": readable, "aliases": aliases, "facts": facts})
+        return {"schema": SCHEMA, "entity_count": len(entities), "entities": entities,
+                "entity_link": link_report}
+
+    @app.get("/v2/status")
+    def status_view() -> Dict[str, Any]:
+        """D4 Tab5：构建与更新只读状态（fence/pointer/community/cjk 汇总）。"""
+        from .rebuild import read_pointer
+
+        root = os.environ.get("LLMKE_V2_ROOT") or ".artifacts/api-root"
+        pointer = read_pointer(root)
+        fence_state = state.get("fence") or FenceState()
+        snapshot = state["snapshot"]
+        community = {"communities": None, "citation_check_ok": None}
+        if snapshot:
+            report = global_report.load(snapshot)
+            if report:
+                community = {"communities": report.get("community_count"),
+                             "citation_check_ok": report.get("citation_check", {}).get("ok")}
+        return {"schema": SCHEMA,
+                "snapshot": snapshot,
+                "fence": {"generation": fence_state.generation,
+                          "revoked": sorted(fence_state.revoked)},
+                "pointer": {"generation": (pointer or {}).get("generation"),
+                            "fencing": (pointer or {}).get("fencing"),
+                            "built_at": (pointer or {}).get("built_at"),
+                            "documents": (pointer or {}).get("documents"),
+                            "dropped_revoked": (pointer or {}).get("dropped_revoked")},
+                "community": community,
+                "cjk_compat": _CJK_STATE}
 
     @app.get("/v2/fence")
     def fence_view() -> Dict[str, Any]:

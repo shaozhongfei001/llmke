@@ -295,3 +295,48 @@ def test_query_drops_fully_revoked_hits(tmp_path):
     assert d["dropped_revoked"] == 1
     assert d["fence_generation"] == 1
 
+def test_entities_view_aggregates_store(tmp_path):
+    """D4 Tab2：/v2/entities 聚合实体（名/别名/事实/多来源 title 回查）。"""
+    import json
+
+    (tmp_path / "openie_results_ner_t.json").write_text(json.dumps({
+        "docs": [{"idx": "c1", "passage": "正文", "extracted_entities": ["华东精密", "星航贷"],
+                  "extracted_triples": [["华东精密", "拟申请", "星航贷"]]}]
+    }, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "sources.json").write_text(
+        '{"c1": [{"file_id": "f1", "locator": "p1", "title": "docx-a.docx"}]}',
+        encoding="utf-8")
+
+    def builder(docs, root):
+        return {"snapshot": str(tmp_path), "chunks": 1, "sources": 1}
+
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine(), builder=builder))
+    c.post("/v2/graph/build", json={"docs": [{"file_id": "f1", "text": "正文"}]})
+    d = c.get("/v2/entities").json()
+    assert d["entity_count"] == 2
+    by_name = {e["name"]: e for e in d["entities"]}
+    hd = by_name["华东精密"]
+    assert hd["facts"][0]["predicate"] == "拟申请"
+    assert hd["facts"][0]["object_entity"] == "星航贷"
+    assert hd["facts"][0]["sources"][0]["title"] == "docx-a.docx"
+
+
+def test_status_view_shape(tmp_path, monkeypatch):
+    """D4 Tab5：/v2/status 透出 fence/pointer/community/cjk（无指针时字段为空值）。"""
+    from graph_engine_adapter import rebuild as _rebuild
+
+    root = tmp_path / "root"
+    root.mkdir()
+    _rebuild._write_pointer(str(root), {"schema": "x", "dir": "snapshot-1",
+                                        "generation": 2, "fencing": 2,
+                                        "documents": 1, "dropped_revoked": [],
+                                        "built_at": "2026-11-03T00:00:00+0000",
+                                        "mode": "FULL"})
+    monkeypatch.setenv("LLMKE_V2_ROOT", str(root))
+    c = TestClient(create_app(engine_factory=lambda: FakeEngine()))
+    d = c.get("/v2/status").json()
+    assert d["pointer"]["generation"] == 2
+    assert d["pointer"]["fencing"] == 2
+    assert d["fence"]["generation"] == 0
+    assert "cjk_compat" in d
+
