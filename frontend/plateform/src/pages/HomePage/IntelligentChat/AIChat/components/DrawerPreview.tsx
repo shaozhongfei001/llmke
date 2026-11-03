@@ -48,6 +48,16 @@ const DrawerPreview = ({
     };
     const source = content.metadata.source || content.file_source || "";
     const rawPath = dealMinioUrl(getFilePath(content));
+    // PAGE-CITATION-E2E-20261103：global 引用回查失败时，AIChat 侧写入
+    // __citationOpenError（如 file_id 非数字/库中无记录），这里优先展示该原因。
+    const citationError = curFileInfo?.__citationOpenError || "";
+    // locator 形如 "page=1;chunk=0"：打开原文时定位到对应页；
+    // chunk 级文本高亮需要 position 数据，检索侧未下发，属契约缺口（见交接验收清单）。
+    const locatorPage = (() => {
+      const loc = curFileInfo?.metadata?.locator;
+      const m = /(?:^|[;\s])page=(\d+)/i.exec(String(loc || ""));
+      return m ? Math.max(1, parseInt(m[1], 10)) : undefined;
+    })();
     return {
       token,
       source,
@@ -58,7 +68,9 @@ const DrawerPreview = ({
       fileType:
         (String(source).split("?")[0].split(".").pop() || "").toLowerCase() ||
         getFileType(content, rawPath),
-      totalPages: content.pdfPages || 0
+      totalPages: content.pdfPages || 0,
+      citationError,
+      initialPage: locatorPage
     };
   }, [curFileInfo]);
 
@@ -67,7 +79,9 @@ const DrawerPreview = ({
     setError("");
     setTarget(null);
     if (!meta.source || !meta.token) {
-      setError("缺少原文地址或登录态，无法打开原文");
+      setError(
+        meta.citationError || "缺少原文地址或登录态，无法打开原文"
+      );
       return;
     }
     resolvePreviewTarget({
@@ -117,7 +131,7 @@ const DrawerPreview = ({
         fileType={
           target.streamApiUrl === PREVIEW_STREAM_API ? "pdf" : meta.fileType
         }
-        initialPage={1}
+        initialPage={meta.initialPage || 1}
         totalPages={meta.totalPages}
         authorization={meta.token}
         streamApiUrl={target.streamApiUrl}

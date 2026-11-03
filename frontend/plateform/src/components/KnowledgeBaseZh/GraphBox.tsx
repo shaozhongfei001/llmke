@@ -25,6 +25,7 @@ import { getFileIcon } from "./FolderDetail";
 import GraphDetail from "./GraphDetail";
 import "@/assets/styles/knowledgebase.less";
 import { FILE_BTN, getBtnDisabled } from "@root/src/const/permission";
+import LifecycleBar from "./v2/LifecycleBar";
 
 const pollingTime = 30000;
 let pollingInterval = null as any;
@@ -59,6 +60,7 @@ const GraphBox = (props: IVersionDetail) => {
 
   return (
     <>
+      <LifecycleBar kbInfo={props.kbInfo} />
       {showGraph ? (
         <GraphDetail
           gientechServer={gientechServer}

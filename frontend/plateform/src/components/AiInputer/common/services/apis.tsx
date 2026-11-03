@@ -81,6 +81,14 @@ export const apis = {
     method: "get",
     mockData: {}
   },
+  // PAGE-CITATION-E2E-20261103：global 引用的 metadata 只有 file_id/title/locator，
+  // 没有 source/convertedFilePath。点抽屉条目时用 file_id 回查文件详情补路径。
+  // 运行时响应为 {success,errorMsg,errorCode,data:KnowledgeBaseFileDTO} 包裹（见 servers.ts 解包）。
+  file_detail: {
+    url: "/index/knowledgeBase/file/getById",
+    method: "get",
+    mockData: {}
+  },
   file_status_uids: {
     url: "/index/knowledgeBase/file/getFileStatusByUids",
     method: "get",
