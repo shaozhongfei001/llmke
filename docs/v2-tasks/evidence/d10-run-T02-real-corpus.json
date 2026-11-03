@@ -1,0 +1,288 @@
+{
+ "A": {
+  "schema": "llmke.graph-api.v1",
+  "query": "日均存款的对账口径是什么",
+  "fence_generation": 0,
+  "dropped_revoked": 0,
+  "seeds": [
+   "日均存款"
+  ],
+  "seeds_source": "auto",
+  "graph_enabled": true,
+  "executed_route": "GRAPH",
+  "reason": "GRAPH_CALLED",
+  "trace": {
+   "graph_calls": 1,
+   "seed_hits": [
+    "日均存款"
+   ],
+   "fact_candidates": 5,
+   "rerank_fallback": false,
+   "graph_enabled": true,
+   "facts_after_rerank": 1,
+   "weights_assert_skipped": false
+  },
+  "hit_count": 2,
+  "docs": [
+   {
+    "rank": 1,
+    "text": "|指标|数据源|口径|\n|日均存款|T-CORE-001|按业务日跨账户汇总/天数|\n|用电量|T-EXT-001|月度同比|",
+    "idx": "chunk-69f36471fda08620c2cf5cf937231248",
+    "sources": [
+     {
+      "file_id": "333",
+      "locator": "page=1;chunk=1",
+      "title": "docx-table.docx"
+     }
+    ]
+   },
+   {
+    "rank": 2,
+    "text": "DOCX with table下表为多指标对账口径。",
+    "idx": "chunk-7f15559e5a3255190797d8a740d9b280",
+    "sources": [
+     {
+      "file_id": "333",
+      "locator": "page=1;chunk=0",
+      "title": "docx-table.docx"
+     }
+    ]
+   }
+  ],
+  "citations": [
+   {
+    "file_id": "333",
+    "locator": "page=1;chunk=1",
+    "title": "docx-table.docx"
+   },
+   {
+    "file_id": "333",
+    "locator": "page=1;chunk=0",
+    "title": "docx-table.docx"
+   }
+  ],
+  "sources_available": true
+ },
+ "B": {
+  "schema": "llmke.graph-api.v1",
+  "query": "日均存款的对账口径是什么",
+  "fence_generation": 0,
+  "dropped_revoked": 0,
+  "seeds": [],
+  "seeds_source": "none",
+  "graph_enabled": false,
+  "executed_route": "DENSE_FALLBACK",
+  "reason": "GRAPH_DISABLED",
+  "trace": {
+   "graph_calls": 0,
+   "seed_hits": [],
+   "fact_candidates": 5,
+   "rerank_fallback": false,
+   "graph_enabled": false,
+   "facts_after_rerank": 0,
+   "graph_disabled": "GRAPH_DISABLED"
+  },
+  "hit_count": 2,
+  "docs": [
+   {
+    "rank": 1,
+    "text": "|指标|数据源|口径|\n|日均存款|T-CORE-001|按业务日跨账户汇总/天数|\n|用电量|T-EXT-001|月度同比|",
+    "idx": "chunk-69f36471fda08620c2cf5cf937231248",
+    "sources": [
+     {
+      "file_id": "333",
+      "locator": "page=1;chunk=1",
+      "title": "docx-table.docx"
+     }
+    ]
+   },
+   {
+    "rank": 2,
+    "text": "DOCX with table下表为多指标对账口径。",
+    "idx": "chunk-7f15559e5a3255190797d8a740d9b280",
+    "sources": [
+     {
+      "file_id": "333",
+      "locator": "page=1;chunk=0",
+      "title": "docx-table.docx"
+     }
+    ]
+   }
+  ],
+  "citations": [
+   {
+    "file_id": "333",
+    "locator": "page=1;chunk=1",
+    "title": "docx-table.docx"
+   },
+   {
+    "file_id": "333",
+    "locator": "page=1;chunk=0",
+    "title": "docx-table.docx"
+   }
+  ],
+  "sources_available": true
+ },
+ "G": {
+  "schema": "llmke.graph-api.v1",
+  "snapshot": "/tmp/r20-root/snapshot-20261103192921-198410-g0",
+  "query": "日均存款的对账口径是什么",
+  "status": "READY",
+  "communities": 3,
+  "answer": "- 日均存款 口径 按业务日跨账户汇总/天数（来源：333）\n- 日均存款 数据源 T-CORE-001（来源：333）\n- DOCX contains 下表为多指标对账口径（来源：333）\n- 下表为多指标对账口径 is table（来源：333）",
+  "citations": [
+   {
+    "community": "c-2",
+    "text": "日均存款 口径 按业务日跨账户汇总/天数",
+    "sources": [
+     "333"
+    ]
+   },
+   {
+    "community": "c-2",
+    "text": "日均存款 数据源 T-CORE-001",
+    "sources": [
+     "333"
+    ]
+   },
+   {
+    "community": "c-1",
+    "text": "DOCX contains 下表为多指标对账口径",
+    "sources": [
+     "333"
+    ]
+   },
+   {
+    "community": "c-1",
+    "text": "下表为多指标对账口径 is table",
+    "sources": [
+     "333"
+    ]
+   }
+  ],
+  "sections": [
+   {
+    "community": "c-1",
+    "entities": [
+     "ent:docx",
+     "ent:table",
+     "ent:下表为多指标对账口径"
+    ],
+    "fact_count": 2,
+    "facts": [
+     {
+      "sources": [
+       "333"
+      ],
+      "text": "DOCX contains 下表为多指标对账口径"
+     },
+     {
+      "sources": [
+       "333"
+      ],
+      "text": "下表为多指标对账口径 is table"
+     }
+    ],
+    "isolated": false,
+    "size": 3,
+    "sources": [
+     "333"
+    ]
+   },
+   {
+    "community": "c-2",
+    "entities": [
+     "ent:t-core-001",
+     "ent:按业务日跨账户汇总/天数",
+     "ent:日均存款"
+    ],
+    "fact_count": 2,
+    "facts": [
+     {
+      "sources": [
+       "333"
+      ],
+      "text": "日均存款 数据源 T-CORE-001"
+     },
+     {
+      "sources": [
+       "333"
+      ],
+      "text": "日均存款 口径 按业务日跨账户汇总/天数"
+     }
+    ],
+    "isolated": false,
+    "size": 3,
+    "sources": [
+     "333"
+    ]
+   },
+   {
+    "community": "c-3",
+    "entities": [
+     "ent:t-ext-001",
+     "ent:月度同比",
+     "ent:用电量"
+    ],
+    "fact_count": 2,
+    "facts": [
+     {
+      "sources": [
+       "333"
+      ],
+      "text": "用电量 数据源 T-EXT-001"
+     },
+     {
+      "sources": [
+       "333"
+      ],
+      "text": "用电量 口径 月度同比"
+     }
+    ],
+    "isolated": false,
+    "size": 3,
+    "sources": [
+     "333"
+    ]
+   }
+  ],
+  "source_meta": {
+   "333": {
+    "file_id": "333",
+    "locator": "page=1;chunk=0",
+    "title": "docx-table.docx"
+   }
+  },
+  "used_communities": [
+   "c-2",
+   "c-1"
+  ],
+  "citation_check": {
+   "checked": 6,
+   "detail": null,
+   "invalid": [],
+   "ok": true,
+   "reason": null,
+   "sources_available": true,
+   "valid": [
+    "c-1:333:DOCX contains 下表为多指标",
+    "c-1:333:下表为多指标对账口径 is table",
+    "c-2:333:日均存款 口径 按业务日跨账户汇总/天数",
+    "c-2:333:日均存款 数据源 T-CORE-001",
+    "c-3:333:用电量 口径 月度同比",
+    "c-3:333:用电量 数据源 T-EXT-001"
+   ]
+  },
+  "reason": null,
+  "answer_stats": {
+   "communities_used": 2,
+   "facts_seen": 6,
+   "facts_emitted": 4,
+   "facts_dropped_low_relevance": 2,
+   "facts_dropped_by_cap": 0,
+   "min_fact_hits": 3,
+   "max_facts_per_community": 5,
+   "query_filtered": true
+  }
+ }
+}

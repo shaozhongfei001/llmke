@@ -24,3 +24,16 @@
 ## 环境终态
 
 - 18094/19532 已停止、端口释放；18088（前端 nginx）、18090/18092、19529（legacy graph）为原有状态未动。
+
+## 追加（2026-11-03 23:55）：D10 首次真实上传文档语料运行（id=333 产品解析块，A1 证据 §2）
+
+- 环境：自起 18094（LLMKE_V2_ROOT=/tmp/r20-root），建图 2 docs/6 facts/3 社区 citation_ok；
+  验证后已停并释放 18094。
+- 问句 T-02「日均存款的对账口径是什么」：
+  - A 组：GRAPH / graph_calls=1 / **seed_hits=["日均存款"]（seeds_source=auto）** / rerank_fallback=false /
+    facts_after_rerank=1 → **D6-A 在新鲜构建上成立**（此前 live_verify FAIL 根因确认为存量快照）；
+  - B 组：DENSE_FALLBACK / GRAPH_DISABLED（对照成立）；
+  - global：READY，答案含「日均存款 口径 按业务日跨账户汇总/天数」「数据源 T-CORE-001」均带（来源：333）；
+    另有 2 条“DOCX contains/is table”抽取噪声（语义质量留 M4/用户判，如实记录）。
+  - d10_eval 结构判定：T-02 检索链路 PASS、global PASS。
+- 物证：`docs/v2-tasks/evidence/d10-run-T02-real-corpus.json`。
