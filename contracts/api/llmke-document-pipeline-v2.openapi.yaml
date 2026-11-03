@@ -1,0 +1,845 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "LLMKE Unified Document Pipeline",
+    "version": "2.0.0"
+  },
+  "x-llmke-contract-id": "llmke-document-pipeline-api-v2",
+  "x-design-status": "DESIGN_REVISED_NOT_IMPLEMENTED",
+  "servers": [
+    {
+      "url": "https://internal.invalid",
+      "description": "逻辑合同地址；部署映射由站点配置给出"
+    }
+  ],
+  "security": [
+    {
+      "UserBearer": []
+    }
+  ],
+  "paths": {
+    "/internal/v2/parse-jobs": {
+      "post": {
+        "operationId": "submitDoc2mdParseV2",
+        "summary": "平台派发doc2md任务",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "任务已接受，尚未完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseTask"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InternalBearer": [],
+            "AuthContext": []
+          }
+        ]
+      }
+    },
+    "/v2/parse-jobs/{task_id}": {
+      "get": {
+        "operationId": "getParseTaskV2",
+        "summary": "查询解析状态",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      ]
+    },
+    "/internal/v2/document-events": {
+      "post": {
+        "operationId": "acceptDocumentEventV2",
+        "summary": "接收幂等事件并核验来源/代次",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/PipelineStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Event"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InternalBearer": [],
+            "AuthContext": []
+          }
+        ]
+      }
+    },
+    "/v2/projection-builds": {
+      "post": {
+        "operationId": "requestProjectionBuildV2",
+        "summary": "根据平台快照构建投影",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/PipelineStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "任务已接受，尚未完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/PipelineStatus"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ProjectionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/knowledge-releases/activate": {
+      "post": {
+        "operationId": "activateKnowledgeReleaseV2",
+        "summary": "校验完整性后CAS激活",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/KnowledgeRelease"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ActivationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/knowledge/query": {
+      "post": {
+        "operationId": "queryKnowledgeV2",
+        "summary": "固定发布快照并查询",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/QueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/QueryRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/kb/{kb_id}/parse-artifacts/{artifact_id}": {
+      "get": {
+        "operationId": "getParseArtifactV2",
+        "summary": "按当前授权读取不可变解析清单",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseArtifact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "kb_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        {
+          "name": "artifact_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      ]
+    },
+    "/v2/kb/{kb_id}/knowledge-releases/{release_id}": {
+      "get": {
+        "operationId": "getKnowledgeReleaseV2",
+        "summary": "读取当前授权发布状态",
+        "responses": {
+          "200": {
+            "description": "状态或结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/KnowledgeRelease"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "授权不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "版本或租约冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "产物或证据不可接纳",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖或就绪条件不满足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "kb_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        {
+          "name": "release_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "UserBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "InternalBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "AuthContext": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Auth-Context"
+      }
+    },
+    "schemas": {
+      "ParseRequest": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseRequest"
+      },
+      "ParseTask": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseTask"
+      },
+      "ParseArtifact": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ParseArtifact"
+      },
+      "InputSnapshot": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/InputSnapshot"
+      },
+      "SourceRefV2": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/SourceRefV2"
+      },
+      "KnowledgeRelease": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/KnowledgeRelease"
+      },
+      "QueryRequest": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/QueryRequest"
+      },
+      "QueryResult": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/QueryResult"
+      },
+      "Error": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/Error"
+      },
+      "ContextManifestV2": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ContextManifestV2"
+      },
+      "TokenBudgetV2": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/TokenBudgetV2"
+      },
+      "GraphExtractionPlan": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/GraphExtractionPlan"
+      },
+      "ExtractionWindow": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/ExtractionWindow"
+      },
+      "RetrievalProfile": {
+        "$ref": "../schema/llmke-document-pipeline-v2.json#/$defs/RetrievalProfile"
+      }
+    }
+  }
+}

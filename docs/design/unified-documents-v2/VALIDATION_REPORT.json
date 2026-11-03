@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-30",
+  "scope": "DESIGN_AND_CONTRACT_SELF_CHECK_ONLY",
+  "pytest": {
+    "command": "python -m pytest tests/test_contract_semantics.py tests/test_document_pipeline_v2_contracts.py -q",
+    "passed": 95,
+    "failed": 0
+  },
+  "offline_contract_check": {
+    "contracts": 27,
+    "network_attempts": 0,
+    "status": "PASS"
+  },
+  "upstream_pure_ir": {
+    "positive_fixtures_passed": 2,
+    "negative_fixture_rejected": 1
+  },
+  "generic_generate_check": "NOT_RUN_AFTER_AUTO_REVIEW_REJECTION",
+  "product_e2e": "NOT_EXECUTED",
+  "hipporag_runtime": "NOT_EXECUTED",
+  "external_qa": "NOT_SIGNED",
+  "production_release": "NOT_EXECUTED"
+}

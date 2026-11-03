@@ -44,7 +44,12 @@ async def retrieval_data(knowledge_base_name, top_k, server_config, verify_queri
     :param database_name 数据库名称
     :return: 多路召回的结果
     """
-    knowledge_base_name = [kn for kn in knowledge_base_name if kn.strip()]
+    # V2：读路径投影切换（默认 legacy）。只换"基础名"，下游 table_chunks_/table_summary_ 会跟着走，
+    # 避免出现正文切了、表格没切的半切换；按库粒度由 INGEST_READ_KBS 控制。
+    from projection_read import resolve as _resolve_read_index
+    knowledge_base_name, read_info = _resolve_read_index(
+        [kn for kn in knowledge_base_name if kn.strip()])
+    logger.info(f"[v2-read] {read_info}")
     full_knowledge_base_name = knowledge_base_name.copy()
     # 判断faq
     if enabled_faq is True:

@@ -1,0 +1,10 @@
+{
+ "repacked": [
+  {
+   "package": "soupsieve==3.0.4",
+   "reason": "公开源无此版本（公开最高 2.10）",
+   "source": "/home/szf/data/dev/llmke-r12/platform/r12/venvs/parse",
+   "tool": "scripts/repack_installed_wheel.py"
+  }
+ ]
+}

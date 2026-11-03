@@ -387,7 +387,20 @@ public class AiServiceImpl implements AiService {
             boolean reqGlobalMode = Boolean.TRUE.equals(aiRequest.getGlobalMode());
             if (StringUtils.isNotBlank(reduceAnswer)) {
                 Long respTime = System.currentTimeMillis() - llmChatRequstTime;
-                String reference = CollectionUtils.isEmpty(filePathDTOS) ? "[]" : JSONObject.toJSONString(filePathDTOS);
+                // R15-F05：global 答案来自社区报告，但 reference 原来只取"本次上传文件"，
+                // 没上传就恒为 "[]"，页面因此没有「知识溯源」按钮。改为回落到检索侧
+                // documents_list（与普通路径同形：page_content + metadata）。
+                String reference;
+                if (!CollectionUtils.isEmpty(filePathDTOS)) {
+                    reference = JSONObject.toJSONString(filePathDTOS);
+                } else if (retrievedData != null && StringUtils.isNotBlank(retrievedData.getDocumentString())) {
+                    // T-A1 / D7：原来是原样下发 documents_list —— 社区摘要类结果只有 file_id、
+                    // 没有可打开路径，页面点引用打不开原文。这里补一次 file_id → convertedFilePath 反查，
+                    // 用的是 publicQuestion 那条同一个实现（resolveSourceByFileId），不再各写一份。
+                    reference = enrichReferenceSources(retrievedData.getDocumentString());
+                } else {
+                    reference = "[]";
+                }
                 log.info("R15-F04 question_re 采用 global reduce 答案，跳过二次生成 len={}", reduceAnswer.length());
                 addQuestionAndAnswerRe(alParams, dialogueId, aiRequest, reduceAnswer, reference,
                         AIResultTypeEnum.LLM.getCode(), respTime);
@@ -718,32 +731,9 @@ public class AiServiceImpl implements AiService {
                     // R13-GRAPH-11：社区摘要类结果没有 source（只有 file_id），
                     // 原实现会拼出 ".../null" 导致引用无法打开原文。这里按 file_id 反查文件路径补齐。
                     if (StringUtils.isBlank(source)) {
-                        // 社区摘要可能挂多个来源文件，且旧文件可能已删除/未解析：
-                        // 依次尝试，取第一个能解析出真实路径的。
-                        java.util.List<Long> candidates = new java.util.ArrayList<>();
-                        Object fid = metadata.get("file_id");
-                        if (fid != null) candidates.add(Long.valueOf(String.valueOf(fid)));
-                        Object fids = metadata.get("file_ids");
-                        if (fids instanceof JSONArray) {
-                            for (Object o : (JSONArray) fids) {
-                                try { candidates.add(Long.valueOf(String.valueOf(o))); } catch (Exception ignore) { }
-                            }
-                        }
-                        for (Long candidate : candidates) {
-                            try {
-                                List<KnowledgeBaseFileDTO> files = kbClient.getByIds(
-                                        java.util.Collections.singletonList(candidate));
-                                KnowledgeBaseFileDTO kbFile = (files == null || files.isEmpty()) ? null : files.get(0);
-                                if (kbFile != null && StringUtils.isNotBlank(kbFile.getConvertedFilePath())) {
-                                    source = kbFile.getConvertedFilePath();
-                                    metadata.put("file_id", kbFile.getId());
-                                    metadata.put("title", kbFile.getFileName());
-                                    break;
-                                }
-                            } catch (Exception ex) {
-                                log.warn("resolve source by file_id {} failed: {}", candidate, ex.getMessage());
-                            }
-                        }
+                        // T-A1：反查逻辑抽成 resolveSourceByFileId，供普通问答与 question_re 的
+                        // global 分支共用同一份实现（此前只有这里做了反查，global 引用点不开）。
+                        source = resolveSourceByFileId(metadata);
                     }
                     // R13-GRAPH-18：id 全部失效（文档重传后 id 变新）时，用社区携带的 file_names
                     // 回落到当前同名文件，否则 global 引用只能显示"社区摘要"，点不开原文。
@@ -2665,6 +2655,160 @@ return retrievedData;
      * 注意：**绝不能把桶名裁掉**——FIX-13 曾裁掉，导致 source 变成 `kb_9/...`，
      * 前端拼出 `/minio/kb_9/...` 后 MinIO 里找不到该对象（桶是 `r12-rag`）。
      */
+    /**
+     * R13-GRAPH-11 的唯一实现（T-A1 抽出复用）：按 metadata 里的 file_id / file_ids 反查
+     * convertedFilePath，用于"社区摘要类结果没有 source、只有文件 id"的情形。
+     *
+     * 为什么必须抽出来：`question_re` 的 global 分支此前直接把检索侧 documents_list 原样当
+     * reference 下发，而反查只写在 publicQuestion 里 —— 同一条社区事实，普通问答能点开原文、
+     * global 点不开，用户看到的是"知识溯源按钮没反应"。
+     *
+     * 返回空串表示没解析出来（调用方据此继续走名字回落 / 置空，绝不拼 ".../null"）。
+     * 副作用：命中时会把规范化的 file_id/title 写回 metadata，保证前端显示与落库一致。
+     */
+    private String resolveSourceByFileId(JSONObject metadata) {
+        if (metadata == null) {
+            return "";
+        }
+        // 社区摘要可能挂多个来源文件，且旧文件可能已删除/未解析：依次尝试，取第一个能解析出真实路径的。
+        java.util.List<Long> candidates = new java.util.ArrayList<>();
+        Object fid = metadata.get("file_id");
+        if (fid != null) {
+            try {
+                candidates.add(Long.valueOf(String.valueOf(fid)));
+            } catch (Exception ignore) {
+                // 非数字 file_id（演示语料 F001 之类）不是可反查的库内文件，跳过而不是抛错
+            }
+        }
+        Object fids = metadata.get("file_ids");
+        if (fids instanceof JSONArray) {
+            for (Object o : (JSONArray) fids) {
+                try {
+                    candidates.add(Long.valueOf(String.valueOf(o)));
+                } catch (Exception ignore) {
+                    // 同上：非法 id 跳过
+                }
+            }
+        }
+        for (Long candidate : candidates) {
+            try {
+                List<KnowledgeBaseFileDTO> files = kbClient.getByIds(
+                        java.util.Collections.singletonList(candidate));
+                KnowledgeBaseFileDTO kbFile = (files == null || files.isEmpty()) ? null : files.get(0);
+                if (kbFile != null && StringUtils.isNotBlank(kbFile.getConvertedFilePath())) {
+                    metadata.put("file_id", kbFile.getId());
+                    metadata.put("title", kbFile.getFileName());
+                    return kbFile.getConvertedFilePath();
+                }
+            } catch (Exception ex) {
+                log.warn("resolve source by file_id {} failed: {}", candidate, ex.getMessage());
+            }
+        }
+        return "";
+    }
+
+    /**
+     * T-A1：把一份 documents_list（[{page_content, metadata, ...}]）里的引用逐条补齐成可打开原文的形状。
+     *
+     * 只做两件事，不做别的：
+     * ① metadata.source 为空时按 file_id 反查（复用 resolveSourceByFileId）；
+     * ② source 归一成桶内对象键（与 R14-C-FIX-13 的前端契约一致，前端拼 `/minio/${source}`）。
+     * 解析不出来的条目不删除、不编造，原样留在结果里（前端显示为不可点，而不是假链接）。
+     * 输入不是 JSON 数组时原样返回 —— global 引用也可能是别的形状，不能让它 500。
+     */
+    private String enrichReferenceSources(String reference) {
+        if (StringUtils.isBlank(reference)) {
+            return reference;
+        }
+        JSONArray items;
+        try {
+            items = JSON.parseArray(reference);
+        } catch (Exception ex) {
+            log.warn("T-A1 enrichReferenceSources: reference 不是 JSON 数组，原样返回: {}", ex.getMessage());
+            return reference;
+        }
+        if (items == null) {
+            return reference;
+        }
+        int resolved = 0;
+        int unresolved = 0;
+        for (int i = 0; i < items.size(); i++) {
+            JSONObject item = items.getJSONObject(i);
+            if (item == null) {
+                continue;
+            }
+            JSONObject metadata = item.getJSONObject(METADATA);
+            if (metadata == null) {
+                metadata = new JSONObject();
+                item.put(METADATA, metadata);
+            }
+            String source = metadata.getString(SOURCE);
+            if (StringUtils.isBlank(source)) {
+                source = resolveSourceByFileId(metadata);
+            }
+            if (StringUtils.isNotBlank(source)) {
+                metadata.put(SOURCE, toBucketKey(source));
+                // filePath 与 source 同值：前端"知识溯源"抽屉走的是 title:click → FileViewCom，
+                // 它读的是 data.filePath（FileViewCom.tsx:40），不是 metadata.source。
+                // 两个字段都给，才能既满足抽屉、又满足 referenceFile_view 分支。
+                metadata.put("filePath", toBucketKey(source));
+                // 抽屉把条目 **展开** 后当 data 传给 FileViewCom（`{...d}`），所以顶层也要有一个
+                // filePath，否则展开后仍然读不到（实测：只在 metadata 里放时页面依旧报"缺少原文地址"）。
+                item.put("filePath", toBucketKey(source));
+                resolved++;
+            } else {
+                metadata.put(SOURCE, "");
+                unresolved++;
+            }
+            // T-A1 二段（页面实测暴露）：前端"知识溯源"抽屉是**按 metadata.sources[] 逐条列文件**的，
+            // 点某一条时用的是那一条自己的字段。平台侧 sources[]（来自建图 sources.json）只带
+            // file_id/locator/title，没有 source —— 于是抽屉点进去只会看到
+            // "加载失败：缺少原文地址或登录态"，虽然顶层 metadata.source 已经补好了。
+            // 这里把同一个桶内键写进每条 sources[]，让"每条引用都能打开原文"成立；
+            // 解析不出来的条目仍旧留空（不编造路径）。
+            enrichSourceEntries(metadata);
+        }
+        log.info("T-A1 enrichReferenceSources: items={} resolved={} unresolved={}",
+                items.size(), resolved, unresolved);
+        return items.toJSONString();
+    }
+
+    /**
+     * 把 `metadata.sources[]` 每一条补上它自己的 `source`（桶内对象键）。
+     *
+     * 为什么要逐条：抽屉里列的是"这份答案引到了哪几个文件"，用户点的是其中某一条；
+     * 只补顶层 source 时，抽屉拿不到那一条的路径，表现为"点不动"。
+     * 已经带 source 的条目不动（幂等）；file_id 非数字（演示语料）或查不到文件时留空。
+     */
+    private void enrichSourceEntries(JSONObject metadata) {
+        Object raw = metadata.get("sources");
+        if (!(raw instanceof JSONArray)) {
+            return;
+        }
+        JSONArray entries = (JSONArray) raw;
+        for (int j = 0; j < entries.size(); j++) {
+            JSONObject entry = entries.getJSONObject(j);
+            if (entry == null || StringUtils.isNotBlank(entry.getString(SOURCE))) {
+                continue;
+            }
+            // 复用同一份反查：临时把这一条当 metadata 传进去，命中后它会被回填 file_id/title
+            String resolved = resolveSourceByFileId(entry);
+            if (StringUtils.isNotBlank(resolved)) {
+                entry.put(SOURCE, toBucketKey(resolved));
+                entry.put("filePath", toBucketKey(resolved));
+                continue;
+            }
+            // 这一条自己查不到（例如只给了名字）：退回用它所属文档的顶层 source，仍不编造
+            String fallback = metadata.getString(SOURCE);
+            if (StringUtils.isNotBlank(fallback)) {
+                entry.put(SOURCE, fallback);
+                if (StringUtils.isBlank(entry.getString("filePath"))) {
+                    entry.put("filePath", fallback);
+                }
+            }
+        }
+    }
+
     private String toBucketKey(String source) {
         String s = source == null ? "" : source.trim();
         s = s.replaceFirst("^https?://[^/]+/", "");

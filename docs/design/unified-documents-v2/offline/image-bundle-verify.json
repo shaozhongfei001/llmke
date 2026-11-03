@@ -1,0 +1,113 @@
+{
+ "schema": "llmke.image-verify.v1",
+ "summary": {
+  "PASS": 6,
+  "FAIL": 0
+ },
+ "verdict": "PASS",
+ "note": "含条件 load：tar 与本地镜像 ID 完全一致才 load（no-op），不一致一律拒绝；并跑了最轻启动命令",
+ "results": [
+  {
+   "image": "milvusdb/milvus:v2.5.6",
+   "file": "milvusdb_milvus_v2.5.6.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "milvusdb/milvus:v2.5.6"
+   ],
+   "layers": 7,
+   "missing_layers": [],
+   "sha256": "79e77a1375bd9ad1",
+   "why": "",
+   "load": "PASS",
+   "smoke": "PASS",
+   "smoke_rc": 0,
+   "smoke_out": "[2026/10/31 16:14:26.627 +00:00] [INFO] [distance/calc_distance_amd64.go:14] [\"H",
+   "smoke_expect": null
+  },
+  {
+   "image": "r12/elasticsearch-ik:8.13.4",
+   "file": "r12_elasticsearch-ik_8.13.4.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "r12/elasticsearch-ik:8.13.4"
+   ],
+   "layers": 12,
+   "missing_layers": [],
+   "sha256": "2b997596f71e20db",
+   "why": "",
+   "load": "PASS",
+   "smoke": "PASS",
+   "smoke_rc": 0,
+   "smoke_out": "2026-10-31 16:14:28,070 main ERROR Could not determine local host name java.net.",
+   "smoke_expect": "Version:"
+  },
+  {
+   "image": "mysql:8.4",
+   "file": "mysql_8.4.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "mysql:8.4"
+   ],
+   "layers": 10,
+   "missing_layers": [],
+   "sha256": "04c69767e24f51ca",
+   "why": "",
+   "load": "PASS",
+   "smoke": "PASS",
+   "smoke_rc": 0,
+   "smoke_out": "mysql  Ver 8.4.11 for Linux on x86_64 (MySQL Community Server - GPL)",
+   "smoke_expect": "Ver "
+  },
+  {
+   "image": "redis:7.4.10-alpine",
+   "file": "redis_7.4.10-alpine.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "redis:7.4.10-alpine"
+   ],
+   "layers": 7,
+   "missing_layers": [],
+   "sha256": "36b1f12ffaa7c2b1",
+   "why": "",
+   "load": "PASS",
+   "smoke": "PASS",
+   "smoke_rc": 0,
+   "smoke_out": "Redis server v=7.4.10 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=d70b7db",
+   "smoke_expect": null
+  },
+  {
+   "image": "minio/minio:RELEASE.2023-03-20T20-16-18Z",
+   "file": "minio_minio_RELEASE.2023-03-20T20-16-18Z.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "minio/minio:RELEASE.2023-03-20T20-16-18Z"
+   ],
+   "layers": 6,
+   "missing_layers": [],
+   "sha256": "586fb697534eb4ad",
+   "why": "",
+   "load": "PASS",
+   "smoke": "PASS",
+   "smoke_rc": 0,
+   "smoke_out": "minio version RELEASE.2023-03-20T20-16-18Z (commit-id=05444a0f6af8389b9bb85280fc",
+   "smoke_expect": null
+  },
+  {
+   "image": "quay.io/coreos/etcd:v3.5.5",
+   "file": "quay.io_coreos_etcd_v3.5.5.tar",
+   "status": "PASS",
+   "repo_tags": [
+    "quay.io/coreos/etcd:v3.5.5"
+   ],
+   "layers": 7,
+   "missing_layers": [],
+   "sha256": "3821353274c6dad9",
+   "why": "",
+   "load": "PASS",
+   "smoke": "PASS",
+   "smoke_rc": 0,
+   "smoke_out": "etcd Version: 3.5.5",
+   "smoke_expect": "etcd Version"
+  }
+ ]
+}

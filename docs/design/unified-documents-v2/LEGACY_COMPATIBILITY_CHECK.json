@@ -1,0 +1,91 @@
+{
+  "base_commit": "3fea44e58b3e3a59a9796bf7f914fc34e4d8ddd7",
+  "old_schema_api_files": [
+    {
+      "path": "contracts/api/llmke-graph.openapi.yaml",
+      "sha256": "6335d3981edecb29689ec718f057156cd28188b91fb9a9b64914a2ed9e15d60e",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/api/llmke-knowledge-base.openapi.yaml",
+      "sha256": "2609a5e451f966406bdd5e7b6bc265a576a3e8b6bd13186982d93ef855ec37a7",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/api/llmke-retrieval.openapi.yaml",
+      "sha256": "b6b6cd98fb4cf0658f7ccf87ab21faaf6b10998d2d86b7e25e3ae29a4a042029",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-auth-context.json",
+      "sha256": "d5feebe7fa16b665f3ac9d4ffd89ad868126a9185d1441af65e990efe638a43e",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-context-manifest.json",
+      "sha256": "6730536fc9e068da32fbe28642e51b97cc2df9b81ce5038565b0d4514c9b445b",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-core.json",
+      "sha256": "369d719f065f50d89953d73f6033b95f2353c89e115b127a628bd4da9f48bdfd",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-db-migration.json",
+      "sha256": "478d37ead62b170c0dcd06339d03d5cb7bf48f32cc2c6b419ffa7e07b172167d",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-error-codes.json",
+      "sha256": "556b0e42cdd693065a08d45f7efbe1e3fa1098019a667276039955ca6149d5df",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-generation-lifecycle.json",
+      "sha256": "65abbcb4e852d6e0b619ded93b7149e98f7b0496795d6f79cd6fadb0def42957",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-generation-manifest.json",
+      "sha256": "49a133671d6a8bf73c6e2d546af05dff6fec2eea4e8c2b012928eb740b0e2473",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-kb-operations.json",
+      "sha256": "d6647c9f454cf202e4078937d34209a1c8958d79e3673611da9231f7d2ac55c7",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-retrieval-model.json",
+      "sha256": "11c15e165329e277c1f9ae9c7293521cc980fc67fb4c6de9d025b6b9280f39d4",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-reuse-decision.json",
+      "sha256": "cef9e53d43bca6ea80ba23f6a6510e57f2ffffe742455216c1faefc308bb22b2",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/schema/llmke-sse-events.json",
+      "sha256": "b8b6ba509013480bb87ad1e6a0db411f3c118dcc8bc1c4f98f7c929940f89f58",
+      "unchanged": true
+    }
+  ],
+  "ontology_lookup_metadata_only": [
+    {
+      "path": "contracts/ontology/entity-types.v1.json",
+      "original_payload_equal": true
+    },
+    {
+      "path": "contracts/ontology/relations.v1.json",
+      "original_payload_equal": true
+    }
+  ],
+  "v1_runtime": "NOT_EXECUTED"
+}

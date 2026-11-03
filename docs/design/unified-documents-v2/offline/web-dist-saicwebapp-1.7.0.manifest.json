@@ -1,0 +1,31 @@
+{
+ "schema": "llmke.web-dist.v1",
+ "name": "saicwebapp-1.7.0",
+ "built_at": "2026-10-31T14:02:44+0800",
+ "build_cmd": "npm ci --offline --legacy-peer-deps && npm run build",
+ "file_count": 1601,
+ "total_bytes": 143110682,
+ "index_html_sha256": "6f515170f8c5156127d1c60f91191171f0002bdf5175c8c1211151c84757617f",
+ "large_files": [
+  {
+   "path": "font/方正小标宋_GBK.TTF",
+   "mb": 12.5
+  },
+  {
+   "path": "font/SIMKAI.TTF",
+   "mb": 11.2
+  },
+  {
+   "path": "font/SIMFANG.TTF",
+   "mb": 10.1
+  },
+  {
+   "path": "font/SIMHEI.TTF",
+   "mb": 9.3
+  },
+  {
+   "path": "assets/vendor-@gientech/modual-legacy-qvQKp69e.js",
+   "mb": 8.1
+  }
+ ]
+}

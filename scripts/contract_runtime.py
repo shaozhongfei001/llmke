@@ -2,6 +2,7 @@
 """Offline schema validation and explicit business invariants. No service/DB calls."""
 from __future__ import annotations
 import copy,hashlib,json
+from contextlib import ExitStack,contextmanager
 from pathlib import Path
 from urllib.parse import urldefrag,unquote,urlparse
 import yaml
@@ -134,6 +135,59 @@ def check_refs(root,path,doc):
    else:check_refs(root,path,value)
  elif isinstance(doc,list):
   for x in doc:check_refs(root,path,x)
+
+def bundle_local_refs(root,path):
+ """把 OpenAPI 的 $ref 全部解析到**仓内**目标并内联打包，返回可直接校验的内存文档。
+
+ 为什么需要（V2 接入补齐）：合同里使用了 `https://llmke.local/contracts/schema/*.json#...`
+ 这类绝对引用，它指向的正是仓内 schema 的 `$id`。通用校验器
+ (openapi-spec-validator/jsonschema-path) 会把这当成真实 URL 去抓取 —— 实测会发起
+ HTTPS 连接（DNS 失败的 llmke.local），既有审批正是因此拒绝了 contract_generate。
+ 这里改成：命中仓内 `$id`/相对路径就解析成文件内容并内联，**未命中的外部引用直接失败**，
+ 全程不产生任何网络动作。结构（paths/components/参数/响应）不变，只替换 $ref 间接层。
+ """
+ from urllib.parse import urldefrag
+ external={};names={}
+ def rewrite(node,current):
+  if isinstance(node,list):return [rewrite(v,current) for v in node]
+  if not isinstance(node,dict):return node
+  out={k:rewrite(v,current) for k,v in node.items() if k not in {'$ref','$id'}}
+  if '$ref' in node:
+   target,selected=resolve_local(root,current,node['$ref'])
+   key=(str(target),urldefrag(node['$ref'])[1])
+   if key not in names:
+    name='local_'+str(len(names));names[key]=name
+    external[name]=rewrite(selected,target)
+   out['$ref']='#/components/schemas/'+names[key]
+  return out
+ result=rewrite(load(path),path)
+ result.setdefault('components',{}).setdefault('schemas',{}).update(external)
+ def assert_local(node):
+  if isinstance(node,dict):
+   if '$ref' in node:
+    ref=node['$ref']
+    if not (ref.startswith('#/components/schemas/') and ref.split('/')[-1] in result['components']['schemas']):
+     raise ContractViolation('nonlocal reference survived bundling: '+str(ref))
+   for value in node.values():assert_local(value)
+  elif isinstance(node,list):
+   for value in node:assert_local(value)
+ assert_local(result)
+ return result,len(external)
+
+@contextmanager
+def no_network():
+ """校验期间禁止一切出网尝试；任何尝试都记入返回值并抛 ContractViolation。"""
+ import socket,urllib.request
+ from unittest.mock import patch
+ attempts=[]
+ def denied(*args,**kwargs):
+  attempts.append('NETWORK_DENIED')
+  raise ContractViolation('contract validation prohibits network access (repo-local resolution only)')
+ with ExitStack() as stack:
+  for target in ['socket.create_connection','socket.getaddrinfo','socket.socket.connect',
+                 'socket.socket.connect_ex','urllib.request.urlopen']:
+   stack.enter_context(patch(target,denied))
+  yield attempts
 
 def normalize_manifest(value):
  m=copy.deepcopy(value);m.pop('generation',None)

@@ -136,5 +136,6 @@
     {"issue": "『制造业』被判为 location", "impact": "行业/产业链被当成地点", "fix": "增加 industry 码或归入 product_process，需业务确认"},
     {"issue": "『AAA级』未归一成『AAA』", "impact": "同等级两种写法，按等级取值会漏", "fix": "grade 的归一规则去掉『级』后缀"},
     {"issue": "unclassified 占 44%", "impact": "近一半实体无类型，类型体系对下游无约束力", "fix": "按本契约补 rule_hint 后重跑；仍高则说明抽取 prompt 未给类型约束"}
-  ]
+  ],
+  "ontology": {"name": "llmke-entity-types.v1", "version": "1.0.0", "registration_only": true}
 }

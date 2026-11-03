@@ -1,0 +1,94 @@
+[
+  {
+    "bindings": [
+      {
+        "artifact_manifest_hash": "7ad5330ecca1d0b8bc82afe649bee59c4f4616a2d6e21718472bde9427f5cc19",
+        "content_uid": "6424236748636fe46f597dc0303b7d33aae2a09eae85cf69193d66079d9b80c6",
+        "document_version": "v1",
+        "enhancement_manifest_hash": null,
+        "file_id": "file-example",
+        "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+        "parse_artifact_id": "pa-example-1",
+        "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a"
+      }
+    ],
+    "build_id": "rag-example",
+    "config_hash": "a3e690053061793bb12ad4c32aace5856f57f1694d3608df1379d240ce1bbc5b",
+    "depends_on_build_ids": [],
+    "fencing_token": 1,
+    "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+    "kind": "rag",
+    "output_manifest_hash": "0d0b8e9f04ae6b42bf069f666ab4a0483d51ad55156fadff62f93012d5281ce3",
+    "scope": {
+      "auth_scope_id": "scope-example",
+      "auth_version": 1,
+      "kb_id": "kb-example",
+      "resource_version": 1
+    },
+    "snapshot_id": "snapshot-example",
+    "state": "READY",
+    "execution_manifest_hash": "42d1982f55cb0a2b647abb233970ee2dfc2244d3d321fe6f728e818419ea20dd"
+  },
+  {
+    "bindings": [
+      {
+        "artifact_manifest_hash": "7ad5330ecca1d0b8bc82afe649bee59c4f4616a2d6e21718472bde9427f5cc19",
+        "content_uid": "6424236748636fe46f597dc0303b7d33aae2a09eae85cf69193d66079d9b80c6",
+        "document_version": "v1",
+        "enhancement_manifest_hash": null,
+        "file_id": "file-example",
+        "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+        "parse_artifact_id": "pa-example-1",
+        "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a"
+      }
+    ],
+    "build_id": "graph-example",
+    "config_hash": "eef93e1d14482804277fca0172464032d1a4fdbcc338524059fa1e861454ad4d",
+    "depends_on_build_ids": [],
+    "fencing_token": 1,
+    "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+    "kind": "graph",
+    "output_manifest_hash": "60afe70cd8c9e4e309839a277249baf9115509ffca0c431c128c57ec65a794be",
+    "scope": {
+      "auth_scope_id": "scope-example",
+      "auth_version": 1,
+      "kb_id": "kb-example",
+      "resource_version": 1
+    },
+    "snapshot_id": "snapshot-example",
+    "state": "READY",
+    "execution_manifest_hash": "67aa826784bdb3db6a23f43085f5a03e7880a51329f3242a33bc23e6945f9cc9"
+  },
+  {
+    "bindings": [
+      {
+        "artifact_manifest_hash": "7ad5330ecca1d0b8bc82afe649bee59c4f4616a2d6e21718472bde9427f5cc19",
+        "content_uid": "6424236748636fe46f597dc0303b7d33aae2a09eae85cf69193d66079d9b80c6",
+        "document_version": "v1",
+        "enhancement_manifest_hash": null,
+        "file_id": "file-example",
+        "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+        "parse_artifact_id": "pa-example-1",
+        "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a"
+      }
+    ],
+    "build_id": "community-example",
+    "config_hash": "f354ee99e2bc863ce19d80b843353476394ebc3530a51c9290d629065bacc3b3",
+    "depends_on_build_ids": [
+      "graph-example"
+    ],
+    "fencing_token": 1,
+    "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+    "kind": "community",
+    "output_manifest_hash": "393d5966f3ae26a940b6867095d81068844e01d3e71c90b195670e1ef6366d23",
+    "scope": {
+      "auth_scope_id": "scope-example",
+      "auth_version": 1,
+      "kb_id": "kb-example",
+      "resource_version": 1
+    },
+    "snapshot_id": "snapshot-example",
+    "state": "READY",
+    "execution_manifest_hash": null
+  }
+]

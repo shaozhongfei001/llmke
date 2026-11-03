@@ -59,19 +59,13 @@ export default function GraphCanvas({
     };
     setLoading(true);
     setError("");
-    const req =
-      type === "subGraph"
-        ? fetch(
-            `/proxy/graph/search/subGraph?spaceName=${encodeURIComponent(spaceName)}${
-              fileId ? `&fileId=${encodeURIComponent(fileId)}` : ""
-            }`,
-            { headers }
-          )
-        : fetch(`/proxy/graph/search/wholeGraphSearch`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({ spaceName })
-          });
+    // D0：库级与按文件子图都走 v2WholeGraph（18094 /v2/graph/view）；subGraph 用 file_index
+    // 客户端过滤（文件→chunk idx 归属），过滤后边只保留两端都还在的。
+    const req = fetch(`/proxy/graph/search/v2WholeGraph`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ spaceName })
+    });
     req
       .then(r => {
         // 网关 404 会回落成 index.html，JSON.parse 会抛 "Unexpected token '<'"，
@@ -83,9 +77,34 @@ export default function GraphCanvas({
       .then(d => {
         if (cancelled) return;
         if (d && d.success === false) throw new Error(d.errorMsg || "图数据接口返回失败");
-        const data = (d && d.data) || {};
-        setNodes(data.nodeList || []);
-        setEdges(data.edgeList || []);
+        // D0：网关既可能 {data:{...}} 包裹也可能直返；notice 表示 V2 图服务不可用。
+        const data = (d && d.data) || d || {};
+        if (data.notice) {
+          setError(String(data.notice));
+          return;
+        }
+        let nodeList = data.nodeList || [];
+        let edgeList = data.edgeList || [];
+        if (type === "subGraph") {
+          const index = data.file_index || {};
+          const keep = new Set<string>(
+            fileId ? index[String(fileId)] || [] : []
+          );
+          if (!keep.size) {
+            setError(
+              "V2 视图不含该文件的子图归属（file_index 为空）：按文件子图暂不可用，请用库级图。"
+            );
+            return;
+          }
+          nodeList = nodeList.filter((n: GNode) => keep.has(String(n.vid)));
+          const ids = new Set(nodeList.map((n: GNode) => String(n.vid)));
+          edgeList = edgeList.filter(
+            (e: GEdge) =>
+              ids.has(String(e.src?.vid)) && ids.has(String(e.dst?.vid))
+          );
+        }
+        setNodes(nodeList);
+        setEdges(edgeList);
       })
       .catch(e => {
         if (!cancelled) setError(e?.message || "图数据加载失败");
@@ -289,7 +308,7 @@ export default function GraphCanvas({
             </div>
           )}
           <div className="mt-[16px] text-[12px] text-[#999]">
-            数据源：{type === "subGraph" ? "/graph/search/subGraph" : "/graph/search/wholeGraphSearch"}
+            数据源：/graph/search/v2WholeGraph → 18094 /v2/graph/view（subGraph 按 file_index 客户端过滤）
             <br />
             空间：{spaceName}
           </div>

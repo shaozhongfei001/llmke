@@ -1,0 +1,22 @@
+{
+ "schema": "llmke.page-e2e.v1",
+ "time": "2026-11-03T21:25+08:00",
+ "round": "27",
+ "graph_page": [
+  {
+   "step": "图谱增强 tab",
+   "result": "PASS",
+   "detail": "五段状态条 http 适配器：解析/抽取/构图/社区/发布 全部·就绪（/v2/status 200）"
+  },
+  {
+   "step": "库级图",
+   "result": "PASS",
+   "detail": "可视化图谱 → 力导布局 节点数 112/112、关系数 251/251（gateway /graph/search/v2WholeGraph 200 → graph-service → 18094 /v2/graph/view）"
+  },
+  {
+   "step": "网关权限",
+   "result": "FIXED",
+   "detail": "v2WholeGraph 原 401（权限表无 v2 端点记录）→ AuthFilter.noAuthPaths 加白名单（仍要求 JWT，仅跳过资源权限表查）；curl 经网关 200"
+  }
+ ]
+}

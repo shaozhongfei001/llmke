@@ -1,0 +1,3840 @@
+{
+  "artifact_kind": "LOSSLESS_SCHEMA_SNAPSHOT",
+  "content_sha256": "f4d5fee6a3cb97ded62846ec6ef4acfde0f4ed5e58ddd1ed6e3fa2c0ed560487",
+  "contract_id": "llmke-document-pipeline-v2",
+  "enums": {},
+  "properties": {},
+  "property_count": 0,
+  "refs": [],
+  "schema_document": {
+    "$defs": {
+      "ActivationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_pointer_version": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "expected_previous_release": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fencing_token": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "release_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "release_id",
+          "expected_previous_release",
+          "expected_pointer_version",
+          "fencing_token"
+        ],
+        "type": "object"
+      },
+      "ArtifactBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_manifest_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "content_uid": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "document_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "enhancement_manifest_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "SHA256 of immutable DocumentSemantics companion, or null when not supplied; included in snapshot input_digest."
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "ir_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parsed_text_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file_id",
+          "document_version",
+          "content_uid",
+          "parse_artifact_id",
+          "artifact_manifest_hash",
+          "parsed_text_hash",
+          "ir_hash",
+          "enhancement_manifest_hash"
+        ],
+        "type": "object"
+      },
+      "ArtifactPart": {
+        "additionalProperties": false,
+        "properties": {
+          "relative_path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "parsed_text",
+              "parsed_metadata",
+              "parse_manifest",
+              "document_ir",
+              "asset",
+              "ir_source",
+              "quality_report",
+              "enhancement",
+              "span_map"
+            ],
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size_bytes": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "role",
+          "relative_path",
+          "sha256",
+          "size_bytes"
+        ],
+        "type": "object"
+      },
+      "Assertion": {
+        "additionalProperties": false,
+        "properties": {
+          "assertion_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "object": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "entity_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "entity"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "entity_id"
+                ],
+                "type": "object"
+              },
+              {
+                "$ref": "#/$defs/Quantity"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "literal"
+                  },
+                  "text": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "text"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "predicate_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "qualifiers": {
+            "additionalProperties": false,
+            "properties": {
+              "applicability_text": {
+                "anyOf": [
+                  {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "role": {
+                "enum": [
+                  "TOTAL",
+                  "COMPONENT",
+                  "OTHER",
+                  "UNRESOLVED"
+                ],
+                "type": "string"
+              },
+              "valid_from": {
+                "anyOf": [
+                  {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "valid_to": {
+                "anyOf": [
+                  {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "valid_from",
+              "valid_to",
+              "applicability_text",
+              "role"
+            ],
+            "type": "object"
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "subject_entity_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "verification": {
+            "enum": [
+              "SUPPORTED",
+              "CONFLICT",
+              "NEEDS_REVIEW"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "assertion_id",
+          "subject_entity_id",
+          "predicate_id",
+          "object",
+          "qualifiers",
+          "verification",
+          "source_refs"
+        ],
+        "type": "object"
+      },
+      "BlockCoverage": {
+        "additionalProperties": false,
+        "properties": {
+          "block_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "disposition": {
+            "enum": [
+              "EXTRACT",
+              "IGNORE_NONCONTENT",
+              "UNALIGNED"
+            ]
+          },
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "window_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array"
+          }
+        },
+        "required": [
+          "parse_artifact_id",
+          "block_id",
+          "disposition",
+          "window_ids",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "CellAddress": {
+        "additionalProperties": false,
+        "properties": {
+          "col": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "row": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row",
+          "col"
+        ],
+        "type": "object"
+      },
+      "CellLocator": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_text_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "col": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kind": {
+            "const": "table_cell"
+          },
+          "row": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "table_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "table_id",
+          "row",
+          "col",
+          "cell_text_hash"
+        ],
+        "type": "object"
+      },
+      "ChartData": {
+        "additionalProperties": false,
+        "properties": {
+          "series": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "points": {
+                  "items": {
+                    "$ref": "#/$defs/ChartPoint"
+                  },
+                  "minItems": 0,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "name",
+                "points"
+              ],
+              "type": "object"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "x_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "y_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "x_label",
+          "y_label",
+          "series"
+        ],
+        "type": "object"
+      },
+      "ChartPoint": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification": {
+            "enum": [
+              "CANDIDATE",
+              "SUPPORTED",
+              "REJECTED"
+            ]
+          },
+          "x": {
+            "anyOf": [
+              {
+                "pattern": "^[+-]?(0|[1-9][0-9]*)([.][0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "y": {
+            "anyOf": [
+              {
+                "pattern": "^[+-]?(0|[1-9][0-9]*)([.][0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "category",
+          "x",
+          "y",
+          "unit",
+          "source_refs",
+          "verification"
+        ],
+        "type": "object"
+      },
+      "CommunityReport": {
+        "additionalProperties": false,
+        "properties": {
+          "community_build_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "community_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/$defs/Finding"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "level": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "model_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parent_community_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "report_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "summary_finding_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "title": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "report_id",
+          "snapshot_id",
+          "community_build_id",
+          "community_id",
+          "level",
+          "parent_community_id",
+          "title",
+          "summary",
+          "summary_finding_ids",
+          "findings",
+          "model_fingerprint",
+          "prompt_hash"
+        ],
+        "type": "object"
+      },
+      "ContextManifestV2": {
+        "additionalProperties": false,
+        "properties": {
+          "actual_input_tokens": {
+            "description": "Dynamic context/prompt/tool token total; system_reserved_tokens remains an additional conservative reservation as in v1.",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "budget": {
+            "$ref": "#/$defs/TokenBudgetV2"
+          },
+          "context_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "contributions": {
+            "items": {
+              "$ref": "#/$defs/TokenContributionV2"
+            },
+            "type": "array"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "model_fingerprint": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "overhead_tokens": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "prompt_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "release_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-context-manifest/2.0"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "selected_assertion_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "selected_report_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "selected_sources": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "request_id",
+          "release_id",
+          "input_digest",
+          "scope",
+          "budget",
+          "actual_input_tokens",
+          "selected_sources",
+          "selected_assertion_ids",
+          "selected_report_ids",
+          "context_hash",
+          "model_fingerprint",
+          "prompt_hash",
+          "contributions",
+          "overhead_tokens"
+        ],
+        "type": "object"
+      },
+      "DiagramData": {
+        "additionalProperties": false,
+        "properties": {
+          "edges": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "direction": {
+                  "enum": [
+                    "FORWARD",
+                    "BIDIRECTIONAL",
+                    "UNDIRECTED"
+                  ]
+                },
+                "predicate": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "source": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "source_refs": {
+                  "items": {
+                    "$ref": "#/$defs/SourceRefV2"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "target": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "verification": {
+                  "enum": [
+                    "CANDIDATE",
+                    "SUPPORTED",
+                    "REJECTED"
+                  ]
+                }
+              },
+              "required": [
+                "source",
+                "target",
+                "predicate",
+                "direction",
+                "source_refs",
+                "verification"
+              ],
+              "type": "object"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "local_node_id": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "source_refs": {
+                  "items": {
+                    "$ref": "#/$defs/SourceRefV2"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "local_node_id",
+                "label",
+                "source_refs"
+              ],
+              "type": "object"
+            },
+            "minItems": 0,
+            "type": "array"
+          }
+        },
+        "required": [
+          "nodes",
+          "edges"
+        ],
+        "type": "object"
+      },
+      "DocumentSemantics": {
+        "additionalProperties": false,
+        "properties": {
+          "images": {
+            "items": {
+              "$ref": "#/$defs/ImageUnderstanding"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "ir_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parsed_text_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "producer_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-document-semantics/1.0"
+          },
+          "semantics_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/$defs/TableSemantics"
+            },
+            "minItems": 0,
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "semantics_id",
+          "parse_artifact_id",
+          "parsed_text_hash",
+          "ir_hash",
+          "producer_fingerprint",
+          "tables",
+          "images"
+        ],
+        "type": "object"
+      },
+      "EngineBuildRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "build_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "bundle_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "bundle_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "engine_profile_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "fencing_token": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "required_capabilities": {
+            "items": {
+              "enum": [
+                "PASSAGE_RETRIEVAL",
+                "GRAPH_TRACE",
+                "CANONICAL_GRAPH_EXPORT",
+                "COMMUNITY_DETECTION",
+                "COMMUNITY_REPORTS",
+                "INCREMENTAL_INDEX",
+                "DELETE_SOURCE",
+                "MULTIMODAL_NATIVE"
+              ]
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "request_id",
+          "build_id",
+          "bundle_id",
+          "bundle_hash",
+          "engine_profile_id",
+          "required_capabilities",
+          "fencing_token"
+        ],
+        "type": "object"
+      },
+      "EngineHit": {
+        "additionalProperties": false,
+        "properties": {
+          "assertion_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "input_unit_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "rank": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "input_unit_ids",
+          "rank",
+          "score",
+          "source_refs",
+          "assertion_ids"
+        ],
+        "type": "object"
+      },
+      "EngineIndexManifest": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "READY"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "input_units_hash": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "native_artifacts_hash": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "native_source_map_hash": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "adapter_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "build_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "bundle_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "bundle_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "dependency_lock_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "engine_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "engine_index_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "engine_revision": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "graph_export_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "input_units_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "native_artifacts_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "native_source_map_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "STAGING",
+              "READY",
+              "FAILED"
+            ]
+          }
+        },
+        "required": [
+          "engine_index_id",
+          "build_id",
+          "bundle_id",
+          "bundle_hash",
+          "snapshot_id",
+          "input_digest",
+          "scope",
+          "engine_id",
+          "engine_revision",
+          "adapter_version",
+          "dependency_lock_hash",
+          "input_units_hash",
+          "native_source_map_hash",
+          "native_artifacts_hash",
+          "graph_export_hash",
+          "state"
+        ],
+        "type": "object"
+      },
+      "EngineInputUnit": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "TEXT",
+              "TABLE",
+              "IMAGE_INTERPRETATION"
+            ]
+          },
+          "observation_class": {
+            "enum": [
+              "SOURCE_CONTENT",
+              "OCR_TRANSCRIPTION",
+              "MODEL_INTERPRETATION",
+              "HUMAN_TRANSCRIPTION"
+            ]
+          },
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "render_profile": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "statement_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "text_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "unit_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit_id",
+          "parse_artifact_id",
+          "kind",
+          "text",
+          "text_hash",
+          "render_profile",
+          "source_refs",
+          "observation_class",
+          "statement_ids"
+        ],
+        "type": "object"
+      },
+      "EngineRetrievalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "engine_index_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "query": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "release_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "require_graph_execution": {
+            "type": "boolean"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "top_k": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "request_id",
+          "release_id",
+          "engine_index_id",
+          "snapshot_id",
+          "input_digest",
+          "scope",
+          "query",
+          "top_k",
+          "require_graph_execution"
+        ],
+        "type": "object"
+      },
+      "EngineRetrievalResult": {
+        "additionalProperties": false,
+        "properties": {
+          "engine_index_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "executed_route": {
+            "enum": [
+              "GRAPH",
+              "DENSE_FALLBACK",
+              "NONE"
+            ]
+          },
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "graph_trace_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hits": {
+            "items": {
+              "$ref": "#/$defs/EngineHit"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "release_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "NOT_READY",
+              "UNSUPPORTED",
+              "NO_EVIDENCE"
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "release_id",
+          "engine_index_id",
+          "snapshot_id",
+          "input_digest",
+          "scope",
+          "status",
+          "executed_route",
+          "fallback_reason",
+          "graph_trace_hash",
+          "hits"
+        ],
+        "type": "object"
+      },
+      "Error": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "PARSE-201",
+              "PARSE-202",
+              "PARSE-203",
+              "PARSE-204",
+              "PARSE-205",
+              "PIPELINE-201",
+              "PIPELINE-202",
+              "AUTH-001",
+              "AUTH-002",
+              "KB-001",
+              "REQUEST-001",
+              "GENERATION-001",
+              "BUDGET-001",
+              "EVIDENCE-001",
+              "RETRIEVAL-001"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable",
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "Event": {
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "properties": {
+              "event_type": {
+                "const": "parse.artifact.ready"
+              },
+              "payload": {
+                "additionalProperties": false,
+                "properties": {
+                  "artifact_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "artifact_manifest_hash": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "document_version": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "file_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "task_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "task_id",
+                  "file_id",
+                  "document_version",
+                  "artifact_id",
+                  "artifact_manifest_hash"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "properties": {
+              "event_type": {
+                "const": "parse.failed"
+              },
+              "payload": {
+                "additionalProperties": false,
+                "properties": {
+                  "document_version": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "error": {
+                    "$ref": "#/$defs/Error"
+                  },
+                  "file_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "task_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "task_id",
+                  "file_id",
+                  "document_version",
+                  "error"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "properties": {
+              "event_type": {
+                "const": "source.invalidated"
+              },
+              "payload": {
+                "additionalProperties": false,
+                "properties": {
+                  "document_version": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "file_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "new_auth_version": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "new_resource_version": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "reason": {
+                    "enum": [
+                      "UPDATED",
+                      "DELETED",
+                      "REVOKED",
+                      "EXPIRED"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file_id",
+                  "document_version",
+                  "reason",
+                  "new_resource_version",
+                  "new_auth_version"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "properties": {
+              "event_type": {
+                "const": "projection.ready"
+              },
+              "payload": {
+                "additionalProperties": false,
+                "properties": {
+                  "build_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "output_manifest_hash": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "snapshot_id": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "build_id",
+                  "snapshot_id",
+                  "output_manifest_hash"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "event_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "event_type": {
+            "enum": [
+              "parse.artifact.ready",
+              "parse.failed",
+              "source.invalidated",
+              "projection.ready"
+            ],
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "payload": {},
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          }
+        },
+        "required": [
+          "event_id",
+          "event_type",
+          "request_id",
+          "scope",
+          "occurred_at",
+          "payload"
+        ],
+        "type": "object"
+      },
+      "ExtractionWindow": {
+        "additionalProperties": false,
+        "properties": {
+          "context_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "input_tokens": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "md_spans": {
+            "items": {
+              "$ref": "#/$defs/MarkdownSpan"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "WHOLE_DOCUMENT",
+              "STRUCTURAL_WINDOW"
+            ]
+          },
+          "output_reserved_tokens": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "sequence_no": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "window_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "window_id",
+          "mode",
+          "parse_artifact_id",
+          "sequence_no",
+          "source_refs",
+          "input_tokens",
+          "output_reserved_tokens",
+          "context_hash",
+          "md_spans"
+        ],
+        "type": "object"
+      },
+      "FigureLocator": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "figure_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "kind": {
+            "const": "figure_asset"
+          }
+        },
+        "required": [
+          "kind",
+          "figure_id",
+          "asset_sha256"
+        ],
+        "type": "object"
+      },
+      "Finding": {
+        "additionalProperties": false,
+        "properties": {
+          "finding_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "support_groups": {
+            "items": {
+              "$ref": "#/$defs/SupportGroup"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "verification": {
+            "enum": [
+              "SUPPORTED",
+              "CONFLICT",
+              "NEEDS_REVIEW"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "finding_id",
+          "text",
+          "support_groups",
+          "verification"
+        ],
+        "type": "object"
+      },
+      "GraphEngineDescriptor": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "enum": [
+                "PASSAGE_RETRIEVAL",
+                "GRAPH_TRACE",
+                "CANONICAL_GRAPH_EXPORT",
+                "COMMUNITY_DETECTION",
+                "COMMUNITY_REPORTS",
+                "INCREMENTAL_INDEX",
+                "DELETE_SOURCE",
+                "MULTIMODAL_NATIVE"
+              ]
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "dependency_lock_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "engine_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "engine_revision": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "CANDIDATE",
+              "VERIFIED"
+            ]
+          },
+          "verified_capabilities": {
+            "items": {
+              "enum": [
+                "PASSAGE_RETRIEVAL",
+                "GRAPH_TRACE",
+                "CANONICAL_GRAPH_EXPORT",
+                "COMMUNITY_DETECTION",
+                "COMMUNITY_REPORTS",
+                "INCREMENTAL_INDEX",
+                "DELETE_SOURCE",
+                "MULTIMODAL_NATIVE"
+              ]
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "engine_id",
+          "engine_revision",
+          "adapter_version",
+          "dependency_lock_hash",
+          "status",
+          "capabilities",
+          "verified_capabilities"
+        ],
+        "type": "object"
+      },
+      "GraphExtractionPlan": {
+        "additionalProperties": false,
+        "properties": {
+          "bindings": {
+            "items": {
+              "$ref": "#/$defs/ArtifactBinding"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "coverage": {
+            "items": {
+              "$ref": "#/$defs/BlockCoverage"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "extractor_profile_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "graph_build_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "model_window_tokens": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "plan_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "policy": {
+            "const": "WHOLE_DOCUMENT_IF_FITS_ELSE_STRUCTURAL_WINDOWS"
+          },
+          "schema_version": {
+            "const": "llmke-graph-extraction-plan/2.0"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_mode": {
+            "const": "PARSE_ARTIFACT_DIRECT"
+          },
+          "tokenizer_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "windows": {
+            "items": {
+              "$ref": "#/$defs/ExtractionWindow"
+            },
+            "minItems": 0,
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "plan_id",
+          "graph_build_id",
+          "snapshot_id",
+          "input_digest",
+          "scope",
+          "source_mode",
+          "policy",
+          "bindings",
+          "extractor_profile_hash",
+          "tokenizer_fingerprint",
+          "model_window_tokens",
+          "windows",
+          "coverage"
+        ],
+        "type": "object"
+      },
+      "ImageUnderstanding": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "chart_data": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ChartData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/InterpretationStatement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "diagram_data": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/DiagramData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "figure_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "PHOTO",
+              "CHART",
+              "FLOWCHART",
+              "DIAGRAM",
+              "FORMULA",
+              "OTHER"
+            ]
+          },
+          "model_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/$defs/InterpretationStatement"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "ocr": {
+            "items": {
+              "$ref": "#/$defs/InterpretationStatement"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "prompt_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "figure_id",
+          "asset_sha256",
+          "kind",
+          "ocr",
+          "description",
+          "chart_data",
+          "diagram_data",
+          "observations",
+          "model_fingerprint",
+          "prompt_hash"
+        ],
+        "type": "object"
+      },
+      "InputSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "bindings": {
+            "items": {
+              "$ref": "#/$defs/ArtifactBinding"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-input-snapshot/2.0"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "view_kind": {
+            "enum": [
+              "CURRENT",
+              "HISTORY_COMPARISON"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "snapshot_id",
+          "scope",
+          "view_kind",
+          "bindings",
+          "input_digest",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "InterpretationStatement": {
+        "additionalProperties": false,
+        "properties": {
+          "observation_class": {
+            "enum": [
+              "SOURCE_CONTENT",
+              "OCR_TRANSCRIPTION",
+              "MODEL_INTERPRETATION",
+              "HUMAN_TRANSCRIPTION"
+            ]
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "statement_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "verification": {
+            "enum": [
+              "CANDIDATE",
+              "SUPPORTED",
+              "REJECTED"
+            ]
+          }
+        },
+        "required": [
+          "statement_id",
+          "text",
+          "source_refs",
+          "observation_class",
+          "verification"
+        ],
+        "type": "object"
+      },
+      "KnowledgeInputBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "bindings": {
+            "items": {
+              "$ref": "#/$defs/ArtifactBinding"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "bundle_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-knowledge-input/1.0"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "semantics_bindings": {
+            "items": {
+              "$ref": "#/$defs/SemanticsBinding"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "bundle_id",
+          "snapshot_id",
+          "input_digest",
+          "scope",
+          "bindings",
+          "semantics_bindings"
+        ],
+        "type": "object"
+      },
+      "KnowledgeRelease": {
+        "additionalProperties": false,
+        "properties": {
+          "activated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "community_build_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_previous_release": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "graph_build_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "pointer_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rag_build_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "readiness": {
+            "additionalProperties": false,
+            "properties": {
+              "community": {
+                "$ref": "#/$defs/Readiness"
+              },
+              "graph": {
+                "$ref": "#/$defs/Readiness"
+              },
+              "rag": {
+                "$ref": "#/$defs/Readiness"
+              }
+            },
+            "required": [
+              "rag",
+              "graph",
+              "community"
+            ],
+            "type": "object"
+          },
+          "release_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-knowledge-release/2.0"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "CANDIDATE",
+              "PUBLISHED",
+              "INVALIDATED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "release_id",
+          "scope",
+          "snapshot_id",
+          "input_digest",
+          "rag_build_id",
+          "graph_build_id",
+          "community_build_id",
+          "readiness",
+          "pointer_version",
+          "expected_previous_release",
+          "state",
+          "activated_at"
+        ],
+        "type": "object"
+      },
+      "LegacyTextArtifact": {
+        "additionalProperties": false,
+        "description": "doc2md 现有 text-only 出口的登记对象（CR BL-2.0.0-02）。与 ParseArtifact 并列、不可互换：没有 document_ir 时只能登记为 PARTIAL 文本能力，结构性能力（document_ir/table_cells/figure_assets）在此层被枚举挡住。",
+        "properties": {
+          "artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "commit_state": {
+            "const": "COMMITTED"
+          },
+          "committed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "content_uid": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parser_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/$defs/ArtifactPart"
+            },
+            "minItems": 3,
+            "type": "array"
+          },
+          "producer": {
+            "$ref": "#/$defs/Producer"
+          },
+          "quality": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilities": {
+                "items": {
+                  "enum": [
+                    "text",
+                    "source_alignment"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true
+              },
+              "state": {
+                "const": "PARTIAL"
+              },
+              "warnings": {
+                "items": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            },
+            "required": [
+              "state",
+              "capabilities",
+              "warnings"
+            ],
+            "type": "object"
+          },
+          "read_set_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-legacy-text-artifact/1.0"
+          }
+        },
+        "required": [
+          "schema_version",
+          "artifact_id",
+          "content_uid",
+          "parser_fingerprint",
+          "producer",
+          "read_set_digest",
+          "parts",
+          "quality",
+          "commit_state",
+          "committed_at"
+        ],
+        "type": "object"
+      },
+      "MarkdownSpan": {
+        "additionalProperties": false,
+        "properties": {
+          "end_offset": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "start_offset": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "text_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_offset",
+          "end_offset",
+          "text_hash"
+        ],
+        "type": "object"
+      },
+      "NativeSourceMap": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "engine_index_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "entries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "input_unit_ids": {
+                  "items": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "native_id": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "native_id",
+                "input_unit_ids"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "input_units_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-native-source-map/1.0"
+          }
+        },
+        "required": [
+          "schema_version",
+          "engine_index_id",
+          "bundle_hash",
+          "input_units_hash",
+          "entries"
+        ],
+        "type": "object"
+      },
+      "ParseArtifact": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "commit_state": {
+            "const": "COMMITTED"
+          },
+          "committed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "content_uid": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "ir_schema": {
+            "const": "document-ir/1.0"
+          },
+          "parser_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/$defs/ArtifactPart"
+            },
+            "minItems": 4,
+            "type": "array"
+          },
+          "producer": {
+            "$ref": "#/$defs/Producer"
+          },
+          "quality": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilities": {
+                "items": {
+                  "enum": [
+                    "text",
+                    "document_ir",
+                    "table_cells",
+                    "figure_assets",
+                    "source_alignment"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 0,
+                "type": "array",
+                "uniqueItems": true
+              },
+              "state": {
+                "enum": [
+                  "COMPLETE",
+                  "PARTIAL",
+                  "EMPTY"
+                ],
+                "type": "string"
+              },
+              "warnings": {
+                "items": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "minItems": 0,
+                "type": "array"
+              }
+            },
+            "required": [
+              "state",
+              "capabilities",
+              "warnings"
+            ],
+            "type": "object"
+          },
+          "read_set_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-parse-artifact/2.0"
+          }
+        },
+        "required": [
+          "schema_version",
+          "artifact_id",
+          "content_uid",
+          "parser_fingerprint",
+          "producer",
+          "read_set_digest",
+          "parts",
+          "ir_schema",
+          "quality",
+          "commit_state",
+          "committed_at"
+        ],
+        "type": "object"
+      },
+      "ParseRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "content_uid": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "document_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "fencing_token": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parser_fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "required_capabilities": {
+            "items": {
+              "enum": [
+                "text",
+                "document_ir",
+                "table_cells",
+                "figure_assets",
+                "source_alignment"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "source_object_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "task_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "task_id",
+          "scope",
+          "file_id",
+          "document_version",
+          "content_uid",
+          "source_object_id",
+          "parser_fingerprint",
+          "required_capabilities",
+          "idempotency_key",
+          "fencing_token"
+        ],
+        "type": "object"
+      },
+      "ParseTask": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "else": {
+              "properties": {
+                "artifact_id": {
+                  "type": "null"
+                }
+              }
+            },
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "SUCCEEDED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "artifact_id": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "error": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "FAILED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "error": {
+                  "$ref": "#/$defs/Error"
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "artifact_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "document_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Error"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "state": {
+            "enum": [
+              "QUEUED",
+              "RUNNING",
+              "VALIDATING",
+              "SUCCEEDED",
+              "FAILED",
+              "CANCELED"
+            ],
+            "type": "string"
+          },
+          "task_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "scope",
+          "file_id",
+          "document_version",
+          "state",
+          "artifact_id",
+          "error",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "PipelineStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "document_version": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parse_task": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ParseTask"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "release": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/KnowledgeRelease"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kb_id",
+          "document_version",
+          "parse_task",
+          "release"
+        ],
+        "type": "object"
+      },
+      "Producer": {
+        "additionalProperties": false,
+        "properties": {
+          "config_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "model_fingerprints": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "name": {
+            "const": "doc2md"
+          },
+          "parser_adapter_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parser_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parser_profile": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "runtime_lock_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "source_revision": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "source_revision",
+          "parser_name",
+          "parser_profile",
+          "parser_adapter_version",
+          "runtime_lock_hash",
+          "config_hash",
+          "model_fingerprints"
+        ],
+        "type": "object"
+      },
+      "ProjectionBuild": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "READY",
+                    "READY_EMPTY"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "output_manifest_hash": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "rag",
+                    "graph"
+                  ]
+                },
+                "state": {
+                  "enum": [
+                    "READY",
+                    "READY_EMPTY"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "execution_manifest_hash": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "bindings": {
+            "items": {
+              "$ref": "#/$defs/ArtifactBinding"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "build_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "config_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "depends_on_build_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "execution_manifest_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fencing_token": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "rag",
+              "graph",
+              "community"
+            ],
+            "type": "string"
+          },
+          "output_manifest_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "QUEUED",
+              "RUNNING",
+              "READY",
+              "READY_EMPTY",
+              "FAILED",
+              "CANCELED",
+              "INVALIDATED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "build_id",
+          "kind",
+          "snapshot_id",
+          "input_digest",
+          "scope",
+          "bindings",
+          "depends_on_build_ids",
+          "config_hash",
+          "state",
+          "output_manifest_hash",
+          "fencing_token",
+          "execution_manifest_hash"
+        ],
+        "type": "object"
+      },
+      "ProjectionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_pointer_version": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "kinds": {
+            "items": {
+              "enum": [
+                "rag",
+                "graph",
+                "community"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "snapshot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "snapshot_id",
+          "kinds",
+          "expected_pointer_version",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "Quantity": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "quantity_kind": {
+                  "const": "DELTA"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "baseline_entity_id": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "baseline_entity_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "comparison": {
+            "enum": [
+              "EQ",
+              "LT",
+              "LE",
+              "GT",
+              "GE"
+            ],
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "const": "quantity"
+          },
+          "quantity_kind": {
+            "enum": [
+              "ABSOLUTE",
+              "DELTA"
+            ],
+            "type": "string"
+          },
+          "unit": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "value_decimal": {
+            "pattern": "^[+-]?(0|[1-9][0-9]*)([.][0-9]+)?$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "value_decimal",
+          "unit",
+          "currency",
+          "quantity_kind",
+          "comparison",
+          "baseline_entity_id"
+        ],
+        "type": "object"
+      },
+      "QueryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "rag",
+              "local",
+              "global",
+              "history_compare"
+            ],
+            "type": "string"
+          },
+          "query": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "release_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "kb_id",
+          "query",
+          "mode",
+          "release_id"
+        ],
+        "type": "object"
+      },
+      "QueryResult": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "NO_EVIDENCE",
+                    "NOT_READY",
+                    "UNSUPPORTED"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "answer": {
+                  "const": ""
+                },
+                "assertions": {
+                  "maxItems": 0
+                },
+                "findings": {
+                  "maxItems": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "OK"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "findings": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "assertions": {
+            "items": {
+              "$ref": "#/$defs/Assertion"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "context_manifest": {
+            "$ref": "#/$defs/ContextManifestV2"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/$defs/Finding"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "input_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "rag",
+              "local",
+              "global",
+              "history_compare"
+            ],
+            "type": "string"
+          },
+          "release_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "NO_EVIDENCE",
+              "NOT_READY",
+              "UNSUPPORTED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "release_id",
+          "input_digest",
+          "mode",
+          "status",
+          "answer",
+          "findings",
+          "assertions",
+          "context_manifest"
+        ],
+        "type": "object"
+      },
+      "Readiness": {
+        "enum": [
+          "NOT_REQUESTED",
+          "PENDING",
+          "READY",
+          "READY_EMPTY",
+          "FAILED",
+          "INVALIDATED"
+        ],
+        "type": "string"
+      },
+      "RetrievalProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptance": {
+            "additionalProperties": false,
+            "properties": {
+              "chinese_lexical": {
+                "enum": [
+                  "NOT_EXECUTED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "deleted_exclusion": {
+                "enum": [
+                  "NOT_EXECUTED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "exact_identifiers": {
+                "enum": [
+                  "NOT_EXECUTED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "offline_install": {
+                "enum": [
+                  "NOT_EXECUTED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "replay_migration": {
+                "enum": [
+                  "NOT_EXECUTED",
+                  "PASS",
+                  "FAIL"
+                ]
+              },
+              "snapshot_authorization": {
+                "enum": [
+                  "NOT_EXECUTED",
+                  "PASS",
+                  "FAIL"
+                ]
+              }
+            },
+            "required": [
+              "chinese_lexical",
+              "exact_identifiers",
+              "snapshot_authorization",
+              "deleted_exclusion",
+              "replay_migration",
+              "offline_install"
+            ],
+            "type": "object"
+          },
+          "analyzer_config_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "backend_version": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dense_backend": {
+            "const": "milvus"
+          },
+          "es_required": {
+            "type": "boolean"
+          },
+          "exact_backend": {
+            "enum": [
+              "mysql",
+              "milvus",
+              "es_legacy"
+            ]
+          },
+          "lexical_backend": {
+            "enum": [
+              "milvus_bm25",
+              "mysql_ngram",
+              "es_legacy"
+            ]
+          },
+          "profile_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-retrieval-profile/2.0"
+          },
+          "status": {
+            "enum": [
+              "CANDIDATE",
+              "VERIFIED"
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "profile_id",
+          "status",
+          "dense_backend",
+          "lexical_backend",
+          "exact_backend",
+          "es_required",
+          "backend_version",
+          "analyzer_config_hash",
+          "acceptance"
+        ],
+        "type": "object"
+      },
+      "Scope": {
+        "additionalProperties": false,
+        "properties": {
+          "auth_scope_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "auth_version": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kb_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resource_version": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kb_id",
+          "auth_scope_id",
+          "auth_version",
+          "resource_version"
+        ],
+        "type": "object"
+      },
+      "SemanticsBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "semantics_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "semantics_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "parse_artifact_id",
+          "semantics_id",
+          "semantics_hash"
+        ],
+        "type": "object"
+      },
+      "SourceRefV2": {
+        "additionalProperties": false,
+        "properties": {
+          "block_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "document_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "ir_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "locator": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TextLocator"
+              },
+              {
+                "$ref": "#/$defs/CellLocator"
+              },
+              {
+                "$ref": "#/$defs/FigureLocator"
+              }
+            ]
+          },
+          "observation_class": {
+            "enum": [
+              "SOURCE_CONTENT",
+              "OCR_TRANSCRIPTION",
+              "MODEL_INTERPRETATION",
+              "HUMAN_TRANSCRIPTION"
+            ],
+            "type": "string"
+          },
+          "parse_artifact_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parsed_text_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "llmke-source-ref/2.0"
+          }
+        },
+        "required": [
+          "schema_version",
+          "file_id",
+          "document_version",
+          "parse_artifact_id",
+          "parsed_text_hash",
+          "ir_hash",
+          "block_id",
+          "locator",
+          "observation_class"
+        ],
+        "type": "object"
+      },
+      "SupportGroup": {
+        "additionalProperties": false,
+        "properties": {
+          "all_of_terms": {
+            "items": {
+              "$ref": "#/$defs/SupportTerm"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "all_of_terms"
+        ],
+        "type": "object"
+      },
+      "SupportTerm": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "assertion_id": {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              "kind": {
+                "const": "assertion"
+              }
+            },
+            "required": [
+              "kind",
+              "assertion_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "source"
+              },
+              "source_ref": {
+                "$ref": "#/$defs/SourceRefV2"
+              }
+            },
+            "required": [
+              "kind",
+              "source_ref"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "TableSemantics": {
+        "additionalProperties": false,
+        "properties": {
+          "footnotes": {
+            "items": {
+              "$ref": "#/$defs/InterpretationStatement"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "header_paths": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "data_cell": {
+                  "$ref": "#/$defs/CellAddress"
+                },
+                "header_cells": {
+                  "items": {
+                    "$ref": "#/$defs/CellAddress"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "data_cell",
+                "header_cells"
+              ],
+              "type": "object"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "statements": {
+            "items": {
+              "$ref": "#/$defs/InterpretationStatement"
+            },
+            "minItems": 0,
+            "type": "array"
+          },
+          "table_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "unit_annotations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "currency": {
+                  "anyOf": [
+                    {
+                      "maxLength": 256,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "data_cells": {
+                  "items": {
+                    "$ref": "#/$defs/CellAddress"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "source_refs": {
+                  "items": {
+                    "$ref": "#/$defs/SourceRefV2"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "unit": {
+                  "maxLength": 256,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "unit",
+                "currency",
+                "data_cells",
+                "source_refs"
+              ],
+              "type": "object"
+            },
+            "minItems": 0,
+            "type": "array"
+          }
+        },
+        "required": [
+          "table_id",
+          "header_paths",
+          "unit_annotations",
+          "footnotes",
+          "statements"
+        ],
+        "type": "object"
+      },
+      "TextLocator": {
+        "additionalProperties": false,
+        "properties": {
+          "end_offset": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "kind": {
+            "const": "text_span"
+          },
+          "quote_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "source": {
+            "const": "parsed_text.md"
+          },
+          "start_offset": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "unicode_codepoint"
+          }
+        },
+        "required": [
+          "kind",
+          "source",
+          "start_offset",
+          "end_offset",
+          "unit",
+          "quote_hash"
+        ],
+        "type": "object"
+      },
+      "TokenBudgetV2": {
+        "additionalProperties": false,
+        "properties": {
+          "model_window_tokens": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/model_window_tokens"
+          },
+          "output_reserved_tokens": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/output_reserved_tokens"
+          },
+          "per_document_tokens": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/per_document_tokens"
+          },
+          "per_route_tokens": {
+            "additionalProperties": false,
+            "properties": {
+              "community": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "database": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "dense": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "exact": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "faq": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "graph": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "lexical": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "table": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "web": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "policy_id": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/policy_id"
+          },
+          "schema_version": {
+            "const": "llmke-token-budget/2.0"
+          },
+          "system_reserved_tokens": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/system_reserved_tokens"
+          },
+          "tokenizer_version": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/tokenizer_version"
+          },
+          "total_input_tokens": {
+            "$ref": "https://llmke.local/contracts/schema/llmke-core.json#/$defs/TokenBudget/properties/total_input_tokens"
+          }
+        },
+        "required": [
+          "schema_version",
+          "policy_id",
+          "tokenizer_version",
+          "total_input_tokens",
+          "system_reserved_tokens",
+          "output_reserved_tokens",
+          "per_document_tokens",
+          "model_window_tokens",
+          "per_route_tokens"
+        ],
+        "type": "object"
+      },
+      "TokenContributionV2": {
+        "additionalProperties": false,
+        "properties": {
+          "contribution_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "file_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "route": {
+            "enum": [
+              "dense",
+              "lexical",
+              "exact",
+              "graph",
+              "community",
+              "table",
+              "faq",
+              "web",
+              "database"
+            ]
+          },
+          "source_refs": {
+            "items": {
+              "$ref": "#/$defs/SourceRefV2"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "token_count": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "contribution_id",
+          "file_id",
+          "route",
+          "token_count",
+          "source_refs"
+        ],
+        "type": "object"
+      }
+    },
+    "$id": "https://llmke.local/contracts/schema/llmke-document-pipeline-v2.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "doc2md统一产物、来源与双投影合同",
+    "version": "2.0.0"
+  },
+  "schema_id": "https://llmke.local/contracts/schema/llmke-document-pipeline-v2.json",
+  "title": "doc2md统一产物、来源与双投影合同"
+}

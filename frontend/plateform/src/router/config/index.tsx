@@ -32,6 +32,9 @@ const ChatsConfiguration = lazy(
 const KnowledgeAnalyBlock = lazy(
   () => import("@root/src/components/KnowledgeBaseZh/KnowledgeAnalyBlock/index")
 );
+const GraphLifecycleView = lazy(
+  () => import("@root/src/components/KnowledgeBaseZh/v2/GraphLifecycleView")
+);
 const KnowledgeAnalyGraph = lazy(
   () => import("@root/src/components/KnowledgeBaseZh/KnowledgeAnalyGraph/index")
 );
@@ -254,6 +257,11 @@ const root = [
             path: "knowledgeBase/KnowledgeAnalyGraph/:id",
             element: getSuspenceWrap(<KnowledgeAnalyGraph />)
           },
+          // 图谱增强 V2 骨架演示（交接文件 §4：五段状态条/徽标/mock 适配层）
+          {
+            path: "knowledgeBase/graphLifecycle/:id",
+            element: getSuspenceWrap(<GraphLifecycleView />)
+          },
           {
             path: "knowledgeBase/:knowledgeBaseId/faq/:id",
             element: getSuspenceWrap(<FAQ />)
@@ -455,6 +463,11 @@ const root = [
   {
     path: "/demo",
     element: <Demo />
+  },
+  // 图谱增强 V2 骨架演示（顶层入口，不依赖知识库守卫；交接文件 §9.1 mock 演示全部状态）
+  {
+    path: "/graphLifecycleDemo",
+    element: getSuspenceWrap(<GraphLifecycleView />)
   },
   {
     path: "mdDemo",

@@ -12,7 +12,7 @@ import {
   TempBaseUrl,
   useAppPassport
 } from "@root/src/core/helps";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ConfigProvider, Drawer, message } from "antd";
 import { DeleteModal } from "./components/DeleteModal";
 import SdqaDrawer from "@root/src/components/SdqaDrawer";
@@ -22,10 +22,11 @@ import DrawerVideo from "./components/DrawerVideo";
 import DrawerPreview from "./components/DrawerPreview";
 import { defaultStyles } from "./config";
 import DrawerDatabase from "./components/DrawerDatabase";
-import { api_getFileStatusByUid } from "@root/src/components/AiInputer/common/services/servers";
+import { api_getFileStatusByUid, api_getKbFileById } from "@root/src/components/AiInputer/common/services/servers";
 import DrawerGraphPreview from "./components/DrawerGraphPreview";
 import { registerPreviewViewer } from "@mxmweb/nodegraph";
 import "@gientech/modual/style.css";
+import "./chat-shell.css";
 import { Brain, Globe, Paperclip, Search } from "lucide-react";
 import { ReactComponent as Net } from "./assets/net.svg";
 import { ReactComponent as Mind } from "./assets/mind.svg";
@@ -121,7 +122,71 @@ const mockSenderConfig = {
   ]
 };
 
+/**
+ * PAGE-CITATION-E2E-20261103（引用可点击闭环）：
+ * global 引用的 metadata 只有 file_id/title/locator（retrieval_shim._to_document 显式把
+ * source 置 null，普通检索路径由 Java addConvertedFilePath 补路径，global 分支没走），
+ * 点抽屉条目会落到 DrawerPreview → "缺少原文地址或登录态"。
+ * 这里用 file_id 回查 /index/knowledgeBase/file/getById（后端已有 assertRead 权限校验），
+ * 把 convertedFilePath 填回 metadata.source，locator 原样保留给页码定位。
+ * 查不到时写 __citationOpenError，由 DrawerPreview 显示可区分原因（不冒充"无权限"）。
+ *
+ * 注意：shim 对非数字 file_id（如 F012）int() 失败会置 metadata.file_id=null，
+ * 真实值只在 metadata.sources[].file_id / position.sources[].file_id 里，所以要做多级候选。
+ */
+const resolveReferenceSource = async (doc: any, token: string) => {
+  const meta = doc?.metadata || {};
+  if (meta.source) return; // 普通检索路径已带 source，不动
+  const srcList: any[] = [
+    ...(Array.isArray(meta.sources) ? meta.sources : []),
+    ...(Array.isArray(meta?.position?.sources) ? meta.position.sources : [])
+  ];
+  const rawCandidates: any[] = [
+    meta.file_id ?? meta.fileId ?? doc?.file_id ?? doc?.fileId ?? null,
+    ...srcList.map((s: any) => s?.file_id)
+  ];
+  let fid: number | null = null;
+  let fidRaw: any = null;
+  for (const c of rawCandidates) {
+    if (c === null || c === undefined || c === "") continue;
+    if (fidRaw === null) fidRaw = c; // 记住第一个原始值，用于失败提示
+    const n = Number(c);
+    if (Number.isFinite(n) && n > 0) {
+      fid = n;
+      break;
+    }
+  }
+  if (fid === null) {
+    doc.__citationOpenError = `该引用未携带可回查的文件标识（file_id=${
+      fidRaw ?? "空"
+    }），无法定位原文`;
+    return;
+  }
+  try {
+    const detail: any = await api_getKbFileById({
+      data: { id: fid },
+      config: { url: getUrlPrefix(), token, enableMock: false }
+    });
+    const converted = detail?.convertedFilePath;
+    if (!converted) {
+      const serverMsg = detail?.errorMsg ? `：${detail.errorMsg}` : "";
+      doc.__citationOpenError = `知识库中未找到该引用文件（file_id=${fid}）或文件尚未解析，无法打开原文${serverMsg}`;
+      return;
+    }
+    meta.source = converted; // resolvePreviewTarget 会剥 scheme/host//minio 前缀取对象键
+    if (detail.fileName && !meta.title) meta.title = detail.fileName;
+    if (detail.pdfPage) doc.pdfPages = detail.pdfPage;
+    if (!doc.file_type) {
+      doc.file_type = String(converted).split(".").pop() || "";
+    }
+  } catch (e: any) {
+    doc.__citationOpenError = `回查引用文件失败：${e?.message || e}`;
+  }
+};
+
 const ChatPage = () => {
+  const shellRef = useRef<HTMLDivElement>(null);
+  const lastReferenceRawRef = useRef<string | null>(null); // 引用面板原始 reference（vendor 面板会剥 metadata）
   const { getToken } = useAppPassport();
   const token: any = getToken();
   const AI_CHAT = useMemo(() => {
@@ -240,6 +305,38 @@ const ChatPage = () => {
     return release;
   }, []);
 
+  // 流式结束后把最新一条消息（含“知识溯源”动作行）滚到可视区中间。
+  // vendor 的消息列表是 rotate(180deg) 的反向滚动容器，且只给底部留 20px，
+  // 实测新答案会落在 sticky 头部/输入区下面，用户看不到也点不到引用。
+  useEffect(() => {
+    const root = shellRef.current;
+    if (!root) return;
+    let timer: number | undefined;
+    let lastKey = "";
+    const scrollLatest = () => {
+      const sc = root.querySelector('[style*="overflow-y: scroll"]');
+      if (!sc) return;
+      const buttons = Array.from(sc.querySelectorAll("button")).filter(b =>
+        (b.textContent || "").includes("知识溯源")
+      ) as HTMLElement[];
+      const target = buttons[buttons.length - 1];
+      if (!target) return;
+      const key = (target.parentElement?.parentElement?.textContent || "").slice(0, 80);
+      if (!key || key === lastKey) return;
+      lastKey = key;
+      target.scrollIntoView({ block: "center" });
+    };
+    const observer = new MutationObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(scrollLatest, 600);
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
+  }, []);
+
   const handleSd = (type: string, data?: any) => {
     switch (type) {
       case "click:indexes":
@@ -338,9 +435,16 @@ const ChatPage = () => {
                 handleGlobalModeChange(data.all.globalMode);
               }
               break;
+            // PAGE-CITATION-E2E-20261103：vendor 引用面板把原始文档重映射成展示条目时
+            // 会剥掉 metadata（file_id/locator/sources 全丢），但 references:click 的
+            // payload 里带 raw.reference（后端原始 JSON 串）。存下来供条目点击反查。
+            case "references:click":
+              lastReferenceRawRef.current = data?.raw?.reference || null;
+              break;
+
             // 点击title
-            case "knowledge_referenceFile_title:click":
-              const d3 = data?.data;
+            case "knowledge_referenceFile_title:click": {
+              const d3 = data?.data || {};
               if (data?.data?.file_type == "video") {
                 const curTag: any = (d3?.tags || []).find(
                   (item: any) => item.id === d3.order_num
@@ -361,11 +465,45 @@ const ChatPage = () => {
                   d3.metadata = curTag.metadata;
                 }
               }
-              setCurFileInfo(d3);
-              setDrawerType("preview");
-              setOpen(true);
+              // vendor 面板把原始引用文档重映射成展示条目时，会把 metadata 整个剥掉
+              // （file_id/locator/sources 全丢，实测 file_id 只剩 metadata.id||uid 恒空）。
+              // 用上一次 references:click 事件里带出的 raw.reference 按 file_name 反查，
+              // 把原始 metadata（含 file_id/locator/sources）补回 d3，回查与页码定位才有依据。
+              if (!d3?.metadata?.source) {
+                let docs: any[] = [];
+                try {
+                  const parsed = JSON.parse(lastReferenceRawRef.current || "[]");
+                  docs = Array.isArray(parsed) ? parsed : [];
+                } catch {
+                  docs = [];
+                }
+                const orig =
+                  docs.find(
+                    (doc: any) =>
+                      doc?.metadata?.title === d3.file_name ||
+                      doc?.file_name === d3.file_name
+                  ) || (docs.length === 1 ? docs[0] : undefined);
+                if (orig) {
+                  d3.metadata = {
+                    ...(d3.metadata || {}),
+                    ...(orig.metadata || {})
+                  };
+                  if (!d3.file_id && orig.metadata?.file_id) {
+                    d3.file_id = orig.metadata.file_id;
+                  }
+                }
+              }
+              // PAGE-CITATION-E2E-20261103：global 引用无 source，先按 file_id 回查补
+              // metadata.source（成功）或写 __citationOpenError（失败），再开抽屉；
+              // 失败也打开，让 DrawerPreview 显示可区分原因，不静默吞掉。
+              resolveReferenceSource(d3, token).then(() => {
+                setCurFileInfo(d3);
+                setDrawerType("preview");
+                setOpen(true);
+              });
 
               break;
+            }
             case "graph_reference:click":
               if (!data) return;
               setDrawerType("graphPreview");
@@ -515,7 +653,7 @@ const ChatPage = () => {
             GraphRAG 全局
           </div>
         )}
-        <div className="h-full">{renderAIChat}</div>
+        <div ref={shellRef} className="h-full v2-chat-shell">{renderAIChat}</div>
       </div>
       <RenameModal
         isModalOpen={isRenameModalOpen}

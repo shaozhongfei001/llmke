@@ -1,0 +1,192 @@
+{
+  "evaluation": {
+    "name": "llmke-document-pipeline-acceptance-v2",
+    "version": "2.0.0",
+    "product_status": "NOT_EXECUTED",
+    "cases": [
+      {
+        "id": "DV-01",
+        "invariant_id": "DP-01",
+        "expected": "all file ingestion through actual doc2md; downstream never reparses raw files",
+        "verification": "RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-02",
+        "invariant_id": "DP-02",
+        "expected": "preserve doc2md three-file bytes and document-ir/1.0 semantics",
+        "verification": "CONTRACT_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-03",
+        "invariant_id": "DP-03",
+        "expected": "all required parts present; path safe; SHA256/size match actual stored bytes",
+        "verification": "MECHANICAL",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-04",
+        "invariant_id": "DP-04",
+        "expected": "same scope snapshot and artifact bindings across related builds/releases",
+        "verification": "MECHANICAL",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-05",
+        "invariant_id": "DP-05",
+        "expected": "text offsets left-closed right-open in immutable parsed_text.md; exact quote hash",
+        "verification": "MECHANICAL",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-06",
+        "invariant_id": "DP-06",
+        "expected": "table/header/unit/footnote and image semantics verified against original evidence",
+        "verification": "SEMANTIC",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-07",
+        "invariant_id": "DP-07",
+        "expected": "same logical file has one effective binding in CURRENT snapshot",
+        "verification": "MECHANICAL",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-08",
+        "invariant_id": "DP-08",
+        "expected": "graph/community require CURRENT snapshot and validated same-domain input",
+        "verification": "CONTRACT_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-09",
+        "invariant_id": "DP-09",
+        "expected": "worker lease/fencing, CAS pointer and outbox commit protect publication",
+        "verification": "RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-10",
+        "invariant_id": "DP-10",
+        "expected": "latest auth/resource versions fence stale releases before reads/stream emission",
+        "verification": "RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-11",
+        "invariant_id": "DP-11",
+        "expected": "no unauthorized content participates in community/report construction",
+        "verification": "RUNTIME_NONINTERFERENCE",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-12",
+        "invariant_id": "DP-12",
+        "expected": "valid singleton vertices retained; no fabricated cross-document edges",
+        "verification": "SEMANTIC_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-13",
+        "invariant_id": "DP-13",
+        "expected": "all claims resolve one complete supported premise group; missing source blocks publication",
+        "verification": "MECHANICAL_AND_SEMANTIC",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-14",
+        "invariant_id": "DP-14",
+        "expected": "RAG-only readiness may publish while graph is pending; global returns NOT_READY",
+        "verification": "MECHANICAL_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-15",
+        "invariant_id": "DP-15",
+        "expected": "event id same payload is idempotent; same id different payload is conflict",
+        "verification": "RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-16",
+        "invariant_id": "DP-16",
+        "expected": "legacy imports explicitly classified; cannot label unknown parser output doc2md",
+        "verification": "MECHANICAL_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-17",
+        "invariant_id": "DP-17",
+        "expected": "graph reads immutable parse artifacts without ES or RAG build dependency",
+        "verification": "CONTRACT_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-18",
+        "invariant_id": "DP-18",
+        "expected": "graph extraction covers source blocks using token-bounded windows; no silent tail truncation",
+        "verification": "MECHANICAL_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-19",
+        "invariant_id": "DP-19",
+        "expected": "KB-wide identity linking and community detection happen after per-window extraction",
+        "verification": "SEMANTIC_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-20",
+        "invariant_id": "DP-20",
+        "expected": "ES removal preserves lexical/exact/hybrid retrieval through a verified replacement profile",
+        "verification": "CONTRACT_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-21",
+        "invariant_id": "DP-21",
+        "expected": "v2 route budgets use logical capabilities rather than backend product names",
+        "verification": "MECHANICAL",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-22",
+        "invariant_id": "DP-22",
+        "expected": "engine-neutral input binds canonical MD/IR/assets/typed semantic companions; no native engine IDs in source identity",
+        "verification": "CONTRACT_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-23",
+        "invariant_id": "DP-23",
+        "expected": "engine swaps preserve public API/source refs; engine indexes can rebuild from standard bundles",
+        "verification": "RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-24",
+        "invariant_id": "DP-24",
+        "expected": "native content deduplication retains all distinct platform source identities in a multimap",
+        "verification": "MECHANICAL_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-25",
+        "invariant_id": "DP-25",
+        "expected": "engine capability does not imply community/global availability; dense fallback is explicit",
+        "verification": "CONTRACT_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      },
+      {
+        "id": "DV-26",
+        "invariant_id": "DP-26",
+        "expected": "image model interpretations remain candidates unless supported; cannot become literal source text",
+        "verification": "SEMANTIC_AND_RUNTIME",
+        "result": "NOT_EXECUTED"
+      }
+    ],
+    "existing_scope": "preserve A01-A17 and C01-C20; schema examples do not satisfy UI/model/offline release acceptance"
+  }
+}

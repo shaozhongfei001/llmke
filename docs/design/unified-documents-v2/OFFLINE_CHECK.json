@@ -1,0 +1,172 @@
+{
+  "status": "PASS",
+  "scope": "LOCAL_REGISTRY_SCHEMA_REFS_AND_BUNDLED_OPENAPI_ONLY",
+  "contract_count": 27,
+  "network_attempts": 0,
+  "generic_generate_check": "NOT_RUN_AFTER_AUTO_REVIEW_REJECTION",
+  "records": [
+    {
+      "id": "llmke-auth-context",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-context-manifest",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-core",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-db-migration",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-error-codes",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-generation-lifecycle",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-generation-manifest",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-kb-operations",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-retrieval-model",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-reuse-decision",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-sse-events",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-entity-types",
+      "type": "semantic",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-citation-evidence",
+      "type": "evidence",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-m0-gates",
+      "type": "evaluation",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-error-register",
+      "type": "rules",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-retrieval-api",
+      "type": "api",
+      "result": "PASS",
+      "local_schema_targets": 31
+    },
+    {
+      "id": "llmke-graph-api",
+      "type": "api",
+      "result": "PASS",
+      "local_schema_targets": 10
+    },
+    {
+      "id": "llmke-kb-api",
+      "type": "api",
+      "result": "PASS",
+      "local_schema_targets": 10
+    },
+    {
+      "id": "llmke-document-pipeline-v2",
+      "type": "schema",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-document-pipeline-api-v2",
+      "type": "api",
+      "result": "PASS",
+      "local_schema_targets": 41
+    },
+    {
+      "id": "llmke-document-events-v2",
+      "type": "events",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-source-lineage-v2",
+      "type": "evidence",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-document-invariants-v2",
+      "type": "rules",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-document-acceptance-v2",
+      "type": "evaluation",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-entity-types-v1",
+      "type": "ontology",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-relations-v1",
+      "type": "ontology",
+      "result": "PASS",
+      "local_schema_targets": 0
+    },
+    {
+      "id": "llmke-graph-engine-api-v1",
+      "type": "api",
+      "result": "PASS",
+      "local_schema_targets": 30
+    }
+  ],
+  "product_e2e": "NOT_EXECUTED"
+}

@@ -26,6 +26,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.gientech.ragcommon.index.constant.IndexConstant.*;
@@ -68,7 +69,11 @@ public class PdfConvertorUtils {
 
     public boolean isNeedConvert(KnowledgeBaseList kbFile) {
         //当convertedFilePath为空且是应该转为pdf的文件类型
-        return StringUtils.isBlank(kbFile.getConvertedFilePath()) && !kbFile.isConvertedFile();
+        // V2/B1-D01a：纯文本类没有 PDF 预览价值，且解析服务有原生读取器；若仍走 LibreOffice，
+        // 在缺 writer 过滤器的机器上会直接判失败（实测 txt 报 "libreoffice错误"）。
+        // 因此这类格式跳过转换，直接交给解析服务。
+        boolean plainText = Arrays.asList("txt", "md", "markdown", "log", "csv").contains(kbFile.getFileType());
+        return StringUtils.isBlank(kbFile.getConvertedFilePath()) && !kbFile.isConvertedFile() && !plainText;
     }
 
     /**

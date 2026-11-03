@@ -1,0 +1,36 @@
+# V2 图重建常驻进程。模板占位符 /home/szf/data/dev/llmke-v2 / /home/szf/data/dev/hipporag-toolenv/bin/python 由 scripts/install_systemd_units.py 替换。
+[Unit]
+Description=LLMKE v2 graph rebuild worker (lease + metrics)
+After=network-online.target docker.service
+Wants=network-online.target
+# 依赖没就绪时**启动失败**而不是每 5 秒崩一次：
+# Restart=always 也受 StartLimit 约束，超限后 unit 直接 failed，反而更难查。
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=simple
+WorkingDirectory=/home/szf/data/dev/llmke-v2
+Environment=PYTHONPATH=/home/szf/data/dev/llmke-v2/services/rag-alg/index_data_service
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/llmke/v2-graph-worker.env
+# 先等注册中心可用（能拉到配置，比只看端口更接近真实依赖），最多 180s
+ExecStartPre=/home/szf/data/dev/hipporag-toolenv/bin/python /home/szf/data/dev/llmke-v2/scripts/wait_ready.py nacos --timeout 180
+ExecStart=/home/szf/data/dev/hipporag-toolenv/bin/python /home/szf/data/dev/llmke-v2/scripts/v2_graph_worker.py \
+    --root /var/lib/llmke/graph \
+    --payloads /var/lib/llmke/graph/payloads.json \
+    --lease-backend mysql \
+    --lease-key rebuild \
+    --metrics-port 18911 \
+    --cjk-compat
+Restart=always
+RestartSec=5
+# 进程里有 HTTP 线程与调度线程；只给主进程发 TERM 可能留下线程池里的连接，
+# 所以对整个 cgroup 发信号，并把停止超时收到 30s。
+KillMode=control-group
+TimeoutStopSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

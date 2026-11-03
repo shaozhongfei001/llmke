@@ -12,6 +12,7 @@ import {
   resolvePreviewTarget
 } from "@root/src/core/helps/fileAccess";
 import { GientechStreamReader } from "@gientech/modual/streamFilesReader";
+import { buildHighlightRect, type HighlightAnnotation } from "./citationHighlight";
 
 /**
  * R14-D-FIX-01：引用"打开原文"。
@@ -33,6 +34,7 @@ const DrawerPreview = ({
   const [target, setTarget] = useState<any>(null);
   const [error, setError] = useState<string>("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [highlight, setHighlight] = useState<HighlightAnnotation[]>([]);
 
   const meta = useMemo(() => {
     const token: any = getToken();
@@ -48,9 +50,27 @@ const DrawerPreview = ({
     };
     const source = content.metadata.source || content.file_source || "";
     const rawPath = dealMinioUrl(getFilePath(content));
+    // PAGE-CITATION-E2E-20261103：global 引用回查失败时，AIChat 侧写入
+    // __citationOpenError（如 file_id 非数字/库中无记录），这里优先展示该原因。
+    const citationError = curFileInfo?.__citationOpenError || "";
+    // locator 形如 "page=1;chunk=0"：打开原文时定位到对应页；
+    // chunk 级文本高亮需要 position 数据，检索侧未下发，属契约缺口（见交接验收清单）。
+    const locatorPage = (() => {
+      const loc = curFileInfo?.metadata?.locator;
+      const m = /(?:^|[;\s])page=(\d+)/i.exec(String(loc || ""));
+      return m ? Math.max(1, parseInt(m[1], 10)) : undefined;
+    })();
+    // T-A5：引用片段（fact/答案文本），用于 PDF 文本层搜索高亮；拿不到就只跳页。
+    const snippet =
+      curFileInfo?.page_content ||
+      curFileInfo?.excerpt ||
+      curFileInfo?.content ||
+      curFileInfo?.metadata?.page_content ||
+      "";
     return {
       token,
       source,
+      snippet,
       fileName: getFileName(content),
       // R14-D-FIX-01：优先用“源文件名后缀”判类型。
       // getFileType(content, rawPath) 对 Office 会拿到 /preview/convert?key=… 这类路径，
@@ -58,7 +78,9 @@ const DrawerPreview = ({
       fileType:
         (String(source).split("?")[0].split(".").pop() || "").toLowerCase() ||
         getFileType(content, rawPath),
-      totalPages: content.pdfPages || 0
+      totalPages: content.pdfPages || 0,
+      citationError,
+      initialPage: locatorPage,
     };
   }, [curFileInfo]);
 
@@ -67,9 +89,12 @@ const DrawerPreview = ({
     setError("");
     setTarget(null);
     if (!meta.source || !meta.token) {
-      setError("缺少原文地址或登录态，无法打开原文");
+      setError(
+        meta.citationError || "缺少原文地址或登录态，无法打开原文"
+      );
       return;
     }
+    setHighlight([]);
     resolvePreviewTarget({
       source: meta.source,
       fileType: meta.fileType,
@@ -88,6 +113,62 @@ const DrawerPreview = ({
       cancelled = true;
     };
   }, [meta, reloadKey]);
+
+  // T-A5：目标解析后，用 pdfjs 文本层搜索引用片段 → 矩形高亮（尽力而为）。
+  useEffect(() => {
+    let cancelled = false;
+    if (
+      !target ||
+      target.streamApiUrl !== PREVIEW_STREAM_API ||
+      !meta.snippet ||
+      !meta.initialPage
+    ) {
+      return;
+    }
+    const pageNo = meta.initialPage; // guard 之后收窄为 number
+    (async () => {
+      try {
+        const pdfjsLib = (await import("pdfjs-dist")).default || (await import("pdfjs-dist"));
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "/worker/pdf.worker.min.js";
+        // previewStream 是 POST + PageFileStreamReq{convertedFilePath,pageNo,stream}；
+        // 此前裸 GET（无 body）→ 405 → 高亮被跳过（T-A5 页面级实测定位到此处）。
+        const resp = await fetch(target.streamApiUrl, {
+          method: "POST",
+          headers: {
+            Authorization: meta.token || "",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            convertedFilePath: target.filePath,
+            pageNo,
+            stream: true
+          })
+        });
+        if (!resp.ok) return;
+        const buf = await resp.arrayBuffer();
+        const doc = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+        const page = await doc.getPage(pageNo);
+        const content = await page.getTextContent();
+        const rect = buildHighlightRect(
+          (content.items || []).map((it: any) => ({
+            str: it.str,
+            transform: it.transform,
+            width: it.width,
+            height: it.height
+          })),
+          meta.snippet,
+          pageNo
+        );
+        if (!cancelled && rect) setHighlight([rect]);
+      } catch (e) {
+        // 高亮失败不影响打开原文：静默降级为页码跳转
+        console.warn("citation highlight skipped:", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [target, meta.snippet, meta.initialPage, meta.token]);
 
   if (error) {
     return (
@@ -117,10 +198,11 @@ const DrawerPreview = ({
         fileType={
           target.streamApiUrl === PREVIEW_STREAM_API ? "pdf" : meta.fileType
         }
-        initialPage={1}
+        initialPage={meta.initialPage || 1}
         totalPages={meta.totalPages}
         authorization={meta.token}
         streamApiUrl={target.streamApiUrl}
+        annotations={highlight}
         eventsEmit={(type: string) => {
           switch (type) {
             case "viewer:close":

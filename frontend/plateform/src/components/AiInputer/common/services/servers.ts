@@ -185,6 +185,31 @@ export const api_getFileStatusByUid = (props: any) => {
   }).then((res) => res.data);
 };
 
+/**
+ * PAGE-CITATION-E2E-20261103：按 file_id 回查知识库文件详情。
+ * 实测运行时响应是 {success,errorMsg,errorCode,data:KnowledgeBaseFileDTO} 包裹
+ * （controller 返回裸 DTO，但被全局 ResponseBodyAdvice 包裹），失败时 data 为 null；
+ * 兼容两种形状：包裹则解 data，裸 DTO 则原样返回。
+ */
+export const api_getKbFileById = (props: any) => {
+  const { url, method, mockData } = apis.file_detail;
+  const http = createAxiosInstance(props.config.url, props.config.token);
+  const queryUrl = `${url}?id=${props.data.id}`;
+  if (props.config.enableMock) {
+    mockApiResponse(http, method, queryUrl, mockData);
+  }
+  return http({
+    url: queryUrl,
+    method,
+    data: props.data
+  }).then((res) => {
+    if (res && typeof res === "object" && "data" in res) {
+      return res.data ?? res;
+    }
+    return res;
+  });
+};
+
 export const api_getFileExist = (props: any) => {
   const { url, method, mockData } = apis.file_exist;
   const http = createAxiosInstance(props.config.url, props.config.token);

@@ -1,0 +1,19 @@
+{
+  "schema_version": "llmke-retrieval-profile/2.0",
+  "profile_id": "lean-no-es-example",
+  "status": "CANDIDATE",
+  "dense_backend": "milvus",
+  "lexical_backend": "milvus_bm25",
+  "exact_backend": "mysql",
+  "es_required": false,
+  "backend_version": null,
+  "analyzer_config_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "acceptance": {
+    "chinese_lexical": "NOT_EXECUTED",
+    "exact_identifiers": "NOT_EXECUTED",
+    "snapshot_authorization": "NOT_EXECUTED",
+    "deleted_exclusion": "NOT_EXECUTED",
+    "replay_migration": "NOT_EXECUTED",
+    "offline_install": "NOT_EXECUTED"
+  }
+}

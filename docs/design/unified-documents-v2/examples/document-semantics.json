@@ -1,0 +1,10 @@
+{
+  "schema_version": "llmke-document-semantics/1.0",
+  "semantics_id": "sem-empty-example",
+  "parse_artifact_id": "pa-example-1",
+  "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a",
+  "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+  "producer_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+  "tables": [],
+  "images": []
+}

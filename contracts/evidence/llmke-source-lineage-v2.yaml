@@ -1,0 +1,18 @@
+{
+  "evidence": {
+    "name": "llmke-source-lineage-v2",
+    "version": "2.0.0",
+    "schema_ref": "schema/llmke-document-pipeline-v2.json#/$defs/SourceRefV2",
+    "anchor": "immutable doc2md parsed_text.md UTF-8 decoded Unicode codepoints; no newline/NFC rewriting",
+    "structure": "original document-ir/1.0; cell bbox/confidence not extended in-place",
+    "locator_kinds": [
+      "text_span",
+      "table_cell",
+      "figure_asset"
+    ],
+    "legacy": "v1 SourceRef remains read-compatible; no fabricated parser_version/offset; use explicit versioned adapter",
+    "support": "OR between support_groups; AND within all_of_terms; raw SourceRef or supported Assertion; RAG does not require graph",
+    "semantic_verification": "schema and hashes do not establish financial correctness or entailment",
+    "protection": "latest authorization, published snapshot and complete source lineage required"
+  }
+}

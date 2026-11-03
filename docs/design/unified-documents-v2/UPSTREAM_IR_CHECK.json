@@ -1,0 +1,20 @@
+{
+  "scope": "UPSTREAM_PURE_IR_VALIDATOR_ON_SYNTHETIC_FIXTURES",
+  "source_relative_path": "backend/app/services/document_ir_schema.py",
+  "source_sha256": "7ec497674d6a157ec5d99066e5eb71c714d7cef1e257f2cd3bfb82cd27b554c2",
+  "records": [
+    {
+      "fixture": "text",
+      "result": "PASS"
+    },
+    {
+      "fixture": "multimodal",
+      "result": "PASS"
+    },
+    {
+      "fixture": "IR1_forbidden_cell_confidence",
+      "result": "EXPECTED_REJECT"
+    }
+  ],
+  "doc2md_runtime": "NOT_EXECUTED"
+}

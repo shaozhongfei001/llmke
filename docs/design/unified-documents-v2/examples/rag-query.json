@@ -1,0 +1,123 @@
+{
+  "request_id": "request-example",
+  "release_id": "release-example",
+  "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+  "mode": "rag",
+  "status": "OK",
+  "answer": "AAA档加30BP。",
+  "findings": [
+    {
+      "finding_id": "answer-f1",
+      "text": "AAA档加30BP。",
+      "support_groups": [
+        {
+          "all_of_terms": [
+            {
+              "kind": "source",
+              "source_ref": {
+                "block_id": "b0001",
+                "document_version": "v1",
+                "file_id": "file-example",
+                "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+                "locator": {
+                  "end_offset": 31,
+                  "kind": "text_span",
+                  "quote_hash": "6ed55d5b3deaa0d8b512988eaae7d56e181384fbb12e3226a1829e9e01fbacc9",
+                  "source": "parsed_text.md",
+                  "start_offset": 0,
+                  "unit": "unicode_codepoint"
+                },
+                "observation_class": "SOURCE_CONTENT",
+                "parse_artifact_id": "pa-example-1",
+                "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a",
+                "schema_version": "llmke-source-ref/2.0"
+              }
+            }
+          ]
+        }
+      ],
+      "verification": "SUPPORTED"
+    }
+  ],
+  "assertions": [],
+  "context_manifest": {
+    "schema_version": "llmke-context-manifest/2.0",
+    "request_id": "request-example",
+    "release_id": "release-example",
+    "input_digest": "81ce2a8b215323b59f4032924f163daa3c2b038203abb011ee153f001e4f178d",
+    "scope": {
+      "auth_scope_id": "scope-example",
+      "auth_version": 1,
+      "kb_id": "kb-example",
+      "resource_version": 1
+    },
+    "budget": {
+      "policy_id": "policy-example",
+      "tokenizer_version": "example",
+      "total_input_tokens": 1024,
+      "system_reserved_tokens": 128,
+      "output_reserved_tokens": 128,
+      "per_document_tokens": 512,
+      "per_route_tokens": {
+        "lexical": 512
+      },
+      "model_window_tokens": 2048,
+      "schema_version": "llmke-token-budget/2.0"
+    },
+    "actual_input_tokens": 200,
+    "selected_sources": [
+      {
+        "block_id": "b0001",
+        "document_version": "v1",
+        "file_id": "file-example",
+        "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+        "locator": {
+          "end_offset": 31,
+          "kind": "text_span",
+          "quote_hash": "6ed55d5b3deaa0d8b512988eaae7d56e181384fbb12e3226a1829e9e01fbacc9",
+          "source": "parsed_text.md",
+          "start_offset": 0,
+          "unit": "unicode_codepoint"
+        },
+        "observation_class": "SOURCE_CONTENT",
+        "parse_artifact_id": "pa-example-1",
+        "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a",
+        "schema_version": "llmke-source-ref/2.0"
+      }
+    ],
+    "selected_assertion_ids": [],
+    "selected_report_ids": [],
+    "context_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+    "model_fingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+    "prompt_hash": "3333333333333333333333333333333333333333333333333333333333333333",
+    "overhead_tokens": 20,
+    "contributions": [
+      {
+        "contribution_id": "c1",
+        "file_id": "file-example",
+        "route": "lexical",
+        "token_count": 180,
+        "source_refs": [
+          {
+            "block_id": "b0001",
+            "document_version": "v1",
+            "file_id": "file-example",
+            "ir_hash": "71bc39f5db2aa532ba3516ef550f3052e7ea444c40fdbfb34fbb3e81aa78a7be",
+            "locator": {
+              "end_offset": 31,
+              "kind": "text_span",
+              "quote_hash": "6ed55d5b3deaa0d8b512988eaae7d56e181384fbb12e3226a1829e9e01fbacc9",
+              "source": "parsed_text.md",
+              "start_offset": 0,
+              "unit": "unicode_codepoint"
+            },
+            "observation_class": "SOURCE_CONTENT",
+            "parse_artifact_id": "pa-example-1",
+            "parsed_text_hash": "4501c834568d370608095825b7d830bc620b38987d170fbfe6185943b10cc26a",
+            "schema_version": "llmke-source-ref/2.0"
+          }
+        ]
+      }
+    ]
+  }
+}

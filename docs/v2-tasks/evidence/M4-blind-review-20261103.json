@@ -1,0 +1,99 @@
+{
+ "schema": "llmke.m4-review.v1",
+ "model": "qwen-max",
+ "round1": [
+  {
+   "id": "C-D0",
+   "verdict": "supported",
+   "note": "事实中提到图引擎全套 125 passed，且 live_verify D0 view 也通过了验证，说明库级图谱查看已切 HippoRAG。",
+   "caught": false
+  },
+  {
+   "id": "C-D1",
+   "verdict": "overstated",
+   "note": "虽然影子臂存在+primary 分支方案+回滚的激活方案已经成立，但四格式对齐窗口未开跑。因此，D1 未达验收，不能说“产品解析 doc2md 激活方案已成立”。",
+   "caught": true
+  },
+  {
+   "id": "C-D2",
+   "verdict": "overstated",
+   "note": "跨文档实体链接第一版已入 build 管线，但业务语料反例未验。因此，D2 未达验收，不能说“跨文档实体链接第一版已入 build 管线”是完全成立的。",
+   "caught": true
+  },
+  {
+   "id": "C-D3",
+   "verdict": "supported",
+   "note": "更新稳定性门禁纯函数已落地，但未接入发布流程，因此 D3 未达验收。",
+   "caught": false
+  },
+  {
+   "id": "C-D4",
+   "verdict": "supported",
+   "note": "社区/global 同源链与 FE 后端契约已接，但页面级联调未做，因此 D4 未达验收。",
+   "caught": false
+  },
+  {
+   "id": "C-D5",
+   "verdict": "overstated",
+   "note": "B01 方向语义已合入 V2 树，但存量 Nebula 清库 UNVERIFIED。因此，D5 不能说是部分达成。",
+   "caught": true
+  },
+  {
+   "id": "C-D6",
+   "verdict": "overstated",
+   "note": "图检索真实生效的部分内容已成立，但产品级页面 A/B 未做，因此 D6 未达验收。",
+   "caught": true
+  },
+  {
+   "id": "C-D7a",
+   "verdict": "supported",
+   "note": "点引用打开原文已闭环，但 locator 高亮未完成，因此 D7 未达验收。",
+   "caught": false
+  },
+  {
+   "id": "C-D8",
+   "verdict": "supported",
+   "note": "撤权 fence 持久化+查询过滤+指针 flock CAS 落地，但跨机租约/两账号真机验收未做，因此 D8 未达验收。",
+   "caught": false
+  },
+  {
+   "id": "C-D9",
+   "verdict": "supported",
+   "note": "中文补丁默认安装+升级重验脚本落地并实测 PASS，因此 D9 达成。",
+   "caught": false
+  },
+  {
+   "id": "C-D10",
+   "verdict": "supported",
+   "note": "验收结构层评估器+9 用例规格落地；T-02 真实语料结构判定 PASS；其余 8 问句与语义层未做，因此 D10 未达验收。",
+   "caught": false
+  }
+ ],
+ "round2_revised": [
+  {
+   "id": "C-D1r",
+   "verdict": "not overstated",
+   "note": "该 claim 明确说明了方案已书面落地，但四格式对齐窗口未开跑且 D1 未达验收。表述中性且准确。",
+   "caught": false
+  },
+  {
+   "id": "C-D2r",
+   "verdict": "not overstated",
+   "note": "该 claim 表明跨文档实体链接第一版已合入 build 管线（代码级），但业务语料反例未验且 D2 未达验收。表述中性且准确。",
+   "caught": false
+  },
+  {
+   "id": "C-D5r",
+   "verdict": "not overstated",
+   "note": "该 claim 说明了 B01 方向语义修复已合入 V2 树，并提到存量 Nebula 清库 UNVERIFIED 以及 D5 未达验收。表述中性且准确。",
+   "caught": false
+  },
+  {
+   "id": "C-D6r",
+   "verdict": "not overstated",
+   "note": "该 claim 说明图检索链路在引擎/直连与真实语料 A 组成立，但产品级页面 A/B 未做且 D6 未达验收。表述中性且准确。",
+   "caught": false
+  }
+ ],
+ "conclusion": "首轮 11 条：7 supported / 4 overstated（C-D1/D2/D5/D6 的'成立/达成'措辞被反方抓住）；按反方意见改写为中性'已落地，未达验收'后复核 4/4 not overstated。最终口径：D0/D9 成立；D1/D2/D3/D4/D5/D6/D7/D8/D10 均为'代码级落地，验收未达'，与任务书口径一致。"
+}

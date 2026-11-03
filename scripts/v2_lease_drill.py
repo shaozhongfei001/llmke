@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+"""双实例演练：两个进程争同一份租约，同一时刻只有一个真正重建。
+
+用法（由外壳脚本起两个进程）：
+  python v2_lease_drill.py --owner inst-A --root /tmp/hippo-lease --lease /tmp/hippo-lease/lease.json
+  python v2_lease_drill.py --owner inst-B --root /tmp/hippo-lease --lease /tmp/hippo-lease/lease.json
+
+判据：两个进程各自报告自己的 builds；合计必须为 1（不是 2）。
+每个进程都真的会请求重建，靠租约分流——不是靠"另一个没请求"来假装协调。
+
+为了制造重叠窗口，构建里人为 sleep `--build-sleep` 秒（默认 1.5）。
+"""
+
+import argparse
+import json
+import os
+import sys
+import threading
+import time
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "services/rag-alg/index_data_service"))
+
+from graph_engine_adapter.lease import FileLease, lease_guard  # noqa: E402
+from graph_engine_adapter.lease_mysql import MySqlLease, make_pymysql_factory  # noqa: E402
+from graph_engine_adapter.rebuild import rebuild_if_stale  # noqa: E402
+from graph_engine_adapter.rebuild_coordinator import RebuildCoordinator  # noqa: E402
+from graph_engine_adapter.rebuild_scheduler import RebuildScheduler  # noqa: E402
+
+
+def load_payloads(paths):
+    docs = []
+    for path in paths:
+        payload = json.load(open(path, encoding="utf-8"))
+        for chunk in payload.get("chunks", []):
+            meta = chunk.get("metadata", {})
+            docs.append({"file_id": str(meta.get("file_id", "")), "text": chunk["page_content"]})
+    return docs
+
+
+def build_lease(args):
+    """按后端构造租约：文件租约（单机/共享盘）或 MySQL 租约（跨机）。"""
+    if args.lease_backend == "mysql":
+        env = os.environ
+        missing = [k for k in ("LLMKE_LEASE_MYSQL_HOST", "LLMKE_LEASE_MYSQL_USER",
+                               "LLMKE_LEASE_MYSQL_PASSWORD", "LLMKE_LEASE_MYSQL_DB")
+                   if not env.get(k)]
+        if missing:
+            raise SystemExit(f"缺少环境变量: {','.join(missing)}")
+        factory = make_pymysql_factory(
+            host=env["LLMKE_LEASE_MYSQL_HOST"],
+            port=int(env.get("LLMKE_LEASE_MYSQL_PORT", "3306")),
+            user=env["LLMKE_LEASE_MYSQL_USER"], password=env["LLMKE_LEASE_MYSQL_PASSWORD"],
+            database=env["LLMKE_LEASE_MYSQL_DB"],
+            # 演练"连上不回包"时允许把超时压短，方便观察；默认沿用驱动默认值
+            **({"connect_timeout": int(env["LLMKE_LEASE_MYSQL_CONNECT_TIMEOUT"]),
+                "read_timeout": int(env["LLMKE_LEASE_MYSQL_READ_TIMEOUT"])}
+               if env.get("LLMKE_LEASE_MYSQL_READ_TIMEOUT") else {}))
+        lease = MySqlLease(factory, owner=args.owner, ttl=30, lease_key=args.lease_key)
+        # 建表失败不在这里退出：真实故障就是"启动时数据库就不通"，
+        # 演练要看的正是"建表失败后调度器还能不能活着并把故障报出来"。
+        try:
+            lease.ensure_schema()
+        except Exception as exc:  # noqa: BLE001
+            build_lease.schema_error = f"{type(exc).__name__}: {exc}"
+        return lease
+    if not args.lease:
+        raise SystemExit("--lease-backend file 需要 --lease <path>")
+    return FileLease(args.lease, owner=args.owner, ttl=30)
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--owner", required=True)
+    ap.add_argument("--payloads", nargs="+", required=True)
+    ap.add_argument("--root", required=True)
+    ap.add_argument("--lease", default=None, help="文件租约路径（--lease-backend file 时必填）")
+    ap.add_argument("--lease-backend", choices=["file", "mysql"], default="file")
+    ap.add_argument("--lease-key", default="rebuild", help="MySQL 租约的 lease_key")
+    ap.add_argument("--duration", type=float, default=90.0)
+    ap.add_argument("--build-sleep", type=float, default=1.5)
+    ap.add_argument("--llm", default="http://127.0.0.1:18092/v1")
+    ap.add_argument("--embed", default="http://127.0.0.1:18090/v1")
+    ap.add_argument("--cjk-compat", action="store_true")
+    ap.add_argument("--out", default=None)
+    ap.add_argument("--alert-out", default=None, help="把告警事件落盘，供验收断言")
+    ap.add_argument("--metrics-out", default=None, help="把 Prometheus 文本指标落盘（部署侧可挂到 /metrics）")
+    ap.add_argument("--alert-webhook", default=None, help="真实 webhook 地址：调度器的 on_alert 走 WebhookAlertSink")
+    args = ap.parse_args(argv)
+
+    if args.cjk_compat:
+        from graph_engine_adapter.hipporag_compat import install_cjk_text_processing
+        install_cjk_text_processing()
+
+    docs = load_payloads(args.payloads)
+    from graph_engine_adapter.fence import FenceState
+    from graph_engine_adapter.engine_hipporag import HippoRAGEngine
+
+    fence = FenceState()
+    builds = []
+    skipped = []
+
+    def build_once(batch):
+        # 续租必须覆盖**整段构建**（含引擎初始化与抽取），只包住 sleep 等于没包：
+        # 实测就是漏在外面，长构建超过 TTL 后租约过期，另一个实例合法接管，出现两次构建。
+        with lease_guard(sched_lease, interval=3.0):
+            time.sleep(args.build_sleep)             # 人为拉长窗口，让两个实例真的重叠
+            result = rebuild_if_stale(
+                args.root, fence, docs, fencing=sched.lease_fencing,
+                build_fn=lambda items, target: HippoRAGEngine(
+                    save_dir=target, llm_base_url=args.llm,
+                    embedding_base_url=args.embed).build([d["text"] for d in items]))
+        if result["status"] == "SKIPPED_FRESH":
+            skipped.append(1)
+            return {"skipped": True}
+        builds.append(result["current"]["documents"])
+        return {"documents": result["current"]["documents"]}
+
+    coord = RebuildCoordinator(build_once)
+    lease = build_lease(args)
+    alerts = []
+    on_alert = alerts.append
+    webhook = None
+    if args.alert_webhook:
+        from graph_engine_adapter.alert_sink import WebhookAlertSink
+        webhook = WebhookAlertSink(args.alert_webhook, timeout=3.0, retries=2)
+
+        def on_alert(event):                 # 本地记录 + 真实投递（sink 自己永不抛）
+            alerts.append(event)
+            webhook(event)
+    sched = RebuildScheduler(coord, debounce=0.2, idle_poll=0.2, lease=lease,
+                             on_alert=on_alert, alert_every_s=5.0)
+    sched_lease = sched.lease
+
+    stop = threading.Event()
+    thread = threading.Thread(target=sched.run, args=(stop,), daemon=True)
+    thread.start()
+    coord.request("upload", files=[f"from-{args.owner}"])
+
+    # 等到"协调器记录到一次成功构建"再收尾：只看本地 builds 列表会在构建还没返回时误判为 0
+    deadline = time.time() + args.duration
+    while time.time() < deadline and coord.stats()["builds"] == 0:
+        time.sleep(0.2)
+    time.sleep(1.0)                                 # 给"抢到却失败"的路径一个暴露窗口
+    stop.set()
+    thread.join(timeout=60)
+
+    try:
+        lease_obj = sched.lease
+        if lease_obj is not None:
+            lease_obj.release()                     # 主动交还，避免 TTL 内挡住另一个实例
+    except Exception:  # noqa: BLE001
+        pass
+
+    # fencing 校验：用一个落后于当前指针的值模拟"被接管的旧主晚到"，必须被拒
+    stale_blocked = None
+    try:
+        from graph_engine_adapter.rebuild import StaleFencingError
+        from graph_engine_adapter.rebuild import rebuild as _rebuild
+        from graph_engine_adapter.rebuild import read_pointer
+        cur = int((read_pointer(args.root) or {}).get("fencing", 0) or 0)
+        # 只有指针里已有 fencing 时才谈"落后"：用 cur-1 模拟旧主晚到
+        if cur >= 1:
+            _rebuild(args.root, fence, docs, lambda i, t: {"ok": 1}, fencing=cur - 1)
+            stale_blocked = False
+        else:
+            stale_blocked = None
+    except Exception as exc:  # noqa: BLE001
+        stale_blocked = type(exc).__name__ == "StaleFencingError"
+
+    report = {"owner": args.owner, "builds": len(builds), "skipped_fresh": len(skipped),
+              "alerts": alerts, "alert_kinds": [a["kind"] for a in alerts],
+              "webhook_stats": webhook.stats() if webhook is not None else None,
+              "schema_error": getattr(build_lease, "schema_error", None),
+              "fencing": sched.lease_fencing, "stale_write_blocked": stale_blocked,
+              "documents": builds,
+              "stats": sched.stats(), "stopped": not thread.is_alive()}
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(report, ensure_ascii=False, indent=1) + "\n")
+    if args.metrics_out:
+        from graph_engine_adapter.metrics import render_with_lease
+        with open(args.metrics_out, "w", encoding="utf-8") as fh:
+            fh.write(render_with_lease(sched, lease))
+    if args.alert_out:
+        with open(args.alert_out, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(alerts, ensure_ascii=False, indent=1) + "\n")
+    print(json.dumps({"owner": args.owner, "builds": len(builds),
+                      "not_leader": sched.stats()["not_leader"],
+                      "lost_lease": sched.stats()["lost_lease"]}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

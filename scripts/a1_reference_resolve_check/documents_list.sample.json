@@ -1,0 +1,35 @@
+[
+ {
+  "page_content": "- 日均存款 数据源 T-CORE-001（来源：333）\n- 日均存款 口径 按业务日跨账户汇总/天数（来源：333）",
+  "metadata": {
+   "file_id": 333,
+   "source": null,
+   "position": {
+    "locator": "page=1;chunk=0",
+    "sources": [
+     {
+      "file_id": "333",
+      "locator": "page=1;chunk=0",
+      "title": "docx-table.docx"
+     }
+    ]
+   },
+   "chunk_index": 0,
+   "title": "docx-table.docx",
+   "locator": "page=1;chunk=0",
+   "search_type": [
+    "global"
+   ],
+   "score": null,
+   "idx": null,
+   "sources": [
+    {
+     "file_id": "333",
+     "locator": "page=1;chunk=0",
+     "title": "docx-table.docx"
+    }
+   ],
+   "community": "c-2"
+  }
+ }
+]
