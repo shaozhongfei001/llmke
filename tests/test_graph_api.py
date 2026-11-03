@@ -34,11 +34,14 @@ class FakeEngine:
         return [{"idx": "c1", "extracted_triples": [["a", "r", "b"]]},
                 {"idx": "c2", "extracted_triples": [["c", "r", "d"], ["e", "r", "f"]]}]
 
-    def retrieve(self, query, top_k=3):
+    def retrieve(self, query, seeds=None, top_k=3, use_graph=True):
+        self.last_call = {"query": query, "seeds": list(seeds or []),
+                          "top_k": top_k, "use_graph": use_graph}
         return {
             "executed_route": "GRAPH",
             "reason": "GRAPH_CALLED",
-            "trace": {"graph_calls": 1, "rerank_fallback": True},
+            "trace": {"graph_calls": 1, "rerank_fallback": True,
+                      "seed_hits": list(seeds or [])},
             "docs": ["块一", "块二"][:top_k],
         }
 
@@ -64,6 +67,23 @@ def test_query_passes_through_executed_route_and_trace():
     assert d["trace"]["graph_calls"] == 1
     assert d["hit_count"] == 2
     assert [x["rank"] for x in d["docs"]] == [1, 2]
+
+
+def test_query_forwards_seeds_and_graph_switch():
+    """D6 接线：HTTP 层的 seeds / enable_graph 必须原样到引擎。
+
+    没有这条，种子永远停在边缘（线上 trace 里 seed_hits 恒为 []），
+    "禁用图对照"也无从发起。
+    """
+    eng = FakeEngine()
+    c = TestClient(create_app(engine_factory=lambda: eng))
+    d = c.post("/v2/graph/query", json={"query": "智造贷的利率基准",
+                                        "seeds": ["ent:智造贷"], "enable_graph": False}).json()
+    assert eng.last_call["seeds"] == ["ent:智造贷"]
+    assert eng.last_call["use_graph"] is False
+    assert d["seeds"] == ["ent:智造贷"]
+    assert d["graph_enabled"] is False
+    assert d["trace"]["seed_hits"] == ["ent:智造贷"]
 
 
 def test_query_without_sources_must_not_fake_citations():

@@ -20,10 +20,20 @@ def test_every_verified_has_evidence():
             assert cap["evidence"], f"{name} 声明 VERIFIED 但没有证据指针"
 
 
-def test_graph_route_not_verified_but_community_now_verified():
+def test_graph_route_verified_only_with_replayable_evidence():
+    """图路由升 VERIFIED 的条件比"有 evidence 字符串"更硬：
+
+    D6 的坑是"检索有命中"被当成"图执行过"。所以这里要求：
+    ①状态是 VERIFIED；②证据指针带 sha256（可被评审方对文件复算）；
+    ③note 里必须点名两组对照与判据字段，不能只有一句"已跑通"。
+    """
     caps = describe()["capabilities"]
-    # 未打补丁的上游行为：检索命中不等于图执行，只能 NOT_VERIFIED
-    assert caps["retrieve_graph_route"]["status"] == "NOT_VERIFIED"
+    route = caps["retrieve_graph_route"]
+    assert route["status"] == "VERIFIED"
+    assert "A2-pure-graph-route.md" in route["evidence"]
+    assert "sha256" in route["evidence"]
+    for token in ("graph_calls", "rerank_fallback", "facts_after_rerank", "DENSE_FALLBACK"):
+        assert token in route["note"], f"能力说明缺判据字段 {token}，会退化成口头宣告"
     # 社区/global 已按"消费标准事实导出"实现并有真实运行证据
     assert caps["community_report"]["status"] == "VERIFIED"
     assert caps["community_report"]["evidence"]

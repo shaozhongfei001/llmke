@@ -127,3 +127,38 @@
 - 为实现数字 file_id 引用，用 19531 重建单文档快照并临时切 18094；验证后已还原 s4-root-c（69 facts/33 社区）。
 - 证据：docs/v2-tasks/evidence/PAGE-CITATION-E2E-20261103.md。
 - 临时容器 v2-fe-e2e 已删除；浏览器已关；Vite dev 因 inotify ENOSPC 不可用（非代码）。
+
+## 审计自证批次（2026-11-03，tl-audit）
+
+### T-A4 B01（VERIFIED）
+- r12 HEAD 100e261 复跑 `tests/test_graph_direction_b01.py` → 28 passed。
+- 变异 3 组（临时 worktree /tmp/tl-a4-mut @100e261，改后 md5 与恢复后 md5 都记了）：
+  A 一律 sorted()→23 failed/5 passed；B 删对称分支→1 failed；C 未登记判可裁决→3 failed。
+  三次均恢复到 `0712caa7c2359c01ff95e7bb83947982` 后 28 passed、worktree 干净。
+- 基线：/tmp/tl-a4-baseline @419a87d 三文件 20 failed/22 passed（16/3/1）；
+  全量 419a87d=20 failed/258 passed/44 skipped vs 100e261=20 failed/286 passed/44 skipped
+  → 新增 0 失败、+28 passed。根因实测：`python3` 即 `/usr/bin/python3`(3.10.12) 缺 openapi_spec_validator。
+- 迁移：`git apply --check /tmp/b01-full.patch` 在 V2 exit 0；三文件与 419a87d 指纹同源；
+  V2 契约已含 `direction_resolution.forbidden=[sorted_undirected_key_for_all_predicates,...]`；
+  换 V2 契约跑 28 passed。存量 g_kb_9 边数 UNVERIFIED（Nebula 9669 未监听，未自行启动）。
+- 证据：docs/v2-tasks/evidence/A4-b01-rerun.md
+
+### T-A2 D6 纯图（VERIFIED）
+- 代码：api.py 增 `seeds`/`enable_graph` 并透传；engine_hipporag 增 `use_graph` 禁用分支与
+  `facts_after_rerank`/`seed_hits_degenerate`；中文补丁改服务端默认安装（health.cjk_compat 可见）。
+- 独立实例 18095（未碰 18094），用 18094 快照的 12 块原文重建：68 事实/251 边/35 社区。
+- A 组 GRAPH/graph_calls=1/rerank_fallback=false/facts_after_rerank=1/seed_hits=['ent:智造贷']；
+  B 组 DENSE_FALLBACK/GRAPH_DISABLED/graph_calls=0。
+- 反例：不装补丁时中文种子全落 md5("") 空实体 → 记 seed_hits_degenerate，不计 seed_hits。
+- capabilities.retrieve_graph_route 升 VERIFIED（证据 sha256 c531a350…）。
+- 测试 73 passed（9 个图相关文件）；新增 test_query_forwards_seeds_and_graph_switch。
+- 未做：retrieval_shim.py:416-417 仍只发 {query,top_k}（S3 文件），产品链路未透传 seeds。
+
+### 下一精确动作
+1. T-A1：先用真实上传文档（KB 表有记录、file_id 数字）建快照，再补 global 分支 convertedFilePath 反查。
+2. 拿不到真实文档 → 按约定写 BLOCKED + 恢复条件，转 T-A3。
+3. T-A3：openie→断言→export_facts→build_communities→community.json 逐跳溯源（可复用 18095 快照）。
+
+### 不得重复/擅自执行
+- 不要重启 18094（S3 在用）；18095 为本批次临时实例。
+- 不要用 F001–F012/999010 证明"打开原文"（T-A1 禁止）。

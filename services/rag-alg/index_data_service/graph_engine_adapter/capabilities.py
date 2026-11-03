@@ -31,10 +31,17 @@ CAPABILITIES = {
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-C1-HIPPORAG-BATCH-20261031.md",
     },
     "retrieve_graph_route": {
-        "status": "NOT_VERIFIED",
-        "note": "实测：本地 qwen2.5-7b 的事实重排返回空 JSON，facts_after_rerank=0，"
-                "引擎始终回退稠密，graph_calls=0；检索命中不能当图执行证据（设计 §6.5）",
-        "evidence": None,
+        "status": "VERIFIED",
+        "note": "2026-11-03 独立实例 18095 真跑两组对照（12 块语料/68 事实/251 边）："
+                "A 组 enable_graph=true → executed_route=GRAPH、graph_calls=1、"
+                "seed_hits=['ent:智造贷']、rerank_fallback=false、facts_after_rerank=1；"
+                "B 组 enable_graph=false → DENSE_FALLBACK + reason=GRAPH_DISABLED、graph_calls=0。"
+                "成立前提有两条，都落在代码里而不是口头：①HTTP 层 QueryRequest 有 seeds/enable_graph "
+                "并把种子传给引擎；②服务端默认安装中文补丁（上游 text_processing 会把中文清成空串，"
+                "不装则事实恒为 ('','',x)、中文种子换算撞 md5('') 空实体，命中记 seed_hits_degenerate "
+                "而不计入 seed_hits）。产品链路（Java→19532 shim→18094）透传 seeds 仍未接，见证据 §9",
+        "evidence": "docs/v2-tasks/evidence/A2-pure-graph-route.md"
+                    " (sha256 c531a350187fbdaab3dffc4e90f863e1bed5d0efd813b6a1e8d59d7d0de03005)",
     },
     "source_map_multi_source": {
         "status": "VERIFIED",

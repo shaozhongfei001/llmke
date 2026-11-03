@@ -112,10 +112,38 @@ class HippoRAGEngine:
 
     # ---------- 检索（带真实 trace） ----------
     def retrieve(self, query: str, seeds: Optional[Sequence[str]] = None,
-                 top_k: int = 3) -> Dict[str, Any]:
+                 top_k: int = 3, use_graph: bool = True) -> Dict[str, Any]:
         hp = self.hp
         trace = {"graph_calls": 0, "seed_hits": [], "fact_candidates": None,
-                 "rerank_fallback": False}
+                 "rerank_fallback": False, "graph_enabled": bool(use_graph)}
+
+        # 禁用图对照（D6）：上游 `retrieve` 的图/稠密分支**只由 `len(top_k_facts)==0` 决定**
+        # （HippoRAG.py:411-423），不存在"跑图但不计数"的中间态。所以"禁用图"的正确做法是
+        # "不给事实"，让上游自己走 dense_passage_retrieval；同时把原因写成人为禁用，
+        # 既不冒充 GRAPH，也不把它算成引擎故障。
+        if not use_graph:
+            original_facts = getattr(hp, "rerank_facts", None)
+            disabled = {"candidates": 0}
+            if original_facts is not None:
+                def _dense_only(q, scores, _orig=original_facts):
+                    out = _orig(q, scores)
+                    before = (out[2] or {}).get("facts_before_rerank") or []
+                    disabled["candidates"] = len(before)
+                    return [], [], {"facts_before_rerank": before,
+                                    "facts_after_rerank": [],
+                                    "graph_disabled": "GRAPH_DISABLED"}
+                setattr(hp, "rerank_facts", _dense_only)
+            try:
+                solutions = hp.retrieve([query], num_to_retrieve=top_k)
+            finally:
+                if original_facts is not None:
+                    setattr(hp, "rerank_facts", original_facts)
+            trace["fact_candidates"] = disabled["candidates"]
+            # 人为清空事实 → 上游必然走稠密；这里如实写 0，别让人误读成"重排器没选出事实"。
+            trace["facts_after_rerank"] = 0
+            trace["graph_disabled"] = "GRAPH_DISABLED"
+            self._fill_seed_hits(hp, seeds, trace)
+            return self._pack(solutions, DENSE_FALLBACK, "GRAPH_DISABLED", trace)
 
         original = getattr(hp, "graph_search_with_fact_entities", None)
         if original is None:
@@ -140,6 +168,7 @@ class HippoRAGEngine:
             idx, facts, log = _orig(query, scores)
             cands = list(log.get("facts_before_rerank") or [])
             rerank_state["candidates"] = len(cands)
+            rerank_state["after"] = len(list(facts or []))
             if facts or not cands:
                 return idx, facts, log
             try:
@@ -206,20 +235,40 @@ class HippoRAGEngine:
                     except AttributeError:
                         pass
         trace["fact_candidates"] = rerank_state["candidates"]
+        # 重排器自己选出几条事实：图分支的触发条件就是"这里非 0"（上游 HippoRAG.py:411-423）。
+        # 只有它非 0 且 rerank_fallback=false，才算"图真的靠重排结果跑起来"。
+        trace["facts_after_rerank"] = rerank_state.get("after")
         trace["weights_assert_skipped"] = weights_state["skipped"]
 
-        # 种子是否真的落在图里：这决定 PPR 有没有起点。
-        # 平台 id 是 "ent:<名称>"，引擎键是 "entity-" + mdhash(text_processing(名称))，
-        # 所以要做一次显式换算——换算不出来就如实记空，别假装命中。
-        idx_map = getattr(hp, "node_name_to_vertex_idx", {}) or {}
-        for seed in seeds or []:
-            key = self._to_engine_key(seed)
-            if key and key in idx_map:
-                trace["seed_hits"].append(seed)
+        self._fill_seed_hits(hp, seeds, trace)
 
         route = GRAPH if trace["graph_calls"] > 0 else DENSE_FALLBACK
         reason = "GRAPH_CALLED" if route == GRAPH else "GRAPH_NOT_CALLED"
         return self._pack(solutions, route, reason, trace)
+
+    @classmethod
+    def _fill_seed_hits(cls, hp: Any, seeds: Optional[Sequence[str]],
+                        trace: Dict[str, Any]) -> None:
+        """种子是否真的落在图里：这决定 PPR 有没有起点。
+
+        平台 id 是 "ent:<名称>"，引擎键是 "entity-" + mdhash(text_processing(名称))，
+        所以要做一次显式换算——换算不出来就如实记空，别假装命中。
+
+        已知陷阱（实测）：上游 `text_processing` 会把中文清成空串，于是**任意**中文种子的
+        换算键都是 `entity-d41d8cd98f00b204e9800998ecf8427e`（md5("")）。命中它并不代表
+        "种子在图里"，只代表"中文被抹平了"。这种命中单独记进 `seed_hits_degenerate`，
+        不计入 `seed_hits`，避免把空实体当种子证据。
+        """
+        idx_map = getattr(hp, "node_name_to_vertex_idx", {}) or {}
+        empty_key = cls._to_engine_key("") or ""
+        for seed in seeds or []:
+            key = cls._to_engine_key(seed)
+            if not key or key not in idx_map:
+                continue
+            if empty_key and key == empty_key:
+                trace.setdefault("seed_hits_degenerate", []).append(seed)
+                continue
+            trace["seed_hits"].append(seed)
 
     @staticmethod
     def _to_engine_key(seed: str) -> Optional[str]:

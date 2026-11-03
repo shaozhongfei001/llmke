@@ -35,6 +35,12 @@ SCHEMA = "llmke.graph-api.v1"
 class QueryRequest(BaseModel):
     query: str = Field(min_length=1)
     top_k: int = Field(default=3, ge=1, le=20)
+    # 查询侧实体种子（平台 `query_seed_recognition` 的结果，形如 ["ent:智造贷"] 或裸名）。
+    # 之前 HTTP 层没有这个字段，种子永远到不了引擎 —— 线上 trace 里 seed_hits 恒为 []。
+    seeds: List[str] = Field(default_factory=list)
+    # D6 禁用图对照：false 时强制走稠密并标 DENSE_FALLBACK/GRAPH_DISABLED，
+    # 不允许把稠密命中冒充满图检索。
+    enable_graph: bool = True
 
 
 class GlobalRequest(BaseModel):
@@ -71,6 +77,7 @@ def _load_engine(snapshot: Optional[str] = None) -> Any:
     if not snapshot:
         raise RuntimeError("LLMKE_V2_SNAPSHOT 未设置")
     urls = _urls()
+    _ensure_cjk_compat()
     return HippoRAGEngine(save_dir=snapshot, llm_base_url=urls["llm"],
                           embedding_base_url=urls["embed"])
 
@@ -103,6 +110,8 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     from .fence import FenceState
     from .rebuild import rebuild
 
+    # 建图前装中文补丁：index() 期就调用 text_processing 做实体键，装晚了中文实体全是空串。
+    _ensure_cjk_compat()
     urls = _urls()
     live = [{"file_id": d.file_id, "text": d.text, "locator": d.locator,
              "title": d.title} for d in docs]
@@ -146,9 +155,46 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     }
 
 
+def _install_cjk_compat() -> Dict[str, Any]:
+    """按需安装中文 text_processing 补丁，返回可写进 health/证据的安装报告。
+
+    默认安装（`LLMKE_V2_CJK_COMPAT` 未设或不为 "0"）：不做这件事，产品的图检索在中文
+    语料上恒等于空事实，D6/D9 都无从成立。装了必须能在 health 里看见，不许静默偏离上游。
+    """
+    if os.environ.get("LLMKE_V2_CJK_COMPAT", "1") == "0":
+        return {"installed": False, "reason": "disabled_by_env:LLMKE_V2_CJK_COMPAT=0"}
+    try:
+        from .hipporag_compat import install_cjk_text_processing
+
+        report = install_cjk_text_processing()
+        return {"installed": True, **report}
+    except Exception as exc:  # noqa: BLE001 - 装不上要带原因出来，不当成没发生
+        return {"installed": False, "reason": f"{type(exc).__name__}: {exc}"}
+
+
+# 进程级安装结果：health 要能读到"这个进程到底装没装"，不能每次查询重装一遍。
+_CJK_STATE: Dict[str, Any] = {}
+
+
+def _ensure_cjk_compat() -> Dict[str, Any]:
+    """真正的安装点：只有**构造真实引擎**时才装。
+
+    不能在 `create_app` 里装：本模块尾部就有 `app = create_app()`，一 import 就产生全局副作用，
+    测试里"导入补丁模块不应改变上游行为"（tests/test_graph_hipporag_compat.py）会被悄悄破坏。
+    装在"要建图/要查询"这一刻，语义也更准：补丁影响的正是 index/retrieve 两条路径。
+    """
+    if not _CJK_STATE:
+        _CJK_STATE.update(_install_cjk_compat())
+    return _CJK_STATE
+
+
 def create_app(engine_factory=None, builder=None) -> FastAPI:
     """engine_factory / builder 用于测试注入；生产按环境变量加载。"""
     app = FastAPI(title="LLMKE V2 Graph API", version=SCHEMA)
+    # 中文兼容补丁：产品路径（HTTP）**默认安装**，因为交付要求"中文默认可用"。
+    # 之前只有 scripts/v2_* 里显式调用，服务端从不安装 —— 结果 18094 上
+    # text_processing 仍把中文清成空串，事实变成 ("","","5000")、种子换算撞空实体。
+    # 可用 LLMKE_V2_CJK_COMPAT=0 显式关掉（对照实验用），关掉时 health 必须如实报。
     state: Dict[str, Any] = {"engine": None, "text_to_idx": None, "snapshot": None}
 
     def engine() -> Any:
@@ -180,6 +226,8 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
             "facts": facts,
             # 数字全部来自快照里的 community.json；没有报告就说没接上，不填 0 冒充。
             "community": global_report.stats(snapshot),
+            # 中文补丁装没装必须可见：装了是"偏离上游"，没装则中文事实为空。
+            "cjk_compat": dict(_CJK_STATE) or {"installed": None, "reason": "engine_not_loaded"},
         }
 
     @app.post("/v2/graph/build")
@@ -232,7 +280,8 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
     @app.post("/v2/graph/query")
     def query(req: QueryRequest) -> Dict[str, Any]:
         eng = engine()
-        out = eng.retrieve(req.query, top_k=req.top_k)
+        out = eng.retrieve(req.query, seeds=req.seeds, top_k=req.top_k,
+                           use_graph=req.enable_graph)
         docs = list(out.get("docs") or [])
         mapping = idx_map()
         sources = _load_sources(getattr(eng, "save_dir", None))
@@ -244,6 +293,8 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         return {
             "schema": SCHEMA,
             "query": req.query,
+            "seeds": list(req.seeds),
+            "graph_enabled": bool(req.enable_graph),
             "executed_route": out.get("executed_route"),
             "reason": out.get("reason"),
             "trace": out.get("trace"),

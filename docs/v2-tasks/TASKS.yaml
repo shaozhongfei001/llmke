@@ -159,12 +159,12 @@ tasks:
     loop: L3
     owner: TL
     depends_on: [T-V2-02]
-    state: TODO
-    next_action: "接 seed 实体，产出纯图 route trace 与禁用图对照"
+    state: VERIFIED
+    next_action: "已接通 seeds/enable_graph；A 组 GRAPH+graph_calls=1+rerank_fallback=false+facts_after_rerank=1+seed_hits=['ent:智造贷']，B 组 DENSE_FALLBACK/GRAPH_DISABLED；中文补丁改为服务端默认安装。capabilities.retrieve_graph_route 升 VERIFIED（附 sha256）"
     acceptance: [D6]
-    evidence: ""
-    blocker: ""
-    artifacts: ["docs/v2-tasks/evidence/A2-pure-graph-route.md"]
+    evidence: "docs/v2-tasks/evidence/A2-pure-graph-route.md"
+    blocker: "产品链路（Java→19532 shim→18094）仍未透传 seeds：retrieval_shim.py:416-417 只发 {query,top_k}，属 S3 文件本任务未改；18094 运行实例仍旧代码未重启"
+    artifacts: ["docs/v2-tasks/evidence/A2-pure-graph-route.md", "services/rag-alg/index_data_service/graph_engine_adapter/api.py", "services/rag-alg/index_data_service/graph_engine_adapter/engine_hipporag.py", "services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py"]
 
   - id: T-A3
     parent: VL4
@@ -183,10 +183,10 @@ tasks:
     loop: L2
     owner: TL
     depends_on: [T-V2-01]
-    state: TODO
-    next_action: "r12 复跑 B01 28 tests + 变异复演 + 基线复演 + 合入迁移方案"
+    state: VERIFIED
+    next_action: "已复演 28 passed / 变异 23-1-3 / 基线 20 failed（基线全量 258 passed → 286 passed，失败数不变）；补丁对 V2 git apply --check exit 0；迁移方案见 §5。待做：补丁实际落地 + 按 KB 清库重建"
     acceptance: [D2, D5]
-    evidence: ""
-    blocker: ""
+    evidence: "docs/v2-tasks/evidence/A4-b01-rerun.md"
+    blocker: "存量 g_kb_9 边数/反向重复计数 UNVERIFIED：Nebula 9669 未监听；按纪律未自行启动，需授权后只读取证"
     artifacts: ["docs/v2-tasks/evidence/A4-b01-rerun.md"]
 
