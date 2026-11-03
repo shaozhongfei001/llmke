@@ -200,8 +200,8 @@ tasks:
   - T-A1
   state: TODO
   scope: D7 的另一半：打开原文后按 locator（如 page=-;offset=[[0,45]];chunk=0）在预览里高亮正确位置
-  next_action: 前端在问答 PDF 预览里按 locator offsets 画高亮层；locator 数据已全链路可拿（reference 与 sources[]
-    均带），缺的只是渲染
+  next_action: 前端会话已提交页码定位(initialPage)；chunk 级高亮需 snippet 文本定位（本会话接管后实现，或先补 position
+    契约）
   acceptance:
   - D7b
   evidence: ''
@@ -217,7 +217,8 @@ tasks:
   - T-A2
   state: DOING
   note: T-A2 是 scope-limited VERIFIED：引擎侧 seeds/enable_graph 已通，但产品链路没透传
-  next_action: shim 已透传 seeds（32 passed）；下一步：Java 侧种子来源 + 产品级 A/B 对照
+  next_action: shim seeds 透传(32 tests)+服务端自动种子(13 tests)已落地；剩：产品级 A/B 对照实录与 capabilities
+    note 更新
   acceptance:
   - D6
   evidence: ''
