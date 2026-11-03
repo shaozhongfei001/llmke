@@ -40,8 +40,10 @@ CAPABILITIES = {
                 "并把种子传给引擎；②服务端默认安装中文补丁（上游 text_processing 会把中文清成空串，"
                 "不装则事实恒为 ('','',x)、中文种子换算撞 md5('') 空实体，命中记 seed_hits_degenerate "
                 "而不计入 seed_hits）。产品链路（Java→19532 shim→18094）透传 seeds 仍未接，见证据 §9",
+        # 指纹变更记录：初版 c531a350…；2026-11-03 15:10 追加 §10（临时实例占用预览端口 18095 的处置与复跑改端口）
+        # 后为下列值，初版 sha 已写在该文件 §10 内，便于审计"改了什么、为什么改"。
         "evidence": "docs/v2-tasks/evidence/A2-pure-graph-route.md"
-                    " (sha256 c531a350187fbdaab3dffc4e90f863e1bed5d0efd813b6a1e8d59d7d0de03005)",
+                    " (sha256 59eebfe865c1550ec144e41fd3da5a92d419ce69eb32e26809c64e6b96f53969)",
     },
     "source_map_multi_source": {
         "status": "VERIFIED",

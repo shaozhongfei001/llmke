@@ -2,135 +2,210 @@
 
 - 任务：`docs/v2-tasks/TASKS.yaml` → `T-A1`（acceptance D7）
 - 执行人：TL（tl-audit）
-- 日期：2026-11-03
+- 日期：2026-11-03（上传 15:02，验证 15:07）
 - 工作树：`/home/szf/data/dev/llmke-v2`，分支 `design/v2-input-engine-adoption-20261030-2101`
+- 数据库：**产品库 `gienrag`**（不是隔离库 `gienrag_v2_restore`；后者 `knowledge_base_list` 为空是正常的）
 
-## 0. 状态摘要（先说清楚哪段验证了、哪段没有）
+## 0. 状态摘要
 
 | 环节 | 状态 | 依据 |
 |---|---|---|
-| 真实上传文档（非 F001–F012/999010）取得 | **已取得** | 走产品网关 8088 真实上传 `coordination/samples/docx-plain.docx`，落库 `gienrag.knowledge_base_list` id=999017（数字 id、converted_file_path 有值） |
-| Java 编译 | **通过** | `mvn -o -q -pl rag-qa-service compile` 无输出（成功） |
-| 反查逻辑（file_id → convertedFilePath → 桶内对象键） | **已验证 4/4 PASS** | 对**已编译的真实类** `AiServiceImpl` 打私有方法 `enrichReferenceSources`，桩住 `KbClient`/`StorageProperties`，用真实上传文件的 id=999017 |
-| global 分支接线（`question_re` 调用它） | **代码已改，未在运行实例上验证** | 需要重启运行中的 rag-qa-service（:18083）才生效 |
-| 页面「点引用 → 抽屉 → 打开原文 → 高亮 locator」 | **UNVERIFIED** | 需同时满足 ①Java 新代码生效 ②global 快照含该真实文件。见 §5 |
+| 真实上传文档（非 F001–F012/999010） | **已取得** | 走产品网关 8088 上传 `coordination/samples/docx-image.docx` 到 **kb_9**，新 id=**999019**（§1） |
+| 产品侧已解析的真实文档（用于取产品解析块） | **已取得** | kb_9 既有 `id=333 docx-table.docx`（status=3 已解析），通过产品接口取到 2 个块（§2） |
+| Java 编译 | **通过** | `mvn -o -q -pl rag-qa-service compile` 无输出 |
+| 反查逻辑（单元级，真实类） | **4/4 PASS** | §4 打私有方法 `enrichReferenceSources`，桩 KbClient/StorageProperties |
+| **真实数据全链**（真实文档 → 真实 global → Java 实际输入 → 反查） | **6/6 PASS** | §5：source 变成真实文件的桶内对象键，locator/community 未被破坏 |
+| global 分支接线（`question_re` 调它） | 代码已改，**运行实例未生效** | 需重启 `:18083`（未授权，见 §7） |
+| 页面「点引用 → 抽屉 → 打开原文 → 高亮」 | **UNVERIFIED** | 需 Java 重启 + 取原文链路（§6 实测 403/404） |
 
-## 1. 真实上传文档是怎么来的（不是演示语料）
+## 1. 上传（按 team-lead 批准的四条边界执行）
 
-样本：`/home/szf/data/dev/coordination/samples/docx-plain.docx`（36,716 字节，真实 docx，不属于 F001–F012/999010 演示语料）。
-
-流程：`POST /auth/user/simpleLogin` → `POST /index/knowledgeBase/create` → `POST /index/knowledgeBase/file/uploadFileList`（`isParse=true, isExtract=true, isGraphParse=true`）。脚本 `/tmp/a1_upload.py`。
-
-关键输出（原样）：
+用 team-lead 批准的方式：走产品网关 8088，只传 1 份 `coordination/samples` 的真实 docx 到 **kb_9**。
 
 ```
+$ date '+%Y-%m-%dT%H:%M:%S%z'
+2026-11-03T15:02:46+0800
+$ python3 /tmp/a1_upload_kb9.py
 LOGIN 200 success= True
-KB_CREATE 200 {'success': True, ..., 'data': {'id': '1002', 'kbName': 'T-A1-真实文档-145619', 'primitiveName': 'kb_1002', ...}}
-KB_ID 1002
-UPLOAD 200 elapsed 0.1
-UPLOAD_BODY {'success': True, ..., 'data': [{'id': '999017', 'kbId': '1002', 'fileName': 'docx-plain.docx',
-   'fileSize': 36716.0, 'filePath': 'http://127.0.0.1:19000/r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx',
-   'convertedFilePath': None, 'status': 1, ...}]}
+UPLOAD 200 elapsed 0.2
+UPLOAD_BODY {'success': True, ..., 'data': [{'id': '999019', 'kbId': '9', 'fileName': 'docx-image.docx',
+  'fileSize': 50185.0, 'filePath': 'http://127.0.0.1:19000/r12-rag/kb_9/docx-image.docx/V0/docx-image.docx',
+  'convertedFilePath': None, 'status': 1, 'parseType': 1, ...}]}
 ```
 
-第一次上传失败并留证（不是"一次就过"）：`UPLOAD 500 {'errorMsg': "Required request parameter 'uploadFileParam' ... is not present"}` —— 根因是会话级 `Content-Type: application/json` 覆盖了 multipart 的 boundary。
-
-落库事实（**注意：Java 写的是 `gienrag` 库，不是 ENV.md 里写的 `gienrag_v2_restore`**；后者 `knowledge_base_list` 为 0 行）：
+落库核对（**产品库 gienrag**）：
 
 ```
-$ MYSQL_PWD=… mysql -h127.0.0.1 -P13306 -uroot -e "SELECT id,kb_id,file_name,status,graph_parse_status,converted_file_path
-    FROM gienrag.knowledge_base_list WHERE kb_id=1002\G"
-*************************** 1. row ***************************
-                id: 999017
-             kb_id: 1002
-         file_name: docx-plain.docx
-            status: 3
-graph_parse_status: 1
-converted_file_path: http://127.0.0.1:19000/r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx
+$ mysql -h127.0.0.1 -P13306 -uroot -e "SELECT id,kb_id,file_id,file_name,status,graph_parse_status,is_enable,converted_file_path,gmt_create FROM gienrag.knowledge_base_list WHERE id=999019\G"
+                 id: 999019
+              kb_id: 9
+            file_id: NULL
+          file_name: docx-image.docx
+             status: 2
+         parse_type: 1
+ graph_parse_status: 1
+          is_enable: 1
+converted_file_path: http://127.0.0.1:19000/r12-rag/kb_9/docx-image.docx/V0/docx-image.docx
+         gmt_create: 2026-11-03 15:02:47
 ```
 
-`SELECT 'v2_restore',COUNT(*) FROM gienrag_v2_restore.knowledge_base_list UNION ALL SELECT 'gienrag',COUNT(*) FROM gienrag.knowledge_base_list;`
-→ `v2_restore 0` / `gienrag 540`。
+**测试夹具留痕（不删除；删除端点仍 501）**
 
-## 2. 改了什么
+| 对象 | id | 说明 |
+|---|---|---|
+| kb_9 新上传文件 | `999019` | `docx-image.docx`，49.0 KB，`converted_file_path` 见上，创建 2026-11-03 15:02:47 |
+| 解析任务 | `gienrag.file_parse_task.id=642` | status=2（未结束，`end_time=NULL`，`retry_times=0`），该样本是"图文"docx，解析一直未完成 |
+| **误建的空知识库** | `gienrag.knowledge_base.id=1003`（`kb_1003`，名 `T-A1-真实文档-150246`） | 上传脚本沿用了"先建库"的模板，忘记删该步。**如实登记**，未删 |
+| 批准前已上传（如实登记） | `999017`、`999018`（kb_1002）、`knowledge_base.id=1002`、`1001` | 批准前那次尝试（§ 历史），内容同一份 `docx-plain.docx`；未删 |
 
-`services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java`
+不动既有文件：上传前确认 kb_9 内 `docx-image.docx` 记录数为 **0**（`SELECT COUNT(*) … WHERE kb_id=9 AND file_name='docx-image.docx'` → 0），
+`docx-table.docx` 已有 34 条（所以没有传它，避免覆盖既有版本）。
 
-1. **抽出** R13-GRAPH-11 反查为 `resolveSourceByFileId(JSONObject metadata)`（`AiServiceImpl.java:2680` 起）：
-   依次尝试 `metadata.file_id` / `file_ids` → `kbClient.getByIds` → 取 `convertedFilePath`；命中时把规范化
-   `file_id/title` 写回 metadata；解析不出返回空串（调用方继续走名字回落，绝不拼 `.../null`）。
-2. **publicQuestion 原内联块改为调用该方法**（`:733-737`），消除"两处各写一份"。
-3. **新增** `enrichReferenceSources(String reference)`（`:2712` 起）：对 documents_list 逐条
-   `source 为空 → resolveSourceByFileId → toBucketKey`，解析不到的条目 **保留但 source 置空**（不删、不编造）。
+## 2. 用于全链验证的真实文档：kb_9 `id=333 docx-table.docx`
+
+选它的理由（三条都是硬条件）：**产品侧真实上传**、**已解析完成**（`status=3`，所以产品接口能取到块）、
+**数字 id**（Java `RetrieveMetaData.file_id` 是 Long，非数字 id 会被丢）。
+`id=999010`（丙-额度分项.docx）按纪律排除。
+
+取产品解析块（不是本地解析、不是自研抽取）：
+
+```
+$ GET http://127.0.0.1:8088/index/knowledgeBase/file/getFileChunks?kbId=9&docId=333&pageNo=1&pageSize=200
+200 {'success': True, 'data': {'records': [
+   {'id': '1029926531603392361', 'content': 'DOCX with table下表为多指标对账口径。', ...},
+   {'id': ..., 'content': '|指标|数据源|口径|\n|日均存款|T-CORE-001|按业务日跨账户汇总/天数|\n|用电量|T-EXT-001|月度同比|', ...}],
+   'total': 2, ...}}
+```
+
+## 3. 改了什么
+
+`services/rag-java/rag-parent/rag-qa-service/.../application/service/impl/AiServiceImpl.java`
+
+1. **抽出** R13-GRAPH-11 为 `resolveSourceByFileId(JSONObject metadata)`（`:2680` 起）：
+   `metadata.file_id` / `file_ids` → `kbClient.getByIds` → `convertedFilePath`；命中回填规范化 `file_id/title`；
+   解析不出返回空串（继续走名字回落，绝不拼 `.../null`）。非数字 file_id（如 `F003`）跳过而不抛错。
+2. **publicQuestion 原内联块改为调用**（`:733-737`），消除两处各写一份。
+3. **新增** `enrichReferenceSources(String reference)`（`:2712` 起）：逐条 `source 空 → 反查 → toBucketKey`；
+   解析不到的条目**保留但 source 置空**（不删、不编造）；输入不是 JSON 数组时原样返回（不 500）。
 4. **global 分支接线**（`:396-402`）：`reference = enrichReferenceSources(retrievedData.getDocumentString())`。
-   改前是 `reference = retrievedData.getDocumentString()`，原样下发 —— 社区摘要只有 file_id，
-   页面点引用打不开原文（这正是评审 D7 指出的缺陷）。
+   改前是原样下发 documents_list —— 社区摘要只有 file_id，页面点引用打不开原文，这正是 D7 指出的缺陷。
 
-新增回归测试：`src/test/java/.../AiServiceReferenceResolveTest.java`（4 个用例）。
+新增回归测试 `AiServiceReferenceResolveTest`（4 用例，等价覆盖见 §4 说明）。
 
-## 3. 编译与运行验证（真实类，非纸面）
+## 4. 单元级验证（对已编译的真实类打私有方法）
 
 ```
-$ cd /home/szf/data/dev/llmke-v2/services/rag-java/rag-parent && mvn -o -q -pl rag-qa-service compile -DskipTests
+$ cd services/rag-java/rag-parent && mvn -o -q -pl rag-qa-service compile -DskipTests
 （无输出 = 成功）
 ```
 
-离线仓库里 `maven-surefire-plugin` 默认 2.12.4 缺 `surefire-junit3`，`mvn test` 在本机跑不起来
-（`1 required artifact is missing ... dummy:dummy:jar:1.0`），所以改用"直接对已编译类打私有方法"的等价验证
-（`/tmp/t_a1_check/T.java`，用动态代理桩住 `KbClient`、Mockito 桩住 `StorageProperties`）：
+离线仓库 `maven-surefire-plugin` 默认 2.12.4 缺 `surefire-junit3`，`mvn test` 在本机跑不起来
+（`1 required artifact is missing … dummy:dummy:jar:1.0`），所以用等价手段直接验方法体
+（动态代理桩 `KbClient` + Mockito 桩 `StorageProperties`）：
 
 ```
-$ javac -nowarn @/tmp/t_a1_check/args -d . T.java && java @/tmp/t_a1_check/rargs T
+$ java @/tmp/t_a1_check/rargs T      # /tmp/t_a1_check/T.java
 PASS ① source=桶内对象键
 PASS ① title 回填
 PASS ① file_id 归一
 PASS ① 其它字段未被动
-INFO  … T-A1 enrichReferenceSources: items=1 resolved=0 unresolved=1
-PASS ② 非法 id → source 为空
-WARN  … reference 不是 JSON 数组，原样返回: illegal input, offset 1, char {
+PASS ② 非法 id → source 为空（resolved=0 unresolved=1）
 PASS ③ 非数组原样返回
 PASS ④ 空引用
 ALL PASS (4/4)
 ```
 
-输入用的是真实上传文件的 id，输出逐条：
+## 5. 真实数据全链验证（本项最关键的一段）
 
-| 断言 | 期望 | 实测 |
-|---|---|---|
-| ① global 引用（`metadata.file_id="999017"`，无 source） | `source = r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx` | PASS（由 `http://127.0.0.1:19000/...` 归一为桶内对象键，与前端 `/minio/${source}` 契约一致） |
-| ① title / file_id 回填、`community` 字段不被破坏 | `docx-plain.docx` / `999017` / `c-3` | PASS |
-| ② 非数字 file_id（`F003`） | 不抛异常、source 为空 | PASS（`resolved=0 unresolved=1`） |
-| ③ 输入不是 JSON 数组 | 原样返回 | PASS |
-| ④ 空引用 | 原样返回 | PASS |
+链路：真实文档产品块 → 建图 → global 提问 → retrieval_shim 的 Java 实际输入 → `enrichReferenceSources`。
 
-## 4. 为什么必须归一成"桶内对象键"而不是绝对 URL
-
-前端契约（R14-C-FIX-13 注释，`AiServiceImpl.java:2650` 附近）：前端是 `/minio/${source}`。
-若下发绝对 URL，会变成 `/minio/http://host/...` → 点开必 404/403。
-本次验证实测的旁证：
+**(a) 用产品解析块建图**（file_id=333，locator 保留 `page=1;chunk=N`）：
 
 ```
-$ curl -s -o /dev/null -w "%{http_code}\n" -I http://127.0.0.1:19000/r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx
-403                       # 直连对象存储，未签名 → 403（不能当前端链接）
-$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8088/minio/r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx
-404                       # 网关 /minio/ 下该对象 404，说明这条链路的取原文还需确认（见 §5 第 2 条）
+$ POST http://127.0.0.1:18096/v2/graph/build   --data-binary @/tmp/a1-build.json
+{"status":"BUILT","snapshot":"/tmp/tl-a1-root/snapshot-20261103150659-907924-g0",
+ "documents":2,"chunks":2,"sources":2,"facts":6,"edges":23,
+ "community":{"sha256":"e16b4672c62e79c6da60ace7f36d718a6b2ab9febb8c2b20222ac4b61e4e901e",
+   "status":"READY","community_count":3,
+   "citation_check":{"ok":true,"checked":6,"valid":["c-2:333:日均存款 口径 按业务日跨账户汇总/天数", …]}}}
 ```
 
-## 5. 未完成项（逐条给恢复条件，不补理由）
+**(b) global 提问（真实社区引用）**：
 
-1. **Java 新代码未生效**：运行中的 rag-qa-service（`:18083`，pid 2363389）是旧代码。
-   需要重启该服务。**未擅自重启**——它是 S3/页面链路在用的服务。
-   恢复条件：取得"允许重启 18083"的授权（或由持有该服务的人重启）。
-2. **原文对象取回未打通**：`converted_file_path` 是 MinIO 地址，直连 403、网关 `/minio/` 404。
-   在页面点开原文前，需要先确认前端实际使用的取流地址（可能是签名 URL 或 `getFileStream` 接口）。
-   这是"打开原文"的最后一段，未验证，不计入通过。
-3. **global 快照里没有这份真实文件**：当前 19532→18094 的 global 读的社区报告基于 F001–F012。
-   要让 global 引用指向 999017，需要把真实文件解析文本建进快照（本批次已在 18095 具备建图能力，
-   但 18094 未重启、未换快照）。
-4. **页面级实录（截图+抽屉）**：未做。前一次页面 E2E 的临时 nginx 容器已删除。
+```
+$ POST http://127.0.0.1:18096/v2/graph/global  {"query":"日均存款的口径是什么","max_communities":3}
+status: READY
+answer: - 日均存款 口径 按业务日跨账户汇总/天数（来源：333）
+        - 日均存款 数据源 T-CORE-001（来源：333）
+citations: [{"community":"c-2","text":"日均存款 口径 按业务日跨账户汇总/天数","sources":["333"]}, …]
+source_meta: {"333": {"file_id":"333","locator":"page=1;chunk=0","title":"docx-table.docx"}}
+```
 
-## 6. 一行结论
+**(c) 用 shim 的真实映射生成 Java 实际收到的 documents_list**：
 
-反查逻辑与 global 接线**已在代码层落地并经真实类运行验证（4/4 PASS）**，用的是走产品网关真实上传的
-`docx-plain.docx`（id=999017，非演示语料）；但"点引用打开原文"的**端到端仍未打通**，
-卡在两处可执行但需授权的动作：重启 `:18083` 让新代码生效、以及确认前端取原文的实际地址（实测 `/minio/` 404）。
+```
+$ python3（import retrieval_shim._global_documents / _to_document）
+documents: 1
+ community=c-2 file_id=333 source=None locator=page=1;chunk=0
+ sources=[{"file_id": "333", "locator": "page=1;chunk=0", "title": "docx-table.docx"}]
+```
+
+`source=None` 就是缺陷本体：Java 收到的引用**没有任何可打开路径**。
+
+**(d) 把这份真实 documents_list 喂给 Java 的 `enrichReferenceSources`**（KbClient 桩返回 MySQL 里
+id=333 的真实 `converted_file_path`）：
+
+```
+$ java @/tmp/t_a1_check/rargs T2 333 docx-table.docx \
+    "http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx" \
+    "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx"
+输入（Java 实际收到的 documents_list，前 260 字）：
+  [{"page_content":"- 日均存款 数据源 T-CORE-001（来源：333）\n- 日均存款 口径 按业务日跨账户汇总/天数（来源：333）",
+    "metadata":{"file_id":333,"source":null,"position":{"locator":"page=1;chunk=0", …
+输出 metadata：
+  source=r12-rag/kb_9/docx-table.docx/V0/docx-table.docx
+  file_id=333 title=docx-table.docx locator=page=1;chunk=0 community=c-2
+PASS 改前 source 为空（正是 D7 缺陷）
+PASS 改后 source = 真实文件的桶内对象键
+PASS file_id 仍是真实上传文件的 id
+PASS title 回填为真实文件名
+PASS locator 未被破坏（可高亮）
+PASS community 未被破坏
+ALL PASS (6/6)
+```
+
+即：**一条 real（kb_9 / id=333）文档的社区事实，经过修复后的 Java 反查，得到
+`source=r12-rag/kb_9/docx-table.docx/V0/docx-table.docx` 且 `locator=page=1;chunk=0` 原样保留** ——
+这就是"点引用能定位到原文位置"所需的两样东西。
+
+## 6. 取原文链路实测（未打通，如实记录）
+
+```
+$ curl -I http://127.0.0.1:19000/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx
+403        # 直连对象存储未签名
+$ curl -I http://127.0.0.1:8088/minio/r12-rag/kb_9/docx-table.docx/V0/docx-table.docx
+404        # 网关 /minio/ 前缀下不存在该对象
+```
+
+另发现：Office 文档的预览通道在 Java 配置里是
+`platform/r12/conf/rag-index-service/application-r12.yml:80 → url: http://127.0.0.1:18095/stream`，
+而该端口在本次开工时**没有监听**（`ss -ltn` 当时只有 18094/19531/19532）——
+即"Office 原文预览服务当时没起"。这是 D7 页面级的真实缺口，不是 Java 反查能补的。
+
+（相关处置：本批次 A2 的临时实例曾占用 18095，已停止并释放，详见
+`docs/v2-tasks/evidence/A2-pure-graph-route.md` §10。）
+
+## 7. 未完成项与恢复条件
+
+| 项 | 恢复条件 |
+|---|---|
+| Java 新代码在运行实例生效 | 重启 `rag-qa-service(:18083, pid 2363389)` —— **需 team-lead 授权**，本次未擅自重启 |
+| 页面点引用 → 抽屉 → 原文打开 | 上面一项 + 取原文链路可用（§6：`/minio/` 404、预览服务 18095/stream 未运行） |
+| 抽屉/截图实录 | 需前端起来（上次页面 E2E 的临时 nginx 容器已删除） |
+| `999019`（docx-image.docx）的解析 | 解析任务 642 至今 status=2 未结束；该样本是图文 docx。不影响本项结论（全链用的是 id=333） |
+
+## 8. 一行结论
+
+反查逻辑已抽成唯一实现并接进 global 分支，**用 kb_9 真实上传、产品侧已解析的 id=333 文档跑通了
+"真实文档 → 真实 global 社区事实 → Java 实际输入 → 反查 → source=真实桶内对象键 + locator 保留" 全链（6/6 PASS）**；
+仍缺的只剩两件需外部动作的事：重启运行中的 `:18083`，以及打通取原文/预览通道（实测 `/minio/` 404、18095/stream 未运行）。

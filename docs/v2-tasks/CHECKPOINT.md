@@ -190,3 +190,15 @@
 ### 不得重复/擅自执行
 - 不要重启 18094 / 18083（18083 需授权）。
 - 不要用 F001–F012/999010 证明"打开原文"。
+
+### T-A1 补充（15:15，按 team-lead 批准的四条边界补做）
+- 上传：走 8088 只传 1 份 `coordination/samples/docx-image.docx` 到 **kb_9** → 新 id=**999019**，
+  converted_file_path=`http://127.0.0.1:19000/r12-rag/kb_9/docx-image.docx/V0/docx-image.docx`，gmt_create 2026-11-03 15:02:47。
+  解析任务 `file_parse_task.id=642` 至今 status=2（图文样本，未结束）。
+- 夹具留痕（未删）：999019；误建空库 `knowledge_base.id=1003`(kb_1003)；批准前已传的 999017/999018(kb_1002)、1001/1002。
+- 全链验证（真实数据，6/6 PASS）：kb_9 产品侧已解析文档 **id=333 docx-table.docx** → getFileChunks 取 2 块
+  → 建图（snapshot /tmp/tl-a1-root/…-150659，6 事实/23 边/3 社区）→ /v2/graph/global 命中 c-2（来源 333）
+  → retrieval_shim 真实映射出 Java 实际输入（metadata.file_id=333, source=null, locator=page=1;chunk=0）
+  → Java enrichReferenceSources → **source=r12-rag/kb_9/docx-table.docx/V0/docx-table.docx**，locator/community 未破坏。
+- 取原文链路实测未通：19000 直连 403；网关 /minio/ 404；Office 预览配置 `application-r12.yml:80 → 18095/stream` 当时未监听。
+- 端口纪律：A2 的临时实例曾占 18095（= 预览服务默认端口），已停止并释放；18094/19531/19532/8088/18083 未受影响。
