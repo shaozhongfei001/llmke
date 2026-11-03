@@ -140,3 +140,53 @@ tasks:
     evidence: "docs/v2-tasks/evidence/S1-acceptance.md"
     blocker: ""
     artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/normalize.py"]
+
+  # ── 评审复核自证批次（2026-11-03，评审方 R1–R4 并行核对）──
+  - id: T-A1
+    parent: VL1
+    loop: L1
+    owner: TL
+    depends_on: [T-V2-02]
+    state: TODO
+    next_action: "question_re global 分支补 convertedFilePath 反查，真实上传文档点引用打开原文"
+    acceptance: [D7]
+    evidence: ""
+    blocker: ""
+    artifacts: ["docs/v2-tasks/evidence/A1-open-original.md"]
+
+  - id: T-A2
+    parent: VL3
+    loop: L3
+    owner: TL
+    depends_on: [T-V2-02]
+    state: TODO
+    next_action: "接 seed 实体，产出纯图 route trace 与禁用图对照"
+    acceptance: [D6]
+    evidence: ""
+    blocker: ""
+    artifacts: ["docs/v2-tasks/evidence/A2-pure-graph-route.md"]
+
+  - id: T-A3
+    parent: VL4
+    loop: L4
+    owner: TL
+    depends_on: [T-V2-02]
+    state: TODO
+    next_action: "openie→断言→community.json 逐跳溯源自证"
+    acceptance: [D4]
+    evidence: ""
+    blocker: ""
+    artifacts: ["docs/v2-tasks/evidence/A3-community-lineage.md"]
+
+  - id: T-A4
+    parent: VL2
+    loop: L2
+    owner: TL
+    depends_on: [T-V2-01]
+    state: TODO
+    next_action: "r12 复跑 B01 28 tests + 变异复演 + 基线复演 + 合入迁移方案"
+    acceptance: [D2, D5]
+    evidence: ""
+    blocker: ""
+    artifacts: ["docs/v2-tasks/evidence/A4-b01-rerun.md"]
+
