@@ -1,0 +1,456 @@
+{
+ "schema": "llmke.d10-run.v1",
+ "time": "2026-11-03T21:03:11+0800",
+ "snapshot": "/tmp/tl-a2-root/snapshot-20261103133335-412712-g0",
+ "summary_a": {
+  "schema": "llmke.d10-eval.v1",
+  "total": 9,
+  "passed": 9,
+  "failed": 0,
+  "per_case": [
+   {
+    "case_id": "T-01",
+    "question": "华东精密拟申请星航贷的定价与额度约束是什么",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-02",
+    "question": "日均存款的对账口径是什么",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-03",
+    "question": "信用方式贷款不超过多少",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-04",
+    "question": "AAA档执行利率加点是多少（LPR+30BP，不得反号）",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-05",
+    "question": "单笔授信超过五亿元由谁审议通过",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-06",
+    "question": "撤权文件的内容在撤权后是否仍可被检索",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-07",
+    "question": "多前提结论的支持组是否完整",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-08",
+    "question": "换版/删来源/重启后同问句 top1 是否稳定",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   },
+   {
+    "case_id": "T-09",
+    "question": "中文实体与图检索在默认配置下是否生效",
+    "pass": true,
+    "checks": {
+     "answer_nonempty": true,
+     "citations_present": true,
+     "locator_present": true,
+     "route_known": true,
+     "fallback_reason": true
+    },
+    "reasons": []
+   }
+  ]
+ },
+ "per_case": [
+  {
+   "case_id": "T-01",
+   "question": "华东精密拟申请星航贷的定价与额度约束是什么",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-02",
+   "question": "日均存款的对账口径是什么",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-03",
+   "question": "信用方式贷款不超过多少",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-04",
+   "question": "AAA档执行利率加点是多少（LPR+30BP，不得反号）",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-05",
+   "question": "单笔授信超过五亿元由谁审议通过",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "COMMUNITY_REPORT",
+   "global_answer_head": "- 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）\n- 授信审批权限管理办法 规定 单笔授信一亿元至五亿元由分行授"
+  },
+  {
+   "case_id": "T-06",
+   "question": "撤权文件的内容在撤权后是否仍可被检索",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-07",
+   "question": "多前提结论的支持组是否完整",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-08",
+   "question": "换版/删来源/重启后同问句 top1 是否稳定",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  },
+  {
+   "case_id": "T-09",
+   "question": "中文实体与图检索在默认配置下是否生效",
+   "pass": true,
+   "reasons": [],
+   "a": {
+    "route": "GRAPH",
+    "reason": "GRAPH_CALLED",
+    "answer": "hits=5"
+   },
+   "b": {
+    "route": "DENSE_FALLBACK",
+    "reason": "GRAPH_DISABLED"
+   },
+   "global_route": "DENSE_FALLBACK",
+   "global_answer_head": ""
+  }
+ ],
+ "global_results": {
+  "T-01": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-02": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-03": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-04": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-05": {
+   "answer": "- 授信审批权限管理办法 规定 单笔授信超过五亿元由总行授信审查委员会审议通过（来源：F003）\n- 授信审批权限管理办法 规定 单笔授信一亿元至五亿元由分行授信审批部审议（来源：F003）\n- 授信审批权限管理办法 规定 单笔授信一亿元以下由支行行长审批（来源：F003）",
+   "route": "COMMUNITY_REPORT",
+   "reason": null,
+   "citations": [
+    {
+     "file_id": "F003",
+     "locator": "page=1;chunk=0"
+    },
+    {
+     "file_id": "F003",
+     "locator": "page=1;chunk=0"
+    },
+    {
+     "file_id": "F003",
+     "locator": "page=1;chunk=0"
+    }
+   ]
+  },
+  "T-06": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-07": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-08": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  },
+  "T-09": {
+   "answer": "",
+   "route": "DENSE_FALLBACK",
+   "reason": "NO_RELEVANT_FACTS",
+   "citations": []
+  }
+ },
+ "passed": 9,
+ "failed": 0,
+ "a_group_detail": {
+  "T-01": {
+   "seeds": [
+    "星航贷"
+   ],
+   "seeds_source": "auto",
+   "seed_hits": [
+    "星航贷"
+   ],
+   "hits": [
+    "星航贷额度分项说明。星航贷单户最高授信额度为8000万元。其中信用方式不超过2000万元。担保方式为应收账款质押。额度有效期为二十四个月。额",
+    "“智造贷”产品说明书。适用对象为制造业中小微企业。单户最高授信额度为5000万元。信用方式贷款不超过1000万元。担保方式为保证或抵押。额度",
+    "担保管理办法。设备抵押须办理抵押登记。设备抵押率为50%。应收账款质押须在中登网登记。保证人须具备担保能力。担保方式变更须重新审批。"
+   ]
+  },
+  "T-02": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "额度有效期规定。额度有效期为十二个月。额度到期需重新核定。额度核定由授信管理部门负责。额度冻结须经分行行长批准。",
+    "集团客户授信方案。集团客户统一授信额度为20亿元。集团客户由总行统一管理。集团客户须按季报送财务数据。集团客户授信须穿透核查关联企业。",
+    "“智造贷”产品说明书。适用对象为制造业中小微企业。单户最高授信额度为5000万元。信用方式贷款不超过1000万元。担保方式为保证或抵押。额度"
+   ]
+  },
+  "T-03": {
+   "seeds": [
+    "信用方式贷款"
+   ],
+   "seeds_source": "auto",
+   "seed_hits": [
+    "信用方式贷款"
+   ],
+   "hits": [
+    "“智造贷”产品说明书。适用对象为制造业中小微企业。单户最高授信额度为5000万元。信用方式贷款不超过1000万元。担保方式为保证或抵押。额度",
+    "星航贷额度分项说明。星航贷单户最高授信额度为8000万元。其中信用方式不超过2000万元。担保方式为应收账款质押。额度有效期为二十四个月。额",
+    "授信审批权限管理办法。单笔授信超过五亿元由总行授信审查委员会审议通过。单笔授信一亿元至五亿元由分行授信审批部审议。单笔授信一亿元以下由支行行"
+   ]
+  },
+  "T-04": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "利率定价管理办法。AAA级客户执行利率为一年期LPR加30个基点。AA级客户执行利率为一年期LPR加60个基点。A级客户执行利率为一年期LP",
+    "“智造贷”产品说明书。适用对象为制造业中小微企业。单户最高授信额度为5000万元。信用方式贷款不超过1000万元。担保方式为保证或抵押。额度",
+    "提前还款规则。提前还款需提前十五个工作日提出书面申请。提前还款不收取违约金。部分提前还款须重新签订借款合同。提前还款由信贷管理岗审核。"
+   ]
+  },
+  "T-05": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "授信审批权限管理办法。单笔授信超过五亿元由总行授信审查委员会审议通过。单笔授信一亿元至五亿元由分行授信审批部审议。单笔授信一亿元以下由支行行",
+    "集团客户授信方案。集团客户统一授信额度为20亿元。集团客户由总行统一管理。集团客户须按季报送财务数据。集团客户授信须穿透核查关联企业。",
+    "“智造贷”产品说明书。适用对象为制造业中小微企业。单户最高授信额度为5000万元。信用方式贷款不超过1000万元。担保方式为保证或抵押。额度"
+   ]
+  },
+  "T-06": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "贷后检查制度。贷后检查每季度开展一次。贷后检查由客户经理负责。贷后检查须形成检查报告。发现风险信号的客户应列入关注名单。",
+    "风险预警规则。逾期超过九十天的客户列入关注名单。关注名单客户不得新增授信。风险预警信号由系统自动推送。预警处置由风险管理部负责。",
+    "授信审批权限管理办法。单笔授信超过五亿元由总行授信审查委员会审议通过。单笔授信一亿元至五亿元由分行授信审批部审议。单笔授信一亿元以下由支行行"
+   ]
+  },
+  "T-07": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "担保管理办法。设备抵押须办理抵押登记。设备抵押率为50%。应收账款质押须在中登网登记。保证人须具备担保能力。担保方式变更须重新审批。",
+    "贷后检查制度。贷后检查每季度开展一次。贷后检查由客户经理负责。贷后检查须形成检查报告。发现风险信号的客户应列入关注名单。",
+    "提前还款规则。提前还款需提前十五个工作日提出书面申请。提前还款不收取违约金。部分提前还款须重新签订借款合同。提前还款由信贷管理岗审核。"
+   ]
+  },
+  "T-08": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "担保管理办法。设备抵押须办理抵押登记。设备抵押率为50%。应收账款质押须在中登网登记。保证人须具备担保能力。担保方式变更须重新审批。",
+    "贷后检查制度。贷后检查每季度开展一次。贷后检查由客户经理负责。贷后检查须形成检查报告。发现风险信号的客户应列入关注名单。",
+    "额度有效期规定。额度有效期为十二个月。额度到期需重新核定。额度核定由授信管理部门负责。额度冻结须经分行行长批准。"
+   ]
+  },
+  "T-09": {
+   "seeds": [],
+   "seeds_source": "none",
+   "seed_hits": [],
+   "hits": [
+    "担保管理办法。设备抵押须办理抵押登记。设备抵押率为50%。应收账款质押须在中登网登记。保证人须具备担保能力。担保方式变更须重新审批。",
+    "利率定价管理办法。AAA级客户执行利率为一年期LPR加30个基点。AA级客户执行利率为一年期LPR加60个基点。A级客户执行利率为一年期LP",
+    "客户准入条件。制造业中小微企业须持续经营满三年。近十二个月无连续逾期记录。客户须提供近两年审计报告。客户准入由分行授信审批部审查。"
+   ]
+  }
+ }
+}
