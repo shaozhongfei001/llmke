@@ -336,3 +336,58 @@ INFO … T-A1 enrichReferenceSources: items=1 resolved=0 unresolved=1
 复现条件：把 LLMKE 前端起来（nginx 指向 dist 或解决 inotify），用 admin 登录、对 kb_1002 提问
 "日均存款是多少"、点引用；预期请求 `GET /index/knowledgeBase/file/presign?key=<source>` 返回 200。
 在此之前 T-A1 保持 BLOCKED（断点=前端未运行），其余链路（上传→图→global→反查→presign→取回字节→locator）已全部实测通过。
+
+## 10. 页面 E2E 实测（2026-11-03 15:22–15:29）：**断点在前端"知识溯源"抽屉**
+
+### 10.1 环境（三个都被授权，全部留痕）
+
+| 组件 | 处置 | 实测 |
+|---|---|---|
+| `rag-qa-service :18083` | 按批准重启，共 4 次（每次先 `mvn -o -q -pl rag-qa-service -DskipTests package`） | pid 链：`2363389`(旧, r12 jar `35e8b120…`) → `2403983` → `2461741` → `2478756` → **`2492411`**（现役）；每版 jar md5：`c441d760…` → `4d16f96a…` → 当前包 |
+| 预览服务 `r12-preview` | `platform/r12/preview/run.sh up`（镜像 `r12/preview-office:r13` 已存在，**未 build**） | `[ok] r12-preview up on 18095`；healthz `{"ok":true,"soffice":"LibreOffice 25.2.3.2",...}` |
+| 前端 `r12-fe` | `docker start r12-fe`（原 `Exited (0) 19 hours ago`） | `http://127.0.0.1:18088/` 200，页面标题 `智能对话` |
+
+登录方式说明：页面有**图形验证码**，无法自动填写。改用"API 取 token + 注入 localStorage"（两个键都要：
+`saic_store` 与 `gitech_ril:rag_ai`，形状 `{userInfo:{token}}`），实测两键 token 长度均为 237，页面因此正常进入并成功发问。
+
+### 10.2 走到哪一步
+
+1. 选 `qa_cfg_kb9` 配置 + 开 `全局(GraphRAG)` + 提问"日均存款的口径是什么" → 页面渲染出
+   `日均存款 口径 按业务日跨账户汇总/天数（来源：333）`，并出现 **`知识溯源 1`** 按钮。截图：
+   `/home/szf/data/dev/llmke-v2/docs/v2-tasks/evidence/screens/A1/01-answer.png`
+2. 点 `知识溯源 1` → 抽屉打开，列出 `知识库文档 / docx-table.docx`（真名，不是 file_id）。截图：
+   `…/screens/A1/02-drawer.png`
+3. 点该条目 → **失败**：`加载失败：缺少原文地址或登录态，无法打开原文` + `重 试`。截图：
+   `…/screens/A1/03-after-click-item.png`、`…/05-preview.png`、`…/07-preview3.png`、`…/08-preview4.png`
+
+### 10.3 定位（三层都试过，逐条给证据）
+
+前端报错只有两个触发条件（`components/KnowledgeBaseZh/components/FileViewCom.tsx:61`、
+`AIChat/components/DrawerPreview.tsx:70`）：`!meta.source || !meta.token`。
+
+| 假设 | 验证 | 结论 |
+|---|---|---|
+| token 缺失 | 浏览器内读出两键 token 长度均为 237（`CHK2 passTokLen=237 saicTokLen=237`）；同一页面的 axios 请求全部带 Authorization 并通过 | **否认** |
+| Java 没下发路径 | 直接打 `question_re` 看响应：`doc.filePath`、`metadata.source`、`metadata.filePath`、`sources[0].source`、`sources[0].filePath` **五个字段全部有值** = `r12-rag/kb_9/docx-table.docx/V0/docx-table.docx` | **否认** |
+| 抽屉条目没带路径 | 连点三次（分别只补 `metadata.source`、再补 `metadata.filePath`+`sources[].source`、再补顶层 `doc.filePath`），**三次都报同一句**；`SdqaDrawer/index.tsx:502` 是 `if (!curData.filePath) return <></>` —— 说明抽屉对 `filePath` 是硬契约，而 `知识溯源` 列表项由 `@gientech/modual` 组件内部构造，不吃平台 `reference` 里新增的字段 | **成立** |
+
+即：**Java 反查这一段已经做到位（五个字段齐全、presign 200、原文 36716 字节可取），断点在"知识溯源抽屉条目 → 预览组件"的字段映射**，
+该映射在 `frontend/plateform`（llmke-r12 树）与 `@gientech/modual` 里，**不在本批次写域**。
+
+### 10.4 结论：T-A1 保持 BLOCKED，断点=前端抽屉字段映射
+
+- 已验证（可复跑）：上传 → 建图（file_id 333）→ Java global 引用带 `source`/`filePath`/`locator` →
+  `presign` 200 → 预签名 GET **200 / 36716 字节**（与上传大小相等）→ locator `page=-;offset=[[0,0]…[2,2]];chunk=1` 未丢。
+- 未通过（页面）：`知识溯源 → 条目 → 预览/高亮`，因抽屉条目缺 `filePath`（组件硬契约），报
+  "缺少原文地址或登录态"。
+- 恢复条件（二选一，都需要前端/前端 vendor 改，属另一写域）：
+  ① `知识溯源` 列表项透传 `filePath`（= 桶内对象键）；
+  ② `FileViewCom`/`DrawerPreview` 在 `filePath` 为空时回落到 `metadata.filePath || metadata.source`。
+  任一落地后，本证据 §10.2 的三步即可复跑通过，无需再改 Java。
+
+### 10.5 环境终态
+
+- `18094` 已还原：`/tmp/s4-root-c/snapshot-20261103000343-927116-g0`（health 实测 26 节点/49 边/69 事实/33 社区）。
+  临时快照（含 333）：`/tmp/v2-shim-root/snapshot-20261103151652-781141-g0`。
+- `19532` 未动；`r12-preview` 与 `r12-fe` 现为**运行中**（此前分别是 Exited/未起），如需回收可
+  `docker stop r12-fe` + `preview/run.sh down`。

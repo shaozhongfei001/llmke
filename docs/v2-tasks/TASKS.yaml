@@ -148,10 +148,11 @@ tasks:
     owner: TL
     depends_on: [T-V2-02]
     state: BLOCKED
-    next_action: "API 层全链已做实：重启 18083（pid 2363389→2403983，换 v2 jar）→ question_re(admin) 返回 metadata.source=r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx、locator=page=-;offset=[[0,45]];chunk=0 → presign 200 → 预签名 GET 200/36716 字节（与 fileSize 逐字节相等）。临时快照 /tmp/v2-shim-root/snapshot-20261103151221-873115-g0 已还原为 /tmp/s4-root-c/snapshot-20261103000343-927116-g0。剩：前端未运行，页面点引用→抽屉→高亮未做"
+    next_action: "API 层全链已做实（presign 200 + 原文 36716 字节 + locator 未丢）；页面 E2E 已跑到「知识溯源抽屉→点条目」，失败于前端抽屉字段映射，非 Java 反查。下一步：前端在 knowledge 溯源条目透传 filePath（或用 metadata.filePath/metadata.source 兜底）后复跑 §10.2 三步"
     acceptance: [D7]
     evidence: "docs/v2-tasks/evidence/A1-open-original.md"
-    blocker: "断点=前端未运行（80 端口是另一个产品 WeKnora；LLMKE 前端临时 nginx 容器已删、Vite 受 inotify ENOSPC 限制）。前端起来后用 admin 对 kb_1002 提问并点引用即可验收；预期 GET /index/knowledgeBase/file/presign?key=<source> 返回 200"
+    blocker: "断点=前端知识溯源抽屉条目缺 filePath（FileViewCom.tsx:61 只在 !source||!token 时报错；已证 token 存在、Java 已下发 doc.filePath+metadata.source/filePath+sources[].source/filePath 五个字段；SdqaDrawer/index.tsx:502 对 filePath 是硬契约，列表项由 @gientech/modual 内部构造不吃这些字段）。修复属前端/前端 vendor 写域（llmke-r12 树），非本批次写域"
+    screenshots: ["docs/v2-tasks/evidence/screens/A1/01-answer.png", "docs/v2-tasks/evidence/screens/A1/02-drawer.png", "docs/v2-tasks/evidence/screens/A1/03-after-click-item.png", "docs/v2-tasks/evidence/screens/A1/04-answer2.png", "docs/v2-tasks/evidence/screens/A1/05-preview.png", "docs/v2-tasks/evidence/screens/A1/06-drawer3.png", "docs/v2-tasks/evidence/screens/A1/07-preview3.png", "docs/v2-tasks/evidence/screens/A1/08-preview4.png"]
     artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "scripts/a1_reference_resolve_check/", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
 
   - id: T-A2

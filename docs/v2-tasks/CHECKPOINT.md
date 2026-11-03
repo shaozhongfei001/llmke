@@ -217,3 +217,16 @@
 - 权限边界实测有效：r13_reader 提问 → 日志「resolve source by file_id 999017 failed: 没有足够权限」，source 置空不越权。
 - 唯一断点：前端未运行（:80 是 WeKnora；LLMKE 前端临时 nginx 已删、Vite 受 inotify ENOSPC）→ 页面点引用/抽屉/高亮未做。
 - Java 行号：resolveSourceByFileId:2669 / enrichReferenceSources:2719 / 内部调用:2747 / publicQuestion:736 / global 接线:400。
+
+### T-A1 页面 E2E（15:22–15:29，授权三项全做）
+- 环境：18083 按批准重启 4 次（pid 2363389→2403983→2461741→2478756→2492411，每次先 mvn package）；
+  `preview/run.sh up` 起 r12-preview（18095 healthz ok，未 build）；`docker start r12-fe`（18088，页面 200）。
+- 登录：页面有图形验证码，无法自动填 → API 取 token 注入 localStorage（saic_store 与 gitech_ril:rag_ai 两键，长度均 237）。
+- 走到：选 qa_cfg_kb9 + 全局 → 提问 → 答案含（来源：333）→ 点「知识溯源 1」→ 抽屉列出 docx-table.docx → 点条目 →
+  **失败：加载失败：缺少原文地址或登录态，无法打开原文**（8 张截图在 docs/v2-tasks/evidence/screens/A1/）。
+- 定位：token 存在（已证）；Java 已下发 doc.filePath + metadata.source/filePath + sources[].source/filePath 五字段（已证）；
+  连补三次仍失败；SdqaDrawer/index.tsx:502 `if (!curData.filePath) return <></>` 说明 filePath 是硬契约，
+  而溯源列表项由 @gientech/modual 内部构造 → 断点在前端字段映射，属 llmke-r12 前端写域。
+- 终态：18094 已还原到 /tmp/s4-root-c/snapshot-20261103000343-927116-g0（26/49/69/33）；
+  临时快照 /tmp/v2-shim-root/snapshot-20261103151652-781141-g0；19532 未动；
+  r12-preview 与 r12-fe 现为运行中（回收：docker stop r12-fe + preview/run.sh down）。

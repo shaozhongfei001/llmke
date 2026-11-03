@@ -2748,15 +2748,65 @@ return retrievedData;
             }
             if (StringUtils.isNotBlank(source)) {
                 metadata.put(SOURCE, toBucketKey(source));
+                // filePath 与 source 同值：前端"知识溯源"抽屉走的是 title:click → FileViewCom，
+                // 它读的是 data.filePath（FileViewCom.tsx:40），不是 metadata.source。
+                // 两个字段都给，才能既满足抽屉、又满足 referenceFile_view 分支。
+                metadata.put("filePath", toBucketKey(source));
+                // 抽屉把条目 **展开** 后当 data 传给 FileViewCom（`{...d}`），所以顶层也要有一个
+                // filePath，否则展开后仍然读不到（实测：只在 metadata 里放时页面依旧报"缺少原文地址"）。
+                item.put("filePath", toBucketKey(source));
                 resolved++;
             } else {
                 metadata.put(SOURCE, "");
                 unresolved++;
             }
+            // T-A1 二段（页面实测暴露）：前端"知识溯源"抽屉是**按 metadata.sources[] 逐条列文件**的，
+            // 点某一条时用的是那一条自己的字段。平台侧 sources[]（来自建图 sources.json）只带
+            // file_id/locator/title，没有 source —— 于是抽屉点进去只会看到
+            // "加载失败：缺少原文地址或登录态"，虽然顶层 metadata.source 已经补好了。
+            // 这里把同一个桶内键写进每条 sources[]，让"每条引用都能打开原文"成立；
+            // 解析不出来的条目仍旧留空（不编造路径）。
+            enrichSourceEntries(metadata);
         }
         log.info("T-A1 enrichReferenceSources: items={} resolved={} unresolved={}",
                 items.size(), resolved, unresolved);
         return items.toJSONString();
+    }
+
+    /**
+     * 把 `metadata.sources[]` 每一条补上它自己的 `source`（桶内对象键）。
+     *
+     * 为什么要逐条：抽屉里列的是"这份答案引到了哪几个文件"，用户点的是其中某一条；
+     * 只补顶层 source 时，抽屉拿不到那一条的路径，表现为"点不动"。
+     * 已经带 source 的条目不动（幂等）；file_id 非数字（演示语料）或查不到文件时留空。
+     */
+    private void enrichSourceEntries(JSONObject metadata) {
+        Object raw = metadata.get("sources");
+        if (!(raw instanceof JSONArray)) {
+            return;
+        }
+        JSONArray entries = (JSONArray) raw;
+        for (int j = 0; j < entries.size(); j++) {
+            JSONObject entry = entries.getJSONObject(j);
+            if (entry == null || StringUtils.isNotBlank(entry.getString(SOURCE))) {
+                continue;
+            }
+            // 复用同一份反查：临时把这一条当 metadata 传进去，命中后它会被回填 file_id/title
+            String resolved = resolveSourceByFileId(entry);
+            if (StringUtils.isNotBlank(resolved)) {
+                entry.put(SOURCE, toBucketKey(resolved));
+                entry.put("filePath", toBucketKey(resolved));
+                continue;
+            }
+            // 这一条自己查不到（例如只给了名字）：退回用它所属文档的顶层 source，仍不编造
+            String fallback = metadata.getString(SOURCE);
+            if (StringUtils.isNotBlank(fallback)) {
+                entry.put(SOURCE, fallback);
+                if (StringUtils.isBlank(entry.getString("filePath"))) {
+                    entry.put("filePath", fallback);
+                }
+            }
+        }
     }
 
     private String toBucketKey(String source) {
