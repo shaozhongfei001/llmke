@@ -1,5 +1,11 @@
 # T-A1 自证：D7 打开原文（global 分支补 file_id→convertedFilePath 反查）
 
+> **范围声明（2026-11-03，按 TL 决定显式拆分）**：本文件对应 **T-A1 = D7a「打开原文」**，状态 **VERIFIED**。
+> D7 的另一半「locator 高亮」已拆成独立任务 **T-A5 = D7b**（state=TODO，owner=前端/llmke-r12 frontend，blocker 见 TASKS.yaml）。
+> **不要把 T-A1 的 VERIFIED 读成 D7 全通**：原文能打开并渲染，但预览里没有按 locator 画高亮。
+
+
+
 - 任务：`docs/v2-tasks/TASKS.yaml` → `T-A1`（acceptance D7）
 - 执行人：TL（tl-audit）
 - 日期：2026-11-03（上传 15:02，验证 15:07）

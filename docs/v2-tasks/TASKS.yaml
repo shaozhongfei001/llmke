@@ -142,17 +142,36 @@ tasks:
     artifacts: ["services/rag-alg/index_data_service/graph_engine_adapter/normalize.py"]
 
   # ── 评审复核自证批次（2026-11-03，评审方 R1–R4 并行核对）──
+  # ── D7 显式拆分（2026-11-03，TL 决定）：不许把"打开原文"的 VERIFIED 读成 D7 全通 ──
   - id: T-A1
+    title: "D7a 打开原文"
     parent: VL1
     loop: L1
     owner: TL
     depends_on: [T-V2-02]
-    state: BLOCKED
-    next_action: "页面 E2E 已通过（v2 dist + agent-browser）：新建对话→R13 Global→提问→知识溯源→点 docx-plain.docx→PDF 预览打开（canvas 612×792/1-1 页），Network presign 200 + previewStream 200，key 正是后端补出的桶内键。唯一缺口=前端无 locator 高亮实现（DOM 无 .highlight/mark，代码里 highlight 只在编辑器组件）。下一步：前端实现按 locator 高亮即可转 VERIFIED"
-    acceptance: [D7]
-    evidence: "docs/v2-tasks/evidence/A1-open-original.md"
-    blocker: "BLOCKED（owner=前端/llmke-r12 frontend）：真实剩余缺口=前端问答 PDF 预览无 locator 高亮实现（DOM .highlight/mark/[class*=highlight] 命中 0）。后端 presign 与 previewStream 已实测 200，无需再动。注意：team-lead 口径写的是「vendor referencelist 未透传 filePath」，但 §11 实测已否证其为打开原文的必要条件——换 v2 dist 后同一动线点条目即打开 PDF（Network 双 200），故不得再据此改 Java 或加平台字段"
-    screenshots: ["docs/v2-tasks/evidence/screens/A1/01-answer.png", "docs/v2-tasks/evidence/screens/A1/02-drawer.png", "docs/v2-tasks/evidence/screens/A1/03-after-click-item.png", "docs/v2-tasks/evidence/screens/A1/04-answer2.png", "docs/v2-tasks/evidence/screens/A1/05-preview.png", "docs/v2-tasks/evidence/screens/A1/06-drawer3.png", "docs/v2-tasks/evidence/screens/A1/07-preview3.png", "docs/v2-tasks/evidence/screens/A1/08-preview4.png"]
+    state: VERIFIED
+    scope: "仅 D7a：点引用 → 抽屉 → 预览打开原文（含路径反查与取回字节）；**不含** locator 高亮，高亮见 T-A5"
+    next_action: "已通过：v2 dist + agent-browser 实录——新建对话→R13 Global→提问→知识溯源→点 docx-plain.docx→PDF 预览打开（canvas 612×792、页标 1/1）；Network presign 200 + previewStream 200，presign 的 key 正是后端补出的桶内键 r12-rag/kb_1002/docx-plain.docx/V0/docx-plain.docx"
+    acceptance: [D7a]
+    evidence: "docs/v2-tasks/evidence/A1-open-original.md（§9 后端两通道 + §11 页面实录，commit f43764f）"
+    blocker: ""
+    screenshots: ["docs/v2-tasks/evidence/screens/A1/01-answer-v2.png", "docs/v2-tasks/evidence/screens/A1/02-drawer-v2.png", "docs/v2-tasks/evidence/screens/A1/03-preview-v2.png", "docs/v2-tasks/evidence/screens/A1/04-preview-final.png", "docs/v2-tasks/evidence/screens/A1/A1-preview-stream.pdf"]
+    screenshots_negative: ["docs/v2-tasks/evidence/screens/A1/01-answer.png", "docs/v2-tasks/evidence/screens/A1/02-drawer.png", "docs/v2-tasks/evidence/screens/A1/03-after-click-item.png", "docs/v2-tasks/evidence/screens/A1/04-answer2.png", "docs/v2-tasks/evidence/screens/A1/05-preview.png", "docs/v2-tasks/evidence/screens/A1/06-drawer3.png", "docs/v2-tasks/evidence/screens/A1/07-preview3.png", "docs/v2-tasks/evidence/screens/A1/08-preview4.png"]
+    artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "scripts/a1_reference_resolve_check/", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
+
+  - id: T-A5
+    title: "D7b locator 高亮"
+    parent: VL1
+    loop: L1
+    owner: FE
+    depends_on: [T-A1]
+    state: TODO
+    scope: "D7 的另一半：打开原文后按 locator（如 page=-;offset=[[0,45]];chunk=0）在预览里高亮正确位置"
+    next_action: "前端在问答 PDF 预览里按 locator offsets 画高亮层；locator 数据已全链路可拿（reference 与 sources[] 均带），缺的只是渲染"
+    acceptance: [D7b]
+    evidence: ""
+    blocker: "问答 PDF 预览无高亮实现；DOM 无 .highlight/mark；需前端按 locator offsets 画层；owner=前端/llmke-r12 frontend"
+    artifacts: []
     artifacts: ["docs/v2-tasks/evidence/A1-open-original.md", "scripts/a1_reference_resolve_check/", "services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java", "services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java"]
 
   - id: T-A2

@@ -251,3 +251,12 @@
   说明：team-lead 口径「vendor referencelist 未透传 filePath」已被 §11 实测否证——换 v2 dist 后点条目即打开 PDF、
   presign/previewStream 双 200，故不得再据此改 Java 或加平台字段。
 - 历史 commit message 未改（d52a1b9 反引号被 shell 吃掉那半句，已在证据 §10.3 记录完整表述）。
+
+### D7 显式拆分收口（15:45）
+- **T-A1 = D7a「打开原文」→ VERIFIED**：证据 docs/v2-tasks/evidence/A1-open-original.md（commit f43764f 的页面实录 +
+  §9 的后端两通道）。通过内容：点引用→抽屉→点 docx-plain.docx→PDF 预览打开（canvas 612×792、页标 1/1）；
+  Network `presign` 200 与 `previewStream` 200，presign 的 key 就是后端反查出的桶内键。
+- **T-A5 = D7b「locator 高亮」→ TODO**（新建）：问答 PDF 预览无高亮实现；DOM 无 .highlight/mark；
+  需前端按 locator offsets 画层；owner=前端/llmke-r12 frontend。locator 数据本身全链路没丢。
+- **读法纪律：T-A1 的 VERIFIED 只覆盖"打开原文"，不覆盖高亮；D7 未全通。**
+- 服务保持已停：18088/18095 均不监听（预览 down、临时前端容器已删），r12-fe 仍 Exited；不为验证再起。
