@@ -67,7 +67,7 @@ export default function GraphCanvas({
             }`,
             { headers }
           )
-        : fetch(`/proxy/graph/search/wholeGraphSearch`, {
+        : fetch(`/proxy/graph/search/v2WholeGraph`, {
             method: "POST",
             headers,
             body: JSON.stringify({ spaceName })
@@ -83,7 +83,12 @@ export default function GraphCanvas({
       .then(d => {
         if (cancelled) return;
         if (d && d.success === false) throw new Error(d.errorMsg || "图数据接口返回失败");
-        const data = (d && d.data) || {};
+        // D0：网关既可能 {data:{...}} 包裹也可能直返；notice 表示 V2 图服务不可用。
+        const data = (d && d.data) || d || {};
+        if (data.notice) {
+          setError(String(data.notice));
+          return;
+        }
         setNodes(data.nodeList || []);
         setEdges(data.edgeList || []);
       })
@@ -289,7 +294,7 @@ export default function GraphCanvas({
             </div>
           )}
           <div className="mt-[16px] text-[12px] text-[#999]">
-            数据源：{type === "subGraph" ? "/graph/search/subGraph" : "/graph/search/wholeGraphSearch"}
+            数据源：{type === "subGraph" ? "/graph/search/subGraph(legacy)" : "/graph/search/v2WholeGraph → 18094 /v2/graph/view"}
             <br />
             空间：{spaceName}
           </div>
