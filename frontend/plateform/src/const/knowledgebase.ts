@@ -30,7 +30,8 @@ export enum KnowledgeBaseTabType {
   FAQ = "2",
   SETTING = "3",
   RETRIEVE_TEST = "4",
-  DATA_EXTRACT = "5"
+  DATA_EXTRACT = "5",
+  GRAPH_VIEW = "6"
 }
 
 export const tabItems = [
@@ -49,6 +50,10 @@ export const tabItems = [
   {
     key: KnowledgeBaseTabType.RETRIEVE_TEST,
     label: "检索测试"
+  },
+  {
+    key: KnowledgeBaseTabType.GRAPH_VIEW,
+    label: "知识图谱"
   }
 ];
 
@@ -79,12 +84,6 @@ export const detailTypes = [
     key: Detail_Types.FILE_MANAGE,
     label: "FAQ抽取",
     faq: true
-  },
-  {
-    key: Detail_Types.GRAPH_MANAGE,
-    label: "图谱增强",
-    file: true,
-    developing: true
   }
 ];
 
@@ -99,7 +98,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.NORMAL,
     text: {
       [tabItems[0].key]: "未解析",
-      [tabItems[1].key]: "未抽取"
+      [KnowledgeBaseTabType.FAQ]: "未抽取"
     },
     color: "#ffa81c",
     isBranch: true
@@ -108,7 +107,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.PENDING,
     text: {
       [tabItems[0].key]: "排队等待",
-      [tabItems[1].key]: "排队等待"
+      [KnowledgeBaseTabType.FAQ]: "排队等待"
     },
     color: "#055aff",
     isBranch: true
@@ -117,7 +116,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.RETRY,
     text: {
       [tabItems[0].key]: "解析中",
-      [tabItems[1].key]: "抽取中"
+      [KnowledgeBaseTabType.FAQ]: "抽取中"
     },
     color: "#055aff",
     isBranch: true,
@@ -127,7 +126,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.ANALYSISING,
     text: {
       [tabItems[0].key]: "解析中",
-      [tabItems[1].key]: "抽取中"
+      [KnowledgeBaseTabType.FAQ]: "抽取中"
     },
     color: "#055aff",
     isBranch: true,
@@ -137,7 +136,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.SUCCESS,
     text: {
       [tabItems[0].key]: "解析完成",
-      [tabItems[1].key]: "抽取完成"
+      [KnowledgeBaseTabType.FAQ]: "抽取完成"
     },
     color: "#52c41a",
     isBranch: true
@@ -146,7 +145,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.FAILURE,
     text: {
       [tabItems[0].key]: "解析失败",
-      [tabItems[1].key]: "抽取失败"
+      [KnowledgeBaseTabType.FAQ]: "抽取失败"
     },
     color: "#ff4d4f",
     isBranch: true
@@ -155,7 +154,7 @@ export const statusCfg = {
     status: ANALYSIS_STATUS.RE_ANALYSISING,
     text: {
       [tabItems[0].key]: "解析中",
-      [tabItems[1].key]: "抽取中"
+      [KnowledgeBaseTabType.FAQ]: "抽取中"
     },
     color: "#055aff",
     isBranch: true,

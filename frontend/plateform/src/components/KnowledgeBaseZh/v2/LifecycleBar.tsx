@@ -1,6 +1,6 @@
 /**
- * 顶栏五段生命周期状态条（P2 生命周期可见 / 交接文件 §4 顶栏）：
- * KB 名 | 代次/发布版本 | 五段状态条(解析/抽取/构图/社区/发布) | 可见域 | 刷新/重建。
+ * 库级建设概览条（Knowledge Atlas 顶栏）：
+ * 知识库名 | 代次/发布版本 | 五段生命周期流水线（解析→抽取→构图→社区→发布）| 可见域 | 刷新/重建。
  * 数据来自 GraphLifecycleAdapter；后端契约未就绪时自动回落 mockAdapter（见 mockAdapter.ts）。
  */
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ import type { LifecycleState, SegmentKey } from "./lifecycle";
 import { SEGMENT_LABELS, SEGMENT_ORDER, STATUS_META, STATE_COPY } from "./lifecycle";
 import type { GraphLifecycleAdapter } from "./mockAdapter";
 import { httpAdapter, mockAdapter } from "./mockAdapter";
+import "./knowledge-graph.less";
 
 export interface LifecycleBarProps {
   kbInfo: any; // { id, kbName, primitiveName, ... }
@@ -60,132 +61,100 @@ export const LifecycleBar = ({
   const emptyGraph = state?.segments.graph?.status === "READY_EMPTY";
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        flexWrap: "wrap",
-        padding: "8px 12px",
-        marginBottom: 8,
-        border: "1px solid #f0f0f0",
-        borderRadius: 8,
-        background: "#fff"
-      }}
-    >
-      <span style={{ fontSize: 14, fontWeight: 600, color: "#1d2129" }}>
-        {kbName}
-      </span>
-      {state && (
-        <span style={{ fontSize: 12, color: "#86909c" }}>
-          代次 {state.generation} · 发布 {state.publishedVersion}
-        </span>
-      )}
-      <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-        {SEGMENT_ORDER.map(key => {
-          const seg = state?.segments?.[key];
-          const meta = seg ? STATUS_META[seg.status] : null;
-          const tip = seg
-            ? seg.status === "FAILED"
-              ? `${meta?.tip}：${seg.reason || "未知原因"}`
-              : seg.status === "INVALIDATED"
-                ? `${meta?.tip}：${seg.reason || "上游已更新"}`
-                : meta?.tip
-            : "";
-          return (
-            <Tooltip key={key} title={tip}>
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                  padding: "0 8px",
-                  height: 22,
-                  borderRadius: 4,
-                  fontSize: 12,
-                  lineHeight: "22px",
-                  color: meta?.color || "#8c8c8c",
-                  background: `${meta?.color || "#8c8c8c"}14`,
-                  border: `1px solid ${meta?.color || "#8c8c8c"}33`,
-                  cursor: tip ? "help" : "default"
-                }}
-              >
-                {seg?.status === "RUNNING" && <SyncOutlined spin style={{ fontSize: 11 }} />}
-                {SEGMENT_LABELS[key]}
-                {seg && `·${meta?.text}`}
-              </span>
-            </Tooltip>
-          );
-        })}
-      </span>
-      {state?.visibleDomain && (
-        <span style={{ fontSize: 12, color: "#86909c" }}>
-          可见域：{state.visibleDomain}
-        </span>
-      )}
-      {source && (
-        <span
-          title="数据来源；mock 表示后端生命周期接口未接线（等待后端契约）"
-          style={{
-            fontSize: 11,
-            color: source === "mock" ? "#faad14" : "#86909c",
-            border: "1px dashed currentColor",
-            borderRadius: 4,
-            padding: "0 4px"
-          }}
-        >
-          {source}
-        </span>
-      )}
-      <span style={{ marginLeft: "auto", display: "inline-flex", gap: 8 }}>
-        {onRebuild && (
-          <>
-            <Button size="small" onClick={() => onRebuild("incremental")}>
-              增量更新
-            </Button>
-            <Button size="small" type="primary" onClick={() => onRebuild("full")}>
-              全量重建
-            </Button>
-          </>
+    <div className="kgv-overview">
+      <div className="kgv-overview__head">
+        <span className="kgv-overview__title">{kbName}</span>
+        {state && (
+          <span className="kgv-overview__meta">
+            <span>代次 {state.generation}</span>
+            <span className="kgv-meta-sep" />
+            <span>发布 {state.publishedVersion || "—"}</span>
+            {state.visibleDomain && (
+              <>
+                <span className="kgv-meta-sep" />
+                <span>可见域 {state.visibleDomain}</span>
+              </>
+            )}
+          </span>
         )}
-        <Button
-          size="small"
-          icon={<ReloadOutlined spin={refreshing} />}
-          onClick={() => {
-            load(false);
-            onRefresh?.();
-          }}
-        >
-          刷新
-        </Button>
-      </span>
+        {source && (
+          <span
+            className={`kgv-overview__source ${source === "mock" ? "is-mock" : ""}`}
+            title="数据来源；mock 表示后端生命周期接口未接线（等待后端契约）"
+          >
+            {source}
+          </span>
+        )}
+        <div className="kgv-pipeline__actions">
+          {onRebuild && (
+            <>
+              <Button size="small" onClick={() => onRebuild("incremental")}>
+                增量更新
+              </Button>
+              <Button size="small" type="primary" onClick={() => onRebuild("full")}>
+                全量重建
+              </Button>
+            </>
+          )}
+          <Button
+            size="small"
+            icon={<ReloadOutlined spin={refreshing} />}
+            onClick={() => {
+              load(false);
+              onRefresh?.();
+            }}
+          >
+            刷新
+          </Button>
+        </div>
+      </div>
+
+      {state && (
+        <div className="kgv-pipeline">
+          {SEGMENT_ORDER.map((key: SegmentKey, i: number) => {
+            const seg = state.segments?.[key];
+            const meta = seg ? STATUS_META[seg.status] : null;
+            const tip = seg
+              ? seg.status === "FAILED"
+                ? `${meta?.tip}：${seg.reason || "未知原因"}`
+                : seg.status === "INVALIDATED"
+                  ? `${meta?.tip}：${seg.reason || "上游已更新"}`
+                  : meta?.tip
+              : "";
+            const statusCls = seg
+              ? `kgv-state-${seg.status.toLowerCase()}`
+              : "kgv-state-pending";
+            return (
+              <div className="kgv-pipeline__seg" key={key}>
+                {i > 0 && <div className="kgv-pipeline__link" />}
+                <Tooltip title={tip}>
+                  <span className={`kgv-pipeline__dot ${statusCls}`}>
+                    {seg?.status === "RUNNING" ? (
+                      <SyncOutlined spin style={{ fontSize: 12, color: "inherit" }} />
+                    ) : (
+                      <span className="kgv-pipeline__core" />
+                    )}
+                  </span>
+                </Tooltip>
+                <span className="kgv-pipeline__label">
+                  {SEGMENT_LABELS[key]}
+                  {seg && <span className="kgv-pipeline__state">{meta?.text}</span>}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {building && (
-        <div
-          style={{
-            width: "100%",
-            padding: "6px 10px",
-            borderRadius: 6,
-            background: "#e6f4ff",
-            color: "#1677ff",
-            fontSize: 12
-          }}
-        >
-          {STATE_COPY.buildingShowOld(state?.showingOldGeneration ?? state!.generation - 1)}
+        <div className="kgv-banner is-info">
+          {STATE_COPY.buildingShowOld(
+            state?.showingOldGeneration ?? state!.generation - 1
+          )}
         </div>
       )}
       {emptyGraph && (
-        <div
-          style={{
-            width: "100%",
-            padding: "6px 10px",
-            borderRadius: 6,
-            background: "#fff7e6",
-            color: "#ad6800",
-            fontSize: 12
-          }}
-        >
-          {STATE_COPY.emptyGraph}
-        </div>
+        <div className="kgv-banner is-warn">{STATE_COPY.emptyGraph}</div>
       )}
     </div>
   );

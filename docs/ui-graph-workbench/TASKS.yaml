@@ -1,0 +1,73 @@
+# 知识图谱工作台 UI 落地 —— 唯一任务账本
+# 版本：V1.0 · 2026-11-04 · 依据 docs/reviews/LLMKE_图谱工作台UI落地_TL长程提示词_V1.0_20261104.md
+# 状态：TODO / IN_PROGRESS / VERIFIED / BLOCKED
+
+tasks:
+  - id: T0
+    name: 定位现有页面与后端数据能力
+    state: VERIFIED
+    depends_on: []
+    acceptance: [U02]
+    evidence: >
+      wholeGraphSearch(137节点业务名/21类型/114有向谓词边/来源file_id+title)、
+      subGraph(按文件28节点/50边)、/v2/graph/global(35社区+facts+source_meta真实文件名)、
+      question_re(SSE流式+reference)、file/getById(MinIO filePath)。
+      v2WholeGraph(112节点)为GraphRAG原始图，name=哈希，不作为主展示。
+    next_action: 无
+
+  - id: T1
+    name: 画布优先工作台骨架（阶段1）
+    state: IN_PROGRESS
+    depends_on: [T0]
+    acceptance: [U01, U15, U16]
+    next_action: 重写 GraphWorkbench 组件（工具栏/上下文/画布填满/默认收起详情筛选）
+
+  - id: T2
+    name: 图渲染升级（阶段2）
+    state: TODO
+    depends_on: [T1]
+    acceptance: [U02, U03, U05, U14]
+    next_action: 升级 GraphCanvas：有向箭头/语义缩放/点选高亮/边谓词/类型色系/搜索/筛选
+
+  - id: T3
+    name: 实体详情+原文证据闭环（阶段2）
+    state: TODO
+    depends_on: [T2]
+    acceptance: [U04, U06, U07]
+    next_action: EntityInspector（关联/原文/属性）+ SourcePreview（文件预览）
+
+  - id: T4
+    name: 社区+问答接入（阶段3）
+    state: TODO
+    depends_on: [T3]
+    acceptance: [U08, U09, U10]
+    next_action: CommunityPanel(/v2/graph/global) + GraphQaPanel(question_re)
+
+  - id: T5
+    name: 构建状态+失败态（阶段3）
+    state: TODO
+    depends_on: [T3]
+    acceptance: [U11, U12, U13]
+    next_action: BuildStatusPopover + 加载/空图/无权限/失败/部分成功状态
+
+  - id: T6
+    name: 真实浏览器验收与交付（阶段4）
+    state: TODO
+    depends_on: [T4, T5]
+    acceptance: [U01..U16]
+    next_action: 双尺寸截图/画布实测/构建/回归/回退
+
+# 真实后端缺口（诚实登记，UI 降级呈现）
+gaps:
+  - id: G1
+    desc: 实体稳定ID缺失（vid=业务名，未消歧）；同名实体可能被后端合并，UI不自行合并
+  - id: G2
+    desc: 实体别名(aliases)后端无数据；搜索仅按 name 匹配
+  - id: G3
+    desc: chunk/单元格级原文高亮缺 position 坐标；仅 page 级定位（pdfPage）
+  - id: G4
+    desc: 社区只有编号(c-1)无语义名称；facts 为三元组文本，无社区摘要
+  - id: G5
+    desc: 社区 source_meta.file_id 为合成 F 编号，与图谱数字 file_id 体系不一致，跨系统关联需 source_meta.title 对齐
+  - id: G6
+    desc: /v2/status 生命周期接口 CORS 未放行(直连18094)；前端回落 mock 并标注来源

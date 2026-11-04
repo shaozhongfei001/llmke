@@ -14,9 +14,10 @@ import {
   newPanelTypes
 } from "@/const/knowledgebase";
 import "@/assets/styles/knowledgebase.less";
+import "./v2/workbench.less";
 import VersionDetail from "./VersionDetail";
 import FolderDetail from "./FolderDetail";
-import GraphBox from "./GraphBox";
+import GraphWorkbench from "./v2/GraphWorkbench";
 import FaqManageList from "./FAQ/indexAll";
 import { ColumnProps } from "antd/es/table";
 import {
@@ -159,7 +160,7 @@ const KnowledgeBaseDetail = (props: Iprops) => {
       } else {
         setDetailType(detailTypes[0].key);
       }
-    } else if (tabKey === tabItems[1].key) {
+    } else if (tabKey === KnowledgeBaseTabType.FAQ) {
       setDetailType(detailTypes[2].key);
     }
   }, [tabKey]);
@@ -168,59 +169,59 @@ const KnowledgeBaseDetail = (props: Iprops) => {
     fetchKBDetail();
   }, []);
 
+  // 图谱路由作用域：紧凑共享头部（仅本页，不影响其他业务页面）
+  useEffect(() => {
+    if (tabKey === KnowledgeBaseTabType.GRAPH_VIEW) {
+      document.body.classList.add("kgw-route");
+    } else {
+      document.body.classList.remove("kgw-route");
+    }
+    return () => document.body.classList.remove("kgw-route");
+  }, [tabKey]);
+
   return (
-    <div className="detail-wrap">
+    <div
+      className={`detail-wrap ${
+        tabKey === KnowledgeBaseTabType.GRAPH_VIEW ? "is-graph" : ""
+      }`}
+    >
       {intro === "hide" ? null : (
-        <>
-          <div className="detail-nav-wrap">
-            <div className="breadcrumb-wrap" onClick={goBack}>
-              <span>{kbInfo.kbName}</span>
-            </div>
+        <div className="detail-contextbar">
+          <div className="detail-contextbar-back" onClick={goBack}>
+            <span>{kbInfo.kbName}</span>
           </div>
-          <div className="detail-info-wrap">
-            <div className="flex w-full">
-              <span
-                className="detail-info-img"
-                style={{
-                  background: `center url(${kb_title_icon}) no-repeat`
-                }}
-              ></span>
-              <span className="detail-info-content">
-                <div className="detail-name">{kbInfo.kbName}</div>
-                <div className="detail-info-tag-wrap flex">
-                  <span className="detail-info-tags mr-5">
-                    {tagList.length ? (
-                      tagList.map((tag: any, index: any) => (
-                        <Tag color="blue" key={index} bordered={false}>
-                          {tag}
-                        </Tag>
-                      ))
-                    ) : (
-                      <label>暂无标签</label>
-                    )}
-                  </span>
-                  <span className="detail-info-statistices">
-                    {`文件数：${kbInfo?.fileCount || "暂无"}  `}
-                    <span className="ml-2">
-                      {`大小：${formatFileSize(kbInfo?.fileTotalSize)}`}
-                    </span>
-                  </span>
-                </div>
+          <div className="detail-contextbar-info">
+            {tagList.length > 0 && (
+              <span className="detail-contextbar-tags">
+                {tagList.map((tag: any, index: any) => (
+                  <Tag color="blue" key={index} bordered={false}>
+                    {tag}
+                  </Tag>
+                ))}
               </span>
-            </div>
-            <div className="detail-info-btn-group">
-              <Tabs
-                items={((intro || {}).tabOpt || tabItems) as any}
-                onChange={tabKeyOnChange}
-                activeKey={tabKey}
-              />
-            </div>
+            )}
+            <span className="detail-contextbar-stats">
+              {`文件数：${kbInfo?.fileCount || "暂无"} · 大小：${formatFileSize(kbInfo?.fileTotalSize)}`}
+            </span>
           </div>
-        </>
+          <div className="detail-contextbar-tabs">
+            <Tabs
+              items={((intro || {}).tabOpt || tabItems) as any}
+              onChange={tabKeyOnChange}
+              activeKey={tabKey}
+            />
+          </div>
+        </div>
       )}
-      {newPanelTypes.includes(tabKey) ? (
+      {tabKey === KnowledgeBaseTabType.GRAPH_VIEW ? (
+        <div className="detail-graph-wrap">
+          <GraphWorkbench kbInfo={kbInfo} />
+        </div>
+      ) : newPanelTypes.includes(tabKey) ? (
         // new panel render here
-        <RetrieveTest setKbInfo={kbInfo} />
+        <div className="detail-retrieve-wrap">
+          <RetrieveTest setKbInfo={kbInfo} />
+        </div>
       ) : (
         <div className="file-table-wrap">
           {tabKey !== KnowledgeBaseTabType.DATA_EXTRACT ? (
@@ -283,19 +284,7 @@ const KnowledgeBaseDetail = (props: Iprops) => {
                     kbInfo={kbInfo}
                   />
                 )}
-                {tabKey === tabItems[0].key &&
-                  detailType === Detail_Types.GRAPH_MANAGE && (
-                    <GraphBox
-                      tabKey={tabKey}
-                      detailType={detailType}
-                      tableLoading={tableLoading}
-                      kbName={kbInfo.kbName}
-                      fetchKBDetail={fetchKBDetail}
-                      setTableLoading={setTableLoading}
-                      kbInfo={kbInfo}
-                    />
-                  )}
-                {tabKey === tabItems[1].key &&
+                {tabKey === KnowledgeBaseTabType.FAQ &&
                   detailType === Detail_Types.FAQ_MANAGE && (
                     <FaqManageList
                       knowledgeBaseId={kbId || params.id}

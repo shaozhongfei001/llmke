@@ -37,7 +37,7 @@ export default function GraphCanvas({
   spaceName: string;
   fileId?: string;
   type: "allGraph" | "subGraph";
-  onBack: () => void;
+  onBack?: () => void;
 }) {
   const { getToken } = useAppPassport();
   const [loading, setLoading] = useState(true);
@@ -194,10 +194,14 @@ export default function GraphCanvas({
     <div className="w-full h-full flex flex-col bg-white rounded-[8px] border border-[#EEEEEE]">
       <div className="h-[48px] flex items-center justify-between px-[16px] border-b border-[#F0F0F0]">
         <div className="flex items-center gap-[12px]">
-          <Button size="small" onClick={onBack}>
-            返回
-          </Button>
-          <span className="text-[14px] font-bold">力导布局</span>
+          {onBack && (
+            <Button size="small" onClick={onBack}>
+              返回
+            </Button>
+          )}
+          <span className="text-[14px] font-bold">
+            {type === "subGraph" ? "文件子图" : "知识图谱总览"}
+          </span>
           <span className="text-[13px] text-[#666]">
             节点数: {nodes.length} / {nodes.length}　关系数: {edges.length} / {edges.length}
           </span>

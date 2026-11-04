@@ -1,0 +1,453 @@
+/* ============================================================
+ * 知识图谱（库级统一图）视图视觉 —— Knowledge Atlas
+ * 设计语言：克制深蓝 + 青绿"活性"强调，摆脱蓝紫渐变模板感。
+ * 主题：一个知识库 = 一片知识星图；实体是星点、关系是连线、社区是星团、发布是点亮。
+ * ============================================================ */
+
+@kgv-bg: #f4f6fa;
+@kgv-card: #ffffff;
+@kgv-border: #e9edf3;
+@kgv-primary: #2d5bff;
+@kgv-primary-weak: #eef2ff;
+@kgv-accent: #0fb5a6;
+@kgv-accent-weak: #e6f7f4;
+@kgv-title: #101828;
+@kgv-text: #5b6472;
+@kgv-muted: #98a2b3;
+@kgv-warn: #e7a13b;
+@kgv-warn-weak: #fdf3e3;
+@kgv-danger: #e5484d;
+@kgv-danger-weak: #fdebec;
+@kgv-radius: 12px;
+
+.kgv-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: "PingFang SC", "Source Han Sans CN", "Microsoft YaHei", sans-serif;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+/* ---------- 顶部：库级建设概览卡 ---------- */
+.kgv-overview {
+  background: @kgv-card;
+  border: 1px solid @kgv-border;
+  border-radius: @kgv-radius;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kgv-overview__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kgv-overview__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: @kgv-title;
+  letter-spacing: 0.2px;
+}
+
+.kgv-overview__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: @kgv-muted;
+
+  .kgv-meta-sep {
+    width: 1px;
+    height: 12px;
+    background: @kgv-border;
+  }
+}
+
+.kgv-overview__source {
+  margin-left: auto;
+  font-size: 11px;
+  color: @kgv-muted;
+  border: 1px dashed @kgv-border;
+  border-radius: 6px;
+  padding: 1px 8px;
+
+  &.is-mock {
+    color: @kgv-warn;
+    border-color: @kgv-warn;
+  }
+}
+
+/* ---------- 五段生命周期流水线 ---------- */
+.kgv-pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.kgv-pipeline__seg {
+  display: flex;
+  align-items: center;
+}
+
+.kgv-pipeline__dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kgv-pipeline__core {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kgv-pipeline__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  font-size: 13px;
+  color: @kgv-text;
+
+  .kgv-pipeline__state {
+    font-size: 12px;
+    color: @kgv-muted;
+  }
+}
+
+.kgv-pipeline__link {
+  width: 28px;
+  height: 1px;
+  background: @kgv-border;
+  margin: 0 10px;
+  flex-shrink: 0;
+}
+
+.kgv-pipeline__actions {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 8px;
+}
+
+/* 各状态着色（class 由 status.toLowerCase() 生成，如 READY_EMPTY → ready_empty） */
+.kgv-state-ready {
+  color: @kgv-accent;
+}
+.kgv-state-ready_empty {
+  color: @kgv-warn;
+}
+.kgv-state-pending {
+  color: @kgv-muted;
+}
+.kgv-state-running {
+  color: @kgv-primary;
+}
+.kgv-state-failed {
+  color: @kgv-danger;
+}
+.kgv-state-invalidated {
+  color: @kgv-danger;
+}
+
+/* 构建中 / 图空 提示条 */
+.kgv-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 8px 12px;
+
+  &.is-info {
+    background: @kgv-primary-weak;
+    color: @kgv-primary;
+  }
+  &.is-warn {
+    background: @kgv-warn-weak;
+    color: @kgv-warn;
+  }
+}
+
+/* ---------- Tab 导航 ---------- */
+.kgv-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: @kgv-card;
+  border: 1px solid @kgv-border;
+  border-radius: @kgv-radius;
+  padding: 6px 10px;
+}
+
+.kgv-tabs__item {
+  position: relative;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: @kgv-text;
+  cursor: pointer;
+  border-radius: 8px;
+  user-select: none;
+  transition: color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    color: @kgv-title;
+  }
+
+  &.is-active {
+    color: @kgv-primary;
+    font-weight: 600;
+    background: @kgv-primary-weak;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: -3px;
+      height: 2px;
+      border-radius: 1px;
+      background: @kgv-primary;
+    }
+  }
+}
+
+/* ---------- 主体面板 ---------- */
+.kgv-body {
+  flex: 1;
+  min-height: 0;
+  background: @kgv-card;
+  border: 1px solid @kgv-border;
+  border-radius: @kgv-radius;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 库级图谱画布直接铺满，去掉容器边框避免嵌套 */
+.kgv-body--flush {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+/* 面板标题 + 描述 */
+.kgv-panel-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid @kgv-border;
+
+  .kgv-panel-head__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: @kgv-title;
+  }
+  .kgv-panel-head__desc {
+    font-size: 12px;
+    color: @kgv-muted;
+  }
+}
+
+.kgv-panel-body {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 20px;
+  overflow: auto;
+}
+
+/* ---------- 实体视图 ---------- */
+.kgv-entity-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.kgv-entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.kgv-entity-card {
+  border: 1px solid @kgv-border;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: @kgv-primary;
+    box-shadow: 0 6px 16px rgba(16, 24, 40, 0.06);
+  }
+}
+
+.kgv-entity-card__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: @kgv-title;
+
+  .kgv-entity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
+.kgv-entity-card__type {
+  margin-top: 6px;
+  font-size: 12px;
+  color: @kgv-muted;
+}
+
+.kgv-entity-card__src {
+  margin-top: 10px;
+  font-size: 12px;
+  color: @kgv-text;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 全局问答 ---------- */
+.kgv-qa {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 760px;
+}
+
+.kgv-qa__input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.kgv-qa__answer {
+  border: 1px solid @kgv-border;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fafbfd;
+
+  .kgv-qa__answer-head {
+    margin-bottom: 10px;
+  }
+  .kgv-qa__answer-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: @kgv-title;
+  }
+}
+
+.kgv-qa__citations {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kgv-citation {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-left: 2px solid @kgv-primary;
+  background: @kgv-card;
+  border-radius: 0 8px 8px 0;
+
+  .kgv-citation__title {
+    color: @kgv-title;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .kgv-citation__meta {
+    color: @kgv-muted;
+  }
+  .kgv-citation__snippet {
+    color: @kgv-text;
+  }
+}
+
+/* ---------- 社区 / 构建 占位 ---------- */
+.kgv-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  color: @kgv-muted;
+  font-size: 13px;
+  text-align: center;
+
+  .kgv-empty-state__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: @kgv-primary-weak;
+    color: @kgv-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ---------- 构建与更新 ---------- */
+.kgv-build-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kgv-build-stat {
+  border: 1px solid @kgv-border;
+  border-radius: 10px;
+  padding: 16px;
+
+  .kgv-build-stat__label {
+    font-size: 12px;
+    color: @kgv-muted;
+  }
+  .kgv-build-stat__value {
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: 600;
+    color: @kgv-title;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.kgv-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid @kgv-border;
+  border-radius: 10px;
+  background: #fafbfd;
+}
