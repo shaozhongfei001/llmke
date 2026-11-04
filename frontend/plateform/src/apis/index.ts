@@ -33,19 +33,16 @@ axios$.interceptors.request.use((config: any) => {
   }
 
   const userInfo: any = getLocalUserInfo();
+  // 未登录时 getLocalUserInfo() 返回 {}（没有 userInfo 字段）。原先直接读
+  // userInfo.userInfo.userName 会抛 TypeError，而请求拦截器抛错会让请求**根本不发出**；
+  // 登录页的 kaptcha 取图因此在 catch 里静默返回 false，表现为“验证码图片不显示”。
+  const profile: any = userInfo?.userInfo ?? {};
 
-  // console.log(
-  //   "Request Headers: ",
-  //   userInfo.userInfo.userName,
-  //   userInfo.userInfo.id
-  // );
   config.headers.Authorization = target_cookie || "";
   // 这里传中文会报错
   config.headers.userName =
-    userInfo.userInfo.userName === "未登录用户"
-      ? ""
-      : userInfo.userInfo.userName;
-  config.headers.userId = userInfo.userInfo.id;
+    profile.userName === "未登录用户" ? "" : profile.userName || "";
+  config.headers.userId = profile.id ?? "";
   return config;
 });
 // 返回拦截

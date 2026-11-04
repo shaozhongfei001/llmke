@@ -156,6 +156,13 @@ export default defineConfig(({ mode }) => {
           target: `${CURRENT_SERVER}:${PORT}`,
           changeOrigin: true
         },
+        "/graphapi": {
+          // GraphRAG v2 图服务（18094：/v2/status、/v2/graph/global、/v2/entities）
+          // 必须放在 /graph 之前，否则 /graphapi 会被 /graph 前缀误匹配到网关
+          target: `http://127.0.0.1:18094`,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/graphapi/, "")
+        },
         "/graph": {
           target: `${CURRENT_SERVER}:${PORT}`,
           changeOrigin: true

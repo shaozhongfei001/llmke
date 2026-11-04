@@ -194,16 +194,20 @@ export const formatTime = (val: string) => {
   return val ? dayjs(val).format("YY-MM-DD HH:mm") : "";
 };
 
+// 构建期未注入 VITE_* 前缀时**不能**返回 undefined：拼进 URL 会得到
+// `/undefined/auth/user/kaptcha`，被 nginx 的 SPA fallback 兜成 index.html，
+// 请求"成功"但内容是 HTML —— 登录页验证码因此表现为破图（img 解码失败）。
+// 兜底值与 platform/r12/conf/.../r12-18088.conf 的 location 保持一致，env 仍可覆盖。
 export const getUrlPrefix = () => {
-  return import.meta.env.VITE_RAG_PREFIX;
+  return import.meta.env.VITE_RAG_PREFIX || "/proxy";
 };
 
 export const getMinioUrlPrefix = () => {
-  return import.meta.env.VITE_MINIO_PREFIX;
+  return import.meta.env.VITE_MINIO_PREFIX || "/minio";
 };
 
 export const getCecUrlPrefix = () => {
-  return import.meta.env.VITE_CEC_PREFIX;
+  return import.meta.env.VITE_CEC_PREFIX || "/cecProxy";
 };
 
 export const handleDownLoad = async (url: string) => {
