@@ -35,6 +35,11 @@ public class GraphDomainServiceImpl implements GraphDomainService {
             req.put("condition_json",conditionJson);
         }
         String resp = remoteGraphUtils.delSpace(JSONObject.toJSONString(req));
+        if (resp == null) {
+            // HybridRetrieval 阶段 4：V2 无删除端点（快照按代次重建），配置空则视为"无需删除"。
+            log.info("V2 图删除未接入（快照按代次重建），跳过 delGraphSpace spaceName={}", spaceName);
+            return true;
+        }
         JSONObject respJson = JSONObject.parseObject(resp);
         if (respJson.getInteger("code").equals(500)) {
             log.warn("图数据不存在");
@@ -58,6 +63,11 @@ public class GraphDomainServiceImpl implements GraphDomainService {
             req.put("update_condition_json",conditionjson);
         }
         String resp = remoteGraphUtils.delSpaceEntity(JSONObject.toJSONString(req));
+        if (resp == null) {
+            // HybridRetrieval 阶段 4：V2 无实体删除端点，配置空则视为"无需删除"。
+            log.info("V2 实体删除未接入（快照按代次重建），跳过 delGraphEntity spaceName={}", spaceName);
+            return true;
+        }
         JSONObject respJson = JSONObject.parseObject(resp);
         if (respJson.getInteger("code").equals(500)) {
             log.warn("图数据不存在");

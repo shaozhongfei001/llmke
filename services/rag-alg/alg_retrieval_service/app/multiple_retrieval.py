@@ -5,6 +5,7 @@
 # @File    : multiple_retrieval.py
 import asyncio
 import json
+import re
 import traceback
 
 import requests
@@ -431,48 +432,94 @@ async def retrieval_elastic_database(question, database_name, top_k, server_conf
     return es_documents
 
 
+def _pick_pk(raw):
+    """平台 chunk 主键必须是整数：Java 侧 RetrieveDoc.pk 是 Long。
+
+    字符串（如 "chunk-<hash>"）会让 fastjson `parseLong` 抛异常，打挂整个 question_re；
+    非法/缺失一律 None，由引用解析兜底，绝不拿字符串充数。
+    """
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str) and raw.strip().isdigit():
+        return int(raw.strip())
+    return None
+
+
 async def retrieval_graph(question, knowledge_base_name, top_k, model_info, server_config):
+    """图召回：直连 HippoRAG（18094 /v2/graph/query，按库路由）。
+
+    此前调 19529 legacy 图（/query_graph_data），依赖 model_info 做实体识别，且旧 Nebula 图
+    与前端"知识图谱"视图（18094 HippoRAG）数据割裂。改为直连 HippoRAG 图检索，与传统 RAG
+    （ES/Milvus/FAQ）在同一召回服务内融合，实现真正的混合召回。
+    """
     graph_documents = []
+    hipporag = server_config.get("hipporag_config") or {}
+    host = hipporag.get("host", "127.0.0.1")
+    port = hipporag.get("port", 18094)
     for k_name in knowledge_base_name:
+        # 只对基础库名做图召回（faq_/table_chunks_/table_summary_ 是索引前缀，不是库）
+        if k_name.startswith(("faq_", "table_chunks_", "table_summary_")):
+            continue
         data = {
-            # R13-FIX-GRAPH-09：图服务内部会自行拼 "g_" 前缀（graph_service.query_graph_data:557），
-            # 这里再拼一次会变成 g_g_<kb>，导致"空间不存在"、图检索永远返回空。
-            "space_name": k_name,
             "query": question,
-            "model_info": model_info,
-            "depth": 3,
-            "top_k": top_k or server_config["retrieval_top_k"],  # top_k or server_config["retrieval_top_k"]
+            # 18094 QueryRequest.top_k 硬约束 [1,20]，越界 422
+            "top_k": min(top_k or server_config.get("retrieval_top_k", 10), 20),
+            "kb": k_name,
         }
-
-        graph_url = 'http://' + server_config["graph_config"]["host"] + ':' + str(
-            server_config["graph_config"]["port"]) + '/'
-        full_url = f'{graph_url}query_graph_data'
-        milvus_data = None
-
+        full_url = f"http://{host}:{port}/v2/graph/query"
         try:
             graph_resp = await GraphClient.request(graph_url=full_url, data=data) or {}
-            if graph_resp.get("code") not in (None, 200):
-                # 图服务对"空间不存在"等返回 code!=200 且 data 为空；这里只跳过该 KB，
-                # 不能 return（否则后续 KB 的图结果全被静默丢弃，用户与验收都看不到异常）
-                logger.warning(f"图检索跳过 space={k_name}: code={graph_resp.get('code')} msg={graph_resp.get('msg')}")
-                continue
-            milvus_data = ((graph_resp.get("data") or {}).get("result_data")) or []
         except Exception as e:
-            logger.exception(f"graph查询报错: {e}, 请求 URL: {graph_url}, 请求参数 data: {data}, space={k_name}")
-            # R14-C-FIX-09：单个 KB 失败只跳过它，绝不丢弃后续 KB（多 KB 场景下老 KB 常没建过图空间）
+            logger.exception(f"HippoRAG 图检索报错: {e}, URL: {full_url}, space={k_name}")
             continue
-
-        for i, x in enumerate(milvus_data):
-            x["metadata"]["search"] = {
-                "type": ["graph"],
-                "query": question,
-                "rank": [i]
+        if not isinstance(graph_resp, dict):
+            continue
+        # fail-closed：executed_route 不是 GRAPH（如 NOT_BUILT / DENSE_FALLBACK）就不冒充图召回
+        if graph_resp.get("executed_route") != "GRAPH":
+            logger.warning(f"HippoRAG 图检索跳过 space={k_name}: "
+                           f"route={graph_resp.get('executed_route')} reason={graph_resp.get('reason')}")
+            continue
+        for i, item in enumerate(graph_resp.get("docs") or []):
+            if not isinstance(item, dict):
+                continue
+            text = item.get("text") or ""
+            if not text:
+                continue
+            sources = item.get("sources") or []
+            primary = sources[0] if sources else {}
+            locator = primary.get("locator")
+            chunk_index = None
+            if isinstance(locator, str):
+                m = re.search(r"chunk=(\d+)", locator)
+                chunk_index = int(m.group(1)) if m else None
+            metadata = {
+                # 与其他召回（ES/Milvus）一致：search.type 会由 process_return_results 并入 search_type
+                "search": {"type": ["graph"], "query": question, "rank": [i]},
+                "search_type": ["graph"],
+                # og_process / merge_and_rerank 依赖这两个键（KeyError 会打挂整轮 rerank）
+                "knowledge_base_name": k_name,
+                # pk 用快照 sources.json 里的**平台真实 chunk 主键**（投影 _chunk_pk 的产物，
+                # 是整数）。取不到才置 None —— 绝不能拿 "chunk-<hash>" 字符串充数：
+                # Java 侧 RetrieveDoc.pk 是 Long，字符串会触发 parseLong error 打挂 question_re。
+                "pk": _pick_pk(primary.get("pk")),
+                # file_id 用快照里记录的**平台真实文件 id**（投影时写入），Java 才能反查文件路径
+                "file_id": primary.get("file_id"),
+                # 不设 source 键：get_reranker_score 对 source 非 None 会 os.path.split(source)，
+                # 而 source=None/纯文件名会抛错或让 Java 侧 NPE；缺键则走纯正文 rerank。
+                # locator 必须走 position：process_return_results 的白名单不含 locator，
+                # 但会原样透出 position（Java RetrieveMetaData.position 是 Object）。
+                "position": {"locator": locator, "sources": sources},
+                "chunk_index": chunk_index,
+                "title": primary.get("title"),
+                "locator": locator,
+                "score": None,
+                "idx": item.get("idx"),
+                "sources": sources,
+                "page_content": text,
             }
-            try:
-                x["metadata"]["offset"] = json.loads(x["metadata"]["offset"])
-            except Exception as e:
-                logger.info(f"查询结果中，数据没有offset字段,{e}")
-            graph_documents.append(Document(page_content=x['page_content'], metadata=x['metadata']))
+            graph_documents.append(Document(page_content=text, metadata=metadata))
     return graph_documents
 
 

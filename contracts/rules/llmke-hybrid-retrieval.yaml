@@ -1,0 +1,60 @@
+{
+  "rules": {
+    "name": "llmke-hybrid-retrieval-invariants-v1",
+    "version": "1.0.0",
+    "scope": "统一向量库与混合检索收敛（HybridRetrieval 1.0）。HR 系列是 DP 系列在「向量库统一 + dense/lexical/graph 融合」上的补充；与 DP 冲突时以 DP 为准。",
+    "invariants": [
+      {
+        "id": "HR-01",
+        "requirement": "平台 chunk 主键全局唯一为整数 pk（_chunk_pk 规则），ES _id / Milvus 主键 / 图检索 source.pk 三者一致",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "HR-02",
+        "requirement": "禁止引擎原生 ID（如 chunk-<md5>）作为公共来源身份进入 source / 引用；引擎私有 ID 仅限适配器内部",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "HR-03",
+        "requirement": "RAG chunk 的 bge-m3 向量只计算一次并写 Milvus；禁止两套 RAG 各自算向量",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "HR-04",
+        "requirement": "dense 向量统一到 Milvus collection kb_<name>，doc 数与 ES 一致、pk 一一对齐；向量库是独立检索组件，禁止把图引擎私有快照/parquet 当持久化向量库",
+        "verification_class": "MECHANICAL_AND_RUNTIME"
+      },
+      {
+        "id": "HR-05",
+        "requirement": "dense / lexical(BM25) / graph 三路召回并行执行，任一路非空都不得阻断其它路",
+        "verification_class": "RUNTIME"
+      },
+      {
+        "id": "HR-06",
+        "requirement": "多路融合去重按 pk 做 RRF（k=60），禁止按 page_content 精确字符串去重",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "HR-07",
+        "requirement": "rerank 只做精排（top_n 前取 top_n×3 候选），阈值用相对阈值（top 候选最高分 ×0.3），不得写死近似 0 的阈值放行弱相关结果",
+        "verification_class": "MECHANICAL"
+      },
+      {
+        "id": "HR-08",
+        "requirement": "ES 保留承担 BM25 全文、元数据过滤、FAQ、表格检索；移除 ES 必须满足 DP-20 的替代 profile 证据",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "HR-09",
+        "requirement": "图抽取读完整 MD/IR 抽取窗口，不依赖 RAG chunk（对齐 DP-17），但图检索命中必须回指平台 pk + file_id + locator",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      },
+      {
+        "id": "HR-10",
+        "requirement": "global 社区/报告独立于引擎能力（对齐 DP-25）；global 切换以平台 community.json 为源，不依赖 V1 Nebula/19529 Louvain 链路",
+        "verification_class": "CONTRACT_AND_RUNTIME"
+      }
+    ],
+    "error_namespace": "v2-only；沿用 v2 Error 命名，不新增旧 v1 错误码"
+  }
+}

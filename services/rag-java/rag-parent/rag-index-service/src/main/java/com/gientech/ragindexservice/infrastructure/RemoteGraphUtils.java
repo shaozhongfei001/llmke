@@ -43,6 +43,11 @@ public class RemoteGraphUtils {
      * @return
      */
     public String delSpace(String requestPara) {
+        // HybridRetrieval 阶段 4：V2 图服务（18094）无删除端点，快照按代次重建，无需显式删除。
+        // 配置为空（del-graph-space.url 设空）时跳过，返回 null 由调用方视为"无需删除"。
+        if (remoteDelGraphSpaceUrl == null || remoteDelGraphSpaceUrl.trim().isEmpty()) {
+            return null;
+        }
         return doExchange(requestPara, remoteDelGraphSpaceUrl, HttpMethod.POST).getBody();
     }
 
@@ -59,6 +64,10 @@ public class RemoteGraphUtils {
     }
 
     public String delSpaceEntity(String requestPara) {
+        // HybridRetrieval 阶段 4：V2 无对应实体删除端点，快照按代次重建。配置为空时跳过。
+        if (remoteDelGraphEntityUrl == null || remoteDelGraphEntityUrl.trim().isEmpty()) {
+            return null;
+        }
         return doExchange(requestPara, remoteDelGraphEntityUrl, HttpMethod.POST).getBody();
     }
 

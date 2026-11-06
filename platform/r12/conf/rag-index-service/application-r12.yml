@@ -90,15 +90,20 @@ remote:
     url: http://127.0.0.1:19527/del_index
   del-vector:
     url: http://127.0.0.1:19526/del_doc_by_col
+  # HybridRetrieval 阶段 4：V2 无删除端点（快照按代次重建），留空即跳过（RemoteGraphUtils 已加空值守卫）
   del-graph-space:
-    url: http://127.0.0.1:19529/del_space
+    url: ""
   del-graph-entity:
-    url: http://127.0.0.1:19529/del_doc_entity
+    url: ""
   generate-graph:
-    url: http://127.0.0.1:19529/generate_triple_data
-  # R15 W03：图数据变更后自动重建社区摘要（否则 global 仍按旧社区回答）
+    url: http://127.0.0.1:19531/generate_triple_data
+  # HybridRetrieval 阶段 4：community.json 由 18094 build 时自动生成，无需单独重建社区摘要，留空即跳过
   generate-community:
-    url: http://127.0.0.1:19529/generate_community
+    url: ""
+  # V2 摄取：解析完成后把 doc2md 的同一份四件套双路消费（搜索 chunk + 按库建图）。
+  # 解析链路产出 doc2mdDir 后才会真正触发；留空即关闭（保持旧行为）。
+  v2-ingest:
+    url: http://127.0.0.1:18096/kb/ingest
   faq-extract:
     url: http://127.0.0.1:19996/llm_faq_generate
   faq-polish:

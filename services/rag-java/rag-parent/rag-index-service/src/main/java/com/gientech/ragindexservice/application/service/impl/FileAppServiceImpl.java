@@ -28,6 +28,7 @@ import com.gientech.ragindexservice.domain.service.*;
 import com.gientech.ragindexservice.infrastructure.PdfConvertorUtils;
 import com.gientech.ragindexservice.infrastructure.RemoteFileUtils;
 import com.gientech.ragindexservice.infrastructure.RemoteGraphUtils;
+import com.gientech.ragindexservice.infrastructure.RemoteV2IngestUtils;
 import com.gientech.start.redisson.lock.RedissonLock;
 import com.gientech.start.storage.properties.StorageProperties;
 import com.gientech.start.storage.utils.FileStorageUtils;
@@ -58,6 +59,9 @@ public class FileAppServiceImpl implements FileAppService {
 
     @Autowired
     private RemoteGraphUtils remoteGraphUtils;
+
+    @Autowired
+    private RemoteV2IngestUtils remoteV2IngestUtils;
 
     @Autowired
     private KnowledgeBaseListDomainService knowledgeBaseFileDomainService;
@@ -603,6 +607,58 @@ public class FileAppServiceImpl implements FileAppService {
             chunnkDomainService.deleteTable(FileFieldEnums.TABLE_SUMMARY_PREFIX + tableName);
         }
         return chunks;
+    }
+
+    /**
+     * V2 摄取：解析完成后，把 doc2md 的**同一份四件套**交给搜索与图谱两路消费。
+     *
+     * 触发前提：`FileParseTaskInfo.doc2mdDir` 有值（解析链路确实产出了 doc2md 产物）。
+     * 为空的两种情形都只告警、不触发，也**不拿 legacy 正文顶替**——
+     * 那会让图谱与搜索读两份不同解析，引用指到的原文与召回内容对不上（D1 约束）。
+     */
+    @Async("asyncExecutor")
+    @Override
+    public void v2Ingest(FileParseTaskInfo param) {
+        if (!remoteV2IngestUtils.enabled()) {
+            log.warn("V2 摄取未启用（remote.v2-ingest.url 为空），跳过 kbId={}",
+                    param.getKnowledgeBaseId());
+            return;
+        }
+        // doc2mdDir 为空时走"文件 URL"全自动模式：由摄取服务下载原件并跑 doc2md。
+        // 两种模式都不拿 legacy 正文顶替，保证图谱与搜索读的是同一次解析。
+        String doc2mdDir = param.getDoc2mdDir();
+        KnowledgeBase knowledgeBase = knowledgeBaseDomainService.findByKbId(param.getKnowledgeBaseId());
+        if (Objects.isNull(knowledgeBase)) {
+            log.error("V2 摄取失败：知识库不存在 kbId={}", param.getKnowledgeBaseId());
+            return;
+        }
+        // 与 legacy 建图一致：必须用原始名（kb_9），不能用中文展示名做索引/快照标识
+        String kb = knowledgeBase.getPrimitiveName();
+        if (StringUtils.isBlank(kb)) {
+            kb = param.getKnowledgeBaseName();
+        }
+        if (StringUtils.isBlank(kb)) {
+            log.error("V2 摄取失败：知识库缺少 primitiveName kbId={}", param.getKnowledgeBaseId());
+            return;
+        }
+        for (FileParseTaskInfo.File file : param.getFiles()) {
+            Long fileId = file.getFileId();
+            try {
+                KnowledgeBaseList kbFile = knowledgeBaseFileDomainService.findById(fileId);
+                String resp = remoteV2IngestUtils.ingest(
+                        kb, fileId, doc2mdDir,
+                        // 文件 URL：摄取服务据此下载原件（doc2mdDir 为空时的全自动入口）
+                        kbFile == null ? null : kbFile.getFilePath(),
+                        kbFile == null ? null : kbFile.getFileName(),
+                        kbFile == null ? null : kbFile.getConvertedFilePath(),
+                        kbFile == null || kbFile.getFileSize() == null
+                                ? null : kbFile.getFileSize().longValue());
+                log.info("V2 摄取结果 fileId={} kb={} resp={}", fileId, kb, resp);
+            } catch (Exception e) {
+                // 单文件失败不影响其它文件；但必须留痕，不能静默
+                log.error("V2 摄取失败 fileId={} kb={} doc2mdDir={}", fileId, kb, doc2mdDir, e);
+            }
+        }
     }
 
     @Async("asyncExecutor")

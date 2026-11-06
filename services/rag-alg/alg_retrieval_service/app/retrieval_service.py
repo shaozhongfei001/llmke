@@ -442,7 +442,9 @@ async def multiple_retrieval_documents(qa_model: QARetrieveConfig):
     if table_summary_data:
         documents, log_pk_dict = await process_table_result(documents, table_summary_data, external_pk, qa_model,
                                                             server_config, queries, log_pk_dict, query)
-    if not documents and not web_search_list and not database_list:
+    # 图召回是独立的一路：ES/Milvus 里没有该库索引（新库尚未建索引）时，
+    # 图仍然可能召回到东西。这里不能提前返回，否则"开了图却永远走不到图"。
+    if not documents and not web_search_list and not database_list and not qa_model.enabled_graph:
         logger.info(f'查询成功,数据库并没有对应的文本，请检查知识库名称或问题。')
         return BaseResponse(code=200, msg=f'查询成功,数据库并没有对应的文本，请检查知识库名称或问题。',
                             data={"faq_result_list": faq_result_list,

@@ -292,6 +292,17 @@ contracts:
   generator: scripts/generators/openapi_types.py
   outputs:
   - generated/sdk/llmke-graph-engine-api-v1.types.json
+- id: llmke-hybrid-retrieval-invariants-v1
+  type: rules
+  layer: domain
+  version: 1.0.0
+  owner: integration-agent
+  path: rules/llmke-hybrid-retrieval.yaml
+  depends_on:
+  - llmke-document-pipeline-v2
+  - llmke-graph-engine-api-v1
+  compatibility: additive_registration_metadata_only
+  x-lifecycle: DESIGN_REVISED_NOT_IMPLEMENTED
 design_revision:
   id: DOC2MD-UNIFIED-2.0.0
   status: DESIGN_REVISED_NOT_IMPLEMENTED
