@@ -935,3 +935,31 @@ body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-btn-default,
 body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-select {
   color: #94ced2 !important;
 }
+
+/* ---- 智能对话欢迎区：品牌图标 + 欢迎语文案（SPECTRA 作用域，2026-11-07） ---- */
+/* 第三方 defaultWeLogo.svg（68x68 蓝紫鲸鱼）替换为唯一形状源的透明白章鱼；
+   width/height 仍由原 inline style 保持 68x68，contain 保证触须不压扁、不旋转 */
+body[data-spectra-theme="1"] img[src*="defaultWeLogo"] {
+  content: url("../assets/brand/octopus-white.png");
+  object-fit: contain;
+}
+
+/* 欢迎语由 @gientech/modual 渲染，业务侧无文案配置入口；
+   visibility 隐藏原文 + 生成内容显示新文案，同元素 computed font-size 仍为 30px */
+body[data-spectra-theme="1"] .g-welcome-title {
+  visibility: hidden;
+  position: relative;
+}
+body[data-spectra-theme="1"] .g-welcome-title::after {
+  content: "Pierce the mist";
+  visibility: visible;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  text-align: center;
+  color: #f0f2f0;
+  -webkit-text-fill-color: #f0f2f0;
+  background-image: none;
+  background-clip: border-box;
+}
