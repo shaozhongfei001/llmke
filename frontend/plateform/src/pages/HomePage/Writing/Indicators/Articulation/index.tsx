@@ -317,7 +317,7 @@ const Articulation: React.FC = () => {
       <div className="h-8 leading-8 pr-3 mb-3">
         <Button
           type="primary"
-          className="text-white border-0 bg-[linear-gradient(99.9deg,#2B69FF,#8F91FF)]"
+          className="text-white border-0 bg-[#D8BD89] text-[#111915]"
           icon={<PlusCircleOutlined />}
           onClick={addRow}
         >
@@ -387,7 +387,7 @@ const Articulation: React.FC = () => {
                   <Button
                     type="primary"
                     onClick={confirmFilterHandler}
-                    className="text-white border-none bg-[linear-gradient(99.9deg,#2B69FF,#8F91FF)]"
+                    className="text-white border-none bg-[#D8BD89] text-[#111915]"
                   >
                     确认
                   </Button>

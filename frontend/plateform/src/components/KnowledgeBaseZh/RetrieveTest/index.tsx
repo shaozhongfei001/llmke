@@ -652,10 +652,10 @@ export default function RetrieveTest({
         <div className=" w-8/12 h-full bg-white relative flex flex-col">
           {/* 拖拽提示层 - 固定定位 */}
           {isDragging && (
-            <div className="fixed inset-0 bg-blue-50 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center pointer-events-none">
+            <div className="fixed inset-0 bg-[#142026] bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center pointer-events-none">
               <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg flex flex-col items-center">
-                <Paperclip className="w-8 h-8 text-blue-500 mb-3" />
-                <span className="text-blue-600 font-medium">
+                <Paperclip className="w-8 h-8 text-[#94CED2] mb-3" />
+                <span className="text-[#D8BD89] font-medium">
                   将文件拖放到这里
                 </span>
                 <span className="text-sm text-gray-500 mt-2">

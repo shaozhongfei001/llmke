@@ -146,7 +146,7 @@ export function ChatInput({
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="我可以阅读知识库的资料并使用自然语言回答你的问题..."
-            className="w-full resize-none rounded-md border border-gray-200/50 bg-white/30 pl-4 pr-[200px] py-3 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 outline-none min-h-[44px] leading-[24px] shadow backdrop-blur-sm overflow-hidden"
+            className="w-full resize-none rounded-md border border-gray-200/50 bg-white/30 pl-4 pr-[200px] py-3 focus:border-[#A98D62] focus:ring-1 focus:ring-[#A98D62]/30 outline-none min-h-[44px] leading-[24px] shadow backdrop-blur-sm overflow-hidden"
           />
 
           <div className="absolute right-3 bottom-[8px] flex items-center">

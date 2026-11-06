@@ -973,7 +973,7 @@ const Members = ({ userType }: { userType: USER_STATUS }) => {
                 : "#fff",
               background: getEditPermission(userType, BTN_NAME.ADD)
                 ? "rgba(0,0,0,.04)"
-                : "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
+                : "#D8BD89"
             }}
             onClick={() => {
               setDrawConfig({ type: "add", data: { id: deptTreeData[0]?.id } });
@@ -1105,7 +1105,7 @@ const Members = ({ userType }: { userType: USER_STATUS }) => {
                   : "#fff",
                 background: getEditPermission(userType, BTN_NAME.ADD)
                   ? "rgba(0, 0, 0, 0.04)"
-                  : "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)",
+                  : "#D8BD89",
                 marginRight: "16px"
               }}
               onClick={() => handleEvent("addMembers")}
@@ -1227,7 +1227,7 @@ const Members = ({ userType }: { userType: USER_STATUS }) => {
                   : "#fff",
                 background: getEditPermission(userType, BTN_NAME.VIEW)
                   ? "rgba(0, 0, 0, 0.04)"
-                  : "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)",
+                  : "#D8BD89",
                 marginRight: "16px"
               }}
               onClick={() => rightEvent("batchFeature")}

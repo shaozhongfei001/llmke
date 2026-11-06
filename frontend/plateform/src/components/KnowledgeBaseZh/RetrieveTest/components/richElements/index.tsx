@@ -20,7 +20,7 @@ export const renderElement = (props: any) => {
       return (
         <h1 
           {...attributes} 
-          className="text-xl font-bold mb-6 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500"
+          className="text-xl font-bold mb-6 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-[#D8BD89] to-[#94CED2]"
         >
           {children}
         </h1>
@@ -38,7 +38,7 @@ export const renderElement = (props: any) => {
       return (
         <h3 
           {...attributes} 
-          className="text-lg font-medium mb-3 text-gray-600 flex items-center before:content-[''] before:w-2 before:h-2 before:rounded-full before:bg-blue-500 before:mr-2"
+          className="text-lg font-medium mb-3 text-gray-600 flex items-center before:content-[''] before:w-2 before:h-2 before:rounded-full before:bg-[#94CED2] before:mr-2"
         >
           {children}
         </h3>
@@ -56,7 +56,7 @@ export const renderElement = (props: any) => {
       return (
         <ol 
           {...attributes} 
-          className="mb-4 space-y-2 list-decimal pl-4 marker:text-blue-500 marker:font-medium"
+          className="mb-4 space-y-2 list-decimal pl-4 marker:text-[#94CED2] marker:font-medium"
         >
           {children}
         </ol>
@@ -65,7 +65,7 @@ export const renderElement = (props: any) => {
       return (
         <li 
           {...attributes} 
-          className="relative pl-6 before:absolute before:left-0 before:top-3 before:w-2 before:h-2 before:bg-blue-500 before:rounded-full before:transform before:-translate-y-1/2"
+          className="relative pl-6 before:absolute before:left-0 before:top-3 before:w-2 before:h-2 before:bg-[#94CED2] before:rounded-full before:transform before:-translate-y-1/2"
         >
           {children}
         </li>
@@ -122,7 +122,7 @@ export const renderElement = (props: any) => {
       return (
         <blockquote 
           {...attributes}
-          className="border-l-4 border-blue-500 bg-blue-50 pl-4 py-2 mb-4 rounded-r-lg italic text-gray-700"
+          className="border-l-4 border-[#A98D62] bg-[#142026] pl-4 py-2 mb-4 rounded-r-lg italic text-gray-700"
         >
           {children}
         </blockquote>
