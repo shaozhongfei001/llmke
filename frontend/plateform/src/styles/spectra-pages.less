@@ -859,3 +859,74 @@ body[data-spectra-theme="1"] .ant-tag-geekblue {
   background: rgba(148, 206, 210, 0.1);
   border-color: #344044;
 }
+
+/* ---- P0 回归发现：系统管理/模型管理（@gientech/modual）仍是浅色，作用域内换肤 ---- */
+body[data-spectra-theme="1"] div:has(> .xviewer-container),
+body[data-spectra-theme="1"] .xviewer-container,
+body[data-spectra-theme="1"] .xviewer-table-bg,
+body[data-spectra-theme="1"] .dynamic-table-wrapper,
+body[data-spectra-theme="1"] .dynamic-table-td,
+body[data-spectra-theme="1"] .xviewer-container div:not([class]) {
+  background-color: #10181c;
+  color: #e6ebe8;
+}
+body[data-spectra-theme="1"] .dynamic-table-th {
+  background-color: #142026;
+  color: #b8c3c3;
+}
+body[data-spectra-theme="1"] .dynamic-table-td,
+body[data-spectra-theme="1"] .dynamic-table-th {
+  border-color: #243035;
+}
+body[data-spectra-theme="1"] .xviewer-container .zui-button {
+  color: #94ced2;
+  background-color: transparent;
+}
+body[data-spectra-theme="1"] .xviewer-container .zui-button:has(svg),
+body[data-spectra-theme="1"] .xviewer-container .zui-button[class*="TTFbt"] {
+  background-color: #d8bd89;
+  color: #111915;
+}
+body[data-spectra-theme="1"] .xviewer-container input,
+body[data-spectra-theme="1"] .xviewer-container select,
+body[data-spectra-theme="1"] .xviewer-container .ant-input,
+body[data-spectra-theme="1"] .xviewer-container .ant-select-selector {
+  background-color: #142026;
+  color: #f0f2f0;
+  border-color: #344044;
+}
+
+/* ---- 逐页复查补漏：三类不在 blue-* 原子类内的既有蓝色 ---- */
+/* 文档解析页文件名链接：任意值类 text-[#305eba] */
+body[data-spectra-theme="1"] [class*="305eba"] {
+  color: #94ced2;
+}
+/* FAQ less 中的 #055aff；.more-action-row 原声明自带 !important，按同等级对抗 */
+body[data-spectra-theme="1"] .faq-list-wrap .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous),
+body[data-spectra-theme="1"] .faq-list-wrap .ant-select {
+  color: #94ced2;
+}
+body[data-spectra-theme="1"] .more-action-row {
+  color: #94ced2 !important;
+}
+/* 模型管理分页按钮把蓝色写成 inline style，按规则用 !important 对抗 */
+body[data-spectra-theme="1"] [style*="78, 110, 242"] {
+  color: #d8bd89 !important;
+  background-color: #142026 !important;
+  border-color: #344044 !important;
+}
+
+/* 检索配置滑块：AntD 4 默认蓝 #1890FF，改冷青轨道 + 暖金把手 */
+body[data-spectra-theme="1"] .ant-slider-track {
+  background-color: #94ced2;
+}
+body[data-spectra-theme="1"] .ant-slider-rail {
+  background-color: #344044;
+}
+body[data-spectra-theme="1"] .ant-slider-handle {
+  border-color: #d8bd89;
+}
+/* FAQ「重复问题检测」按钮：less 中 #055aff 落在 .fat-header-btn-wrap 内 */
+body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-btn-default {
+  color: #94ced2;
+}
