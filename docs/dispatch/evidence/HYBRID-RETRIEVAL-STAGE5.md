@@ -63,6 +63,22 @@ kb_9 的 ES 基线 4564 chunk 里，**4520 chunk 来自 Allotment 园艺书（fi
 - 内容质量：global 命中时补充图检索原文，过程型问题返回详细步骤。
 - 诚实性：资料未提及就明说「未提及」，禁止推测/编造。
 
+## 数据污染清理（2026-11-06 Owner 授权后执行）
+
+kb_9 混入的 Allotment 书（file_id=999002，4520 chunk）已清理，金融内容恢复正常成社区：
+
+| 动作 | 结果 |
+|---|---|
+| ES kb_9 delete_by_query（file_id=999002） | 4564 → 44（删 4520） |
+| Milvus drop _kb_9 + 重新回灌 | 4564 → 44 |
+| kb_state.json 移除 file_id=999002 | 剩余 11 文件 |
+| 重建 kb_9 图（44 text + 2 table） | documents=46，status=BUILT |
+
+清理后验证：
+- 18094 kb_9 community 从 1589 → **28**（纯金融），「授信额度是多少」global **社区摘要命中 2 条**、回答准确（授信台账清单 + 最高 5000 万）。
+- 三者对齐：ES 44+2=46，Milvus 44，18094 46。
+- 三路融合：授信额度/AAA档/T-CORE-001/智造贷适用企业 全部 search_type=['es','graph','milvus']。
+
 ## 建图过程
 
 - 入口：`/tmp/rebuild_graph.py`（复用 kb_pipeline 的 project_snapshot/build_graph_docs/post_graph_build）。
