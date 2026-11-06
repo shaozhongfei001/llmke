@@ -39,3 +39,7 @@
 - 已知残留：检索消息气泡与原文高亮仍用蓝紫色（在 ChatMessage/richElements 内部），需下一轮逐个替换
 - 已知基线问题：tsc --noEmit 存量 475 处报错（与本次无关）；vite 构建对 @mxmweb/zui 第三方 CSS 报 2 处 parse error，改造前即存在
 - 构建结果：vite build 成功（15825 模块，3m1s，0 error）；tsc 与构建基线问题见上
+
+## 8 截图证据
+- 目录 spectra-evidence/before（基线 e368f62 worktree）与 after（本分支），同构采集，1366x768 六页 + 1920x1080 三页
+- 采集脚本 capture.js：node capture.js <baseUrl> <outDir>，NODE_PATH 指向 my-playwright；需 8088 网关与 Redis 验证码

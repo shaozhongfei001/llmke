@@ -824,7 +824,7 @@ const FolderDetail = (props: IVersionDetail) => {
                   title={() => renderSubTableOperations(record)}
                   color="#fff"
                 >
-                  <span style={{ color: "#055aff", cursor: "pointer" }}>
+                  <span style={{ color: "#94CED2", cursor: "pointer" }}>
                     ...
                   </span>
                 </Tooltip>
@@ -1932,7 +1932,7 @@ const FolderDetail = (props: IVersionDetail) => {
               }
               icon={<PlusCircleOutlined />}
               style={{
-                color: "#055aff",
+                color: "#94CED2",
                 borderColor: "#eeeeee"
               }}
               onClick={() => {
