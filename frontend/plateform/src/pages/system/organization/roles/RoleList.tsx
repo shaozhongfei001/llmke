@@ -135,7 +135,7 @@ const RoleList: React.FC<RoleListProps> = ({
           style={{
             background: "#D8BD89",
             borderColor: "transparent",
-            color: "#fff"
+            color: "#111915"
           }}
           className="flex items-center justify-center rounded-md"
         >

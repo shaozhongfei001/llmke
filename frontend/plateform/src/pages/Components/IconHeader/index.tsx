@@ -45,7 +45,7 @@ const IconHeader = ({
           type === ELEMENT_TYPE.DEPARTMENT ||
           type === ELEMENT_TYPE.GROUP
             ? ""
-            : bg || "linear-gradient(-50deg, #7FC0FB 10%, #4088F4 90%)"
+            : bg || "linear-gradient(-50deg, #A98D62 10%, #D8BD89 90%)"
       }}
     >
       {type === ELEMENT_TYPE.COLLABORATORS_ALL_PERMISSION && (
