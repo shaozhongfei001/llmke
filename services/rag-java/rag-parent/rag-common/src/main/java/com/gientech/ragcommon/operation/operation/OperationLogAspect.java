@@ -13,6 +13,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -43,7 +44,14 @@ public class OperationLogAspect {
         LocalDateTime startTime = LocalDateTime.now();
         Object proceed = joinPoint.proceed();
         LocalDateTime endTime = LocalDateTime.now();
-        insertOperationLog(joinPoint, operationLog, startTime, endTime);
+        // 操作日志是审计旁路，绝不能影响业务：主键冲突、DB 不可用、非 Web 上下文等异常
+        // 一律在这里吞掉，否则会冒泡成业务接口的 500（实测 user_operate 主键冲突时
+        // 「选择知识库」整个请求失败）。
+        try {
+            insertOperationLog(joinPoint, operationLog, startTime, endTime);
+        } catch (Exception e) {
+            log.warn("操作日志写入失败（已忽略，不影响业务）: {}", e.toString());
+        }
         return proceed;
     }
 
@@ -59,9 +67,14 @@ public class OperationLogAspect {
         String argsString = Arrays.toString(args);
 //        log.info("operation argsString:{}", argsString);
 
-        //获取用户id,username
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        //获取用户id,username（异步线程/定时任务拿不到 RequestAttributes，直接跳过日志）
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (!(attributes instanceof ServletRequestAttributes)) {
+            return;
+        }
+        ServletRequestAttributes servletAttributes = (ServletRequestAttributes) attributes;
+        HttpServletRequest request = servletAttributes.getRequest();
+        HttpServletResponse response = servletAttributes.getResponse();
         String userId = request.getHeader("userId");
 //        log.info("operation userId:{}", userId);
         String userName = request.getHeader("userName");
@@ -74,8 +87,7 @@ public class OperationLogAspect {
         String url = request.getRequestURL().toString();
 //        log.info("operation url:{}", url);
         String ip = request.getRemoteAddr();
-        int status = response.getStatus();
-        log.info("status is:{}",status);
+        int status = response != null ? response.getStatus() : 200;
         UserOperateDO userOperateDO = UserOperateDO.builder()
                 .url(url)
                 .gmtCreated(localDateTime2Date(endTime))
