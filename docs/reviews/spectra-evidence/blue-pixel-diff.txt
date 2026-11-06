@@ -1,0 +1,21 @@
+# SPECTRA P1 蓝色像素同构对比（1366x768，采样步长 3，估算值 *9）
+# before=after-p0-20261106（改前） after=after-p1-final-20261106（最终）
+page,before_bluePx,after_bluePx
+01-login.png,450,360
+02-kb.png,0,0
+03-doc.png,549,108
+04-retrieve.png,216,216
+05-faq.png,360,0
+06-graph.png,0,0
+07-chat.png,1431,1431
+08-assistant.png,0,0
+09-sensitive.png,0,0
+10-search.png,5130,207
+11-feedback.png,0,0
+12-system-departments.png,0,0
+13-system-roles.png,2538,0
+14-system-models.png,4887,0
+TOTAL,15561,2322
+REDUCTION,85.1%
+# 运行时蓝色 DOM 元素：改前 模型页 26 / 角色页 12；最终 14 页合计 0（report.json）
+# 剩余蓝色像素来源：登录验证码位图(后端 kaptcha 接口)、智能对话第三方 defaultWeLogo.svg 鲸鱼品牌图、搜索下拉第三方小图标、检索页少量第三方图形；均为不可改或需产品/第三方决策项，见 SPECTRA.md §11.5

@@ -90,3 +90,13 @@ roles/PermissionForm.tsx, roles/RoleList.tsx, groups/...}` 的大量改动一并
 | `d04c5274` | 文档 §10 |
 | `838d698b` | 共享展示组件暖金化 + 角色列表选中态 |
 | `33ecc238` | 文档补充 |
+
+## 8 接手轮收口状态（2026-11-06）
+
+- §4 残留 1（写作模块无法实拍）：**仍 OPEN**，未动代码，未自签；两条路径均需 Owner 决策，见 `SPECTRA.md` §11.6。
+- §4 残留 2（浏览器原生 `title` 白气泡）：仍存在，属 UA 样式，CSS 不可主题化，非页面残留。
+- §4 残留 3（SVG 自带蓝底）：**CLOSED**，提交 `5711a7ea`。实测把定位范围从系统管理扩展到全局 6 个蓝 SVG（导航 3px 条、搜索标题/星形/放大镜、侧栏选中态图标），每个新文件与原文件除颜色 token 外逐字节一致。
+- §4 残留 4（范围外路由）：仍 OPEN，归 P2。
+- **新增发现**：`/system/models` 整页浅色（第三方 `@gientech/modual`），与 §1「系统管理（部门/角色/模型）已落地」不符；已在 `body[data-spectra-theme="1"]` 作用域内补深色表面/暖金主按钮/冷青操作文字（`c1f94213`、`699829e1`），见 `SPECTRA.md` §11.4。
+- P0 逐页验证、字号双证据、构建结论、截图与蓝色像素对比、全部剩余项书面理由：`SPECTRA.md` §11 与 `docs/reviews/spectra-evidence/`。
+- 本轮所有提交均显式列文件，未使用 `git add -A <目录>`；工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。

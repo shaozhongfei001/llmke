@@ -60,3 +60,92 @@
 - 共享展示组件 IconHeader / ParagraphTitle / MultiSelection 的默认蓝紫渐变改暖金（部门树图标底座、段落标题竖条、多选高亮）
 - 角色管理：role 列表选中态 bg-blue-50 改暖金底；「添加新角色」按钮文字改深色（原白字压金底对比不足）；全局补 bg-blue-50/100 映射
 - 说明：权限树行上看到的白底气泡是浏览器原生 title 提示，属 UA 样式，CSS 不可主题化，非页面残留
+
+## 11 接手轮收口（2026-11-06）
+
+基线 `e368f62`，本轮起始 HEAD `f9b7477a`，分支 `feat/spectra-theme`。本轮只做接续验证与残留收口，未重做主题，未改接口/权限/字段/状态/表单逻辑。
+
+### 11.1 P0 真实浏览器验证
+
+- 采集脚本 `docs/reviews/spectra-evidence/capture-regression.js`：Redis 读验证码登录，逐页 `goto` + 真实接口数据，1366×768；采集 DOM 文本长度、可见节点数、`body` 背景、横向溢出、控制台错误、字号 A/B、蓝色资源与蓝色元素探针。
+- 证据：`spectra-evidence/after-p0-20261106/`（改前）、`after-p1-20261106/`（P1-2/P1-3 后）、`after-p1-final-20261106/`（最终），各 14 张 PNG + `report.json`。
+- 覆盖：登录、知识库、文档解析、检索测试、知识图谱、FAQ、智能对话、助手配置、敏感词、搜索、用户反馈、系统管理（部门/角色/模型）。
+- 结果：14/14 `RENDERED`，无 `PAGEERROR`，无横向溢出（`scrollWidth == 1366`），`body` 背景 `#090D11`；控制台 30 余条（最终轮 34 条）全为 AntD/React deprecation warning，改前改后同类同量（改造前既有，非本次引入）。详情页 URL 为真实库 `/chats/knowledgeBase/1004`，状态与文件数来自接口。
+- 字号双证据：① 逐文件比对基线 `e368f62` 与当前 `src` 下 1282 个 `.less/.css/.tsx/.ts` 的 `font-size` 声明值多重集合，差异 **0**；② 同一 DOM 上「挂主题 / 摘 `data-spectra-theme`」A/B 采样，14 页 `fontSizeDiff=0`、`lineHeight` 差异 0，`root font-size` 仍 16px；未设 html/root 字号，未用 zoom/transform，未批量覆盖 `.ant-*` 字号。无超 1px 例外需说明。
+- 构建：`NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir <新目录>`（停掉 dev server 独占资源后 8m36s 完成，15825 模块），结论与告警计数见 `spectra-evidence/build-summary.txt`。`[vite:css] Parse error` 与未解析 SVG 告警在改前基线日志中同数量出现，属既有问题，非本次引入。
+
+### 11.2 P1-2 SVG 自带蓝底（提交 `5711a7ea`）
+
+用 DOM 坐标 + `backgroundImage`/`img.src` 探针定位 6 个实际被引用且自带蓝色 `fill`/`stop-color` 的 SVG（系统管理页可见的是导航 3px 渐变条，其余在搜索页与侧栏选中态）：
+
+| 新资源 | 原色值 | 新色值 | 引用处 |
+|---|---|---|---|
+| `assets/navbarBg_spectra.svg` | `#BD9CFF #3C6DFF #0359FF` | `#E7CFA1 #D8BD89 #A98D62` | `components/Dashboard/index.tsx` |
+| `assets/svg/icon-title_spectra.svg` | `#075BFF #AC96FF` | `#A98D62 #D8BD89` | `KnowledgeSearch/index.tsx` |
+| `assets/svg/icon-search-bar_spectra.svg` | `#1538FF #7F81FF` | `#6FA9AE #94CED2` | `KnowledgeSearch/components/SearchInput.tsx` |
+| `assets/svg/icon-zoomOut_spectra.svg` | `#2B69FF #8F91FF` | `#6FA9AE #94CED2` | 同上 |
+| `assets/svg/duihua2_spectra.svg` | `#D9EAFF #1538FF #7F81FF` | `#D8BD89 #A98D62 #D8BD89` | `HomePage/hooks/useMenus.tsx` |
+| `assets/svg/knowlegeBase2_spectra.svg` | 同上 | 同上 | 同上 |
+
+- 每个新文件与原文件**除颜色 token 外逐字节一致**（把所有 `#RRGGBB` 归一为 `#COLOR` 后两文件相同，颜色 token 数相同），形状/尺寸/触须等几何完全未动；原文件全部保留。
+- 引用改为 `*_spectra.svg`，未使用 CSS `filter` 反色。改后运行时 `blueSvg` 资源命中数由 6 降为 0。
+- **边界声明**：`KnowledgeSearch/index.tsx` 在 `FRONTEND-STYLE-VS-RETRIEVAL-BOUNDARY.md` §3.2 属逻辑层禁改文件，本轮仅替换 1 行图标 import，未触碰 `fetchAssisList`/`configId`/可见性刷新等逻辑，该行可独立回滚；未发现与检索重构的样式冲突。
+
+### 11.3 P1-3 残留硬编码色（提交 `776d7f2b` + P0 残留收口提交）
+
+- 6 个 `.tsx` 的 `linear-gradient(99.9deg, #2B69FF, #8F91FF)`（含 2 处三元表达式裸字符串）与 `PasswordModal/utils/constants.ts` 的 JS 常量 → `#D8BD89` 底 + `#111915` 字。复验 `grep -rl "linear-gradient(99.9deg" src --include=*.tsx | wc -l` = **0**。
+- `src/assets/styles/` 中 7 处同名 less 渐变与第三方 `@mxmweb/somelib/index.js` 的 1 处内联渐变：**不改原文件**，在 `body[data-spectra-theme="1"]` 作用域内覆盖；vendor 的 inline style 与 `knowledgeSearch.less` 的原有 `!important` 按规则用 `!important` 对抗。
+- `blue-[0-9]` 原子类 20 个 `.tsx` **保留源类名**（交接文档 §3 决策 4：主题作用域内统一重映射），在 `spectra-pages.less` 补齐 `text-/bg-/border-/hover:/focus:/from-to-` 全量映射，避免与并行工作流在 `roles/*` 等文件上正面冲突。逐文件书面理由见 §11.5。
+- 逐页复查补漏：`text-[#305eba]`（文档解析文件名）、FAQ `#055aff`（含 `.more-action-row` 原有 `!important`）、模型页分页 `inline #4E6EF2`、`AntD geekblue` 标签、AntD 4 Slider `#1890FF`、`.fat-header-btn-wrap` 按钮。改后运行时蓝色 DOM 元素计数：模型页 26→0、角色页 12→0、全 14 页 0。蓝色像素同构对比见 `spectra-evidence/blue-pixel-diff.txt`。
+
+### 11.4 新增残留修复：系统管理/模型管理页
+
+P0 实拍发现 `/system/models` 整页仍为浅色（白底表格、蓝底「新建」、蓝色操作文字），与本交接文档 §1「系统管理（部门/角色/模型）已落地」不符，属**改造前既有残留**。已在主题作用域内为第三方 `@gientech/modual` 的 `.xviewer-container` / `.dynamic-table-*` / `.zui-button` 补深色表面、暖金主按钮、冷青操作文字与深底输入，未改任何接口、表单或状态。改前后截图：`after-p0-20261106/14-system-models.png` 与 `after-p1-final-20261106/14-system-models.png`。
+
+### 11.5 剩余项与逐文件书面理由
+
+`grep -rl "blue-[0-9]" src --include=*.tsx | wc -l` 仍为 20：这些类名是 tailwind 语义类，按既定架构由主题层重映射，源码保留可避免与另一条工作流冲突；运行时实测蓝色 DOM 元素为 0。
+
+| 文件（`src/` 下相对路径） | 涉及类名 | 保留理由 |
+|---|---|---|
+| `components/KnowledgeBaseZh/KnowledgeAnalyBlock/index.tsx` | `text-blue-400` | 主题层统一重映射 |
+| `components/KnowledgeBaseZh/KnowledgeAnalyGraph/index.tsx` | `text-blue-400` | 同上 |
+| `components/KnowledgeBaseZh/KnowledgeAnalyVideo/index.tsx` | `text-blue-400` | 同上 |
+| `components/SdqaDrawer/index.tsx` | `bg-blue-600/700` | 同上（含 hover 变体） |
+| `components/SplitLayout/LeftPanel.tsx` | `bg-blue-50` | 同上，已有全局映射 |
+| `components/SplitLayout/RightPanel.tsx` | `bg-blue-500` | 同上 |
+| `components/layouts/AppNavLayout.tsx` | `bg-blue-500 text-blue-500/600` | 同上（含 hover 变体） |
+| `components/layouts/ChatLayout.tsx` | `bg-blue-50` | 同上，已有全局映射 |
+| `pages/HomePage/IntelligentChat/Setting/PublishPannel/ApiDocRender.tsx` | `bg-blue-50 border-blue-200 text-blue-700` | 同上 |
+| `pages/HomePage/IntelligentChat/Setting/SettingDetail/index.tsx` | `bg-blue-50 border-blue-200` | 同上（6 处） |
+| `pages/others/NotFound.tsx` | `text-blue-200` | 同上 |
+| `pages/others/PageLoading.tsx` | `bg-blue-300/500 border-blue-100/500` | 同上（10 处加载动画球） |
+| `pages/system/models/AuthModelForm.tsx` | `bg-blue-500 text-blue-600` | 同上 |
+| `pages/system/models/ModelForm.tsx` | `focus:border-blue-400` | 同上（含 focus 变体） |
+| `pages/system/models/oldIndex.tsx` | `text-blue-500` | 同上 |
+| `pages/system/organization/groups/components/GroupList.tsx` | `text-blue-600` | 同上 |
+| `pages/system/organization/roles/PermissionTree.tsx` | `bg-blue-50 border-blue-100 text-blue-600` | 同上 |
+| `pages/system/organization/roles/RoleList.tsx` | `bg-blue-50 hover:text-blue-500` | 同上（含 hover 变体） |
+| `pages/system/organization/roles/UserAssignForm.tsx` | `to-blue-500/600` | 同上（渐变端点映射） |
+| `pages/system/organization/roles/index.tsx` | `to-blue-500/600` | 同上（渐变端点映射） |
+
+其它剩余（均有书面理由，不属本次可改范围）：
+
+1. 登录页验证码图片为后端 kaptcha 接口返回的位图（蓝色字符），前端不可主题化；状态文案与图片均来自真实接口。
+2. 智能对话欢迎语鲸鱼 Logo、搜索页下拉小机器人图标来自 `@gientech/modual` 第三方品牌资源（`defaultWeLogo.svg` 等），检索页另有少量第三方图形蓝色像素（`blue-pixel-diff.txt`：04-retrieve 216px，运行时蓝色 DOM 元素为 0）；改图需产品/第三方决策，未擅自重绘。
+3. 浏览器原生 `title` 白气泡属 UA 样式，CSS 不可主题化。
+4. 范围外路由（写作、数据库、对比、AI 编辑器）仍沿用旧浅色 token，归 P2；本轮只把其中内联蓝紫渐变按风格层清掉，未铺开整套主题。
+5. `GraphLifecycleView/mockAdapter` 仍是演示骨架，未接入正式导航、未当作能力证据；图谱标签仍按「关联度预算」控制可见性，`graphData.ts` 未改。
+
+### 11.6 待决策：P1-1 写作模块（本轮未动代码）
+
+`HomePage/index.tsx:77 const { routes } = _menu;` 在基线 `e368f62` 即存在（`git show` 已核），`admin` 无写作菜单项时 `find()` 返回 `undefined`，解构抛错白屏，属改造前既有。
+
+- **路径 A（零代码，推荐）**：请提供具备写作菜单权限的测试账号，或由管理员给 `admin` 配写作资源；拿到账号后实拍 `/docWriting/{main,template,resource,indicator}` 四张 1366×768 截图入 `spectra-evidence/after-writing/`。
+- **路径 B（改逻辑层）**：在 77 行前加 `if (!_menu) return;`，会把「无权限访问 /docWriting」从崩溃变为停留原页，属权限行为变更，需明确批准后才可做。
+
+两条路径都需人工批准，本轮**未写任何代码、未自签、未伪造截图**，故 `after-writing/` 目录不存在。请 Owner 指定路径后继续。
+
+### 11.7 本轮提交
+
+按「一项一提交、显式列文件」执行，未使用 `git add -A <目录>`：`5711a7ea`（P1-2 换图）、`776d7f2b`（P1-3 清渐变与映射）、`c1f94213`（P0 残留收口：模型页换肤 + 补漏）、`699829e1`（滑块/FAQ 工具条映射提权）、文档与证据提交。完整序列见 `git log --oneline 5711a7ea~1..HEAD`。工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。
