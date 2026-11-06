@@ -1,0 +1,554 @@
+{
+  "baseUrl": "http://127.0.0.1:15176",
+  "startedAt": "2026-11-06T18:33:14.211Z",
+  "pages": [
+    {
+      "name": "01-login",
+      "url": "/login",
+      "health": {
+        "url": "http://127.0.0.1:15176/login",
+        "title": "",
+        "bodyTextLen": 32,
+        "bodyTextHead": "客户经营数字化\n让客户经营变得更简单\n登 录\n点击注册\n忘记密码",
+        "visibleNodes": 53,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 5,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/01-login.png",
+      "newConsoleErrors": [],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "02-kb",
+      "url": "/chats/knowledgeBase",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/knowledgeBase",
+        "title": "知识库",
+        "bodyTextLen": 174,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n知识库\n我的知识库\n共享知识库\n新建\n农业技术\n农业技术知识库：基于 Allotment Month by Month（DK 出版）构建\n文件数1\n大小47.3 MB\nR12验收主链\nR12 端到端验收（含中文业务测试夹具）\n文件数",
+        "visibleNodes": 152,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 9,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/02-kb.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+        "Warning: [antd: Tooltip] `overlayInnerStyle` is deprecated. Please use `styles={{ body: {} }}` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "03-doc",
+      "url": "/chats/knowledgeBase/1004",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/knowledgeBase/1004",
+        "title": "",
+        "bodyTextLen": 294,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n农业技术\n文件数：1 · 大小：47.3 MB\n知识解析\nFAQ\n配置\n检索测试\n知识图谱\n文件管理\n版本管理\n上传\n新建文件夹\n更多操作\n全部解析状态\n\t\n名称\n\t\n标签\n\t分块数\t解析方法\t\n解析状态\n\t版本修订时间\t上传时间\t",
+        "visibleNodes": 258,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 24,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/03-doc.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "04-retrieve",
+      "url": "/chats/knowledgeBase/1004",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/knowledgeBase/1004",
+        "title": "",
+        "bodyTextLen": 276,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n农业技术\n文件数：1 · 大小：47.3 MB\n知识解析\nFAQ\n配置\n检索测试\n知识图谱\n测试配置\n恢复默认\n检索召回\n规划模型\nqwen2.5-7b-instruct\n返回文本片数量（top_k）\n相似度阈值 (score_th",
+        "visibleNodes": 334,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": [
+          {
+            "tag": "div",
+            "cls": "",
+            "right": 500,
+            "bottom": 975
+          },
+          {
+            "tag": "form",
+            "cls": "ant-form ant-form-vertical css-dev-only-do-not-override-14mfjb5",
+            "right": 500,
+            "bottom": 975
+          },
+          {
+            "tag": "div",
+            "cls": "ant-collapse ant-collapse-icon-position-start ant-collapse-borderless ",
+            "right": 500,
+            "bottom": 975
+          },
+          {
+            "tag": "div",
+            "cls": "ant-collapse-item ant-collapse-item-disabled opacity-60",
+            "right": 500,
+            "bottom": 975
+          },
+          {
+            "tag": "div",
+            "cls": "ant-collapse-header ant-collapse-collapsible-disabled",
+            "right": 500,
+            "bottom": 975
+          }
+        ]
+      },
+      "fontSamples": 14,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/04-retrieve.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "05-faq",
+      "url": "/chats/knowledgeBase/1004",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/knowledgeBase/1004",
+        "title": "",
+        "bodyTextLen": 145,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n农业技术\n文件数：1 · 大小：47.3 MB\n知识解析\nFAQ\n配置\n检索测试\n知识图谱\nFAQ管理\nFAQ抽取\n导入\n新建问答\n新建文件夹\n更多操作\n重复问题检测\n选择当前页\n选择全部\n暂无数据\n1",
+        "visibleNodes": 196,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 16,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/05-faq.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "06-graph",
+      "url": "/chats/knowledgeBase/1004",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/knowledgeBase/1004",
+        "title": "",
+        "bodyTextLen": 325,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n农业技术\n文件数：1 · 大小：47.3 MB\n知识解析\nFAQ\n配置\n检索测试\n知识图谱\n图谱探索\n主题社区\n图谱问答\n筛选\n跨文档\n更新与构建\nAphids\nBrassicas\nCabbages\nCauliflowers\nCro",
+        "visibleNodes": 5506,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 13,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/06-graph.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+        "Warning: [antd: Spin] `tip` only work in nest or fullscreen pattern."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "07-chat",
+      "url": "/chats/main",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/main",
+        "title": "智能对话",
+        "bodyTextLen": 453,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n新建对话\n当天\n未命名会话\n未选择助手\n02:34\n如何防止病虫害？\n农业技术助手\n02:23\n西红柿种植如何防病\n农业技术助手\n11-06 19:15\nHow should I grow to\n农业技术助手\n11-06 10:07",
+        "visibleNodes": 237,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": [
+          {
+            "tag": "div",
+            "cls": "",
+            "right": 343,
+            "bottom": 1279
+          },
+          {
+            "tag": "div",
+            "cls": "",
+            "right": 1766,
+            "bottom": 773
+          }
+        ]
+      },
+      "fontSamples": 6,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/07-chat.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+        "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at div\n    at div\n    at div\n    at gre (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:449:17534)\n    at div\n    at http://127.0.0.1:15176/n",
+        "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at button\n    at qne (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:393:19670)\n    at div\n    at div\n    at div\n    at div\n    at div\n    at"
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "08-assistant",
+      "url": "/chats/setting",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/setting",
+        "title": "助手配置",
+        "bodyTextLen": 232,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n会话助手配置\n我创建的\n共享\n新建\n助手名称\t模型名称\t温度\t多样性\t最大令牌数\t知识库名称\t操作\nR12默认问答配置\tqwen2.5-7b-instruct\t\t\t\t\t\n发布\n授权\n编辑\n删除\n\n验收主链助手\tqwen2.5-7b-",
+        "visibleNodes": 198,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 22,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/08-assistant.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "09-sensitive",
+      "url": "/chats/sensitiveWords",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/sensitiveWords",
+        "title": "敏感词配置",
+        "bodyTextLen": 82,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n敏感词配置\n新建敏感词库\n名称\t敏感词\t创建日期\t数量\t操作\n\n暂无数据\n1",
+        "visibleNodes": 141,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 13,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/09-sensitive.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?"
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "10-search",
+      "url": "/chats/knowledgeSearch",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/knowledgeSearch",
+        "title": "搜索",
+        "bodyTextLen": 112,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\nR12默认问答配置\n智能检索，多元信源，精准解答\n你好，你是谁\n地下钱庄身份信息的识别点的团伙特征是什么\n如何取消原先预订的酒店再重新定",
+        "visibleNodes": 110,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 5,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/10-search.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Select] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Select] `onDropdownVisibleChange` is deprecated. Please use `onOpenChange` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "11-feedback",
+      "url": "/chats/feedback",
+      "health": {
+        "url": "http://127.0.0.1:15176/chats/feedback",
+        "title": "用户反馈",
+        "bodyTextLen": 94,
+        "bodyTextHead": "智能对话\n知识库\n助手配置\n敏感词配置\n用户反馈\n搜索\n智能问答\n系统管理\nadmin\n用户反馈\n点踩反馈问题收集\n问题类型\n导出\n序号\t用户问题\t联系电话\t部门\t反馈时间\n\n暂无数据\n1",
+        "visibleNodes": 166,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 13,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/11-feedback.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "12-system-departments",
+      "url": "/system/organization/departments",
+      "health": {
+        "url": "http://127.0.0.1:15176/system/organization/departments",
+        "title": "",
+        "bodyTextLen": 142,
+        "bodyTextHead": "智能问答\n系统管理\nadmin\n用户部门管理\n成员\n部门\n已离职人员\n新建部门\n总人数 0\n添加成员\n批量导入\n批量导出\n变更部门\n操作离职\n\t姓名\t账号状态\t联系邮箱\t部门\t角色\t特征\t操作\n\t\n姓名\n\t\n账号状态\n\t\n联系邮箱\n\t\n部门\n\t\n角色\n\t\n特征\n\t\n操作\n\n\n暂无数据",
+        "visibleNodes": 176,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 19,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/12-system-departments.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "13-system-roles",
+      "url": "/system/organization/roles",
+      "health": {
+        "url": "http://127.0.0.1:15176/system/organization/roles",
+        "title": "",
+        "bodyTextLen": 345,
+        "bodyTextHead": "智能问答\n系统管理\nadmin\n角色管理\n系统角色及权限管理\n添加新角色\n超级管理员\n管理员\n普通用户\n角色名称\n超级管理员\n角色状态\n启用\n角色描述\n平台内置超级管理员\n权限管理\n用户列表\n智能对话\n/chats/main\n知识库\n/chats/knowledgeBase\n知识检索\n/chats/knowledgeS",
+        "visibleNodes": 244,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 14,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/13-system-roles.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+        "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead."
+      ],
+      "verdict": "RENDERED"
+    },
+    {
+      "name": "14-system-models",
+      "url": "/system/models",
+      "health": {
+        "url": "http://127.0.0.1:15176/system/models",
+        "title": "",
+        "bodyTextLen": 424,
+        "bodyTextHead": "智能问答\n系统管理\nadmin\n模型管理\n新建\n模型名称\n\t\n模型传输协议\n\t\n使用类型\n\t\n说明\n\t\n状态\n\t\n操作\n\nqwen2.5-vl-3b-instruct\topenAI\tMultiModel图片解析\t\nR12 本地 Qwen2.5-VL-3B (图片描述，可选增强)\n\t可用\t\n编辑\n授权\n删除\n\nbge-r",
+        "visibleNodes": 245,
+        "bodyBg": "rgb(9, 13, 17)",
+        "rootFontSize": "16px",
+        "themeAttr": "1",
+        "docScrollWidth": 1366,
+        "viewportWidth": 1366,
+        "overflowSamples": []
+      },
+      "fontSamples": 5,
+      "fontSizeDiffs": [],
+      "blue": {
+        "cssHits": [],
+        "svgAssets": []
+      },
+      "blueElements": {
+        "count": 0,
+        "samples": []
+      },
+      "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/after-bubbles-20261107/14-system-models.png",
+      "newConsoleErrors": [
+        "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead."
+      ],
+      "verdict": "RENDERED"
+    }
+  ],
+  "login": {
+    "captchaFound": true,
+    "url": "http://127.0.0.1:15176/chats/main"
+  },
+  "consoleErrors": [
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at div\n    at div\n    at div\n    at gre (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:449:17534)\n    at div\n    at http://127.0.0.1:15176/n",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at button\n    at qne (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:393:19670)\n    at div\n    at div\n    at div\n    at div\n    at div\n    at",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+    "Warning: [antd: Tooltip] `overlayInnerStyle` is deprecated. Please use `styles={{ body: {} }}` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Spin] `tip` only work in nest or fullscreen pattern.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at div\n    at div\n    at div\n    at gre (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:449:17534)\n    at div\n    at http://127.0.0.1:15176/n",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at button\n    at qne (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:393:19670)\n    at div\n    at div\n    at div\n    at div\n    at div\n    at",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Select] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Select] `onDropdownVisibleChange` is deprecated. Please use `onOpenChange` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Descriptions] `contentStyle` is deprecated. Please use `styles={{ content: {} }}` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: [antd: Modal] `destroyOnClose` is deprecated. Please use `destroyOnHidden` instead.",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead."
+  ],
+  "detailUrl": "/chats/knowledgeBase/1004",
+  "finishedAt": "2026-11-06T18:34:55.045Z"
+}

@@ -169,3 +169,24 @@ Owner 在请示中选定路径 B 并接受权限行为变更，提交 `2f35b613`
 - **限制（如实登记）**：DOM `textContent` 仍是 vendor 原文案（`visibility: hidden`，`innerText` 已不含旧文案），屏幕阅读器/复制文本可能读到旧文案；未改 `node_modules` 与业务逻辑。若要求 DOM 文本同步，需 vendor 升级或业务层注入（属逻辑层，需另行授权）。
 - 证据：`spectra-evidence/after-chat-brand-20261107/`（14 页回归 14 张 PNG + `report.json`）、`chat-brand-evidence.txt`（探针实测值与蓝色像素对比）、`07-chat.png` 截图；构建结论见 `build-summary.txt`。
 - 提交：见 `git log --oneline 4d4fbc53..HEAD`，均显式列文件。
+
+## 13 智能问答消息气泡白底修复（2026-11-07）
+
+用户反馈：智能问答页「问题文本框」「答案文本框」白底配白色文字，看不清，必须改为合适颜色。
+
+**定位**（真实浏览器登录 admin，打开历史会话「西红柿种植如何防病」；空态 `/chats/main`、检索测试、搜索页均无白底）：
+- 两类气泡都是第三方 `@gientech/modual` 的 `.message-card`（styled-components 动态注入样式）：
+  - 用户提问：`background-image: linear-gradient(180deg,#E3ECFF,#EEEBFF)`（淡蓝紫）
+  - AI 回答：`background-color: #ffffff`
+  - 两者文字均 `#F0F2F0`（浅色），答案卡片内「思考完成」状态条用 `bg-[#F5F7FA]` 浅灰白底
+- 白底只出现在**有消息的会话**中，此前 14 页回归均拍空态，故未覆盖到。
+
+**改动**（仅 `src/styles/spectra-pages.less`，全部带 `body[data-spectra-theme="1"]`）：
+- `.chat-message-container .message-card.message-card` → `background:#142026`、`background-image:none`、`color:#F0F2F0`、`border-color:#344044`。重复类提高特异性以压过 vendor 动态类，**未用 `!important`**。
+- 用户提问气泡（父容器 vendor 动态类 `ipRFXX`）→ 暖金轻底 `rgba(216,189,137,.12)` + 金边，与答案卡片区分；若 vendor 类名变化则自动回退为上面的统一深色，不会白屏。
+- `[class*="F5F7FA"]` → `#10181C`。
+- 只改背景/边框/文字颜色；未改字号、布局、接口、状态、表单逻辑。
+
+**验证**：`chat-bubbles-20261107/report.json`（`whiteBoxes=0`、`cards=4`、卡片 `fontSize 16px`、`root 16px`）、`before.png`/`after.png` 同构对比；全量 14 页回归 `after-bubbles-20261107/`；构建见 `build-summary.txt`。改后问题气泡为暖金边深底、答案卡片为 `#142026` 深底，白色文字清晰可读。
+
+**残留**：vendor 动态类 `ipRFXX` 依赖当前版本，仅用于用户气泡的可选增强；若升级后类名变化，两类气泡统一回退深色，不影响可读性。

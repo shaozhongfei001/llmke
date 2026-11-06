@@ -35,3 +35,12 @@ node_modules/.vite 缓存）；停掉 dev server 独占资源后分别 8m36s / 4
   [vite:css] Parse error: 12（既有，同前）
   章鱼资源已打包: dist-chat-brand/assets/octopus-white-BetmITos.png（CSS url 由 Vite 正确解析）
 判定: 本次仅新增作用域 CSS，0 新增构建失败；构建产物含章鱼资源与替换规则。
+
+## 消息气泡白底修复后的构建 2026-11-07 /tmp/sp-build-bubbles.log
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-bubbles
+  结果: ✓ built in 3m 40s
+  模块: ✓ 15825 modules transformed.
+  [vite:css] Parse error: 12（既有，同前）
+  dist-bubbles/assets 文件数: 999
+  生产 CSS 已含 .message-card 深色规则与 [class*=F5F7FA] 覆盖（2 条匹配片段）
+判定: 本次仅新增作用域 CSS，0 新增构建失败。
