@@ -60,7 +60,8 @@ TARGETS=(
   "docparse|12340|r12-docparse|unit-restart||"
   # 阶段4 已下线 V1（19529/Nebula）：原 graphsvc 条目会让看门狗每 45s 把 19529 拉回来。
   # 改为守护 V2 图栈（18094 HippoRAG API + 19531 建图 shim），挂掉才能自愈。
-  "hipporag|18094,19531|-|graph-v2||"
+  # 第6列 HTTP 探针：uvicorn 主进程死后残留子进程仍占 LISTEN，单看端口会误判健康
+  "hipporag|18094,19531|-|graph-v2||http://127.0.0.1:18094/openapi.json"
   "java-auth|18081|r12-java@rag-auth-service.service|unit-restart||"
   "java-index|18082|r12-java@rag-index-service.service|unit-restart|||/index/knowledgeBase/list;200"
   "java-qa|18083|r12-java@rag-qa-service.service|unit-restart|||/qa/ai/question;499"

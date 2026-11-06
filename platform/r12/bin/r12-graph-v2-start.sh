@@ -29,11 +29,24 @@ port_listen() {
   ss -lntH 2>/dev/null | awk -v want=":$1" '{a=$4} a ~ want"$" {f=1} END{exit(f?0:1)}'
 }
 
+# 只判端口不够：uvicorn 主进程被 kill 后，残留子进程仍占着 LISTEN 却已不能处理请求
+# （2026-11-06 实测：端口在、/v2/status 返回空）。用 FastAPI 自带的 openapi.json 做存活探针，
+# 它不依赖图快照是否存在。
+http_alive() {
+  [[ "$(curl -s -m 6 -o /dev/null -w '%{http_code}' \
+        "http://127.0.0.1:$1/openapi.json" 2>/dev/null)" == "200" ]]
+}
+
 start_one() {
   local port="$1" module="$2" name="$3"
-  if port_listen "$port"; then
-    echo "$name($port) 已运行，跳过"
+  if port_listen "$port" && http_alive "$port"; then
+    echo "$name($port) 已运行且可响应，跳过"
     return 0
+  fi
+  if port_listen "$port"; then
+    echo "$name($port) 端口在但无响应，清理残留进程后重启" >&2
+    for p in $(pgrep -f "$module"); do kill -9 "$p" 2>/dev/null || true; done
+    sleep 2
   fi
   echo "启动 $name($port) ..."
   ( cd "$V2_SVC_DIR" && LLMKE_V2_ROOT="$GRAPH_ROOT" PYTHONPATH=. \
@@ -41,8 +54,8 @@ start_one() {
       --host 127.0.0.1 --port "$port" \
       > "$LOGDIR/$name.log" 2>&1 < /dev/null & )
   sleep 5
-  if port_listen "$port"; then
-    echo "$name($port) 已监听 ✅"
+  if port_listen "$port" && http_alive "$port"; then
+    echo "$name($port) 已监听且可响应 ✅"
   else
     echo "$name($port) 启动失败 ❌（日志 $LOGDIR/$name.log）" >&2
     return 1
