@@ -50,3 +50,10 @@
 - 搜索页：搜索框/建议词胶囊/下拉由 tailwind bg-white 统一改深色（主题作用域内的 .bg-white 等原子类重映射）
 - 全局（主题作用域）：.ant-table-thead th 表头深色、.bg-white/.bg-gray-50/.border-gray-300/.text-gray-* 原子类重映射，修复各列表页残留白底
 - 证据：spectra-evidence/after-menu/ 五张（1366x768）。已知残留：欢迎语标题与输入框描边仍为 vendor 蓝紫渐变
+
+## 10 系统管理 / 写作 / 检索气泡
+- 系统管理：organization/config/gradients.ts 按钮与三类图标渐变改 SPECTRA；部门/角色/分组表单主按钮统一暖金；用户树选中行改暖金底
+- 写作模块：DocWriting/TemplateM/ResourceM/Indicators 的 23 处蓝紫渐变按钮与卡片改暖金；该模块 admin 无菜单权限，/docWriting 因 HomePage 取不到菜单抛错而不渲染（改造前既有）
+- 检索页：ChatMessage/richElements/ChatInput/VoiceInput 的 blue-* 原子类全部改冷青/暖金（气泡头像渐变、引用块、列表标记、录音态、焦点环）
+- 证据：spectra-evidence/after-system/（用户部门管理）、after/ 已按最新代码重采（含检索页）
+- 遗留：写作模块需有菜单权限的账号才能实拍验证；组织部门树首项图标底色仍为蓝
