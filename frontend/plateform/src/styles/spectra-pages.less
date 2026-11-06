@@ -963,3 +963,23 @@ body[data-spectra-theme="1"] .g-welcome-title::after {
   background-image: none;
   background-clip: border-box;
 }
+
+/* ---- 智能问答消息气泡：白底/淡紫渐变 + 浅色字不可读（2026-11-07） ---- */
+/* @gientech/modual 用 styled-components 注入 .message-card 背景；
+   带作用域的高特异性选择器压过，只改背景/边框，不改字号与布局 */
+body[data-spectra-theme="1"] .chat-message-container .message-card.message-card {
+  background: #142026;
+  background-image: none;
+  color: #f0f2f0;
+  border-color: #344044;
+}
+/* 用户提问气泡：父容器 ipRFXX 为 vendor 动态类；若版本变化则回退为上面的统一深色 */
+body[data-spectra-theme="1"] .chat-message-content.ipRFXX .message-card {
+  background: rgba(216, 189, 137, 0.12);
+  background-image: none;
+  border-color: rgba(216, 189, 137, 0.38);
+}
+/* 答案卡片内「思考完成」状态条的浅灰白底 bg-[#F5F7FA] */
+body[data-spectra-theme="1"] [class*="F5F7FA"] {
+  background-color: #10181c;
+}
