@@ -93,7 +93,7 @@ roles/PermissionForm.tsx, roles/RoleList.tsx, groups/...}` 的大量改动一并
 
 ## 8 接手轮收口状态（2026-11-06）
 
-- §4 残留 1（写作模块无法实拍）：**仍 OPEN**，未动代码，未自签；两条路径均需 Owner 决策，见 `SPECTRA.md` §11.6。
+- §4 残留 1（写作模块无法实拍）：**CLOSED（路径 B）**。Owner 2026-11-07 批准 `2f35b613` 的 `_menu` null 守卫并接受权限行为变更；白屏崩溃消除，四页已实拍（`after-writing/`）。admin 无权限时 main/template 因接口 401 重定向登录页、resource/indicator 停留原页，完整写作功能页仍需有权限账号（路径 A）。详见 `SPECTRA.md` §11.6。
 - §4 残留 2（浏览器原生 `title` 白气泡）：仍存在，属 UA 样式，CSS 不可主题化，非页面残留。
 - §4 残留 3（SVG 自带蓝底）：**CLOSED**，提交 `5711a7ea`。实测把定位范围从系统管理扩展到全局 6 个蓝 SVG（导航 3px 条、搜索标题/星形/放大镜、侧栏选中态图标），每个新文件与原文件除颜色 token 外逐字节一致。
 - §4 残留 4（范围外路由）：仍 OPEN，归 P2。

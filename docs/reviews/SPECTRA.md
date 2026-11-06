@@ -137,15 +137,24 @@ P0 实拍发现 `/system/models` 整页仍为浅色（白底表格、蓝底「�
 4. 范围外路由（写作、数据库、对比、AI 编辑器）仍沿用旧浅色 token，归 P2；本轮只把其中内联蓝紫渐变按风格层清掉，未铺开整套主题。
 5. `GraphLifecycleView/mockAdapter` 仍是演示骨架，未接入正式导航、未当作能力证据；图谱标签仍按「关联度预算」控制可见性，`graphData.ts` 未改。
 
-### 11.6 待决策：P1-1 写作模块（本轮未动代码）
+### 11.6 P1-1 写作模块：已收口（Owner 批准路径 B，2026-11-07）
 
-`HomePage/index.tsx:77 const { routes } = _menu;` 在基线 `e368f62` 即存在（`git show` 已核），`admin` 无写作菜单项时 `find()` 返回 `undefined`，解构抛错白屏，属改造前既有。
+Owner 在请示中选定路径 B 并接受权限行为变更，提交 `2f35b613`：在
+`HomePage/index.tsx:77` 的 `const { routes } = _menu;` 前加 `if (!_menu) return;`
+（1 行逻辑层改动，其余代码未动；该崩溃点在基线 `e368f62` 即存在）。
 
-- **路径 A（零代码，推荐）**：请提供具备写作菜单权限的测试账号，或由管理员给 `admin` 配写作资源；拿到账号后实拍 `/docWriting/{main,template,resource,indicator}` 四张 1366×768 截图入 `spectra-evidence/after-writing/`。
-- **路径 B（改逻辑层）**：在 77 行前加 `if (!_menu) return;`，会把「无权限访问 /docWriting」从崩溃变为停留原页，属权限行为变更，需明确批准后才可做。
+**实测的权限行为变化**（`after-writing/report.json`，真实浏览器、admin、Redis 验证码）：
 
-两条路径都需人工批准，本轮**未写任何代码、未自签、未伪造截图**，故 `after-writing/` 目录不存在。请 Owner 指定路径后继续。
+| 访问路径 | 守卫前 | 守卫后（实测） |
+|---|---|---|
+| `/docWriting/main`、`/docWriting/template` | 解构异常 `Cannot destructure property 'routes'`，整页白屏 | 不再崩溃；写作模块接口返回 401，被全局拦截器重定向到 `/login`（重新登录后重试一次仍如此，属稳定权限边界，非登录态时序） |
+| `/docWriting/resource`、`/docWriting/indicator` | 同上白屏 | 停留在原页，显示真实空数据界面（深色表面、`暂无数据`/`指标管理` 等接口文案） |
+
+- `destructureError=[]`、`PAGEERROR=[]`：白屏崩溃已消除；四页均 `RENDERED`，无横向溢出，`root font-size` 仍 16px。
+- 证据：`spectra-evidence/after-writing/` 四张 1366×768 PNG + `report.json`，采集脚本 `capture-writing.js`（对跳登录页的路由会重新登录重试并记录首次/重试 URL）。
+- **诚实声明**：`admin` 无写作菜单权限，因此四张截图中 `01-main`、`02-template` 是登录页（权限边界证据），`03-resource`、`04-indicator` 是无权限下的空数据外壳；它们**不是**完整写作功能页，未注入静态预览、未伪造数据。要验收完整写作页仍需路径 A（提供有写作菜单权限的账号）。
+- 新增残留：`04-indicator` 仍有 7 个蓝色元素与一条白底表格，属范围外路由的 P2 铺开项，本轮未扩大改动；`01/02` 的 401 重定向是既有权限链路行为，未在本次改动范围内修改。
 
 ### 11.7 本轮提交
 
-按「一项一提交、显式列文件」执行，未使用 `git add -A <目录>`：`5711a7ea`（P1-2 换图）、`776d7f2b`（P1-3 清渐变与映射）、`c1f94213`（P0 残留收口：模型页换肤 + 补漏）、`699829e1`（滑块/FAQ 工具条映射提权）、文档与证据提交。完整序列见 `git log --oneline 5711a7ea~1..HEAD`。工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。
+按「一项一提交、显式列文件」执行，未使用 `git add -A <目录>`：`5711a7ea`（P1-2 换图）、`776d7f2b`（P1-3 清渐变与映射）、`c1f94213`（P0 残留收口：模型页换肤 + 补漏）、`699829e1`（滑块/FAQ 工具条映射提权）、`df965009`（文档与 P0/P1 证据）、`2f35b613`（P1-1 守卫，Owner 批准路径 B）、P1-1 文档与写作四页证据提交。完整序列见 `git log --oneline 5711a7ea~1..HEAD`。工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。

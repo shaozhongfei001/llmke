@@ -130,10 +130,10 @@ components/AiEditor/components/editor/plugins/customPlugin/aiWriter/aiWriter.tsx
 
 | 项 | 状态 | 说明 |
 |---|---|---|
-| P1-1 写作模块实拍 | **待决策，未动代码** | 两条路径均需人工批准：`admin` 需补写作菜单权限/提供测试账号，或批准改 `HomePage/index.tsx:77` 的 null 守卫（权限行为变更）。详见 `SPECTRA.md` §11.6 |
+| P1-1 写作模块实拍 | **已收口（Owner 批准路径 B）** | 提交 `2f35b613`：`HomePage/index.tsx:77` 前加 `if (!_menu) return;`，白屏崩溃消除；四张 1366×768 截图入 `after-writing/`。`admin` 无权限，main/template 因接口 401 被重定向到登录页，resource/indicator 停留原页显示真实空数据外壳，权限行为变化与诚实声明见 `SPECTRA.md` §11.6 |
 | P1-2 SVG 蓝底 | **已收口** | 提交 `5711a7ea`：实测定位 6 个自带蓝色 fill 的 SVG，另存 `*_spectra.svg` 仅替换色值；改后运行时 `blueSvg=0` |
 | P1-3 残留硬编码色 | **已收口（含书面理由）** | 提交 `776d7f2b` + `c1f94213` + `699829e1`：`tsx` 的 99.9deg 渐变计数归零；20 个 `blue-[0-9]` 文件按交接文档 §3 决策 4 保留源类名、由主题作用域统一重映射，逐文件理由见 `SPECTRA.md` §11.5 |
 
 补充（P0 实拍发现，原清单外）：`/system/models` 整页浅色，与交接文档 §1 声明不符，已在主题作用域内换肤，见 `SPECTRA.md` §11.4。
 
-三项中 P1-1 属外部阻塞（账号/授权），按纪律停在请示状态，未自签、未改逻辑层。
+P1-1 曾按纪律停在请示状态；Owner 于 2026-11-07 选定路径 B 并批准权限行为变更后收口，未自签、未伪造截图。完整写作功能页仍需路径 A 的有权限账号。

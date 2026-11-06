@@ -29,11 +29,14 @@ tsx 中 blue-[0-9] 文件数：20（有意保留尾wind语义类名，由主题�
 搜索下拉第三方小图标、检索页少量第三方图形、浏览器原生 title 气泡、范围外路由（P2）、
 GraphLifecycleView/mockAdapter 演示骨架（未当正式能力）。
 
-## P1-1 待决策（未动代码）
-HomePage/index.tsx:77 的 _menu 解构在基线 e368f62 即存在；admin 无写作菜单 -> 白屏。
-路径 A：提供有写作菜单权限的测试账号后实拍四页；
-路径 B：批准加 `if (!_menu) return;`（权限行为变更）。
-两条路径均需 Owner 批准；after-writing/ 目录不存在，未伪造截图。
+## P1-1 已收口（Owner 批准路径 B，2026-11-07）
+提交 2f35b613：HomePage/index.tsx:77 前加 `if (!_menu) return;`（权限行为变更已获批准）。
+after-writing/report.json：destructureError=[]、PAGEERROR=[]，白屏崩溃消除；四页均 RENDERED、无横向溢出、root 16px。
+  /docWriting/main、/template：写作模块接口 401 -> 全局拦截器重定向 /login（重新登录重试后仍如此，稳定权限边界）。
+  /docWriting/resource、/indicator：停留原页，显示真实空数据界面（深色、暂无数据/指标管理等接口文案）。
+四张 1366x768 截图中两张为登录页（权限边界证据）、两张为空数据外壳；admin 无写作菜单权限，
+不是完整写作功能页，未注入静态预览、未伪造数据。完整功能页实拍仍需路径 A 的有权限账号。
+新增残留：04-indicator 仍有 7 个蓝色元素与一条白底表格，属范围外路由 P2 铺开项。
 
 ## 构建
 见 build-summary.txt：停 dev server 独占资源后 vite build 成功（15825 模块），
@@ -46,3 +49,5 @@ after-p1-final-20261106/  最终 14 张 PNG + report.json
 blue-pixel-diff.txt       改前/最终蓝色像素同构对比
 build-summary.txt         构建命令/结果/既有告警对比
 capture-regression.js     回归采集脚本（白屏/错位/字号 A/B/蓝色探针）
+after-writing/            P1-1 四张 1366x768 实拍 + report.json
+capture-writing.js        P1-1 写作四页实拍脚本（含 401 重试判定）

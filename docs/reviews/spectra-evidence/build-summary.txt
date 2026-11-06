@@ -19,3 +19,11 @@
 (15825 模块，2 处 parse error，统计口径/环境不同)。
 过程说明: 与 Playwright 回归并行时构建卡在 rendering chunks（交接文档已警告两套 server 共用
 node_modules/.vite 缓存）；停掉 dev server 独占资源后分别 8m36s / 4m32s 成功，非代码问题。
+
+## P1-1 路径 B（null 守卫）后的最终构建 2026-11-07 /tmp/sp-build-writing.log
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-p1-writing
+  结果: ✓ built in 3m 34s
+  模块: ✓ 15826 modules transformed.
+  dist-p1-writing/assets 文件数: 999
+  [vite:css] Parse error: 12（既有，同前）
+判定: 1 行逻辑守卫未引入任何构建失败；既有第三方告警数量不变。
