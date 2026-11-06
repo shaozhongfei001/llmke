@@ -792,3 +792,70 @@ body[data-spectra-theme="1"] .v2-chat-shell .g-welcome-search-btn{background:#14
 body[data-spectra-theme="1"] [class*="h-[43px]"]{background-color:rgba(216,189,137,0.14)!important}
 body[data-spectra-theme="1"] .bg-blue-50{background-color:rgba(216,189,137,0.12)!important}
 body[data-spectra-theme="1"] .bg-blue-100{background-color:rgba(216,189,137,0.18)!important}
+
+/* ---- P1-3：less 内残留的蓝紫渐变主按钮，在主题作用域内统一改暖金 ---- */
+body[data-spectra-theme="1"] .faq-edit-wrap .save-btn,
+body[data-spectra-theme="1"] .faq_drawer_content .save-btn,
+body[data-spectra-theme="1"] .faq-list-wrap .save-btn,
+body[data-spectra-theme="1"] .repeat-wrap .save-btn,
+body[data-spectra-theme="1"] .gradientPopBtn,
+body[data-spectra-theme="1"] .newversion-btn {
+  background: #d8bd89;
+  color: #111915;
+}
+
+/* knowledgeSearch.less 的 :hover 规则自带 !important，此处按同等级对抗 */
+body[data-spectra-theme="1"] .knowledge-search-wrap .search-wrap button,
+body[data-spectra-theme="1"] .knowledge-search-wrap .search-wrap button:hover {
+  background: #d8bd89 !important;
+  color: #111915;
+}
+
+/* 第三方 vendor（@mxmweb/somelib）把渐变写成 inline style，按规则用 !important 对抗 */
+body[data-spectra-theme="1"] [style*="linear-gradient(99.9deg"] {
+  background: #d8bd89 !important;
+  color: #111915 !important;
+}
+
+/* ---- P1-3：tailwind blue-* 原子类统一重映射（源类名保留，避免与并行工作流冲突） ---- */
+body[data-spectra-theme="1"] .text-blue-200,
+body[data-spectra-theme="1"] .text-blue-400,
+body[data-spectra-theme="1"] .text-blue-500,
+body[data-spectra-theme="1"] .text-blue-600,
+body[data-spectra-theme="1"] .text-blue-700 {
+  color: #94ced2;
+}
+body[data-spectra-theme="1"] .bg-blue-200,
+body[data-spectra-theme="1"] .bg-blue-300,
+body[data-spectra-theme="1"] .bg-blue-500,
+body[data-spectra-theme="1"] .bg-blue-600,
+body[data-spectra-theme="1"] .bg-blue-700 {
+  background-color: #d8bd89;
+  color: #111915;
+}
+body[data-spectra-theme="1"] .border-blue-100,
+body[data-spectra-theme="1"] .border-blue-200,
+body[data-spectra-theme="1"] .border-blue-400,
+body[data-spectra-theme="1"] .border-blue-500 {
+  border-color: #344044;
+}
+body[data-spectra-theme="1"] [class*="hover:bg-blue-700"]:hover {
+  background-color: #e7cfa1;
+}
+body[data-spectra-theme="1"] [class*="hover:text-blue-500"]:hover {
+  color: #94ced2;
+}
+body[data-spectra-theme="1"] [class*="focus:border-blue-400"]:focus {
+  border-color: #d8bd89;
+}
+/* 角色管理「添加用户 / 确认添加」的 indigo→blue 渐变按钮 */
+body[data-spectra-theme="1"] [class*="from-indigo-"][class*="to-blue-"] {
+  background-image: linear-gradient(to right, #a98d62, #d8bd89);
+  color: #111915;
+}
+/* 权限路径标签：AntD geekblue 不属于 tailwind 原子类，单独映射 */
+body[data-spectra-theme="1"] .ant-tag-geekblue {
+  color: #94ced2;
+  background: rgba(148, 206, 210, 0.1);
+  border-color: #344044;
+}
