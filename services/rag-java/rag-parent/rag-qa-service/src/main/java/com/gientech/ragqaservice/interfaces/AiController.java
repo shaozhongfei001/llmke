@@ -23,7 +23,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -179,29 +178,4 @@ public class AiController {
         return aiService.addOrUpdateQuestionAndAnswer(questionAndAnswerAddReq);
     }
 
-    @Operation(summary = "统一搜索接口")
-    @PostMapping(value = "/commonSearch", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @OperationLog(operateType = "统一搜索")
-    public Flux<ReplyDTO> commonSearch(@Validated @RequestBody CommonSearchRequest searchRequest) {
-        Flux<ReplyDTO> replyResult = aiService.commonSearch(searchRequest);
-        return replyResult;
-    }
-
-    @Operation(summary = "添加统一搜索记录")
-    @PostMapping(value = "/addQuery")
-    public void addQuery(@RequestParam("queryContent") String queryContent) {
-        aiService.addQuery(queryContent);
-    }
-
-    @Operation(summary = "获取统一搜索记录")
-    @PostMapping(value = "/getQueryHistory")
-    public Set<Object> getQueryHistory() {
-        return aiService.getQueryHistory();
-    }
-
-    @Operation(summary = "删除统一搜索记录")
-    @DeleteMapping(value = "/delQueryHistory")
-    public Boolean delQueryHistory(@RequestParam(value = "queryContent", required = false) String queryContent) {
-        return aiService.delQueryHistory(queryContent);
-    }
 }

@@ -95,7 +95,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.gientech.ragcommon.infrastructure.emuns.RedisKeyEnums.USER_SEARCH_PREFIX;
 import static com.gientech.ragcommon.qa.constant.AIConstant.*;
 
 
@@ -1739,96 +1738,6 @@ public class AiServiceImpl implements AiService {
         return replyDTO;
     }
 
-    @Trace
-    private ReplyDTO doRunRsForCommonSearch(String s, StringBuffer contentStrBuffer, Answer
-            answerObj, CommonSearchRequest commonSearchRequest, AtomicReference<Boolean> isErrFlag, InputType
-                                                    inputType, List<SensitiveWordsDTO> sensWordList, String retrieveDocs) {
-
-        ReplyDTO replyDTO = new ReplyDTO();
-        replyDTO.setSessionId(commonSearchRequest.getSessionId());
-        replyDTO.setQueryId(commonSearchRequest.getQueryId());
-        replyDTO.setLastDate(new Date());
-
-        ReplyContentDTO replyContentDTO = new ReplyContentDTO();
-        replyContentDTO.setType(MARKDOWN);
-        log.info("大模型推理回复结果:{}", s);
-        try {
-            String answer = "";
-            String end = null;
-            String docs = null;
-            if (StringUtils.isNotEmpty(s)) {
-                JSONObject jsonObject = JSON.parseObject(s);
-                //获取JSON对象中的值
-                answer = jsonObject.getString(ANSWER);
-                if (matchSensWord(sensWordList, answer).isPresent()) {
-                    log.info("answer:{} contains sensitiveWords", answer);
-                    answerObj.setReference(null);
-                    throw new ApplicationException(ErrCodeEnum.CONTAINS_SENS_WORD);
-                }
-                end = jsonObject.getString(END);
-                docs = jsonObject.getString(DOCS);
-            }
-
-            if (answer != null) {
-                replyDTO.setStatus(ReplyStatusEnums.RUN);
-                contentStrBuffer.append(answer);
-                if (inputType.equals(InputType.MONTAGE)) {
-                    replyContentDTO.setContent(contentStrBuffer.toString());
-                } else {
-                    replyContentDTO.setContent(answer);
-                }
-                replyDTO.setReply(replyContentDTO);
-            } else {
-                if (end != null) {
-                    replyDTO.setStatus(ReplyStatusEnums.PARSE_SUCCESS);
-                    answerObj.setReference(retrieveDocs);
-                    if (isErrFlag.get() == null) {
-                        isErrFlag.set(false);
-                    }
-
-                    answerObj.setContent(contentStrBuffer.toString());
-                    answerObj.setReference(JSON.toJSONString(filterDocuments(answerObj.getContent(), answerObj.getReference())));
-                    replyDTO.setReference(answerObj.getReference());
-                    replyDTO.setDocsTree(answerObj.getReference());
-                    log.info("queryId：" + commonSearchRequest.getQueryId() + ",content：结束");
-                } else {
-                    replyDTO.setStatus(ReplyStatusEnums.RUN);
-                    if (docs != null) {
-                        replyDTO.setReference(docs);
-                        answerObj.setReference(docs);
-//                        answerDomainService.addOrUpdateAnswerByDialogueIdAndQuestionId(answerObj);
-                    }
-                }
-                if (inputType.equals(InputType.MONTAGE)) {
-                    replyContentDTO.setContent(contentStrBuffer.toString());
-                } else {
-                    replyContentDTO.setContent("");
-                }
-                replyDTO.setReply(replyContentDTO);
-            }
-        } catch (ApplicationException e) {
-            log.error("ApplicationException:{}", e);
-            if (e.getErrCode().equals(ErrCodeEnum.CONTAINS_SENS_WORD.getErrCode())) {
-                throw e;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("error:{}", e);
-            replyDTO.setStatus(ReplyStatusEnums.PARSE_FAIL);
-            if (inputType.equals(InputType.MONTAGE)) {
-                replyContentDTO.setContent(contentStrBuffer.toString());
-            } else {
-                replyContentDTO.setContent("");
-            }
-            replyContentDTO.setType(MARKDOWN);
-            replyDTO.setReply(replyContentDTO);
-            isErrFlag.set(true);
-            log.error("queryId：" + commonSearchRequest.getQueryId() + ",处理AI异常json：" + e.getLocalizedMessage());
-        }
-        return replyDTO;
-    }
-
-
     private void doFinally(AtomicReference<Boolean> isErrFlag, AiRequest aiRequest, Long
             dialogueId, StringBuffer contentStrBuffer, Answer answerObj) {
 //        retriveTags = null;
@@ -1987,39 +1896,6 @@ public class AiServiceImpl implements AiService {
         isErrFlag.set(true);
         return Flux.just(replyDTO);
     }
-
-    private Publisher<? extends ReplyDTO> doErrorResumeForCommonSearch(CommonSearchRequest
-                                                                               commonSearchRequest, Exception ex, StringBuffer contentStrBuffer, AtomicReference<Boolean> isErrFlag, Config
-                                                                               config) {
-        if (ex instanceof ApplicationException) {
-            if (((ApplicationException) ex).getErrCode().equals(ErrCodeEnum.CONTAINS_SENS_WORD.getErrCode())) {
-                isErrFlag.set(false);
-                return ReplyDTO.fastReply(commonSearchRequest.getSessionId(), commonSearchRequest.getQueryId(), config.getDefaultAnswer(), null).concatWith(Flux.empty());
-            }
-        }
-        ex.printStackTrace();
-        log.error("queryId：" + commonSearchRequest.getQueryId() + ",-onErrorResume-" + ex.getMessage());
-        String errorMsg = ex.getMessage();
-        try {
-            Thread.sleep(600);
-        } catch (Exception e) {
-            log.error("queryId：" + commonSearchRequest.getQueryId() + ",-onErrorResume" + e.getMessage());
-            errorMsg = e.getMessage();
-        }
-        ReplyDTO replyDTO = new ReplyDTO();
-        replyDTO.setSessionId(commonSearchRequest.getSessionId());
-        replyDTO.setQueryId(commonSearchRequest.getQueryId());
-        replyDTO.setLastDate(new Date());
-        replyDTO.setStatus(ReplyStatusEnums.PARSE_FAIL);
-        ReplyContentDTO replyContentDTO = new ReplyContentDTO();
-        replyContentDTO.setContent(errorMsg);
-        replyContentDTO.setType(MARKDOWN);
-        replyDTO.setReply(replyContentDTO);
-        contentStrBuffer.setLength(0);
-        isErrFlag.set(true);
-        return Flux.just(replyDTO);
-    }
-
 
     /**
      * 模型推理数据组装json
@@ -2586,25 +2462,6 @@ return retrievedData;
         }
     }
 
-    private RetrievedData retrieveRecallForCommonSearch(CommonSearchRequest commonSearchRequest, ExtendedConfig
-            alParams) {
-        try {
-            JSONObject config = BeanUtil.copyProperties(alParams.getConfig(), JSONObject.class);
-            config.remove(SCORE_THRESHOLD);
-            log.info("retrieveRecall-检索召回请求参数:{}", JSON.toJSONString(config));
-            HttpEntity httpEntity = new HttpEntity(alParams.getConfig());
-            String rs = restTemplate.postForObject(nacosConfig.getSearchDocsUrl(), httpEntity, String.class);
-            log.info("knowledge---getBody:" + rs);
-            RetrievedData retrievedData = RetrievedData.getDefault(rs);
-            rs = retrievedData.getDocumentString();
-            return retrievedData;
-        } catch (Exception e) {
-            log.error("queryId：" + commonSearchRequest.getQueryId() + ",-knowledge-" + e.getMessage());
-            return null;
-        }
-
-    }
-
     private String getParsedFilePath(JSONObject metadata) {
         if (Objects.isNull(metadata)) {
             return null;
@@ -2628,22 +2485,6 @@ return retrievedData;
             log.error(e.getMessage());
         }
         return filePath;
-    }
-
-    /** R14-C-FIX-02：已带 scheme 的原样返回，相对对象键才补 endPoint（endPoint 尾斜杠先裁掉，避免双斜杠）。 */
-    private String toAbsoluteSource(String source) {
-        if (StringUtils.isBlank(source)) {
-            return source;
-        }
-        String s = source.trim();
-        if (s.startsWith("http://") || s.startsWith("https://")) {
-            return s;
-        }
-        String endPoint = trimTrailingSlash(storageProperties.getDefaultStorageProperties().getEndPoint());
-        while (s.startsWith("/")) {
-            s = s.substring(1);
-        }
-        return endPoint.isEmpty() ? s : endPoint + "/" + s;
     }
 
     /**
@@ -2992,146 +2833,6 @@ return retrievedData;
                 .type(TEXT)
                 .build();
         return answerDomainService.addOrUpdateAnswerByDialogueIdAndQuestionId(answer);
-    }
-
-    @Override
-    public Flux<ReplyDTO> commonSearch(CommonSearchRequest commonSearchRequest) {
-        return publicCommonSearch(commonSearchRequest, InputType.SEPARATE);
-    }
-
-    private Flux<ReplyDTO> publicCommonSearch(CommonSearchRequest commonSearchRequest, InputType inputType) {
-        String sessionId = commonSearchRequest.getSessionId();
-        String queryId = commonSearchRequest.getQueryId();
-
-        Config config = searchConfigDomainService.getConfigById(commonSearchRequest.getConfigId());
-        if (Objects.isNull(config)) {
-            //个人的默认助手配置
-            config = searchConfigDomainService.getDefaultConfig();
-            //系统默认助手配置
-            if (Objects.isNull(config)) {
-                String defaultConf = nacosConfig.getDefaultSearchConf();
-                config = new Config();
-                config.setConfigJson(defaultConf);
-            }
-        }
-
-        // 检索召回+推理（解决流式问题）
-        ExtendedConfig extendedConfig = new ExtendedConfig();
-        List<SensitiveWordsDTO> sensWordList = Lists.newArrayList();
-        ExtendedConfig alParams;
-        List<Document> documents = new ArrayList<>();
-        List<Document> webRsDocuments = new ArrayList<>();
-
-        RetrievedData retrievedData = null;
-        //组装请求参数
-        buildConfig(config, true, false);
-        extendedConfig.init(config.getConfigJson());
-        extendedConfig.setQuery(commonSearchRequest.getContent());
-
-        //获取敏感词
-        sensWordList = getSensitiveWordsByIds(config.getSensitiveWordIds());
-        //对问题进行分词，如果有敏感词，则直接返回通用回答
-        if (matchSensWord(sensWordList, commonSearchRequest.getContent()).isPresent()) {
-            String answer = config.getDefaultAnswer();
-            //如果问题命中敏感词，则返回配置的默认回复
-            return ReplyDTO.fastReplyRe(sessionId, queryId, answer, null, AIResultTypeEnum.SENSITIVE_WORDS.getCode());
-        }
-
-        if (Objects.nonNull(extendedConfig.getKnowledgeBaseName())) {
-            //检索召回组装json数据
-            alParams = retrieveRecallParamToJson(extendedConfig);
-            //1.调用检索召回接口
-            retrievedData = retrieveRecallForCommonSearch(commonSearchRequest, alParams);
-            if (Objects.nonNull(retrievedData)) {
-                documents.addAll(retrievedData.getSimpleDocuments(storageProperties.getDefaultStorageProperties().getEndPoint()));
-                List<Document> fullDocuments = retrievedData.getDocuments(storageProperties.getDefaultStorageProperties().getEndPoint());
-                webRsDocuments.addAll(fullDocuments);
-            }
-        }
-
-        //如果助手配置了强关联知识库,且知识库没有召回内容，则直接返回
-        if (Objects.nonNull(config.getDependOnKb()) && config.getDependOnKb() == 1 && (Objects.isNull(retrievedData) || !retrievedData.existDocs())) {
-            //保存问题和答案
-            String answer = "抱歉未能找到您要的答案";
-            return ReplyDTO.fastReplyRe(sessionId, queryId, answer, null);
-        }
-
-        alParams = buildInferenceParamForCommonSearch(extendedConfig);
-        if (Objects.nonNull(retrievedData))
-            alParams.setDocuments(JSON.parseArray(retrievedData.getDocumentString(), Document.class), null);
-
-        //2.大模型推理服务
-        return modelBasedInferenceReForCommonSearch(webRsDocuments, commonSearchRequest, alParams, inputType, sensWordList, config);
-    }
-
-    private ExtendedConfig buildInferenceParamForCommonSearch(ExtendedConfig config) {
-        try {
-            ExtendedConfig newConfig = (ExtendedConfig) config.clone();
-            StringBuffer stringBuffer = new StringBuffer();
-            stringBuffer.append(config.getQuery());
-            newConfig.convertKBN2Array();
-            newConfig.setStream(true);
-            String modelName = newConfig.getConfig().getString(MODEL_NAME);
-            newConfig.getConfig().put(MODEL_INFO, modelClient.getSimpByModeName(modelName));
-            return newConfig;
-        } catch (CloneNotSupportedException ex) {
-            throw new ApplicationException("build params error...");
-        }
-    }
-
-    private Flux<ReplyDTO> modelBasedInferenceReForCommonSearch(List<Document> docs, CommonSearchRequest
-            commonSearchRequest, ExtendedConfig alParams, InputType
-                                                                        inputType, List<SensitiveWordsDTO> sensWordList, Config config) {
-        log.info("modelBasedInference--模型推理请求参数:" + alParams.getConfig());
-        String sessionId = commonSearchRequest.getSessionId();
-        String queryId = commonSearchRequest.getQueryId();
-        StringBuffer contentStrBuffer = new StringBuffer();
-
-        String webRsDocuments = JSON.toJSONString(docs);
-        Answer answerObj = new Answer();
-        answerObj.setType(commonSearchRequest.getType());
-        AtomicReference<Boolean> isErrFlag = new AtomicReference<>(null);
-        Flux<ReplyDTO> thirdPartyStream = webLlmOpenChatClient.post()
-                .uri(nacosConfig.getLlmOpenChatUrl())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(alParams.getConfigJSONString())) //参数
-                .accept(MediaType.TEXT_EVENT_STREAM) //接收text/event-stream流的数据
-                .retrieve()
-                .bodyToFlux(String.class) //输出格式
-                .map(s -> doRunRsForCommonSearch(s, contentStrBuffer, answerObj, commonSearchRequest, isErrFlag, inputType, sensWordList, webRsDocuments))
-                .onErrorResume(Exception.class, ex -> doErrorResumeForCommonSearch(commonSearchRequest, ex, contentStrBuffer, isErrFlag, config)); //请求失败
-//                .doFinally(signalType -> doFinally(isErrFlag, aiRequest, dialogueId, contentStrBuffer, answerObj)); //请求完成后
-        return sendHeartBeat(sessionId, queryId, null).concatWith(thirdPartyStream);
-    }
-
-    @Override
-    public void addQuery(String queryContent) {
-        User user = UserContext.getUser();
-        String key = USER_SEARCH_PREFIX + user.getUserName();
-        redissonUtils.zscoreAddAsync(key, getDoubleTime(), queryContent, null);
-    }
-
-    private double getDoubleTime() {
-        return System.currentTimeMillis() / 1000.0;
-    }
-
-    @Override
-    public Set<Object> getQueryHistory() {
-        User user = UserContext.getUser();
-        int MAX_COUNT = 100;
-        return redissonUtils.getFixZSetMembers(USER_SEARCH_PREFIX + user.getUserName(), MAX_COUNT);
-    }
-
-    @Override
-    public Boolean delQueryHistory(String queryContent) {
-        User user = UserContext.getUser();
-        String queryKey = USER_SEARCH_PREFIX + user.getUserName();
-        if (StringUtils.isNotEmpty(queryContent)) {
-            redissonUtils.removeZSetMemberAsync(queryKey, queryContent);
-        } else {
-            redissonUtils.removeAllZSetMembers(queryKey);
-        }
-        return true;
     }
 
     @Override

@@ -1,3 +1,5 @@
+/* 共享样式：原统一检索结果页样式，现由 AiEditor 的 RagReCallDrawer / FileViewNew / SectionDrawer 复用。
+   统一检索页面已下线，此文件因其它功能依赖而保留并迁移到公共样式目录。 */
 @listHeight: 300px;
 .assistantSelector {
   .ant-select-selector {
@@ -259,29 +261,65 @@
   }
 }
 
+.result-wrap {
+  height: calc(100vh - 180px);
+  margin-top: 20px;
+  color: #2a2a2a;
+  padding-right: 20px;
+  overflow-y: auto;
+}
+
+.result-wrap::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.result-wrap::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 15px;
+}
+.result-wrap::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 15px;
+}
 .result-content-wrap {
   border-radius: 8px;
   border: 1px solid #fff;
-  height: calc(100vh - 170px);
   background: linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.2) 0%,
       rgba(255, 255, 255, 0.2) 100%
     ),
     linear-gradient(179deg, #eeedff 0.35%, #fff 19.38%);
-
-  overflow-y: auto;
+  margin-bottom: 16px;
   .content-wrap {
+    padding: 20px 20px 54px;
+    position: relative;
+    .opener-btn {
+      position: absolute;
+      z-index: 9;
+      height: 26px;
+      bottom: 16px;
+      right: 0;
+      left: 0;
+      text-align: center;
+      line-height: 26px;
+      span {
+        cursor: pointer;
+        display: inline-block;
+        &:hover {
+          opacity: 0.8;
+        }
+        svg {
+          margin-left: 8px;
+        }
+      }
+    }
     .assist-name-wrap {
-      padding-left: 110px;
       background-color: transparent;
       color: #2a2a2a;
       font-size: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       img,
-      b {
-        position: absolute;
-      }
       .icon-robot {
         left: 0px;
         top: -2px;
@@ -290,137 +328,150 @@
         left: 28px;
         top: 2px;
       }
-      b {
-        display: inline-block;
-        width: 4px;
-        height: 4px;
-        border-radius: 4px;
-        background-color: #888;
-        top: 50%;
-        margin-top: -2px;
-        left: 98px;
-      }
     }
   }
-  .retrive-tag {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border-radius: 20px;
-    background: #e1ebff;
-    color: #055aff;
-    text-align: center;
-    font-family: "Microsoft YaHei";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-    margin-right: 8px;
-  }
-}
-.result-content-wrap::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-.result-content-wrap::-webkit-scrollbar-track {
-  background-color: transparent;
-  border-radius: 15px;
-}
-.result-content-wrap::-webkit-scrollbar-thumb {
-  background-color: #d9d9d9;
-  border-radius: 15px;
 }
 
+.open-btn {
+  span {
+    color: #055aff;
+  }
+}
+.close-btn {
+  span {
+    color: #2a2a2a;
+    svg {
+      color: #555;
+    }
+  }
+}
 .file-title-wrap {
-  z-index: 11;
   background-color: #fff;
-  color: #2a2a2a;
-  font-size: 16px;
-  position: absolute;
-  left: 0;
-  right: 20px;
+  position: relative;
+  padding-left: 16px;
+  height: 24px;
+  b {
+    color: #2a2a2a;
+    font-size: 16px;
+    font-weight: 500;
+  }
   i {
     display: inline-block;
-    width: 32px;
+    width: 24px;
     height: 24px;
-    background-color: #eee;
     position: absolute;
-    top: 18px;
-    right: 0;
+    top: 2px;
+    right: -8px;
     cursor: pointer;
     text-align: center;
     border-radius: 4px;
-    transform: scaleX(0.8);
+    // transform: scaleX(0.8);
     &::after {
       content: "\2715";
       font-style: normal;
-      color: #555;
-      font-size: 14px;
+      color: #666;
+      font-size: 16px;
     }
     &:hover {
       opacity: 0.8;
     }
   }
 }
-.files-wrap {
-  border-radius: 8px;
-  background: #fff;
-  padding: 16px 4px 16px 16px;
-  height: calc(100vh - 170px);
-  .refrence-list-wrap {
-    height: calc(100vh - 240px);
-    overflow-y: auto;
-    padding-right: 12px;
-    background-color: transparent;
-    .refrence-row {
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px solid #eee;
-      background: #fff;
-      &:hover {
-        background-color: #f1f5ff;
+.refrence-list-wrap {
+  background-color: transparent;
+  .list-title-wrap {
+    .opener-btn {
+      span {
+        cursor: pointer;
+        display: inline-block;
+        &:hover {
+          opacity: 0.8;
+        }
+        svg {
+          margin-left: 8px;
+        }
       }
-      .line-wrap {
-        width: 100%;
-        height: 1px;
-        border-bottom: 1px solid #eee;
-      }
-    }
-    .selected-row {
-      border: 1px solid #055aff;
-      background-color: #f1f5ff;
-    }
-    .block-wrap {
-      border: 1px solid #f7f8fc;
-      &:hover {
-        background-color: #f1f5ff;
-      }
-    }
-    .selected-block {
-      border-color: #055aff;
-      background-color: #f1f5ff;
-    }
-    .only-select-block {
-      background: #fff;
-      border-color: #055aff;
     }
   }
+  .open-list {
+    background-color: #fafcff;
+    box-shadow: 0px 1px 0px 0px #eff5ff;
+  }
+  .refrence-row {
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: #fff;
+    &:hover {
+      background-color: #f1f5ff;
+    }
+    .line-wrap {
+      width: 100%;
+      height: 1px;
+      border-bottom: 1px solid #eee;
+    }
+  }
+  .selected-row {
+    border: 1px solid #055aff;
+    background-color: #f1f5ff;
+  }
+  .block-wrap {
+    border: 1px solid #f7f8fc;
+    &:hover {
+      background-color: #f1f5ff;
+    }
+  }
+  .selected-block {
+    border-color: #055aff;
+    background-color: #f1f5ff;
+  }
+  .only-select-block {
+    background: #fff;
+    border-color: #055aff;
+  }
+}
 
-  .refrence-list-wrap::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+.file-name-link {
+  color: #2a2a2a;
+  cursor: pointer;
+  &:hover {
+    color: #055aff;
   }
-  .refrence-list-wrap::-webkit-scrollbar-track {
-    background-color: transparent;
-    border-radius: 15px;
+}
+.select-file {
+  color: #305eba;
+  cursor: default;
+  &:hover {
+    color: #305eba;
   }
-  .refrence-list-wrap::-webkit-scrollbar-thumb {
-    background-color: #d9d9d9;
-    border-radius: 15px;
+}
+.chunk-wrap {
+  padding: 1px;
+  &:hover {
+    padding: 0px;
+    border: 1px solid #055aff;
+  }
+  .chatView {
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #eff5ff;
+  }
+}
+
+.select-chunk {
+  padding: 0px;
+  border: 1px solid #055aff;
+  .chatView {
+    background-color: #f1f5ff;
+    border-bottom: 1px solid #f1f5ff;
   }
 }
 
 .chatView {
+  table {
+    width: 99%;
+    border-collapse: collapse;
+  }
   th,
   td {
     border: 1px solid #e5e7eb !important;
@@ -428,4 +479,9 @@
   tbody tr:first-child {
     background-color: #f0f0f0;
   }
+}
+
+.drawer-wrap {
+  width: 50%;
+  min-width: 1400px;
 }

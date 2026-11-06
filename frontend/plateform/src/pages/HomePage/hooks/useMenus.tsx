@@ -31,8 +31,6 @@ import IconWritingActive from "@/assets/svg/icon-writing-active.svg";
 import IconDocumentActive from "@/assets/svg/icon-document-active.svg";
 import IconMaterialActive from "@/assets/svg/icon-material-active.svg";
 import IconSceneActive from "@/assets/svg/icon-scene-active.svg";
-import MenuSearch from "@/assets/img/menu-search.png";
-import MenuSearchActive from "@/assets/img/menu-search-active.png";
 import IconComponentActive from "@/assets/svg/icon-component-active.svg";
 import IconComponent from "@/assets/svg/icon-component.svg";
 import IconIndicatorActive from "@/assets/svg/icon-indicator-active.svg";
@@ -121,15 +119,6 @@ const initData: NavBarItm[] = [
         activeIcon: comparison2,
         id: "1033",
         url: "/chats/feedback"
-      },
-      {
-        name: "搜索",
-        key: "/chats/knowledgeSearch",
-        path: "/chats/knowledgeSearch",
-        icon: MenuSearch, //缺图标
-        activeIcon: MenuSearchActive,
-        id: "10707",
-        url: "/chats/knowledgeSearch"
       }
     ]
   },

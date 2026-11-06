@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>
@@ -87,20 +86,6 @@ public interface AiService {
      * @return
      */
     Boolean addOrUpdateQuestionAndAnswer(QuestionAndAnswerAddReq questionAndAnswerAddReq);
-
-    /**
-     * 检索大模型推理接口
-     *
-     * @param searchRequest
-     * @return
-     */
-    Flux<ReplyDTO> commonSearch(CommonSearchRequest searchRequest);
-
-    void addQuery(String queryContent);
-
-    Set<Object> getQueryHistory();
-
-    Boolean delQueryHistory(String queryContent);
 
     /**
      * 知识检索召回测试
