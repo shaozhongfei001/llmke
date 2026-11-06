@@ -74,6 +74,8 @@ function HomePage() {
             ) || undefined;
           break;
       }
+      // 无该模块菜单权限时不做解构与重定向，停留在当前页（Owner 已批准的权限行为变更）
+      if (!_menu) return;
       const { routes } = _menu;
       if (_menu && _menu.key && routes && routes.length) {
         const _route =
