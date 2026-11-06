@@ -43,3 +43,10 @@
 ## 8 截图证据
 - 目录 spectra-evidence/before（基线 e368f62 worktree）与 after（本分支），同构采集，1366x768 六页 + 1920x1080 三页
 - 采集脚本 capture.js：node capture.js <baseUrl> <outDir>，NODE_PATH 指向 my-playwright；需 8088 网关与 Redis 验证码
+
+## 9 扩展菜单页（智能对话/助手配置/敏感词配置/搜索/用户反馈）
+- 智能对话：AIChat/config/index.tsx 的 theme.colors 整体改 SPECTRA（primary/背景/侧栏/选中项/悬停/分组边框 22 项），vendor 聊天外壳随主题变量换肤
+- 助手配置/敏感词/用户反馈：根容器 bg-white 改 #10181C，页面 style.less 与 styles.less 的底色/表头/悬停改深色，新建按钮由蓝紫渐变改暖金
+- 搜索页：搜索框/建议词胶囊/下拉由 tailwind bg-white 统一改深色（主题作用域内的 .bg-white 等原子类重映射）
+- 全局（主题作用域）：.ant-table-thead th 表头深色、.bg-white/.bg-gray-50/.border-gray-300/.text-gray-* 原子类重映射，修复各列表页残留白底
+- 证据：spectra-evidence/after-menu/ 五张（1366x768）。已知残留：欢迎语标题与输入框描边仍为 vendor 蓝紫渐变
