@@ -58,7 +58,9 @@ TARGETS=(
   "alg|19526,19527,19995,19996|r12-alg|alg-granular||"
   "models|18090,18091,18092,18093|r12-models|unit-restart||http://127.0.0.1:18090/healthz,http://127.0.0.1:18091/healthz,http://127.0.0.1:18092/health,http://127.0.0.1:18093/health"
   "docparse|12340|r12-docparse|unit-restart||"
-  "graphsvc|19529|r12-graphsvc|unit-restart||"
+  # 阶段4 已下线 V1（19529/Nebula）：原 graphsvc 条目会让看门狗每 45s 把 19529 拉回来。
+  # 改为守护 V2 图栈（18094 HippoRAG API + 19531 建图 shim），挂掉才能自愈。
+  "hipporag|18094,19531|-|graph-v2||"
   "java-auth|18081|r12-java@rag-auth-service.service|unit-restart||"
   "java-index|18082|r12-java@rag-index-service.service|unit-restart|||/index/knowledgeBase/list;200"
   "java-qa|18083|r12-java@rag-qa-service.service|unit-restart|||/qa/ai/question;499"
@@ -214,6 +216,16 @@ heal() {  # $1=group $2=unit $3=mode $4=target $5=missing(csv)
         systemd-run --user --scope --collect --quiet bash "$R12CTL" start "$target" >>"$LOG" 2>&1 || rc=1
       else
         bash "$R12CTL" start "$target" >>"$LOG" 2>&1 || rc=1
+      fi
+      ;;
+    graph-v2)
+      # V2 图栈是裸进程（无 systemd unit），用幂等启动脚本补齐 18094/19531。
+      # 脚本内部按端口判断，已存活的服务不会被重复拉起。
+      log "[$group] 修复动作: $R12/bin/r12-graph-v2-start.sh"
+      if command -v systemd-run >/dev/null 2>&1; then
+        systemd-run --user --scope --collect --quiet bash "$R12/bin/r12-graph-v2-start.sh" >>"$LOG" 2>&1 || rc=1
+      else
+        bash "$R12/bin/r12-graph-v2-start.sh" >>"$LOG" 2>&1 || rc=1
       fi
       ;;
     *) log "[$group] 未知 heal 模式 $mode"; rc=1 ;;
@@ -402,8 +414,9 @@ if [[ "$MODE" == "--status" || "$MODE" == "--doctor" ]]; then
 fi
 
 # ---- 容器级守护（r12-* 统一 restart=unless-stopped；被显式 stop 的从容器侧看不出，这里兜住）----
+# 阶段4 已下线 Nebula×3；留在列表里会被看门狗每 45s `docker start` 复活（实测复发）。
 CONTAINERS=(r12-mysql r12-redis r12-es r12-minio r12-milvus r12-nacos r12-rocketmq-namesrv
-            r12-rocketmq-broker r12-nebula-metad r12-nebula-storaged r12-nebula-graphd
+            r12-rocketmq-broker
             r12-etcd r12-preview r12-fe)
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
   c_bad=0; c_heal=0
