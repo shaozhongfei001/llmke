@@ -37,8 +37,8 @@ interface Props {
   onScaleChange?: (scale: number) => void;
 }
 
-/** 重点实体：概览缩小到小字号时仍保留标签 */
-const PROMINENT_TYPES = new Set(["产品", "客户", "评级"]);
+/** 重点实体：概览缩小到小字号时仍保留标签（v2 主链统一"实体"；旧 Nebula 按细分类） */
+const PROMINENT_TYPES = new Set(["实体", "产品", "客户", "评级"]);
 
 interface Pos {
   x: number;

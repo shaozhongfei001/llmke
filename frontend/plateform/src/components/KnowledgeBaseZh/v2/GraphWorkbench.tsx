@@ -36,6 +36,9 @@ import {
 } from "./graphData";
 import "./workbench.less";
 
+/** 画布单次渲染的节点上限：力导向布局复杂度 O(n²)，超过此规模必须降采样 */
+const RENDER_LIMIT = 400;
+
 type Mode = "graph" | "community" | "qa";
 
 const GraphWorkbench = ({ kbInfo }: { kbInfo: any }) => {
@@ -92,10 +95,10 @@ const GraphWorkbench = ({ kbInfo }: { kbInfo: any }) => {
 
   const loadCommunity = useCallback(async () => {
     setCommunityLoading(true);
-    const c = await fetchCommunities(kbInfo?.id);
+    const c = await fetchCommunities(graphSpace);
     setCommunity(c);
     setCommunityLoading(false);
-  }, [kbInfo?.id]);
+  }, [graphSpace]);
 
   useEffect(() => {
     if (mode === "community" && !community) loadCommunity();
@@ -141,8 +144,31 @@ const GraphWorkbench = ({ kbInfo }: { kbInfo: any }) => {
       nodes = nodes.filter(n => neighbors.has(n.vid));
     }
     const ids = new Set(nodes.map(n => n.vid));
-    const edges = graph.edges.filter(e => ids.has(e.source) && ids.has(e.target));
-    return { nodes, edges };
+    let edges = graph.edges.filter(e => ids.has(e.source) && ids.has(e.target));
+
+    // 渲染上限：画布布局是 O(n²) 的同步力导向，1 万+ 节点会把主线程卡死
+    // （实测 10533 节点 × 260 轮 ≈ 289 亿次运算）。这里按关联度取前 RENDER_LIMIT 个，
+    // 并强制保留当前选中节点，保证点选后不会"凭空消失"。
+    let truncated = 0;
+    if (nodes.length > RENDER_LIMIT) {
+      const deg = new Map<string, number>();
+      for (const e of edges) {
+        deg.set(e.source, (deg.get(e.source) || 0) + 1);
+        deg.set(e.target, (deg.get(e.target) || 0) + 1);
+      }
+      const keep = new Set(
+        [...nodes]
+          .sort((a, b) => (deg.get(b.vid) || 0) - (deg.get(a.vid) || 0))
+          .slice(0, RENDER_LIMIT)
+          .map(n => n.vid)
+      );
+      if (selected) keep.add(selected);
+      truncated = nodes.length - keep.size;
+      nodes = nodes.filter(n => keep.has(n.vid));
+      const kept = new Set(nodes.map(n => n.vid));
+      edges = edges.filter(e => kept.has(e.source) && kept.has(e.target));
+    }
+    return { nodes, edges, truncated };
   }, [graph, typeFilter, docFilter, hopFilter, selected, neighbors]);
 
   /* ---------- 搜索 ---------- */
@@ -387,6 +413,14 @@ const GraphWorkbench = ({ kbInfo }: { kbInfo: any }) => {
                 <span>显示实体 <b>{visible.nodes.length}</b><span className="kgw-count-total"> / {graph.nodes.length}</span></span>
                 <span className="kgw-count-rule" />
                 <span>关系 <b>{visible.edges.length}</b><span className="kgw-count-total"> / {graph.edges.length}</span></span>
+                {visible.truncated > 0 && (
+                  <>
+                    <span className="kgw-count-rule" />
+                    <span title={`为保持画布流畅，按关联度只渲染前 ${RENDER_LIMIT} 个节点（另有 ${visible.truncated} 个未渲染，可用搜索定位）`}>
+                      画布上限 {RENDER_LIMIT}（按关联度，未渲染 {visible.truncated}）
+                    </span>
+                  </>
+                )}
                 {crossMode && (
                   <>
                     <span className="kgw-count-rule" />

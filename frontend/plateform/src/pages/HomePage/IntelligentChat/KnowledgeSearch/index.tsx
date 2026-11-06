@@ -122,7 +122,7 @@ const KnowledgeSearch = () => {
     });
   };
 
-  const fetchAssisList = () => {
+  const fetchAssisList = (keepSelection = false) => {
     setCfgLoading(true);
     api_getHelperConfigList({
       data: { ...initialPage },
@@ -136,7 +136,20 @@ const KnowledgeSearch = () => {
         }
         const _assistId = _records && _records.length ? _records[0].id : "";
         setAssistList([...assistantDTO_to_SelectOption(_records)]);
-        setAssistId(_assistId);
+        if (keepSelection) {
+          // 刷新列表时保留用户当前选中的助手：否则用户选了「农业技术助手」后
+          // 切走再回来会被重置回第一条（默认库），知识库选择等于被悄悄改掉。
+          // 仅当该助手已从列表消失（被删除/无权限）时才回退到第一条。
+          setAssistId((prev: any) => {
+            const stillExists =
+              prev !== "" &&
+              prev != null &&
+              _records.some((r: any) => String(r.id) === String(prev));
+            return stillExists ? prev : _assistId;
+          });
+        } else {
+          setAssistId(_assistId);
+        }
       })
       .finally(() => setCfgLoading(false));
   };
@@ -457,6 +470,27 @@ const KnowledgeSearch = () => {
   useEffect(() => {
     fetchAssisList();
     fetchHistoryList();
+  }, []);
+
+  // 助手列表原来只在挂载时拉一次：助手配置在别处新增或改绑知识库后（例如新增
+  // 「农业技术助手」绑定 kb_1004），用户不刷新页面就选不到，等于"知识库选择没及时更新"。
+  // 这里在页面重新可见 / 窗口重新聚焦时静默刷新一次（30s 节流），并保留当前选择。
+  useEffect(() => {
+    let lastAt = 0;
+    const refresh = () => {
+      if (document.visibilityState !== "visible") return;
+      const now = Date.now();
+      if (now - lastAt < 30000) return;
+      lastAt = now;
+      fetchAssisList(true);
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
