@@ -185,8 +185,8 @@ export function ChatInput({
                 className="relative w-[68px] h-7 flex items-center justify-center rounded-lg cursor-pointer group overflow-hidden"
                 onClick={onSend}
               >
-                <div className="absolute inset-0 bg-gradient-to-br bg-[#4e6ef2] opacity-90 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"></div>
-                <div className="relative flex items-center gap-x-1 text-white">
+                <div className="absolute inset-0 bg-[#D8BD89] opacity-95 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"></div>
+                <div className="relative flex items-center gap-x-1 text-[#111915]">
                   <Send className="w-[17px] h-[17px]" />
                   <span className="ml-1 text-[12px]">发送</span>
                 </div>

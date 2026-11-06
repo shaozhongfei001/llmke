@@ -256,13 +256,14 @@ const KnowledgeBase = (props: KnowledgeBaseProps) => {
                         return (
                           <ProCard
                             key={`${currentTab}_${index}`}
+                            // 列表页用整行（信息密度对齐设计稿）；素材选择场景（isSelect）保持原栅格
                             colSpan={{
-                              xs: 6,
-                              sm: 6,
-                              md: isSelect ? 7 : 6,
-                              lg: isSelect ? 7 : 6,
-                              xl: isSelect ? 7 : 6,
-                              xxl: isSelect ? 7 : 8
+                              xs: 24,
+                              sm: 24,
+                              md: isSelect ? 7 : 24,
+                              lg: isSelect ? 7 : 24,
+                              xl: isSelect ? 7 : 24,
+                              xxl: isSelect ? 8 : 24
                             }}
                             ghost={true}
                           >

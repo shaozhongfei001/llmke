@@ -247,8 +247,8 @@ export const SimilarDrawerContent = ({
             type="primary"
             className="border-none"
             style={{
-              background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-              color: "#fff",
+              background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+              color: "#111915",
               marginRight: "16px"
             }}
             onClick={addNewSimilar}
@@ -469,7 +469,7 @@ export const FaqDrawerContent = ({
                   </Button>
                   <Button
                     style={{
-                      background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
+                      background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
                       color: isDisabled ? "#ddd" : "#fff",
                       border: "none"
                     }}
@@ -481,7 +481,7 @@ export const FaqDrawerContent = ({
                   {/* <Button
                     type="primary"
                     style={{
-                      background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
+                      background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
                       color: isDisabled ? "#ddd" : "#fff",
                       border: "none",
                     }}
@@ -514,7 +514,7 @@ export const FaqDrawerContent = ({
         <Button
           type="primary"
           style={{
-            background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
+            background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
             color: isDisabled ? "#ddd" : "#fff",
             border: "none"
           }}

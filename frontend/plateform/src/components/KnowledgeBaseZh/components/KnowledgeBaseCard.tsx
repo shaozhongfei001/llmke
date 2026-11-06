@@ -124,64 +124,50 @@ const KnowledgeBaseCard = (props: ICard) => {
       <div
         className="card-wrap"
         onClick={handleCardClick}
+        // 选中态用 SPECTRA 暖金（原为硬编码 #055aff）
         style={{
-          border: isSelected ? "1px solid #055aff" : ""
+          border: isSelected ? "1px solid #d8bd89" : ""
         }}
       >
-        <div className="flex w-full justify-start  items-start">
+        {/* 行式布局（信息密度优先）：名称/说明 · 文件数 · 大小 · 操作，字段全部来自接口 */}
+        <div className="kb-row">
           <div className="knowledge-icon"></div>
-          <div
-            className="knowledge-name h-auto! line-clamp-2 "
-            title={row.kbName}
-          >
-            {row.kbName}
-          </div>
-        </div>
-
-        <span>
-          {/* <div className="knowledge-tags">
-            {row.kbLabel && renderTagList(row.kbLabel)}
-            {!row.kbLabel && "暂无标签"}
-          </div> */}
-          <div className="flex absolute bottom-0 left-0 w-full px-5 pb-2 justify-between">
-            <div className="knowledge-info">
-              <label
-                title={
-                  typeof row?.fileCount === "number"
-                    ? row?.fileCount.toString()
-                    : "-"
-                }
-              >
-                文件数：
-              </label>
-              <label
-                style={{
-                  color: "#555"
-                }}
-              >
-                {typeof row?.fileCount === "number" ? row?.fileCount : "-"}
-              </label>
-              <span>·</span>
-              <label
-                title={
-                  typeof row?.fileTotalSize === "number"
-                    ? row?.fileTotalSize.toString()
-                    : "-"
-                }
-              >
-                大小：
-              </label>
-              <label
-                style={{
-                  color: "#555"
-                }}
-              >
-                {formatFileSize(row?.fileTotalSize)}
-              </label>
+          <div className="kb-row-main">
+            <div className="knowledge-name" title={row.kbName}>
+              {row.kbName}
             </div>
+            {row.kbDes ? (
+              <div className="kb-row-desc" title={String(row.kbDes)}>
+                {row.kbDes}
+              </div>
+            ) : null}
+          </div>
+          <div
+            className="kb-row-metric"
+            title={
+              typeof row?.fileCount === "number"
+                ? row?.fileCount.toString()
+                : "-"
+            }
+          >
+            <span className="kb-row-metric-label">文件数</span>
+            {typeof row?.fileCount === "number" ? row?.fileCount : "-"}
+          </div>
+          <div
+            className="kb-row-metric"
+            title={
+              typeof row?.fileTotalSize === "number"
+                ? row?.fileTotalSize.toString()
+                : "-"
+            }
+          >
+            <span className="kb-row-metric-label">大小</span>
+            {formatFileSize(row?.fileTotalSize)}
+          </div>
+          <div className="kb-row-actions">
             <Tooltip
               className="inline-block"
-              placement="right"
+              placement="bottomRight"
               arrow={false}
               overlayInnerStyle={{
                 padding: 0
@@ -189,25 +175,24 @@ const KnowledgeBaseCard = (props: ICard) => {
               title={
                 <div className="w-[68px] text-center leading-[32px] cursor-pointer">
                   <div
-                    className={` ${getBtnDisabled(FILE_BTN.EDIT, row.permission) ? "cursor-not-allowed text-text-color3" : "cursor-default text-[#555555]"} card-hover-operations-item hover:bg-[#F1F5FF]`}
+                    className={` ${getBtnDisabled(FILE_BTN.EDIT, row.permission) ? "cursor-not-allowed text-text-color3" : "cursor-pointer spectra-dropdown-link"} card-hover-operations-item`}
                     onClick={renameKB}
                   >
                     编辑
                   </div>
                   <div
-                    className={`${getBtnDisabled(FILE_BTN.DELETE, row.permission) ? "cursor-not-allowed text-text-color3" : "cursor-default text-[#555555]"} card-hover-operations-item `}
+                    className={`${getBtnDisabled(FILE_BTN.DELETE, row.permission) ? "cursor-not-allowed text-text-color3" : "cursor-pointer spectra-dropdown-link"} card-hover-operations-item `}
                     onClick={deleteKB}
                   >
                     删除
                   </div>
                 </div>
               }
-              color={"#fff"}
             >
-              <EllipsisOutlined className="hover:bg-[#F1F5FF] hover:text-[#055AFF]" />
+              <EllipsisOutlined className="spectra-row-more" />
             </Tooltip>
           </div>
-        </span>
+        </div>
       </div>
       <Modal
         closable={false}

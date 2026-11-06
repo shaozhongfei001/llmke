@@ -82,8 +82,8 @@ const NavBar = (props: INavBar) => {
                 disabled={disabled}
                 icon={<PlusCircleOutlined />}
                 style={{
-                  background: `linear-gradient(313.7deg, #BD9CFF -2.37%, #0359FF 100%)`,
-                  color: "#fff",
+                  background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+                  color: "#111915",
                   border: "none"
                 }}
                 onClick={onCreateClick}

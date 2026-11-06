@@ -1,0 +1,185 @@
+/*
+ * LLMKE · SPECTRA 主题颜色/表面 token
+ * 作用域：body[data-spectra-theme="1"]（由 src/App.tsx 挂载）
+ * 约束：本文件只定义颜色、表面、边框与动效；不定义 font-size / line-height / font-family，
+ *      不覆盖 .ant-* 的字号，不使用整页 zoom / transform。
+ * 颜色来源：docs/reviews/LLMKE_SPECTRA_前端主题设计与技术经理交接包_V1.0_20261106.zip
+ *           交接文档/01_设计风格与页面规范.md §2
+ */
+
+body[data-spectra-theme="1"] {
+  --sp-canvas: #090d11;
+  --sp-shell: #0b1014;
+  --sp-surface: #10181c;
+  --sp-surface-raised: #142026;
+  --sp-surface-hover: #1a292e;
+  --sp-line: #344044;
+  --sp-line-soft: #243035;
+  --sp-text: #f0f2f0;
+  --sp-text-secondary: #b8c3c3;
+  --sp-text-muted: #91a1a3;
+  --sp-gold: #d8bd89;
+  --sp-gold-soft: #a98d62;
+  --sp-gold-hover: #e7cfa1;
+  --sp-cyan: #94ced2;
+  --sp-mint: #a9d8ba;
+  --sp-warning: #d9aa6d;
+  --sp-danger: #e28683;
+  --sp-focus: #e8d4a7;
+  --sp-on-gold: #111915;
+  --sp-graph-canvas: #0b1216;
+  --sp-graph-grid: #25303766;
+  /* 图谱实体类型色：以冷青/暖金/薄荷为主，少量辅助色区分类型 */
+  --sp-type-entity: #94ced2;
+  --sp-type-product: #d8bd89;
+  --sp-type-customer: #a9d8ba;
+  --sp-type-rating: #c8b3e0;
+  --sp-type-doc: #8fb6d8;
+  --sp-type-other: #9db0b4;
+
+  color: var(--sp-text);
+  background: var(--sp-canvas);
+}
+
+/* ---------- 基础表面 ---------- */
+body[data-spectra-theme="1"] .spectra-shell {
+  background: var(--sp-shell);
+  color: var(--sp-text);
+  border-color: var(--sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .spectra-panel {
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  border: 1px solid var(--sp-line);
+}
+
+body[data-spectra-theme="1"] .spectra-panel--raised {
+  background: var(--sp-surface-raised);
+}
+
+body[data-spectra-theme="1"] .spectra-muted {
+  color: var(--sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .spectra-secondary {
+  color: var(--sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .spectra-link {
+  color: var(--sp-cyan);
+}
+
+body[data-spectra-theme="1"] .spectra-input {
+  color: var(--sp-text);
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-line);
+}
+
+body[data-spectra-theme="1"] .spectra-input::placeholder {
+  color: var(--sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .spectra-input:focus-visible,
+body[data-spectra-theme="1"] .spectra-button:focus-visible,
+body[data-spectra-theme="1"] .spectra-link:focus-visible {
+  outline: 2px solid var(--sp-focus);
+  outline-offset: 2px;
+}
+
+body[data-spectra-theme="1"] .spectra-button {
+  color: var(--sp-text);
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-line);
+  cursor: pointer;
+}
+
+body[data-spectra-theme="1"] .spectra-button:hover {
+  background: var(--sp-surface-hover);
+  border-color: var(--sp-gold-soft);
+}
+
+body[data-spectra-theme="1"] .spectra-button--primary {
+  color: var(--sp-on-gold);
+  background: var(--sp-gold);
+  border-color: var(--sp-gold);
+}
+
+body[data-spectra-theme="1"] .spectra-button--primary:hover {
+  color: var(--sp-on-gold);
+  background: var(--sp-gold-hover);
+}
+
+body[data-spectra-theme="1"] .spectra-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+body[data-spectra-theme="1"] .spectra-row {
+  border-bottom: 1px solid var(--sp-line);
+}
+
+body[data-spectra-theme="1"] .spectra-row:hover {
+  background: var(--sp-surface-hover);
+}
+
+body[data-spectra-theme="1"] .spectra-status--success {
+  color: var(--sp-mint);
+}
+body[data-spectra-theme="1"] .spectra-status--progress {
+  color: var(--sp-cyan);
+}
+body[data-spectra-theme="1"] .spectra-status--warning {
+  color: var(--sp-warning);
+}
+body[data-spectra-theme="1"] .spectra-status--error {
+  color: var(--sp-danger);
+}
+
+/* ---------- 品牌标志：唯一形状源 = assets/brand/octopus-source.jpg ---------- */
+body[data-spectra-theme="1"] .spectra-brand {
+  display: block;
+  object-fit: contain;
+  filter: none;
+  opacity: 1;
+}
+
+body[data-spectra-theme="1"] .spectra-brand--nav {
+  width: 30px;
+  height: 34px;
+}
+
+body[data-spectra-theme="1"] .spectra-brand--hero {
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* ---------- 图谱画布 ---------- */
+body[data-spectra-theme="1"] .spectra-graph {
+  background-color: var(--sp-graph-canvas);
+  background-image: linear-gradient(var(--sp-graph-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--sp-graph-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+body[data-spectra-theme="1"] .spectra-node-label {
+  color: var(--sp-text);
+  border: 0;
+  background: transparent;
+}
+
+/* ---------- 滚动条 ---------- */
+body[data-spectra-theme="1"] ::-webkit-scrollbar-thumb {
+  background-color: #35454b;
+}
+body[data-spectra-theme="1"] ::-webkit-scrollbar-track {
+  background-color: #0d1418;
+}
+
+/* ---------- 动效（尊重减少动态效果） ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  body[data-spectra-theme="1"] .spectra-button,
+  body[data-spectra-theme="1"] .spectra-row {
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+  }
+}

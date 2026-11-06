@@ -4,7 +4,8 @@ import avatar_blue from "@/assets/img/avatar_blue.svg";
 import { RAG_APP_NAME, RAG_AUTH_PLUGIN_PREFIX } from "@root/src/const";
 import useMenus from "./hooks/useMenus";
 import { traverse } from "../util";
-import navLogo from "@/assets/img/nav-logo.png";
+// 应用品牌标识：白色章鱼（唯一形状源 assets/brand/octopus-source.jpg，透明版为其使用适配）
+import brandOctopus from "@/assets/brand/octopus-white.png";
 import { useAppPassport } from "@root/src/core/helps";
 import Dashborad from "@root/src/components/Dashboard";
 import { userLogout } from "./hooks/managerServices";
@@ -138,43 +139,48 @@ function HomePage() {
     }
   ];
 
+  /**
+   * SPECTRA 主题：仅替换颜色/表面/品牌标志。
+   * 字号（appname 18px、userName 14px）与导航高度 60px 保持改造前原值。
+   */
   const rag_styles_overlap_default = {
     token: {
-      colorText: "#222222"
+      colorText: "#F0F2F0"
     },
     components: {
       Layout: {
-        headerBg: "#fff"
+        headerBg: "#0B1014"
       },
       Select: {
-        optionSelectedBg: "#F3F9FF",
-        optionSelectedColor: "#014DDF"
+        optionSelectedBg: "rgba(216, 189, 137, 0.14)",
+        optionSelectedColor: "#D8BD89"
       },
       Divider: {
-        colorSplit: "#014DDF"
+        colorSplit: "#243035"
       },
       Button: {
-        defaultActiveBg: "#fff",
-        defaultColor: "#014DDF",
-        defaultActiveColor: "#014DDF",
-        colorBgContainer: "#fff"
+        defaultActiveBg: "#1A292E",
+        defaultColor: "#B8C3C3",
+        defaultActiveColor: "#E8D4A7",
+        colorBgContainer: "#10181C"
       }
     },
     customized: {
       appname: {
-        color: "#014DDF",
+        color: "#F0F2F0",
         fontWeight: "400",
         fontSize: "18px"
       },
       logo: {
-        objectFit: "cover",
+        // 纯白章鱼等比例显示，不压扁/拉长/旋转
+        objectFit: "contain",
         margin: "15px 20px",
         height: "30px"
       },
       userName: {
         display: "flex",
         alignItems: "center",
-        color: "#333",
+        color: "#B8C3C3",
         fontSize: "14px",
         fontWeight: "400px"
       },
@@ -192,13 +198,13 @@ function HomePage() {
         height: "60px",
         display: "block",
         borderRadius: "0",
-        borderBottom: "2px solid #014DDF"
+        borderBottom: "2px solid #D8BD89"
       }
     }
   };
 
   const LOGO_CONFIG = {
-    logoImg: navLogo,
+    logoImg: brandOctopus,
     hasLogo: true
   };
 

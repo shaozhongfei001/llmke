@@ -34,6 +34,7 @@ import {
   type GraphNode,
   type GlobalCommunityResult
 } from "./graphData";
+import { spectraTypeColor } from "./spectraPalette";
 import "./workbench.less";
 
 /** 画布单次渲染的节点上限：力导向布局复杂度 O(n²)，超过此规模必须降采样 */
@@ -109,7 +110,7 @@ const GraphWorkbench = ({ kbInfo }: { kbInfo: any }) => {
     const m = new Map<string, number>();
     for (const n of graph.nodes) m.set(n.nodeType, (m.get(n.nodeType) || 0) + 1);
     return Array.from(m.entries())
-      .map(([label, count]) => ({ label, color: typeColor(label), count }))
+      .map(([label, count]) => ({ label, color: spectraTypeColor(label, typeColor(label)), count }))
       .sort((a, b) => b.count - a.count);
   }, [graph.nodes]);
 
@@ -274,7 +275,7 @@ const GraphWorkbench = ({ kbInfo }: { kbInfo: any }) => {
               {searchResults.length ? (
                 searchResults.map(n => (
                   <div key={n.vid} className="kgw-search-result" onMouseDown={() => selectNode(n.vid, true)}>
-                    <span className="kgw-search-dot" style={{ background: typeColor(n.nodeType) }} />
+                    <span className="kgw-search-dot" style={{ background: spectraTypeColor(n.nodeType, typeColor(n.nodeType)) }} />
                     <span className="kgw-search-name">{n.name}</span>
                     <span className="kgw-search-type">{n.nodeType}</span>
                   </div>
@@ -517,7 +518,7 @@ const EntityInspector = ({
   navigate: any;
 }) => {
   const [tab, setTab] = useState<"relations" | "sources" | "props">("relations");
-  const color = typeColor(node.nodeType);
+  const color = spectraTypeColor(node.nodeType, typeColor(node.nodeType));
 
   const related = edges.map(e => {
     const isOut = e.source === node.vid;
@@ -559,7 +560,7 @@ const EntityInspector = ({
             <div className="kgw-section-label">关联实体 · {related.length}</div>
             {related.map((r, i) => (
               <div className="kgw-detail-row" key={i}>
-                <span className="kgw-mini-dot" style={{ background: r.other ? typeColor(r.other.nodeType) : "#ccc" }} />
+                <span className="kgw-mini-dot" style={{ background: r.other ? spectraTypeColor(r.other.nodeType, typeColor(r.other.nodeType)) : "#4A5A60" }} />
                 <span className="kgw-relation">{r.predicate} {r.direction}</span>
                 <button className="kgw-jump" onClick={() => onSelect(r.otherId)}>{r.other?.name || r.otherId}</button>
               </div>

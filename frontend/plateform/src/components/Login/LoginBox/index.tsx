@@ -79,11 +79,10 @@ const LoginBox: React.FC<Iprops> = (props) => {
               <img
                 onClick={handleClickCode}
                 src={codeImgSrc}
+                className="spectra-login-captcha"
                 style={{
                   width: "96px",
                   height: "32px",
-                  background: "white",
-                  border: "solid 1px #d9d9d9",
                   cursor: "pointer",
                   borderRadius: "6px"
                 }}
@@ -102,11 +101,11 @@ const LoginBox: React.FC<Iprops> = (props) => {
           登录
         </Button>
       </Form.Item>
-      <div className="flex justify-end">
+      <div className="flex justify-end spectra-login-links">
         <Text
+          className="spectra-login-link"
           style={{
             textAlign: "right",
-            cursor: "pointer",
             marginRight: "8px"
           }}
           onClick={() => setIsRegister(true)}
@@ -114,10 +113,9 @@ const LoginBox: React.FC<Iprops> = (props) => {
           点击注册
         </Text>
         <Text
+          className="spectra-login-link spectra-login-link--primary"
           style={{
-            textAlign: "right",
-            cursor: "pointer",
-            color: "#055aff"
+            textAlign: "right"
           }}
           onClick={() => setVisible(true)}
         >
