@@ -916,17 +916,22 @@ body[data-spectra-theme="1"] [style*="78, 110, 242"] {
   border-color: #344044 !important;
 }
 
-/* 检索配置滑块：AntD 4 默认蓝 #1890FF，改冷青轨道 + 暖金把手 */
-body[data-spectra-theme="1"] .ant-slider-track {
+/* 检索配置滑块：原规则 .settingsDetail .ant-slider .ant-slider-track 有 3 类，
+   单类映射压不过，用重复类提高特异性；不改字号、不加 !important */
+body[data-spectra-theme="1"] .ant-slider-track.ant-slider-track.ant-slider-track {
   background-color: #94ced2;
 }
-body[data-spectra-theme="1"] .ant-slider-rail {
+body[data-spectra-theme="1"] .ant-slider-rail.ant-slider-rail.ant-slider-rail {
   background-color: #344044;
 }
-body[data-spectra-theme="1"] .ant-slider-handle {
+body[data-spectra-theme="1"] .ant-slider-handle.ant-slider-handle {
   border-color: #d8bd89;
 }
-/* FAQ「重复问题检测」按钮：less 中 #055aff 落在 .fat-header-btn-wrap 内 */
-body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-btn-default {
-  color: #94ced2;
+body[data-spectra-theme="1"] .ant-slider-handle.ant-slider-handle::after {
+  box-shadow: 0 0 0 2px #d8bd89;
+}
+/* FAQ 工具条：#055aff 由组件写成 inline style，按规则用 !important 对抗 */
+body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-btn-default,
+body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-select {
+  color: #94ced2 !important;
 }
