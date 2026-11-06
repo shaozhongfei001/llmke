@@ -57,3 +57,6 @@
 - 检索页：ChatMessage/richElements/ChatInput/VoiceInput 的 blue-* 原子类全部改冷青/暖金（气泡头像渐变、引用块、列表标记、录音态、焦点环）
 - 证据：spectra-evidence/after-system/（用户部门管理）、after/ 已按最新代码重采（含检索页）
 - 遗留：写作模块需有菜单权限的账号才能实拍验证；组织部门树首项图标底色仍为蓝
+- 共享展示组件 IconHeader / ParagraphTitle / MultiSelection 的默认蓝紫渐变改暖金（部门树图标底座、段落标题竖条、多选高亮）
+- 角色管理：role 列表选中态 bg-blue-50 改暖金底；「添加新角色」按钮文字改深色（原白字压金底对比不足）；全局补 bg-blue-50/100 映射
+- 说明：权限树行上看到的白底气泡是浏览器原生 title 提示，属 UA 样式，CSS 不可主题化，非页面残留
