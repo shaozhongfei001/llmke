@@ -100,3 +100,4 @@ roles/PermissionForm.tsx, roles/RoleList.tsx, groups/...}` 的大量改动一并
 - **新增发现**：`/system/models` 整页浅色（第三方 `@gientech/modual`），与 §1「系统管理（部门/角色/模型）已落地」不符；已在 `body[data-spectra-theme="1"]` 作用域内补深色表面/暖金主按钮/冷青操作文字（`c1f94213`、`699829e1`），见 `SPECTRA.md` §11.4。
 - P0 逐页验证、字号双证据、构建结论、截图与蓝色像素对比、全部剩余项书面理由：`SPECTRA.md` §11 与 `docs/reviews/spectra-evidence/`。
 - 本轮所有提交均显式列文件，未使用 `git add -A <目录>`；工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。
+- 2026-11-07 用户追加需求：智能对话欢迎区蓝紫鲸鱼图标换成同尺寸白色章鱼（唯一形状源透明版）、欢迎词改为 `Pierce the mist`；实现口径、字号证据与限制见 `SPECTRA.md` §12、`chat-brand-evidence.txt`。

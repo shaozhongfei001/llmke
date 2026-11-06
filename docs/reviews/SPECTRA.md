@@ -132,7 +132,7 @@ P0 实拍发现 `/system/models` 整页仍为浅色（白底表格、蓝底「�
 其它剩余（均有书面理由，不属本次可改范围）：
 
 1. 登录页验证码图片为后端 kaptcha 接口返回的位图（蓝色字符），前端不可主题化；状态文案与图片均来自真实接口。
-2. 智能对话欢迎语鲸鱼 Logo、搜索页下拉小机器人图标来自 `@gientech/modual` 第三方品牌资源（`defaultWeLogo.svg` 等），检索页另有少量第三方图形蓝色像素（`blue-pixel-diff.txt`：04-retrieve 216px，运行时蓝色 DOM 元素为 0）；改图需产品/第三方决策，未擅自重绘。
+2. 智能对话欢迎区的蓝紫鲸鱼 `defaultWeLogo.svg` 已于 2026-11-07 按用户要求换成唯一形状源的白色章鱼（见 §11.8）；搜索页下拉小机器人图标仍来自 `@gientech/modual` 第三方品牌资源，检索页另有少量第三方图形蓝色像素（`blue-pixel-diff.txt`：04-retrieve 216px，运行时蓝色 DOM 元素为 0），未擅自重绘。
 3. 浏览器原生 `title` 白气泡属 UA 样式，CSS 不可主题化。
 4. 范围外路由（写作、数据库、对比、AI 编辑器）仍沿用旧浅色 token，归 P2；本轮只把其中内联蓝紫渐变按风格层清掉，未铺开整套主题。
 5. `GraphLifecycleView/mockAdapter` 仍是演示骨架，未接入正式导航、未当作能力证据；图谱标签仍按「关联度预算」控制可见性，`graphData.ts` 未改。
@@ -157,4 +157,15 @@ Owner 在请示中选定路径 B 并接受权限行为变更，提交 `2f35b613`
 
 ### 11.7 本轮提交
 
-按「一项一提交、显式列文件」执行，未使用 `git add -A <目录>`：`5711a7ea`（P1-2 换图）、`776d7f2b`（P1-3 清渐变与映射）、`c1f94213`（P0 残留收口：模型页换肤 + 补漏）、`699829e1`（滑块/FAQ 工具条映射提权）、`df965009`（文档与 P0/P1 证据）、`2f35b613`（P1-1 守卫，Owner 批准路径 B）、P1-1 文档与写作四页证据提交。完整序列见 `git log --oneline 5711a7ea~1..HEAD`。工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。
+按「一项一提交、显式列文件」执行，未使用 `git add -A <目录>`：`5711a7ea`（P1-2 换图）、`776d7f2b`（P1-3 清渐变与映射）、`c1f94213`（P0 残留收口：模型页换肤 + 补漏）、`699829e1`（滑块/FAQ 工具条映射提权）、`df965009`（文档与 P0/P1 证据）、`2f35b613`（P1-1 守卫，Owner 批准路径 B）、`4d4fbc53`（P1-1 文档与写作四页证据）。本轮完整序列见 `git log --oneline 5711a7ea~1..4d4fbc53`；工作区里 `docs/ui-graph-workbench/TASKS.yaml` 等其它工作流改动未纳入。
+
+## 12 智能对话欢迎区品牌化（2026-11-07，用户追加需求）
+
+用户要求：`/chats/main` 欢迎区的第三方 `defaultWeLogo.svg` 换成**同样尺寸的章鱼形状图标**，欢迎词「您好，欢迎使用小鲸智能问答」改成「Pierce the mist」。
+
+- **图标**：换成唯一形状源 `assets/brand/octopus-white.png`（由 `octopus-source.jpg` 得到的透明使用版，源件 sha256 `4fb60953…27e9` 已复核）。实现为 `body[data-spectra-theme="1"] img[src*="defaultWeLogo"] { content: url(...); object-fit: contain; }`：宽高仍由原 inline style 保持 68×68（`rect [821,233,68,68]`），`contain` 保证触须不压扁/不旋转/不简化，未改 `node_modules`、未重绘。生产构建产物名为 `defaultWeLogo-<hash>.svg`，属性选择器在 dev/prod 均匹配。
+- **欢迎词**：文案由 `@gientech/modual/chat` 渲染，业务侧 `AIChat/config/index.tsx` 与 `GientechChat()` 调用均无 welcome 配置入口，因此在主题作用域内用 `visibility: hidden` 隐藏原文 + `::after { content: "Pierce the mist" }` 替换显示文本。用户给出的新文案开头含一个 U+200C 零宽不连字，按可见文本实现（未保留该不可见字符；如需原样保留可调整）。
+- **字号**：同元素 `.g-welcome-title` computed `font-size` 仍 **30px**（`visibility` 不改变字号），伪元素继承 30px/700 与 `#F0F2F0`；未设 html/root 字号、未用 zoom/transform 缩放整页、未改其它页面字号。
+- **限制（如实登记）**：DOM `textContent` 仍是 vendor 原文案（`visibility: hidden`，`innerText` 已不含旧文案），屏幕阅读器/复制文本可能读到旧文案；未改 `node_modules` 与业务逻辑。若要求 DOM 文本同步，需 vendor 升级或业务层注入（属逻辑层，需另行授权）。
+- 证据：`spectra-evidence/after-chat-brand-20261107/`（14 页回归 14 张 PNG + `report.json`）、`chat-brand-evidence.txt`（探针实测值与蓝色像素对比）、`07-chat.png` 截图；构建结论见 `build-summary.txt`。
+- 提交：见 `git log --oneline 4d4fbc53..HEAD`，均显式列文件。

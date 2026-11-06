@@ -51,3 +51,14 @@ build-summary.txt         构建命令/结果/既有告警对比
 capture-regression.js     回归采集脚本（白屏/错位/字号 A/B/蓝色探针）
 after-writing/            P1-1 四张 1366x768 实拍 + report.json
 capture-writing.js        P1-1 写作四页实拍脚本（含 401 重试判定）
+after-chat-brand-20261107/ 欢迎区品牌化后 14 页回归（14 PNG + report.json）
+chat-brand-evidence.txt   章鱼图标/欢迎词探针实测、蓝色像素对比与限制说明
+
+## 智能对话欢迎区品牌化（2026-11-07，用户追加需求）
+- 图标：defaultWeLogo.svg（68x68 蓝紫鲸鱼）-> octopus-white.png（唯一形状源的透明使用版），
+  作用域 CSS content + object-fit:contain，68x68 尺寸不变，未改 node_modules、未重绘触须。
+- 欢迎词：显示文本 -> "Pierce the mist"；同元素 computed font-size 仍 30px、A/B 差异 0；
+  DOM textContent 仍为 vendor 原文案（限制与理由见 SPECTRA.md §12）。
+- 回归：14/14 RENDERED、fontDiff=0、blueSvg=0、blueEls=0、PAGEERROR=0、无横向溢出；
+  07-chat 蓝色像素 1431 -> 477（-66.7%），剩余为助手胶囊等第三方小图标。
+- 构建：见 build-summary.txt 末节。

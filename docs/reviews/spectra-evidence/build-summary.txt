@@ -27,3 +27,11 @@ node_modules/.vite 缓存）；停掉 dev server 独占资源后分别 8m36s / 4
   dist-p1-writing/assets 文件数: 999
   [vite:css] Parse error: 12（既有，同前）
 判定: 1 行逻辑守卫未引入任何构建失败；既有第三方告警数量不变。
+
+## 智能对话欢迎区品牌化后的构建 2026-11-07 /tmp/sp-build-brand.log
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-chat-brand
+  结果: ✓ built in 3m 40s
+  模块: ✓ 15826 modules transformed.
+  [vite:css] Parse error: 12（既有，同前）
+  章鱼资源已打包: dist-chat-brand/assets/octopus-white-BetmITos.png（CSS url 由 Vite 正确解析）
+判定: 本次仅新增作用域 CSS，0 新增构建失败；构建产物含章鱼资源与替换规则。
