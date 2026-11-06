@@ -2,7 +2,7 @@ import { ConfigProvider, Divider, Dropdown, Flex, Layout, Tooltip } from "antd";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { ProLayout } from "@ant-design/pro-components";
 import "./style.less";
-import navbarBg from "../../assets/navbarBg.svg";
+import navbarBg from "../../assets/navbarBg_spectra.svg";
 import { merge } from "lodash";
 import AiRobit from "@/assets/img/aiRobit.png";
 import SiderOpt from "@/assets/svg/siderOpt.svg";

@@ -8,8 +8,8 @@ import React, {
 import { Input, Spin } from "antd";
 
 import IconHistory from "@/assets/svg/Icon-history.svg";
-import IconSearch from "@/assets/svg/icon-zoomOut.svg";
-import IconStar from "@/assets/svg/icon-search-bar.svg";
+import IconSearch from "@/assets/svg/icon-zoomOut_spectra.svg";
+import IconStar from "@/assets/svg/icon-search-bar_spectra.svg";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 
 import "./new-style.less";

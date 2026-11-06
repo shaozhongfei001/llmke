@@ -22,7 +22,7 @@ import {
   api_kbSearcHistoryDelete
 } from "@/components/AiChatComparison/core/services/servers";
 import IconRobot from "@/assets/svg/icon-robot.svg";
-import IconTitle from "@/assets/svg/icon-title.svg";
+import IconTitle from "@/assets/svg/icon-title_spectra.svg";
 import "@/assets/styles/knowledgeSearch.less";
 
 const initialPage = {
