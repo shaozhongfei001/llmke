@@ -2248,7 +2248,13 @@ public class AiServiceImpl implements AiService {
             }
 
         } catch (Exception e) {
-            log.error("queryId：" + aiRequest.getQueryId() + ",-knowledge-" + e.getMessage());
+            // 检索依赖不可达时不能只留一行 message：19532 已下线却仍被配置的故障就是这样被
+            // 静默吞掉的（用户只看到「抱歉未能找到您要的答案」）。带上实际加载地址与堆栈，
+            // 配合 RetrievalEndpointStartupCheck 的启动自检，避免再次无声降级。
+            log.error("【检索召回失败】queryId：{}, searchDocsUrl={}, globalUrl={}, 异常={}: {}",
+                    aiRequest.getQueryId(), nacosConfig.getSearchDocsUrl(),
+                    nacosConfig.getSearchDocsGlobalUrl(), e.getClass().getSimpleName(),
+                    e.getMessage(), e);
             return null;
         }
 
@@ -2457,7 +2463,13 @@ return retrievedData;
             RetrievedData retrievedData = RetrievedData.getDefault(rs);
             return retrievedData;
         } catch (Exception e) {
-            log.error("queryId：" + aiRequest.getQueryId() + ",-knowledge-" + e.getMessage());
+            // 检索依赖不可达时不能只留一行 message：19532 已下线却仍被配置的故障就是这样被
+            // 静默吞掉的（用户只看到「抱歉未能找到您要的答案」）。带上实际加载地址与堆栈，
+            // 配合 RetrievalEndpointStartupCheck 的启动自检，避免再次无声降级。
+            log.error("【检索召回失败】queryId：{}, searchDocsUrl={}, globalUrl={}, 异常={}: {}",
+                    aiRequest.getQueryId(), nacosConfig.getSearchDocsUrl(),
+                    nacosConfig.getSearchDocsGlobalUrl(), e.getClass().getSimpleName(),
+                    e.getMessage(), e);
             return null;
         }
     }
