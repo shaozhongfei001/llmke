@@ -61,6 +61,8 @@ loops/*/memory/.baton-backup-*/
 # Without this negation the evidence chain dies at the first commit.
 !loops/*/evidence/*.log
 !loops/*/evidence/manifest.json
+# VL-DOC2MD-INC 切片证据落在 docs/v2-tasks/evidence/，同属交付记录（TL 2026-11-08 02:37 裁决）
+!docs/v2-tasks/evidence/*.log
 
 # 评审打包产物
 LLMKE-项目框架评审包-*.zip

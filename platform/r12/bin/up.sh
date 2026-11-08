@@ -76,6 +76,20 @@ up)
   echo "== 6. 业务服务（auth/index/qa/sensitive/gateway）=="
   "$R12/bin/r12ctl.sh" start rag-auth-service rag-index-service rag-qa-service sensitive-words-service rag-gateway 2>&1 | sed 's/^/  /'
 
+  echo "== 6.5 知识库摄取（18096，门控：LLMKE_INGEST_ENABLED=1）=="
+  # 默认**不启动**：18096 目前由人工管理，脚本一旦默认拉起，会与手动实例抢端口/覆盖状态。
+  # 打开门控后走 L13-B 的幂等启动脚本（先 fail-fast 自检，再按端口+探针判断是否真的拉起）。
+  if [[ "${LLMKE_INGEST_ENABLED:-0}" == "1" ]]; then
+    if bash "$R12/bin/r12-kb-ingest-start.sh" 2>&1 | sed 's/^/  /'; then
+      ok "18096 已启动并通过自检"
+    else
+      fail "18096 启动/自检失败（门控已开启）"
+      exit 1
+    fi
+  else
+    ok "跳过 18096（LLMKE_INGEST_ENABLED 未开启，保持人工管理）"
+  fi
+
   echo "== 7. Office 预览（容器 r12-preview，18095）=="
   if docker ps --format '{{.Names}}' | grep -q '^r12-preview$'; then
     ok "r12-preview 已在运行"
@@ -129,7 +143,7 @@ status)
   echo "== 端口探针 =="
   for x in "8088 网关" "18084 图谱" "18088 前端nginx" "15174 前端dev" "18095 Office预览" \
            "12340 解析" "19527 全文" "19526 向量" "19529 图索引" "19995 检索" "19996 LLM" \
-           "18090 embedding" "18091 rerank" "18092 llm" "18093 vlm" \
+           "18096 摄取(可选)" "18090 embedding" "18091 rerank" "18092 llm" "18093 vlm" \
            "19200 es" "19630 milvus" "19669 nebula-graphd" "18848 nacos"; do
     set -- $x
     if have_port "$1"; then ok "$1 $2"; else warn "$1 $2"; fi
@@ -207,9 +221,25 @@ verify)
   if [ "$nb" = "healthy" ]; then ok "Nebula graphd healthy"; else fail "Nebula graphd=${nb:-未知}"; must_fail=$((must_fail+1)); fi
 
   echo "== [must] 内部服务在监听（回环）=="
+  # 18096 **不进 must 列表**：P4-L13-C 需 Owner 授权后才启用；未启用时不该让
+  # `up.sh verify` 失败（那会让既有部署流程在未授权状态下变红）。
   for p in 12340 18081 18082 18083 18084 18085 19526 19527 19529 19995 19996; do
     if have_port "$p"; then ok "port $p"; else fail "port $p 无监听"; must_fail=$((must_fail+1)); fi
   done
+  if [[ "${LLMKE_INGEST_ENABLED:-0}" == "1" ]]; then
+    echo "== [must] 知识库摄取 18096（门控开启：LLMKE_INGEST_ENABLED=1）=="
+    if have_port 18096; then ok "port 18096"; else fail "port 18096 无监听"; must_fail=$((must_fail+1)); fi
+    ingest_health="$(curl -sS -m 6 http://127.0.0.1:18096/health 2>/dev/null)"
+    check_must "18096 /health http" 200 "$(http_code http://127.0.0.1:18096/health 8)"
+    # **内容**校验：端口活着 ≠ 功能正常（C5 演练实测：进程在、端口在，但 graph_api 指向 19999）
+    check_must "18096 graph_api" "${LLMKE_V2_GRAPH_API:-http://127.0.0.1:18094}" \
+      "$(printf '%s' "$ingest_health" | grep -o '"graph_api":"[^"]*"' | head -1 | cut -d'"' -f4)"
+    check_must "18096 write_targets.configured" "true" \
+      "$(printf '%s' "$ingest_health" | grep -o '"configured":[a-z]*' | head -1 | cut -d: -f2)"
+  else
+    echo "== [skip] 18096 摄取：LLMKE_INGEST_ENABLED 未开启，不计入 must =="
+  fi
+
   echo "== [must] 模型真实可用 =="
   check_must "embedding 18090 /healthz" 200 "$(http_code http://127.0.0.1:18090/healthz 8)"
   check_must "rerank 18091 /healthz" 200 "$(http_code http://127.0.0.1:18091/healthz 8)"

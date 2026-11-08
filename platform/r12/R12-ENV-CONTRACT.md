@@ -28,12 +28,32 @@
 | index_fulltext_service | 0.0.0.0:19527 | ES 代理 |
 | index_structure_service | 0.0.0.0:19528 | MySQL 代理 |
 | index_graph_service | 0.0.0.0:19529 | Nebula 代理（R12 不启用） |
+| **kb_ingest_service（18096）** | **127.0.0.1:18096** | **P4 摄取服务（P4-L13-B 定义）。**启动：`bin/r12-kb-ingest-start.sh`（自检 fail-fast + 幂等 + `/openapi.json` 探针）。**启用需 Owner 授权**（`T-D2MD-13` C 段）；探针只看 `/openapi.json`，`/health` 的 `status=degraded` 表示配置缺失、**不是**进程死亡 |
 | embedding 服务 | http://127.0.0.1:18090/v1/embeddings | OpenAI 兼容 |
 | rerank 服务 | http://127.0.0.1:18091/v1/rerank | 兼容 `{query,documents}` |
 | 本地 LLM | http://127.0.0.1:18092/v1/chat/completions | OpenAI 兼容，支持 stream；Qwen2.5-7B-Instruct Q4_K_M |
 | 本地 VLM | http://127.0.0.1:18093/v1/chat/completions | OpenAI 兼容，支持 image_url；Qwen2.5-VL-3B，**仅 CPU、串行、慢**；属“可选增强”，VLM 不可用时解析必须降级为纯 OCR 且仍 200 |
 | 前端 dev | 0.0.0.0:15174 | vite |
 | 前端生产 | 0.0.0.0:18088 | nginx 静态 + 反代 |
+
+## 1.1 18096 环境变量（P4-L13-B）
+
+模板：`platform/r12/conf/kb-ingest.env`。**缺任何一项都可能让某条链静默失败**，
+故 `r12-kb-ingest-start.sh` 对关键项 **fail-fast**（自检不过则不启动）。
+
+| 变量 | 必需 | 缺失后果 |
+|---|---|---|
+| `LLMKE_DOC2MD_CONFIG` / `LLMKE_DOC2MD_LOCK` | 是 | 产物绑定无基线（`PRODUCER_*_MISSING`），每条摄取 502 |
+| `LLMKE_ARTIFACT_STORE` | 是 | 默认值 `.artifacts/artifact-store` 是**相对路径**，随 CWD 漂移 |
+| `LLMKE_KB_STATE` | 是 | 相对路径/`/tmp` 一律拒绝（曾被 /tmp 清理导致按空库重建） |
+| `LLMKE_V2_GRAPH_API` / `LLMKE_V2_GRAPH_ROOT` | 是 | delta 与 fence 撤权不可达 → 每次 `PARTIAL` |
+| `LLMKE_ES_BASE_URL` / `LLMKE_MILVUS_BASE_URL` | 是 | 写入端点未配置 → `INDEX_WRITE_FAILED`(502)，**defaults 是线上服务** |
+| `LLMKE_ALLOW_DEFAULT_WRITE_TARGET` | 否 | 仅当显式 `=1` 才允许回退上面的线上默认值（默认 fail-closed） |
+| `R12_MINIO_ACCESS_KEY` / `R12_MINIO_SECRET_KEY` | 否 | 仅影响 `file_url` 的元数据展示；L12 起**不再触发二次解析** |
+
+**liveness / readiness 约定**：`/health` **HTTP 恒 200**（liveness），
+`status=ok|degraded` 只表达 readiness；`degraded` 时 **不得**据此重启进程，
+readiness 判据是启动脚本自检退出码。
 
 ## 2. 目录所有权（并行修改边界）
 

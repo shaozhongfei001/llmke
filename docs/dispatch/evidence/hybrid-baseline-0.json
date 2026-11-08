@@ -1,0 +1,282 @@
+{
+ "schema": "llmke.hybrid-retrieval-baseline.v1",
+ "stage": 0,
+ "generated_at": "2026-11-05T22:52:57+0800",
+ "retrieval_url": "http://127.0.0.1:19995/retrieval_documents",
+ "es": {
+  "kb_9": {
+   "count": 4564,
+   "pk_truth": {
+    "_id": "318101056057432139",
+    "metadata_pk": 318101056057432139,
+    "file_id": "290",
+    "chunk_index": 0,
+    "page_head": "# “智造贷”企业流动资金贷款产品说明书"
+   }
+  },
+  "kb_1004": {
+   "count": 4520,
+   "pk_truth": {
+    "_id": "1015827570681113966",
+    "metadata_pk": 1015827570681113966,
+    "file_id": "999021",
+    "chunk_index": 0,
+    "page_head": "Alan Buckingham "
+   }
+  }
+ },
+ "queries": {
+  "kb_9::AAA档": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 1.42,
+   "docs": [
+    {
+     "pk": 895608813201377364,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es",
+      "es",
+      "es"
+     ],
+     "score": 0.149191752076149,
+     "file_id": 290,
+     "chunk_index": 7,
+     "text": "流动资金贷款期限最长三年，单笔提款期限不超过十二个月。执行利率按放款日全国银行间同业拆借中心公布的一年期贷款市场报价利率加点形成，加点幅度根据客户信用评级确定：AAA级加30个基点，AA级加60个基点，A级加100个基点。"
+    }
+   ]
+  },
+  "kb_9::5000万": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.14,
+   "docs": []
+  },
+  "kb_9::T-CORE-001": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 3.1,
+   "docs": [
+    {
+     "pk": 885155839145947657,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.9473645687103271,
+     "file_id": 333,
+     "chunk_index": 2,
+     "text": "指标 | 数据源 | 口径 日均存款 | T-CORE-001 | 按业务日跨账户汇总/天数 用电量 | T-EXT-001 | 月度同比"
+    }
+   ]
+  },
+  "kb_9::授信额度是多少": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 1.97,
+   "docs": [
+    {
+     "pk": 546078393410251837,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es",
+      "es",
+      "es"
+     ],
+     "score": 0.3885261118412018,
+     "file_id": 290,
+     "chunk_index": 4,
+     "text": "## 二、授信额度"
+    }
+   ]
+  },
+  "kb_9::流动资金贷款期限": {
+   "code": 200,
+   "msg": "查询成功,但是经过重拍模型后，查询结果皆小于重拍阈值，没有符合的答案，请重新设置阈值或修改问题",
+   "hits": 0,
+   "seconds": 0.67,
+   "docs": []
+  },
+  "kb_9::5000万元": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 2,
+   "seconds": 0.75,
+   "docs": [
+    {
+     "pk": 257380967606107716,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.6294736862182617,
+     "file_id": 330,
+     "chunk_index": 0,
+     "text": "<!-- Slide number: 1 --> # “智造贷”产品要点 适用对象：制造业中小微企业 最高额度：5000万元（信用部分不超过1000万元） 最长期限：3年 利率：1年期LPR加点30~100BP"
+    },
+    {
+     "pk": 606479882502856278,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.5832340121269226,
+     "file_id": 290,
+     "chunk_index": 5,
+     "text": "单户最高授信额度为人民币5000万元。其中信用方式不超过1000万元，其余部分须以应收账款质押、设备抵押或核心企业保证方式增信。额度有效期为十二个月，到期需重新核定。"
+    }
+   ]
+  },
+  "kb_1004::AAA档": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.14,
+   "docs": []
+  },
+  "kb_1004::5000万": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.28,
+   "docs": []
+  },
+  "kb_1004::T-CORE-001": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.65,
+   "docs": []
+  },
+  "kb_1004::授信额度是多少": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.16,
+   "docs": []
+  },
+  "kb_1004::流动资金贷款期限": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.14,
+   "docs": []
+  },
+  "kb_1004::5000万元": {
+   "code": 200,
+   "msg": "查询成功,数据库并没有对应的文本，请检查知识库名称或问题。",
+   "hits": 0,
+   "seconds": 0.23,
+   "docs": []
+  },
+  "kb_1004::en::allotment": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 0.53,
+   "docs": [
+    {
+     "pk": 1082318387589312919,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.6191774010658264,
+     "file_id": 999021,
+     "chunk_index": 1,
+     "text": "allotment "
+    }
+   ]
+  },
+  "kb_1004::en::vegetable": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 0.9,
+   "docs": [
+    {
+     "pk": 909323476561366999,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.43885719776153564,
+     "file_id": 999021,
+     "chunk_index": 2454,
+     "text": "Vegetable families "
+    }
+   ]
+  },
+  "kb_1004::en::gardening": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 0.64,
+   "docs": [
+    {
+     "pk": 387946686908202195,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.11892641335725784,
+     "file_id": 999021,
+     "chunk_index": 4455,
+     "text": "The Organic Gardening Catalogue "
+    }
+   ]
+  },
+  "kb_1004::en::compost": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 1.31,
+   "docs": [
+    {
+     "pk": 1094965755295225213,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.11974751949310303,
+     "file_id": 999021,
+     "chunk_index": 125,
+     "text": "Garden and household compost "
+    }
+   ]
+  },
+  "kb_1004::en::sowing": {
+   "code": 200,
+   "msg": "查询成功",
+   "hits": 1,
+   "seconds": 0.64,
+   "docs": [
+    {
+     "pk": 483334376214936923,
+     "metadata_pk": null,
+     "search_type": [
+      "es",
+      "es"
+     ],
+     "score": 0.5131126046180725,
+     "file_id": 999021,
+     "chunk_index": 693,
+     "text": "SOWING "
+    }
+   ]
+  }
+ }
+}

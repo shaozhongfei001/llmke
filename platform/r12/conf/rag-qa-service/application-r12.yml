@@ -38,6 +38,8 @@ spring:
   ai:
     gt:
       search-docs-url: http://127.0.0.1:19995/retrieval_documents
+      # 显式声明 global 端点；不写时靠代码默认值，双仓漂移时容易误判（2026-11-07 已踩坑）
+      search-docs-global-url: http://127.0.0.1:19995/retrieval_documents_global
       llm-url: http://127.0.0.1:19996
       llm-chat-url: http://127.0.0.1:19996/llm_generate_sync
       llm-open-chat-url: http://127.0.0.1:19996/llm_open_chat
