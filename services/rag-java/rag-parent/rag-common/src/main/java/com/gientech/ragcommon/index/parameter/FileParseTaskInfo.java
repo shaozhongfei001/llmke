@@ -159,6 +159,15 @@ public class FileParseTaskInfo {
     @JsonProperty("model_info")
     private ModelSimpDTO modelInfo;
 
+    /**
+     * doc2md 解析产物目录（四件套所在，parsed/by_hash/&lt;aa&gt;/&lt;bb&gt;/&lt;sha256&gt;）。
+     *
+     * 由解析链路在产出后写入；为空表示这次解析还没有 doc2md 产物（仍走 legacy 解析），
+     * 此时 V2 摄取会被跳过并告警——**不能拿 legacy 正文冒充**，否则引用与召回不是同一次解析。
+     */
+    @JsonProperty("doc2md_dir")
+    private String doc2mdDir;
+
     @JsonProperty("embedding_model_info")
     private ModelSimpDTO embeddingNodelInfo;
 
