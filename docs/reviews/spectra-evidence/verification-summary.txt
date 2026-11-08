@@ -1,0 +1,77 @@
+# SPECTRA 接手轮 · P0/P1 验收摘要（2026-11-06/07）
+
+基线 e368f62；本轮起始 HEAD f9b7477a；分支 feat/spectra-theme。
+采集：docs/reviews/spectra-evidence/capture-regression.js，1366x768，
+      NODE_PATH=/home/szf/env/my-playwright/node_modules，登录 admin + Redis 验证码。
+
+## P0 逐页验证（最终报告 after-p1-final-20261106/report.json）
+14/14 RENDERED（登录/知识库/文档解析/检索/图谱/FAQ/智能对话/助手配置/敏感词/搜索/用户反馈/系统管理 部门·角色·模型）
+无 PAGEERROR；无横向溢出（各页 scrollWidth == 1366）；body 背景统一 rgb(9,13,17)=#090D11；
+控制台 34 条全部为 AntD/React deprecation warning，无 error、改前改后同类同量；
+详情页为真实库 /chats/knowledgeBase/1004，文件数/状态来自接口，未造数据。
+
+## 字号（双证据）
+1) 对基线 e368f62 与最终源码逐文件比对 1282 个 .less/.css/.tsx/.ts 的 font-size 声明值多重集合：差异 0。
+2) 同一 DOM 上「挂主题 / 摘 body[data-spectra-theme]」A/B 采样：14 页 fontSizeDiff=0、lineHeight 差异 0。
+root font-size 恒为 16px；未设 html/root 字号，未用 zoom/transform，未批量覆盖 .ant-* 字号；
+spectra-pages.less 内 font-size 声明数 0。无超 1px 例外。
+
+## P1 实测指标（改前 -> 最终）
+tsx 中 linear-gradient(99.9deg...) 文件数：6 -> 0
+运行时自带蓝色 SVG 资源命中：6 -> 0
+运行时蓝色 DOM 元素合计：模型页 26 / 角色页 12 -> 14 页合计 0
+蓝色像素（同构采样估算，见 blue-pixel-diff.txt）：15561 -> 2322，下降 85.1%
+tsx 中 blue-[0-9] 文件数：20（有意保留尾wind语义类名，由主题作用域统一重映射；
+  逐文件书面理由见 SPECTRA.md §11.5）
+
+## 剩余项（均有书面理由，见 SPECTRA.md §11.5）
+登录验证码位图（后端 kaptcha 接口）、智能对话第三方 defaultWeLogo.svg 鲸鱼品牌图、
+搜索下拉第三方小图标、检索页少量第三方图形、浏览器原生 title 气泡、范围外路由（P2）、
+GraphLifecycleView/mockAdapter 演示骨架（未当正式能力）。
+
+## P1-1 已收口（Owner 批准路径 B，2026-11-07）
+提交 2f35b613：HomePage/index.tsx:77 前加 `if (!_menu) return;`（权限行为变更已获批准）。
+after-writing/report.json：destructureError=[]、PAGEERROR=[]，白屏崩溃消除；四页均 RENDERED、无横向溢出、root 16px。
+  /docWriting/main、/template：写作模块接口 401 -> 全局拦截器重定向 /login（重新登录重试后仍如此，稳定权限边界）。
+  /docWriting/resource、/indicator：停留原页，显示真实空数据界面（深色、暂无数据/指标管理等接口文案）。
+四张 1366x768 截图中两张为登录页（权限边界证据）、两张为空数据外壳；admin 无写作菜单权限，
+不是完整写作功能页，未注入静态预览、未伪造数据。完整功能页实拍仍需路径 A 的有权限账号。
+新增残留：04-indicator 仍有 7 个蓝色元素与一条白底表格，属范围外路由 P2 铺开项。
+
+## 构建
+见 build-summary.txt：停 dev server 独占资源后 vite build 成功（15825 模块），
+0 新增失败；12 处 [vite:css] Parse error 与未解析 SVG 告警改前基线同量，属既有。
+
+## 证据目录
+after-p0-20261106/        改前 14 张 PNG + report.json
+after-p1-20261106/        P1-2/P1-3 后中间轮 14 张 PNG + report.json
+after-p1-final-20261106/  最终 14 张 PNG + report.json
+blue-pixel-diff.txt       改前/最终蓝色像素同构对比
+build-summary.txt         构建命令/结果/既有告警对比
+capture-regression.js     回归采集脚本（白屏/错位/字号 A/B/蓝色探针）
+after-writing/            P1-1 四张 1366x768 实拍 + report.json
+capture-writing.js        P1-1 写作四页实拍脚本（含 401 重试判定）
+after-chat-brand-20261107/ 欢迎区品牌化后 14 页回归（14 PNG + report.json）
+chat-brand-evidence.txt   章鱼图标/欢迎词探针实测、蓝色像素对比与限制说明
+after-bubbles-20261107/    消息气泡修复后 14 页回归（14 PNG + report.json）
+chat-bubbles-20261107/     气泡白底前后截图 + report.json
+capture-chat-bubbles.js    消息气泡实测脚本（历史会话 + 白底/字号探针）
+chat-bubbles-evidence.txt  白底修复前后实测数据与纪律说明
+
+## 智能对话欢迎区品牌化（2026-11-07，用户追加需求）
+- 图标：defaultWeLogo.svg（68x68 蓝紫鲸鱼）-> octopus-white.png（唯一形状源的透明使用版），
+  作用域 CSS content + object-fit:contain，68x68 尺寸不变，未改 node_modules、未重绘触须。
+- 欢迎词：显示文本 -> "Pierce the mist"；同元素 computed font-size 仍 30px、A/B 差异 0；
+  DOM textContent 仍为 vendor 原文案（限制与理由见 SPECTRA.md §12）。
+- 回归：14/14 RENDERED、fontDiff=0、blueSvg=0、blueEls=0、PAGEERROR=0、无横向溢出；
+  07-chat 蓝色像素 1431 -> 477（-66.7%），剩余为助手胶囊等第三方小图标。
+- 构建：见 build-summary.txt 末节。
+
+## 智能问答消息气泡白底修复（2026-11-07）
+- 定位：有消息的会话中，vendor @gientech/modual 的 .message-card：用户提问为淡蓝紫渐变、AI 回答为 #ffffff，
+  文字均 #F0F2F0；答案卡内「思考完成」条为 bg-[#F5F7FA]。空态与其它页面无白底。
+- 改动：spectra-pages.less 作用域内 .message-card -> #142026（用户气泡暖金轻底）、
+  [class*="F5F7FA"] -> #10181C；只改颜色与边框，未改字号/布局/逻辑，未用 !important。
+- 实测（chat-bubbles-20261107/report.json）：whiteBoxes=0、cards=4、卡片 fontSize 16px、root 16px、
+  thinkHeader #10181C；before.png/after.png 同构截图。
+- 全量回归：after-bubbles-20261107/；构建：build-summary.txt 末节。

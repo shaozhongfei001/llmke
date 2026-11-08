@@ -132,8 +132,8 @@ const FaqManageList = ({ knowledgeBaseId, fileId, kbInfo }: any) => {
               {isFaqManage ? (
                 <Button
                   style={{
-                    background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-                    color: "#fff",
+                    background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+                    color: "#111915",
                     border: "none"
                   }}
                   icon={<img src={IconImport} />}
@@ -380,7 +380,7 @@ const FaqManageList = ({ knowledgeBaseId, fileId, kbInfo }: any) => {
             className="border-none"
             onClick={createFolderConfirm}
             style={{
-              background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
+              background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
               color: "#fff"
             }}
           >

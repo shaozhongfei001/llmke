@@ -303,13 +303,13 @@ export function ChatMessage({
   if (type === "user") {
     return (
       <div className="flex items-start mb-6 animate-fadeIn w-full text-wrap">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 flex items-center justify-center mr-3 shadow-sm">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#A98D62] to-[#D8BD89] flex items-center justify-center mr-3 shadow-sm">
           <span className="text-white text-sm">用</span>
         </div>
         <div className="flex-1">
           <div className="flex-col">
             <div className="text-xs text-gray-400 mb-1">{time}</div>
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 inline-block max-w-[80%] shadow-sm">
+            <div className="bg-gradient-to-r from-[#142026] to-[#1A292E] rounded-lg p-4 inline-block max-w-[80%] shadow-sm">
               <span className="text-gray-700">{content}</span>
             </div>
           </div>
@@ -370,13 +370,13 @@ export function ChatMessage({
       >
         <div className="flex-col items-center justify-between mb-3">
           <div className="text-sm font-medium text-gray-700 flex items-center">
-            <span className="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+            <span className="w-2 h-2 rounded-full bg-[#94CED2] mr-2"></span>
             召回片段 {index + 1}
           </div>
         </div>
         <div className="flex pb-2  flex-col items-start pt-4 text-xs space-y-2">
           <div className="flex items-center mb-2 mt-2">
-            <span className="inline-block w-1 h-4 bg-blue-500 rounded-sm mr-2"></span>
+            <span className="inline-block w-1 h-4 bg-[#D8BD89] rounded-sm mr-2"></span>
             <span className="text-gray-900 text-[14px] font-semibold tracking-wide  opacity-75">
               chunk信息
             </span>
@@ -513,7 +513,7 @@ export function ChatMessage({
           </div>
           {showExpand && (
             <div
-              className="text-blue-500 flex items-center justify-center w-full cursor-pointer text-xs mt-1 select-none"
+              className="text-[#94CED2] flex items-center justify-center w-full cursor-pointer text-xs mt-1 select-none"
               onClick={() => setExpanded((v) => !v)}
             >
               <div className="flex items-center pt-1 justify-center gap-1">
@@ -619,9 +619,9 @@ export function ChatMessage({
                 onChange={setActiveTabKey}
                 className="[&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:px-4 [&_.ant-tabs-nav]:bg-gradient-to-r [&_.ant-tabs-nav]:from-gray-50 [&_.ant-tabs-nav]:to-white [&_.ant-tabs-nav]:border-b [&_.ant-tabs-nav]:border-gray-100
                         [&_.ant-tabs-tab]:relative [&_.ant-tabs-tab]:transition-all [&_.ant-tabs-tab]:duration-300 [&_.ant-tabs-tab]:mx-3 [&_.ant-tabs-tab]:py-3 [&_.ant-tabs-tab]:px-0 [&_.ant-tabs-tab]:opacity-75
-                        [&_.ant-tabs-tab:hover]:opacity-100 [&_.ant-tabs-tab:hover]:text-blue-500 [&_.ant-tabs-tab:hover]:bg-transparent
-                        [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-blue-500 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-medium
-                        [&_.ant-tabs-tab-active]:opacity-100 [&_.ant-tabs-tab-active]:after:content-[''] [&_.ant-tabs-tab-active]:after:absolute [&_.ant-tabs-tab-active]:after:bottom-0 [&_.ant-tabs-tab-active]:after:left-0 [&_.ant-tabs-tab-active]:after:w-full [&_.ant-tabs-tab-active]:after:h-0.5 [&_.ant-tabs-tab-active]:after:bg-blue-500 [&_.ant-tabs-tab-active]:after:rounded-t
+                        [&_.ant-tabs-tab:hover]:opacity-100 [&_.ant-tabs-tab:hover]:text-[#94CED2] [&_.ant-tabs-tab:hover]:bg-transparent
+                        [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-[#94CED2] [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-medium
+                        [&_.ant-tabs-tab-active]:opacity-100 [&_.ant-tabs-tab-active]:after:content-[''] [&_.ant-tabs-tab-active]:after:absolute [&_.ant-tabs-tab-active]:after:bottom-0 [&_.ant-tabs-tab-active]:after:left-0 [&_.ant-tabs-tab-active]:after:w-full [&_.ant-tabs-tab-active]:after:h-0.5 [&_.ant-tabs-tab-active]:after:bg-[#D8BD89] [&_.ant-tabs-tab-active]:after:rounded-t
                         [&_.ant-tabs-ink-bar]:hidden"
                 items={[
                   {
@@ -638,7 +638,7 @@ export function ChatMessage({
                           <>
                             <div className="mb-4 p-3 bg-white rounded-lg border border-gray-100">
                               <div className="text-sm text-gray-600 font-medium mb-3 flex items-center">
-                                <span className="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+                                <span className="w-2 h-2 rounded-full bg-[#94CED2] mr-2"></span>
                                 LLM 配置信息
                               </div>
                               <div className="grid grid-cols-2 gap-3 text-xs text-gray-500">
@@ -650,7 +650,7 @@ export function ChatMessage({
                                 </div>
 
                                 <div className="flex items-center space-x-2">
-                                  <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                                  <span className="w-2 h-2 rounded-full bg-[#94CED2]"></span>
                                   <span>
                                     温度：
                                     {configInfo?.temperature?.toFixed(2) || "-"}
@@ -883,7 +883,7 @@ export function ChatMessage({
                         <div className="grid grid-cols-2 gap-6">
                           <div className="bg-gradient-to-r from-gray-50 to-white rounded-lg p-4 border border-gray-100">
                             <div className="text-sm font-medium text-gray-700 mb-3 flex items-center">
-                              <span className="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+                              <span className="w-2 h-2 rounded-full bg-[#94CED2] mr-2"></span>
                               召回配置
                             </div>
                             <div className="space-y-2 text-sm text-gray-600">
@@ -1043,7 +1043,7 @@ export const Welcome = () => (
     className="flex flex-col items-center justify-center pb-[20%] text-gray-400 animate-fadeIn"
     style={{ transform: "rotate(180deg)" }}
   >
-    <RobotOutlined style={{ fontSize: 48 }} className="mb-4 text-blue-300" />
+    <RobotOutlined style={{ fontSize: 48 }} className="mb-4 text-[#4A5A60]" />
     <div className="text-lg font-semibold mb-2">Hi，我是检索测试助手</div>
     <div className="text-sm">欢迎体验知识库检索与多模态召回测试</div>
   </div>

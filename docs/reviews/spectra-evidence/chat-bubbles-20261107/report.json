@@ -1,0 +1,87 @@
+{
+  "baseUrl": "http://127.0.0.1:15176",
+  "startedAt": "2026-11-06T18:33:00.666Z",
+  "account": "admin",
+  "consoleErrors": [
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at div\n    at div\n    at div\n    at gre (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9a",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at button\n    at qne (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:393:19670)\n ",
+    "Warning: [antd: Dropdown] `dropdownRender` is deprecated. Please use `popupRender` instead.",
+    "Warning: Instance created by `useForm` is not connected to any Form element. Forget to pass `form` prop?",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at div\n    at div\n    at div\n    at gre (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9a",
+    "Warning: Each child in a list should have a unique \"key\" prop. See https://reactjs.org/link/warning-keys for more information.%s \n    at button\n    at qne (http://127.0.0.1:15176/node_modules/@gientech/modual/chat.js?v=9ae45980:393:19670)\n ",
+    "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  ],
+  "historyItemFound": true,
+  "url": "http://127.0.0.1:15176/chats/main",
+  "probe": {
+    "cards": [
+      {
+        "bg": "rgba(216, 189, 137, 0.12)",
+        "backgroundImage": "none",
+        "color": "rgb(240, 242, 240)",
+        "borderColor": "rgba(216, 189, 137, 0.38)",
+        "fontSize": "16px",
+        "rect": [
+          1012,
+          -170,
+          186,
+          32
+        ],
+        "text": "西红柿种植如何防病"
+      },
+      {
+        "bg": "rgb(20, 32, 38)",
+        "backgroundImage": "none",
+        "color": "rgb(240, 242, 240)",
+        "borderColor": "rgb(52, 64, 68)",
+        "fontSize": "16px",
+        "rect": [
+          472,
+          -73,
+          766,
+          108
+        ],
+        "text": "思考完成(用时 0 秒)抱歉未能找到您要的答案"
+      },
+      {
+        "bg": "rgba(216, 189, 137, 0.12)",
+        "backgroundImage": "none",
+        "color": "rgb(240, 242, 240)",
+        "borderColor": "rgba(216, 189, 137, 0.38)",
+        "fontSize": "16px",
+        "rect": [
+          900,
+          141,
+          298,
+          32
+        ],
+        "text": "西红柿种植中，哪些病害是最常见的？"
+      },
+      {
+        "bg": "rgb(20, 32, 38)",
+        "backgroundImage": "none",
+        "color": "rgb(240, 242, 240)",
+        "borderColor": "rgb(52, 64, 68)",
+        "fontSize": "16px",
+        "rect": [
+          472,
+          238,
+          766,
+          108
+        ],
+        "text": "思考完成(用时 0 秒)抱歉未能找到您要的答案"
+      }
+    ],
+    "whiteBoxes": 0,
+    "thinkHeaderBg": "rgb(16, 24, 28)",
+    "rootFontSize": "16px",
+    "bodyBg": "rgb(9, 13, 17)",
+    "themeAttr": "1",
+    "docScrollWidth": 1366,
+    "viewportWidth": 1366
+  },
+  "screenshot": "/home/szf/data/dev/llmke-v2/docs/reviews/spectra-evidence/chat-bubbles-20261107/after.png",
+  "finishedAt": "2026-11-06T18:33:35.152Z"
+}

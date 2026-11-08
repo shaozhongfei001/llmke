@@ -236,17 +236,17 @@ export function VoiceInput({ onResult, onError }: VoiceInputProps) {
   return (
     <div 
       className={`relative w-7 h-7 flex items-center justify-center rounded-lg cursor-pointer group ${
-        isRecording ? 'bg-blue-50' : ''
+        isRecording ? 'bg-[#142026]' : ''
       }`}
       onClick={toggleRecording}
       title={isRecording ? "点击停止录音" : "点击开始录音"}
     >
       <div className={`absolute inset-0 rounded-lg transition-colors duration-200 ${
-        isRecording ? 'bg-blue-100' : 'bg-black/[0.02] group-hover:bg-black/[0.04]'
+        isRecording ? 'bg-[#1A292E]' : 'bg-black/[0.02] group-hover:bg-black/[0.04]'
       }`}></div>
       {isRecording ? (
         <>
-          <Loader2 className="w-[17px] h-[17px] text-blue-500 animate-spin" />
+          <Loader2 className="w-[17px] h-[17px] text-[#94CED2] animate-spin" />
           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
         </>
       ) : (

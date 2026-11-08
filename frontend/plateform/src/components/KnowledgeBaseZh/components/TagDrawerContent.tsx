@@ -139,9 +139,7 @@ const TagDrawerContent = ({
           style={{
             border: "none",
             color: "#fff",
-            background:
-              "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-          }}
+            background: "#D8BD89"}}
           onClick={() => {
             emitEvent("saveTags", tags);
           }}

@@ -140,9 +140,7 @@ export const ChangeDepartment = ({
           style={{
             border: "none",
             color: "#fff",
-            background:
-              "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-          }}
+            background: "#D8BD89"}}
           loading={btnLoading}
           onClick={() => {
             handleEvent("save:changeDepartment", { deptId: selected });
@@ -253,9 +251,7 @@ export const BatchExport = ({
           style={{
             border: "none",
             color: "#fff",
-            background:
-              "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-          }}
+            background: "#D8BD89"}}
           onClick={() => {
             handleEvent(
               "save:batchExport",
@@ -527,9 +523,7 @@ export const Resignation = ({
           style={{
             border: "none",
             color: "#fff",
-            background:
-              "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-          }}
+            background: "#D8BD89"}}
           onClick={() => {
             const p = getTransferParams();
             if (type === "transfer") {
@@ -745,9 +739,7 @@ export const BatchImport = ({
                 style={{
                   border: "none",
                   color: "#fff",
-                  background:
-                    "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-                }}
+                  background: "#D8BD89"}}
                 onClick={() => {
                   setShowError(false);
                   handleEvent("reImport");
@@ -857,9 +849,7 @@ export const BatchImport = ({
                             style={{
                               border: "none",
                               color: "#fff",
-                              background:
-                                "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-                            }}
+                              background: "#D8BD89"}}
                           >
                             上传文件
                           </Button>
@@ -900,9 +890,7 @@ export const BatchImport = ({
               style={{
                 border: "none",
                 color: "#fff",
-                background:
-                  "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-              }}
+                background: "#D8BD89"}}
               onClick={() => {
                 setSaveLoading(true);
                 handleEvent("save:importUser", fileList, (errorList: any[]) => {
@@ -999,9 +987,7 @@ export const AddOrEditDepartment = ({
           style={{
             border: "none",
             color: "#fff",
-            background:
-              "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-          }}
+            background: "#D8BD89"}}
           onClick={() => {
             form.validateFields().then((values) => {
               drawConfig.type === "add"
@@ -1299,9 +1285,7 @@ export const AddOrEditMembers = ({
                 style={{
                   border: "none",
                   color: "#fff",
-                  background:
-                    "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-                }}
+                  background: "#D8BD89"}}
                 onClick={() => setIsEdit(true)}
               >
                 编辑成员
@@ -1328,9 +1312,7 @@ export const AddOrEditMembers = ({
               style={{
                 border: "none",
                 color: "#fff",
-                background:
-                  "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
-              }}
+                background: "#D8BD89"}}
               loading={btnLoading}
               onClick={() => {
                 form.validateFields().then((values) => {

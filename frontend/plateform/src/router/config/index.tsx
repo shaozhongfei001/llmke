@@ -128,9 +128,6 @@ const EditTemplate = lazy(
 const EditSegmentedTemplate = lazy(
   () => import("@root/src/pages/HomePage/Writing/EditSegmentedTemplate")
 );
-const KnowledgeSearch = lazy(
-  () => import("@/pages/HomePage/IntelligentChat/KnowledgeSearch")
-);
 const contentStyle: React.CSSProperties = {
   padding: 50,
   background: "rgba(0, 0, 0, 0.05)",
@@ -339,10 +336,6 @@ const root = [
             path: "sensitiveWords/add/:id",
             element: getSuspenceWrap(<SensitiveWordsDetail />)
           },
-          {
-            path: "knowledgeSearch",
-            element: getSuspenceWrap(<KnowledgeSearch />)
-          }
         ]
       },
       {

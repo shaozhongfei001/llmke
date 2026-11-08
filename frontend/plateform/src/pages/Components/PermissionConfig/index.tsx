@@ -482,9 +482,8 @@ const PermisssonConfig = ({
                 }}
                 style={{
                   border: "none",
-                  color: "#ffffff",
-                  background:
-                    "linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)"
+                  color: "#111915",
+                  background: "#D8BD89"
                 }}
                 className="text-text-color2"
                 loading={btnLoading}

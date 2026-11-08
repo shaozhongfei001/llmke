@@ -8,9 +8,9 @@ import xiezuo2 from "@/assets/img/xiezuo2.png";
 import moban1 from "@/assets/img/moban1.png";
 import moban2 from "@/assets/img/moban2.png";
 import duihua1 from "@/assets/svg/duihua1.svg";
-import duihua2 from "@/assets/svg/duihua2.svg";
+import duihua2 from "@/assets/svg/duihua2_spectra.svg";
 import knowlegeBase1 from "@/assets/svg/knowlegeBase1.svg";
-import knowlegeBase2 from "@/assets/svg/knowlegeBase2.svg";
+import knowlegeBase2 from "@/assets/svg/knowlegeBase2_spectra.svg";
 import database1 from "@/assets/svg/database1.svg";
 import database2 from "@/assets/svg/database2.svg";
 import sucai1 from "@/assets/svg/sucai1.svg";
@@ -31,8 +31,6 @@ import IconWritingActive from "@/assets/svg/icon-writing-active.svg";
 import IconDocumentActive from "@/assets/svg/icon-document-active.svg";
 import IconMaterialActive from "@/assets/svg/icon-material-active.svg";
 import IconSceneActive from "@/assets/svg/icon-scene-active.svg";
-import MenuSearch from "@/assets/img/menu-search.png";
-import MenuSearchActive from "@/assets/img/menu-search-active.png";
 import IconComponentActive from "@/assets/svg/icon-component-active.svg";
 import IconComponent from "@/assets/svg/icon-component.svg";
 import IconIndicatorActive from "@/assets/svg/icon-indicator-active.svg";
@@ -121,15 +119,6 @@ const initData: NavBarItm[] = [
         activeIcon: comparison2,
         id: "1033",
         url: "/chats/feedback"
-      },
-      {
-        name: "搜索",
-        key: "/chats/knowledgeSearch",
-        path: "/chats/knowledgeSearch",
-        icon: MenuSearch, //缺图标
-        activeIcon: MenuSearchActive,
-        id: "10707",
-        url: "/chats/knowledgeSearch"
       }
     ]
   },

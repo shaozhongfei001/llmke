@@ -420,7 +420,7 @@ const AnalysisConfig = (props: IConfiguration) => {
           </Button> */}
           <Button
             style={{
-              background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
+              background: "#D8BD89",
               color: disabled ? "#ddd" : "#fff"
             }}
             className="border-none"

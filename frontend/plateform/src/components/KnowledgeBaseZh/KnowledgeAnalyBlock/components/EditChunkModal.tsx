@@ -81,7 +81,7 @@ const EditChunkModal = ({
             <Button
               type="primary"
               loading={loading}
-              className="w-[76px] border-none bg-[linear-gradient(90deg,#0359FF,#BD9CFF)]"
+              className="w-[76px] border-none bg-[#D8BD89] text-[#111915]"
               onClick={handleConfirm}
             >
               确认

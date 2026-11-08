@@ -64,21 +64,5 @@ export const apis = {
     url: "/qa/feedback/cancel",
     method: "delete",
     mockData: {}
-  },
-  kb_search_start: { url: "/qa/ai/commonSearch", method: "post", mockData: {} }, // need to use fetch
-  kb_search_history_list: {
-    url: "/qa/ai/getQueryHistory",
-    method: "post",
-    mockData: {}
-  },
-  kb_search_history_add: {
-    url: "/qa/ai/addQuery",
-    method: "post",
-    mockData: {}
-  },
-  kb_search_history_delete: {
-    url: "/qa/ai/delQueryHistory",
-    method: "delete",
-    mockData: {}
   }
 };

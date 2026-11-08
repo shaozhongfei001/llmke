@@ -1,15 +1,15 @@
 export const GRADIENTS = {
   // 部门图标渐变色
-  DEPARTMENT: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+  DEPARTMENT: 'linear-gradient(135deg, #A98D62 0%, #D8BD89 100%)',
   
   // 分组图标渐变色
-  GROUP: 'linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%)',
+  GROUP: 'linear-gradient(135deg, #6FA9AE 0%, #94CED2 100%)',
   
   // 成员图标渐变色
-  MEMBER: 'linear-gradient(135deg, #F97316 0%, #FB923C 100%)',
+  MEMBER: 'linear-gradient(135deg, #8FBF9F 0%, #A9D8BA 100%)',
   
   // 按钮渐变色
-  BUTTON: 'linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)',
+  BUTTON: '#D8BD89',
 } as const;
 
 // 图标样式配置

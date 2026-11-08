@@ -742,7 +742,7 @@ const InfoDetail: React.FC<InfoDetailProps> = (props) => {
         <div className="absolute bottom-0 left-0 right-0 bg-white flex justify-end pr-3 pb-0 z-50">
           <Button
             type="primary"
-            className="border-0 bg-[linear-gradient(99.9deg,#2B69FF,#8F91FF)]"
+            className="border-0 bg-[#D8BD89] text-[#111915]"
             disabled={!customValue && !multiValueFile.id}
             onClick={multiValueFileConfirm}
             loading={isLoading}

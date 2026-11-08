@@ -681,9 +681,8 @@ const RepeatFaq = (props: IRepeatFaq) => {
             loading={false}
             disabled={!isChanged}
             style={{
-              color: "#fff",
-              background:
-                "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)",
+              color: "#111915",
+              background: "#D8BD89",
               border: "none"
             }}
             onClick={confirmStatusChange}
@@ -695,8 +694,7 @@ const RepeatFaq = (props: IRepeatFaq) => {
         <div className="clost-btn-wrap">
           <Button
             style={{
-              background:
-                "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)",
+              background: "#D8BD89",
               border: "none"
             }}
             onClick={close}

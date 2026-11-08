@@ -1,0 +1,26 @@
+# 智能问答消息气泡白底修复 · 实测证据（2026-11-07）
+需求：问题文本框 / 答案文本框白底配白色文字看不清 -> 改为合适的深色表面。
+
+## 定位（真实登录 admin，打开历史会话「西红柿种植如何防病」）
+- 两类气泡都是第三方 @gientech/modual 的 .message-card：
+  用户提问 : background-image linear-gradient(rgb(227,236,255) 0%, rgb(238,235,255) 100%)
+  AI 回答  : background-color rgb(255,255,255)
+  文字     : rgb(240,242,240)（浅色）
+  答案卡内「思考完成」条：bg-[#F5F7FA] -> rgb(245,247,250)
+- 改前全页白底大块 4 个（2 张 message-card + 2 条 think-header）。
+- 空态 /chats/main、检索测试、搜索页均无白底，问题只出现在有消息的会话中。
+
+## 改后（chat-bubbles-20261107/report.json）
+- 用户提问卡片：暖金轻底 rgba(216,189,137,0.12) + 金边 rgba(216,189,137,0.38)
+- AI 答案卡片：rgb(20,32,38) = #142026，background-image:none，边框 #344044
+- think-header：rgb(16,24,28) = #10181C
+- whiteBoxes=0；cards=4；卡片 computed font-size 16px；root 16px；themeAttr=1
+- PAGEERROR=0；无横向溢出
+- 截图：before.png（改动前，同会话）、after.png（改动后），1366x768 同构对比
+
+## 回归与纪律
+- 全量 14 页（after-bubbles-20261107/report.json）：14/14 RENDERED、fontDiff=0、
+  blueSvg=0、blueEls=0、34 条既有 AntD/React warning、无横向溢出、root 恒 16px。
+- 主题 A/B 同元素字号差异 0；未设 html/root 字号；未用 zoom/transform；
+  只改背景/边框/文字颜色，未改字号、布局、接口、状态、表单逻辑；未用 !important。
+- 构建结论见 build-summary.txt；实现口径见 SPECTRA.md §13。
