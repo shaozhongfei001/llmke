@@ -15,6 +15,7 @@ from langchain_core.documents import Document
 from app.base import QARetrieveConfig, BaseResponse
 from multiple_retrieval import multiple_retrieval, retrieval_graph, retrieval_multi_version_elastic
 from operators.common.log import logger
+from projection_read import channel_name as _channel_name
 from reranker_service import merge_and_rerank, merge_and_get_rrf_score
 from retrieval_fun_tool import query_es_data, og_process, document_version, process_return_results, \
     multiple_retrieval_data_process, filter_tables_by_query, sorted_result, get_multi_version_dict, \
@@ -44,22 +45,26 @@ async def retrieval_data(knowledge_base_name, top_k, server_config, verify_queri
     :param database_name 数据库名称
     :return: 多路召回的结果
     """
-    # V2：读路径投影切换（默认 legacy）。只换"基础名"，下游 table_chunks_/table_summary_ 会跟着走，
-    # 避免出现正文切了、表格没切的半切换；按库粒度由 INGEST_READ_KBS 控制。
+    # V2：读路径投影切换（默认 legacy）。P2-L8：改成**显式通道名映射**，不再靠
+    # `"table_chunks_" + 基础名` 拼接 —— 拼接会拼出 `table_chunks_v2cand_kb_9`，
+    # 而写侧产的是 `v2cand_table_chunks_kb_9`，名字不等就会静默查空索引。
+    # 按库粒度由 INGEST_READ_KBS 控制。详见 projection_read 模块 docstring。
     from projection_read import resolve as _resolve_read_index
     knowledge_base_name, read_info = _resolve_read_index(
         [kn for kn in knowledge_base_name if kn.strip()])
     logger.info(f"[v2-read] {read_info}")
-    full_knowledge_base_name = knowledge_base_name.copy()
+    _channel_names = read_info.get("channel_names") or {}
+
+    def _channel(channel):
+        return list(_channel_names.get(channel) or [])
+
+    full_knowledge_base_name = _channel("text") or knowledge_base_name.copy()
     # 判断faq
     if enabled_faq is True:
-        faq_knowledge_base_list = ["faq_" + kn for kn in knowledge_base_name]
-        full_knowledge_base_name.extend(faq_knowledge_base_list)
+        full_knowledge_base_name.extend(_channel("faq"))
     if enabled_summary:
-        table_summary_list = ["table_summary_" + kn for kn in knowledge_base_name]
-        full_knowledge_base_name.extend(table_summary_list)
-    table_chunks_list = ["table_chunks_" + kn for kn in knowledge_base_name]
-    full_knowledge_base_name.extend(table_chunks_list)
+        full_knowledge_base_name.extend(_channel("table_summary"))
+    full_knowledge_base_name.extend(_channel("table_chunks"))
     tasks = [multiple_retrieval(query, full_knowledge_base_name, top_k, server_config, es_milvus_enabled=es_milvus_enabled,
                                 query_condition=query_condition, cec_kb_file_list=cec_kb_file_list, enabled_faq=enabled_faq, condition_symbol=condition_symbol,
                                 dense_weight=dense_weight, enable_web_search=enable_web_search, enable_database=enable_database, database_name=database_name) for
@@ -71,8 +76,9 @@ async def retrieval_data(knowledge_base_name, top_k, server_config, verify_queri
 
 
 async def retrieval_table_chunks(knowledge_base_name, top_k, server_config, table_summary_data):
-    # 查询table_chunk
-    table_chunk_list = ["table_chunks_" + kn for kn in knowledge_base_name]
+    # 查询table_chunk。P2-L8：第 4 处拼装点也走 projection_read 的同一映射，
+    # 否则本函数仍会拼 `table_chunks_v2cand_kb_9`（与写侧影子名不符）。
+    table_chunk_list = [_channel_name("table_chunks", kn) for kn in knowledge_base_name]
     table_query_pk_dict = {}
     for qus, doc_list in table_summary_data.items():
         table_pk_list = []
@@ -442,7 +448,9 @@ async def multiple_retrieval_documents(qa_model: QARetrieveConfig):
     if table_summary_data:
         documents, log_pk_dict = await process_table_result(documents, table_summary_data, external_pk, qa_model,
                                                             server_config, queries, log_pk_dict, query)
-    if not documents and not web_search_list and not database_list:
+    # 图召回是独立的一路：ES/Milvus 里没有该库索引（新库尚未建索引）时，
+    # 图仍然可能召回到东西。这里不能提前返回，否则"开了图却永远走不到图"。
+    if not documents and not web_search_list and not database_list and not qa_model.enabled_graph:
         logger.info(f'查询成功,数据库并没有对应的文本，请检查知识库名称或问题。')
         return BaseResponse(code=200, msg=f'查询成功,数据库并没有对应的文本，请检查知识库名称或问题。',
                             data={"faq_result_list": faq_result_list,

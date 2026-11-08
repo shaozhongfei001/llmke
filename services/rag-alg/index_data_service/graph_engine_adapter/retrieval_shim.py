@@ -210,6 +210,20 @@ def _pick_top_k(req: Dict[str, Any]) -> Tuple[int, bool]:
     return clamped, clamped != raw
 
 
+def _pick_kb(req: Dict[str, Any]) -> str:
+    """从 `knowledge_base_name` 取第一个库标识（如 kb_9）透传给 18094 做按库路由。
+
+    18094 已支持按 kb 路由快照（`/v2/graph/query?` body 里的 `kb`）；不带 kb 会被判
+    NOT_BUILT。这里把 Java 召回请求里的 knowledge_base_name 首项作为 kb 下发，避免串库。
+    """
+    kbs = req.get("knowledge_base_name")
+    if isinstance(kbs, list) and kbs:
+        first = kbs[0]
+        if isinstance(first, str) and first.strip():
+            return first.strip()
+    return ""
+
+
 def _pick_seeds(req: Dict[str, Any]) -> List[str]:
     """把调用方给的实体种子原样透传给图服务（T-A6：产品链路 seeds 透传）。
 
@@ -438,9 +452,11 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
 
         top_k, clamped = _pick_top_k(req)
         seeds = _pick_seeds(req)
+        kb = _pick_kb(req)
         url = _graph_api() + "/v2/graph/query"
         # T-A6：seeds 透传（为空时也显式下发 []，让上游 trace.seed_hits 可审计）
-        payload = {"query": query, "top_k": top_k, "seeds": seeds}
+        # kb 透传：18094 按库路由快照，杜绝"所有库拿到同一份图"的串库假数据。
+        payload = {"query": query, "top_k": top_k, "seeds": seeds, "kb": kb}
 
         try:
             result = post(url, payload, _timeout())
@@ -532,8 +548,9 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
             )
 
         query, _ = _pick_query(req)
+        kb = _pick_kb(req)
         url = _graph_api() + "/v2/graph/global"
-        payload = {"query": query or "", "max_communities": _max_communities(req)}
+        payload = {"query": query or "", "max_communities": _max_communities(req), "kb": kb}
 
         try:
             result = post(url, payload, _timeout())

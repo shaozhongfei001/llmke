@@ -278,28 +278,31 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         if bad:
             return bad
 
+        space_name = req.get("space_name")
         es_meta: Optional[Dict[str, Any]] = None
         if not docs:
             # legacy 请求里没有正文 → 按 legacy 读法从 ES 取（输入侧，不是图引擎）。
-            space_name = req.get("space_name")
+            #
+            # 增量上传修复（2026-11-07）：Java 只带 col_values=[本次文件名]。若按这个过滤取块，
+            # 18094 /v2/graph/build 是「全量覆盖」语义，会把整库图谱覆盖成「只有这一个新文件」，
+            # 已入库文件的图数据全部丢失。因此统一以 ES 全库 chunk 为真值源重建：
+            # col_name/col_values 不传 → fetch_docs 不加过滤，返回该库 text + table 全部 chunk。
             try:
-                es_docs, err = fetch_docs(space_name, req.get("col_name"),
-                                          req.get("col_values"), post=_es_post)
+                es_docs, err = fetch_docs(space_name, None, None, post=_es_post)
             except Exception as exc:  # noqa: BLE001 - 适配模块本不抛，兜住也不能 500 HTML
                 return _resp(500, f"ES 取块异常 {type(exc).__name__}: {str(exc)[:180]}",
                              data={"es_proxy": _es_proxy(), "space_name": space_name})
             if err:
                 return _resp(500, err, data={
                     "es_proxy": _es_proxy(),
-                    "es_query": {"space_name": space_name, "col_name": req.get("col_name"),
-                                 "col_values": req.get("col_values")},
+                    "es_query": {"space_name": space_name, "mode": "full_kb"},
                 })
             docs, degraded = _to_build_docs(es_docs)
             fallbacks = None
             es_meta = {
                 "es_proxy": _es_proxy(),
-                "es_query": {"space_name": space_name, "col_name": req.get("col_name"),
-                             "col_values": req.get("col_values")},
+                "es_query": {"space_name": space_name, "mode": "full_kb",
+                             "requested_col_values": req.get("col_values")},
                 "es_docs_used": len(docs),
                 "locator_degraded": degraded.get("locator_degraded", 0),
             }
@@ -312,6 +315,11 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         payload: Dict[str, Any] = {"docs": docs}
         if root:
             payload["root"] = str(root)
+        # 按库落盘：18094 收到 kb 才会写 <root>/<kb>/current.json 与 kb.json，而查询侧
+        # _resolve_snapshot(kb) 只认这个布局。不带 kb 时快照落到 <root>/current.json，
+        # 结果是「建图返回成功、查询却报未建图」—— 增量图谱长期不生效的根因。
+        if space_name:
+            payload["kb"] = str(space_name)
 
         try:
             result = post(url, payload, _timeout())
@@ -341,6 +349,8 @@ def create_app(http_post: Optional[Callable[[str, Dict[str, Any], float], Any]] 
         # 真实计数：Java FileAppServiceImpl.java:661-673 要求 edges_total>0 且 edges_written>0。
         # edges_total 语义 = 抽取出的三元组总数（上游 facts）；
         # edges_written 语义 = 真正进图的边数（上游 edges）。零产出必须判失败。
+        # 实测 2026-11-07：18094 build 会返回顶层 facts/edges（facts=121、edges=429），
+        # 这里直接透传，不填固定值、不做兜底猜测。
         facts = _count(upstream.get("facts"))
         edges = _count(upstream.get("edges"))
         if facts is None or edges is None or facts <= 0 or edges <= 0:

@@ -38,6 +38,27 @@ def pointer_path(root: str) -> str:
     return os.path.join(root, "current.json")
 
 
+# P3-L10：正在构建中的快照目录标记。并发重建时，另一个写者的"保留 N 个"清理
+# 会把**还没 promote、指针也还没指它**的 target 当旧目录删掉 —— 建完 promote 后
+# 指针就指向了一个不存在的目录。有此标记的目录一律不清理。
+_BUILDING = ".building"
+
+
+def _mark_building(target: str) -> None:
+    try:
+        with open(os.path.join(target, _BUILDING), "w", encoding="utf-8") as fh:
+            fh.write("building\n")
+    except OSError:
+        pass
+
+
+def _unmark_building(target: str) -> None:
+    try:
+        os.unlink(os.path.join(target, _BUILDING))
+    except OSError:
+        pass
+
+
 def read_pointer(root: str) -> Optional[Dict[str, Any]]:
     path = pointer_path(root)
     if not os.path.isfile(path):
@@ -116,6 +137,7 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
     target = os.path.join(root, f"snapshot-{stamp}-g{fence.generation}")
     os.makedirs(root, exist_ok=True)
     os.makedirs(target, exist_ok=False)
+    _mark_building(target)
 
     previous = read_pointer(root)
     try:
@@ -132,11 +154,23 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
             "current": payload, "build_result": _safe(result), "previous": previous}
 
 
-def _cas_write_pointer(root: str, payload: Dict[str, Any]) -> None:
-    """D8：指针 CAS 写——flock 内重读当前 fencing，落后即拒绝，再原子替换写指针。
+def _cas_write_pointer(root: str, payload: Dict[str, Any], *,
+                       floor: int = 0) -> Dict[str, Any]:
+    """D8/P3-L10：指针 CAS 写 + **锁内** fencing 自增；返回最终写入的 payload。
 
     诚实边界：这是**宿主机内的**文件锁 CAS（flock），不跨机；跨机租约仍由 lease_mysql 负责。
     用途是把 `_promote` 的"先读后写"变成"锁内校验+写"，旧主晚到写会被拒绝。
+
+    P3-L10 两处修正（都关系到正确性，不能省）：
+
+    1. **`fencing` 缺省时必须显式判 `None`**。旧写法 `int(payload.get("fencing", cur) or 0)`
+       在 `payload["fencing"] = None` 时得到 **0**，而 `cur >= 1` 时 `cur > 0` 恒真 ——
+       于是「不传 fencing 的建图」第二次开始就会被当成旧主拒掉。**这是地雷，不是理论问题。**
+    2. **自增必须在锁内做**。若在锁外算 `cur + 1`，两个并发写者会算出同一个值，
+       后写者靠 `cur > new` 判不出来（相等放行）→ 覆盖前者、丢更新。
+
+    `floor`：调用方给的单调下界（`_promote` 传 `fence.generation`，P4 接线后也可传租约 fencing）。
+    `fencing` 语义 = **单调递增序号**，不是重建次数：撤权多次而重建少时它会跳变。
     """
     import fcntl
 
@@ -146,11 +180,19 @@ def _cas_write_pointer(root: str, payload: Dict[str, Any]) -> None:
         try:
             current = read_pointer(root)
             current_fencing = int((current or {}).get("fencing", 0) or 0)
-            fencing = int(payload.get("fencing", current_fencing) or 0)
-            if current_fencing > fencing:
-                raise StaleFencingError(
-                    f"fencing {fencing} 落后于当前指针 {current_fencing}：本实例已被接管，拒绝写入")
-            _write_pointer(root, payload)
+            raw = payload.get("fencing")
+            if raw is None:
+                # 锁内自增：`max(当前指针, floor) + 1`，保证严格递增且不与并发写者撞号
+                effective = max(current_fencing, int(floor or 0)) + 1
+            else:
+                effective = int(raw)
+                if current_fencing > effective:
+                    raise StaleFencingError(
+                        f"fencing {effective} 落后于当前指针 {current_fencing}："
+                        f"本实例已被接管，拒绝写入")
+            final = {**payload, "fencing": effective}
+            _write_pointer(root, final)
+            return final
         finally:
             fcntl.flock(lf, fcntl.LOCK_UN)
 
@@ -172,20 +214,34 @@ def _promote(root: str, fence: FenceState, live: List[Dict[str, Any]], target: s
             f"fencing {fencing} 落后于当前指针 {current_fencing}：本实例已被接管，拒绝写入")
 
     payload = {"schema": SCHEMA, "dir": target, "generation": fence.generation,
-               "fencing": fencing if fencing is not None else current_fencing,
+               # P3-L10：**不在这里把 None 替换成 current_fencing** —— 那等于"永不递增"。
+               # 缺省值由 `_cas_write_pointer` 在锁内算（`max(cur, floor) + 1`）。
+               "fencing": fencing,
                "documents": len(live), "dropped_revoked": dropped,
                "fingerprint": docs_fingerprint(live),
                "mode": mode,
                "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
                "previous": (previous or {}).get("dir")}
-    _cas_write_pointer(root, payload)
+    # 用 CAS 返回的最终 payload 作为 current：否则 `api.py` 状态回显的 fencing
+    # 会与实际落盘指针不一致（调用方拿到 None 或旧值）。
+    payload = _cas_write_pointer(root, payload, floor=fence.generation)
 
-    # 只保留最近 keep_last 个快照目录，避免磁盘无限增长（不删当前指针指向的那个）
+    # 只保留最近 keep_last 个快照目录，避免磁盘无限增长。
+    # P3-L10：**绝不删指针当前指向的目录**。并发重建时，另一个写者可能刚把指针挪到
+    # 它自己的 target；只看"最近 N 个"会把那个正被读的快照删掉（指针指向不存在的目录）。
+    _unmark_building(target)
+    live_dirs = {target}
+    live_dir = (read_pointer(root) or {}).get("dir")
+    if live_dir:
+        live_dirs.add(live_dir)
     snapshots = sorted(d for d in os.listdir(root) if d.startswith("snapshot-"))
     for stale in snapshots[:-keep_last]:
         path = os.path.join(root, stale)
-        if path != target:
-            shutil.rmtree(path, ignore_errors=True)
+        if path in live_dirs:
+            continue
+        if os.path.exists(os.path.join(path, _BUILDING)):
+            continue          # 另一个写者正在建这个目录，删掉它等于让对方的指针悬空
+        shutil.rmtree(path, ignore_errors=True)
     return payload
 
 
@@ -219,6 +275,7 @@ def rebuild_delta(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
     target = os.path.join(root, f"snapshot-{stamp}-g{fence.generation}")
     try:
         shutil.copytree(base_dir, target)          # 目录必须不存在，copytree 会自己建
+        _mark_building(target)
     except Exception as exc:  # noqa: BLE001
         shutil.rmtree(target, ignore_errors=True)
         raise RebuildFailed(f"复制基准快照失败：{type(exc).__name__}: {exc}") from exc
