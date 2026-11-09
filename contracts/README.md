@@ -12,4 +12,4 @@
 
 ## 2026-11-05 登记更新（HybridRetrieval 1.0）
 
-新增 1 份规则契约 `llmke-hybrid-retrieval-invariants-v1`（`rules/llmke-hybrid-retrieval.yaml`，HR-01~HR-10），锁定「统一向量库 + 统一来源身份（平台 pk）+ dense/lexical/graph 三路按 pk 融合」的架构约束。它是 DP 系列的检索侧补充，不改变旧 v1 契约与冻结状态。设计入口：`docs/design/unified-documents-v2/11_VECTOR_STORE_AND_HYBRID_RETRIEVAL.md`。当前登记共 28 项。
+新增 1 份规则契约 `llmke-hybrid-retrieval-invariants-v1`（`rules/llmke-hybrid-retrieval.yaml`，HR-01~HR-10），锁定「统一向量库 + 统一来源身份（平台 pk）+ dense/lexical/graph 三路按 pk 融合」的架构约束。它是 DP 系列的检索侧补充，不改变旧 v1 契约与冻结状态。设计入口：`docs/design/unified-documents-v2/11_VECTOR_STORE_AND_HYBRID_RETRIEVAL.md`。当前登记共 28 项；2026-11-09 补登记 `llmke-homonyms-v1` 后共 29 项。

@@ -278,6 +278,14 @@ contracts:
   path: ontology/relations.v1.json
   depends_on: []
   compatibility: additive_registration_metadata_only
+- id: llmke-homonyms-v1
+  type: ontology
+  layer: domain
+  version: 1.0.0
+  owner: algorithm-owner
+  path: ontology/homonyms.v1.json
+  depends_on: []
+  compatibility: additive_registration_metadata_only
 - id: llmke-graph-engine-api-v1
   type: api
   layer: application
