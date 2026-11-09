@@ -199,20 +199,29 @@ def project(artifact_dir, policy, mode=None):
         raise ProjectionRefused("ARTIFACT_ID_MISSING", str(artifact_dir))
 
     blocks = list((ir or {}).get("blocks") or [])
+    # units: [(定位方式, start, end, block)]。两种正文块都要产出 chunk：
+    #   - text_span  ：块文本能在 parsed_text 里精确定位（DOCX 路径常见）→ 字符区间；
+    #   - inline_text：定位失败时的显式退化（MinerU 渲染文本与块文本有空白差异时常见）
+    #                  → 用块级定位（block_id + page_no），位置仍可回指，只是不到字符。
+    # 只取正文块；表格/图由下方 table 通道承载，避免表格文字重复进正文。
+    units = []
     if ir is not None:
-        # 有 IR：正文块来自 IR 的 text_span（表格区域由 table_ref 承载，不再进正文通道），
-        # 每个正文块一块，跨度就是它自己的真实切片；不合并，避免把表格文字又包进正文。
-        spans = []
         for block in blocks:
             ref = block.get("content_ref") or {}
-            if ref.get("kind") != "text_span":
-                continue
-            start, end = ref.get("start_offset"), ref.get("end_offset")
-            if not (isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(text)):
-                raise ProjectionRefused("ARTIFACT_SPAN_OUT_OF_RANGE", f"{block.get('block_id')} {start}..{end}")
-            if text[start:end] != ref.get("text"):
-                raise ProjectionRefused("ARTIFACT_SPAN_MISMATCH", str(block.get("block_id")))
-            spans.append((start, end))
+            kind = ref.get("kind")
+            if kind == "text_span":
+                start, end = ref.get("start_offset"), ref.get("end_offset")
+                if not (isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(text)):
+                    raise ProjectionRefused("ARTIFACT_SPAN_OUT_OF_RANGE", f"{block.get('block_id')} {start}..{end}")
+                if text[start:end] != ref.get("text"):
+                    raise ProjectionRefused("ARTIFACT_SPAN_MISMATCH", str(block.get("block_id")))
+                units.append(("text_span", start, end, block))
+            elif kind == "inline_text":
+                text_value = str(ref.get("text") or "")
+                if not text_value.strip():
+                    continue
+                units.append(("inline_text", None, None, block))
+        spans = [(s, e) for (k, s, e, _b) in units if k == "text_span"]
         for (a_start, a_end), (b_start, _b_end) in zip(spans, spans[1:]):
             if b_start < a_end:
                 raise ProjectionRefused("ARTIFACT_SPAN_OVERLAP", f"{a_start}..{a_end} / {b_start}")
@@ -220,21 +229,28 @@ def project(artifact_dir, policy, mode=None):
         # 无 IR（text-only 快照）：对整篇 MD 做窗口投影，并强制非空白全覆盖。
         spans = _windows(text, policy.chunk_chars, policy.overlap_chars)
         _check_coverage(text, spans)
+        units = [("text_span", s, e, None) for (s, e) in spans]
 
     chunks = []
-    for seq, (start, end) in enumerate(spans):
-        body = text[start:end]
+    for seq, (kind, start, end, block) in enumerate(units):
+        if kind == "text_span":
+            body = text[start:end]
+            locator = {"kind": "text_span", "source": "parsed_text.md",
+                       "start_offset": start, "end_offset": end}
+        else:
+            ref = (block or {}).get("content_ref") or {}
+            body = str(ref.get("text") or "")
+            locator = {"kind": "block_ref",
+                       "block_id": (block or {}).get("block_id"),
+                       "page_no": (block or {}).get("page_no")}
         if not body.strip():
-            raise ProjectionRefused("PROJECTION_EMPTY_CHUNK", f"seq={seq} {start}..{end}")
-        if body != text[start:end]:                      # 冗余但显式：内容必须来自 MD
-            raise ProjectionRefused("PROJECTION_TEXT_MISMATCH", f"seq={seq}")
+            raise ProjectionRefused("PROJECTION_EMPTY_CHUNK", f"seq={seq}")
         chunks.append({
             "seq": seq,
             "channel": "text",
             "pk": _chunk_pk(policy.index_name, policy.file_id, seq, body),
             "text": body,
-            "locator": {"kind": "text_span", "source": "parsed_text.md",
-                        "start_offset": start, "end_offset": end},
+            "locator": locator,
             "parse_artifact_id": artifact_id,
             "content_uid": artifact.get("content_uid"),
             "block_ids": [b.get("block_id") for b in blocks],

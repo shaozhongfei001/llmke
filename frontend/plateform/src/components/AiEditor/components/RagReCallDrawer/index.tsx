@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Drawer } from "antd";
-import "@/pages/HomePage/IntelligentChat/KnowledgeSearch/components/new-style.less";
+import "@/styles/editor-shared.less";
 import FileViewNew from "../FileViewNew";
 import { FILEIMG } from "@root/src/core/helps";
 

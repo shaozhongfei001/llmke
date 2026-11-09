@@ -12,6 +12,7 @@ import {
 } from "react";
 import { Empty } from "antd";
 import { typeColor } from "./graphData";
+import { spectraTypeColor } from "./spectraPalette";
 import type { GraphEdge, GraphNode } from "./graphData";
 
 export interface GraphCanvasHandle {
@@ -37,8 +38,8 @@ interface Props {
   onScaleChange?: (scale: number) => void;
 }
 
-/** 重点实体：概览缩小到小字号时仍保留标签 */
-const PROMINENT_TYPES = new Set(["产品", "客户", "评级"]);
+/** 重点实体：概览缩小到小字号时仍保留标签（v2 主链统一"实体"；旧 Nebula 按细分类） */
+const PROMINENT_TYPES = new Set(["实体", "产品", "客户", "评级"]);
 
 interface Pos {
   x: number;
@@ -128,6 +129,28 @@ const GraphCanvasV2 = forwardRef<GraphCanvasHandle, Props>(function GraphCanvasV
     }
     return { pos };
   }, [nodes, edges, nodeIndex]);
+
+  /**
+   * 标签预算：密集图（数百节点）时按「关联度」排序决定谁显示裸标签，
+   * 避免 400 个实体名互相堆叠。缩放越小时预算越小；放大到 1.15 倍以上恢复全量。
+   * 只影响标签可见性，不影响节点渲染、缩放、点选与关系方向。
+   */
+  const labelRank = useMemo(() => {
+    const deg = new Map<string, number>();
+    for (const e of edges) {
+      deg.set(e.source, (deg.get(e.source) || 0) + 1);
+      deg.set(e.target, (deg.get(e.target) || 0) + 1);
+    }
+    const sorted = [...nodes].sort(
+      (a, b) => (deg.get(b.vid) || 0) - (deg.get(a.vid) || 0)
+    );
+    const rank = new Map<string, number>();
+    sorted.forEach((n, i) => rank.set(n.vid, i));
+    return rank;
+  }, [nodes, edges]);
+
+  const labelBudget =
+    scale >= 1.15 ? Number.MAX_SAFE_INTEGER : scale >= 0.75 ? 40 : 16;
 
   /** 邻域（选中节点 1 跳） */
   const neighbors = useMemo(() => {
@@ -233,7 +256,7 @@ const GraphCanvasV2 = forwardRef<GraphCanvasHandle, Props>(function GraphCanvasV
               markerHeight="5"
               orient="auto"
             >
-              <path d="M0 1 L9 5 L0 9" fill="none" stroke="#b6c5dc" strokeWidth="1.5" />
+              <path d="M0 1 L9 5 L0 9" fill="none" stroke="#4A5A60" strokeWidth="1.5" />
             </marker>
             <marker
               id="kgw-arrow-active"
@@ -244,7 +267,7 @@ const GraphCanvasV2 = forwardRef<GraphCanvasHandle, Props>(function GraphCanvasV
               markerHeight="5"
               orient="auto"
             >
-              <path d="M0 1 L9 5 L0 9" fill="none" stroke="#4872e9" strokeWidth="1.5" />
+              <path d="M0 1 L9 5 L0 9" fill="none" stroke="#94CED2" strokeWidth="1.5" />
             </marker>
           </defs>
           <g transform={`translate(${offset.x} ${offset.y}) scale(${scale})`}>
@@ -288,14 +311,20 @@ const GraphCanvasV2 = forwardRef<GraphCanvasHandle, Props>(function GraphCanvasV
             })}
             {nodes.map((n, i) => {
               const p = layout.pos[i];
-              const color = typeColor(n.nodeType);
+              // SPECTRA：类型色在本视觉层映射，typeColor 仅作未知类型的稳定兜底
+              const color = spectraTypeColor(n.nodeType, typeColor(n.nodeType));
               const isSel = selectedId === n.vid;
               const isNeighbor = selectedId !== null && neighbors.has(n.vid);
               const isDim = selectedId !== null && !isNeighbor;
               const prominent = PROMINENT_TYPES.has(n.nodeType) || isSel;
               const r = n.nodeType === "产品" ? 22 : n.nodeType === "客户" ? 18 : 13;
-              // 概览级（默认 fit 约 69%）隐藏次要标签，避免 137 节点文字堆叠
-              const hideLabel = scale < 0.8 && !prominent;
+              // 概览级（默认 fit 约 69%）只保留关联度最高的少量标签；
+              // 选中节点与其一跳邻居始终显示，保证「点选后能看清」。
+              const rank = labelRank.get(n.vid) ?? Number.MAX_SAFE_INTEGER;
+              const inFocus = isSel || (selectedId !== null && neighbors.has(n.vid));
+              const hideLabel =
+                !inFocus &&
+                (rank >= labelBudget || (scale < 0.8 && !prominent));
               const labelSize = Math.max(
                 prominent ? 14 : 12,
                 (prominent ? 14 : 12) / scale
@@ -312,7 +341,7 @@ const GraphCanvasV2 = forwardRef<GraphCanvasHandle, Props>(function GraphCanvasV
                   style={{ cursor: "pointer" }}
                 >
                   {isSel && (
-                    <circle className="kgw-ring" r={r + 7} fill="none" stroke="#d4e0ff" strokeWidth="4" />
+                    <circle className="kgw-ring" r={r + 7} fill="none" stroke="#D8BD89" strokeWidth="3" />
                   )}
                   <circle r={r} fill={color + "22"} stroke={color} strokeWidth="1.8" />
                   {n.nodeType === "产品" && (

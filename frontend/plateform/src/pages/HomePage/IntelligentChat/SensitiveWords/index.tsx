@@ -40,13 +40,13 @@ const MainPage = ({ tableProps }: any) => {
           </div>
         </div>
       </div>
-      <div className="px-[20px] pt-[20px] h-[calc(100%-76px)] overflow-auto bg-white rounded-[8px]">
+      <div className="px-[20px] pt-[20px] h-[calc(100%-76px)] overflow-auto bg-[#10181C] rounded-[8px]">
         <div className={`search-bar flex justify-between mb-[20px]`}>
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
             className="w-[138px] border-none"
-            style={{ background: "linear-gradient(90deg,#075BFF,#AC96FF)" }}
+            style={{ background: "#D8BD89", color: "#111915" }}
             onClick={() => {
               tableProps.setOpenType("add");
               tableProps.setShowCreateModal(true);

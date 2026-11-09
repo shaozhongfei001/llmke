@@ -26,7 +26,9 @@ Documentation=file:/home/szf/data/dev/llmke-r12/docs/r12/r14/R14-FINAL-REPORT.md
 Wants=r12-models.service
 Wants=r12-alg.service
 Wants=r12-docparse.service
-Wants=r12-graphsvc.service
+# 阶段4 已下线 V1 图服务(19529)/Nebula；V2 图栈(18094/19531)由 r12-watchdog 守护，
+# 不再通过本 target 的 Wants 拉起 r12-graphsvc（否则整栈重启会复活 V1）。
+# Wants=r12-graphsvc.service
 Wants=r12-java@rag-auth-service.service
 Wants=r12-java@rag-gateway.service
 Wants=r12-java@rag-index-service.service

@@ -1,3 +1,7 @@
+/*
+ * 应用外壳（ProLayout）样式
+ * SPECTRA 主题接入：只替换颜色/表面/边框；min-width、padding、height、字号等几何与排版值保持原样。
+ */
 .ant-pro-layout {
   min-width: 1200px;
   .ant-pro-layout-bg-list {
@@ -6,7 +10,7 @@
   }
   .ant-layout-sider {
     .ant-layout-sider-children {
-      background-color: rgba(255, 255, 255, 0.6);
+      background-color: #0b1014;
     }
   }
   .ant-pro-layout-content {
@@ -28,10 +32,27 @@
       display: flex;
       flex-direction: col;
       align-items: center;
+      border-radius: 8px;
+
+      /* 业务功能图标保留各自语义，只把蓝色图标的明度/饱和度适配到深色底 */
+      img {
+        filter: grayscale(1) brightness(1.85);
+        opacity: 0.72;
+        transition: opacity 0.16s ease, filter 0.16s ease;
+      }
+
+      &:hover img {
+        opacity: 0.95;
+      }
     }
     .ant-menu-item-selected {
-      color: #055aff;
-      background: url("../../assets/siderBg.png");
+      color: #d8bd89;
+      background: rgba(216, 189, 137, 0.1);
+
+      img {
+        filter: grayscale(1) brightness(1.1) sepia(1) saturate(2.4) hue-rotate(-6deg);
+        opacity: 1;
+      }
     }
     .ant-menu-title-content {
       font-size: 14px;
@@ -42,14 +63,15 @@
   }
   .ant-layout-header {
     border: none;
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: #0b1014;
     height: 60px !important;
-    box-shadow: 0 8px 5px -3px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
+    border-bottom: 1px solid #243035;
     .ant-pro-top-nav-header {
       .ant-pro-top-nav-header-menu {
         padding: 0;
         .ant-menu-item-selected {
-          color: #222222;
+          color: #f0f2f0;
           font-weight: 700;
         }
         .ant-pro-top-nav-header-base-menu {
@@ -74,4 +96,56 @@
   //background: url("../../assets/BG.png") no-repeat;
   background-size: cover;
   height: 100vh;
+}
+
+/* ---------- SPECTRA 主题作用域内的外壳细节 ---------- */
+body[data-spectra-theme="1"] {
+  /* 头像下拉面板：原为 tailwind bg-white，这里用等价的特异性替换为深色浮层 */
+  .spectra-dropdown-panel {
+    background: #142026;
+    border: 1px solid #344044;
+
+    .ant-dropdown-menu {
+      background: transparent;
+      box-shadow: none;
+    }
+    .ant-dropdown-menu-item-disabled,
+    .ant-dropdown-menu-item-disabled:hover {
+      background: transparent;
+    }
+    .hover\:bg-gray-50:hover {
+      background: #1a292e;
+    }
+    .text-gray-600,
+    .text-gray-500,
+    .text-gray-400 {
+      color: #91a1a3;
+    }
+    .text-red-500 {
+      color: #e28683;
+    }
+    .bg-white {
+      background: #142026;
+    }
+    .border-gray-100 {
+      border-color: #243035;
+    }
+  }
+
+  /* 头像触发器 hover 底色（tailwind hover:bg-gray-50） */
+  .ant-pro-global-header .hover\:bg-gray-50:hover {
+    background: #1a292e;
+  }
+
+  /* 文档写作二级窄栏（深色表面的等价替换） */
+  .noContainer .bg-\[rgba\(255\,255\,255\,0\.4\)\] {
+    background: rgba(20, 32, 38, 0.6);
+  }
+
+  /* 左上角品牌 Logo：白章鱼等比例显示 */
+  .ant-pro-top-nav-header-logo img,
+  .ant-pro-global-header-logo img,
+  .ant-pro-layout .ant-pro-layout-header img[alt="logo"] {
+    object-fit: contain;
+  }
 }

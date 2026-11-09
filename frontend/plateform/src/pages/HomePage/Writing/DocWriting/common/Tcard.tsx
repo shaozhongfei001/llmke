@@ -46,7 +46,7 @@ const TCard = (props: any) => {
       </div>
       {showAction && (
         <div
-          className={`absolute flex justify-between items-center bottom-[1px] w-[calc(100%-2px)] left-[1px] h-[40px] bg-[linear-gradient(#FFFFFF,#F0F5FF)] rounded-b-[8px] opacity-85`}
+          className={`absolute flex justify-between items-center bottom-[1px] w-[calc(100%-2px)] left-[1px] h-[40px] bg-[#D8BD89] text-[#111915] rounded-b-[8px] opacity-85`}
         >
           <Button
             type="link"

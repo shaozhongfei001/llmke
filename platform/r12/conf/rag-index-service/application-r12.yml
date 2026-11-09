@@ -90,15 +90,23 @@ remote:
     url: http://127.0.0.1:19527/del_index
   del-vector:
     url: http://127.0.0.1:19526/del_doc_by_col
+  # HybridRetrieval 阶段 4：V2 无删除端点（快照按代次重建），留空即跳过（RemoteGraphUtils 已加空值守卫）
   del-graph-space:
-    url: http://127.0.0.1:19529/del_space
+    url: ""
   del-graph-entity:
-    url: http://127.0.0.1:19529/del_doc_entity
+    url: ""
   generate-graph:
-    url: http://127.0.0.1:19529/generate_triple_data
-  # R15 W03：图数据变更后自动重建社区摘要（否则 global 仍按旧社区回答）
+    url: http://127.0.0.1:19531/generate_triple_data
+  # HybridRetrieval 阶段 4：community.json 由 18094 build 时自动生成，无需单独重建社区摘要，留空即跳过
   generate-community:
-    url: http://127.0.0.1:19529/generate_community
+    url: ""
+  # V2 摄取（18096）：2026-11-07 起关闭，统一走 generate-graph(19531 legacy_shim) → 18094。
+  # 关闭原因：① 18096 无启动定义/看门狗，依赖的 doc2md 环境变量与 kb_state.json 均缺失；
+  # ② 该链路不写 ES/Milvus，且按 kb_state.json 全库重建图谱，与 19531 并发会互相覆盖；
+  # ③ 新上传文件的 ES/Milvus 由 12340 解析服务双写，图谱由 19531 以 ES 全库 chunk 重建。
+  # 留空即关闭（RemoteV2IngestUtils.enabled() 为空则跳过）。
+  v2-ingest:
+    url: ""
   faq-extract:
     url: http://127.0.0.1:19996/llm_faq_generate
   faq-polish:

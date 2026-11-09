@@ -353,6 +353,13 @@ public class FileParseTaskAppServiceImpl implements FileParseTaskAppService {
         //文件图谱抽取
         if(isGraphParse)
             filesAppParse.generateGraph(fileParseTaskInfo);
+
+        // V2 摄取：同一份 doc2md 快照双路消费（搜索 chunk + 按库图谱）。
+        // doc2mdDir 有值时直接消费；为空时由摄取服务用文件 URL 下载原件并跑 doc2md（全自动）。
+        // 是否真正启用由 remote.v2-ingest.url 决定，未配置时 v2Ingest 内部会告警并跳过。
+        if (!isExtract) {
+            filesAppParse.v2Ingest(fileParseTaskInfo);
+        }
     }
 
     private void setUserContext(String userId, String userName) {

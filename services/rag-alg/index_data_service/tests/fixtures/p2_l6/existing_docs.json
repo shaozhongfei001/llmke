@@ -1,0 +1,9 @@
+{
+  "_note": "同一 source=SHARED 下有 A/B 两个 file_id 的旧 chunk，供 F4/R-3 验证 delete_scope 按 file_id+pk 精确删除、B 不得被误删",
+  "source": "SHARED",
+  "docs": [
+    {"page_content": "A-chunk-1", "metadata": {"source": "SHARED", "file_id": "A", "pk": 101}},
+    {"page_content": "A-chunk-2", "metadata": {"source": "SHARED", "file_id": "A", "pk": 102}},
+    {"page_content": "B-chunk-1", "metadata": {"source": "SHARED", "file_id": "B", "pk": 201}}
+  ]
+}

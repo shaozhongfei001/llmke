@@ -1,0 +1,46 @@
+# SPECTRA 接手轮 · 生产构建验证摘要 (2026-11-06/07)
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-final3
+（按约定不直接 npm run build，用新 outDir 绕开本地 safe-delete 阈值）
+
+最终构建 /tmp/sp-build-final4.log（含最后一个代码提交 699829e1）:
+  结果: ✓ built in 4m 32s
+  模块: ✓ 15825 modules transformed.
+  dist-final3/assets 文件数: 999
+  [vite:css] Parse error 数: 12
+  'error' 关键字行: 18 = 12 条 parse error + 含 error 字样的产物文件名，无致命构建错误
+  第三方 asset 未解析告警: 61
+  Generated an empty chunk: 74
+
+倒数第二轮 /tmp/sp-build-final3.log（699829e1 之前）: ✓ built in 8m 36s，15825 模块，12 处 parse error，0 致命错误
+改前基线 /tmp/sp-build-baseline.log（本轮改动前，与 Playwright 回归并行、未完成）: 15825 模块，12 处 parse error
+
+判定: 本次改动未引入新的构建失败。12 处 [vite:css] Parse error 来自第三方 @mxmweb/zui 等 CSS，
+改前基线与两次成功构建数量完全一致；前任 SPECTRA.md §7 记录改造前 e368f62 构建亦成功
+(15825 模块，2 处 parse error，统计口径/环境不同)。
+过程说明: 与 Playwright 回归并行时构建卡在 rendering chunks（交接文档已警告两套 server 共用
+node_modules/.vite 缓存）；停掉 dev server 独占资源后分别 8m36s / 4m32s 成功，非代码问题。
+
+## P1-1 路径 B（null 守卫）后的最终构建 2026-11-07 /tmp/sp-build-writing.log
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-p1-writing
+  结果: ✓ built in 3m 34s
+  模块: ✓ 15826 modules transformed.
+  dist-p1-writing/assets 文件数: 999
+  [vite:css] Parse error: 12（既有，同前）
+判定: 1 行逻辑守卫未引入任何构建失败；既有第三方告警数量不变。
+
+## 智能对话欢迎区品牌化后的构建 2026-11-07 /tmp/sp-build-brand.log
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-chat-brand
+  结果: ✓ built in 3m 40s
+  模块: ✓ 15826 modules transformed.
+  [vite:css] Parse error: 12（既有，同前）
+  章鱼资源已打包: dist-chat-brand/assets/octopus-white-BetmITos.png（CSS url 由 Vite 正确解析）
+判定: 本次仅新增作用域 CSS，0 新增构建失败；构建产物含章鱼资源与替换规则。
+
+## 消息气泡白底修复后的构建 2026-11-07 /tmp/sp-build-bubbles.log
+命令: NODE_OPTIONS=--max-old-space-size=8192 npx vite build --mode production --outDir dist-bubbles
+  结果: ✓ built in 3m 40s
+  模块: ✓ 15825 modules transformed.
+  [vite:css] Parse error: 12（既有，同前）
+  dist-bubbles/assets 文件数: 999
+  生产 CSS 已含 .message-card 深色规则与 [class*=F5F7FA] 覆盖（2 条匹配片段）
+判定: 本次仅新增作用域 CSS，0 新增构建失败。

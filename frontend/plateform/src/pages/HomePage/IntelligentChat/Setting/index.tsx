@@ -600,7 +600,7 @@ const DetailWrapper = (props: any) => {
             </div>
           </div>
         </div>
-        <div className="h-[calc(100%-76px)] bg-white rounded-[8px]">
+        <div className="h-[calc(100%-76px)] bg-[#10181C] rounded-[8px]">
           <Tabs
             items={[
               { label: "我创建的", key: "1" },
@@ -617,7 +617,7 @@ const DetailWrapper = (props: any) => {
                 type="primary"
                 icon={<PlusCircleOutlined />}
                 className="w-[83px] border-none"
-                style={{ background: "linear-gradient(90deg,#075BFF,#AC96FF)" }}
+                style={{ background: "#D8BD89", color: "#111915" }}
                 onClick={onTriggerCreate}
               >
                 新建

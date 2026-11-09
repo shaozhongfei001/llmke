@@ -33,10 +33,8 @@ const ProcessDrawer = (props: Iprops) => {
                   className="w-6 h-6 inline-block leading-6 text-center rounded-full mr-3 text-xs select-none"
                   style={{
                     background:
-                      curItemKey > index
-                        ? "linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%) "
-                        : "#f2f2f2",
-                    color: curItemKey > index ? "white" : "#888"
+                      curItemKey > index ? "#D8BD89" : "#1A292E",
+                    color: curItemKey > index ? "#111915" : "#91A1A3"
                   }}
                 >
                   {index + 1}

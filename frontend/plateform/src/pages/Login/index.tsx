@@ -1,6 +1,3 @@
-import homeBg from "@/assets/login/homeBg.png";
-import leftImg from "@/assets/login/left.jpg";
-import logoImg from "@/assets/login/logoImg.png";
 import { Layout, message } from "antd";
 import { Encrypt } from "./utils";
 import { useNavigate } from "react-router-dom";
@@ -111,13 +108,10 @@ function LoginPage() {
     }
   };
   return (
-    <Layout style={{ height: "100vh" }}>
+    <Layout style={{ height: "100vh", background: "#090D11" }}>
       <Login
         loginLoading={btnLoading}
         registerLoading={btnLoading}
-        homeBg={homeBg}
-        leftImg={leftImg}
-        logoImg={logoImg}
         codeImgSrc={kaptchaUrl}
         registreKaptchaUrl={registreKaptchaUrl}
         eventEmit={eventEmit}

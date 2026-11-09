@@ -152,8 +152,8 @@ const PermisssonConfig = ({ drawConfig }: any) => {
         />
         <Button
           style={{
-            background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-            color: "#fff",
+            background: "#D8BD89",
+            color: "#111915",
             border: "none"
           }}
           icon={<PlusCircleOutlined />}

@@ -141,6 +141,30 @@ async def get_index_mapping_field_async(index_name) -> Tuple[List[str], List[str
     return s_field_names, m_field_names
 
 
+def _to_int_or_raw(v):
+    """能转 int 的转 int，其余原样返回。
+
+    为什么需要：`order_num` / `status` 在 ES mapping 与 Milvus schema 里都是**字符串**
+    （`{"type": "text", keyword}` / `VARCHAR`），线上数据是 `''`，FAQ 场景可能是 `'1'`。
+    原实现无条件 `int(v)` → `int('')` / `int(None)` 直接 ValueError → 接口 500。
+
+    **校验与转换必须是同一个动作**：不要写成「先用 isdigit 判断、再 int()」——
+    两套规则必然分叉（`'--1'` 被 isdigit 放行但 int() 崩；`'+1'` / `'1_000'` 则相反）。
+    这里直接 `int()`，因为它就是规则本身。
+
+    实测：`''`→`''`、`'1'`→`1`、`'--1'`→`'--1'`、`'+1'`→`1`、`'1_000'`→`1000`、
+    `'1.5'`→`'1.5'`、`None`→`None`、`1.5`→`1.5`、`True`→`True`。
+    """
+    if isinstance(v, bool):
+        return v                      # True/False 不当整数
+    if isinstance(v, (int, str)):
+        try:
+            return int(v)
+        except ValueError:
+            return v
+    return v                          # None / float / 其它一律原样
+
+
 def build_actions(insert_model: InsertDataModel, s_field_names, index_name) -> Tuple[list, Set[str]]:
     """
     构造文档逻辑，生成 bulk action 列表和 source 去重集合。
@@ -252,7 +276,7 @@ def build_actions(insert_model: InsertDataModel, s_field_names, index_name) -> T
                 elif sf == 'metadata':
                     for f, v in doc_dict['metadata'].items():
                         if f in ('order_num', "status"):
-                            actions_dict['_source'][sf][f] = int(v)
+                            actions_dict['_source'][sf][f] = _to_int_or_raw(v)
                         else:
                             actions_dict['_source'][sf][f] = v
                 else:

@@ -28,6 +28,7 @@ import com.gientech.ragindexservice.domain.service.*;
 import com.gientech.ragindexservice.infrastructure.PdfConvertorUtils;
 import com.gientech.ragindexservice.infrastructure.RemoteFileUtils;
 import com.gientech.ragindexservice.infrastructure.RemoteGraphUtils;
+import com.gientech.ragindexservice.infrastructure.RemoteV2IngestUtils;
 import com.gientech.start.redisson.lock.RedissonLock;
 import com.gientech.start.storage.properties.StorageProperties;
 import com.gientech.start.storage.utils.FileStorageUtils;
@@ -58,6 +59,9 @@ public class FileAppServiceImpl implements FileAppService {
 
     @Autowired
     private RemoteGraphUtils remoteGraphUtils;
+
+    @Autowired
+    private RemoteV2IngestUtils remoteV2IngestUtils;
 
     @Autowired
     private KnowledgeBaseListDomainService knowledgeBaseFileDomainService;
@@ -603,6 +607,75 @@ public class FileAppServiceImpl implements FileAppService {
             chunnkDomainService.deleteTable(FileFieldEnums.TABLE_SUMMARY_PREFIX + tableName);
         }
         return chunks;
+    }
+
+    /**
+     * V2 摄取：解析完成后，把 doc2md 的**同一份四件套**交给搜索与图谱两路消费。
+     *
+     * 触发前提：`FileParseTaskInfo.doc2mdDir` 有值（解析链路确实产出了 doc2md 产物）。
+     * 为空的两种情形都只告警、不触发，也**不拿 legacy 正文顶替**——
+     * 那会让图谱与搜索读两份不同解析，引用指到的原文与召回内容对不上（D1 约束）。
+     */
+    @Async("asyncExecutor")
+    @Override
+    public void v2Ingest(FileParseTaskInfo param) {
+        if (!remoteV2IngestUtils.enabled()) {
+            log.warn("V2 摄取未启用（remote.v2-ingest.url 为空），跳过 kbId={}",
+                    param.getKnowledgeBaseId());
+            return;
+        }
+        // doc2mdDir 为空时走"文件 URL"全自动模式：由摄取服务下载原件并跑 doc2md。
+        // 两种模式都不拿 legacy 正文顶替，保证图谱与搜索读的是同一次解析。
+        String doc2mdDir = param.getDoc2mdDir();
+        KnowledgeBase knowledgeBase = knowledgeBaseDomainService.findByKbId(param.getKnowledgeBaseId());
+        if (Objects.isNull(knowledgeBase)) {
+            log.error("V2 摄取失败：知识库不存在 kbId={}", param.getKnowledgeBaseId());
+            return;
+        }
+        // 与 legacy 建图一致：必须用原始名（kb_9），不能用中文展示名做索引/快照标识
+        String kb = knowledgeBase.getPrimitiveName();
+        if (StringUtils.isBlank(kb)) {
+            kb = param.getKnowledgeBaseName();
+        }
+        if (StringUtils.isBlank(kb)) {
+            log.error("V2 摄取失败：知识库缺少 primitiveName kbId={}", param.getKnowledgeBaseId());
+            return;
+        }
+        for (FileParseTaskInfo.File file : param.getFiles()) {
+            Long fileId = file.getFileId();
+            try {
+                KnowledgeBaseList kbFile = knowledgeBaseFileDomainService.findById(fileId);
+                // P4-L13-B：file_url 只作元数据，不再触发二次解析（解析只发生在 doc2md 一次）
+                RemoteV2IngestUtils.IngestOutcome outcome = remoteV2IngestUtils.ingest(
+                        kb, fileId, doc2mdDir,
+                        kbFile == null ? null : kbFile.getFilePath(),
+                        kbFile == null ? null : kbFile.getFileName(),
+                        kbFile == null ? null : kbFile.getConvertedFilePath(),
+                        kbFile == null || kbFile.getFileSize() == null
+                                ? null : kbFile.getFileSize().longValue());
+                log.info("V2 摄取结果 fileId={} kb={} action={} http={} code={}",
+                        fileId, kb,
+                        outcome == null ? "SKIPPED" : outcome.action,
+                        outcome == null ? null : outcome.httpStatus,
+                        outcome == null ? null : outcome.code);
+                // 如实回写（契约 §1.2 的 code 语义 / §5 错误码）：不吞、不假成功。
+                //   OK        → 不额外改状态（解析链路已写 PARSE_SUCCESS）
+                //   RETRY     → 207 部分成功 / 5xx / 连不上：可重试
+                //   PARSE_FAIL→ 4xx：产物或请求不合法，重试无益
+                if (outcome != null && "RETRY".equals(outcome.action)) {
+                    knowledgeBaseFileDomainService.updateStatusByIds(
+                            Lists.newArrayList(fileId), KbFileStatusEnums.RETRY.getValue(), false);
+                } else if (outcome != null && "PARSE_FAIL".equals(outcome.action)) {
+                    knowledgeBaseFileDomainService.updateStatusByIds(
+                            Lists.newArrayList(fileId), KbFileStatusEnums.PARSE_FAIL.getValue(), false);
+                }
+            } catch (Exception e) {
+                // 单文件失败不影响其它文件；但必须留痕且回写 RETRY，不能静默
+                log.error("V2 摄取失败 fileId={} kb={} doc2mdDir={}", fileId, kb, doc2mdDir, e);
+                knowledgeBaseFileDomainService.updateStatusByIds(
+                        Lists.newArrayList(fileId), KbFileStatusEnums.RETRY.getValue(), false);
+            }
+        }
     }
 
     @Async("asyncExecutor")

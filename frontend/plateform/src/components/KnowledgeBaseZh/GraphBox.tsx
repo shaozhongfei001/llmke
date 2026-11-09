@@ -843,8 +843,8 @@ const GraphList = (
             icon={<UploadOutlined />}
             onClick={showUploadModalHandler}
             style={{
-              background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-              color: "#fff",
+              background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+              color: "#111915",
               border: "none"
             }}
           >
@@ -855,8 +855,8 @@ const GraphList = (
             type="primary"
             onClick={showGraphHandler}
             style={{
-              background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-              color: "#fff",
+              background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+              color: "#111915",
               border: "none"
             }}
           >

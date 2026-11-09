@@ -1,0 +1,33 @@
+# 智能对话欢迎区品牌化 · 实测证据（2026-11-07）
+需求：/chats/main 欢迎区 defaultWeLogo.svg -> 同尺寸章鱼图标；
+      欢迎词「您好，欢迎使用小鲸智能问答」->「Pierce the mist」。
+
+## 浏览器探针（真实登录 admin / Redis 验证码 / 1366x768）
+img[src*="defaultWeLogo"]:
+  computed content : url(".../src/assets/brand/octopus-white.png")
+  object-fit       : contain
+  rect             : [821,233,68,68]（与改前完全一致，宽高由原 inline style 保持）
+  src 属性          : 未变（第三方资源仍在，只替换显示内容，未改 node_modules）
+  shape source     : src/assets/brand/octopus-source.jpg
+                     sha256 4fb6095366773f8c9202e7f0e0ebde39e3a92bbe71643f820ab71cde13a927e9（已复核）
+.g-welcome-title:
+  computed font-size: 30px（改前 30px，未变）
+  visibility        : hidden（原文案视觉隐藏，布局占位不变）
+  ::after content   : "Pierce the mist"
+  ::after visibility: visible；font-size 30px；color rgb(240,242,240)
+  DOM textContent   : 仍为 vendor 原文案（限制见 SPECTRA.md §12）
+  body.innerText    : 已不含旧文案
+
+## 量化对比（截图同构，采样步长 3 估算）
+07-chat 蓝色像素：1431 -> 477，下降 66.7%（鲸鱼蓝紫消失；剩余为助手胶囊等第三方小图标）
+截图：after-p1-final-20261106/07-chat.png（改前）、after-chat-brand-20261107/07-chat.png（改后）
+
+## 全量回归（after-chat-brand-20261107/report.json）
+14/14 RENDERED；fontDiff=0；blueSvg=0；blueEls=0；PAGEERROR=0；
+无横向溢出；root font-size 恒 16px；控制台 34 条均为既有 AntD/React warning。
+结论：本次仅影响智能对话欢迎区，未引入其它页面回归，未改变任何元素字号。
+
+## 构建与限制
+构建结论见 build-summary.txt。
+限制：欢迎词为第三方 vendor 渲染，业务侧无配置入口，采用主题作用域 CSS 生成内容替换显示文本；
+DOM textContent 未同步（未改 node_modules / 逻辑层）；用户新文案开头的 U+200C 零宽字符按可见文本实现。

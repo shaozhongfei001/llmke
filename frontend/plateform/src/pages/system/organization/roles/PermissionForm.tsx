@@ -242,7 +242,7 @@ const PermissionForm: React.FC<PermissionFormProps> = ({
             type="primary" 
             onClick={handleSavePermissions}
             style={{
-              background: "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)",
+              background: "#D8BD89",
               borderColor: "transparent"
             }}
           >

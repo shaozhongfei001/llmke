@@ -24,7 +24,7 @@ const SensitiveWords = ({ title }: any) => {
 
   return (
     <div className="h-full">
-      <div className="px-[20px] pt-[20px] h-[calc(100%-76px)] overflow-auto bg-white rounded-[8px]">
+      <div className="px-[20px] pt-[20px] h-[calc(100%-76px)] overflow-auto bg-[#10181C] rounded-[8px]">
         <div className={`search-bar flex justify-between mb-[20px]`}>
           <Button
             type="primary"

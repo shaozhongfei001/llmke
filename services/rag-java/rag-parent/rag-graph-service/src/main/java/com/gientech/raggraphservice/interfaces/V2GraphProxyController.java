@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,37 +44,62 @@ public class V2GraphProxyController {
         out.put("nodeList", nodeList);
         out.put("edgeList", edgeList);
         try {
-            String url = v2GraphApi.replaceAll("/+$", "") + "/v2/graph/view";
+            // 按库路由：把 spaceName（知识库标识，如 kb_9）透传给 18094 的 kb 参数。
+            // 18094 按 kb 找对应快照，找不到返回 NOT_BUILT —— 绝不用别的库的快照冒充。
+            String spaceName = req == null ? "" : String.valueOf(req.getOrDefault("spaceName", ""));
+            if (spaceName.isBlank()) {
+                out.put("notice", "缺少 spaceName（知识库标识），无法定位该库图谱");
+                return out;
+            }
+            String encoded = URLEncoder.encode(spaceName, StandardCharsets.UTF_8);
+            String url = v2GraphApi.replaceAll("/+$", "") + "/v2/graph/view?kb=" + encoded;
             @SuppressWarnings("unchecked")
             Map<String, Object> view = new RestTemplate().getForObject(url, Map.class);
-            if (view == null || !"ok".equals(String.valueOf(view.get("status")))) {
-                out.put("notice", "V2 图服务未就绪: " + (view == null ? "no response" : view.get("status")));
+            if (view == null) {
+                out.put("notice", "V2 图服务无响应");
+                return out;
+            }
+            if (!"ok".equals(String.valueOf(view.get("status")))) {
+                // NOT_BUILT / GRAPH_UNAVAILABLE：如实透出原因，不返回别的库数据
+                out.put("notice", String.valueOf(view.getOrDefault("reason",
+                        "V2 图服务未就绪: " + view.get("status"))));
                 return out;
             }
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> nodes = (List<Map<String, Object>>) view.getOrDefault("nodes", List.of());
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> edges = (List<Map<String, Object>>) view.getOrDefault("edges", List.of());
+            // 节点 id → name 索引，供边补端点可读名
+            Map<String, String> nameById = new HashMap<>();
             int eid = 0;
             for (Map<String, Object> n : nodes) {
                 Map<String, Object> node = new HashMap<>();
                 String vid = String.valueOf(n.getOrDefault("id", ""));
+                String name = String.valueOf(n.getOrDefault("name", vid));
+                String kind = String.valueOf(n.getOrDefault("kind", "entity"));
+                String type = String.valueOf(n.getOrDefault("type", "实体"));
                 node.put("vid", vid);
-                node.put("name", n.getOrDefault("name", vid));
-                node.put("nodeType", "entity");
+                node.put("name", name);
+                node.put("nodeType", type);
                 Map<String, Object> props = new HashMap<>();
-                props.put("title", n.getOrDefault("name", vid));
+                props.put("kind", kind);
+                props.put("title", name);
                 node.put("properties", props);
                 nodeList.add(node);
+                nameById.put(vid, name);
             }
             for (Map<String, Object> e : edges) {
                 Map<String, Object> edge = new HashMap<>();
-                edge.put("id", "v2-e" + (eid++));
-                edge.put("edgeType", "related");
+                String srcVid = String.valueOf(e.getOrDefault("source", ""));
+                String dstVid = String.valueOf(e.getOrDefault("target", ""));
+                edge.put("id", String.valueOf(e.getOrDefault("id", "v2-e" + (eid++))));
+                edge.put("edgeType", e.getOrDefault("predicate", "关联"));
                 Map<String, Object> src = new HashMap<>();
-                src.put("vid", String.valueOf(e.getOrDefault("source", "")));
+                src.put("vid", srcVid);
+                src.put("name", nameById.getOrDefault(srcVid, srcVid));
                 Map<String, Object> dst = new HashMap<>();
-                dst.put("vid", String.valueOf(e.getOrDefault("target", "")));
+                dst.put("vid", dstVid);
+                dst.put("name", nameById.getOrDefault(dstVid, dstVid));
                 edge.put("src", src);
                 edge.put("dst", dst);
                 edgeList.add(edge);

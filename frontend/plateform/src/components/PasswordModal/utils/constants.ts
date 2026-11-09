@@ -20,6 +20,6 @@ export { QUESTION_POOL };
 export const BTN_STYLE = {
   marginRight: "16px",
   border: "none",
-  color: "#fff",
-  background: "linear-gradient(99.9deg, #2b69ff -4.18%, #8f91ff 106.52%)"
+  color: "#111915",
+  background: "#D8BD89"
 };

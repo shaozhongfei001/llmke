@@ -45,11 +45,6 @@ public interface RedisKeyEnums {
     String FILE_EXTRACTED_NUMS_PREFIX = "faq:nums:";
 
     /**
-     * 用户搜索前缀
-     */
-    String USER_SEARCH_PREFIX = "user:search:";
-
-    /**
      * 文件多版本
      */
     String FILE_MULTI_VERSION_PREFIX = "multi:version:";

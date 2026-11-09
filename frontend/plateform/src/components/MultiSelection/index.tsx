@@ -272,7 +272,7 @@ const MultiSelection = ({
                     item.permission === 1
                       ? "linear-gradient(90deg,#FF9A53,#FFCF70)"
                       : item.permission === 2
-                        ? "linear-gradient(90deg,#4088F4,#7FC0FB)"
+                        ? "linear-gradient(90deg,#A98D62,#D8BD89)"
                         : "linear-gradient(90deg,#99D65B,#7FDBCB)"
                   }
                 />

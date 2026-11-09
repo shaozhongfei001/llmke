@@ -38,6 +38,18 @@ public interface FileAppService {
     void generateGraph(FileParseTaskInfo param);
 
     /**
+     * V2 摄取：解析完成后把**同一份解析快照**双路消费（搜索 chunk + 按库建图）。
+     *
+     * 与 legacy generateGraph 的区别：legacy 走 19529 从 ES 取正文（另一份解析），
+     * V2 只用 doc2md 的四件套，保证搜索与图谱读的是同一次解析。
+     * doc2md 产物缺失时跳过并告警，不拿 legacy 正文冒充。
+     *
+     * @param param 解析任务信息（需带 doc2mdDir）
+     */
+    @Async
+    void v2Ingest(FileParseTaskInfo param);
+
+    /**
      * 文件多版本解析
      *
      * @param kbId

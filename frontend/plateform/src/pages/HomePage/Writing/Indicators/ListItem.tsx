@@ -1074,7 +1074,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
             </Button>
             <Button
               type="primary"
-              className="border-0 bg-[linear-gradient(99.9deg,#2B69FF,#8F91FF)]"
+              className="border-0 bg-[#D8BD89] text-[#111915]"
               onClick={handleDscModalOk}
               disabled={isFetching}
               loading={isFetching}

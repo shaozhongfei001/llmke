@@ -146,7 +146,7 @@ export function ChatInput({
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="我可以阅读知识库的资料并使用自然语言回答你的问题..."
-            className="w-full resize-none rounded-md border border-gray-200/50 bg-white/30 pl-4 pr-[200px] py-3 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 outline-none min-h-[44px] leading-[24px] shadow backdrop-blur-sm overflow-hidden"
+            className="w-full resize-none rounded-md border border-gray-200/50 bg-white/30 pl-4 pr-[200px] py-3 focus:border-[#A98D62] focus:ring-1 focus:ring-[#A98D62]/30 outline-none min-h-[44px] leading-[24px] shadow backdrop-blur-sm overflow-hidden"
           />
 
           <div className="absolute right-3 bottom-[8px] flex items-center">
@@ -185,8 +185,8 @@ export function ChatInput({
                 className="relative w-[68px] h-7 flex items-center justify-center rounded-lg cursor-pointer group overflow-hidden"
                 onClick={onSend}
               >
-                <div className="absolute inset-0 bg-gradient-to-br bg-[#4e6ef2] opacity-90 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"></div>
-                <div className="relative flex items-center gap-x-1 text-white">
+                <div className="absolute inset-0 bg-[#D8BD89] opacity-95 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"></div>
+                <div className="relative flex items-center gap-x-1 text-[#111915]">
                   <Send className="w-[17px] h-[17px]" />
                   <span className="ml-1 text-[12px]">发送</span>
                 </div>

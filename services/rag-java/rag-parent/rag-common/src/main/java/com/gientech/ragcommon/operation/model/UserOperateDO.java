@@ -1,5 +1,6 @@
 package com.gientech.ragcommon.operation.model;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -19,9 +20,14 @@ import java.util.Date;
 @Builder
 public class UserOperateDO  implements Serializable {
     /**
-     * 主键
+     * 主键：user_operate.id 是 MySQL AUTO_INCREMENT 列，必须交给数据库自增。
+     *
+     * 曾用裸 @TableId（默认 ASSIGN_ID 雪花），多服务在同一台机器上 datacenterId/workerId
+     * 相同且各 JVM 的 sequence 独立递增，页面加载时 auth(18081) 与 index(18082) 并发写日志
+     * 会在同一毫秒生成完全相同的 id，触发 Duplicate entry '...' for key 'user_operate.PRIMARY'，
+     * 并因切面异常冒泡把业务接口一并打挂。
      */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

@@ -56,7 +56,7 @@ const SensitiveDetail = () => {
             </b>
           </div>
         </Flex>
-        <div className="px-[20px] pt-[20px] h-[calc(100%-77px)] rounded-[8px] bg-white">
+        <div className="px-[20px] pt-[20px] h-[calc(100%-77px)] rounded-[8px] bg-[#10181C]">
           <Flex justify="space-between">
             <Flex>
               <Button
@@ -167,7 +167,7 @@ const SensitiveDetail = () => {
           placement="bottom"
         >
           <Button
-            className="border-[#EBEBEB] text-primary-color bg-white"
+            className="border-[#EBEBEB] text-primary-color bg-[#10181C]"
             onClick={(e) => {
               e.stopPropagation();
             }}

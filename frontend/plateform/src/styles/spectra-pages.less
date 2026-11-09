@@ -1,0 +1,979 @@
+/*
+ * LLMKE · SPECTRA 页面级样式接入
+ *
+ * 规则：
+ * 1) 所有选择器都以 body[data-spectra-theme="1"] 起头 —— 主题作用域明确，不污染未挂载主题的宿主。
+ * 2) 只覆盖颜色 / 背景 / 边框 / 阴影；**不写 font-size、line-height、font-weight、letter-spacing**，
+ *    字号与行高仍由原 knowledgebase.less、workbench.less、Ant Design 组件与浏览器继承决定。
+ * 3) 不批量覆盖 .ant-*，不使用整页 zoom / transform。
+ *    !important 仅出现在「原规则本来就带 !important」的位置（knowledgebase.less 的表格表头底色、
+ *    Dashboard 的内联渐变），用于同等或更高特异性下的必要覆盖，且始终限定在页面容器内。
+ * 4) 颜色统一取 spectra.tokens.css 的 --sp-* 变量，并带明文兜底值。
+ */
+
+@sp-canvas: #090d11;
+@sp-shell: #0b1014;
+@sp-surface: #10181c;
+@sp-surface-raised: #142026;
+@sp-surface-hover: #1a292e;
+@sp-line: #344044;
+@sp-line-soft: #243035;
+@sp-text: #f0f2f0;
+@sp-text-secondary: #b8c3c3;
+@sp-text-muted: #91a1a3;
+@sp-gold: #d8bd89;
+@sp-gold-soft: #a98d62;
+@sp-cyan: #94ced2;
+@sp-mint: #a9d8ba;
+@sp-danger: #e28683;
+
+/* ================= 1. 应用外壳（Dashboard / ProLayout） ================= */
+body[data-spectra-theme="1"] {
+  background: var(--sp-canvas, @sp-canvas);
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .ant-pro-layout,
+body[data-spectra-theme="1"] .ant-pro-layout-bg-list {
+  background: var(--sp-canvas, @sp-canvas);
+}
+
+body[data-spectra-theme="1"] .ant-layout-header {
+  background: var(--sp-shell, @sp-shell);
+  border-bottom: 1px solid var(--sp-line-soft, @sp-line-soft);
+  box-shadow: none;
+}
+
+body[data-spectra-theme="1"] .ant-layout-sider,
+body[data-spectra-theme="1"] .ant-layout-sider-children,
+body[data-spectra-theme="1"] .ant-pro-sider {
+  background: var(--sp-shell, @sp-shell);
+}
+
+body[data-spectra-theme="1"] .ant-pro-sider {
+  border-right: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .ant-layout-sider .ant-menu,
+body[data-spectra-theme="1"] .ant-pro-sider .ant-menu {
+  background: transparent;
+}
+
+body[data-spectra-theme="1"] .ant-pro-sider .ant-menu-item {
+  color: var(--sp-text-muted, @sp-text-muted);
+  position: relative;
+}
+
+body[data-spectra-theme="1"] .ant-pro-sider .ant-menu-item:hover {
+  color: var(--sp-text, @sp-text);
+  background: rgba(148, 206, 210, 0.06);
+}
+
+body[data-spectra-theme="1"] .ant-pro-sider .ant-menu-item-selected {
+  color: var(--sp-gold, @sp-gold);
+  background: rgba(216, 189, 137, 0.1);
+}
+
+body[data-spectra-theme="1"] .ant-pro-sider .ant-menu-item-selected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--sp-gold, @sp-gold);
+}
+
+/* 顶部导航（ProLayout mix 顶栏） */
+body[data-spectra-theme="1"] .ant-pro-top-nav-header,
+body[data-spectra-theme="1"] .ant-pro-global-header,
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-logo,
+body[data-spectra-theme="1"] .ant-pro-global-header-logo {
+  background: transparent;
+  border-bottom: 0;
+}
+
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-menu .ant-menu-item,
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-base-menu .ant-menu-item {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-menu .ant-menu-item:hover,
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-base-menu .ant-menu-item:hover {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-menu .ant-menu-item-selected {
+  color: var(--sp-gold, @sp-gold);
+  font-weight: 700;
+}
+
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-menu .ant-menu-item-selected::after,
+body[data-spectra-theme="1"] .ant-pro-top-nav-header-base-menu .ant-menu-item-selected::after,
+body[data-spectra-theme="1"] .ant-pro-layout .ant-menu-item-selected::after {
+  border-bottom-color: var(--sp-gold, @sp-gold);
+  border-bottom-width: 2px;
+}
+
+/* 主按钮：清掉第三方样式里的蓝紫渐变，统一暖金实底（尺寸/字号不变） */
+body[data-spectra-theme="1"] .ant-btn-primary,
+body[data-spectra-theme="1"] .ant-btn-primary:not(:disabled):hover {
+  background-image: none;
+  background: var(--sp-gold, @sp-gold);
+  border-color: var(--sp-gold, @sp-gold);
+  color: var(--sp-on-gold, #111915);
+}
+
+body[data-spectra-theme="1"] .ant-btn-primary:not(:disabled):hover {
+  background: var(--sp-gold-hover, #e7cfa1);
+  border-color: var(--sp-gold-hover, #e7cfa1);
+}
+
+body[data-spectra-theme="1"] .ant-btn-primary:disabled,
+body[data-spectra-theme="1"] .ant-btn-primary.ant-btn-disabled {
+  background: rgba(216, 189, 137, 0.32);
+  border-color: transparent;
+  color: rgba(17, 25, 21, 0.7);
+}
+
+/* 内容区：近黑画布（原 Dashboard 的蓝紫渐变在 JSX 侧同步替换，此处兜底） */
+body[data-spectra-theme="1"] .noContainer,
+body[data-spectra-theme="1"] .ant-pro-layout-content {
+  background: var(--sp-canvas, @sp-canvas);
+}
+
+/* 头像下拉 / 全局浮层 */
+body[data-spectra-theme="1"] .ant-dropdown .ant-dropdown-menu {
+  background: var(--sp-surface-raised, @sp-surface-raised);
+  border: 1px solid var(--sp-line, @sp-line);
+}
+
+body[data-spectra-theme="1"] .ant-dropdown-menu-item {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .ant-dropdown-menu-item:hover {
+  background: var(--sp-surface-hover, @sp-surface-hover);
+  color: var(--sp-text, @sp-text);
+}
+
+/* ================= 2. 登录页 ================= */
+body[data-spectra-theme="1"] .spectra-login {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(120% 90% at 12% 8%, rgba(148, 206, 210, 0.08) 0%, transparent 58%),
+    radial-gradient(90% 80% at 92% 96%, rgba(216, 189, 137, 0.07) 0%, transparent 60%),
+    linear-gradient(160deg, #0a0f13 0%, #090d11 52%, #0b1216 100%);
+}
+
+body[data-spectra-theme="1"] .spectra-login-card {
+  display: flex;
+  flex-direction: row;
+  background: var(--sp-surface, @sp-surface);
+  border: 1px solid var(--sp-line, @sp-line);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+body[data-spectra-theme="1"] .spectra-login-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 36px 28px;
+  background: linear-gradient(180deg, rgba(148, 206, 210, 0.06) 0%, transparent 42%), #0a1115;
+  border-right: 1px solid var(--sp-line-soft, @sp-line-soft);
+  overflow: hidden;
+}
+
+/* 极淡档案纹理：细网格，不使用照片、人物或环形/镜头构图 */
+body[data-spectra-theme="1"] .spectra-login-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(52, 64, 68, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(52, 64, 68, 0.35) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+body[data-spectra-theme="1"] .spectra-login-octopus {
+  position: relative;
+  z-index: 1;
+  width: 156px;
+  height: 168px;
+  object-fit: contain;
+}
+
+body[data-spectra-theme="1"] .spectra-login-brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+body[data-spectra-theme="1"] .spectra-login-brand-name {
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .spectra-login-brand-line {
+  width: 44px;
+  height: 1px;
+  background: var(--sp-gold-soft, @sp-gold-soft);
+  opacity: 0.7;
+}
+
+body[data-spectra-theme="1"] .spectra-login-brand-sub {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 44px;
+  background: var(--sp-surface, @sp-surface);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-input {
+  background: #0d1519;
+  border-color: var(--sp-line, @sp-line);
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-input::placeholder {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-input:hover {
+  border-color: var(--sp-gold-soft, @sp-gold-soft);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-input:focus,
+body[data-spectra-theme="1"] .spectra-login-form .ant-input-focused {
+  border-color: var(--sp-cyan, @sp-cyan);
+  box-shadow: 0 0 0 2px rgba(148, 206, 210, 0.16);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-input-prefix {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-btn-primary {
+  background: var(--sp-gold, @sp-gold);
+  border-color: var(--sp-gold, @sp-gold);
+  color: #111915;
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-btn-primary:hover {
+  background: #e7cfa1;
+  border-color: #e7cfa1;
+  color: #111915;
+}
+
+body[data-spectra-theme="1"] .spectra-login-form .ant-form-item-explain-error {
+  color: var(--sp-danger, @sp-danger);
+}
+
+body[data-spectra-theme="1"] .spectra-login-captcha {
+  background: #0d1519;
+  border: 1px solid var(--sp-line, @sp-line);
+}
+
+body[data-spectra-theme="1"] .spectra-login-links .spectra-login-link {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .spectra-login-links .spectra-login-link:hover {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .spectra-login-links .spectra-login-link--primary {
+  color: var(--sp-cyan, @sp-cyan);
+}
+
+body[data-spectra-theme="1"] .spectra-login-links .spectra-login-link--primary:hover {
+  color: var(--sp-gold, @sp-gold);
+}
+
+/* ================= 3. 知识库工作台（列表） ================= */
+body[data-spectra-theme="1"] .knowledgebase-wrap {
+  background: var(--sp-surface, @sp-surface);
+  border: 1px solid var(--sp-line-soft, @sp-line-soft);
+  border-radius: 10px;
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap {
+  border-bottom: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap::after {
+  background-color: var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap .tabs-wrap .tab {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap .tabs-wrap .tab span {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap .tabs-wrap .tab:hover {
+  opacity: 1;
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap .tabs-wrap .active {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap .tabs-wrap .active > span {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .title-wrap .tabs-wrap .active span::before {
+  height: 2px;
+  background: var(--sp-gold, @sp-gold);
+}
+
+/* 列表卡片：深蓝黑表面 + 细边线，信息密度与列位不变 */
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap {
+  background: var(--sp-surface-raised, @sp-surface-raised);
+  border: 1px solid var(--sp-line-soft, @sp-line-soft);
+  box-shadow: none;
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-icon {
+  /* 业务功能图标保持原有语义与形状，只把紫色/蓝紫渐变改为 SPECTRA 暖金（同一矢量，仅改色） */
+  background: url("../assets/knowledgebase/knowledge_base_title_icon_spectra.svg") no-repeat center
+    center;
+  background-size: 40px 40px;
+  filter: none;
+  opacity: 1;
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-name {
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-des {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-info,
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-info > label {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-tags {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap .knowledge-tags .ant-tag {
+  background: rgba(148, 206, 210, 0.1);
+  color: var(--sp-cyan, @sp-cyan);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap:hover {
+  border-color: var(--sp-gold-soft, @sp-gold-soft);
+  box-shadow: 0 0 0 1px rgba(216, 189, 137, 0.16);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap:hover .card-hover-operations {
+  background: linear-gradient(180deg, rgba(16, 24, 28, 0.9) 0%, #16232a 100%);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .empty-wrap .empty-text,
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .empty-wrap .empty-my .empty-label {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .empty-wrap .empty-btn > span {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+/* 列表行（表格化布局，列位为「名称/说明 · 文件数 · 大小 · 操作」） */
+body[data-spectra-theme="1"] .kb-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+body[data-spectra-theme="1"] .kb-row .kb-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+body[data-spectra-theme="1"] .kb-row .kb-row-desc {
+  color: var(--sp-text-muted, @sp-text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+body[data-spectra-theme="1"] .kb-row .kb-row-metric {
+  width: 132px;
+  flex-shrink: 0;
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .kb-row .kb-row-metric .kb-row-metric-label {
+  color: var(--sp-text-muted, @sp-text-muted);
+  margin-right: 6px;
+}
+
+body[data-spectra-theme="1"] .kb-row .kb-row-actions {
+  width: 28px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+/* 列表行几何：原卡片固定 112px 高、2 列网格；改为整行 + 紧凑高度（只改布局/间距，不改字号） */
+body[data-spectra-theme="1"] .knowledgebase-wrap .content-wrap .card-wrap {
+  height: auto;
+  min-height: 64px;
+  padding: 12px 16px;
+
+  .knowledge-icon {
+    height: 40px;
+    width: 40px;
+    background-size: 40px 40px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .knowledge-name {
+    margin-bottom: 2px;
+  }
+}
+
+body[data-spectra-theme="1"] .spectra-row-more {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: var(--sp-text-muted, @sp-text-muted);
+
+  &:hover {
+    color: var(--sp-gold, @sp-gold);
+    background: rgba(216, 189, 137, 0.1);
+  }
+}
+
+body[data-spectra-theme="1"] .spectra-dropdown-link:hover {
+  background: var(--sp-surface-hover, @sp-surface-hover);
+  color: var(--sp-gold, @sp-gold);
+}
+
+/* ================= 4. 知识库详情 / 文档解析 ================= */
+body[data-spectra-theme="1"] .detail-wrap {
+  background: transparent;
+}
+
+body[data-spectra-theme="1"] .detail-contextbar {
+  background: var(--sp-surface, @sp-surface);
+  border: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .detail-contextbar-back {
+  color: var(--sp-text, @sp-text);
+  filter: brightness(1.6) saturate(0);
+}
+
+body[data-spectra-theme="1"] .detail-contextbar-info {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .detail-contextbar-tabs .ant-tabs-tab-btn {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .detail-contextbar-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .detail-contextbar-tabs .ant-tabs-ink-bar {
+  background: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .file-table-wrap {
+  background: var(--sp-surface, @sp-surface);
+  border: 1px solid var(--sp-line-soft, @sp-line-soft);
+  border-radius: 10px;
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-tabs-tab-btn {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-tabs-ink-bar {
+  background: var(--sp-gold, @sp-gold);
+}
+
+/* 以下三条：原 knowledgebase.less 的同名规则本身带 !important，故此处保留 !important，作用域限定在详情页表格内 */
+body[data-spectra-theme="1"] .detail-wrap .kb-table-wrap .ant-table-thead .ant-table-cell,
+body[data-spectra-theme="1"] .detail-wrap .sys-log-wrap .ant-table-thead .ant-table-cell {
+  background-color: #0e171b !important;
+  color: var(--sp-text-secondary, @sp-text-secondary);
+  border-bottom: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-table-tbody .ant-table-cell {
+  background: transparent;
+  color: var(--sp-text-secondary, @sp-text-secondary);
+  border-bottom: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-table-tbody .ant-table-row:hover .ant-table-cell {
+  background: var(--sp-surface-hover, @sp-surface-hover);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-table-expanded-row .ant-table-thead .ant-table-cell {
+  background-color: #16232a !important;
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-table-placeholder .ant-table-cell {
+  background: transparent;
+}
+
+body[data-spectra-theme="1"] .detail-wrap .pagination-wrap .statistics-wrap {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .pagination-wrap .statistics-wrap label {
+  color: var(--sp-gold, @sp-gold);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .crumbs-wrap .crumbs-link {
+  color: var(--sp-cyan, @sp-cyan);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-empty-description {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .detail-wrap .ant-empty-image {
+  opacity: 0.45;
+}
+
+/* ================= 5. 检索 / 回答 / 原文核验 ================= */
+/* RetrieveTest 的局部样式以 tailwind 原子类书写（.bg-white / .text-blue-600 等，单类特异性）；
+   此处用「主题属性 + 页面容器 + 原子类」提高特异性覆盖，不使用 !important 级联。 */
+body[data-spectra-theme="1"] .detail-retrieve-wrap .bg-white,
+body[data-spectra-theme="1"] .detail-retrieve-wrap .bg-white\/80 {
+  background-color: var(--sp-surface, @sp-surface);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .bg-blue-50 {
+  background-color: rgba(148, 206, 210, 0.06);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .bg-background {
+  background-color: var(--sp-canvas, @sp-canvas);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .text-blue-600,
+body[data-spectra-theme="1"] .detail-retrieve-wrap .text-blue-500 {
+  color: var(--sp-cyan, @sp-cyan);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .text-gray-500,
+body[data-spectra-theme="1"] .detail-retrieve-wrap .text-gray-600,
+body[data-spectra-theme="1"] .detail-retrieve-wrap .text-gray-400 {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .border-gray-300 {
+  border-color: var(--sp-line, @sp-line);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .ant-collapse {
+  background: transparent;
+  border-color: var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .ant-collapse-header {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap .ant-collapse-content {
+  background: transparent;
+  border-top-color: var(--sp-line-soft, @sp-line-soft);
+}
+
+/* 带透明度后缀的 tailwind 原子类（.bg-white/30、.bg-white/60）用属性选择器覆盖，避免转义歧义 */
+body[data-spectra-theme="1"] .detail-retrieve-wrap textarea[class*="bg-white/30"] {
+  background-color: rgba(13, 21, 25, 0.92);
+  border-color: var(--sp-line, @sp-line);
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap [class*="bg-white/60"] {
+  background-color: rgba(20, 32, 38, 0.92);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap textarea[class*="bg-white/30"]:focus {
+  border-color: var(--sp-gold-soft, @sp-gold-soft);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap textarea::placeholder {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+body[data-spectra-theme="1"] .detail-retrieve-wrap [class*="bg-gray-500/90"] {
+  background-color: #3a4a50;
+}
+
+/* 引用 / 原文来源卡 */
+body[data-spectra-theme="1"] .cite-card,
+body[data-spectra-theme="1"] .source-card {
+  background: var(--sp-surface-raised, @sp-surface-raised);
+  border: 1px solid var(--sp-line, @sp-line);
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+/* ================= 6. FAQ 工作台 ================= */
+body[data-spectra-theme="1"] .faq-list-wrap .faq-row,
+body[data-spectra-theme="1"] .faq-list-wrap .list-content-wrap {
+  border-color: var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .faq-list-wrap .question-row {
+  background: var(--sp-surface-raised, @sp-surface-raised);
+  border: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .faq-list-wrap .question-row:hover {
+  background: var(--sp-surface-hover, @sp-surface-hover);
+  border-color: var(--sp-gold-soft, @sp-gold-soft);
+}
+
+body[data-spectra-theme="1"] .faq-list-wrap .question-wrap,
+body[data-spectra-theme="1"] .faq-list-wrap .question-cell,
+body[data-spectra-theme="1"] .faq-list-wrap .question-info {
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .faq-list-wrap .answer-row {
+  border-top: 1px solid var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .faq-list-wrap .answer-info {
+  color: var(--sp-text-secondary, @sp-text-secondary);
+}
+
+body[data-spectra-theme="1"] .faq_drawer_content,
+body[data-spectra-theme="1"] .faq_drawer_footer {
+  background: var(--sp-surface-raised, @sp-surface-raised);
+  color: var(--sp-text-secondary, @sp-text-secondary);
+  border-color: var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .text-text-color1 {
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .text-text-color3 {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+/* ================= 7. 通用收尾 ================= */
+body[data-spectra-theme="1"] .ant-modal-content {
+  border: 1px solid var(--sp-line, @sp-line);
+}
+
+body[data-spectra-theme="1"] .delete-modal .ant-modal-title,
+body[data-spectra-theme="1"] .create-modal .ant-modal-title {
+  color: var(--sp-text, @sp-text);
+}
+
+body[data-spectra-theme="1"] .ant-tag {
+  border-color: var(--sp-line-soft, @sp-line-soft);
+}
+
+body[data-spectra-theme="1"] .ant-tag-blue {
+  background: rgba(148, 206, 210, 0.12);
+  border-color: rgba(148, 206, 210, 0.3);
+  color: var(--sp-cyan, @sp-cyan);
+}
+
+body[data-spectra-theme="1"] .ant-tag-success {
+  background: rgba(169, 216, 186, 0.12);
+  border-color: rgba(169, 216, 186, 0.3);
+  color: var(--sp-mint, @sp-mint);
+}
+
+body[data-spectra-theme="1"] .ant-tag-error {
+  background: rgba(226, 134, 131, 0.12);
+  border-color: rgba(226, 134, 131, 0.3);
+  color: var(--sp-danger, @sp-danger);
+}
+
+body[data-spectra-theme="1"] .ant-empty-description {
+  color: var(--sp-text-muted, @sp-text-muted);
+}
+
+/* 演示骨架提示条：明确标注 mock，避免被误认为正式发布能力 */
+body[data-spectra-theme="1"] .spectra-demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px dashed var(--sp-gold-soft, @sp-gold-soft);
+  border-radius: 6px;
+  color: var(--sp-gold, @sp-gold);
+  background: rgba(216, 189, 137, 0.07);
+}
+body[data-spectra-theme="1"] .detail-retrieve-wrap [class*="via-white/30"] {
+  background-image: linear-gradient(to bottom, rgba(9,13,17,0), rgba(16,24,28,0.9));
+}
+body[data-spectra-theme="1"] .detail-retrieve-wrap [class*="bg-white/80"] {
+  background-color: rgba(20,32,38,0.94);
+}
+body[data-spectra-theme="1"] .detail-retrieve-wrap [class*="border-gray-200/50"] {
+  border-color: rgba(52,64,68,0.9);
+}
+body[data-spectra-theme="1"] .faq-list-wrap{background-color:var(--sp-surface,#10181c)}
+body[data-spectra-theme="1"] .faq-list-wrap .ant-checkbox-wrapper{color:var(--sp-text-secondary,#b8c3c3)}
+body[data-spectra-theme="1"] .faq-list-wrap .ant-btn-link,body[data-spectra-theme="1"] .faq-list-wrap .ant-btn-text{color:var(--sp-cyan,#94ced2)}
+body[data-spectra-theme="1"] .faq-list-wrap .ant-table-thead>tr>th{background:#0e171b;color:var(--sp-text-secondary,#b8c3c3)}
+body[data-spectra-theme="1"] .faq-list-wrap .ant-table-tbody>tr>td{border-bottom-color:var(--sp-line-soft,#243035)}
+body[data-spectra-theme="1"] .ant-btn-background-ghost{color:#d8bd89;border-color:#a98d62}
+body[data-spectra-theme="1"] .detail-wrap .custom-header{color:#b8c3c3}
+/* ---- 智能对话（vendor 聊天外壳，作用域限定 .v2-chat-shell） ---- */
+body[data-spectra-theme="1"] .v2-chat-shell [class*="overflow-y-hidden"]{background-color:var(--sp-canvas,#090d11)!important}
+body[data-spectra-theme="1"] .v2-chat-shell .bg-white{background-color:var(--sp-surface-raised,#142026)!important}
+body[data-spectra-theme="1"] .v2-chat-shell .bg-gray-50,body[data-spectra-theme="1"] .v2-chat-shell .bg-slate-50{background-color:var(--sp-surface,#10181c)!important}
+body[data-spectra-theme="1"] .v2-chat-shell .text-gray-900,body[data-spectra-theme="1"] .v2-chat-shell .text-gray-800{color:var(--sp-text,#f0f2f0)!important}
+body[data-spectra-theme="1"] .v2-chat-shell .text-gray-500,body[data-spectra-theme="1"] .v2-chat-shell .text-gray-400{color:var(--sp-text-muted,#91a1a3)!important}
+body[data-spectra-theme="1"] .v2-chat-shell .relative{background-color:var(--sp-canvas,#090d11)!important}
+body[data-spectra-theme="1"] .v2-chat-shell{color:var(--sp-text-secondary,#b8c3c3)}
+body[data-spectra-theme="1"] .v2-chat-shell [style*="rgb(251, 251, 255)"]{background:#10181c!important}
+body[data-spectra-theme="1"] .v2-chat-shell [style*="rgb(255, 255, 255)"]{background:#10181c!important}
+body[data-spectra-theme="1"] .v2-chat-shell .g-welcome-btn{background:#142026!important;color:#b8c3c3!important;border-color:#344044!important}
+body[data-spectra-theme="1"] .menu-row{color:#b8c3c3}
+body[data-spectra-theme="1"] .menu-row:hover{background-color:#1a292e}
+body[data-spectra-theme="1"] div.menu-row{color:#b8c3c3}
+body[data-spectra-theme="1"] div.menu-row:hover{background-color:#1a292e}
+body[data-spectra-theme="1"] .ant-table-thead>tr>th{background:#0e171b!important;color:#b8c3c3!important;border-bottom-color:#243035!important}
+/* ---- tailwind 原子类颜色统一（主题作用域内，非全站无条件覆盖） ---- */
+body[data-spectra-theme="1"] .bg-white{background-color:#142026!important}
+body[data-spectra-theme="1"] .bg-gray-50,body[data-spectra-theme="1"] .bg-gray-100{background-color:#10181c!important}
+body[data-spectra-theme="1"] .border-gray-300{border-color:#344044!important}
+body[data-spectra-theme="1"] .text-gray-900,body[data-spectra-theme="1"] .text-gray-800,body[data-spectra-theme="1"] .text-gray-700{color:#e6ebe8}
+body[data-spectra-theme="1"] .text-gray-600,body[data-spectra-theme="1"] .text-gray-500{color:#91a1a3}
+body[data-spectra-theme="1"] .v2-chat-shell [class*="bg-clip-text"]{background-image:none!important;-webkit-text-fill-color:#f0f2f0}
+body[data-spectra-theme="1"] .v2-chat-shell [class*="mb-2 px-4 py-3"]{color:#c3cecd!important}
+body[data-spectra-theme="1"] .v2-chat-shell [class*="mb-2 px-4 py-3"] div{color:inherit}
+body[data-spectra-theme="1"] [class*="mb-2 px-4 py-3"]{color:#c3cecd!important}
+body[data-spectra-theme="1"] [class*="mb-2 px-4 py-3"] *{color:inherit!important}
+body[data-spectra-theme="1"]{--color-primary:#D8BD89}
+body[data-spectra-theme="1"] .v2-chat-shell .g-welcome-title{background-image:none!important;-webkit-text-fill-color:#f0f2f0;color:#f0f2f0}
+body[data-spectra-theme="1"] .v2-chat-shell .sender-container-gradient{background-image:linear-gradient(135deg,#A98D62,#344044)!important}
+body[data-spectra-theme="1"] .v2-chat-shell .g-welcome-search-btn{background:#142026!important;border-color:#344044!important;color:#b8c3c3!important}
+body[data-spectra-theme="1"] [class*="h-[43px]"]{background-color:rgba(216,189,137,0.14)!important}
+body[data-spectra-theme="1"] .bg-blue-50{background-color:rgba(216,189,137,0.12)!important}
+body[data-spectra-theme="1"] .bg-blue-100{background-color:rgba(216,189,137,0.18)!important}
+
+/* ---- P1-3：less 内残留的蓝紫渐变主按钮，在主题作用域内统一改暖金 ---- */
+body[data-spectra-theme="1"] .faq-edit-wrap .save-btn,
+body[data-spectra-theme="1"] .faq_drawer_content .save-btn,
+body[data-spectra-theme="1"] .faq-list-wrap .save-btn,
+body[data-spectra-theme="1"] .repeat-wrap .save-btn,
+body[data-spectra-theme="1"] .gradientPopBtn,
+body[data-spectra-theme="1"] .newversion-btn {
+  background: #d8bd89;
+  color: #111915;
+}
+
+
+/* 第三方 vendor（@mxmweb/somelib）把渐变写成 inline style，按规则用 !important 对抗 */
+body[data-spectra-theme="1"] [style*="linear-gradient(99.9deg"] {
+  background: #d8bd89 !important;
+  color: #111915 !important;
+}
+
+/* ---- P1-3：tailwind blue-* 原子类统一重映射（源类名保留，避免与并行工作流冲突） ---- */
+body[data-spectra-theme="1"] .text-blue-200,
+body[data-spectra-theme="1"] .text-blue-400,
+body[data-spectra-theme="1"] .text-blue-500,
+body[data-spectra-theme="1"] .text-blue-600,
+body[data-spectra-theme="1"] .text-blue-700 {
+  color: #94ced2;
+}
+body[data-spectra-theme="1"] .bg-blue-200,
+body[data-spectra-theme="1"] .bg-blue-300,
+body[data-spectra-theme="1"] .bg-blue-500,
+body[data-spectra-theme="1"] .bg-blue-600,
+body[data-spectra-theme="1"] .bg-blue-700 {
+  background-color: #d8bd89;
+  color: #111915;
+}
+body[data-spectra-theme="1"] .border-blue-100,
+body[data-spectra-theme="1"] .border-blue-200,
+body[data-spectra-theme="1"] .border-blue-400,
+body[data-spectra-theme="1"] .border-blue-500 {
+  border-color: #344044;
+}
+body[data-spectra-theme="1"] [class*="hover:bg-blue-700"]:hover {
+  background-color: #e7cfa1;
+}
+body[data-spectra-theme="1"] [class*="hover:text-blue-500"]:hover {
+  color: #94ced2;
+}
+body[data-spectra-theme="1"] [class*="focus:border-blue-400"]:focus {
+  border-color: #d8bd89;
+}
+/* 角色管理「添加用户 / 确认添加」的 indigo→blue 渐变按钮 */
+body[data-spectra-theme="1"] [class*="from-indigo-"][class*="to-blue-"] {
+  background-image: linear-gradient(to right, #a98d62, #d8bd89);
+  color: #111915;
+}
+/* 权限路径标签：AntD geekblue 不属于 tailwind 原子类，单独映射 */
+body[data-spectra-theme="1"] .ant-tag-geekblue {
+  color: #94ced2;
+  background: rgba(148, 206, 210, 0.1);
+  border-color: #344044;
+}
+
+/* ---- P0 回归发现：系统管理/模型管理（@gientech/modual）仍是浅色，作用域内换肤 ---- */
+body[data-spectra-theme="1"] div:has(> .xviewer-container),
+body[data-spectra-theme="1"] .xviewer-container,
+body[data-spectra-theme="1"] .xviewer-table-bg,
+body[data-spectra-theme="1"] .dynamic-table-wrapper,
+body[data-spectra-theme="1"] .dynamic-table-td,
+body[data-spectra-theme="1"] .xviewer-container div:not([class]) {
+  background-color: #10181c;
+  color: #e6ebe8;
+}
+body[data-spectra-theme="1"] .dynamic-table-th {
+  background-color: #142026;
+  color: #b8c3c3;
+}
+body[data-spectra-theme="1"] .dynamic-table-td,
+body[data-spectra-theme="1"] .dynamic-table-th {
+  border-color: #243035;
+}
+body[data-spectra-theme="1"] .xviewer-container .zui-button {
+  color: #94ced2;
+  background-color: transparent;
+}
+body[data-spectra-theme="1"] .xviewer-container .zui-button:has(svg),
+body[data-spectra-theme="1"] .xviewer-container .zui-button[class*="TTFbt"] {
+  background-color: #d8bd89;
+  color: #111915;
+}
+body[data-spectra-theme="1"] .xviewer-container input,
+body[data-spectra-theme="1"] .xviewer-container select,
+body[data-spectra-theme="1"] .xviewer-container .ant-input,
+body[data-spectra-theme="1"] .xviewer-container .ant-select-selector {
+  background-color: #142026;
+  color: #f0f2f0;
+  border-color: #344044;
+}
+
+/* ---- 逐页复查补漏：三类不在 blue-* 原子类内的既有蓝色 ---- */
+/* 文档解析页文件名链接：任意值类 text-[#305eba] */
+body[data-spectra-theme="1"] [class*="305eba"] {
+  color: #94ced2;
+}
+/* FAQ less 中的 #055aff；.more-action-row 原声明自带 !important，按同等级对抗 */
+body[data-spectra-theme="1"] .faq-list-wrap .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous),
+body[data-spectra-theme="1"] .faq-list-wrap .ant-select {
+  color: #94ced2;
+}
+body[data-spectra-theme="1"] .more-action-row {
+  color: #94ced2 !important;
+}
+/* 模型管理分页按钮把蓝色写成 inline style，按规则用 !important 对抗 */
+body[data-spectra-theme="1"] [style*="78, 110, 242"] {
+  color: #d8bd89 !important;
+  background-color: #142026 !important;
+  border-color: #344044 !important;
+}
+
+/* 检索配置滑块：原规则 .settingsDetail .ant-slider .ant-slider-track 有 3 类，
+   单类映射压不过，用重复类提高特异性；不改字号、不加 !important */
+body[data-spectra-theme="1"] .ant-slider-track.ant-slider-track.ant-slider-track {
+  background-color: #94ced2;
+}
+body[data-spectra-theme="1"] .ant-slider-rail.ant-slider-rail.ant-slider-rail {
+  background-color: #344044;
+}
+body[data-spectra-theme="1"] .ant-slider-handle.ant-slider-handle {
+  border-color: #d8bd89;
+}
+body[data-spectra-theme="1"] .ant-slider-handle.ant-slider-handle::after {
+  box-shadow: 0 0 0 2px #d8bd89;
+}
+/* FAQ 工具条：#055aff 由组件写成 inline style，按规则用 !important 对抗 */
+body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-btn-default,
+body[data-spectra-theme="1"] .fat-header-btn-wrap .ant-select {
+  color: #94ced2 !important;
+}
+
+/* ---- 智能对话欢迎区：品牌图标 + 欢迎语文案（SPECTRA 作用域，2026-11-07） ---- */
+/* 第三方 defaultWeLogo.svg（68x68 蓝紫鲸鱼）替换为唯一形状源的透明白章鱼；
+   width/height 仍由原 inline style 保持 68x68，contain 保证触须不压扁、不旋转 */
+body[data-spectra-theme="1"] img[src*="defaultWeLogo"] {
+  content: url("../assets/brand/octopus-white.png");
+  object-fit: contain;
+}
+
+/* 欢迎语由 @gientech/modual 渲染，业务侧无文案配置入口；
+   visibility 隐藏原文 + 生成内容显示新文案，同元素 computed font-size 仍为 30px */
+body[data-spectra-theme="1"] .g-welcome-title {
+  visibility: hidden;
+  position: relative;
+}
+body[data-spectra-theme="1"] .g-welcome-title::after {
+  content: "Pierce the mist";
+  visibility: visible;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  text-align: center;
+  color: #f0f2f0;
+  -webkit-text-fill-color: #f0f2f0;
+  background-image: none;
+  background-clip: border-box;
+}
+
+/* ---- 智能问答消息气泡：白底/淡紫渐变 + 浅色字不可读（2026-11-07） ---- */
+/* @gientech/modual 用 styled-components 注入 .message-card 背景；
+   带作用域的高特异性选择器压过，只改背景/边框，不改字号与布局 */
+body[data-spectra-theme="1"] .chat-message-container .message-card.message-card {
+  background: #142026;
+  background-image: none;
+  color: #f0f2f0;
+  border-color: #344044;
+}
+/* 用户提问气泡：父容器 ipRFXX 为 vendor 动态类；若版本变化则回退为上面的统一深色 */
+body[data-spectra-theme="1"] .chat-message-content.ipRFXX .message-card {
+  background: rgba(216, 189, 137, 0.12);
+  background-image: none;
+  border-color: rgba(216, 189, 137, 0.38);
+}
+/* 答案卡片内「思考完成」状态条的浅灰白底 bg-[#F5F7FA] */
+body[data-spectra-theme="1"] [class*="F5F7FA"] {
+  background-color: #10181c;
+}

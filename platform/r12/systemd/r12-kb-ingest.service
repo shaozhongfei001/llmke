@@ -1,0 +1,33 @@
+[Unit]
+Description=R12 KB ingest service (18096, P4-L13-B)
+# 依赖图栈：18096 的 delta / fence revoke 都调 18094；18094 没起来时
+# 进程能起但每次摄取都 PARTIAL，所以排在它后面。
+After=network-online.target docker.service r12-graphsvc.service
+Wants=r12-graphsvc.service
+# 与 r12-alg 对齐：起不来时不要无限重试，交由 r12-watchdog.timer 有界重试
+StartLimitIntervalSec=300
+StartLimitBurst=15
+
+[Service]
+# oneshot + RemainAfterExit：真正的进程编排在启动脚本里（自检 + 幂等拉起 + 探针），
+# systemd 只负责调用它。脚本自检不过会 exit 1 → 本 unit 进入 failed，
+# 由 watchdog / 运维看到状态，**不会**把「带病进程」当成 healthy。
+Type=oneshot
+RemainAfterExit=yes
+# WorkingDirectory 指向**源码仓**是**有意**的：Python 代码只有源码仓一份
+# （`services/rag-alg/index_data_service`，`r12-kb-ingest-start.sh:23` 同理）。
+# ⚠️ 同步到部署仓时**不要**把它改成 `llmke-r12` —— 那边没有这套代码，改了会 import 失败。
+WorkingDirectory=/home/szf/data/dev/llmke-v2
+# 不加 `-`：`kb-ingest.env` 是**必需**的（缺了就自检失败）。让 systemd 在缺文件时
+# 直接失败，而不是「systemd 静默通过、启动脚本再报错」——失败点越靠前越容易定位。
+EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/conf/kb-ingest.env
+ExecStartPre=/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-wait-ready.sh nacos 300
+ExecStart=/bin/bash -lc '/home/szf/data/dev/llmke-r12/platform/r12/bin/r12-kb-ingest-start.sh'
+TimeoutStartSec=420
+TimeoutStopSec=60
+# 自检失败属于**配置缺失**，重启也不会好；只在启动阶段异常时重试。
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=r12.target

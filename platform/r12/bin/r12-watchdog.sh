@@ -54,11 +54,34 @@ info() { local l; l="[$(date -Is)] $*"; printf '%s\n' "$l" >> "$LOG"; printf '%s
 #              alg-granular=按缺失端口对应的算法服务逐个 algctl restart
 #              r12ctl      =裸进程（无 unit），用 r12ctl start <svc>
 # ---------------------------------------------------------------------------
+# P4-L13-B 门控：18096 摄取服务**默认不纳管**（当前由人工手动管理）。
+# 只有显式 `LLMKE_INGEST_ENABLED=1` 才把它加进 TARGETS，避免 watchdog 默认接管后
+# 把正在跑的实例重启掉、覆盖人工恢复的状态。
+INGEST_ENABLED="${LLMKE_INGEST_ENABLED:-0}"
+EXPECTED_GRAPH_API="${LLMKE_V2_GRAPH_API:-http://127.0.0.1:18094}"
+
+# 18096 的**内容探针**：端口活着 ≠ 功能正常。
+# 实证（P4-L13-C 的 C5 演练）：进程在、端口在听，但 graph_api 指向 19999 ——
+# 只判端口、甚至只看 /openapi.json 200 都会误判健康，而每次摄取都会 207/PARTIAL。
+ingest_content_ok() {  # $1=url（默认 18096 /health）
+  local url="${1:-http://127.0.0.1:18096/health}" body api configured
+  body="$(curl -fsS -m 6 "$url" 2>/dev/null)" || return 1
+  api="$(printf '%s' "$body" | grep -o '"graph_api":"[^"]*"' | head -1 | cut -d'"' -f4)"
+  configured="$(printf '%s' "$body" | grep -o '"configured":[a-z]*' | head -1 | cut -d: -f2)"
+  [[ "$api" == "$EXPECTED_GRAPH_API" ]] || return 1
+  [[ "$configured" == "true" ]] || return 1
+  return 0
+}
+
 TARGETS=(
   "alg|19526,19527,19995,19996|r12-alg|alg-granular||"
   "models|18090,18091,18092,18093|r12-models|unit-restart||http://127.0.0.1:18090/healthz,http://127.0.0.1:18091/healthz,http://127.0.0.1:18092/health,http://127.0.0.1:18093/health"
   "docparse|12340|r12-docparse|unit-restart||"
-  "graphsvc|19529|r12-graphsvc|unit-restart||"
+  # 阶段4 已下线 V1（19529/Nebula）：原 graphsvc 条目会让看门狗每 45s 把 19529 拉回来。
+  # 改为守护 V2 图栈（18094 HippoRAG API + 19531 建图 shim），挂掉才能自愈。
+  # 第6列 HTTP 探针：uvicorn 主进程死后残留子进程仍占 LISTEN，单看端口会误判健康
+  "hipporag|18094,19531|-|graph-v2||http://127.0.0.1:18094/openapi.json"
+  # P4-L13-B：18096 摄取服务**不在此硬编码**，由下面的门控追加（默认不纳管）。
   "java-auth|18081|r12-java@rag-auth-service.service|unit-restart||"
   "java-index|18082|r12-java@rag-index-service.service|unit-restart|||/index/knowledgeBase/list;200"
   "java-qa|18083|r12-java@rag-qa-service.service|unit-restart|||/qa/ai/question;499"
@@ -66,6 +89,13 @@ TARGETS=(
   "gateway|8088|r12-java@rag-gateway.service|unit-restart|||/auth/user/kaptcha;200"
   "java-graph|18084|-|r12ctl|rag-graph-service|"
 )
+
+# 门控追加（默认关闭）：仅在 LLMKE_INGEST_ENABLED=1 时纳管 18096。
+# 探针仍用 /openapi.json（判"进程/端口是否真的在服务"），**内容校验**由
+# unhealthy_ports 调 ingest_content_ok 负责（graph_api 与 write_targets.configured）。
+if [[ "$INGEST_ENABLED" == "1" ]]; then
+  TARGETS+=("kb-ingest|18096|-|kb-ingest||http://127.0.0.1:18096/openapi.json")
+fi
 
 # 算法组：端口 -> algctl 服务名
 alg_svc_of_port() {
@@ -102,7 +132,7 @@ port_listener_alive() {
 
 # 返回该组"不健康"的端口清单（空=健康）
 unhealthy_ports() {
-  local ports="$1" http="$2" probe="${3:-}" p out=()
+  local ports="$1" http="$2" probe="${3:-}" group="${4:-}" p out=()
   local IFS=','
   for p in $ports; do
     if ! port_listen "$p" || ! port_reachable "$p" || ! port_listener_alive "$p"; then out+=("$p"); fi
@@ -121,6 +151,10 @@ unhealthy_ports() {
     local path="${probe%;*}" maxc="${probe#*;}" code
     code="$(curl -sS -o /dev/null -m 6 -w '%{http_code}' "http://127.0.0.1:${ports%%,*}$path" 2>/dev/null || echo 000)"
     if [[ "$code" == "000" ]] || (( code > maxc )); then out+=("http:${ports%%,*}$path=$code"); fi
+  fi
+  # 内容探针（目前只有 kb-ingest 需要）：端口通、openapi 200 但配置指错，也算不健康
+  if [[ "$group" == "kb-ingest" ]]; then
+    ingest_content_ok || out+=("content:graph_api_or_configured")
   fi
   printf '%s\n' "${out[@]:-}" | sed '/^$/d' | paste -sd, -
 }
@@ -216,6 +250,26 @@ heal() {  # $1=group $2=unit $3=mode $4=target $5=missing(csv)
         bash "$R12CTL" start "$target" >>"$LOG" 2>&1 || rc=1
       fi
       ;;
+    graph-v2)
+      # V2 图栈是裸进程（无 systemd unit），用幂等启动脚本补齐 18094/19531。
+      # 脚本内部按端口判断，已存活的服务不会被重复拉起。
+      log "[$group] 修复动作: $R12/bin/r12-graph-v2-start.sh"
+      if command -v systemd-run >/dev/null 2>&1; then
+        systemd-run --user --scope --collect --quiet bash "$R12/bin/r12-graph-v2-start.sh" >>"$LOG" 2>&1 || rc=1
+      else
+        bash "$R12/bin/r12-graph-v2-start.sh" >>"$LOG" 2>&1 || rc=1
+      fi
+      ;;
+    kb-ingest)
+      # 与 graph-v2 同构：裸进程，用幂等启动脚本自愈。
+      # 脚本内部先跑自检（fail-fast）再按端口/探针判断是否真的需要拉起。
+      log "[$group] 修复动作: $R12/bin/r12-kb-ingest-start.sh"
+      if command -v systemd-run >/dev/null 2>&1; then
+        systemd-run --user --scope --collect --quiet bash "$R12/bin/r12-kb-ingest-start.sh" >>"$LOG" 2>&1 || rc=1
+      else
+        bash "$R12/bin/r12-kb-ingest-start.sh" >>"$LOG" 2>&1 || rc=1
+      fi
+      ;;
     *) log "[$group] 未知 heal 模式 $mode"; rc=1 ;;
   esac
   return $rc
@@ -273,7 +327,7 @@ for row in "${TARGETS[@]}"; do
 
   ustate="$([[ "$unit" == "-" ]] && echo naked || unit_state "$unit")"
 
-  missing="$(unhealthy_ports "$ports" "$http" "$probe")"
+  missing="$(unhealthy_ports "$ports" "$http" "$probe" "$group")"
 
   if [[ "$MODE" == "--status" || "$MODE" == "--doctor" ]]; then
     printf '%-16s %-34s %-10s %-10s %-12s %s\n' "$group" "$ports" "$unit" "$ustate" "$fails" "$([[ "$last_heal" == "0" ]] && echo - || date -d "@$last_heal" +%H:%M:%S)"
@@ -402,8 +456,9 @@ if [[ "$MODE" == "--status" || "$MODE" == "--doctor" ]]; then
 fi
 
 # ---- 容器级守护（r12-* 统一 restart=unless-stopped；被显式 stop 的从容器侧看不出，这里兜住）----
+# 阶段4 已下线 Nebula×3；留在列表里会被看门狗每 45s `docker start` 复活（实测复发）。
 CONTAINERS=(r12-mysql r12-redis r12-es r12-minio r12-milvus r12-nacos r12-rocketmq-namesrv
-            r12-rocketmq-broker r12-nebula-metad r12-nebula-storaged r12-nebula-graphd
+            r12-rocketmq-broker
             r12-etcd r12-preview r12-fe)
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
   c_bad=0; c_heal=0

@@ -66,8 +66,8 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           <div className="flex ml-[12px]">
             <Button
               style={{
-                background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-                color: "#fff",
+                background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+                color: "#111915",
                 marginRight: "12px",
                 border: "none"
               }}
@@ -77,8 +77,8 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
             />
             <Button
               style={{
-                background: `linear-gradient(99.9deg, #2B69FF -4.18%, #8F91FF 106.52%)`,
-                color: "#fff",
+                background: "#D8BD89",  // SPECTRA 暖金主操作（原蓝紫渐变）
+                color: "#111915",
                 border: "none"
               }}
               icon={<CloseOutlined />}

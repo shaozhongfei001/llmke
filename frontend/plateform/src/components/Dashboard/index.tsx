@@ -2,7 +2,7 @@ import { ConfigProvider, Divider, Dropdown, Flex, Layout, Tooltip } from "antd";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { ProLayout } from "@ant-design/pro-components";
 import "./style.less";
-import navbarBg from "../../assets/navbarBg.svg";
+import navbarBg from "../../assets/navbarBg_spectra.svg";
 import { merge } from "lodash";
 import AiRobit from "@/assets/img/aiRobit.png";
 import SiderOpt from "@/assets/svg/siderOpt.svg";
@@ -160,9 +160,10 @@ const Dashborad: React.FC<IDashboardProps> = (props: IDashboardProps) => {
             Layout: {
               paddingInlinePageContainerContent: 0,
               paddingBlockPageContainerContent: 0,
-              bgLayout: "rgb(250, 251, 255)",
-              headerBg: "rgb(250, 251, 255)",
-              colorMenuBackground: "rgb(250, 251, 255)",
+              // SPECTRA：近黑画布 + 深色 shell（几何尺寸保持原值）
+              bgLayout: "#090D11",
+              headerBg: "#0B1014",
+              colorMenuBackground: "#0B1014",
               footerPadding: "0",
               headerHeight: 60,
               headerPadding: "0px 16px"
@@ -173,19 +174,19 @@ const Dashborad: React.FC<IDashboardProps> = (props: IDashboardProps) => {
               // optionSelectedColor: '#fff',
             },
             Divider: {
-              colorSplit: "#fff"
+              colorSplit: "#243035"
             },
             Button: {
-              defaultColor: "#04336b",
-              defaultBg: "#fff",
-              defaultHoverBg: "#fff",
-              defaultHoverColor: "#04336b",
+              defaultColor: "#B8C3C3",
+              defaultBg: "#10181C",
+              defaultHoverBg: "#1A292E",
+              defaultHoverColor: "#E8D4A7",
               borderRadius: 4
             },
             Menu: {
               itemMarginBlock: "8px",
-              colorTextMenu: "#555555",
-              colorTextMenuSelected: "#055AFF"
+              colorTextMenu: "#91A1A3",
+              colorTextMenuSelected: "#D8BD89"
             }
           }
         },
@@ -283,7 +284,7 @@ const Dashborad: React.FC<IDashboardProps> = (props: IDashboardProps) => {
                   }}
                   placement="bottomRight"
                   dropdownRender={(menu) => (
-                    <div className="bg-white rounded-lg shadow-lg border border-gray-100 min-w-[200px]">
+                    <div className="spectra-dropdown-panel rounded-lg shadow-lg border border-gray-100 min-w-[200px]">
                       {menu}
                     </div>
                   )}
@@ -325,9 +326,8 @@ const Dashborad: React.FC<IDashboardProps> = (props: IDashboardProps) => {
                     width: "100%",
                     whiteSpace: "break-spaces",
                     lineHeight: 1,
-                    color: pathname.startsWith(item.path)
-                      ? "#055aff"
-                      : "rgba(0, 0, 0, 0.65)"
+                    // SPECTRA：当前项暖金，其他项冷灰（字号/行高沿用全局继承）
+                    color: pathname.startsWith(item.path) ? "#D8BD89" : "#91A1A3"
                   }}
                 >
                   {item.name}
@@ -352,7 +352,8 @@ const Dashborad: React.FC<IDashboardProps> = (props: IDashboardProps) => {
               height: "calc(100vh - 55px)",
               overflow: "hidden",
               padding: getPadding(noPaddingUrl),
-              background: "linear-gradient(to right, #F4F3FF, #EAF2FF)"
+              // SPECTRA：主工作区近黑画布（替换原蓝紫渐变）
+              background: "#090D11"
             }}
           >
             <MainContent
@@ -452,7 +453,7 @@ const MainContent = ({
                         className="cursor-pointer rounded-lg w-[50px] py-[6px]"
                         style={{
                           background: pathname.startsWith(item.path)
-                            ? "linear-gradient(180deg, #ECECFF 0%, #F3F3FF 100%)"
+                            ? "rgba(216, 189, 137, 0.10)"
                             : "none"
                         }}
                         onClick={() => {
@@ -473,8 +474,8 @@ const MainContent = ({
                         <div
                           style={{
                             color: pathname.startsWith(item.path)
-                              ? "#2b69ff"
-                              : "#888"
+                              ? "#D8BD89"
+                              : "#91A1A3"
                           }}
                           className="text-[14px] mt-[4px] cursor-pointer"
                         >
