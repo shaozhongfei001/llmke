@@ -320,3 +320,17 @@
 ### S-10 规模口径
 - 9888 条目的基线是 42167f0；`origin/main` 已前进到 `14c392a1`，当前 HEAD 也已前进，
   旧基线不能再用 `origin/main` 现算，必须用包内 commit 与包内树核对。
+
+
+## 评审镜像仓库清理（2026-11-11）
+
+- 无损确认：`llmke-v2-review` 两分支 `main`=419a87d、`design/...`=bb328761 均为本仓
+  `main` 的祖先，`rev-list --left-right --count` = 279 0 / 146 0，独有提交 0；
+  9 个差异文件均为 Owner 授权下线的 `/commonSearch` 废弃件
+  （d9509936 前端 8 个 KnowledgeSearch 组件、104d00ff CommonSearchRequest.java），
+  且 9/9 可从本仓 main 历史中的父提交取回。**无需合并任何代码**。
+- 唯一 git 之外资产：评审 PR #1 正文（2384 字，无敏感信息），
+  归档于 `docs/v2-tasks/archive/EXTERNAL-REVIEW-20261102.md`。
+- 清理：design 分支已删；main 因 GitHub 默认分支保护删不掉，改为删除整个 private 仓库
+  （0 open issues / 0 forks / 0 tags / 0 releases / 1 个未合并 closed PR）。
+- 本地 `git remote remove review` 已执行，本地只剩 origin。
