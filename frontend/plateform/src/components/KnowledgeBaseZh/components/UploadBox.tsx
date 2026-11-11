@@ -110,7 +110,7 @@ const UploadBox = (props: UploadBoxProps) => {
     platform = "rag-qa"
   } = props;
   const [fList, setFList] = useState<any[]>([]);
-  const [isParse, setIsParse] = useState(false);
+
   const [isExtract, setIsExtract] = useState(false);
   const [isGraphParse, setIsGraphParse] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -370,7 +370,7 @@ const UploadBox = (props: UploadBoxProps) => {
       _uploadFileParam.isGraphParse = isGraphParse;
     } else {
       if (fileListType === Number(tabItems[0].key)) {
-        _uploadFileParam.isParse = isParse;
+        _uploadFileParam.isParse = true;
       }
       _uploadFileParam.isExtract = isExtract;
     }
@@ -603,7 +603,6 @@ const UploadBox = (props: UploadBoxProps) => {
   };
 
   const resetModal = () => {
-    setIsParse(false);
     setIsExtract(false);
     setIsGraphParse(false);
     setFList([]);
@@ -960,20 +959,6 @@ const UploadBox = (props: UploadBoxProps) => {
       <div className="mb-8 bottom-line"></div>
       <Flex className="justify-between" align="center" justify="center">
         <div className="flex gap-6">
-          {(!uploadBoxOpt || uploadBoxOpt.docParse) && (
-            <>
-              {!isFaq && !isGraph ? (
-                <div>
-                  <span style={{ color: "#555", marginRight: "8px" }}>
-                    文档解析
-                  </span>
-                  <Switch
-                    onChange={(checked: boolean) => setIsParse(checked)}
-                  />
-                </div>
-              ) : null}
-            </>
-          )}
 
           {(!uploadBoxOpt || uploadBoxOpt.faq) && (
             <>

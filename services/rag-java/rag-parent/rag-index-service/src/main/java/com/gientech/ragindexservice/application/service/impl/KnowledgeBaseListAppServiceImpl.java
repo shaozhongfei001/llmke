@@ -1516,6 +1516,12 @@ public class KnowledgeBaseListAppServiceImpl implements KnowledgeBaseListAppServ
         Integer fileListType = uploadFileReq.getFileListType();
         Boolean isExtract = uploadFileReq.getIsExtract();
         Boolean isParse = uploadFileReq.getIsParse();
+        // 上传即解析：doc2md 为唯一解析者，普通文件上传不再依赖前端开关。
+        // FAQ 抽取（isExtract=true）保留原有组合语义，不强制改写。
+        if (FileListTypeEnums.FILE_LIST.getCode().equals(fileListType)
+                && !Boolean.TRUE.equals(isExtract)) {
+            isParse = true;
+        }
         Boolean saveTxt = uploadFileReq.getSaveTxt();
         String platform = uploadFileReq.getPlatform();
         boolean chunking = uploadFileReq.isChunking();

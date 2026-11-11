@@ -113,7 +113,7 @@ def ingest_file(file_path: Path, kb: str, file_id, *, config: Path,
                 graph_api: str = DEFAULT_GRAPH_API,
                 graph_root=None, build_graph: bool = True,
                 revision: str = "unknown", profile: str = "default_v1",
-                timeout: int = 1800) -> dict:
+                timeout: int = 1800, consume: bool = True) -> dict:
     """文件 → doc2md 四件套 → 双路消费。返回结果字典（含两路统计）。"""
     if not file_path.is_file():
         raise RuntimeError(f"文件不存在：{file_path}")
@@ -183,6 +183,13 @@ def ingest_file(file_path: Path, kb: str, file_id, *, config: Path,
                if not (doc2md_dir / n).is_file()]
     if missing:
         raise RuntimeError(f"doc2md 未产出完整四件套，缺：{missing}（目录：{doc2md_dir}）")
+
+    # 服务化编排入口只需要「同一次解析」的产物目录，消费交给 18096 做一次。
+    # consume=False 时不写 ES/Milvus/图，也不要求冻结锁；默认 True 保持脚本原行为。
+    if not consume:
+        return {"status": "PARSED_ONLY", "doc2md_dir": str(doc2md_dir),
+                "content_uid": sha, "file_name": file_path.name,
+                "file_size": file_path.stat().st_size}
 
     # 4) 双路消费（封快照 → 投影 → 按库建图）
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]

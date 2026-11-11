@@ -99,3 +99,6 @@ nacos-data/
 # 验收产物（快照/载荷，可由 scripts/v2_build_artifacts.py 重建）
 .artifacts/
 frontend/plateform/dist-kgw-final/
+
+# Office/LibreOffice 打开文档时的临时锁文件（不入库）
+**/.~*

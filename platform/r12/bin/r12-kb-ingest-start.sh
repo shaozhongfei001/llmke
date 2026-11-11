@@ -20,7 +20,7 @@
 set -uo pipefail
 
 R12_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-V2_SVC_DIR="/home/szf/data/dev/llmke-v2/services/rag-alg/index_data_service"
+V2_SVC_DIR="/home/szf/data/dev/llmke/services/rag-alg/index_data_service"
 PY="/home/szf/data/dev/hipporag-toolenv/bin/python"      # 需 fastapi + pydantic
 PORT="18096"
 NAME="kb-ingest"
