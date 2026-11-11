@@ -96,7 +96,13 @@ def test_sensitive_runtime_artifact_tracked_fails(sandbox):
 
 @pytest.mark.xfail(
     strict=False,
-    reason="存量仓内命中（JdbcUtil 演示连接串、测试常量、/home/szf 绝对路径），需单独安全清理，不属本次收敛",
+    reason="存量门禁欠账（2026-11-11 复核）：全仓 2359 条命中，分类为 "
+           "/home/szf 本机路径 1057、RFC1918 内网 IP 576、宽松凭据正则误报 654"
+           "（前端变量 / 依赖锁文件 / 文档示例）、演示连接串 72；"
+           "已确认私钥命中 0 条、被跟踪的运行时密钥文件 0 个。"
+           "4 处 .env.example 字面量口令已改占位符，并由下面两条窄测试守住。"
+           "剩余是历史文本与规则误报，需单独收敛扫描规则；"
+           "不靠堆 allowlist 或重写 git 历史掩盖，保留 xfail 如实标记门禁未通过",
 )
 def test_framework_repo_itself_is_clean():
     """The framework repository must pass its own scanner."""
@@ -142,3 +148,39 @@ def test_yaml_bare_literal_is_not_a_code_variable(sandbox):
     r = run_scan(sandbox)
     assert r.returncode != 0
     assert "CanaryAlpha42" not in r.stdout
+
+
+
+def _scanner_module():
+    """直接加载被测模块，复用它自己的正则，避免测试里另写一套口径。"""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_security_scan_mod", SCAN)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _tracked_files():
+    return subprocess.check_output(
+        ["git", "-C", str(FW), "ls-files"], text=True
+    ).splitlines()
+
+
+def test_env_examples_have_no_literal_credentials():
+    """PUBLIC 仓库：示例模板里写字面量口令等于公开，必须全是占位符。"""
+    mod = _scanner_module()
+    examples = [FW / p for p in _tracked_files() if p.endswith(".env.example")]
+    assert examples, "没有找到 .env.example，检查是否漏跟踪"
+    for f in examples:
+        findings = mod.scan_file(f, FW, [])
+        bad = [x for x in findings if any(
+            k in x for k in ("REAL_CREDENTIAL", "REAL_CONNECTION_STRING", "PRIVATE_KEY")
+        )]
+        assert not bad, f"{f.relative_to(FW)} 含字面量凭据: {bad}"
+
+
+def test_no_tracked_runtime_secret_files():
+    """真正的运行时密钥文件不得入库；.env.example 模板不算。"""
+    mod = _scanner_module()
+    bad = [p for p in _tracked_files() if mod.SENSITIVE_TRACKED_RE.search(p)]
+    assert not bad, f"tracked runtime artifacts: {bad}"
