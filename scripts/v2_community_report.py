@@ -76,7 +76,7 @@ def main(argv=None):
     engine = HippoRAGEngine(save_dir=args.save_dir, llm_base_url=args.llm,
                             embedding_base_url=args.embed)
     norm = build_store(engine.openie_docs(), lambda idx: to_refs(sm.sources_for(idx)))
-norm["store"] = entity_link.apply_linking(norm["store"])[0]
+    norm["store"] = entity_link.apply_linking(norm["store"])[0]
     known = {d["file_id"] for d in docs}
     report = build_report(norm["store"], known_files=known)
 

@@ -24,7 +24,10 @@ def _es_up():
         return False
 
 
-@pytest.mark.skipif(not _es_up(), reason="ES 19200 不可达，Q 的线上数据项无法验证")
+@pytest.mark.skipif(
+    not _es_up() or os.environ.get("LLMKE_Q_FULL") != "1",
+    reason="Q 全量验收需 ES 19200 且显式 LLMKE_Q_FULL=1；不作为单测默认跑",
+)
 def test_q_acceptance_has_no_fail_and_keeps_unimplemented_visible(tmp_path):
     out = tmp_path / "q.json"
     proc = subprocess.run([sys.executable, str(SCRIPT), "--out", str(out)],

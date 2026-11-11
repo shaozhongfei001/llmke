@@ -114,10 +114,10 @@ def test_no_docs_fetches_chunks_from_es_then_forwards(monkeypatch):
     assert len(rec.es_calls) == 1
     es_call = rec.es_calls[0]
     assert es_call["url"] == "http://127.0.0.1:19527/search_by_custom_param"
-    assert es_call["payload"] == {                     # legacy graph_fun_tool.py:919-929 同款
+    # 2026-11-07 增量修复：ES 取全库 chunk 重建，避免新文件覆盖整库图谱；
+    # 因此不再下发 col_name/col_values 过滤。
+    assert es_call["payload"] == {
         "index_name": ["kb_9", "table_chunks_kb_9"],
-        "col_name": "title",
-        "col_values": ["丙-额度分项.docx"],
     }
 
     sent = rec.build_calls[0]["payload"]["docs"]
@@ -125,7 +125,7 @@ def test_no_docs_fetches_chunks_from_es_then_forwards(monkeypatch):
                                         "贷后检查每季度开展一次。"]
     assert sent[0]["file_id"] == "999010"                                  # metadata.file_id
     assert sent[0]["locator"] == "page=-;offset=[[0, 66]];chunk=0"    # 全 0 页码不算页
-    assert sent[1]["file_id"] == "丙-额度分项.docx"                          # 缺 file_id 兜底
+    assert sent[1]["file_id"] == "kb_9"                                     # 缺 file_id 时按库标识兜底
     assert sent[1]["locator"] == "es:chunk-b"                               # 无元数据 → es:<id>
     assert set(sent[0]) == {"file_id", "text", "locator", "title"}                   # es_id 不进 BuildDoc
     assert out["data"]["es"]["es_docs_used"] == 2

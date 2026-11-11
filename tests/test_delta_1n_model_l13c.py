@@ -43,10 +43,10 @@ def test_builddoc_accepts_file_ids_array() -> None:
     assert doc.file_ids == ["290", "291"]
 
 
-def test_builddoc_rejects_single_value_file_id() -> None:
-    """单值 `file_id` 是 L9 的旧形态：必须被拒，否则 1:N 语义会被静默降级。"""
-    with pytest.raises(ValidationError):
-        A.BuildDoc(file_id="290", text="正文")
+def test_builddoc_accepts_legacy_single_value_file_id() -> None:
+    """旧单值 `file_id` 兼容转成数组，不静默丢失 1:N 语义。"""
+    doc = A.BuildDoc(file_id="290", text="正文")
+    assert doc.file_ids == ["290"]
 
 
 def test_builddoc_rejects_empty_file_ids() -> None:
@@ -64,8 +64,8 @@ def test_route_accepts_file_ids_and_passes_them_through() -> None:
     assert calls and list(calls[0].docs[0].file_ids) == ["290", "291"]
 
 
-def test_route_rejects_single_file_id_body() -> None:
-    """这正是 C3a 撞到的 422：平台按契约发 `file_ids`，旧模型只认 `file_id`。"""
+def test_route_accepts_legacy_single_file_id_body() -> None:
+    """旧单值 `file_id` 不再 422，转成 `file_ids` 后走同一条 1:N 路径。"""
     client, calls = _client()
     resp = client.post("/v2/graph/delta", json={
         "kb": "kb_9", "docs": [{"file_ids": ["290"], "text": "正文"}]})
@@ -73,5 +73,4 @@ def test_route_rejects_single_file_id_body() -> None:
 
     resp = client.post("/v2/graph/delta", json={
         "kb": "kb_9", "docs": [{"file_id": "290", "text": "正文"}]})
-    assert resp.status_code == 422, resp.text
-    assert "file_ids" in resp.text
+    assert resp.status_code == 200, resp.text

@@ -17,13 +17,14 @@ from graph_engine_adapter import api as A  # noqa: E402
 
 
 @pytest.fixture()
-def client(monkeypatch):
+def client(monkeypatch, tmp_path):
     monkeypatch.delenv("LLMKE_V2_SNAPSHOT", raising=False)
+    monkeypatch.setenv("LLMKE_V2_ROOT", str(tmp_path))
     return TestClient(A.create_app())
 
 
 def test_a5_revoke_endpoint_exists_and_revokes(client):
-    resp = client.post("/v2/fence/revoke", json={"kb": "kb_9", "file_ids": ["999"]})
+    resp = client.post("/v2/fence/revoke", json={"root": str(A._root_dir()), "kb": "kb_9", "file_ids": ["999"]})
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert body["revoked"] == ["999"]
@@ -34,15 +35,15 @@ def test_a5_revoke_endpoint_exists_and_revokes(client):
 
 
 def test_a5_revoke_is_idempotent(client):
-    first = client.post("/v2/fence/revoke", json={"kb": "kb_9", "file_ids": ["999"]}).json()
-    second = client.post("/v2/fence/revoke", json={"kb": "kb_9", "file_ids": ["999"]}).json()
+    first = client.post("/v2/fence/revoke", json={"root": str(A._root_dir()), "kb": "kb_9", "file_ids": ["999"]}).json()
+    second = client.post("/v2/fence/revoke", json={"root": str(A._root_dir()), "kb": "kb_9", "file_ids": ["999"]}).json()
     assert second["generation"] == first["generation"], "重复撤权不得重复递增 generation"
     assert second["advanced"] is False
     assert second["revoked"] == ["999"]
 
 
 def test_a5_get_fence_by_kb_reads_revoked(client):
-    client.post("/v2/fence/revoke", json={"kb": "kb_9", "file_ids": ["999", "1000"]})
+    client.post("/v2/fence/revoke", json={"root": str(A._root_dir()), "kb": "kb_9", "file_ids": ["999", "1000"]})
     by_kb = client.get("/v2/fence", params={"kb": "kb_9"}).json()
     assert by_kb["revoked"] == ["1000", "999"]
     assert by_kb["kb"] == "kb_9"
@@ -53,18 +54,19 @@ def test_a5_get_fence_by_kb_reads_revoked(client):
 
 
 def test_a5_kb_isolation(client):
-    client.post("/v2/fence/revoke", json={"kb": "kb_9", "file_ids": ["999"]})
+    client.post("/v2/fence/revoke", json={"root": str(A._root_dir()), "kb": "kb_9", "file_ids": ["999"]})
     other = client.get("/v2/fence", params={"kb": "kb_other"}).json()
     assert other["revoked"] == [], "撤权必须按库隔离，不得串库"
 
 
 def test_a5_empty_file_ids_rejected(client):
-    resp = client.post("/v2/fence/revoke", json={"kb": "kb_9", "file_ids": []})
+    resp = client.post("/v2/fence/revoke", json={"root": str(A._root_dir()), "kb": "kb_9", "file_ids": []})
     assert resp.status_code == 422, "空 file_ids 必须拒绝（防误撤整库）"
 
 
 def test_a5_persisted_false_without_snapshot(client):
-    body = client.post("/v2/fence/revoke", json={"kb": "kb_no_snapshot",
+    body = client.post("/v2/fence/revoke", json={"root": str(A._root_dir()),
+                                                 "kb": "kb_no_snapshot",
                                                  "file_ids": ["1"]}).json()
     assert body["persisted"] is False, "无快照时必须如实标 persisted=false（内存仍生效）"
     assert body["revoked"] == ["1"]
