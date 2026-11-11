@@ -22,6 +22,10 @@ from operators.client.milvus_client import MilvusClient
 from operators.client.graph_client import GraphClient
 from operators.client.web_search_client import WebSearchClient
 from operators.common.log import logger
+# P2-L8：图召回必须用**原库名**（18094 按库目录组织）；影子名 `v2cand_kb_9` 不是库名。
+# 通道名（`table_chunks_*` 等）也统一走投影层映射，避免各调用点各自裸拼。
+from projection_read import channel_name as _channel_name
+from projection_read import original_kb as _original_kb
 from utils import create_uuid
 
 
@@ -466,7 +470,7 @@ async def retrieval_graph(question, knowledge_base_name, top_k, model_info, serv
             "query": question,
             # 18094 QueryRequest.top_k 硬约束 [1,20]，越界 422
             "top_k": min(top_k or server_config.get("retrieval_top_k", 10), 20),
-            "kb": k_name,
+            "kb": _original_kb(k_name),
         }
         full_url = f"http://{host}:{port}/v2/graph/query"
         try:
@@ -564,7 +568,11 @@ async def retrieval_multi_version_elastic(documents_result_list, multi_version_d
             question = documents_result["page_content"]
             chunk_type = documents_result["metadata"]["chunk_type"]
             if chunk_type == "table":
-                es_knowledge_base_name = "table_chunks_" + es_knowledge_base_name
+                # P2-L8：不要再裸拼 `"table_chunks_" + 名字` —— 影子模式下这个名字已是
+                # `v2cand_kb_9`，拼出来 `table_chunks_v2cand_kb_9` 与写侧
+                # `v2cand_table_chunks_kb_9` 不符。先还原原库名，再走通道名映射。
+                es_knowledge_base_name = _channel_name(
+                    "table_chunks", _original_kb(es_knowledge_base_name))
             data = es_multi_version_params(es_knowledge_base_name, father_file_id, top_k, question)
             tasks.append(es_requests(data, server_config, question))
             pk_id_list.append(pk_id)

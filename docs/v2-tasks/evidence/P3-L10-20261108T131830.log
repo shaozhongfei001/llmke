@@ -1,0 +1,790 @@
+# P3-L10 · T-D2MD-10 实现证据（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T13:18:30+0800
+- 角色：`python-engineer`；**未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`**、`TASKS.yaml` 未改
+- 任务：`T-D2MD-10` / loop `P3-L10`
+- 前置：R-0 已确认（`P3-L10-20261108T131020.log`）+ TL 13:2x 裁定 Q1~Q5 + 追加 D-11 式两条约束
+- 结论：`DEV_SELF_CHECK_PASS` —— K1~K6 满足，R-1~R-6 覆盖，**恢复「先 FAIL 再 PASS」**
+  （阶段 A 真实跑红：rebuild 层 8 failed / api 层 4 failed）
+
+## ⚠️ 本 loop 的生效边界（TL 指定，原样声明）
+
+> **本 loop 改的是 `api.py` 的进程内结构，不重启 18094 就不生效。** 代码合入到重启窗口之间，
+> 磁盘代码与运行态不一致属预期：线上此刻仍是**旧的单槽 state** 与 `_default_build` 里
+> **写死的 `fencing=1`**。**不声称"已生效"。** P4/P6 重启时才用上 per-kb state 与 fencing 自增。
+
+---
+
+## 1. 解释器口径（K1/K4 只在 hipporag）
+
+| 用途 | 解释器 | 结果 |
+|---|---|---|
+| `rebuild.py` 层：fencing 自增 / 旧主拒绝 / per-kb 锁粒度 / 清理规则 | `llmke-v2-toolenv`（3.10.12 / pytest 8.3.5）**主口径** | **11 passed** |
+| `api.py` 层：K1 per-kb 隔离 / K2 路由层 fencing / K4 字段不变 | `hipporag-toolenv`（3.11.15 / pytest 9.2.0 / fastapi 0.162.0） | **6 passed** |
+
+**v2 侧 skip 单列（不计入通过）**：
+- `tests/test_graph_state_l10.py` 整文件 → **1 skipped**（v2 无 fastapi/pydantic，既有环境限制）
+- `tests/test_graph_delta_route_l9.py` → **1 skipped**（同上，L9 既有）
+- `test_d1_write_sources_byte_identical_to_default_build` → **1 skipped**（同上）
+
+合计 v2 `145 passed, 3 skipped`；hipporag `163 passed`。
+
+---
+
+## 2. 阶段 A · 先写反例跑红（本轮恢复了该次序）
+
+### 2.1 `rebuild.py` 层（v2，实现前）
+
+```
+$ pytest services/rag-alg/index_data_service/tests/test_fencing_l10.py -q
+FAILED …::test_k2_first_build_with_none_fencing_succeeds_and_is_positive
+FAILED …::test_k2_pointer_write_with_none_fencing_on_nonzero_current
+FAILED …::test_k2_fencing_strictly_increases_across_rebuilds
+FAILED …::test_k2_delta_also_increments
+FAILED …::test_k2_stale_owner_is_rejected
+FAILED …::test_k2_floor_makes_fencing_monotonic_but_not_consecutive
+FAILED …::test_k3_same_kb_concurrent_pointer_writes_serialize
+FAILED …::test_k3_concurrent_rebuilds_leave_one_complete_snapshot
+8 failed, 2 passed in 0.16s
+```
+
+2 条原本就 PASS 的**是守卫、不是空转**（保留未删）：
+`test_k3_cross_kb_pointer_writes_not_blocked`（per-kb 锁**现状已成立**，用来防未来退化成全局锁）、
+`test_r6_protected_regions_untouched`（禁改区哨兵 + `FenceState` 字段集不变）。
+
+### 2.2 `api.py` 层（hipporag，实现前）
+
+```
+$ pytest tests/test_graph_state_l10.py -q
+FAILED …::test_k1_state_is_per_kb
+FAILED …::test_k1_query_returned_data_belongs_to_requested_kb
+FAILED …::test_k2_build_increments_fencing_across_two_builds
+FAILED …::test_k4_unknown_kb_still_reports_not_built
+4 failed, 2 passed in 0.33s
+```
+
+`test_k4_unknown_kb_still_reports_not_built` 首跑是我**测试自己写错**（把 NOT_BUILT 的字段集
+当成正常查询的字段集），已改为独立的 `NOT_BUILT_KEYS`；**不是放宽断言**。
+
+---
+
+## 3. TL 点出的 `or 0` 地雷：我先独立复现，再实现
+
+```
+$ （实现前，直接调现状 `_cas_write_pointer`）
+首次 fencing=None -> OK pointer.fencing = 0          ← 不递增
+第二次 fencing=None -> OK pointer.fencing = 0        ← 永远 0
+cur=1 + payload fencing=None -> StaleFencingError    ← 地雷：`int(None or 0)=0`
+cur=1 + payload 1 -> PASS（相等放行）                ← 旧主（同代号）还能写
+```
+
+→ 若只把 `_default_build` 改成"不传"，**第二次建图起全部 `StaleFencingError`**，全量建图当场全废。
+所以 **守门用例**（`test_k2_first_build_with_none_fencing_succeeds_and_is_positive`）
+与 `_cas_write_pointer` 的 None 分支**必须同一次提交**落地 —— 已如此。
+
+---
+
+## 4. 实现（Q1~Q5 逐条落地）
+
+### 4.1 Q1 · fencing 锁内自增（`rebuild.py`）
+
+```python
+raw = payload.get("fencing")          # 显式判 None，禁止 `or 0`
+if raw is None:
+    effective = max(current_fencing, int(floor or 0)) + 1     # 锁内自增
+else:
+    effective = int(raw)
+    if current_fencing > effective:   # 旧主拒绝不可退化
+        raise StaleFencingError(...)
+final = {**payload, "fencing": effective}
+_write_pointer(root, final)
+return final                          # ← 返回最终 payload（TL 硬要求）
+```
+
+- `_promote(...)` 签名加 `fence.generation` 作 `floor`，并用返回值当 `current`
+  → `api.py` 状态回显的 `fencing` 与落盘指针**逐字一致**；
+- **`_promote` 不再把 `None` 替换成 `current_fencing`**。
+
+### 4.2 Q2 · `_default_build` 不再写死
+
+```diff
+-    result = rebuild(root, fence, live, full_build, fencing=1)
++    result = rebuild(root, fence, live, full_build, fencing=None)
+```
+
+### 4.3 Q3 · `fence.py` **未改**（授权未使用）
+
+`fence.py` md5 与 R-0 基线逐位一致（`cbb9151f…`）。`fence.generation` 仅作 `floor` 下界，
+**不新增「重建代次」字段**（避免两个真相源漂移）。用例 `test_r6_...` 断言
+`set(FenceState().__dict__) == {"generation", "revoked"}` 锁死这一点。
+
+### 4.4 Q4 · per-kb 锁：只到指针写
+
+- 锁文件 `<root>/.pointer.lock`，`root=<base>/<kb>` → **天然 per-kb**（用例实测：持有 kb_A 的锁不阻塞 kb_B）；
+- 同 kb 并发：构建阶段并发、指针写 CAS 串行；**后到者胜、旧主被拒，不交错写**；
+- **已知代价（不是缺陷）**：同 kb 并发会**浪费一次建图**（前者快照随后被 `keep_last` 清理）。
+
+### 4.5 `api.py` · per-kb 状态槽
+
+```python
+def _new_slot(kb=""): return {"kb": kb, "engine": None, "text_to_idx": None,
+                              "snapshot": None, "fence": None}
+states = {"": _new_slot()}
+state = states[""]              # 兼容既有引用（health / fence / view 的"无库总览"）
+app.state.states = states       # 运维/测试可核对（不是 HTTP 字段）
+def _slot(kb): return states.setdefault(kb, _new_slot(kb)) if kb else states[""]
+```
+
+改动点：`engine_for_kb`（只重载该库槽）、`idx_map(kb="")`（按库）、build/delta 路由只重置该库槽、
+`query`/`status`/`graph_view` 的 fence 按库取。**`health` / `/v2/fence` 仍走无库槽**（行为不变）。
+
+---
+
+## 5. 实现过程中发现的**第二个真缺陷**（我自己的用例先红的）
+
+并发用例首跑偶发失败（约 1/5），定位到：`_promote` 的"只保留最近 `keep_last` 个快照"清理
+**会删掉另一个写者正在构建、或刚被指针指向的目录** →
+
+- 另一个写者 `os.makedirs(target)` 后正在 `build_fn` 里写文件，我的清理把它当旧目录删掉；
+- 它随后 promote，指针就指向**一个不存在的目录**（"建图成功但图打不开"）。
+
+**修复（在授权面内）**：在建目录写 `.building` 标记；清理时
+① 跳过指针当前指向的目录；② 跳过带 `.building` 的目录。并补**确定性**用例
+`test_k3_cleanup_never_deletes_building_or_live_dir`（不靠并发撞运气）。
+修复后连跑 **15 次全绿**。
+
+> 这条与 TL 指出的 `or 0` 地雷是**两个不同**的问题：前者是"永远拒"，这个是"删掉正在用的快照"。
+
+---
+
+## 6. 阶段 B · 转绿（含稳定性复跑）
+
+```
+$ （v2）pytest test_fencing_l10.py -q     ×3  → 11 passed / 11 passed / 11 passed
+$ （hipporag）pytest test_graph_state_l10.py -q ×3 → 6 passed / 6 passed / 6 passed
+```
+
+（首版只有 10 条，补确定性清理用例后 11 条。）
+
+---
+
+## 7. 变异验证（5/5 全捕获；含两次**变异设计失败**的如实记录）
+
+| # | 变异（打回缺陷形态） | 期望 | 实测 |
+|---|---|---|---|
+| M1 | 恢复 `or 0` 地雷 | K2 守门 FAIL | 2 failed |
+| M2 | `_promote` 用 `current_fencing` 兜底（锁外定值） | K2/K3 FAIL | 2 failed, 2 passed |
+| M3 | `_default_build` 恢复 `fencing=1` | K2 路由层 FAIL | 1 failed |
+| M4 | 清理不再保护在建目录 | K3 清理规则 FAIL | 1 failed |
+| M5 | `engine_for_kb` 退回全局单槽 | K1 FAIL | 1 failed |
+
+**两次设计失败（如实）**：
+1. M2 初版写成"`max(effective, current_fencing)`"，结果**没被捕获**（2 passed）——
+   因为真正的缺陷形态是"在**锁外**定值"，不是在锁内取 max。改成 `_promote` 兜底后才正确变红。
+   **我把"变异没打中"当成"变异失败"处理，没有把它算成通过。**
+2. M4 初版靠并发用例命中，是**概率性**的（一次 1 passed）。已补确定性用例把规则钉死，改为必红。
+
+每组 restore 后 md5 **逐位复原**，末态 `11 passed` / `6 passed`。
+
+---
+
+## 8. 回归（K6）
+
+```
+$ （v2 主口径）pytest services/rag-alg/index_data_service/tests/ tests/test_rag_projection.py \
+    tests/test_artifact_binding.py tests/test_projection_read.py tests/test_runtime_switches.py \
+    tests/test_p2_l8_shadow_namespace.py tests/test_graph_delta_route_l9.py \
+    tests/test_graph_state_l10.py -q
+145 passed, 3 skipped
+
+$ （hipporag 交叉）同一集
+163 passed
+```
+
+构成：L9 基线 v2 134 → **145**（+11 fencing），hipporag 146 → **163**（+11 fencing +6 state）。
+
+### 8.1 既有 18 个失败：HEAD vs 改后**逐行一致**（不是本 loop 引入）
+
+`api.py` / `rebuild.py` 对同一组既有测试（`test_graph_api` / `test_graph_fence` /
+`test_d8_fence_cas` / `test_graph_global` / `test_partition_delta` / `test_read_fencing` /
+`test_worker_rebuild_api` / `test_legacy_shim` / `test_retrieval_shim`）做 **HEAD 版 vs 改后版**对照：
+
+```
+$ git checkout -- api.py rebuild.py   # 临时回退
+18 failed, 111 passed in 3.85s        ← HEAD
+$ （恢复改后版本）
+18 failed, 111 passed in 5.44s        ← 改后
+$ diff <FAILED 清单> → 仅耗时行不同，失败项完全一致
+```
+
+→ 这 18 个失败**在 HEAD 上就存在**（依赖在线 ES / 固定 fixture 的既有用例），**与本 loop 无关**。
+另：`test_graph_global.py` / `test_legacy_shim.py` / `test_retrieval_shim.py` 单跑时
+HEAD 与改后都是 `7 failed, 63 passed`，同样一致。
+
+---
+
+## 9. 红线自查（K5）
+
+| 红线 | 证据 |
+|---|---|
+| 不重启/不启停 18094 | `/proc`：pid `3189651` 启动于 **2026-11-07 01:20:05**（35.97 h）、pid `3202203` 于 **01:21:35**（35.95 h）；本 loop 开工 13:10 → **未重启** |
+| 不起监听端口 | 全程 `pytest`（`TestClient` 进程内）+ `python -c`；**未执行 uvicorn** |
+| 不写线上 | `kb_9/_count=44`、`table_chunks_kb_9/_count=2` 未变；`_cat/indices/v2cand*` **仍空** |
+| 不改 `engine_hipporag.py` | 未触碰（`apply_delta`/建图核心原样） |
+| 不改 `fence.py` | md5 `cbb9151f…` 与 R-0 基线一致（Q3 授权未使用） |
+| 不改 L1~L9 语义 | `delta_build.py` 未改；L9 的 route/编排用例全 PASS；既有 18 失败与 HEAD 一致（§8.1） |
+| 不改设计包 / MANIFEST / TASKS.yaml / 运行态配置 / doc2md 仓 | doc2md 仍 14 项 |
+| 不自签 `QA_PASS` / 不标 DONE | 仅 `DEV_SELF_CHECK_PASS` |
+
+---
+
+## 10. 已知边界
+
+1. **不重启不生效**（见文件头声明）——重启前线上仍是单槽 + `fencing=1`。
+2. **`fencing` 语义 = 单调递增序号，不是重建计数**：`floor=fence.generation`，撤权多而重建少时会跳变
+   （`max(1,100)+1=101`）。用例只测**单调**（`test_k2_floor_makes_fencing_monotonic_but_not_consecutive`
+   明确断言 `f2 != f1 + 1`）。
+3. **`lease_mysql` 本 loop 不接线**：`_cas_write_pointer(..., floor=...)` 已预留参数，
+   P4 接线时把租约 `fencing` 传进 `floor` 即可，结构不用改。
+4. **同 kb 并发浪费一次建图**：`keep_last` 清理前者，属已知代价。
+5. **K1 的结构断言依赖 `app.state.states`**：这是进程内暴露给运维/测试的视图，**不是 HTTP 字段**，
+   K4 已逐字断言四个端点的字段集不变。
+
+---
+
+## 11. 状态
+
+```text
+R-0（131020.log，5 项裁定 + or-0 地雷）→ 阶段A：rebuild 8 failed / api 4 failed
+  → 实现（Q1~Q5 + 并发清理修复）→ 阶段B：v2 11 passed / hipporag 6 passed（各 ×3 稳定）
+  → 变异 5/5（含 2 次变异设计失败并修正）→ 回归 v2 145 passed / hipporag 163 passed
+  → 既有 18 失败 HEAD vs 改后逐行一致 → 18094 未重启 → DEV_SELF_CHECK_PASS
+  → 待 TL 独立复核 → 可派工 T-D2MD-11（能力登记）或 P4
+```
+
+- 指纹：`api.py 4bf0b21f…`（800 → 823 行）、`rebuild.py 782c8be3…`（289 → 346 行）、
+  `fence.py cbb9151f…`（**未改**）、新增 `tests/test_fencing_l10.py d3eb79ee…`（11 条）、
+  `tests/test_graph_state_l10.py 536c9643…`（6 条）
+- `T-D2MD-10` 保持 `DOING`；`evidence` 指针建议改指本文件
+
+---
+
+## 12. 附录 · 改动 diff 全文
+
+### 12.1 `rebuild.py`
+
+```diff
+$ git diff -- services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+diff --git a/services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py b/services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+index 4008d465..c4f3f7bd 100644
+--- a/services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
++++ b/services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+@@ -38,6 +38,27 @@ def pointer_path(root: str) -> str:
+     return os.path.join(root, "current.json")
+ 
+ 
++# P3-L10：正在构建中的快照目录标记。并发重建时，另一个写者的"保留 N 个"清理
++# 会把**还没 promote、指针也还没指它**的 target 当旧目录删掉 —— 建完 promote 后
++# 指针就指向了一个不存在的目录。有此标记的目录一律不清理。
++_BUILDING = ".building"
++
++
++def _mark_building(target: str) -> None:
++    try:
++        with open(os.path.join(target, _BUILDING), "w", encoding="utf-8") as fh:
++            fh.write("building\n")
++    except OSError:
++        pass
++
++
++def _unmark_building(target: str) -> None:
++    try:
++        os.unlink(os.path.join(target, _BUILDING))
++    except OSError:
++        pass
++
++
+ def read_pointer(root: str) -> Optional[Dict[str, Any]]:
+     path = pointer_path(root)
+     if not os.path.isfile(path):
+@@ -116,6 +137,7 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
+     target = os.path.join(root, f"snapshot-{stamp}-g{fence.generation}")
+     os.makedirs(root, exist_ok=True)
+     os.makedirs(target, exist_ok=False)
++    _mark_building(target)
+ 
+     previous = read_pointer(root)
+     try:
+@@ -132,11 +154,23 @@ def rebuild(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
+             "current": payload, "build_result": _safe(result), "previous": previous}
+ 
+ 
+-def _cas_write_pointer(root: str, payload: Dict[str, Any]) -> None:
+-    """D8：指针 CAS 写——flock 内重读当前 fencing，落后即拒绝，再原子替换写指针。
++def _cas_write_pointer(root: str, payload: Dict[str, Any], *,
++                       floor: int = 0) -> Dict[str, Any]:
++    """D8/P3-L10：指针 CAS 写 + **锁内** fencing 自增；返回最终写入的 payload。
+ 
+     诚实边界：这是**宿主机内的**文件锁 CAS（flock），不跨机；跨机租约仍由 lease_mysql 负责。
+     用途是把 `_promote` 的"先读后写"变成"锁内校验+写"，旧主晚到写会被拒绝。
++
++    P3-L10 两处修正（都关系到正确性，不能省）：
++
++    1. **`fencing` 缺省时必须显式判 `None`**。旧写法 `int(payload.get("fencing", cur) or 0)`
++       在 `payload["fencing"] = None` 时得到 **0**，而 `cur >= 1` 时 `cur > 0` 恒真 ——
++       于是「不传 fencing 的建图」第二次开始就会被当成旧主拒掉。**这是地雷，不是理论问题。**
++    2. **自增必须在锁内做**。若在锁外算 `cur + 1`，两个并发写者会算出同一个值，
++       后写者靠 `cur > new` 判不出来（相等放行）→ 覆盖前者、丢更新。
++
++    `floor`：调用方给的单调下界（`_promote` 传 `fence.generation`，P4 接线后也可传租约 fencing）。
++    `fencing` 语义 = **单调递增序号**，不是重建次数：撤权多次而重建少时它会跳变。
+     """
+     import fcntl
+ 
+@@ -146,11 +180,19 @@ def _cas_write_pointer(root: str, payload: Dict[str, Any]) -> None:
+         try:
+             current = read_pointer(root)
+             current_fencing = int((current or {}).get("fencing", 0) or 0)
+-            fencing = int(payload.get("fencing", current_fencing) or 0)
+-            if current_fencing > fencing:
+-                raise StaleFencingError(
+-                    f"fencing {fencing} 落后于当前指针 {current_fencing}：本实例已被接管，拒绝写入")
+-            _write_pointer(root, payload)
++            raw = payload.get("fencing")
++            if raw is None:
++                # 锁内自增：`max(当前指针, floor) + 1`，保证严格递增且不与并发写者撞号
++                effective = max(current_fencing, int(floor or 0)) + 1
++            else:
++                effective = int(raw)
++                if current_fencing > effective:
++                    raise StaleFencingError(
++                        f"fencing {effective} 落后于当前指针 {current_fencing}："
++                        f"本实例已被接管，拒绝写入")
++            final = {**payload, "fencing": effective}
++            _write_pointer(root, final)
++            return final
+         finally:
+             fcntl.flock(lf, fcntl.LOCK_UN)
+ 
+@@ -172,20 +214,34 @@ def _promote(root: str, fence: FenceState, live: List[Dict[str, Any]], target: s
+             f"fencing {fencing} 落后于当前指针 {current_fencing}：本实例已被接管，拒绝写入")
+ 
+     payload = {"schema": SCHEMA, "dir": target, "generation": fence.generation,
+-               "fencing": fencing if fencing is not None else current_fencing,
++               # P3-L10：**不在这里把 None 替换成 current_fencing** —— 那等于"永不递增"。
++               # 缺省值由 `_cas_write_pointer` 在锁内算（`max(cur, floor) + 1`）。
++               "fencing": fencing,
+                "documents": len(live), "dropped_revoked": dropped,
+                "fingerprint": docs_fingerprint(live),
+                "mode": mode,
+                "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                "previous": (previous or {}).get("dir")}
+-    _cas_write_pointer(root, payload)
+-
+-    # 只保留最近 keep_last 个快照目录，避免磁盘无限增长（不删当前指针指向的那个）
++    # 用 CAS 返回的最终 payload 作为 current：否则 `api.py` 状态回显的 fencing
++    # 会与实际落盘指针不一致（调用方拿到 None 或旧值）。
++    payload = _cas_write_pointer(root, payload, floor=fence.generation)
++
++    # 只保留最近 keep_last 个快照目录，避免磁盘无限增长。
++    # P3-L10：**绝不删指针当前指向的目录**。并发重建时，另一个写者可能刚把指针挪到
++    # 它自己的 target；只看"最近 N 个"会把那个正被读的快照删掉（指针指向不存在的目录）。
++    _unmark_building(target)
++    live_dirs = {target}
++    live_dir = (read_pointer(root) or {}).get("dir")
++    if live_dir:
++        live_dirs.add(live_dir)
+     snapshots = sorted(d for d in os.listdir(root) if d.startswith("snapshot-"))
+     for stale in snapshots[:-keep_last]:
+         path = os.path.join(root, stale)
+-        if path != target:
+-            shutil.rmtree(path, ignore_errors=True)
++        if path in live_dirs:
++            continue
++        if os.path.exists(os.path.join(path, _BUILDING)):
++            continue          # 另一个写者正在建这个目录，删掉它等于让对方的指针悬空
++        shutil.rmtree(path, ignore_errors=True)
+     return payload
+ 
+ 
+@@ -219,6 +275,7 @@ def rebuild_delta(root: str, fence: FenceState, docs: Iterable[Dict[str, Any]],
+     target = os.path.join(root, f"snapshot-{stamp}-g{fence.generation}")
+     try:
+         shutil.copytree(base_dir, target)          # 目录必须不存在，copytree 会自己建
++        _mark_building(target)
+     except Exception as exc:  # noqa: BLE001
+         shutil.rmtree(target, ignore_errors=True)
+         raise RebuildFailed(f"复制基准快照失败：{type(exc).__name__}: {exc}") from exc
+```
+
+### 12.2 `api.py`
+
+```diff
+$ git diff -- services/rag-alg/index_data_service/graph_engine_adapter/api.py
+diff --git a/services/rag-alg/index_data_service/graph_engine_adapter/api.py b/services/rag-alg/index_data_service/graph_engine_adapter/api.py
+index 41c54d9a..26497a15 100644
+--- a/services/rag-alg/index_data_service/graph_engine_adapter/api.py
++++ b/services/rag-alg/index_data_service/graph_engine_adapter/api.py
+@@ -24,11 +24,30 @@ import json
+ import os
+ from typing import Any, Dict, List, Optional
+ 
+-from fastapi import FastAPI, HTTPException
++from fastapi import FastAPI, HTTPException, Response
+ from fastapi.middleware.cors import CORSMiddleware
+-from pydantic import BaseModel, Field
++from pydantic import BaseModel, Field, model_validator
++from typing import Literal
++
++
++def _delta_status_code(out: Dict[str, Any]) -> int:
++    """delta 结论 → HTTP 码（契约 §5 的码位；拒绝不伪装成成功）。"""
++    status = str(out.get("status") or "")
++    if status in ("BUILT", "SKIPPED_FRESH"):
++        return 200
++    reason = str(out.get("reason") or "")
++    if status == "REJECTED":
++        # 请求前提不满足（要 422 的几类）：无基准快照 / 全量缺理由 / 空/未知模式
++        if (reason.startswith("NO_BASELINE_SNAPSHOT")
++                or reason.startswith("FULL_REQUIRES_FALLBACK_REASON")
++                or reason.startswith("DOCS_EMPTY")
++                or reason.startswith("UNKNOWN_REQUESTED_MODE")):
++            return 422
++        return 409
++    return 500
+ 
+ from .fence import FENCE_FILE, FenceState
++from . import delta_build as _delta
+ from . import entity_link, global_report
+ 
+ SCHEMA = "llmke.graph-api.v1"
+@@ -74,6 +93,33 @@ class BuildRequest(BaseModel):
+     kb: Optional[str] = None
+ 
+ 
++class DeltaRequest(BaseModel):
++    """增量端点契约（P4 的 `IngestRequest` 会复用，**不要再改字段语义**）。
++
++    - `docs` **必填**：给默认空列表会把"调用方漏传"变成"静默建空图"；
++    - `requested_mode`：
++        `auto`          按 canary 灰度策略；**无 canary 配置时按 delta**（D-11，
++                        canary 的 `DEFAULT_MODE="full"` 只是 dataclass 默认值，不代表运维意图）；
++        `delta`         强制增量；没有基准快照 → `REJECTED / NO_BASELINE_SNAPSHOT`；
++        `full`          强制全量；**必须**带 `fallback_reason`，否则 422；
++        `skip_if_fresh` 不 stale 就返回 `SKIPPED_FRESH`（零引擎调用）；
++    - `fencing`：透传给 `rebuild_*` 做 CAS 校验；**本 loop 不推进 `fence.generation`**。
++    """
++
++    kb: str = Field(min_length=1)
++    docs: List[BuildDoc]
++    root: Optional[str] = None
++    requested_mode: Literal["auto", "delta", "full", "skip_if_fresh"] = "auto"
++    fallback_reason: Optional[str] = None
++    fencing: Optional[int] = None
++
++    @model_validator(mode="after")
++    def _check_full_reason(self):
++        if self.requested_mode == "full" and not (self.fallback_reason or "").strip():
++            raise ValueError("requested_mode=full 必须带 fallback_reason（禁止静默走全量）")
++        return self
++
++
+ def _urls() -> Dict[str, str]:
+     return {
+         "llm": os.environ.get("LLMKE_V2_LLM_BASE_URL", "http://127.0.0.1:18092/v1"),
+@@ -216,7 +262,9 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
+                                 embedding_base_url=urls["embed"])
+         return engine.build([x["text"] for x in items])
+ 
+-    result = rebuild(root, fence, live, full_build, fencing=1)
++    # P3-L10：**不再写死 fencing=1**（写死等于永不递增、旧主永不被拒）。
++    # 传 None → `_cas_write_pointer` 在锁内算 `max(当前, fence.generation)+1`。
++    result = rebuild(root, fence, live, full_build, fencing=None)
+     target = result["current"]["dir"]
+     fence.save(os.path.join(target, FENCE_FILE))
+ 
+@@ -285,7 +333,7 @@ def _ensure_cjk_compat() -> Dict[str, Any]:
+     return _CJK_STATE
+ 
+ 
+-def create_app(engine_factory=None, builder=None) -> FastAPI:
++def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
+     """engine_factory / builder 用于测试注入；生产按环境变量加载。"""
+     app = FastAPI(title="LLMKE V2 Graph API", version=SCHEMA)
+     # D4 前端直连（dev）：放行本机前端源；生产走网关，此列表按部署收紧。
+@@ -302,33 +350,51 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+     # 之前只有 scripts/v2_* 里显式调用，服务端从不安装 —— 结果 18094 上
+     # text_processing 仍把中文清成空串，事实变成 ("","","5000")、种子换算撞空实体。
+     # 可用 LLMKE_V2_CJK_COMPAT=0 显式关掉（对照实验用），关掉时 health 必须如实报。
+-    state: Dict[str, Any] = {"engine": None, "text_to_idx": None, "snapshot": None, "fence": None,
+-                              "snapshot_kb": None}
++    # P3-L10：**per-kb 状态槽**。key = 库标识；保留键 `""` 表示"无库上下文 / legacy 单快照"。
++    # 改造前是全局单槽：`engine_for_kb` 一切库就整槽覆盖，A 库的 engine/idx_map/fence
++    # 会被 B 库顶掉（并发时甚至互相返回对方的图）。现在每个库一份，互不可见。
++    def _new_slot(kb: str = "") -> Dict[str, Any]:
++        return {"kb": kb, "engine": None, "text_to_idx": None, "snapshot": None, "fence": None}
++
++    states: Dict[str, Dict[str, Any]] = {"": _new_slot()}
++    # 兼容既有引用：health / fence / view 这些"无库总览"路径继续用无库槽
++    state = states[""]
++    # 供运维与测试核对 per-kb 隔离（不是 HTTP 响应字段，K4 的字段集不受影响）
++    app.state.states = states
++
++    def _slot(kb: str = "") -> Dict[str, Any]:
++        key = (kb or "").strip()
++        if not key:
++            return states[""]
++        return states.setdefault(key, _new_slot(key))
+ 
+     def engine() -> Any:
+         # 无库上下文时回退到 env 单快照（health 等只读总览用）
+-        if state["engine"] is None:
+-            state["engine"] = (engine_factory or (lambda: _load_engine(state["snapshot"])))()
+-        return state["engine"]
++        slot = states[""]
++        if slot["engine"] is None:
++            slot["engine"] = (engine_factory or (lambda: _load_engine(slot["snapshot"])))()
++        return slot["engine"]
+ 
+     def engine_for_kb(kb: str) -> Optional[Any]:
+-        """按库加载引擎：解析不到快照返回 None；快照变化时重载。"""
++        """按库加载引擎：解析不到快照返回 None；快照变化时**只重载该库的槽**。"""
+         snap = _resolve_snapshot(kb)
+         if not snap:
+             return None
+-        if state["engine"] is not None and state["snapshot"] == snap:
+-            return state["engine"]
++        slot = _slot(kb)
++        if slot["engine"] is not None and slot["snapshot"] == snap:
++            return slot["engine"]
+         eng = (engine_factory or (lambda: _load_engine(snap)))()
+-        state["engine"] = eng
+-        state["snapshot"] = snap
+-        state["text_to_idx"] = _text_to_idx(eng)
+-        state["snapshot_kb"] = kb
++        slot["engine"] = eng
++        slot["snapshot"] = snap
++        slot["text_to_idx"] = _text_to_idx(eng)
+         return eng
+ 
+-    def idx_map() -> Dict[str, str]:
+-        if state["text_to_idx"] is None:
+-            state["text_to_idx"] = _text_to_idx(engine())
+-        return state["text_to_idx"]
++    def idx_map(kb: str = "") -> Dict[str, str]:
++        slot = _slot(kb)
++        if slot["text_to_idx"] is None:
++            eng = (engine_for_kb(kb) if (kb or "").strip() else None) or engine()
++            slot["text_to_idx"] = _text_to_idx(eng)
++        return slot["text_to_idx"]
+ 
+     @app.get("/health")
+     def health() -> Dict[str, Any]:
+@@ -378,22 +444,23 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+         except Exception as exc:  # noqa: BLE001 - 失败要带原因回到调用方
+             raise HTTPException(status_code=500,
+                                 detail=f"build failed: {type(exc).__name__}: {exc}") from exc
+-        # 新快照可以立刻被查询：重置缓存，指向新目录（不改进程环境变量）
+-        state["engine"] = None
+-        state["text_to_idx"] = None
+-        state["snapshot"] = str(out.get("snapshot") or "")
+-        state["fence"] = FenceState.load(os.path.join(state["snapshot"], FENCE_FILE))
++        # 新快照可以立刻被查询：只重置**该库的槽**，指向新目录（不改进程环境变量）
++        slot = _slot(kb)
++        slot["engine"] = None
++        slot["text_to_idx"] = None
++        slot["snapshot"] = str(out.get("snapshot") or "")
++        slot["fence"] = FenceState.load(os.path.join(slot["snapshot"], FENCE_FILE))
+         # 快照归属标记：查询侧据此确认"这份图属于哪个库"，没有标记就不认领。
+-        if kb and state["snapshot"]:
++        if kb and slot["snapshot"]:
+             try:
+-                with open(os.path.join(state["snapshot"], "kb.json"), "w", encoding="utf-8") as fh:
++                with open(os.path.join(slot["snapshot"], "kb.json"), "w", encoding="utf-8") as fh:
+                     json.dump({"kb_id": kb}, fh, ensure_ascii=False)
+             except OSError:
+                 pass
+         # 构建后立刻预热：否则首次查询要现场加载图与向量，实测会空响应/超时。
+         # 预热失败不影响构建结果，查询时会再报真实错误。
+         try:
+-            hp = getattr(engine(), "hp", None)
++            hp = getattr(engine_for_kb(kb) or engine(), "hp", None)
+             if hp is not None and hasattr(hp, "prepare_retrieval_objects"):
+                 hp.prepare_retrieval_objects()
+         except Exception:  # noqa: BLE001
+@@ -404,7 +471,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+         # 建图成功即产社区报告（global 的前提）：报告读的是刚落盘快照里的 openie 结果与
+         # sources.json，所以和查询用的是同一份数据，不存在"报告说 A、检索给 B"。
+         # 报告失败不影响建图结果（图已经建好了），但必须在响应里写明失败原因，不能装作没这回事。
+-        snapshot = str(state["snapshot"] or "")
++        snapshot = str(slot["snapshot"] or "")
+         try:
+             community = global_report.write(snapshot, [d.file_id for d in docs])
+         except Exception as exc:  # noqa: BLE001 - 报告失败要带原因回调用方
+@@ -412,6 +479,26 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+                          "snapshot": snapshot}
+         return {"schema": SCHEMA, "status": "BUILT", **out, "community": community}
+ 
++    @app.post("/v2/graph/delta")
++    def graph_delta(req: DeltaRequest, response: Response) -> Dict[str, Any]:
++        """增量/全量/跳过三档编排（P3-1）。**本路由不重启进程、不新增监听。**
++
++        响应体永远是同一份 JSON（带 `requested_mode` / `effective_mode` / `canary`），
++        HTTP 码表示结论：200=BUILT/SKIPPED_FRESH，422=NO_BASELINE_SNAPSHOT 等「请求前提不满足」，
++        409=其它拒绝，500=执行失败。**任何非 2xx 都不自动改走 full**。
++        """
++        runner = delta_runner or _delta.delta_build
++        out = runner(req)
++        if out.get("status") == _delta.STATUS_BUILT:
++            # 新快照立刻可查：与 build 路由同样**只重置该库的槽**（不改进程环境变量）
++            slot = _slot(req.kb)
++            slot["engine"] = None
++            slot["text_to_idx"] = None
++            slot["snapshot"] = str(out.get("snapshot") or "")
++            slot["fence"] = FenceState.load(os.path.join(slot["snapshot"], FENCE_FILE))
++        response.status_code = _delta_status_code(out)
++        return out
++
+     @app.post("/v2/graph/query")
+     def query(req: QueryRequest) -> Dict[str, Any]:
+         eng = engine_for_kb(req.kb)
+@@ -420,7 +507,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+                     "status": "NOT_BUILT",
+                     "reason": f"知识库 {req.kb or '(未指定)'} 尚未构建图谱",
+                     "hit_count": 0, "docs": [], "citations": [], "sources_available": False}
+-        fence_state = state.get("fence") or FenceState()
++        fence_state = _slot(req.kb).get("fence") or state.get("fence") or FenceState()
+         seeds = list(req.seeds)
+         seeds_source = "caller" if seeds else "none"
+         if not seeds and req.enable_graph:
+@@ -430,7 +517,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+         out = eng.retrieve(req.query, seeds=seeds, top_k=req.top_k,
+                            use_graph=req.enable_graph)
+         docs = list(out.get("docs") or [])
+-        mapping = idx_map()
++        mapping = idx_map(req.kb)
+         sources = _load_sources(getattr(eng, "save_dir", None))
+         items = []
+         for i, text in enumerate(docs):
+@@ -515,8 +602,9 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
+ 
+         root = _root_dir()
+         pointer = read_pointer(os.path.join(root, kb)) if kb else read_pointer(root)
+-        fence_state = state.get("fence") or FenceState()
+-        snapshot = _resolve_snapshot(kb) or state["snapshot"] or getattr(engine(), "save_dir", None)
++        fence_state = _slot(kb).get("fence") or state.get("fence") or FenceState()
++        snapshot = (_resolve_snapshot(kb) or _slot(kb)["snapshot"]
++                    or state["snapshot"] or getattr(engine(), "save_dir", None))
+         community = {"communities": None, "citation_check_ok": None}
+         if snapshot:
+             report = global_report.load(snapshot)
+```
+
+## 13. 附录 · 关键现场输出（未加工）
+
+### 13.1 双环境结果与稳定性
+
+```
+$ （v2）for i in 1 2 3; do pytest test_fencing_l10.py -q; done
+11 passed in 0.15s
+11 passed in 0.15s
+11 passed in 0.16s
+
+$ （hipporag）for i in 1 2 3; do pytest test_graph_state_l10.py -q; done
+6 passed in 0.38s
+6 passed in 0.35s
+6 passed in 0.35s
+```
+
+### 13.2 HEAD vs 改后的既有失败清单对比
+
+```
+$ diff /tmp/l10-head.txt /tmp/l10-now.txt
+1c1
+< 18 failed, 111 passed in 3.85s
+---
+> 18 failed, 111 passed in 5.44s
+(仅耗时行不同 → 失败项完全一致)
+```
+
+### 13.3 变异验证（真实输出）
+
+```
+$ bash /tmp/p3l10_mutation.sh
+mutated M1
+----- MUTATION M1-or0-landmine (K2 守门 FAIL) -----
+FAILED services/rag-alg/index_data_service/tests/test_fencing_l10.py::test_k2_first_build_with_none_fencing_succeeds_and_is_positive
+FAILED services/rag-alg/index_data_service/tests/test_fencing_l10.py::test_k2_fencing_strictly_increases_across_rebuilds
+2 failed, 9 deselected in 0.05s
+restore: api=OK rebuild=OK
+
+mutated M2
+----- MUTATION M2-lock-outside-fixed-value (K2/K3 FAIL) -----
+FAILED services/rag-alg/index_data_service/tests/test_fencing_l10.py::test_k2_first_build_with_none_fencing_succeeds_and_is_positive
+FAILED services/rag-alg/index_data_service/tests/test_fencing_l10.py::test_k3_concurrent_rebuilds_leave_one_complete_snapshot
+2 failed, 2 passed, 7 deselected in 0.08s
+restore: api=OK rebuild=OK
+
+mutated M3
+----- MUTATION M3-default-build-fencing-1 (K2 路由层 FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_graph_state_l10.py::test_k2_build_increments_fencing_across_two_builds
+1 failed, 5 deselected in 0.28s
+restore: api=OK rebuild=OK
+
+mutated M4
+----- MUTATION M4-cleanup-eats-building-dir (K3 清理规则 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_fencing_l10.py::test_k3_cleanup_never_deletes_building_or_live_dir
+1 failed, 10 deselected in 0.04s
+restore: api=OK rebuild=OK
+
+mutated M5
+----- MUTATION M5-single-slot-state (K1 FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_graph_state_l10.py::test_k1_state_is_per_kb - AssertionErro...
+1 failed, 1 passed, 4 deselected in 0.27s
+restore: api=OK rebuild=OK
+
+===== 最终指纹 =====
+4bf0b21fe082b737722c5a074e8cc4ec  services/rag-alg/index_data_service/graph_engine_adapter/api.py
+782c8be31a4b2528da6d7f1d09f8775f  services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+baseline: 4bf0b21fe082b737722c5a074e8cc4ec 782c8be31a4b2528da6d7f1d09f8775f
+===== 恢复后复跑 =====
+...........                                                              [100%]
+11 passed in 0.15s
+......                                                                   [100%]
+6 passed in 0.33s
+```
+
+### 13.4 K5 红线现场取证
+
+```
+$ /proc/<pid>/stat 第 22 字段（starttime）+ /proc/uptime 换算启动时刻
+pid 3189651: 运行 35.99 h，启动于 2026-11-07 01:20:05
+pid 3202203: 运行 35.96 h，启动于 2026-11-07 01:21:35
+now = 2026-11-08 13:19:18
+
+$ curl -s http://127.0.0.1:19200/kb_9/_count
+{"count":44,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s http://127.0.0.1:19200/table_chunks_kb_9/_count
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s "http://127.0.0.1:19200/_cat/indices/v2cand*?h=index,docs.count"
+(空 = v2cand 仍空)
+
+$ ss -tlnp | grep -E ":(18094|19526|19527|19531|19995|19200|18082|18083)\b"
+LISTEN 0      2048       127.0.0.1:19531      0.0.0.0:*    users:(("python",pid=435286,fd=12))                              
+LISTEN 0      2048       127.0.0.1:19526      0.0.0.0:*    users:(("python",pid=19144,fd=24))                               
+LISTEN 0      2048       127.0.0.1:19527      0.0.0.0:*    users:(("python",pid=23140,fd=19))                               
+LISTEN 0      2048       127.0.0.1:19995      0.0.0.0:*    users:(("python",pid=1358208,fd=19),("python",pid=23647,fd=19))  
+LISTEN 0      32768      127.0.0.1:19200      0.0.0.0:*                                                                     
+LISTEN 0      2048       127.0.0.1:18094      0.0.0.0:*    users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+LISTEN 0      100        127.0.0.1:18082      0.0.0.0:*    users:(("java",pid=1341032,fd=117))                              
+LISTEN 0      100        127.0.0.1:18083      0.0.0.0:*    users:(("java",pid=450255,fd=94))                                
+
+$ md5sum fence.py（Q3：未改动）
+cbb9151f3691d9ffe09f8c3d856c2a2f  services/rag-alg/index_data_service/graph_engine_adapter/fence.py
+
+$ git -C doc2md status --short | wc -l
+14
+```

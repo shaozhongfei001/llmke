@@ -14,15 +14,27 @@ from projection_read import resolve  # noqa: E402
 def test_default_is_legacy():
     names, info = resolve(["kb_9"], mode="legacy")
     assert names == ["kb_9"]
-    assert info == {"mode": "legacy", "switched": []}
+    assert info["mode"] == "legacy" and info["switched"] == []
+    # P2-L8：legacy 下通道名就是旧命名空间（新增字段，语义与改动前一致）
+    assert info["channel_names"] == {"text": ["kb_9"],
+                                     "table_chunks": ["table_chunks_kb_9"],
+                                     "table_summary": ["table_summary_kb_9"],
+                                     "faq": ["faq_kb_9"]}
 
 
-def test_snapshot_switches_base_name_so_all_channels_follow():
+def test_snapshot_switches_all_channels_by_explicit_mapping():
+    """P2-L8 修正：原断言把错名 `table_chunks_v2cand_kb_9` 固化成契约（错的来源之一）。
+
+    写侧（`index_writer._target_name`）产的是**整名前缀** `v2cand_table_chunks_kb_9`；
+    读侧若还靠 `"table_chunks_" + 基础名` 拼接，永远拼不出写侧的名字。
+    """
     names, info = resolve(["kb_9"], mode="snapshot", prefix="v2cand")
     assert names == ["v2cand_kb_9"]
-    # 下游拼出来就是 v2cand_kb_9 / table_chunks_v2cand_kb_9 / table_summary_v2cand_kb_9
-    assert "table_chunks_" + names[0] == "table_chunks_v2cand_kb_9"
-    assert "table_summary_" + names[0] == "table_summary_v2cand_kb_9"
+    assert info["channel_names"]["table_chunks"] == ["v2cand_table_chunks_kb_9"]
+    assert info["channel_names"]["table_summary"] == ["v2cand_table_summary_kb_9"]
+    assert info["channel_names"]["faq"] == ["v2cand_faq_kb_9"]
+    # 错名必须彻底消失（它是本 loop 要修的缺陷）
+    assert "table_chunks_" + names[0] != "v2cand_table_chunks_kb_9"
     assert info["switched"] == ["kb_9"]
 
 

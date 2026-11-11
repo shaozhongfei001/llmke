@@ -1,0 +1,110 @@
+# P4-L12 · T-D2MD-12 · TL 复核（R2，返工后）
+
+- 生成时间：2026-11-08T14:3x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P4-L12-R2-20261108T133817.log`（236 行 / `e8b49ec80aa75cf74b7ad52d51356e4a`）
+- **TL 复核结论：两处必改均已落实 → L12 收口 → 派工 L13（分两段）**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹
+
+```
+ingest_pipeline/kb_delta.py     089a7775400c7212a9ef17ee8a576336   449 → 514 行
+kb_ingest_service.py            f5f548a7e02f0a8d85891c44a03d6710   **未变**（R1 已改，本轮未动）
+tests/test_kb_delta_l12.py      b81cca7e4f48abeb79f31f918c48ae52   19 → 24 条
+evidence(R2)                    e8b49ec80aa75cf74b7ad52d51356e4a   236 行
+```
+
+## 2. 必改一：B3 已真正落实（TL 逐行核验）
+
+```
+:386  if plan.removed and self._revoke is not None: self._revoke(...)     ← revoke 在事务前
+:389  prospective = copy.deepcopy(self._load_state()); self._apply_plan(prospective, plan)
+:392  wanted = self._build_wanted_docs(prospective, plan.kb)              ← 纯内存预算，不写盘
+:396  if self._delta is None: graph_error = "delta_runner_not_configured: ..."
+:402  graph_result = self._delta(plan)                                    ← delta 在事务**之前**
+:410  if graph_error is not None:
+          return _result(status="PARTIAL", cursor=plan.cursor_before, state_committed=False)  ← cursor **不推进**
+:418  with self._state_txn() as state: self._apply_plan(state, plan)      ← 只有全部成功才落状态
+```
+
+**TL 判定：R1 指出的死锁链已切断。** delta 失败时 `state_committed=False`、`cursor=plan.cursor_before`（原值），状态完全不落盘 → 重放能看到同样的 diff → 不会退化成 `SKIPPED_FRESH`。
+
+`_delta is None` 不再静默 `OK`，改为 `PARTIAL + "delta_runner_not_configured"`，符合要求。
+
+## 3. 必改二：`index_write` 如实块已落地
+
+```python
+# DELETE（write_plan is None）
+{"status":"NOT_APPLICABLE","applied":False,"required":False,"reason":"DELETE：只撤权与状态，不写索引"}
+# UPSERT
+{"status":"PLANNED","applied":False,"required":True,
+ "reason":"L12 红线：未写线上 ES/Milvus，apply 由 L13 接线",
+ "es":{"bodies":N},"milvus":{"bodies":N},"documents":N}
+```
+
+status 规则：
+```python
+landed = (not index_write["required"]) or bool(index_write["applied"])
+status = "OK" if landed and graph_error is None else "PARTIAL"
+```
+
+TL 核验推论成立：**UPSERT 成功路径恒 `PARTIAL` / HTTP 207**（`required=True` 而 `applied=False`）。这是如实而非退化 —— 写索引这一路确实没做。
+
+## 4. 判定力
+
+```
+阶段 A（修订前）  6 failed, 18 passed
+阶段 B（修订后）  v2 24 passed（TL 独立复跑 24 passed in 0.07s）；hipporag 67 passed
+变异 M11 delta 失败不阻止提交 → 2 failed
+     M12 无 runner 静默 OK      → 1 failed
+     M13 status 忽略 applied    → 2 failed
+```
+
+**TL 认可成员对 M11 的如实标注**：「变异体写的是『不放宽 `if graph_error is not None`』，等价于顺序倒置的**可观测后果**，不是字面挪代码行；行序本身由 `test_b3_delta_runs_before_state_commit` 直接锁死」。
+
+这个区分很重要（与上轮 M3「变异没生效≠断言有效」同类）。有直接锁行序的测试 + 等价后果的变异，两层都有，判定力足够。
+
+## 5. ⚠️ TL 发现一处成员未记录的边界（不阻塞收口，须补）
+
+新顺序把 **delta 放在 `_state_txn` 之前**，于是产生一个反向中间态（与 R1 那个相反）：
+
+```
+delta 成功（图已改、18094 侧 sources/fence 已更新）
+→ _state_txn 抛异常（磁盘/JSON 损坏/并发 version 校验失败）
+→ 图已更新，kb_state 未提交
+```
+
+成员 evidence 只记录了「delta 失败 → 状态不落」，**未记录「delta 成功、事务失败」这一侧**。
+
+TL 评估危害：**有限且可收敛** —— `_apply_plan` 按 `fid` 写入，不覆盖其它文件；重放时 diff 看 state（旧）仍认为 `changed` → 再 delta 一次 → 幂等收敛。期间查询会看到「新图配旧 state」，但图与 18094 侧 sources 一致，不产生悬空引用（这与 L9 的 `surviving` 修复不同，那里是 sources 指向不存在的块，这里是 state 落后）。
+
+**要求（收口后补，不必重跑测试）**：
+1. `kb_delta.py` 的 `commit()` docstring 追加该侧边界说明；
+2. evidence 追加一节「已知中间态」，写明「可重放收敛、期间 state 落后于图」；
+3. **不必**为此加代码 —— 若强行让事务先落再 delta，就退回了 R1 的死锁，取舍更差。
+
+## 6. 回归与红线
+
+```
+v2        189 passed, 4 skipped（165 → +24）
+hipporag  251 passed（184 → +24 +43）
+18096 未监听 | 18094 两 pid 未变 | kb_9=44 | table_chunks=2 | v2cand* 空
+api.py 4bf0b21f / capabilities 4820fac2 / kb_pipeline e1e9f909 / index_writer d9853ade 全未变
+platform/r12 0 改动 | Java 未触 | doc2md 14 项
+```
+
+## 7. L12 收口，并传递给 L13 的两条硬约束
+
+**L12 交付的是「不可独立运行的半链路」**：UPSERT 恒 207、索引未写、delta runner 未配。这不是缺陷，是 PLAN 划定的边界，但 L13 必须补齐，否则上线即故障。已写入 `T-D2MD-13.next_action`：
+
+1. **`index_writer.apply` 必须同批接线**。否则 UPSERT 永远 207 → Java 按 207 回写 `RETRY` → 形成**删不掉的重试**（每次"成功"返回 207，状态不推进）。
+2. **delta runner 必须配置**。当前 DELETE 也要 delta 成功才提交状态；未配 runner 时 DELETE 停在 `PARTIAL / state_committed=false`（撤权已发出但状态未落）—— 「宁可重试也不半提交」的取舍，须 L13 明确。
+
+另附 L12 发现的必核项：**FastAPI `return dict` 恒 200**，已用 `response.status_code = code` 修正；若 Java 侧按 HTTP 状态码判断，不修会让 409/422/500 全变 200。
+
+## 8. TL 红线自查
+
+只写 `docs/v2-tasks/` 证据；未改实现代码、未改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`。

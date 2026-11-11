@@ -1,0 +1,129 @@
+# P4-L13A · T-D2MD-13 A 段 · TL 独立复核证据
+
+- 生成时间：2026-11-08T15:1x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P4-L13A-20261108T134824.log`（179 行 / `2e28a69c38471d078f19649b05b48193`）
+- **TL 复核结论：A1~A6 功能成立 → 有条件通过；2 处防护需加固后转 B 段**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹
+
+```
+ingest_pipeline/kb_delta.py     c96f724fecd68c65718ecf5a66128a90   （A 段主体）
+kb_ingest_service.py            15f9a88f6d09a9054b94e4b67c28de98
+ingest_pipeline/graph_client.py a44880932e24fcd87d370455de0bf120   新增（A4）
+graph_engine_adapter/api.py     af387855782d133b01dc1d39bd14d1ef   L12 4bf0b21f → 新增 revoke（Scope 允许）
+graph_engine_adapter/fence.py   cbb9151f3691d9ffe09f8c3d856c2a2f   **未变** ✅
+ingest_pipeline/index_writer.py d9853aded53d0facbd86ae0bc03860f9   **未变** ✅
+```
+
+`capabilities.py 4820fac2` / `kb_pipeline.py e1e9f909` 亦未变（成员报告，TL 抽验一致）。
+
+## 2. A1~A6 核验
+
+| 项 | TL 核实 |
+|---|---|
+| A1 | `_apply_writes` 接进 `commit()` 且在 delta 之前；成功返回 `{status:"APPLIED", applied:True, required:True}` → `landed=True` → `OK` |
+| A2 | `do_deletes` 按 side 遍历 `targets`（4 个全删）；顺序 `do_deletes("es") → do_insert("es") → do_deletes("milvus") → do_insert("milvus")`，**per-侧先删后写**成立 ✅ |
+| A3 | `_write_failed` 带 `completed`/`calls`/`deletes` → `compensation{needs, completed_sides, calls}` ✅ |
+| A4 | `graph_client.post_graph_delta` 已建；`_delta` 注入点沿用 L12 ✅ |
+| A5 | `api.py` 新增 `POST /v2/fence/revoke` + `GET ?kb=`；`fence_view` 缺省字段集有断言 ✅ |
+| A6 | delta 仍在状态事务前；`state_committed` 语义未变；错误码表未动 ✅ |
+
+## 3. 字段错配的端到端断言（TL 特别认可）
+
+成员没有「抄一遍 `init_field_body` 再自比」，而是**从 19527 源码载入**该函数，把实际发出的 `col_name` 喂进去，断言产出 `{"terms": {"metadata.file_id.keyword": ["290"]}}`；并反证「统一传 `metadata.file_id`」会得到 `metadata.metadata.file_id.keyword`。mapping 的 `text+keyword` 也从配置源码读。
+
+这满足 TL「不许客户端自说自话」的要求 —— 服务端实现变了，测试会红。
+
+## 4. M17 未捕获的如实区分（TL 认可）
+
+```
+M14 先写后删 → 1 failed
+M15 只删主集合 → 2 failed
+M16 两侧统一 col_name → 3 failed
+M17 去掉空 col_name 防护 → 13 passed（未捕获）
+M18 失败不带 payload → 1 failed
+```
+
+成员分析：`build_delete_body` 里「空 col_name」与「col_name != expected」两个分支**冗余**，去掉前者仍被后者拦下 → **防护仍有效，但被删的那行不是判别力来源**。补 M17b（去掉相等校验）→ 1 failed，证明该性质被覆盖。
+
+**TL 认可这个区分**：「冗余守卫」与「有效断言」是两件事，混为一谈会让变异覆盖率虚高。这是本轮第三次同类诚实（前两次：L10 两次变异设计失败、L12 M3 变异未生效）。
+
+## 5. ⚠️ 防护缺口一：写入端点 **fail-open**
+
+```python
+self._es_base = (es_base or os.environ.get(ES_BASE_ENV) or DEFAULT_ES_BASE).rstrip("/")
+self._milvus_base = (milvus_base or os.environ.get(MILVUS_BASE_ENV) or DEFAULT_MILVUS_BASE).rstrip("/")
+self._poster = poster or index_writer._post_json
+DEFAULT_ES_BASE = "http://127.0.0.1:19527"
+DEFAULT_MILVUS_BASE = "http://127.0.0.1:19526"
+```
+
+成员自己写：「不注入的话默认会**真的 POST 线上 19527**」。TL 核实：`127.0.0.1:19527` 此刻**在线（HTTP 200）**，即默认目标就是真实索引服务。
+
+**问题**：测试靠「每个测试都记得注入 poster/替身」避免真写 —— 这是**纪律不是防护**。任何新增测试忘记注入，就会真发请求；生产 env 漏配也不会报错，而是静默写默认目标。
+
+**要求 fail-closed**：新增 `LLMKE_ALLOW_DEFAULT_WRITE_TARGET` 显式开关。未设该开关且 `es_base`/`milvus_base` 未从参数或 env 显式给出时 → **抛 `INDEX_WRITE_FAILED`（或启动期 fail-fast）**，不得回退到 `DEFAULT_*`。测试注入 `es_base` 或 `poster` 时不受影响。
+
+## 6. ⚠️ 防护缺口二：`do_insert` 的 URL 回退写法脆弱
+
+```python
+url_es = self._es_base + ES_INSERT_PATH if side == "es" else ""
+url_mv = self._milvus_base + MILVUS_INSERT_PATH if side == "milvus" else ""
+result = self._writer.apply(
+    side_plan,
+    es_url=url_es or self._es_base + ES_INSERT_PATH,          # side=milvus 时 url_es="" → 回退成真实 ES URL
+    milvus_url=url_mv or self._milvus_base + MILVUS_INSERT_PATH)
+```
+
+**当前正确**：`_SidePlan` 在 `side != "es"` 时 `es_plan` 返回 `[]`，`apply` 的 `for body in bodies` 空循环不发请求（TL 已核 `_SidePlan:188-193` 与 `index_writer.apply:334-341`）。
+
+**但脆弱**：安全性依赖「空 plan 不发请求」这一隐含行为。若将来 `apply` 加了「先校验 url 再遍历」或日志，`side=milvus` 会带着真实 ES URL 走进去。
+
+**要求**：改为显式（`es_url=None` 或空串，由 `apply` 跳过空 plan 侧），并加一条断言「`side=milvus` 分支不产生任何 ES 请求」。
+
+## 7. L12 断言改动的合规性（TL 核实）
+
+`tests/test_kb_delta_l12.py` 的 3 条「诚实占位」断言被改：
+
+```python
+# A 段（L13-A1）已接线真实写入 → applied=True、可报 OK。
+# L12 当时的 `applied is False / PARTIAL` 是"未接线"的**诚实占位**，已被取代。
+assert out["index_write"]["applied"] is True
+```
+
+**TL 判定合规**：事实确实变了（A1 接了真实写入），且**保留了失败路径的 PARTIAL**（`:430`、`:452` 仍在断言 `status=="PARTIAL"` 与 `state_committed is False`）—— 没有把「失败也报 OK」的路打开。改名 `test_index_write_reports_applied_after_l13_wiring` 也如实。
+
+## 8. 三处已验收文件改动的合规性
+
+| 文件 | 改动 | 判定 |
+|---|---|---|
+| `api.py` | 新增 revoke + `?kb=` | **Scope 允许**（A5 明确要求） |
+| `tests/test_capabilities_http_l11.py` | `NO_REGISTER_POST` 加 `POST /v2/fence/revoke` | **L11 守卫生效**（新 POST 不登记即红），走白名单而非改 20 项集合，符合 L11 裁定 |
+| `tests/test_kb_delta_l12.py` | 见 §7 | 合规 |
+
+## 9. 两个缺口分开记（TL 认可）
+
+- **6.1** `delete_scope` 从未有生产调用点 —— **代码没接**（L6 产出正确 / L7 未接 / 本段补）
+- **6.2** `v2cand_*` 索引未创建 —— **L8 模式 B 授权缺口**
+
+已分别写入 `T-D2MD-13.blocker` 与 CHECKPOINT，未混为一条。
+
+## 10. 红线
+
+```
+18096 未监听 | 18094 两 pid 未变 | kb_9=44 | table_chunks=2 | v2cand* 空
+platform/r12 0 改动 | Java 未触 | doc2md 14 项
+所有测试注入 poster/替身，无一发起真实写请求（TL 抽验测试文件确认）
+```
+
+## 11. 结论
+
+**A 段功能通过，有条件转 B 段**：§5 fail-closed 与 §6 显式 URL 两项为**加固**，不阻塞 B 段开工（B 段只写脚本不执行），但**必须在 C 段（起服务）之前完成**。
+
+## 12. TL 红线自查
+
+只写 `docs/v2-tasks/evidence/`；未改实现代码、未改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`。

@@ -1,0 +1,86 @@
+# P1-L5 · T-D2MD-05 · TL 独立复核证据（不是成员自证、不是 QA_PASS）
+
+- 生成时间：2026-11-08T03:47:49+0800
+- 复核人：TL（主 agent）
+- 依据：`CHECKPOINT` §四 D-01 内部推进条件（现场输出、两仓无越界、反例 FAIL→PASS 可复现、禁改区、未切模式/未启停服务）
+- 成员自证：`P1-L5-20261108T033556.log`（R-0 + TL 回填 §7，312 行 / `757c411f…`）、`P1-L5-20261108T034446.log`（实现验收，338 行 / `a79d4d128889d997a315a52651130893`）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立，P1 阶段（L1~L5）全部内部收口 → 派工 P2-L6**
+- `QA_PASS` 仍挂起（G-4 待 Owner 指定签署载体 + 三项输入）；本 log 未签 QA_PASS、未标 DONE / VERIFIED
+
+---
+
+## 1. 交付物与禁改区
+
+平台三文件 `git diff --numstat`：
+
+```
+26  3  ingest_pipeline/kb_pipeline.py     (唯一改动，additive)
+ 0  0  rag_projection/projection.py      ✅ 0 改动
+ 0  0  ingest_pipeline/enrich.py         ✅ 0 改动
+```
+
+`kb_pipeline.py` diff 全文已核：`now` / `summarizer` 可选参数、`now` 透传 `enrich.build_payload`（`:44` 确有该参数）、循环后复用 `summary.build_summary_payloads`（`:68`）产出 `table_summary_<kb>` 载荷；不传 `now` 时正文通道行为不变。
+
+**禁改区现场确认原样**：`projection._table_pk`（`projection.py:93-96`）仍 `table|index|file_id|ordinal` → `sha1[:15]`；`summary.table_summary_id`（`summary.py:30-36`）仍 `v2sum|index|file|table_id`。符合 TL 03:4x 裁定 1 / 3。
+
+新增测试 `services/rag-alg/index_data_service/tests/test_table_projection.py`（7 条）+ `tests/fixtures/p1_l5/online_table_chunk_metadata_keys.json`。
+
+## 2. E1~E5 / R-1~R-6 与独立复跑
+
+```
+阶段 A 3 failed, 4 passed（3 条断言层 FAIL）→ 阶段 B 7 passed
+阶段 A 首跑 4 failed：多出的 1 条是测试自身设计问题（四件套目录无 artifact.json
+  导致 P.project 抛 ARTIFACT_MANIFEST_MISSING），改为「四件套目录验 store 校验 /
+  独立快照目录验投影 fail-closed」后重跑得到干净 FAIL —— 自愈留痕如实，未放宽断言
+```
+
+TL 现场独立复跑：
+
+```
+# v2 主口径 /home/szf/data/dev/llmke-v2-toolenv/bin/python (3.10.12 / pytest 8.3.5)
+$ pytest tests/test_rag_projection.py .../test_table_projection.py -q
+....................                                                     [100%]
+20 passed in 0.07s
+
+# 交叉 /home/szf/data/dev/hipporag-toolenv/bin/python (3.11.15 / pytest 9.2.0)
+20 passed in 0.05s
+```
+
+E1 的 **38 键 fixture 与线上真值独立比对**：
+
+```
+fixture keys = 38   online keys = 38
+差异(fixture-online) = []   差异(online-fixture) = []   EQUAL = True
+```
+
+E2 的 pk 真值 `1137902847478273881` / `885155839145947657` 已在 R-0 由 TL 独立复算命中；E3 span 篡改 → `IR_SPAN_MISMATCH` / `ARTIFACT_SPAN_MISMATCH`（非 PARTIAL）；E4 `now` 透传后载荷逐字节相同、正文形状不变；E5 `INGEST_PROJECTION_MODE` unset、`P.project(mode=None)` → `NOT_APPLICABLE`；R-6 既有 13 条全 PASS。
+
+## 3. 未切模式 / 未启停服务 / 未写线上（现场核实）
+
+```
+INGEST_PROJECTION_MODE unset → 代码默认 legacy ✅
+table_chunks_kb_9/_count = 2（与开工前一致）✅
+端口 pid（开工前 → 当前，逐项一致）：
+  19531=435286  19995=1358208/23647  18094=3202203/3189651
+  18082=1341032  18083=450255  19200 LISTEN（ES 只读目标）
+grep INGEST_PROJECTION_MODE → 仅 projection.py:39 定义、pipeline.py:11 注释、
+  test_table_projection.py 的两处断言，无切读/放量代码 ✅
+```
+
+## 4. 计数差异认领（TL 误记）
+
+成员报备：doc2md `git status --short` 现场 **14 项（5 M + 9 ??）**，而 `P1-L4-TL-VERIFY-20261108.log` §1 写「13 项（5 M + 8 ??）」。TL 现场复核：确为 **14 项**，逐项文件清单与 L4 收口时完全一致，且 `find backend -newermt '2026-11-08 03:29:00'` 为空（L4 封存后 doc2md 无任何变动）。
+
+**裁定**：属 TL 04 复核时少算一个 `??` fixture 目录的**计数误差**，非本 loop 新增越界；已在 `P1-L4-TL-VERIFY-20261108.log` 追加修订留痕。**不影响 L4 的 DEV_SELF_CHECK_PASS 结论**（越界判断依据是文件清单，不是计数）。
+
+## 5. 判断标注复核（成员 §9）
+
+① 刻意不采用 `build_summary_payloads` 的 `updated`（线上 38 键无 `table_summary_id`，E1 多字段判 FAIL）—— 合理；主键对齐按裁定 3 转 P6。② `now` 透传而非改 `enrich._now()` 默认值，不传时正文通道行为不变 —— 合理。③ 三文件仅改 `kb_pipeline.py`（最小 additive 面）—— TL 认可。④ E3 用两个目录分别验证、按 `blocks[].content_ref.text_span` 落实 span —— 合理。⑤ 线上真值固化 fixture 已由 TL 独立比对 EQUAL=True。⑥ 未宣称 snapshot 可切 ✅。
+
+## 6. P1 阶段收口与 L6 派工
+
+`T-D2MD-01` ~ `T-D2MD-05` 全部 `DEV_SELF_CHECK_PASS` + TL 独立复核通过（各双证据），`QA_PASS` 全部挂起待 G-4。`P2-L6-PLAN.md`（F1~F5 + R-1~R-5）已锁定并派工 `T-D2MD-06`。DoD 仍 0/16（A-1~E-3 属 P6 实现验收）。
+
+## 7. TL 红线自查
+
+本次只写 `docs/v2-tasks/` 下证据与计划 + `TASKS.yaml`；**未改 doc2md / llmke-v2 实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED**。

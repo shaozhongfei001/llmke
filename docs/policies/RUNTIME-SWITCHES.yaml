@@ -3,11 +3,15 @@
 switches:
   - key: INGEST_READ_MODE
     module: services/rag-alg/alg_retrieval_service/app/projection_read.py
-    values: [legacy, snapshot]
+    values: [legacy, shadow, snapshot]
     default: legacy
-    scope: 检索读路径（正文/表格块/表格总结三条通道一起切）
+    scope: 检索读路径（正文/表格块/表格总结/faq 四条通道按显式通道名映射一起切）
     rollback: 改回 legacy 并重启检索服务
-    notes: 未知值 fail-closed 抛错，不静默退回 legacy
+    notes: >-
+      未知值 fail-closed 抛错，不静默退回 legacy。shadow 为**降级语义**：返回结果与 legacy
+      完全相同，只在 read_info.shadow_names 里报出影子名供比对，不发第二次查询（真双读留 P6）；
+      snapshot 才真正改读影子名。写侧目前不产 table_summary 影子，故 read_info.missing_channels
+      显式声明该缺口，全量切读前必须补齐。
   - key: INGEST_READ_PREFIX
     module: services/rag-alg/alg_retrieval_service/app/projection_read.py
     values: [任意非空前缀]

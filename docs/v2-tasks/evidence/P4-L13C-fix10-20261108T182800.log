@@ -1,0 +1,116 @@
+# P4-L13-C · 缺陷 10 修复（revoke 必须带 root，fail-closed）+ 新发现缺陷 11
+
+- 时间：2026-11-08T18:26 ~ 18:30；角色 `python-engineer`
+- 前置事故：`P4-L13C-C3b-C4-INCIDENT-*.log`（影子撤权写进生产 `fence.json`，已还原）
+
+---
+
+## 1. 缺陷 10 的修法（按 TL 19:5x：`root` 必填、fail-closed）
+
+| 位置 | 改动 |
+|---|---|
+| `api.py` `FenceRevokeRequest` | 增 `root: Optional[str] = None`（**必填语义由 handler 强制**） |
+| `api.py` `fence_revoke()` | `root` 为空 → `HTTPException(400, "revoke 必须显式指定 root（禁止默认落到本进程 env 的 root…）")`；`_resolve_snapshot(kb, root=root)` 按请求 root 解析快照 |
+| `api.py` `_resolve_snapshot()` | 增 `root` 参数，`read_pointer(root or _root_dir(), kb)` |
+| `graph_client.post_fence_revoke()` | 增 `root` 形参；**空 → 抛 `PipelineRefused("GRAPH_ROOT_MISSING")`，不发出任何 HTTP 请求**；payload 带 `root` |
+| `kb_ingest_service._fence_revoke(graph_api, graph_root)` | 从 env 绑 `LLMKE_V2_GRAPH_ROOT` 并转发（`_build_service` 传 `graph_root`） |
+
+**为什么 `root` 用「Optional + handler 校验」而不是 `Field(min_length=1)`**：
+TL 的判据是「缺失 → **400** + 明确 detail」；Pydantic 必填字段缺失会返回 **422**（FastAPI 默认），
+两者不一致。这里选了**满足可观测判据**的实现（400 + 自定义文案），语义仍是 fail-closed。
+若 TL 更希望 422，只需改成 `Field(min_length=1)` 并删掉 handler 那段 —— 一行之差，请裁定。
+
+### 1.1 额外收紧：非本进程 root 时**不动共享内存**
+
+`fence` 是 18094 的**进程级内存态**（`slot["fence"]`）。若影子撤权顺手改了内存，
+那么 18094 对**生产 kb_9** 的检索也会开始丢 290 —— 即使文件写到了影子。
+所以：
+
+```python
+applied_to_memory = os.path.realpath(root) == os.path.realpath(_root_dir())
+if applied_to_memory:
+    slot["fence"] = fence_state
+```
+响应里新增 `applied_to_memory` / `root` 两个字段如实暴露。
+
+## 2. 断言（先红后绿）
+
+| 文件 | 环境 | 断言 |
+|---|---|---|
+| `tests/test_fence_revoke_root_l13c.py` | 仅 hipporag | ① 不带 root → **400** 且 **fence.json 未被写**；② `root="   "` → 400 且未写；③ 带 root → 落盘到**该 root**，且 **env root 下没有 fence.json** |
+| `services/.../tests/test_fence_revoke_client_l13c.py` | **双环境** | ① 不带 root → `GRAPH_ROOT_MISSING` 且 **`_post` 零调用**；② 空白 root 同理；③ payload 里确实带 `root` |
+
+- **实现前**：`test_fence_revoke_root_l13c.py` → **3 failed**
+- **实现后**：hipporag `6 passed`；v2 `3 passed`（客户端侧）
+- 回归：v2 **197 passed / 4 skipped**、hipporag **268 passed**
+- 变异：**M18**（api 侧回落到 `_root_dir()`）→ `2 failed`；**M19**（客户端去掉 fail-closed）→ `2 failed`
+
+## 3. 真进程验证（重启后）
+
+```
+18094 pid 2184460（重启加载 api.py）     18096 pid 2185287（重启加载客户端）
+19531 pid 435286 未变
+
+$ curl -X POST /v2/fence/revoke -d '{"kb":"kb_9","file_ids":["291"]}'
+HTTP=400
+{"detail":"revoke 必须显式指定 root（禁止默认落到本进程 env 的 root：P4-L13-C 事故就是影子撤权写进了生产 fence.json）"}
+```
+
+**重做 C4-2（DELETE 290，影子）**：
+
+| 项 | 结果 |
+|---|---|
+| 影子 `snapshot-20261108181917…/fence.json` | `{"generation":1,"revoked":{"290":{…}}}` ← **写对了** |
+| 生产 `snapshot-20261107212905…/fence.json` | md5 `857a69b4…`、mtime `18:19:44` **逐字节未变** |
+| 生产 `GET /v2/fence?kb=kb_9` | `generation=0 / count=0`（内存也没被污染） |
+| 生产 `current.json` | md5 `e2d0f754…` 未变；`kb_9=44` |
+
+→ **缺陷 10 修复成立：撤权按请求 root 落盘，生产零触碰（文件 + 内存两条都验）**。
+
+## 4. 新发现（缺陷 11）：**删掉库里最后一个文件，图无法收敛**
+
+重做 C4-2 时（此时库里只剩 290）：
+
+```
+HTTP=207 code=207 status=PARTIAL msg=搜索路完成、图谱路失败
+graph.error = GRAPH_BUILD_HTTP_422:
+  {"schema":"llmke.graph-delta.v1","status":"REJECTED","kb":"kb_9","reason":"DOCS_EMPTY"}
+state_committed=false   diff.removed=['290']
+```
+
+**原因**：删到空库时平台发 `docs=[]` + `revoked_file_ids=["290"]`，
+而 18094 的 `DeltaRequest.docs` **必填** → 422 `DOCS_EMPTY`；
+契约 §2.1 也写着「空请求 400，**不得当成清空图谱**」。
+
+**后果**：
+1. 图不收敛（旧快照仍含 290 的图），返回 `PARTIAL` 是**如实**的；
+2. **但索引侧已删**（`v2cand_kb_9` 1 → 0），`state` 因失败未提交（仍是 `290: ACTIVE`）
+   → **索引与状态不一致**，只能靠调用方重放 UPSERT 恢复；
+3. DELETE 路径**没有 `index_write` 补偿块**（UPSERT 有 `compensation`），失败时上层看不到「索引已删」这一事实。
+
+**请 TL 裁定方向**（都涉及契约或 P3 文件，我不自行选）：
+- (a) 允许 `docs=[]` 且 `revoked_file_ids` 非空 → 按「清空该库图」处理（改契约 §2.1 + `api.py`）；
+- (b) 平台侧检测「删后为空」→ **先拒绝、不删索引**，提示调用方改用重建/下线库；
+- (c) 保留现状 + DELETE 也返回 `index_write` 块如实说明「索引已删、状态未提交」。
+
+**恢复动作（已做）**：重放 `UPSERT 290` → `200 / OK`、ES 回到 1 条、`sources` 回到 `{chunk-bcbc…: ['290']}`、
+`graph=SKIPPED_FRESH`（图仍是新鲜的那份），`state version=4`、`{290: ACTIVE, 291: REVOKED}`。
+
+## 5. 现状
+
+| 项 | 值 |
+|---|---|
+| 生产 `current.json` | `e2d0f75440e4553ee1bb33f51ca2ca34`（全程未变） |
+| 生产 `fence.json` | `857a69b4…` = `{"generation": 0, "revoked": {}}`（已还原，未再被写） |
+| 生产 `kb_9` | 44 |
+| 影子 ES / Milvus | 1 / 1（290） |
+| 影子 `state` | version=4；`290 ACTIVE`、`291 REVOKED` |
+| 影子 fence | 已清空（影子区，非生产） |
+| 进程 | 18094 `2184460`、18096 `2185287`、19531 `435286` |
+| 本轮文件 | `api.py`、`graph_client.py`、`kb_ingest_service.py` + 2 个新测试文件 |
+
+## 6. 未做（等裁定）
+
+- 缺陷 9（`apply_result` 接线）——TL 指示先修 10；10 已完成，可接着做
+- 缺陷 11 的三选一
+- C4-3（缩水重摄取）—— 走 UPSERT，不触发 revoke，可安全执行

@@ -1,0 +1,145 @@
+# P4-L13-C · C3a 失败（ES 写入 500）· 根因已定位，停手待裁
+
+- 时间：2026-11-08T16:40 前后；角色 `python-engineer`
+- **执行了 1 次 ingest（FULL_REBUILD），失败于 ES 写入；未写任何线上数据、未进 C3b**
+- 隔离完好：影子 `kb_state` 空、影子 `graph-root` 未创建、线上图 md5 未变
+
+---
+
+## 0. Step 0 线上图基线（C3a 前后逐位相同）
+
+```
+$ md5sum /home/szf/data/dev/llmke-r12/platform/r12/data/graph-root/kb_9/current.json
+e2d0f75440e4553ee1bb33f51ca2ca34
+$ stat -c '%y %s' 同上 → 2026-11-07 21:31:00.290396481 +0800  4166
+```
+
+C3a 失败后复测：**md5 与 mtime 均逐位相同** ✅（隔离未被击穿）
+
+---
+
+## 1. Step 1 请求（按 TL 要求，**不带 `graph_root` 字段**）
+
+```
+POST http://127.0.0.1:18096/kb/ingest
+{"kb":"kb_9","operation":"FULL_REBUILD","fallback_reason":"SHADOW_BOOTSTRAP",
+ "file_id":"290",
+ "doc2md_dir":"/home/szf/data/dev/llmke-v2/docs/design/unified-documents-v2/examples/artifact"}
+```
+
+`doc2md_dir` 选用 `examples/artifact`：先用 `store.collect_parts` 离线校验过**四件套齐全**
+（`document_ir.json` / `parsed_metadata.json` / `parsed_text.md` / `parse_manifest.json`）；
+另一个候选 `doc2md/parsed/by_hash/...` **缺 `document_ir.json`**（`ArtifactRefused: MISSING_PART`），已排除。
+
+---
+
+## 2. 响应：HTTP 502 `INDEX_WRITE_FAILED`
+
+```
+HTTP=502
+code=502
+msg=INDEX_WRITE_FAILED: es: insert HTTPError: HTTP Error 500: Internal Server Error
+index_write.status=FAILED applied=False required=True
+deletes 数=2  [('es','v2cand_kb_9'), ('es','v2cand_table_chunks_kb_9')]
+graph.result=None  graph.error=None
+```
+
+→ 顺序如设计：**ES 两个 delete 已发（200）→ ES insert 500 → 立即停**，Milvus 侧未动、
+delta 未调用、状态未提交。
+
+---
+
+## 3. 根因（19527 侧堆栈，服务日志原文）
+
+```
+File ".../controller/es.py", line 474, in _add_documents_async_impl
+    data_list, source_paths = build_actions(insert_model, s_field_names, index_name)
+File ".../controller/es.py", line 255, in build_actions
+    actions_dict['_source'][sf][f] = int(v)
+ValueError: invalid literal for int() with base 10: ''
+```
+
+对应源码（`controller/es.py:250-256`）：
+
+```python
+elif sf == 'metadata':
+    for f, v in doc_dict['metadata'].items():
+        if f in ('order_num', "status"):
+            actions_dict['_source'][sf][f] = int(v)      # ← 只对这两个键强转 int
+        else:
+            actions_dict['_source'][sf][f] = v
+```
+
+**我们的 `enrich.build_payload` 产 `order_num = ""`**（实测）：
+
+```
+$ python -c "...enrich.build_payload(chunk, index_name='v2cand_kb_9', file_id='290')..."
+'order_num': ''   present=True  → int('') → ValueError: invalid literal for int() with base 10: ''
+'status'   : None present=False （enrich 不产该键，无需处理）
+```
+
+→ **唯一原因就是 `metadata.order_num` 是空串，而 19527 对它会 `int(v)`。**
+`status` 不参与（我们不产），所以 §上面两个键里只有 `order_num` 致命。
+
+---
+
+## 4. 一个更值得注意的事实：**线上数据与当前 19527 不兼容**
+
+```
+$ 线上 kb_9 一条真实 doc 的 metadata：
+order_num: ''      (str)      ← 线上就是空串
+status   : （键不存在）
+```
+
+即：**线上 `kb_9` 现存文档的 `order_num` 也是空串**。按当前 19527 的 `int(v)` 逻辑，
+这些文档**无法被现在的写服务重新写入**（会同样 500）。
+
+两种解释，都说明「线上数据早于该强转分支」：
+1. `order_num` 的 `int()` 是后续适配（R12-ADAPT 系列）加的；
+2. 或者线上数据由另一条写者（`alg_doc_parse_service` 早期版本）写入。
+
+**这条对 P5 有影响**：将来若要用现在的 19527 重建线上索引，会遇到同一个 500 —— 不是我们这条链独有的问题。
+
+---
+
+## 5. 修法选项（**都需要你批准，因为都会碰「已验收」文件或线上服务**）
+
+前提：读侧 `WebSearchResult.order_num: str` 是**必填、无默认值**（`base.py:111-117`），
+所以**不能靠删键解决**（删了读侧构造会失败）→ 必须给一个「可 `int()` 且语义站得住」的值。
+
+| 方案 | 改动点 | 评价 |
+|---|---|---|
+| **A** | `enrich.build_payload`：`order_num = str(chunk["seq"])` | 语义最正确（块在文档内的顺序）。但 `enrich.py` 是 **L5 已验收**，动它要重跑 L5 相关断言 |
+| **B**（建议） | `index_writer` 写入计划侧归一：`metadata.order_num` 为空时填 `str(chunk["seq"])` | `index_writer` 本来就是**写入适配层**，把「写服务不接受的值」归一化是它的职责；不动 L5 的投影/摘要语义，不动线上服务 |
+| C | 19527 `int(v) if str(v).strip() else 0` | 改**线上共享服务**，超出本次授权，且会把「数据不合法」变成静默 0 |
+
+**我建议 B**，并附两条断言：
+1. 计划里 `metadata["order_num"]` 必须可 `int()`，且等于该块的 `seq`；
+2. 若将来某 chunk 没有 `seq`，则**报错**（`IndexWriterError`），不得静默填 0。
+
+选 A 我也能立即改，但会动 L5 已验收文件，风险面更大。
+
+---
+
+## 6. 失败后的状态核对（隔离完好）
+
+| 项 | 值 |
+|---|---|
+| `v2cand_kb_9` / `v2cand_table_chunks_kb_9` | 仍 `0` / `0`（insert 失败，无数据） |
+| 影子 `kb-state/` | **空**（`state_committed=false`，未写状态） |
+| 影子 `artifact-store/` | 有 `artifacts/`（`commit_snapshot` 在写入之前完成，属正常中间产物） |
+| 影子 `graph-root/` | **不存在**（delta 未调用） |
+| 线上 `kb_9` | `44` 未变 |
+| 线上图 `current.json` | md5 `e2d0f754…` 未变 |
+| 18094 pid | `3189651 / 3202203` 未变 |
+| 18096 | 仍在运行（pid 1332063），日志有 `POST /kb/ingest → 502` |
+
+**未做任何"绕过"**：没有改 `duplicate_flag`、没有换 payload 字段、没有跳过 ES。
+按 TL 规则停在 C3a。
+
+---
+
+## 7. 请裁定
+
+**Q6：选 A 还是 B？**（我建议 B，理由见 §5）
+裁定后我会：改 → 重跑 L12/L13（+L5 相关若选 A）→ 报你 → 再重发 C3a 同一请求。

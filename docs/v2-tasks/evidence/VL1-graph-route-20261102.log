@@ -1,0 +1,7 @@
+== 真实查询：修复前后对照 ==
+query: 单笔授信超过五亿元由谁审议通过
+snapshot: .artifacts/stress/snapshot-20261101200939-222273-g0
+Retrieving: 100%|██████████| 1/1 [00:00<00:00, 324.08it/s]
+route GRAPH reason GRAPH_CALLED
+docs 3
+trace {'graph_calls': 1, 'seed_hits': [], 'fact_candidates': 5, 'rerank_fallback': True}

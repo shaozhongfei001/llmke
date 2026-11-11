@@ -71,3 +71,12 @@ gaps:
     desc: 社区 source_meta.file_id 为合成 F 编号，与图谱数字 file_id 体系不一致，跨系统关联需 source_meta.title 对齐
   - id: G6
     desc: /v2/status 生命周期接口 CORS 未放行(直连18094)；前端回落 mock 并标注来源
+
+  - id: T7
+    name: 后端打通：v2/graph/view 业务图谱化
+    state: VERIFIED
+    evidence: /v2/graph/view 改为输出 normalize 断言层业务图谱（97 实体可读名+67 有向谓词边+来源）；Java 代理透传 name/type/predicate；前端 fetchWholeGraph 切 v2 主链并端到端验证
+  - id: T8
+    name: 抽取质量与真实语料重建（BLOCKED）
+    state: BLOCKED
+    next_action: 1) HippoRAG 抽取 prompt 中英混杂需重调并重建快照 2) 实体细分类（产品/客户/评级）需抽取保留类型 3) Java 主链上传→解析→构图调 /v2/graph/build 接线 4) Java 服务重启使 nodeType=type 生效

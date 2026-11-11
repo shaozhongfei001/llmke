@@ -24,6 +24,9 @@ CAPABILITIES = {
         "status": "VERIFIED",
         "note": "hipporag 2.0.0a4 在本机真实 index()：66/83 块、跨文件合并后仍可回指来源",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-C1-HIPPORAG-20261031.md",
+        # P3-L11 additive：登记 HTTP 面。`http` 是**可选**字段（旧消费方读不到也不受影响），
+        # 形状 [{method, path}]，method 大写、path 含 /v2 前缀。不含它也能构造合法能力项。
+        "http": [{"method": "POST", "path": "/v2/graph/build"}],
     },
     "retrieve_dense_fallback": {
         "status": "VERIFIED",
@@ -57,6 +60,9 @@ CAPABILITIES = {
                 "真跑 5 块：全量 32.4s → 增量 7.5s（4.3×），删 3 增 1 复用 2，"
                 "openie 5→3 == 期望 5-3+1；检索层 full vs delta 命中完全一致",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-DELTA-REBUILD-20261031.md",
+        # P3-L11 additive：此前只声明引擎能力、没声明怎么调用，导致「按 capabilities 判断
+        # 能不能通过 HTTP 做增量」会得到错误结论。note 保持「增量抽取 + 全量重建图」原样。
+        "http": [{"method": "POST", "path": "/v2/graph/delta"}],
     },
     "visibility_fence": {
         "status": "VERIFIED",
@@ -96,6 +102,9 @@ CAPABILITIES = {
                 "同一快照报告逐字节可复现，但端到端因上游 LLM 抽取非确定（68/72）不可复现",
         "evidence": "docs/design/unified-documents-v2/EVIDENCE-COMMUNITY-REPORT-20261031.md；"
                     "docs/v2-tasks/evidence/S3-retrieval-shim.md",
+        # P3-L11 additive：note 里的散文端点（`POST /v2/graph/global`）**原样保留**，
+        # 这里补结构化版本。测试断言「note 里出现的 /v2 路径 ⊆ 本列表」，防散文与结构化漂移。
+        "http": [{"method": "POST", "path": "/v2/graph/global"}],
     },
     "platform_assertion_layer": {
         "status": "VERIFIED",

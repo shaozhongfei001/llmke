@@ -1,0 +1,1088 @@
+# P2-L8 · T-D2MD-08 实现证据（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T12:08:10+0800
+- 角色：`python-engineer`；**未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`**、`TASKS.yaml` 未改
+- 任务：`T-D2MD-08` / loop `P2-L8`（`docs/v2-tasks/loops/P2-L8-PLAN.md` §三）
+- 模式：**模式 A（离线/mock）**；**模式 B 未获 Owner 授权，全程未进入**（未创建任何索引/collection）
+- 前置：R-0 已确认（`P2-L8-20261108T120209.log`），TL 12:1x 裁定 Q1~Q5
+- 结论：`DEV_SELF_CHECK_PASS` —— I1~I5 满足，R-1~R-6 反例先 FAIL 后 PASS，
+  5 组变异验证证明断言非空转，116 条相关测试全 PASS（双解释器）
+
+> 所有输出为命令实际 stdout；diff 由 `git diff` / `sed` 直接追加，未手抄。
+
+---
+
+## 1. 解释器口径与用途
+
+| 用途 | 绝对路径 | 版本 | pytest |
+|---|---|---|---|
+| **主口径**（新增 + 回归） | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 | 8.3.5 |
+| **交叉口径** | `/home/szf/data/dev/hipporag-toolenv/bin/python` | 3.11.15 | 9.2.0 |
+
+**已知环境限制（既有、非本轮引入）**：两个 toolenv **都没有 `langchain_core`**
+（`python -c "import langchain_core"` 均 `ModuleNotFoundError`），故
+`retrieval_service.py` / `multiple_retrieval.py` **无法在本机 import 验证**（它们 import 期即依赖
+langchain）。处置：① `py_compile` 通过；② 新增**静态接线守卫**（读源码断言接线点，
+见 §4.3 三条 `test_retrieval_service_wiring_*` / `test_multiple_retrieval_graph_*`），
+③ `projection_read.py` 可独立 import（只依赖 `os`），其行为由 20 条用例覆盖。
+
+---
+
+## 2. 五项裁定的落地位置（逐条可指认）
+
+| 裁定 | 落地 |
+|---|---|
+| **Q1** 显式通道名映射（不用拼接） | `projection_read._legacy_channel_names()` / `_shadow_channel_names()` 是**全仓唯一**拼影子名的地方；`resolve()` 的 `info["channel_names"]` = `{通道: [每库实际索引名]}`；`retrieval_service.retrieval_data` 三处拼装改为 `_channel("faq"/"table_summary"/"table_chunks")`；**`index_writer._target_name` 一行未动**（仍 `v2cand_table_chunks_kb_9`） |
+| **Q1** 修正锁死错名的旧断言 | `tests/test_projection_read.py::test_snapshot_switches_base_name_so_all_channels_follow` → `test_snapshot_switches_all_channels_by_explicit_mapping`，直接断言 `channel_names["table_chunks"] == ["v2cand_table_chunks_kb_9"]`，并显式断言「错名彻底消失」 |
+| **Q2** `graph_kb` 映射 | `info["graph_kb"] = {实际名: 原库名}`；`projection_read.original_kb()` 供 `multiple_retrieval.py` 用，图召回处改为 `"kb": _original_kb(k_name)`（**仅此一行 + 一行 import**，不动召回算法与循环结构） |
+| **Q3** `missing_channels` 硬声明 | `info["missing_channels"] == ["table_summary"]`（legacy 下为 `[]`）；模块 docstring「已知缺口」同步写明，并指向 `T-D2MD-17` |
+| **Q4** 改开关登记 + shadow 降级 | `docs/policies/RUNTIME-SWITCHES.yaml`：`values: [legacy, shadow, snapshot]` + notes 写明降级语义与 `missing_channels`；`MODES` 三元组；`shadow` **返回名与 legacy 完全相同**，只在 `shadow_names` 报影子名，**不发第二次查询** |
+| **Q5** 补 4 个键 | `index_writer._fill_read_side_keys()`：`source`(=`file_path`) / `parsed_text_ref`(`table` 或 `parsed_text.md`) / `n_rows` / `n_cols`（取 IR `rows`/`cols`，缺则 `None`）；L6 的 `test_index_writer.py` F1 增 3 行断言 |
+
+**Q1 我的一处实现选择（请复核）**：TL 示例里 `channel_names` 是单库扁平形态
+（`{"table_chunks": "v2cand_table_chunks_kb_9"}`）。实际 `resolve()` 支持多库，故实现为
+**与入参 `names` 顺序对齐的列表**（`{"table_chunks": ["v2cand_table_chunks_kb_9", ...]}`）。
+单库时取 `[0]` 即等于你的示例；多库时不至于把名字互相覆盖。
+
+---
+
+## 3. 阶段 A · 反例先 FAIL（实现前）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest \
+  tests/test_p2_l8_shadow_namespace.py -q
+FAILED …::test_i1a_write_default_prefix_is_v2cand
+FAILED …::test_i1b_prefix_empty_or_kb_is_refused
+FAILED …::test_i1c_read_and_write_channel_names_match_verbatim
+FAILED …::test_i1c_bad_name_is_explicitly_forbidden
+FAILED …::test_i2a_modes_are_exactly_three
+FAILED …::test_i2c_legacy_is_identity
+FAILED …::test_i2d_shadow_does_not_change_results_only_reports
+FAILED …::test_i2e_snapshot_switches_all_channels
+FAILED …::test_i2f_per_kb_scope_keeps_others_legacy
+FAILED …::test_i2g_missing_channels_declared
+FAILED …::test_graph_kb_mapping_under_snapshot
+FAILED …::test_channel_name_helper_used_by_secondary_call_sites
+FAILED …::test_shadow_metadata_equals_production_plus_two_trace_keys
+FAILED …::test_shadow_metadata_has_read_side_dependency_keys
+FAILED …::test_shadow_metadata_n_rows_missing_is_none_not_fabricated
+FAILED …::test_i3a_mode_a_writes_nothing
+FAILED …::test_i3b_legacy_names_never_produced_by_writer
+FAILED …::test_i4a_rollback_to_legacy_is_bitwise_identity
+18 failed, 2 passed in 0.14s
+```
+
+**判别力**：新符号（`channel_name` / `original_kb` / `channel_names` / `shadow_names` /
+`missing_channels` / `INDEX_PREFIX_INVALID` / `_fill_read_side_keys` 效果）一律在用例体内取，
+18 条 FAIL 全部落在**断言或被测代码路径**：`KeyError: 'channel_names'`、
+`AttributeError`（`channel_name` / `original_kb` / `MODES` 三元组）、
+`DID NOT RAISE`（`INDEX_PREFIX_INVALID`）、值不符（读侧 `table_chunks_v2cand_kb_9`）。
+
+阶段 A 已 PASS 的 2 条保留未删：
+`test_i2b_unknown_mode_refused`（旧实现已有 fail-closed —— **是必须保持的既有正确行为**）、
+`test_i5_regression_sentinels`（禁改区哨兵）。
+
+---
+
+## 4. 阶段 B · 反例 FAIL → PASS（23 passed）
+
+### 4.1 主口径 / 交叉口径
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest \
+  tests/test_p2_l8_shadow_namespace.py -q
+.......................                                                  [100%]
+23 passed in 0.06s
+
+$ （交叉）hipporag-toolenv 同上
+23 passed
+```
+
+### 4.2 TL 12:1x 追加的三条裁定断言（均已落地为可失败断言）
+
+| # | 断言 | 用例 | 变异验证 |
+|---|---|---|---|
+| ① | 读写通道名逐字对拍 | `test_i1c_read_and_write_channel_names_match_verbatim`（读侧名字集合 == 写侧 `_target_name` 名字集合；且 `table_chunks_v2cand_kb_9` 不在其中） | M1 → 2 failed |
+| ② | snapshot 下图请求 `kb=kb_9` | `test_graph_kb_mapping_under_snapshot` + 静态守卫 `test_multiple_retrieval_graph_uses_original_kb`（源码断言 `"kb": _original_kb(k_name)` 存在、`"kb": k_name,` 不存在） | M2 → 1 failed |
+| ③ | 影子 metadata = 生产键集 + `artifact_id`/`content_hash`，且 4 个读侧键齐全 | `test_shadow_metadata_equals_production_plus_two_trace_keys`（集合差 `== {"artifact_id","content_hash"}`、反向差为空）+ `test_shadow_metadata_has_read_side_dependency_keys` + `..._n_rows_missing_is_none_not_fabricated` | M3 → 3 failed |
+
+### 4.3 静态接线守卫（因 langchain 缺失无法 import 而设）
+
+- `test_retrieval_service_wiring_uses_channel_names`：`_channel("table_chunks"/"table_summary"/"faq")`
+  与 `_channel_name("table_chunks", kn)` 存在；代码行（去注释）里不得出现 `"table_chunks_" + kn` 等裸拼接；
+- `test_multiple_retrieval_graph_uses_original_kb`：见上表 ②；
+- `test_residual_concatenation_sites_are_documented`：残留拼接只允许出现在
+  `multiple_retrieval.py` 与 `retrieval_service_cec.py`（已知未收口，见 §9），**新增一处即 FAIL**。
+
+---
+
+## 5. 改动清单（含一处**清单外**改动，见 §5.2）
+
+| 文件 | 性质 | 行数 | md5 |
+|---|---|---|---|
+| `services/rag-alg/alg_retrieval_service/app/projection_read.py` | 重写（56 → 157 行） | 累计 `132 +/31 -` | `0d96540175112f046c84ca2b7f58d171` |
+| `services/rag-alg/alg_retrieval_service/app/retrieval_service.py` | 3 处拼装改映射 + 1 处 `retrieval_table_chunks` | `17 +/11 -` | `95829d1af0159145fc67851eea77c18a` |
+| `services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py` | import 1 行 + kb 取值 1 行 | `3 +/1 -` | `805372217e54924f1cfc6eb60c84dfcf` |
+| `services/rag-alg/index_data_service/ingest_pipeline/index_writer.py` | additive 4 键 + 前缀校验 + `file_path` 形参 | 277 → 323 行 | `7c737042e9e37c60b2e6173a7c593d93` |
+| `docs/policies/RUNTIME-SWITCHES.yaml` | 登记 `shadow` + notes | `7 +/3 -` | `6fa79ec38054ff36e0c5a509c91404a7` |
+| `tests/test_projection_read.py` | 修正锁死错名的 2 条断言 | `17 +/5 -` | `63dc34d54a181e4e571245f353017f25` |
+| `services/rag-alg/index_data_service/tests/test_index_writer.py` | F1 增 3 行（4 键） | 未跟踪目录内 | `0c5b1a839862ae3597053a3d98f9ff25` |
+| `tests/test_p2_l8_shadow_namespace.py` | **新增** 23 条 | 335 行 | `6de04a7f2667873617660c38e3db5631` |
+
+**`tests/test_runtime_switches.py` 未改动**（TL 授权可选）：它断言
+`tuple(yaml.values) == MODES` 与默认值一致 —— 改完 yaml 后 **自然 PASS**，无需改测试。
+这比改测试更硬：登记表与被测代码仍然强一致（`8 passed`，§7）。
+
+### 5.2 【清单外 1 处，请裁定】`kb_pipeline.py` +3/-1
+
+**我改了你清单里没有的 `kb_pipeline.py`**（L7 交付物，675 → 677 行，md5 `dc60bd09…` → `59132592…`）：
+
+```diff
+-        plan = index_writer.build(chunks, artifact, kb=index, file_id=real_file_id)
++        # P2-L8：`file_path` 一并注入，供 metadata.source（读侧文件身份键）使用。
++        plan = index_writer.build(chunks, artifact, kb=index, file_id=real_file_id,
++                                  file_path=file_path)
+```
+
+**理由**：Q5 要求「`source` 取 `file_path`」，而 `file_path` 的唯一生产者是 `consume_for_kb`
+（`store.commit()` 的 artifact 不含它）。不传这一行，`source` 在生产链路上恒为 `""`，
+Q5 就只对直接调用 `build(...)` 的测试有效、对真实摄取无效 —— 等于没接。
+
+**若你判定越界，我立即回退这一处**（回退后 `consume_for_kb` 路径 `source=""`，需另立 CR 接）。
+除此之外**没有任何清单外改动**。
+
+---
+
+## 6. 改动 diff 全文
+
+### 6.1 `projection_read.py`（整文件重写，diff 全文）
+
+```diff
+$ git diff -- services/rag-alg/alg_retrieval_service/app/projection_read.py
+diff --git a/services/rag-alg/alg_retrieval_service/app/projection_read.py b/services/rag-alg/alg_retrieval_service/app/projection_read.py
+index e11bce65..75df7c47 100644
+--- a/services/rag-alg/alg_retrieval_service/app/projection_read.py
++++ b/services/rag-alg/alg_retrieval_service/app/projection_read.py
+@@ -1,56 +1,157 @@
+-"""检索读路径的投影切换（legacy / snapshot），默认 legacy、可逆、按知识库粒度。
++"""检索读路径的投影切换（legacy / shadow / snapshot），默认 legacy、可逆、按知识库粒度。
+ 
+-为什么放在"基础知识库名"这一层
+-------------------------------
+-检索下游所有索引名都是 `table_chunks_<kb>` / `table_summary_<kb>` / `<kb>` 这样拼出来的
+-（`retrieval_service.py:53-60`）。只要把**基础名**换掉，三条通道会一起切走，
+-不需要在每个调用点各改一遍，也不会出现"正文切了、表格没切"的半切换状态。
++为什么用「显式通道名映射」而不是「换基础名再拼接」
++--------------------------------------------------
++历史实现把**基础名**换成 `v2cand_<kb>`，再由下游用 `"table_chunks_" + base` 拼出表格索引名，
++结果是 `table_chunks_v2cand_kb_9`；而写侧（`index_writer._target_name`）产的是
++`v2cand_table_chunks_kb_9`。**两边名字不相等**，snapshot 模式一开，表格通道就会静默查空索引。
++
++根因是两者语义不同：读侧「换基础名」= 在通道前缀**之后**插前缀；写侧「整名前缀」= 在
++整个索引名**之前**加前缀。只要还靠拼接，就一定有人改错一边。所以这里改成
++**显式通道名映射**：`channel_names` 在同处生成全部通道名，读写两侧拿它逐字对拍。
+ 
+ 开关
+ ----
+-- `INGEST_READ_MODE=legacy|snapshot`（默认 legacy）；
+-- `INGEST_READ_PREFIX`（默认 `v2cand`）；
+-- `INGEST_READ_KBS`（可选，逗号分隔）：只有列出的知识库走 snapshot，其余保持 legacy。
+-  这保证"先在一个库上验证，再扩量"，而不是一刀切全库。
+-
+-fail-closed
+------------
+-未知 mode 直接抛错，不静默退回 legacy：静默退回会让"以为切了其实没切"，
+-而这一层的错误表现是"检索结果看起来正常但来源是旧数据"，最难发现。
++- `INGEST_READ_MODE=legacy|shadow|snapshot`（默认 legacy，未知值 fail-closed）；
++- `INGEST_READ_PREFIX`（默认 `v2cand`，尾部下划线可有可无，内部统一成 `<prefix>_`）；
++- `INGEST_READ_KBS`（可选，逗号分隔）：只有列出的知识库走影子，其余保持 legacy。
++
++三档语义
++--------
++- `legacy`：全部旧命名空间，行为与改动前逐字一致；
++- `shadow`：**返回结果与 legacy 完全相同**（只多报 `shadow_names` 供比对），
++  不发第二次查询 —— 真双读比对留 P6（本层不做查询，改查询就属改检索算法）；
++- `snapshot`：真的把各通道换成影子名（`v2cand_<完整名>`）。
++
++已知缺口
++--------
++写侧目前**不产** `table_summary` 影子（`index_writer.build` 只产 text / table 两份计划），
++故 `missing_channels=["table_summary"]` 显式声明：snapshot 模式当前只验证正文 + 表格块双通道，
++全量切读（`T-D2MD-17`）前必须补齐，否则表格总结会静默空。
+ """
+ 
+ import os
+ 
+-MODES = ("legacy", "snapshot")
++MODES = ("legacy", "shadow", "snapshot")
+ DEFAULT_MODE = "legacy"
+ DEFAULT_PREFIX = "v2cand"
++CHANNELS = ("text", "table_chunks", "table_summary", "faq")
++# 写侧不产的影子通道（见模块 docstring「已知缺口」）
++MISSING_CHANNELS = ("table_summary",)
+ 
+ 
+ def _split(value):
+     return [x.strip() for x in (value or "").split(",") if x.strip()]
+ 
+ 
++def _normalize_prefix(prefix):
++    """统一成 `<prefix>_`：读侧的 `v2cand` 与写侧的 `v2cand_` 说的是同一件事。"""
++    value = (prefix or "").strip()
++    if not value:
++        return ""
++    return value if value.endswith("_") else value + "_"
++
++
++def _legacy_channel_names(name):
++    return {"text": name,
++            "table_chunks": f"table_chunks_{name}",
++            "table_summary": f"table_summary_{name}",
++            "faq": f"faq_{name}"}
++
++
++def _shadow_channel_names(name, prefix):
++    """整名前缀：`v2cand_` + `<通道前缀 + 库名>`，与 `index_writer._target_name` 同口径。"""
++    return {channel: f"{prefix}{_legacy_channel_names(name)[channel]}" for channel in CHANNELS}
++
++
+ def resolve(names, mode=None, prefix=None, only=None):
+-    """返回 (新的基础名列表, 说明)。`说明` 用于打点/对照，不含敏感信息。"""
++    """返回 (新的基础名列表, 说明)。
++
++    `说明` 用于打点/对照，不含敏感信息；关键字段：
++    - `channel_names`：{通道: [每个库对应的实际索引名]}（与传入 `names` 顺序对齐）；
++    - `graph_kb`：{实际名: 原库名}，图召回必须用**原库名**（18094 按库目录组织）；
++    - `shadow_names`：`shadow` 模式下的影子名（不改返回结果，仅供比对）；
++    - `missing_channels`：写侧尚未产出的影子通道。
++    """
+     names = [n for n in (names or []) if n and n.strip()]
+     mode = (mode or os.environ.get("INGEST_READ_MODE") or DEFAULT_MODE).strip().lower()
+     if mode not in MODES:
+         raise ValueError(f"INGEST_READ_MODE 非法: {mode!r}，允许 {MODES}")
++
+     if mode == "legacy":
+-        return list(names), {"mode": "legacy", "switched": []}
++        channel_names = {ch: [] for ch in CHANNELS}
++        for name in names:
++            for ch, value in _legacy_channel_names(name).items():
++                channel_names[ch].append(value)
++        return list(names), {"mode": "legacy", "switched": [], "kept_legacy": [],
++                             "channel_names": channel_names,
++                             "graph_kb": {n: n for n in names},
++                             "shadow_names": {}, "missing_channels": []}
+ 
+-    prefix = (prefix or os.environ.get("INGEST_READ_PREFIX") or DEFAULT_PREFIX).strip()
+-    if not prefix:
+-        raise ValueError("INGEST_READ_PREFIX 为空，snapshot 模式必须有前缀")
+-    only = set(only if only is not None else _split(os.environ.get("INGEST_READ_KBS")))
++    raw_prefix = (prefix or os.environ.get("INGEST_READ_PREFIX") or DEFAULT_PREFIX).strip()
++    prefix_ = _normalize_prefix(raw_prefix)
++    if not prefix_.strip("_"):
++        raise ValueError("INGEST_READ_PREFIX 为空，影子模式必须有前缀")
++    only_set = set(only if only is not None else _split(os.environ.get("INGEST_READ_KBS")))
+ 
+-    out, switched, kept = [], [], []
++    switched, kept = [], []
++    channel_names = {ch: [] for ch in CHANNELS}
++    shadow_names = {ch: [] for ch in CHANNELS}
++    graph_kb = {}
+     for name in names:
+-        if only and name not in only:
+-            out.append(name)
+-            kept.append(name)
+-        else:
+-            out.append(f"{prefix}_{name}")
+-            switched.append(name)
+-    return out, {"mode": "snapshot", "prefix": prefix,
+-                 "switched": switched, "kept_legacy": kept}
++        use_shadow = not (only_set and name not in only_set)
++        legacy_map = _legacy_channel_names(name)
++        shadow_map = _shadow_channel_names(name, prefix_)
++        picked = shadow_map if use_shadow else legacy_map
++        for ch in CHANNELS:
++            channel_names[ch].append(picked[ch])
++            shadow_names[ch].append(shadow_map[ch])
++        graph_kb[picked["text"]] = name
++        (switched if use_shadow else kept).append(name)
++
++    info = {"mode": mode, "prefix": prefix_.rstrip("_"),
++            "switched": switched, "kept_legacy": kept,
++            "channel_names": channel_names,
++            "graph_kb": graph_kb,
++            "missing_channels": list(MISSING_CHANNELS)}
++
++    if mode == "shadow":
++        # 降级语义：不改返回结果，只报影子名供比对（真双读留 P6）
++        legacy_names = {ch: [] for ch in CHANNELS}
++        for name in names:
++            for ch, value in _legacy_channel_names(name).items():
++                legacy_names[ch].append(value)
++        info["channel_names"] = legacy_names
++        info["graph_kb"] = {n: n for n in names}
++        info["switched"], info["kept_legacy"] = [], []
++        info["shadow_names"] = shadow_names
++        return list(names), info
++
++    info["shadow_names"] = {}
++    return list(channel_names["text"]), info
++
++
++def channel_name(channel, name, mode=None, prefix=None):
++    """单个库名 → 该通道的实际索引名（二/三级调用点共用，避免各自拼接）。
++
++    `retrieval_table_chunks` 这类已有库名、只知道通道的调用点用它，
++    这样全仓只有这一处知道「影子名怎么拼」。
++    """
++    if channel not in CHANNELS:
++        raise ValueError(f"未知通道 {channel!r}，允许 {CHANNELS}")
++    _names, info = resolve([name], mode=mode, prefix=prefix)
++    return info["channel_names"][channel][0]
++
++
++def original_kb(name):
++    """影子名 → 原库名（图召回用）。非影子名原样返回。
++
++    图库（18094）按库目录组织，`v2cand_kb_9` 不是库名；若把影子名当 kb 传过去，
++    图通道会「查不到库」而不是「查旧库」，属于静默空召回。
++    """
++    prefix_ = _normalize_prefix(
++        os.environ.get("INGEST_READ_PREFIX") or DEFAULT_PREFIX)
++    text = str(name or "")
++    if prefix_ and prefix_.strip("_") and text.startswith(prefix_):
++        return text[len(prefix_):]
++    return text
+```
+
+### 6.2 `retrieval_service.py` / `multiple_retrieval.py` / `RUNTIME-SWITCHES.yaml` / `test_projection_read.py`
+
+```diff
+diff --git a/docs/policies/RUNTIME-SWITCHES.yaml b/docs/policies/RUNTIME-SWITCHES.yaml
+index 58bd0e0a..58a19a73 100644
+--- a/docs/policies/RUNTIME-SWITCHES.yaml
++++ b/docs/policies/RUNTIME-SWITCHES.yaml
+@@ -3,11 +3,15 @@
+ switches:
+   - key: INGEST_READ_MODE
+     module: services/rag-alg/alg_retrieval_service/app/projection_read.py
+-    values: [legacy, snapshot]
++    values: [legacy, shadow, snapshot]
+     default: legacy
+-    scope: 检索读路径（正文/表格块/表格总结三条通道一起切）
++    scope: 检索读路径（正文/表格块/表格总结/faq 四条通道按显式通道名映射一起切）
+     rollback: 改回 legacy 并重启检索服务
+-    notes: 未知值 fail-closed 抛错，不静默退回 legacy
++    notes: >-
++      未知值 fail-closed 抛错，不静默退回 legacy。shadow 为**降级语义**：返回结果与 legacy
++      完全相同，只在 read_info.shadow_names 里报出影子名供比对，不发第二次查询（真双读留 P6）；
++      snapshot 才真正改读影子名。写侧目前不产 table_summary 影子，故 read_info.missing_channels
++      显式声明该缺口，全量切读前必须补齐。
+   - key: INGEST_READ_PREFIX
+     module: services/rag-alg/alg_retrieval_service/app/projection_read.py
+     values: [任意非空前缀]
+diff --git a/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py b/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+index 75f2f090..566d9fe9 100644
+--- a/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
++++ b/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+@@ -22,6 +22,8 @@ from operators.client.milvus_client import MilvusClient
+ from operators.client.graph_client import GraphClient
+ from operators.client.web_search_client import WebSearchClient
+ from operators.common.log import logger
++# P2-L8：图召回必须用**原库名**（18094 按库目录组织）；影子名 `v2cand_kb_9` 不是库名。
++from projection_read import original_kb as _original_kb
+ from utils import create_uuid
+ 
+ 
+@@ -466,7 +468,7 @@ async def retrieval_graph(question, knowledge_base_name, top_k, model_info, serv
+             "query": question,
+             # 18094 QueryRequest.top_k 硬约束 [1,20]，越界 422
+             "top_k": min(top_k or server_config.get("retrieval_top_k", 10), 20),
+-            "kb": k_name,
++            "kb": _original_kb(k_name),
+         }
+         full_url = f"http://{host}:{port}/v2/graph/query"
+         try:
+diff --git a/services/rag-alg/alg_retrieval_service/app/retrieval_service.py b/services/rag-alg/alg_retrieval_service/app/retrieval_service.py
+index 2240b9f4..fcc816bc 100644
+--- a/services/rag-alg/alg_retrieval_service/app/retrieval_service.py
++++ b/services/rag-alg/alg_retrieval_service/app/retrieval_service.py
+@@ -15,6 +15,7 @@ from langchain_core.documents import Document
+ from app.base import QARetrieveConfig, BaseResponse
+ from multiple_retrieval import multiple_retrieval, retrieval_graph, retrieval_multi_version_elastic
+ from operators.common.log import logger
++from projection_read import channel_name as _channel_name
+ from reranker_service import merge_and_rerank, merge_and_get_rrf_score
+ from retrieval_fun_tool import query_es_data, og_process, document_version, process_return_results, \
+     multiple_retrieval_data_process, filter_tables_by_query, sorted_result, get_multi_version_dict, \
+@@ -44,22 +45,26 @@ async def retrieval_data(knowledge_base_name, top_k, server_config, verify_queri
+     :param database_name 数据库名称
+     :return: 多路召回的结果
+     """
+-    # V2：读路径投影切换（默认 legacy）。只换"基础名"，下游 table_chunks_/table_summary_ 会跟着走，
+-    # 避免出现正文切了、表格没切的半切换；按库粒度由 INGEST_READ_KBS 控制。
++    # V2：读路径投影切换（默认 legacy）。P2-L8：改成**显式通道名映射**，不再靠
++    # `"table_chunks_" + 基础名` 拼接 —— 拼接会拼出 `table_chunks_v2cand_kb_9`，
++    # 而写侧产的是 `v2cand_table_chunks_kb_9`，名字不等就会静默查空索引。
++    # 按库粒度由 INGEST_READ_KBS 控制。详见 projection_read 模块 docstring。
+     from projection_read import resolve as _resolve_read_index
+     knowledge_base_name, read_info = _resolve_read_index(
+         [kn for kn in knowledge_base_name if kn.strip()])
+     logger.info(f"[v2-read] {read_info}")
+-    full_knowledge_base_name = knowledge_base_name.copy()
++    _channel_names = read_info.get("channel_names") or {}
++
++    def _channel(channel):
++        return list(_channel_names.get(channel) or [])
++
++    full_knowledge_base_name = _channel("text") or knowledge_base_name.copy()
+     # 判断faq
+     if enabled_faq is True:
+-        faq_knowledge_base_list = ["faq_" + kn for kn in knowledge_base_name]
+-        full_knowledge_base_name.extend(faq_knowledge_base_list)
++        full_knowledge_base_name.extend(_channel("faq"))
+     if enabled_summary:
+-        table_summary_list = ["table_summary_" + kn for kn in knowledge_base_name]
+-        full_knowledge_base_name.extend(table_summary_list)
+-    table_chunks_list = ["table_chunks_" + kn for kn in knowledge_base_name]
+-    full_knowledge_base_name.extend(table_chunks_list)
++        full_knowledge_base_name.extend(_channel("table_summary"))
++    full_knowledge_base_name.extend(_channel("table_chunks"))
+     tasks = [multiple_retrieval(query, full_knowledge_base_name, top_k, server_config, es_milvus_enabled=es_milvus_enabled,
+                                 query_condition=query_condition, cec_kb_file_list=cec_kb_file_list, enabled_faq=enabled_faq, condition_symbol=condition_symbol,
+                                 dense_weight=dense_weight, enable_web_search=enable_web_search, enable_database=enable_database, database_name=database_name) for
+@@ -71,8 +76,9 @@ async def retrieval_data(knowledge_base_name, top_k, server_config, verify_queri
+ 
+ 
+ async def retrieval_table_chunks(knowledge_base_name, top_k, server_config, table_summary_data):
+-    # 查询table_chunk
+-    table_chunk_list = ["table_chunks_" + kn for kn in knowledge_base_name]
++    # 查询table_chunk。P2-L8：第 4 处拼装点也走 projection_read 的同一映射，
++    # 否则本函数仍会拼 `table_chunks_v2cand_kb_9`（与写侧影子名不符）。
++    table_chunk_list = [_channel_name("table_chunks", kn) for kn in knowledge_base_name]
+     table_query_pk_dict = {}
+     for qus, doc_list in table_summary_data.items():
+         table_pk_list = []
+diff --git a/tests/test_projection_read.py b/tests/test_projection_read.py
+index c41eba37..04d59653 100644
+--- a/tests/test_projection_read.py
++++ b/tests/test_projection_read.py
+@@ -14,15 +14,27 @@ from projection_read import resolve  # noqa: E402
+ def test_default_is_legacy():
+     names, info = resolve(["kb_9"], mode="legacy")
+     assert names == ["kb_9"]
+-    assert info == {"mode": "legacy", "switched": []}
++    assert info["mode"] == "legacy" and info["switched"] == []
++    # P2-L8：legacy 下通道名就是旧命名空间（新增字段，语义与改动前一致）
++    assert info["channel_names"] == {"text": ["kb_9"],
++                                     "table_chunks": ["table_chunks_kb_9"],
++                                     "table_summary": ["table_summary_kb_9"],
++                                     "faq": ["faq_kb_9"]}
+ 
+ 
+-def test_snapshot_switches_base_name_so_all_channels_follow():
++def test_snapshot_switches_all_channels_by_explicit_mapping():
++    """P2-L8 修正：原断言把错名 `table_chunks_v2cand_kb_9` 固化成契约（错的来源之一）。
++
++    写侧（`index_writer._target_name`）产的是**整名前缀** `v2cand_table_chunks_kb_9`；
++    读侧若还靠 `"table_chunks_" + 基础名` 拼接，永远拼不出写侧的名字。
++    """
+     names, info = resolve(["kb_9"], mode="snapshot", prefix="v2cand")
+     assert names == ["v2cand_kb_9"]
+-    # 下游拼出来就是 v2cand_kb_9 / table_chunks_v2cand_kb_9 / table_summary_v2cand_kb_9
+-    assert "table_chunks_" + names[0] == "table_chunks_v2cand_kb_9"
+-    assert "table_summary_" + names[0] == "table_summary_v2cand_kb_9"
++    assert info["channel_names"]["table_chunks"] == ["v2cand_table_chunks_kb_9"]
++    assert info["channel_names"]["table_summary"] == ["v2cand_table_summary_kb_9"]
++    assert info["channel_names"]["faq"] == ["v2cand_faq_kb_9"]
++    # 错名必须彻底消失（它是本 loop 要修的缺陷）
++    assert "table_chunks_" + names[0] != "v2cand_table_chunks_kb_9"
+     assert info["switched"] == ["kb_9"]
+ 
+ 
+```
+
+### 6.3 `index_writer.py`（L6 起为未跟踪文件，故给改动区域 + 当前签名）
+
+```python
+$ sed -n '116,145p' services/rag-alg/index_data_service/ingest_pipeline/index_writer.py   # build 签名与 prefix/file_path 校验点
+                         file_path: str | None) -> None:
+    """补读侧真实依赖的 4 个键（P2-L8 · TL 裁定 Q5）。
+
+    - `source`：文件身份键，取 `file_path`（与线上语义一致）；`retrieval_fun_tool`
+      用 `metadata.source.keyword` 精确匹配，`reranker_service` 用它拼「文件名 + 正文」；
+    - `parsed_text_ref`：审计/引用定位，表格块为 `"table"`、正文块为 `parsed_text.md`
+      （与 `kb_pipeline.build_index_payloads` 同口径）；
+    - `n_rows` / `n_cols`：表格维度，取 IR 真值（`rows` / `cols`）；拿不到就是 `None`，
+      **不编造** 0 或 1。
+    """
+    meta["source"] = file_path or ""
+    meta["parsed_text_ref"] = "table" if channel == "table" else "parsed_text.md"
+    if channel == "table":
+        rows = chunk.get("rows", chunk.get("n_rows"))
+        cols = chunk.get("cols", chunk.get("n_cols"))
+        meta["n_rows"] = rows
+        meta["n_cols"] = cols
+
+
+def _check_index_prefix(index_prefix: str, kb: str) -> None:
+    """前缀必须把计划明确指向独立命名空间（P2-L8 · I1-b / R-1）。
+
+    拒绝三种「看起来有前缀、其实会打线上」的写法：
+    空串；不带尾下划线（`v2cand` + `kb_9` 会拼成 `v2candkb_9`，不是声明的命名空间）；
+    等于库名（`kb_9` / `kb_9_` 拼出来就是旧索引名）。
+    """
+    prefix = (index_prefix or "").strip()
+    if not prefix:
+        raise IndexWriterError("INDEX_PREFIX_EMPTY", "index_prefix 不得为空（防误写线上索引）")
+    if not prefix.endswith("_"):
+
+$ sed -n '115,+22p' services/rag-alg/index_data_service/ingest_pipeline/index_writer.py   # 新增的 4 键填充
+def _fill_read_side_keys(meta: dict, chunk: dict, *, channel: str,
+                         file_path: str | None) -> None:
+    """补读侧真实依赖的 4 个键（P2-L8 · TL 裁定 Q5）。
+
+    - `source`：文件身份键，取 `file_path`（与线上语义一致）；`retrieval_fun_tool`
+      用 `metadata.source.keyword` 精确匹配，`reranker_service` 用它拼「文件名 + 正文」；
+    - `parsed_text_ref`：审计/引用定位，表格块为 `"table"`、正文块为 `parsed_text.md`
+      （与 `kb_pipeline.build_index_payloads` 同口径）；
+    - `n_rows` / `n_cols`：表格维度，取 IR 真值（`rows` / `cols`）；拿不到就是 `None`，
+      **不编造** 0 或 1。
+    """
+    meta["source"] = file_path or ""
+    meta["parsed_text_ref"] = "table" if channel == "table" else "parsed_text.md"
+    if channel == "table":
+        rows = chunk.get("rows", chunk.get("n_rows"))
+        cols = chunk.get("cols", chunk.get("n_cols"))
+        meta["n_rows"] = rows
+        meta["n_cols"] = cols
+
+
+def _check_index_prefix(index_prefix: str, kb: str) -> None:
+    """前缀必须把计划明确指向独立命名空间（P2-L8 · I1-b / R-1）。
+
+
+$ sed -n '135,+18p' services/rag-alg/index_data_service/ingest_pipeline/index_writer.py   # I1-b 前缀校验
+def _check_index_prefix(index_prefix: str, kb: str) -> None:
+    """前缀必须把计划明确指向独立命名空间（P2-L8 · I1-b / R-1）。
+
+    拒绝三种「看起来有前缀、其实会打线上」的写法：
+    空串；不带尾下划线（`v2cand` + `kb_9` 会拼成 `v2candkb_9`，不是声明的命名空间）；
+    等于库名（`kb_9` / `kb_9_` 拼出来就是旧索引名）。
+    """
+    prefix = (index_prefix or "").strip()
+    if not prefix:
+        raise IndexWriterError("INDEX_PREFIX_EMPTY", "index_prefix 不得为空（防误写线上索引）")
+    if not prefix.endswith("_"):
+        raise IndexWriterError(
+            "INDEX_PREFIX_INVALID",
+            f"index_prefix={index_prefix!r} 必须以 '_' 结尾（否则拼出的名字不是独立命名空间）")
+    if prefix.rstrip("_") == kb:
+        raise IndexWriterError(
+            "INDEX_PREFIX_INVALID",
+            f"index_prefix={index_prefix!r} 等于库名，拼出来就是旧索引名（防误写线上）")
+
+```
+
+---
+
+## 7. 变异验证（5/5 全被捕获，restore 后 md5 逐位复原）
+
+脚本 `/tmp/p2l8_mutation.sh`（临时，不入仓）：备份 → 定点变异 → 跑相关用例 → 恢复 → md5 比对。
+
+| # | 变异 | 期望 | 实测 |
+|---|---|---|---|
+| M1 | 通道名退回「拼接」口径（`table_chunks_` + 影子正文名）——**本 loop 要修的原缺陷** | I1-c FAIL | 2 failed |
+| M2 | `original_kb` 不再剥离影子前缀（图召回拿到 `v2cand_kb_9`） | graph FAIL | 1 failed |
+| M3 | 不再补 4 个读侧键（`_fill_read_side_keys` 删除） | Q5 FAIL | 3 failed |
+| M4 | `shadow` 模式改成真切名（破坏降级语义） | I2-d FAIL | 1 failed |
+| M5 | 前缀校验放宽（允许无尾下划线 / 等于库名） | I1-b FAIL | 1 failed |
+
+命令与真实输出：
+
+```
+$ bash /tmp/p2l8_mutation.sh
+----- MUTATION M1-concat-names (I1-c FAIL) -----
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i1c_read_and_write_channel_names_match_verbatim
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i1c_bad_name_is_explicitly_forbidden
+2 failed, 21 deselected in 0.05s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M2-graph-kb-not-mapped (graph FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_p2_l8_shadow_namespace.py::test_graph_kb_mapping_under_snapshot
+1 failed, 1 passed, 21 deselected in 0.06s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M3-drop-4-keys (Q5 FAIL) -----
+FAILED tests/test_p2_l8_shadow_namespace.py::test_shadow_metadata_has_read_side_dependency_keys
+FAILED tests/test_p2_l8_shadow_namespace.py::test_shadow_metadata_n_rows_missing_is_none_not_fabricated
+3 failed, 20 deselected in 0.06s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M4-shadow-not-downgraded (I2-d FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i2d_shadow_does_not_change_results_only_reports
+1 failed, 22 deselected in 0.05s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M5-loose-prefix-check (I1-b FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i1b_prefix_empty_or_kb_is_refused
+1 failed, 22 deselected in 0.04s
+restore: projection_read=OK index_writer=OK
+
+===== 最终指纹 =====
+0d96540175112f046c84ca2b7f58d171  services/rag-alg/alg_retrieval_service/app/projection_read.py
+7c737042e9e37c60b2e6173a7c593d93  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+baseline: 0d96540175112f046c84ca2b7f58d171 7c737042e9e37c60b2e6173a7c593d93
+===== 恢复后全量复跑 =====
+.......................                                                  [100%]
+23 passed in 0.05s
+```
+
+---
+
+## 8. 回归（I5 / R-6）
+
+```
+$ （主口径）pytest tests/test_p2_l8_shadow_namespace.py tests/test_projection_read.py \
+    tests/test_runtime_switches.py tests/test_rag_projection.py \
+    services/rag-alg/index_data_service/tests/ tests/test_artifact_binding.py -q
+........................................................................ [ 62%]
+............................................                             [100%]
+116 passed in 0.51s
+
+$ （读侧专项，含 runtime-switches 防漂移）
+........                                                                 [100%]
+8 passed in 0.05s
+
+$ （交叉口径 hipporag 3.11.15）pytest tests/test_p2_l8_shadow_namespace.py tests/test_projection_read.py tests/test_runtime_switches.py -q
+...............................                                          [100%]
+31 passed in 0.10s
+
+$ （交叉口径）R-6 三文件 + L7
+.......................................................                  [100%]
+55 passed in 0.45s
+
+$ py_compile（retrieval_service/multiple_retrieval 因缺 langchain 不能 import，见 §1）
+compile OK
+```
+
+---
+
+## 9. 已知残留（**超出本 loop 授权面，已回 TL**）与已知边界
+
+### 9.1 两处残留的裸拼接点（同一类缺陷，但不在授权清单内）
+
+| 位置 | 代码 | 影响 | 处置 |
+|---|---|---|---|
+| `multiple_retrieval.py:569`（`retrieval_multi_version_elastic`） | `if chunk_type == "table": es_knowledge_base_name = "table_chunks_" + es_knowledge_base_name` | snapshot 下 `es_knowledge_base_name` 已是 `v2cand_kb_9`，拼出 `table_chunks_v2cand_kb_9`（错名）。正确应为 `channel_name("table_chunks", original_kb(name))`。**仅多版本文件路径触发**（`multi_version_dict` 命中） | **未改**（超出授权面）。已用 `test_residual_concatenation_sites_are_documented` 把它钉在「已知集合」里，将来修掉需同步更新该断言 |
+| `retrieval_service_cec.py:227`（CEC 路） | `es_knowledge_base_list = ["table_summary_" + kn for kn in cec_model.knowledge_base_name]` | 只影响 `table_summary`——而该通道**本 loop 根本没有影子**（Q3 已声明 `missing_channels`） | **未改**，已被 `T-D2MD-17` 的硬前置覆盖 |
+
+`retrieval_service.py:424` 的同类代码是**注释行**，无影响。
+
+**请 TL 裁定是否授权 L8 顺手收口 `multiple_retrieval.py:569`**（1 行），或留到 `T-D2MD-17`。
+
+### 9.2 已知边界（延续 R-0，未变）
+
+1. **`table_summary` 影子通道不存在** → `info["missing_channels"] == ["table_summary"]`；
+   snapshot 模式当前只验证**正文 + 表格块**双通道。`T-D2MD-17` 切读前必须补齐（TL 已挂硬前置）。
+2. **`shadow` 不是真双读**：只报 `shadow_names`，不发第二次查询（真双读要改召回算法，留 P6）。
+3. **影子 metadata = 线上键集 + `artifact_id` / `content_hash`**：这 2 个是 B-1 同源校验必需，
+   **不得声称与线上完全一致**。反向已断言「线上有·影子无 == 空」。
+4. **`n_rows` / `n_cols` 只在 table 通道**（与生产载荷一致）；IR 缺维度时 `None`，不编造。
+5. **`INGEST_READ_PREFIX` 尾部下划线宽容**：`v2cand` 与 `v2cand_` 等价（内部 `_normalize_prefix`）。
+   写侧 `DEFAULT_INDEX_PREFIX` 仍严格要求以 `_` 结尾（`INDEX_PREFIX_INVALID`），两侧语义已由
+   `test_i1c_*` 对拍锁死。
+6. **无 `canary.load` 接口**（R-0 已记）：本 loop 未引入，P6 灰度若需要再评估。
+
+---
+
+## 10. 红线自查
+
+| 红线 | 结论 | 依据 |
+|---|---|---|
+| 模式 A 不建索引 / 不写 collection | ✅ | 全程只发 GET；`_cat/indices/v2cand*` **仍空**；Milvus 仍 10 个 collection、无 v2cand |
+| 旧命名空间只读不写 | ✅ | `kb_9=44`、`table_chunks_kb_9=2` 前后一致；无写入请求 |
+| 默认保持 `INGEST_READ_MODE=legacy` | ✅ | 四个开关 env 全 unset；运行态（`platform/r12/{conf,.env,bin}`）**未改** |
+| 不启停服务 | ✅ | 无 systemctl、无启动脚本；八端口 pid/fd 与 R-0 时点逐项一致 |
+| 不改召回算法 | ✅ | `multiple_retrieval` 只改 kb 取值（1 行 + 1 行 import）；循环/打分/融合逻辑未动 |
+| 不改 L1~L7 语义 | ✅ | `_table_pk` / `table_summary_id` 未动；`index_writer._target_name` 一行未改；L6/L7 的 35 条测试全 PASS |
+| 不改设计包 / `MANIFEST.sha256` / `TASKS.yaml` | ✅ | 只读 |
+| 不改 doc2md 仓 | ✅ | `git -C doc2md status --short` 仍 14 项 |
+| 未授权不进模式 B | ✅ | 未创建、未写入任何影子对象 |
+| 不自签 `QA_PASS` / 不标 DONE/VERIFIED | ✅ | 仅 `DEV_SELF_CHECK_PASS` |
+| 不删失败凑 PASS | ✅ | 阶段 A 18 条 FAIL 原文保留（§3）；2 条原本 PASS 的保留并说明理由 |
+| 超出授权清单的改动先回 TL | ⚠️ **1 处已披露** | `kb_pipeline.py` +3/-1（§5.2），由 Q5 必然蕴含，**待你裁定**；其余零清单外改动 |
+
+---
+
+## 11. 状态与交接
+
+```text
+R0_VERIFIED_WITH_DEVIATIONS（120209.log，5 项裁定）→ 阶段A 18 failed/2 passed
+  → 实现（Q1~Q5）→ 阶段B 23 passed → 变异 5/5 捕获 + md5 复原
+  → 回归 116 passed（主）/ 55 passed（交叉）→ DEV_SELF_CHECK_PASS（本文件）
+  → 待 TL 独立复核 → 可派工 P3-L9
+  → QA_PASS 仍由 independent_qa 在 G-4 闭环后统一补签（本角色不自签）
+```
+
+- baton：`python-engineer` → **`DEV_SELF_CHECK_PASS`** → 交回 TL
+- `T-D2MD-08`：保持 `DOING` + `WAIT_QA_ATTESTATION`（+ 模式 B 需 Owner 授权）；
+  `evidence` 指针建议改为 `docs/v2-tasks/evidence/P2-L8-20261108T120810.log`
+- **待你裁定的两件事**：① §5.2 的 `kb_pipeline.py` 清单外 1 处（保留 or 回退）；
+  ② §9.1 的 `multiple_retrieval.py:569` 是否授权顺手收口
+- 回滚：恢复 §5 的 8 个文件、删除 `tests/test_p2_l8_shadow_namespace.py`；
+  本 loop 未在仓内生成任何索引或状态文件
+
+---
+
+# §12 修正记录（TL 12:2x 复核后；**本节 supersede §4/§5/§8/§9 的相关数字**）
+
+- 时间：2026-11-08T12:48:41+0800
+- 触发：TL 复核认定 **Q5 的 `source` 实现语义错**（我写成 `source = file_path`，线上是 MinIO 对象键，
+  带 `http://host/` 前缀会与 `metadata.source.keyword` 精确匹配失配），并要求补三项修正。
+
+## 12.1 修正 1 · `source` 优先级（`index_writer._resolve_source`）
+
+裁定口径：**调用点显式 `source` > `urlparse(file_path).path.lstrip("/")` > `""`**。
+`build(..., source: str | None = None)` 新增该 additive 形参。
+
+线上实测（TL 提供，与代码推导一致）：
+
+```
+线上 source    = r12-rag/kb_9/<file>/V0/<file>                     （无 scheme/host）
+线上 file_path = http://127.0.0.1:19000/r12-rag/kb_9/<file>/V0/<file>
+urlparse(file_path).path.lstrip("/")  ==  线上 source               （逐字一致）
+```
+
+## 12.2 修正 2 · `kb_pipeline` 调用点补 `source=source`（TL 接受清单外改动并追加要求）
+
+## 12.3 修正 3 · `multiple_retrieval.py:569` 多版本 table 索引收口（TL 授权）
+
+改成 `channel_name("table_chunks", original_kb(es_knowledge_base_name))`：
+先还原原库名，再走通道名映射。`retrieval_service_cec.py:227` 按裁定**不动**
+（`table_summary` 由 Q3 的 `T-D2MD-17` 硬前置覆盖）。
+
+### 三处修正的真实 diff
+
+```diff
+$ git diff -- services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+diff --git a/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py b/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+index 75f2f090..d0f42147 100644
+--- a/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
++++ b/services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+@@ -22,6 +22,10 @@ from operators.client.milvus_client import MilvusClient
+ from operators.client.graph_client import GraphClient
+ from operators.client.web_search_client import WebSearchClient
+ from operators.common.log import logger
++# P2-L8：图召回必须用**原库名**（18094 按库目录组织）；影子名 `v2cand_kb_9` 不是库名。
++# 通道名（`table_chunks_*` 等）也统一走投影层映射，避免各调用点各自裸拼。
++from projection_read import channel_name as _channel_name
++from projection_read import original_kb as _original_kb
+ from utils import create_uuid
+ 
+ 
+@@ -466,7 +470,7 @@ async def retrieval_graph(question, knowledge_base_name, top_k, model_info, serv
+             "query": question,
+             # 18094 QueryRequest.top_k 硬约束 [1,20]，越界 422
+             "top_k": min(top_k or server_config.get("retrieval_top_k", 10), 20),
+-            "kb": k_name,
++            "kb": _original_kb(k_name),
+         }
+         full_url = f"http://{host}:{port}/v2/graph/query"
+         try:
+@@ -564,7 +568,11 @@ async def retrieval_multi_version_elastic(documents_result_list, multi_version_d
+             question = documents_result["page_content"]
+             chunk_type = documents_result["metadata"]["chunk_type"]
+             if chunk_type == "table":
+-                es_knowledge_base_name = "table_chunks_" + es_knowledge_base_name
++                # P2-L8：不要再裸拼 `"table_chunks_" + 名字` —— 影子模式下这个名字已是
++                # `v2cand_kb_9`，拼出来 `table_chunks_v2cand_kb_9` 与写侧
++                # `v2cand_table_chunks_kb_9` 不符。先还原原库名，再走通道名映射。
++                es_knowledge_base_name = _channel_name(
++                    "table_chunks", _original_kb(es_knowledge_base_name))
+             data = es_multi_version_params(es_knowledge_base_name, father_file_id, top_k, question)
+             tasks.append(es_requests(data, server_config, question))
+             pk_id_list.append(pk_id)
+
+$ git diff -- services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py | grep -A6 -B2 "source=source"
++    # 与 `build_index_payloads(source=...)` 同口径（不传则按 file_path 去掉 URL 前缀派生）。
++    try:
++        plan = index_writer.build(chunks, artifact, kb=index, file_id=real_file_id,
++                                  file_path=file_path, source=source)
++    except index_writer.IndexWriterError as exc:
++        raise PipelineRefused(exc.code, exc.detail) from exc
++
++    # G2：图谱侧用**同一份 chunks + 同一 file_id** 复算，任何一侧被改写都在这里被拒。
++    # 位置刻意放在 apply / 建图之前 —— 禁止「先写后校验」。
++    graph_binding = index_writer.bind_chunks(
+--
++
++    payloads = build_index_payloads(chunks, index_name=index, file_id=real_file_id,
++                                    file_name=file_name, file_path=file_path,
++                                    file_size=file_size, source=source)
++
++    # G3：状态落盘（同源校验通过之后才写），chunks 只算这一次
++    entry = {
+         "artifact_id": artifact["artifact_id"],
+         "snapshot": str(snapshot),
++        "content_uid": artifact.get("content_uid"),
+--
+-        raise PipelineRefused("PROJECTION_NOT_APPLICABLE", str(current.stats.get("reason")))
+-    payloads = build_index_payloads(current.chunks, index_name=index, file_id=file_id,
+-                                    file_name=file_name, file_path=file_path,
+-                                    file_size=file_size, source=source)
+-
+-    # 图谱这一路：该库**全部文件**的 docs（本次 + 历史）
+-    all_docs: List[Dict[str, Any]] = []
++    with _kb_state_txn(store_root) as state:
++        state["kb"].setdefault(kb, {})[real_file_id] = entry
++        state["chunks"].setdefault(kb, {})[real_file_id] = _chunk_state_records(chunks)
+```
+```python
+$ sed -n '116,+22p' services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+def _resolve_source(source: str | None, file_path: str | None) -> str:
+    """`metadata.source` 取值（P2-L8 · TL 12:2x 裁定，纠正「直接取 file_path」）。
+
+    线上真实形态是 MinIO 对象键（无 scheme/host），而 `file_path` 是完整 URL：
+
+        线上 source    = r12-rag/kb_9/<file>/V0/<file>
+        线上 file_path = http://127.0.0.1:19000/r12-rag/kb_9/<file>/V0/<file>
+        urlparse(file_path).path.lstrip("/")  ==  线上 source   （逐字一致）
+
+    所以优先级：**调用点显式 `source` > `urlparse(file_path).path.lstrip("/")` > `""`**。
+    直接写 `file_path` 会带上 `http://host/` 前缀，`metadata.source.keyword` 精确匹配会失配。
+    """
+    if source:
+        return str(source)
+    if not file_path:
+        return ""
+    parsed = urlparse(str(file_path))
+    path = parsed.path if parsed.scheme else str(file_path)
+    return path.lstrip("/")
+
+
+def _fill_read_side_keys(meta: dict, chunk: dict, *, channel: str,
+                         source: str | None, file_path: str | None) -> None:
+```
+
+## 12.4 新增断言（3 条 source 语义 + 1 条多版本收口 + 残留点集合收紧）
+
+| 用例 | 断言 |
+|---|---|
+| `test_source_explicit_wins` | 显式 `source` 优先（与 `build_index_payloads(source=...)` 同口径） |
+| `test_source_matches_online_shape_after_url_strip` | **不写死路径**：以 `urlparse(file_path).path.lstrip("/")` 为真值逐字比对，并断言结果**无 scheme/host**（`not startswith("http")`、`"://" not in`、`urlparse(source).scheme == ""`） |
+| `test_source_priority_2_falls_back_to_empty` | 两者都缺 → `""`（不回落成库名/文件名） |
+| `test_multi_version_table_index_uses_channel_mapping` | `multiple_retrieval.py` 不再出现 `"table_chunks_" + es_knowledge_base_name`，改用 `_channel_name(...)` |
+| `test_residual_concatenation_sites_are_documented` | 残留集合由 `{multiple_retrieval.py, retrieval_service_cec.py}` **收紧为** `{retrieval_service_cec.py}` |
+
+用例总数：**23 → 27**。
+
+## 12.5 阶段 B 复跑（修正后）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python -m pytest tests/test_p2_l8_shadow_namespace.py -q
+...........................                                              [100%]
+27 passed in 0.05s
+
+$ （交叉）hipporag-toolenv 同文件
+...........................                                              [100%]
+27 passed in 0.09s
+```
+
+## 12.6 变异验证（6/6 全捕获；含新增 M6）
+
+新增 **M6**：把 `_resolve_source` 退回「直接取 `file_path`」（即 TL 指出的错实现）→ 3 failed。
+
+> 过程如实记录：M3 第一次跑时**锚点没匹配**（`_fill_read_side_keys` 调用签名已变），
+> 脚本报 `M3 anchor missing` 且 3 passed —— 我据此判定「变异未生效」并修正锚点后重跑，
+> 才得到 3 failed。**不把「没变异成」当成「断言被满足」。**
+
+```
+$ bash /tmp/p2l8_mutation.sh
+----- MUTATION M1-concat-names (I1-c FAIL) -----
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i1c_read_and_write_channel_names_match_verbatim
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i1c_bad_name_is_explicitly_forbidden
+2 failed, 25 deselected in 0.05s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M2-graph-kb-not-mapped (graph FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_p2_l8_shadow_namespace.py::test_graph_kb_mapping_under_snapshot
+1 failed, 1 passed, 25 deselected in 0.05s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M3-drop-4-keys (Q5 FAIL) -----
+FAILED tests/test_p2_l8_shadow_namespace.py::test_shadow_metadata_has_read_side_dependency_keys
+FAILED tests/test_p2_l8_shadow_namespace.py::test_shadow_metadata_n_rows_missing_is_none_not_fabricated
+3 failed, 24 deselected in 0.06s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M4-shadow-not-downgraded (I2-d FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i2d_shadow_does_not_change_results_only_reports
+1 failed, 26 deselected in 0.07s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M5-loose-prefix-check (I1-b FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_p2_l8_shadow_namespace.py::test_i1b_prefix_empty_or_kb_is_refused
+1 failed, 26 deselected in 0.06s
+restore: projection_read=OK index_writer=OK
+
+----- MUTATION M6-source-raw-file-path (source FAIL) -----
+FAILED tests/test_p2_l8_shadow_namespace.py::test_source_matches_online_shape_after_url_strip
+FAILED tests/test_p2_l8_shadow_namespace.py::test_source_priority_2_falls_back_to_empty
+3 failed, 24 deselected in 0.06s
+restore: projection_read=OK index_writer=OK
+
+===== 最终指纹 =====
+0d96540175112f046c84ca2b7f58d171  services/rag-alg/alg_retrieval_service/app/projection_read.py
+1ec116e54ad9b654fc9aa08f5d3df89a  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+baseline: 0d96540175112f046c84ca2b7f58d171 1ec116e54ad9b654fc9aa08f5d3df89a
+===== 恢复后全量复跑 =====
+...........................                                              [100%]
+27 passed in 0.05s
+```
+
+## 12.7 回归范围（**按 TL 要求写准，不称「全 PASS」**）
+
+### 12.7.1 本 loop 回归 = **120 passed**（口径与组成）
+
+```
+L8 新增            27
+读侧既有（含防漂移）  8      （tests/test_projection_read.py 6 + tests/test_runtime_switches.py 2）
+R-6（L6 冻结基线）   55      （test_rag_projection 13 + test_table_projection 7 + test_index_writer 11 + L7 24）
+artifact_binding    30
+------------------------------------------------
+合计               120
+```
+
+> 修正前是 116（L8 23）；§12 新增 4 条用例（3 条 source 语义 + 1 条多版本收口），故 120。
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python -m pytest \
+    tests/test_p2_l8_shadow_namespace.py tests/test_projection_read.py tests/test_runtime_switches.py \
+    tests/test_rag_projection.py services/rag-alg/index_data_service/tests/ tests/test_artifact_binding.py -q
+........................................................................ [ 60%]
+................................................                         [100%]
+120 passed in 0.64s
+
+$ （交叉口径 hipporag 3.11.15）
+........................................................................ [ 60%]
+................................................                         [100%]
+120 passed in 0.47s
+```
+
+### 12.7.2 仓根全量：**3 个既有失败，与本 loop 无关**（不修、不属本切片）
+
+TL 复核报 `3 failed, 1053 passed, 19 skipped`。我本轮未重跑全量（单是 Q 验收一项就 476s），
+改为**定点复跑这三个失败项 + 逐项取证**：
+
+| 失败项 | 根因 | 本轮是否触碰 |
+|---|---|---|
+| `tests/test_scripts_compile.py::test_all_scripts_compile` | `scripts/v2_community_report.py:80` `IndentationError` | **未改**（`git status` 空；`git show HEAD:` 版本同样报错） |
+| `tests/test_security_scan.py::test_framework_repo_itself_is_clean` | 既有文件命中 `PERSONAL_ABSOLUTE_PATH` / `REAL_CREDENTIAL` | **未改** |
+| `tests/test_q_acceptance.py::test_q_acceptance_has_no_fail...` | 其内部 `v2_q_acceptance.py` 判 `verdict=FAIL` | **未改**（依赖在线 ES 数据） |
+
+**「既有」的直接证据（同一条命令对比 HEAD 版本）**：
+
+```
+$ git status --short tests/test_scripts_compile.py tests/test_security_scan.py \
+    tests/test_q_acceptance.py scripts/v2_community_report.py scripts/v2_q_acceptance.py
+（空 = 本轮均未修改）
+
+$ llmke-v2-toolenv/bin/python -m py_compile scripts/v2_community_report.py
+Sorry: IndentationError: unexpected indent (v2_community_report.py, line 80)
+
+$ git show HEAD:scripts/v2_community_report.py > /tmp/head_v2_community_report.py \
+  && llmke-v2-toolenv/bin/python -m py_compile /tmp/head_v2_community_report.py
+Sorry: IndentationError: unexpected indent (head_v2_community_report.py, line 80)
+```
+
+**Q 验收的计数会随在线数据变化 —— 这本身就证明它与本 loop 无关**：
+同一会话两次实测分别是 `FAIL:4 / PASS:46`（12:39）与 `FAIL:3 / PASS:47`（12:5x），
+而这期间本 loop 只改了 `source` 取值与两处索引名拼接（都不产生任何写入）。
+
+实测输出：
+
+```
+$ pytest tests/test_scripts_compile.py tests/test_security_scan.py -q
+tests/test_security_scan.py:100: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_scripts_compile.py::test_all_scripts_compile - AssertionErr...
+FAILED tests/test_security_scan.py::test_framework_repo_itself_is_clean - Ass...
+2 failed, 12 passed in 19.59s
+
+$ pytest tests/test_q_acceptance.py -q     # 475.90s
+（该命令本次实测尾部：）
+FAILED tests/test_q_acceptance.py::test_q_acceptance_has_no_fail_and_keeps_unimplemented_visible
+E       AssertionError: {"summary": {"PASS": 47, "FAIL": 3, "SKIP": 8, "NOT_IMPLEMENTED": 1}, "verdict": "FAIL"}
+1 failed in 475.90s (0:07:55)
+```
+
+## 12.8 修正后的文件指纹（**以本节为准**，§5 的 `index_writer.py` / `kb_pipeline.py` / `multiple_retrieval.py` / 测试文件 md5 已被取代）
+
+```
+0d96540175112f046c84ca2b7f58d171  services/rag-alg/alg_retrieval_service/app/projection_read.py
+95829d1af0159145fc67851eea77c18a  services/rag-alg/alg_retrieval_service/app/retrieval_service.py
+e09013761d644494d6e679baa8133d29  services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+1ec116e54ad9b654fc9aa08f5d3df89a  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+e1e9f909cf1d77db8a5ca76a67528f23  services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+6fa79ec38054ff36e0c5a509c91404a7  docs/policies/RUNTIME-SWITCHES.yaml
+63dc34d54a181e4e571245f353017f25  tests/test_projection_read.py
+0c5b1a839862ae3597053a3d98f9ff25  services/rag-alg/index_data_service/tests/test_index_writer.py
+b94a3afcbcdc06950afc6919f448dbc0  tests/test_p2_l8_shadow_namespace.py
+
+  157 services/rag-alg/alg_retrieval_service/app/projection_read.py
+  347 services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+  380 tests/test_p2_l8_shadow_namespace.py
+  884 总计
+
+$ git diff --numstat（本轮相关）
+7	3	docs/policies/RUNTIME-SWITCHES.yaml
+10	2	services/rag-alg/alg_retrieval_service/app/multiple_retrieval.py
+132	31	services/rag-alg/alg_retrieval_service/app/projection_read.py
+17	11	services/rag-alg/alg_retrieval_service/app/retrieval_service.py
+380	55	services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+17	5	tests/test_projection_read.py
+```
+
+> `kb_pipeline.py` 的 `379 +/55 -` 是**相对 HEAD 的累计**（含 L5 的 26/3 与 L7 的 351/52）；
+> 本 loop 对它的变化 = **+4/-1，净 +3 行**（L7 收口 675 行 → L8 首次编辑 677 → §12 再 +1 → **678 行**）。
+> 具体只动了 `consume_for_kb` 里那一次 `index_writer.build(...)` 调用（补 `file_path=` / `source=` 注释与参数），
+> 未触碰任何 L7 语义（`_kb_state_*` / 同源闸门 / wanted docs 逻辑一字未动）。
+
+## 12.9 红线复查（修正后）
+
+| 红线 | 结论 | 依据 |
+|---|---|---|
+| 模式 A 不建索引 / 不写 collection | ✅ | `_cat/indices/v2cand*` **仍空**；ES 索引清单仍 `db1 41 / kb_1004 4520 / kb_9 44 / none 1 / table_chunks_kb_9 2` |
+| 旧命名空间只读 | ✅ | `kb_9=44`、`table_chunks_kb_9=2` 未变；无写入请求 |
+| 默认 legacy / 不改运行态 | ✅ | `INGEST_READ_MODE`、`INGEST_PROJECTION_MODE` 均 unset；`platform/r12/{conf,.env,bin}` 未改 |
+| 不启停服务 | ✅ | 无 systemctl/启动脚本；八端口 pid/fd 与 R-0 时点一致 |
+| 不改召回算法 | ✅ | `multiple_retrieval` 三处改动均为「名字取值 + import」，循环/打分/融合未动 |
+| 不改 L1~L7 已封存产物 | ✅ | `_table_pk` / `table_summary_id` / `index_writer._target_name` / projection / enrich / summary 均未动；L6+L7 的 55 条全 PASS |
+| 不改设计包 / MANIFEST / TASKS.yaml / doc2md 仓 | ✅ | doc2md 仍 14 项 |
+| 不修 3 个既有失败 | ✅ | 按 TL 要求未触碰 |
+| 不自签 QA_PASS / 不标 DONE | ✅ | 仅 `DEV_SELF_CHECK_PASS` |
+
+## 12.10 状态
+
+```text
+§1~§11（首次交付，含 23 条用例与 116 passed）
+  → TL 12:2x 指出 source 语义错（我写成 file_path，线上是去 URL 前缀的对象键）
+  → §12 修正（source 优先级 + source 形参 + kb_pipeline 传参 + 多版本 table 索引收口）
+  → 27 passed（主/交叉）→ 变异 6/6 全捕获 + md5 复原
+  → 本 loop 回归 120 passed；仓根全量 3 个既有失败（与本 loop 无关，未修）
+  → DEV_SELF_CHECK_PASS（本节）
+  → 待 TL 复核 → 可派工 P3-L9
+```
+
+- baton：`python-engineer` → **`DEV_SELF_CHECK_PASS`** → 交回 TL
+- `T-D2MD-08`：保持 `DOING` + `WAIT_QA_ATTESTATION`（+ 模式 B 需 Owner 授权）
+- **上一轮请你裁定的两件事均已按裁定办结**：① `kb_pipeline.py` 清单外改动**接受并追加 `source=source`**；
+  ② `multiple_retrieval.py:569` **已授权收口**。当前**无待裁定项**

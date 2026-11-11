@@ -1,0 +1,325 @@
+# `llmke-r12` 36 项本地改动逐个归类（只读）
+
+- 时间：2026-11-08 21:2x（TZ=Asia/Shanghai）
+- 授权：Owner 要求，TL 下发；**只读**：未 `git add/commit/stash/checkout`、未改任何文件、未动 `llmke-v2` 工作区、未重启服务
+
+## §0 仓库事实（本次独立核实）
+
+```
+git -C llmke-r12 rev-parse --show-toplevel   → /home/szf/data/dev/llmke-r12
+git -C llmke-r12 rev-parse --git-common-dir  → /home/szf/data/dev/llmke/.git
+HEAD                                          → 100e261e 2026-11-03 docs(reviews): B01 收尾证据
+```
+⇒ `llmke-v2` / `llmke-r12` 是**同一仓库的两个 worktree**，不是两个仓库。
+
+**四份内容的交叉核对矩阵**（`r12 工作区` / `r12 HEAD` / `main` / `v2 工作区`，均取 md5 前 8 位）是本次归类的判据基础：
+
+| 关系 | 含义 |
+|---|---|
+| `r12工作区 == main` | **D 类**：main 已有该内容，可直接丢 |
+| `r12工作区 == v2工作区` | 该改动**在两个工作区都有**（不因删 r12 分支而丢），归类看性质 |
+| `r12工作区 != v2工作区` 且 `main == r12HEAD` | 改动**只存在于 r12**，是最需要判断的一类 |
+| `main` 不存在该路径 | 新增文件，不可能已被 main 覆盖 |
+
+---
+
+## §1 36 项逐条归类
+
+图例：**A** 修 bug / **B** 环境配置 / **C** 临时调试与残留 / **D** 已被覆盖
+
+### 1~5 · platform 运维与验收产物
+
+| # | 文件 | 改动摘要 | 交叉核对 | 类别 | 理由 |
+|---|---|---|---|---|---|
+| 1 | `platform/r12/bin/r12-watchdog.sh` | +16/−2：删 `graphsvc|19529` 守护项与 Nebula×3 容器守护项；新增 `hipporag|18094,19531` 组 + `graph-v2)` heal 分支调 `r12-graph-v2-start.sh`；HTTP 探针防「残留子进程占 LISTEN 假健康」 | main = r12HEAD（未上游）；**v2 工作区不同版**（`1bb255d8`≠`ad09d0ce`） | **B** | 全是 R12 部署形态（systemd/裸进程/容器名单），换仓库不成立；但「删掉 Nebula 守护防复活」「18094/19531 自愈」是真实运维缺陷修复，**建议以 r12 为源保留** |
+| 2 | `platform/r12/conf/rag-index-service/application-r12.yml` | `del-graph-space.url`/`del-graph-entity.url`/`generate-community.url` → `""`；`generate-graph.url` `19529`→`19531` | main = r12HEAD；v2 不同版 | **B** | 全是端口/端点值（V1 19529 退役 → V2 19531） |
+| 3 | `platform/r12/conf/rag-qa-service/application-r12.yml` | 新增 `search-docs-global-url: http://127.0.0.1:19995/retrieval_documents_global` | main = r12HEAD；**r12 == v2** | **B** | 值是 R12 部署端口；但两工作区同版，说明是为「双仓漂移误判」写的显式声明，留 r12 即可 |
+| 4 | `platform/r12/systemd/r12.target` | 注释掉 `Wants=r12-graphsvc.service` | main = r12HEAD；**r12 == v2** | **B** | systemd 单元，纯 R12 |
+| 5 | `platform/r15/acceptance/results/last-run.json` | `run_id` 10-30T01-10-21→20-59-12、`total 8→1`、`pass 8→1`、删 34 项 results | main = r12HEAD；v2 不同版 | **C** | 验收脚本运行时**自动覆写**的结果文件，不带裁量信息；最后一次跑的用例数从 8 降到 1，属运行痕迹 |
+
+### 6~10 · `rag-alg` 检索服务（Python）
+
+| # | 文件 | 改动摘要 | 交叉核对 | 类别 | 理由 |
+|---|---|---|---|---|---|
+| 6 | `alg_retrieval_service/app/multiple_retrieval.py` | +78/−31：`_pick_pk()`（pk 必须是 int，防 Java `Long` 解析炸）+ `retrieval_graph` 改为**直连 18094 `/v2/graph/query`**（弃 19529/Nebula）；跳过 `faq_/table_chunks_/table_summary_` 前缀 | main = r12HEAD（旧）；**v2 是 648 行的更新版**（含 `_original_kb()`、file_id term 等本版没有的修正） | **D** | v2 已有**更完整**的同向实现；r12 这份是早期迭代，进 main 反而回退 |
+| 7 | `alg_retrieval_service/app/reranker_service.py` | `rrf_k 5→60`；去重键 `page_content`→**平台 `pk`**；pk 缺失用 `("__no_pk__", id(doc))` 占位 | main **仍是 `rrf_k=5`+content 去重**；r12 == v2 | **A** | 真实算法缺陷：按正文去重会把「正文相同但 pk 不同」误合并、把「同 chunk 不同正文」拆开；main 未修 |
+| 8 | `alg_retrieval_service/app/retrieval_service.py` | +3/−1：`if not documents and ... and not qa_model.enabled_graph:` 不再提前 return | main = r12HEAD（旧）；**v2 已含同一行**（`:453`）+ 更多（projection_read 通道映射） | **D** | v2 已有等价修复 |
+| 9 | `alg_retrieval_service/app/view/api/retrieval_global_view.py` | +217/−61：global 主链路切到 **18094 `/v2/graph/global`**（community.json），失败回退图检索；不再走 19529→Nebula Louvain | main = r12HEAD（旧）；r12 == v2 | **A** | 真实功能缺陷（V2 库上 global 恒 0 条）；但含**硬编码** `18094`/`19200`，进 main 前应提为配置 |
+| 10 | `index_fulltext_service/.../controller/es.py` | +25/−1：新增 `_to_int_or_raw()`，`order_num`/`status` 不再无条件 `int(v)`（`int('')` 直接 500） | main **无该函数**；r12 == v2 | **A** | P4-L13C 实测过：线上 `order_num=''` → 19527 接口 500；注释还写明「校验与转换必须是同一个动作」 |
+
+### 11~16 · `rag-common` 与 graph-service（Java）
+
+| # | 文件 | 改动摘要 | 交叉核对 | 类别 | 理由 |
+|---|---|---|---|---|---|
+| 11 | `rag-common/.../index/parameter/FileParseTaskInfo.java` | +9：新增 `@JsonProperty("doc2md_dir") String doc2mdDir` | main **无 `doc2mdDir`**；r12 == v2 | **A** | P5 摄取链路的必需字段；删 r12 分支后 main 仍缺 ⇒ 编译不了 v2Ingest |
+| 12 | `rag-common/.../emuns/RedisKeyEnums.java` | −5：删常量 `USER_SEARCH_PREFIX = "user:search:"` | main 仍有；r12 == v2 | **D** | 该常量随 `commonSearch` 一起被 v2 删除（无引用），属 v2 方向；**单独搬进 main 会编译失败**，必须与 15/24/26 同批 |
+| 13 | `rag-common/.../operation/model/UserOperateDO.java` | `@TableId` → `@TableId(value="id", type=IdType.AUTO)` + 注释 | main **未修**；r12 == v2 | **A** | 真实生产故障：多 JVM 同毫秒生成相同雪花 id → `Duplicate entry for key 'user_operate.PRIMARY'` |
+| 14 | `rag-common/.../operation/operation/OperationLogAspect.java` | 写日志包 try/catch（审计旁路不影响业务）；`RequestContextHolder` 非 Servlet 上下文直接跳过 | main **未修**；r12 == v2 | **A** | 与 13 同源故障的第二半：主键冲突冒泡把「选择知识库」打成 500 |
+| 15 | `rag-common/.../qa/request/CommonSearchRequest.java` | **删除**（−48 行） | main 仍存在；**v2 也已删除** | **D** | 属 v2 的接口收敛（统一搜索接口下线）；迁 main 需 Owner 决定是否废弃 `/commonSearch` 对外契约 |
+| 16 | `rag-graph-service/.../infrastructure/NebulaGraphConfig.java` | +14：`@Lazy` + 注释（该 Bean 无注入点却 eager 初始化 → 启动连 Nebula 崩） | main = r12HEAD（无 `@Lazy`）；r12 == v2 | **B**（建议同时进 A） | 诱因是 R12 的 V1 退役（Nebula×3 已停、`r12-graphsvc.service` 已删）；main 环境 Nebula 仍在，属「环境条件才触发」。**但 `@Lazy` 本身环境无关且安全，建议一并进 main**，避免将来退役再踩 |
+
+### 17~23 · `rag-index-service`（Java）
+
+| # | 文件 | 改动摘要 | 交叉核对 | 类别 | 理由 |
+|---|---|---|---|---|---|
+| 17 | `application/service/FileAppService.java` | +12：新增 `@Async void v2Ingest(FileParseTaskInfo)` 接口声明 + doc2md 双路说明 | main 无；r12 == v2 | **A** | P5 摄取能力（搜索 chunk + 图谱同源），删分支即丢 |
+| 18 | `application/service/impl/FileAppServiceImpl.java` | +127/−4：注入 `RemoteV2IngestUtils`；`v2Ingest` 实现；`task_info` 缺 `user_id` 时按创建者回填、仍缺用 `system` 占位告警（否则解析服务 422） | main 版与 r12 **不同**（`cd2fbc6e`≠`e219f222`）；r12 == v2 | **A** | 两项都是真实缺陷修复（后台任务无请求身份 → 422；v2Ingest 缺失） |
+| 19 | `application/service/impl/FileParseTaskAppServiceImpl.java` | +7：解析成功后 `if (!isExtract) v2Ingest(fileParseTaskInfo)` | main 无；r12 == v2 | **A** | P5 派发点，与 17/18 成组 |
+| 20 | `application/service/impl/KnowledgeBaseListAppServiceImpl.java` | +8：`convertedFilePath` 为空时回落 `filePath` 再清理索引（否则「删了文件仍答得出」） | **r12工作区 == main**（`9cf243ac`） | **D** | **main 已含该修复**，r12 这份是重复 |
+| 21 | `domain/service/impl/GraphDomainServiceImpl.java` | +10：`resp == null` 时记日志并 `return true`（V2 无删除端点） | main = r12HEAD；r12 == v2 | **B** | 与 2) 的 `del-graph-*.url: ""` 配套；**副作用要说清**：把「删除失败」也变成「成功」，仅当确认 V2 按代次重建才成立 |
+| 22 | `infrastructure/PdfConvertorUtils.java` | +6/−1：`txt/md/markdown/log/csv` 跳过 LibreOffice 转换 | **r12工作区 == main**（`6d97e8d7`） | **D** | **main 已含该修复** |
+| 23 | `infrastructure/RemoteGraphUtils.java` | +9：`del-graph-space/entity` URL 为空时 `return null`（调用方视为无需删除） | main = r12HEAD；r12 == v2 | **B** | 与 2) 配置配套 |
+
+### 24~26 · `rag-qa-service`（Java）
+
+| # | 文件 | 改动摘要 | 交叉核对 | 类别 | 理由 |
+|---|---|---|---|---|---|
+| 24 | `application/service/AiService.java` | −15：删 `commonSearch`/`addQuery`/`getQueryHistory`/`delQueryHistory` 声明 | main 仍有；r12 == v2 | **D** | 与 15/26 同组，属 v2 接口收敛 |
+| 25 | `application/service/impl/AiServiceImpl.java` | +25/−302：删 `commonSearch` 实现；**R15-F05** global `reference` 从 `filePathDTOS` 回落到 `documents_list`（否则页面无「知识溯源」） | main 版不同（`6ec46d91`）；**v2 已含 R15-F05**（`:395`） | **D** | 两项 v2 都已有；r12 是旧迭代 |
+| 26 | `interfaces/AiController.java` | −26：删 `/commonSearch`、`/addQuery`、历史查询端点 | main 仍有；r12 == v2 | **D** | 同 24；**对外接口删除，迁 main 必须 Owner 确认** |
+
+### 27~36 · 未跟踪文件与运行数据
+
+| # | 文件 | 内容摘要 | 交叉核对 | 类别 | 理由 |
+|---|---|---|---|---|---|
+| 27 | `platform/r12/bin/r12-graph-v2-start.sh`（68 行） | 幂等拉起 18094 HippoRAG + 19531 shim；图根落 `platform/r12/data/graph-root`（不再放 `/tmp`，因 `/tmp` 被清过一次） | main 无；**r12 == v2** | **B** | 纯 R12 运行脚本；被 1) watchdog 调用 |
+| 28 | `platform/r12/conf/rag-index-service/application-r12.yml.bak-20261102` | 11-02 配置备份（5867 B） | main 无；v2 无 | **C** | 手工备份残留 |
+| 29 | `platform/r12/conf/rag-qa-service/application-r12.yml.bak-20261102` | 同上（2784 B） | main 无；v2 无 | **C** | 同上 |
+| 30 | `platform/r12/data/`（245 MB） | `graph-root/kb_9`、`graph-root/kb_1004` 生产图快照 | 未跟踪（main/v2 都无） | **B**（数据，非代码） | 生产运行数据，**不进 main**；建议加入 `.gitignore`（`platform/r12/data/`），否则每次 `git status` 都被它污染 |
+| 31 | `platform/r15/acceptance/results/2026-10-30T20-57-07/` | 验收运行产物（report/env/baseline-diff/raw） | 未跟踪 | **C** | 运行残留 |
+| 32 | `platform/r15/acceptance/results/2026-10-30T20-59-12/` | 同上（并被 5) `last-run.json` 指向） | 未跟踪 | **C** | 运行残留；若要留档则应提交，否则丢 |
+| 33 | `.../controller/es.py.bak-p4l13c` | es.py 的改前备份（md5 `2e33981e` = **r12 HEAD 版**） | v2 有同名同内容 | **C** | P4-L13C 改前快照，改动已落 10)，备份可删 |
+| 34 | `rag-graph-service/.../interfaces/V2GraphProxyController.java`（114 行，未跟踪） | 库级图代理：`/search/v2WholeGraph` → 18094 `/v2/graph/view?kb=<spaceName>`，输出 `{nodeList,edgeList}`，不可用时 200+空+notice | **main 有旧版 87 行**（`88bc23d7`）**但无 `spaceName→kb` 路由**；r12 == v2 | **A** | main 版把**所有库都读同一快照**（`/v2/graph/view` 无 kb 参数）→ 真实缺陷；本版补按库路由。**合并是「替换 main 旧版」不是「新增」** |
+| 35 | `rag-index-service/.../infrastructure/RemoteV2IngestUtils.java`（184 行，未跟踪） | `@Value("${remote.v2-ingest.url:}")` 默认空=关闭；`ingest()` 产出 `IngestOutcome{code,httpStatus,action}`；`classify(int,Integer)` 把 4xx→PARSE_FAIL / 5xx+连不上→RETRY | main 无；r12 == v2 | **A** | P5 摄取客户端；默认空串意味着**合入 main 不会改变行为**（安全） |
+| 36 | `rag-qa-service/.../infrastructure/RetrievalEndpointStartupCheck.java`（127 行，未跟踪） | `ApplicationRunner`：启动时打印 5 个检索依赖 URL 实际加载值，并逐个 `Socket.connect` 自检；失败按 `fail-fast` 抛 `IllegalStateException` | main 无；r12 == v2 | **A**（需微调） | 「静默降级成找不到答案」是真实踩过的坑，自检有价值；**进 main 前需**：`fail-fast` 默认改 `false`、提示文案去掉 `platform/r12/...` 硬编码路径 |
+
+---
+
+## §2 分类汇总
+
+| 类别 | 数量 | 项号 |
+|---|---|---|
+| **A 修 bug / 必须进 main** | **12** | 7, 9, 10, 11, 13, 14, 17, 18, 19, 34, 35, 36 |
+| **B 环境配置 / 留部署侧** | **9** | 1, 2, 3, 4, 16, 21, 23, 27, 30 |
+| **C 临时调试与残留 / 可丢** | **6** | 5, 28, 29, 31, 32, 33 |
+| **D 已被覆盖 / 可丢** | **9** | 6, 8, 12, 15, 20, 22, 24, 25, 26 |
+
+> 说明：16（`@Lazy`）按定义归 B，但**建议同时进 main**（见 §3.4）；30 是运行数据不是代码，归 B 但**处置是 gitignore，不是合并**。
+
+---
+
+## §3 A 类合并建议（12 项）
+
+### 3.1 可独立直接摘取（6 项，互不依赖，风险低）
+
+| 项 | 内容 | 备注 |
+|---|---|---|
+| 7 | `reranker_service.py`：`rrf_k=60` + 按 pk 去重 | 纯算法，无外部依赖 |
+| 10 | `es.py`：`_to_int_or_raw()` | 纯函数 + 1 处调用 |
+| 13 | `UserOperateDO`：`IdType.AUTO` | 单行注解 + 注释 |
+| 14 | `OperationLogAspect`：try/catch + 非 Web 上下文跳过 | 与 13 同源，**建议同批提交** |
+| 34 | `V2GraphProxyController`（114 行） | **替换** main 旧 87 行版，不是新增 |
+| 36 | `RetrievalEndpointStartupCheck` | 先改 `fail-fast` 默认 false + 去掉 r12 路径硬编码 |
+
+### 3.2 必须成组（P5 摄取链路，5 项）
+
+```
+11 FileParseTaskInfo(doc2mdDir)  →  35 RemoteV2IngestUtils  →  17 FileAppService(接口)
+   → 18 FileAppServiceImpl(实现)  →  19 FileParseTaskAppServiceImpl(派发点)
+```
+- **顺序**：先 11（字段）→ 35（客户端）→ 17/18（实现）→ 19（调用点），否则中间态编译不过；
+- **行为安全**：`remote.v2-ingest.url` 默认空串 ⇒ 合入后 `enabled()==false`，生产行为不变（与 `FeignErrorDecode` 一起做时同批验证）；
+- **必带断言**：`v2Ingest` 必须同时写 `graph_parse_status`（Q8 方案），否则前端停在「未做(1)」。
+
+### 3.3 需要改造后再进 main（1 项）
+
+| 项 | 为什么不能原样搬 |
+|---|---|
+| 9 | `retrieval_global_view.py` 把 `18094`/`19200` **硬编码**在文件顶部；进 main 前应提为配置项（否则换环境即失效） |
+
+### 3.4 B 类里建议「顺手进 main」的 1 项
+
+| 项 | 理由 |
+|---|---|
+| 16 `@Lazy` | 改动本身环境无关、无副作用（该 Bean 无注入点）；不进 main 的话，将来 main 环境退役 Nebula 时会以**同样的方式**起不来，而那时没人记得这条 |
+
+### 3.5 D 类里**不能单独搬**的（重要）
+
+| 项 | 风险 |
+|---|---|
+| 12 (删 `USER_SEARCH_PREFIX`)、15 (删 `CommonSearchRequest`)、24/26 (删 `commonSearch` 接口) | 这四项是**同一组接口下线**；只搬其中一项 → **编译失败**（常量/类被删但引用还在），或线上客户端 404。**迁 main 必须 Owner 决定是否废弃 `/commonSearch` 对外契约** |
+
+---
+
+## §4 处置建议（供 Owner 决策）
+
+1. **先合 A 的 3.1 六项**（独立、风险低、main 明确缺）—— 这六项不依赖 P5 主线；
+2. **P5 链路（3.2 五项）随 P5-1 一起进 main**，不要现在单独合（会引入未启用的半成品路径，但与默认关闭的 `url=""` 配合是安全的，取决于 Owner 对「main 是否允许半成品」的口径）；
+3. **D 类 9 项可直接丢弃**（删 r12 分支时随之消失），但 12/15/24/26 要记住「v2 已删、main 未删」，需 Owner 决定契约；
+4. **C 类 6 项可直接丢**；其中 32 若需留档应先提交再删分支；
+5. **`platform/r12/data/` 立即加 `.gitignore`** —— 245 MB 生产图数据挂在 `git status` 里，既拖慢又容易被误提交。
+
+---
+
+## §5 边界自查（只读证据）
+
+- 未执行 `git add/commit/stash/checkout/restore`；未改任何文件；
+- `llmke-v2` 工作区**未触碰**（未 stash、未 checkout、未写入）；
+- 未重启任何服务；未动 `platform/r12/data/` 与任何图快照；
+- 只读命令：`git status/diff/show/ls-files/cat-file`、`md5sum`、`diff`、`wc`、`grep`、`ls`、`du`。
+
+---
+
+## §6 停手期间的只读预验（针对 TL 05:4x 追加的两条约束，**未改任何状态**）
+
+### 6.1 约束一：`#34` 替换后必须验证「不同 kb 返回不同图」—— 现在就把 114 行版的行为钉住
+
+对**当前部署**（`llmke-r12` 的 114 行版，pid 3234127）实测：
+
+| 请求 | 结果 |
+|---|---|
+| `{"spaceName":"kb_9"}` | `200`｜nodes=**114**｜edges=**94**｜notice=None |
+| `{"spaceName":"kb_nonexistent"}` | `200`｜nodes=**0**｜edges=**0**｜notice=**「知识库 kb_nonexistent 尚未构建图谱」** |
+| `{}`（无 spaceName） | `200`｜nodes=0｜notice=**「缺少 spaceName（知识库标识），无法定位该库图谱」** |
+
+**这张表就是 `#34` 合并到 main 后的验收基线**：假库必须返回 **0 节点 + notice**，
+而 **main 的 87 行版做不到**（`/v2/graph/view` 不带 `kb` → 假库也会拿到 kb_9 的快照）。
+⇒ 合并后若跑出「kb_nonexistent 返回 114」，就说明替换没生效，**这正是 TL 要拦的「200 但读错库」**。
+
+### 6.2 约束二：`#36` 进 main 前，检查清单的键在 main 是否对得上 —— 有结论
+
+```
+main 的 NacosConfig 已有字段 searchDocsGlobalUrl，且 @Value 带默认值：
+  @Value("${spring.ai.gt.search-docs-global-url:http://127.0.0.1:19995/retrieval_documents_global}")
+main 的 qa yml 没有该键（仅 search-docs-url / llm-url / llm-chat-url / retrieve-url）
+```
+
+**`#36` 检查的 5 个键在 main 的「字段层面」全部能解析出非空值**（缺键的走 `@Value` 默认）：
+⇒ **不会因为「键缺失」而 fail-fast**，**因此也不需要把 `#3`（qa yml 加 key）搬进 main**。
+
+**真正的风险是「可达性」而非「配置完整性」**：`main` 的拓扑（19995/19996 等）与 r12 不同，
+若那些端口在 main 环境不可达，`fail-fast=true` 会**阻止服务启动**。
+⇒ 合并 `#36` 的硬要求收敛为一条：**`rag-qa.startup-check.fail-fast` 默认必须 `false`**（仅告警），
+`true` 只允许在明确知道拓扑的环境（r12）里显式打开。
+
+### 6.3 边界
+
+本节只做了 `curl` 只读查询与 `git show`；未改文件、未提交、未重启服务。
+（`kb_nonexistent` 查询走的是 18094 `/v2/graph/view`，对不存在库**不产生任何写入**。）
+
+---
+
+## §7 只读复核 `MERGE-TO-MAIN-PLAN.md` §七 的五条验收命令（发现 3 处会导致误判，均实测）
+
+### 7.1 第 3 条缺 `Content-Type` → **实际返回 500「假故障」**
+
+```
+$ curl -X POST http://127.0.0.1:18084/graph/search/v2WholeGraph -d '{"spaceName":"kb_nonexistent"}'
+HTTP=500
+{"success":false,"errorMsg":"Content-Type 'application/x-www-form-urlencoded;charset=UTF-8' is not supported",...}
+
+# 加头后
+$ curl -X POST ... -H 'Content-Type: application/json' -d '{"spaceName":"kb_nonexistent"}'
+HTTP=200
+```
+
+**危害**：将来跑这条命令的人会看到 500，**误判成合并把接口改坏了**（而实际是 curl 少了头）。
+**修正**：
+```bash
+curl -s -X POST http://127.0.0.1:18084/graph/search/v2WholeGraph \
+  -H 'Content-Type: application/json' -d '{"spaceName":"kb_nonexistent"}' \
+| python3 -c 'import json,sys;i=json.load(sys.stdin)["data"];print(len(i.get("nodeList") or []), i.get("notice"))'
+# 期望输出：0 知识库 kb_nonexistent 尚未构建图谱
+```
+
+### 7.2 第 2 条检查的键在**两个仓里都不存在** → 命令无输出，无法区分「未启用」与「命令写错」
+
+```
+r12  平台配置 grep -c 'v2-ingest' → 0
+main 平台配置 grep -c 'v2-ingest' → 0
+```
+
+**`v2-ingest` 从来没写进 yml** —— 关闭靠的是 Java 的 `@Value("${remote.v2-ingest.url:}")` 默认空串。
+**修正（两行，缺一不可）**：
+```bash
+grep -c 'v2-ingest' platform/r12/conf/rag-index-service/application-r12.yml        # 期望 0（键不存在=关闭）
+grep -n 'remote.v2-ingest.url:' services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/infrastructure/RemoteV2IngestUtils.java
+# 期望：@Value("${remote.v2-ingest.url:}")  ← 冒号后为空 = 默认关闭
+```
+
+### 7.3 第 4 条 `fail-fast` **不在配置里，默认值在 Java** → 命令查错了文件
+
+```
+$ grep -rn 'fail-fast' platform/r12/conf/rag-qa-service/     → 0 命中
+$ grep -n 'fail-fast' .../RetrievalEndpointStartupCheck.java
+  :53  @Value("${rag-qa.startup-check.fail-fast:true}")     ← 默认 true，就是风险本身
+```
+
+**关键含义**：把默认改成 `false` 是**改 Java 代码**（第 53 行），不是加配置项；
+若只在 yml 里加 `fail-fast: false`，**main 环境没有该配置时仍会按 Java 默认 `true` 阻断启动**。
+**修正**：
+```bash
+grep -n 'startup-check.fail-fast' services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/infrastructure/RetrievalEndpointStartupCheck.java
+# 期望：@Value("${rag-qa.startup-check.fail-fast:false}")
+```
+
+### 7.4 另外两条（1、5）复核结论：可用，但需补 `cd`
+
+```bash
+# 第 1 条必须先进 rag-parent，否则 -pl 解析不到模块
+cd services/rag-java/rag-parent && mvn -o -pl rag-index-service,rag-qa-service -am -DskipTests package
+
+# 第 5 条要指明 worktree（同一仓库三个 worktree，<repo> 指错就永远是 OK 的假阳性）
+git -C /home/szf/data/dev/llmke-r12 check-ignore -v platform/r12/data
+```
+
+### 7.5 边界
+
+本节仅执行 `curl`（只读查询、对不存在库无写入）与 `grep/git show`；未改 PLAN、未改任何代码或配置。
+
+---
+
+## §8 「期望 0 命中」必须配同源正例（TL 06:2x 的新规则，此处给出可直接抄的样例）
+
+> 规则：**所有「grep 期望 0 命中 / 键不存在」的判据，必须配一条同源正例证明「这条 grep 本身能命中」**，
+> 否则「0 命中」既可能是「符合预期」，也可能是「命令写错 / 证据源找错」，**永远无法证伪**。
+
+### 8.1 第 2 条（`v2-ingest` 未配置）—— 负例 + 两条正例
+
+```
+$ grep -c 'v2-ingest'      platform/r12/conf/rag-index-service/application-r12.yml
+0        ← 负例（期望值）
+$ grep -c 'generate-graph' 同一文件
+2        ← 正例：证明 grep 能读该文件、能命中（文件路径与编码都对）
+$ grep -c 'py-milvus-url'  同一文件
+1        ← 第二正例
+```
+
+### 8.2 第 4 条（`fail-fast` 默认值在 `.java:53`）—— 负例 + 现状确认 + 正例
+
+```
+$ grep -c 'startup-check.fail-fast:false' .../RetrievalEndpointStartupCheck.java
+0        ← 负例（合并前应当为 0；合并后应为 1）
+$ grep -c 'startup-check.fail-fast:true'  同一文件
+1        ← 现状：默认 true（真实风险所在）
+$ grep -c 'startup-check.enabled'         同一文件
+3        ← 正例：证明文件路径正确、grep 可用
+```
+
+### 8.3 第 3 条（`v2WholeGraph` 分 kb）—— 「0 节点」不是解析失败的证明办法
+
+```
+kb_9             → nodes=114  notice=None                         ← 正例：同一命令、同一解析器，能得非 0
+kb_nonexistent   → nodes=0    notice=知识库 kb_nonexistent 尚未构建图谱   ← 负例（期望值）
+```
+
+**同一条 `curl | python3` 管道对 `kb_9` 返回 114**，说明「0」不是 JSON 解析失败、不是缺 `Content-Type`、也不是端口不通 ——
+**这正是「同源正例」的意义：让 0 变成可证伪的 0。**
+
+### 8.4 可复用模板
+
+```bash
+neg=$(grep -c "$KEY" "$FILE")          # 期望 0
+pos=$(grep -c "$KNOWN_KEY" "$FILE")    # 期望 ≥1（同一文件、同一命令）
+[ "$neg" = 0 ] && [ "$pos" -ge 1 ] && echo "PASS: $KEY 确实不存在（并已证明 grep 有效）" || echo "FAIL/无法判定"
+```

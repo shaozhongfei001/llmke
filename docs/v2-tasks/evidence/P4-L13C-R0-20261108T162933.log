@@ -1,0 +1,213 @@
+# P4-L13-C · R-0 只读核实（两问 + 基线）
+
+- 时间：2026-11-08T16:29:33+0800；角色 `python-engineer`
+- **未写代码、未执行任何 C1~C5 动作、未建索引、未起 18096**
+- 授权范围：① 创建 `v2cand_*` 影子索引；② 启动 18096。不含重启 18094 / 改 `index_prefix` / 写线上
+
+---
+
+## 1. 问题①：`POST /v2/graph/delta` 的 `root` **被采纳**（图可以隔离）
+
+证据链（`delta_build.py`）：
+
+```python
+:250  root = _kb_root(kb, getattr(req, "root", None))
+:58   base = root or os.environ.get("LLMKE_V2_ROOT") or DEFAULT_ROOT   # .artifacts/api-root
+:256  base_dir = _base_snapshot(root)      # read_pointer(root)
+:283  out = rebuild_delta(root, fence, live, ...)  /  rebuild(root, ...)
+:265  common = {..., "root": root, ...}    # 响应里回显实际使用的 root，可审计
+```
+
+`DeltaRequest.root` 是**显式字段**（`api.py:111`），`delta_build` 用它覆盖 env/默认。
+→ **图可隔离**，但注意 `_kb_root` 会拼 `<root>/<kb>`：传 `graph_root=X` 的实际落点是 **`X/kb_9`**。
+
+### ⚠️ 1.1 但发现**两个会让 C3 直接失败**的细节
+
+#### (a) 空影子 root 首次 ingest 会 `NO_BASELINE_SNAPSHOT`(422)，不是 BUILT
+
+```python
+:272  # J4-A（D-9）：delta 必须有基准快照；判空前置
+:273  if effective == "DELTA" and base_dir is None:
+:274      return {..., "status": STATUS_REJECTED, "effective_mode": "DELTA",
+:275              "reason": "NO_BASELINE_SNAPSHOT"}
+```
+
+全新影子目录没有 `current.json` → `base_dir is None` → 必然 422。
+**出路（无需改代码）**：首次 ingest 用 `operation="FULL_REBUILD"` + `fallback_reason="SHADOW_BOOTSTRAP"`。
+
+链路已核通：`IngestRequest.operation=FULL_REBUILD` → `diff.reason=FULL_REBUILD_REQUESTED`
+→ `_delta_runner` 发 `requested_mode="full"` → `_resolve_mode("full")` 直接返回
+`{"effective": "FULL", "canary_source": "explicit:full"}`（`delta_build.py:168-169`，**绕过 canary**）
+→ 走 `rebuild(root, ...)` 在影子 root 建首个快照 → 后续 UPSERT 才走 DELTA。
+
+> 若首次就用 `UPSERT`（reason=FILE_SET_CHANGED）→ runner 发 `auto` → `effective=DELTA` → 422。
+
+#### (b) **请求里的 `graph_root` 在生产路径上不生效** —— 必须用环境变量
+
+```python
+kb_ingest_service.py:221  def _delta_runner(graph_api, graph_root):   # ← 闭包捕获 startup 时的值
+kb_ingest_service.py:233      ... root=graph_root ...
+kb_ingest_service.py:249      graph_root = graph_root or os.environ.get("LLMKE_V2_GRAPH_ROOT")
+kb_ingest_service.py:164      graph_root: Optional[str] = None        # IngestRequest 字段
+kb_ingest_service.py:350      # 只有 legacy `runner` 兼容分支才用请求里的 graph_root
+```
+
+即：`create_app()` 建 service 时把 env 的 `LLMKE_V2_GRAPH_ROOT` 闭包进去，
+**`IngestRequest.graph_root` 在 `service.run(payload)` 路径上被忽略**。
+
+→ 两个选项，请裁定：
+- **(A) 用 env（无需改代码）**：C2 启动 18096 时设 `LLMKE_V2_GRAPH_ROOT=<影子目录>`，
+  所有 ingest 的图都落到 `<影子目录>/kb_9`。**隔离成立，但不是"按请求显式带"**；
+- **(B) 改代码**：`_delta_runner` 优先取 `req.graph_root`（需你批准一次代码改动；
+  改完要重跑 L12/L13 测试）。
+
+我倾向 **(A)**：C 段是运行态验证，改代码会引入「验证的不是已测版本」的风险。
+但 PLAN 写的是「所有 ingest 必须显式带 `graph_root`，这条没有例外」——所以这条必须你定。
+
+---
+
+## 2. 问题②：建索引/collection 的实际入参
+
+### 2.1 `POST 19527/create_es_index` —— **不需要传 mapping body**
+
+```python
+# base.py:35-36
+class CreateIndexModel(IndexModel):        # IndexModel: index_name: str
+    mapping_body: dict = ES_INDEX_MAPPING
+
+# es_kb_service.py:169-177
+index_name = is_index_lower(index_model.index_name)
+if "table_summary_" in index_name:  body = ES_INDEX_MAPPING_SUMMARY
+elif "table_chunks_" in index_name: body = ES_INDEX_MAPPING_CHUNKS     # ← v2cand_table_chunks_kb_9 命中这条
+elif "database_" in index_name:     body = ES_INDEX_MAPPING_DATABASE
+else:                               body = index_model.mapping_body or ES_INDEX_MAPPING
+```
+
+→ 请求只需 `{"index_name": "v2cand_kb_9"}` / `{"index_name": "v2cand_table_chunks_kb_9"}`；
+mapping **按名字自动选**（`table_chunks_` 用 CHUNKS 那份）。`file_id` 的 `keyword` 子字段在
+`ES_INDEX_MAPPING`（`es_kb_config.py:82-89`）与 CHUNKS 那份（`:424-430`）里都有。
+
+### 2.2 `POST 19526/create_milvus_collection` —— **维度不在请求里**
+
+```python
+# base.py:50-55
+class DatabaseConfigModel(DataBaseModel):       # db_name 默认 server_config["milvus_database"]
+    collection_name: str                        # ← 必填
+    vector_field_name: str = 'vector'
+    vector_mapping_body: dict = None
+    model_name: str = None
+
+# milvus_kb_service.py:328-329
+vector_dim = embed_change_ctrl.resolve_vector_dim(nacos_config=..., model_name=...)
+vector_mapping_body = embed_change_ctrl.resolve_vector_mapping(collection_name, vector_dim)
+```
+
+→ 请求只需 `{"collection_name": "v2cand_kb_9"}`；维度由 **Nacos 的 embedding 配置**解析
+（`model_name=None` 用默认模型），请求里**没有维度字段**。
+
+### 2.3 ⚠️ Milvus 服务端会给集合名加 `_` 前缀（L8 已确认，这里再次实测）
+
+```
+GET 19630 collections/list → ["_kb_9", "_kb_1004", "_table_summary_r12_it_parse_002", "_None", ...]
+```
+
+→ 创建 `v2cand_kb_9` 后，Milvus 侧实际名是 **`_v2cand_kb_9`**。C1 验收要按**加了前缀的真实名**断言，
+否则会误判「没创建成功」。
+
+---
+
+## 3. 基线（C1 前，每步都要与之对比）
+
+```
+$ curl -s http://127.0.0.1:19200/kb_9/_count
+{"count":44,...}
+
+$ curl -s 'http://127.0.0.1:19200/_cat/indices?h=index,docs.count,store.size&s=index'
+db1                 41 287.6kb
+kb_1004           4520   2.2mb
+kb_9                44   1.1mb
+none                 1  21.3kb
+table_chunks_kb_9    2  28.5kb
+
+$ curl -s 'http://127.0.0.1:19200/_cat/indices/v2cand*?h=index'
+（空）
+
+$ ss -tlnp | grep :18094
+pid=3202203 / pid=3189651
+
+$ printenv LLMKE_V2_ROOT
+（unset，exit=1）
+
+$ ls -ld platform/r12/data/graph-root .artifacts/api-root
+platform/r12/data/graph-root  不存在
+.artifacts/api-root           存在（2026-11-02 22:56）
+```
+
+### ⚠️ 3.1 **线上图的真实落点是 `.artifacts/api-root`，不是 `platform/r12/data/graph-root`**
+
+`LLMKE_V2_ROOT` 未设置 → `delta_build.DEFAULT_ROOT = ".artifacts/api-root"`（**相对路径**，
+相对 18094 进程 CWD）。而 PLAN §二 写的「线上图目录 = `platform/r12/data/graph-root`」**不存在**。
+
+→ **C3 的「线上图 mtime 未变」必须对比 `.artifacts/api-root`**，否则会拿一个不存在的目录做断言，
+得到「未变」的假绿。请确认该路径（若 18094 的 CWD 不是 `services/rag-alg/index_data_service`，
+绝对路径会不同；我可以用 `/proc/<pid>/cwd` 读，属只读）。
+
+---
+
+## 4. 请裁定（3 项）
+
+| # | 问题 | 我的建议 |
+|---|---|---|
+| Q1 | 图隔离用 **(A) env `LLMKE_V2_GRAPH_ROOT`** 还是 **(B) 改代码优先取 `req.graph_root`** | **(A)**：C 段验证运行态，不该同时改代码；但请确认「PLAN 要求显式带 graph_root」可放宽为「服务级 env 指向影子」 |
+| Q2 | C3 首次 ingest 用 `operation=FULL_REBUILD` + `fallback_reason=SHADOW_BOOTSTRAP`（唯一能得到基准快照的方式） | 同意这么做，并在 C3 evidence 写明「首次是全量建图，不是 delta」 |
+| Q3 | 线上图基线目录确认为 `.artifacts/api-root`（相对 18094 CWD） | 请确认；我随后读 `/proc/<pid>/cwd` 给绝对路径 |
+
+**在 Q1~Q3 裁定前不动 C1。**
+
+---
+
+## 5. **更正 §3.1：线上图不在 `.artifacts/api-root`，而在另一个仓 `llmke-r12`**
+
+我上一版把「18094 默认 root」按 `delta_build.DEFAULT_ROOT=".artifacts/api-root"` 推成了
+`<本仓 CWD>/.artifacts/api-root`。**错**。读 `/proc/<pid>/environ` 拿到进程真实环境：
+
+```
+$ tr '\0' '\n' < /proc/3189651/environ | grep '^LLMKE_'
+LLMKE_V2_ROOT=/home/szf/data/dev/llmke-r12/platform/r12/data/graph-root
+$ （pid 3202203 同上）
+```
+
+→ **线上图 root = `/home/szf/data/dev/llmke-r12/platform/r12/data/graph-root`**（**另一个仓**），
+`DEFAULT_ROOT` 只在 env 缺失时才用，而 env 是**显式设好的**。
+`.artifacts/api-root` 下只有 `snapshot-2026...`（无 `kb_9/current.json`），是**无关旧目录** ——
+若拿它做「线上图 mtime 未变」的断言，会得到**假绿**（断言了一个本来就不会被写的目录）。
+
+### 5.1 正确的线上图基线
+
+```
+$ ls -la /home/szf/data/dev/llmke-r12/platform/r12/data/graph-root
+drwxr-xr-x kb_9       2026-11-07 21:31
+drwxr-xr-x kb_1004    2026-11-07 01:11
+（root 本身 mtime 2026-11-06 21:52）
+
+$ cat .../graph-root/kb_9/current.json
+{"schema":"llmke.graph-engine.rebuild.v1",
+ "dir":".../graph-root/kb_9/snapshot-20261107212905-365431-g0",
+ "generation":0, "fencing":1, "documents":46, "dropped_revoked":[], ...}
+
+$ find .../graph-root -maxdepth 2 -newermt "2026-11-08 00:00:00"
+（空 = 今天（11-08）从未写入过）
+```
+
+**C3 的隔离断言必须对比这个路径**（`kb_9` 目录 mtime + `current.json` 的 `dir`/`fencing` 不变），
+不是 `platform/r12/data/graph-root`（llmke-v2 下不存在），也不是 `.artifacts/api-root`。
+
+> 这也解释了 PLAN §二 写的 `platform/r12/data/graph-root` 为什么在本仓找不到：
+> 它指的是 `llmke-r12` 运行仓。**PLAN 那句需要按本文件更正。**
+
+### 5.2 由此带来的一个 C2 结论
+
+18096 若**不设** `LLMKE_V2_GRAPH_ROOT`，`_delta_runner` 的 `root=None` → 18094 侧
+`_kb_root(kb, None)` → 用**它自己进程的** `LLMKE_V2_ROOT` = **线上图**。
+所以 Q1 的选 (A)（env 指向影子）是**必须**的，不是可选：18096 与 18094 的 env 是**各自进程独立**的，
+18096 不设就会直接改线上图。

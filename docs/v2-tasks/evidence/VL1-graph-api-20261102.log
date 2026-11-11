@@ -1,0 +1,7 @@
+== GET /health ==
+{"schema":"llmke.graph-api.v1","status":"ok","snapshot":"/home/szf/data/dev/llmke-v2/.artifacts/stress/snapshot-20261101200939-222273-g0","nodes":97,"edges":258,"facts":76}
+== POST /v2/graph/query ==
+{"schema":"llmke.graph-api.v1","query":"单笔授信超过五亿元由谁审议通过","executed_route":"GRAPH","reason":"GRAPH_CALLED","trace":{"graph_calls":1,"seed_hits":[],"fact_candidates":5,"rerank_fallback":true},"hit_count":3,"docs":[{"rank":1,"text":"## 授信管理办法\n\n第一章 总则。本办法适用于集团内全部对公客户授信业务，包括额度核定、发放与贷后管理。\n\n第二章 额度核定。授信额度依据客户信用评级、所属产业链与近三年经营情况综合核定。\n信用评级 AA 及以上客户，额度上限为净资产的百分之三十；A 级客户为百分之二十。\n\n第三章 审批权限。单笔授信不超过一亿
+== pytest tests/test_graph_api.py ==
+....                                                                     [100%]
+4 passed in 0.28s

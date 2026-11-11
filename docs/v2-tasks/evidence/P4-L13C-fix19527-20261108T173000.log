@@ -1,0 +1,190 @@
+# P4-L13-C · 改 19527（`_to_int_or_raw`）+ 低峰重启 · 待 TL 确认后再发 C3a
+
+- 时间：2026-11-08 17:29~17:31；角色 `python-engineer`
+- Owner 已授权：改 19527 这一处 + 低峰重启
+- **本步只做「改 + 重启 + 四项健康信号」，未发 C3a**（按 TL 要求分两步报）
+
+---
+
+## 0. 先确认 TL 的「改错仓」判断（我自己复核过，成立）
+
+| 进程 | cwd | 归属仓 |
+|---|---|---|
+| 19527（原 pid 23140） | `.../llmke-r12/services/.../index_fulltext_service_pactera` | **llmke-r12** |
+| 18094（3189651/3202203） | `.../llmke-v2/services/rag-alg/index_data_service` | llmke-v2 |
+| 18096（1332063） | 同上 | llmke-v2 |
+
+`readlink -f` 各自指向自己仓；两份 `es.py` 改动前 md5 **相同**（`2e33981e6b187f5f894c5d91583b6e33`）但**物理独立**。
+→ 只改 v2 确实不会影响 19527。**两处都改，内容逐字相同**（改后 `diff -q` 输出 IDENTICAL）。
+
+---
+
+## 1. 改动（两仓同步）
+
+### 1.1 备份（TL 要求，非可选）
+
+```
+$ cp <r12>/controller/es.py <r12>/controller/es.py.bak-p4l13c
+2e33981e6b187f5f894c5d91583b6e33  es.py.bak-p4l13c        # 与改前逐位相同
+```
+
+### 1.2 md5 前后
+
+| 路径 | 改前 | 改后 |
+|---|---|---|
+| `llmke-r12/.../controller/es.py` | `2e33981e6b187f5f894c5d91583b6e33` | **`72254b0081600d8f676b7258501d452e`** |
+| `llmke-v2/.../controller/es.py` | `2e33981e6b187f5f894c5d91583b6e33` | **`72254b0081600d8f676b7258501d452e`** |
+
+两仓改后 `diff -q` → **IDENTICAL**。
+两个仓的 `git status` 都显示 `M .../controller/es.py`（**同属本仓体系，已留痕**）。
+
+### 1.3 完整 diff（42 行；只新增 helper + 改 1 行调用）
+
+```diff
+@@ -141,6 +141,30 @@
+     return s_field_names, m_field_names
+ 
+ 
++def _to_int_or_raw(v):
++    """能转 int 的转 int，其余原样返回。
++
++    为什么需要：`order_num` / `status` 在 ES mapping 与 Milvus schema 里都是**字符串**
++    （`{"type": "text", keyword}` / `VARCHAR`），线上数据是 `''`，FAQ 场景可能是 `'1'`。
++    原实现无条件 `int(v)` → `int('')` / `int(None)` 直接 ValueError → 接口 500。
++
++    **校验与转换必须是同一个动作**：不要写成「先用 isdigit 判断、再 int()」——
++    两套规则必然分叉（`'--1'` 被 isdigit 放行但 int() 崩；`'+1'` / `'1_000'` 则相反）。
++    这里直接 `int()`，因为它就是规则本身。
++
++    实测：`''`→`''`、`'1'`→`1`、`'--1'`→`'--1'`、`'+1'`→`1`、`'1_000'`→`1000`、
++    `'1.5'`→`'1.5'`、`None`→`None`、`1.5`→`1.5`、`True`→`True`。
++    """
++    if isinstance(v, bool):
++        return v                      # True/False 不当整数
++    if isinstance(v, (int, str)):
++        try:
++            return int(v)
++        except ValueError:
++            return v
++    return v                          # None / float / 其它一律原样
++
++
+ def build_actions(insert_model: InsertDataModel, s_field_names, index_name) -> Tuple[list, Set[str]]:
+@@ -252,7 +276,7 @@
+                 elif sf == 'metadata':
+                     for f, v in doc_dict['metadata'].items():
+                         if f in ('order_num', "status"):
+-                            actions_dict['_source'][sf][f] = int(v)
++                            actions_dict['_source'][sf][f] = _to_int_or_raw(v)
+                         else:
+                             actions_dict['_source'][sf][f] = v
+```
+
+> **一个过程缺陷（我自己的，已修）**：第一版补丁用 `read_text/write_text`，把原文件的 **CRLF 归一成 LF**，
+> 导致 `diff` 变成「整个文件 572 行全变」，根本没法评审。已回滚重做，改成**按字节替换、保留原换行风格**，
+> 现在 diff 只有 42 行。教训：**改别人仓的文件，先确认换行风格**，否则会把最小改动做成不可审的整文件重写。
+
+### 1.4 语法与行为自测
+
+```
+$ <r12 venv>/bin/python -m py_compile <r12>/controller/es.py   → r12 compile OK
+$ <v2 venv>/bin/python  -m py_compile <v2>/controller/es.py    → v2 compile OK
+
+# 从**实际文件**里解析出 helper 再逐值跑（不是另抄一份）：
+''        -> ''        '1'      -> 1         '-1'     -> -1
+'--1'     -> '--1'     '+1'     -> 1         '1_000'  -> 1000
+'1.5'     -> '1.5'     None     -> None      0        -> 0
+True      -> True      1.5      -> 1.5
+```
+
+---
+
+## 2. 重启 19527（含一次失败尝试，如实记录）
+
+### 2.1 重启前基线
+
+```
+$ ps -o lstart= -p 23140      → Fri Nov  6 17:46:19 2026
+$ ps -o cmd= -p 23140         → .../llmke-r12/platform/r12/venvs/alg/bin/python -u fulltext_es_api_start.py
+$ 各索引 _count：
+  kb_9 44 | kb_1004 4520 | db1 41 | table_chunks_kb_9 2 | none 1
+$ /proc/23140/cgroup → 0::/user.slice/.../r12-alg.service     # 由 systemd --user 的 r12-alg unit 托管
+```
+
+### 2.2 ❌ 第一次尝试失败（必须记下来）
+
+`kill 23140` 后等 30s，**watchdog 没有自动拉起**（预期它按 45s 周期检查，但本次窗口内未触发）。
+于是按 TL 给的命令手工起：
+
+```
+$ setsid nohup <r12 venv>/bin/python -u fulltext_es_api_start.py > logs/restart-p4l13c.log 2>&1 &
+→ ValueError: server address & endpoint must not both none      （nacos/client.py:307）
+```
+
+**原因**：原进程不是裸跑，而是 `algctl.sh` 起的，**Nacos 地址等环境变量由 algctl 注入**。
+TL 给的命令假设「直接跑 Python 即可」，漏了 env —— 这不是 TL 的判断错，而是「进程 cmd 看起来像裸启动」的陷阱（cmd 里看不到 env）。
+
+### 2.3 ✅ 正确路径：用原启动器重启单个服务
+
+```
+$ bash platform/r12/run/algctl.sh restart index_fulltext_service
+index_fulltext_service 清理遗留进程 1 个（同入口脚本孤儿）
+index_fulltext_service stopped (freed :19527)
+index_fulltext_service started pid=1762713 port=19527 http=200
+  log=.../platform/r12/logs/index_fulltext_service.log
+```
+
+- 清理的「1 个孤儿」就是我 2.2 那次失败尝试的残留进程（同入口脚本），已由 algctl 清掉；
+- **服务中断总时长约 50 秒**（17:29:40 kill → 17:30:30 新进程起来）。
+- 新进程在 **`r12-alg.service`** 托管下（algctl 由该 unit 调用），因此后续仍受既有 watchdog/unit 体系覆盖。
+
+---
+
+## 3. 四项健康信号（缺一不可，全过）
+
+| # | 判据 | 实测 |
+|---|---|---|
+| 1 | `/openapi.json` 200 且含 `/insert_fulltext_documents` | `HTTP=200`，paths 11 条，含 `/insert_fulltext_documents` **True**、`/del_doc_by_col` **True** |
+| 2 | 端口监听且 pid **≠ 23140** | `LISTEN 127.0.0.1:19527 pid=1762713`，启动于 `Sun Nov 8 17:30:30 2026` |
+| 3 | 日志无 traceback 且出现 `init config` | `init config: {...}` 出现；`grep -c Traceback` = **0**；`Application startup complete` / `Uvicorn running on http://127.0.0.1:19527` |
+| 4 | 数据不变 | `kb_9 44`、`kb_1004 4520`、`db1 41`、`table_chunks_kb_9 2` —— 与重启前**逐项相同** |
+
+### 3.1 新进程确实加载了新代码（时间序证明）
+
+```
+es.py mtime      = 2026-11-08 17:29:25.66   （打补丁时间）
+新进程启动时间   = 2026-11-08 17:30:30      （晚 65 秒 → import 时读到的是新文件）
+es.py md5（磁盘）= 72254b0081600d8f676b7258501d452e
+```
+
+> 严格的功能级证明由 C3a 给出（同一请求、同一 `doc2md_dir`，若仍 500 说明改法无效）。
+
+### 3.2 上下游未受影响
+
+```
+18094 pid = 3189651 / 3202203   （未动）
+18096 pid = 1332063             （未动，仍未写入任何数据）
+```
+
+---
+
+## 4. 日志摘录（**已脱敏**）
+
+`init config` 那行包含明文 Redis 口令，本 evidence **不复制原文**，只记录存在的字段名：
+`es_conn_config`（ES 19200）、`milvus_conn_config`（19630 / db=`rag_knowledge_base`）、
+`embedding_model=bge-m3 dim=1024`、`redis_config.password=***REDACTED***`。
+
+> 顺带一条观察（不在本 loop 范围）：该服务启动时把 nacos 全量配置（含 Redis 口令）**打进 INFO 日志**，
+> 属敏感信息落盘，建议后续单独提一个安全项。
+
+---
+
+## 5. 状态与下一步
+
+- 代码：两仓 `es.py` 均已改为 `72254b00…`，备份 `es.py.bak-p4l13c` 在 r12 仓；
+- 19527：pid **1762713**、四项信号全过、数据未变；
+- 18096：pid **1332063**，仍零写入；18094 未动；
+- 影子索引 `v2cand_kb_9` / `v2cand_table_chunks_kb_9` 仍各 **0** 条；影子 `graph-root` 不存在；
+- 线上图 `kb_9/current.json` md5 `e2d0f754…` 未变。
+
+**未发 C3a**（按 TL 要求先报「改完 + 重启完 + 四项信号」）。等确认后再发同一条请求。

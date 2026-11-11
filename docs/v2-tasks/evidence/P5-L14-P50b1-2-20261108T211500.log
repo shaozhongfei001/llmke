@@ -1,0 +1,364 @@
+# P5-L14 · P5-0b-1 / P5-0b-2 记录（探测 + 重建 + **启动失败，环境侧根因**）
+
+- 时间：2026-11-08 21:09 ~ 21:16（TZ=Asia/Shanghai）
+- 授权：Owner 批、TL 下发 P5-0b-1 → P5-0b-3 连续执行
+- 结论先说：**探测 404 确认、jar 重建成功、但 18084 起不来——原因是 NebulaGraph 三个容器 42 小时前已被显式停止，与本次构建无关（用旧 jar 复现同一失败）。**
+
+---
+
+## §0 TL 指令里一处端口错误（必须先纠正，否则会误判）
+
+TL 给的探测目标是 `http://127.0.0.1:18081/search/v2WholeGraph`，并称「直连 18081 是 graph-service」。
+
+**权威映射（`/proc/<pid>/cmdline`，不凭记忆）**：
+
+```
+18081 → pid 3990335 → rag-auth-service-0.0.1-SNAPSHOT.jar      ← auth
+18084 → pid 4043286 → rag-graph-service-0.0.1-SNAPSHOT.jar     ← graph
+```
+
+`platform/r12/conf/rag-graph-service/application-r12.yml`：
+```
+:40   server.port: 18084
+:42-43 server.servlet.context-path: /graph
+```
+
+**若照 TL 的端口/路径发探测，会得到 404 并**误判「Controller 缺失」** —— 而那是 auth 服务上不存在的路径。
+这与本轮反复防的「期望值凭记忆写」是同一类错误，**发现即纠正，未按错误目标下结论**。
+
+---
+
+## §1 P5-0b-1：探测（三重对照，404 可信）
+
+```bash
+# ① 对照：graph-service 既有端点（证明服务活着、前缀正确、路由可达）
+GET  /graph/search/instances
+→ HTTP 500
+  {"success":false,"errorMsg":"Required request parameter 'spaceName' for method parameter type String is not present","errorCode":"999"}
+  ← 路由**命中**并进入参数校验（业务 JSON 形态）
+
+# ② 目标端点
+POST /graph/search/v2WholeGraph  {"spaceName":"kb_9"}
+→ HTTP 404
+  {"timestamp":"2026-11-08T13:10:03.247+00:00","status":404,"error":"Not Found","path":"/graph/search/v2WholeGraph"}
+  ← Spring 默认 404 页（与①的形态截然不同）
+
+# ③ 去 context-path 对照（证明 /graph 前缀必需，不是路径写错）
+POST /search/v2WholeGraph      → 404
+GET  /search/instances         → 404
+
+# ④ jar 侧（改动前）
+unzip -l .../rag-graph-service-0.0.1-SNAPSHOT.jar | grep -c V2GraphProxyController.class → 0
+```
+
+**判据结论**：返回 404 → **第 1 环确认断**（jar 内无 Controller），且已排除
+「端口错 / 路径前缀错 / 服务整体 404 / 方法不对」。按 TL 规则应继续 P5-0b-2。
+
+---
+
+## §2 P5-0b-2：同步 + 重建
+
+| 步骤 | 结果 |
+|---|---|
+| A 文件 | `V2GraphProxyController.java` 114 行、md5 `9758ee9483d45bd261fc120f0adbb4a0` |
+| B 侧 | **不存在**（新增文件） |
+| 同步 | `cp -p` A→B，`cmp -s` **逐字节一致**，仍 114 行 |
+| 备份 | `/tmp/p5-0b-bak/src-rag-graph-service-<ts>.tgz`；旧 jar `rag-graph-service.jar.bak-<ts>`（md5 `a1e403307eaa2b521b6d4890bcba304d` / 160,692,918 B / 11-07 02:57） |
+| 编译 | `mvn -o -pl rag-graph-service -am -DskipTests package` → **BUILD SUCCESS 9.0 s** |
+| 新 jar | `7e9f670543f90931a27ef0896ef9fa76` / 160,696,352 B |
+
+**部署前 jar 验收（三条之一、之二成立）**：
+```
+unzip -l → BOOT-INF/classes/com/gientech/raggraphservice/interfaces/V2GraphProxyController.class  5,847 B  命中 1 ✅
+javap -p → public java.util.Map<java.lang.String, java.lang.Object> v2WholeGraph(java.util.Map<...>); ✅
+```
+
+---
+
+## §3 P5-0b-2：重启失败（**exit=1，5 秒退出**）
+
+```
+旧 pid 4043286（lstart Sat Nov 7 03:04:38）→ SIGTERM 45s 未退 → SIGKILL → 端口释放
+启动 → 进程 exit=1（约 5 s）
+```
+
+**失败栈（不是类加载错误，是启动期硬依赖）**：
+
+```
+org.springframework.beans.BeanInstantiationException:
+  Failed to instantiate [com.vesoft.nebula.client.graph.SessionPool]:
+  Factory method 'getSessionPool' threw exception: java.net.ConnectException
+Caused by: java.lang.RuntimeException: java.net.ConnectException: NebulaGraph pool init failed.
+  at com.gientech.raggraphservice.infrastructure.NebulaGraphConfig.getSessionPool(NebulaGraphConfig.java:69)
+```
+
+`NebulaGraphConfig.getSessionPool` 是 `@Bean`：**nebula 不可达 → Spring 上下文起不来 → 进程退出**。
+
+---
+
+## §4 决定性实验：**旧 jar 复现同一失败**（证明与本次构建无关）
+
+```
+1) 回滚 jar：cp -p 备份 → target/…jar，md5 回到 a1e403307eaa2b521b6d4890bcba304d（= 原件）
+2) 用旧 jar 启动（同 cmd / 同 env / 同日志）
+   → 进程 exit=1（5 s）
+   → Caused by: java.net.ConnectException: NebulaGraph pool init failed.
+```
+
+**同一错误 ⇒ 新 jar / 源码同步 / `-am` 重建均非原因。**
+
+---
+
+## §5 环境侧根因：Nebula 三个容器 42 小时前被**显式停止**
+
+```
+$ docker ps -a --format '{{.Names}}\t{{.Status}}'
+r12-nebula-graphd     Exited (0) 42 hours ago   docker.1ms.run/vesoft/nebula-graphd:v3.8.0
+r12-nebula-storaged   Exited (0) 42 hours ago   …nebula-storaged:v3.8.0
+r12-nebula-metad      Exited (0) 42 hours ago   …nebula-metad:v3.8.0
+
+$ docker inspect
+State=exited  ExitCode=0  FinishedAt=2026-11-06T19:04:52Z（三者同一秒）
+RestartPolicy=unless-stopped
+端口映射：graphd 9669/tcp → 127.0.0.1:19669
+```
+
+- `ExitCode=0` + `RestartPolicy=unless-stopped` 却未自动拉起 ⇒ **是 `docker stop` 类显式停止**，不是崩溃/OOM；
+- `FinishedAt` = **2026-11-07 03:04:52 +0800**；
+- 旧 graph-service 进程 `lstart` = **2026-11-07 03:04:38** —— 只比 nebula 退出早 **14 秒**。
+
+### 由此得出的两个既有事实（不是本次造成，但必须记录）
+
+1. **18084 已带病运行 42 小时**：连接池建于「nebula 死前 14 秒」，之后任何走 Nebula 的图查询（`nodeSearch`/`edgeSearch`/`pathSearch`/`cypherSearch`/`wholeGraphSearch` 等）应当一直失败。
+   这与 TL 查到的「图谱增强页 gateway + graph-service 两环皆断」构成**第三环**，且这一环 42 小时前就断了。
+2. **nebula 被显式 stop，疑似有意退役**（P4 已将图数据源迁到 18094）。若是计划退役，重启它与既有决策相反 —— 这条只有 Owner 能确认。
+
+---
+
+## §6 当前状态（等待裁定）
+
+```
+18084   未监听（服务下线）｜jar 已回滚为原件 a1e40330…｜src 已同步 Controller（源码在、未生效）
+18082   正常 pid 3130060｜GET /index/knowledgeBase/list → 200
+18081/18083/18085/8088/18094/18096/19526/19527/19531  pid 全部未变
+生产图 current.json md5 e2d0f75440e4553ee1bb33f51ca2ca34 未变｜kb_9 = 44 未变
+```
+
+**影响面**：18094（图构建/查询 v2）与 18096（摄取）**均不经过 18084**，doc2md 增量链路未被波及；
+受影响的是 graph-service 自身的对外检索端点（且其中 Nebula 相关部分**在本次操作之前 42 小时即已不可用**）。
+
+---
+
+## §7 待 Owner 裁定的三选一
+
+| 选项 | 动作 | 代价 / 收益 |
+|---|---|---|
+| **A** | `docker start r12-nebula-metad → storaged → graphd`（按序）→ 用**新 jar** 重启 18084 → 验 `v2WholeGraph`（期望 114 节点 / 94 边） | 一次拿到 P5-0b-3 结论；但启动三个「被显式停掉」的容器属运行态变更 |
+| **B** | 只启 nebula + 旧 jar 起 18084 | 与 A 同成本，拿不到新端点 → 不建议 |
+| **C** | 不启 nebula，18084 保持下线，P5-0b 记为「被环境阻塞」 | 零风险；但线上图谱页继续坏，且需明确 18084 下线是否可接受 |
+
+**需要 Owner 先回答一句**：42 小时前的 nebula stop 是否**有意**（计划退役）？
+- 是 → 选 C，并同步修正「graph-service 依赖 nebula」这一架构认知；
+- 否（意外/被误停）→ 选 A。
+
+在收到答复前：**不启任何容器、不再重启 18084、不改代码。**
+
+---
+
+## §8 更正与反证（TL 01:5x 两处纠错，其中一处是被我的 `cp -p` 误导）
+
+### 8.1 TL 说「部署仓源码本来就有 `V2GraphProxyController`（5645 B / 11-04 15:49）」——**实际是 `cp -p` 造成的假象**
+
+**决定性证据：同步前 1 秒做的 src 备份 `tar`**
+
+```
+$ tar -tzf /tmp/p5-0b-bak/src-rag-graph-service-20261108T211010.tgz | grep "interfaces/"
+GraphController.java
+GraphDataStatisticsController.java
+GraphSearchController.java
+        ← **没有 V2GraphProxyController.java**
+
+$ tar -tzf ... | grep -c V2GraphProxyController
+0
+```
+
+**为什么看起来「本来就有」**：
+```
+同步命令是 `cp -p`（保留 mtime）→ B 侧新文件的 mtime = A 的 11-04 15:49:36、大小 5645 B
+stat B: 5645 B  mtime=2026-11-04 15:49:36
+stat A: 5645 B  mtime=2026-11-04 15:49:36   ← 与 A 完全一致
+md5 A = md5 B = 9758ee9483d45bd261fc120f0adbb4a0
+```
+**只看 mtime/大小，新拷进来的文件会与源文件「看起来同源同代」**，从而被误读成「原本就有」。
+
+**所以 R-0b 的结论不需要更正**：`部署仓缺 V2GraphProxyController` 成立（逐文件比对 + tar 清单双证）。
+**「jar 来路不明」这个推断也不成立** —— 真实因果完全自洽：
+```
+源码仓 A 11-04 就有 controller
+  ↓（未同步）
+部署仓 B 一直没有该文件
+  ↓（11-07 02:57 从 **B 源码** 构建）
+旧 jar 无 V2GraphProxyController.class → 404
+```
+即：**jar 与 B 源码一致，缺的环是「A→B 未同步」**，不是「jar 来历可疑」。
+
+### 8.2 本轮教训（我自己造成的误导，主动登记）
+
+> **用 `cp -p` 做同步时，验收不能看 mtime/大小** —— 保留 mtime 会让新文件伪装成旧文件。
+> 验收必须用：①**同步前 tar 清单**；②`cmp -A/B` 逐字节；③`git status`（若非 git 则用①）。
+> 本次我用了 ①+②，结论正确；但如果只看 mtime，连我自己也会判错。
+
+### 8.3 TL 引用的 pid `3990335` 是 **auth**，不是 graph-service
+
+```
+18081 → pid 3990335 → rag-auth-service-0.0.1-SNAPSHOT.jar      lstart Sat Nov 7 02:58:18
+18084 → pid 4043286 → rag-graph-service-0.0.1-SNAPSHOT.jar     lstart Sat Nov 7 03:04:38（P5-0b-2 重启时已 SIGKILL）
+18084 → 现在**未监听**（重启失败 → 已回滚 jar 为原件 a1e40330… / 160,692,918 B / 11-07 02:57）
+```
+
+### 8.4 探测证据的补强（回应「等于用肯定 404 的地址证明 404」）
+
+我并未用 TL 给的 `/search/v2WholeGraph` 下结论，实际执行的是（在 **18084**、带 `context-path`）：
+
+| 请求 | 结果 | 说明 |
+|---|---|---|
+| `GET /graph/search/instances` | **500 + 业务 JSON**（`spaceName` 缺失） | 路由命中、进入参数校验 → 服务与前缀都对 |
+| `POST /graph/search/v2WholeGraph` | **404 + Spring 默认 404 页** | 形态与上一行截然不同 → 真「无此路由」 |
+| `GET /search/instances`（去前缀） | 404 | 证明前缀必需 |
+| `POST /search/v2WholeGraph`（去前缀） | 404 | 同上 |
+
+对照端点取自源码 `GraphSearchController`（`@RequestMapping("/search")` + `@GetMapping("/instances")`），**不是猜的**。
+
+---
+
+## §9 「部署仓本来就有该源码」的**第三次反证**（ctime + git，无法伪造）
+
+TL 01:5x / 02:2x 两次给出「`llmke-r12/.../V2GraphProxyController.java` 5645 B / 11-04 15:49，与源码仓一致 ⇒ 部署仓本来就有」。
+该观察成立，但**结论不成立** —— 那个 mtime 是我 `cp -p` 保留的。三条独立证据：
+
+```
+① tar 备份（同步前 1 秒，21:10:10）
+   tar -tzf /tmp/p5-0b-bak/src-rag-graph-service-20261108T211010.tgz | grep interfaces/
+   → GraphController.java / GraphDataStatisticsController.java / GraphSearchController.java
+   → grep -c V2GraphProxyController = 0
+
+② ctime（`cp -p` 无法保留，创建/替换时必刷新）
+   B 侧该文件:  mtime=2026-11-04 15:49:36.966983368   ctime=2026-11-08 21:10:11.539801949
+   同目录真·旧文件 GraphController.java: mtime=2026-01-21 11:35:18  ctime=2026-10-25 00:17:53
+   → 若「本来就有」，ctime 应远早于今天 21:10
+
+③ git
+   git -C llmke-r12 status --short -- <该文件> → "?? ..."（untracked）
+   git -C llmke-r12 ls-files --error-unmatch <该文件> → "Did you forget to 'git add'?"
+   → **从未进过 git 索引**，本轮 21:10 才出现
+```
+
+**结论**：`R-0b` 的「部署仓缺 `V2GraphProxyController`」成立；「旧 jar 来路不明」不成立——jar 由**缺该文件的 B 源码**构建，因果自洽。
+**教训（我造成的观察陷阱）**：用 `cp -p` 做跨仓同步，会让新文件继承源 mtime/大小，**外部核对若只看 mtime 必然误判**。
+验收同步只能用 ①同步前 tar 清单 ②`cmp` 逐字节 ③`git status` ④`ctime`。
+
+---
+
+## §10 TL 查明的根因与 `@Lazy` 方案 —— 我做了独立复核，成立
+
+### 10.1 Nebula 是「有意停的」，不能重启
+
+```
+配置仓外证据：docs/dispatch/evidence/HYBRID-RETRIEVAL-RECOVERY-20261106.md:33
+  「停 19529 + Nebula×3，mask r12-graphsvc.service，同步 r12.target | ✅ 100s 未复活」
+```
+`mask` 的存在本身说明「防止 watchog 每 45s 把 V1 拉回来」。
+**所以重启 Nebula = 回退一个已完成的迁移决策** —— 我在 §7 里拒绝自行启容器，方向正确。
+
+`TASKS.yaml` T-D0 遗留项：「前端 GraphCanvas 改接 18094 视图 + **Java graph-service 脱离 Nebula**」——
+**这一项没做**，才产生「V1 已停、服务仍依赖它」的现状。
+
+### 10.2 `@Lazy` 的可行性（我逐点核实，不采信转述）
+
+| 论断 | 我的核实 |
+|---|---|
+| `@Bean(name="nebulaGraphSessionPool")` 无注入点 | `grep -rn "SessionPool"` → 无任何 `@Resource/@Autowired` 注入该类型或该 Bean 名 |
+| 启动期被 eager 创建是失败真凶 | `NebulaGraphConfig:44-46` 是 `@Bean`，方法体 `getSessionPool(spaceName)` 内 `new SessionPool(...)` 连库 → 启动即抛 `ConnectException` |
+| `NebulaGraphTemplate` 走直接方法调用、不受影响 | `:52` / `:106` 调 `nebulaGraphConfig.getSessionPool(spaceName)`（非 `@Bean` 方法，`@Configuration` 只拦截 `@Bean`）→ 仍是运行时懒加载 |
+| 启动期无其它初始化 | 全模块 `@PostConstruct` / `InitializingBean` / `afterPropertiesSet` **命中 0** |
+| `/v2WholeGraph` 不碰 Nebula | `V2GraphProxyController` 仅 `RestTemplate` 转发 18094 `/v2/graph/view`，无 Nebula 依赖 |
+
+**结论：`@Lazy` 成立** —— 加注解后该 Bean 永不初始化 → 启动不连 Nebula；旧 Nebula 端点首次调用时抛错（500），**与「已坏 42 小时」现状一致，不会更坏**。
+
+### 10.3 一个必须在实施时验证的点（提醒，不是反对）
+
+`@Lazy` 只解决**启动期**。若将来有代码通过 `@Resource SessionPool` 注入它，会拿到代理、**首次调用时抛同样的错**；
+所以 P5-0b-2' 实施后必须验的三条是：
+1. 18084 能启动（`Started ...`）；
+2. `POST /graph/search/v2WholeGraph` → **200 + nodeList 非空**（证明不依赖 Nebula）；
+3. 任一 Nebula 旧端点（如 `GET /graph/search/instances?spaceName=rag_graph`）→ 预期 500（**如实记录为「迁移未完成」而非回归**）。
+
+### 10.4 V1 退役强度的独立核实（补强「不必问 Owner」，但**仍不动运行态**）
+
+```
+$ systemctl is-enabled r12-graphsvc.service
+  Failed to get unit file state for r12-graphsvc.service: No such file or directory
+$ systemctl status r12-graphsvc.service
+  Unit r12-graphsvc.service could not be found.
+$ ls /etc/systemd/system/ | grep -i "graphsvc|nebula|19529"
+  （无任何相关 unit）
+$ ss -tlnpH | grep ':19529'
+  （未监听）
+```
+
+**判读**：`r12-graphsvc.service` 不只是 mask —— **unit 文件已不存在**；配合 `19529` 未监听、
+Nebula×3 `Exited(0)` 且 `RestartPolicy=unless-stopped` 却未自启，
+以及 `HYBRID-RETRIEVAL-RECOVERY-20261106.md:33` 的停服记录，
+**「V1 图谱栈彻底退役」是有意为之，不是误停**。
+
+**推论**：`A 方案（启 Nebula 容器）应被排除** —— 它等于回退一个已完成的迁移决策，
+且 unit 已删、watchdog 已 mask，环境层面已不再预期 V1 回来。
+
+**唯一可行路径**：`@Lazy`（让无人使用的 `nebulaGraphSessionPool` 不在启动期 eager 初始化），
+使 graph-service 能脱离 Nebula 启动，并以纯转发方式提供 `/v2WholeGraph`。
+**该改动属 Java 代码变更 + 触及 P3 已闭文件（`NebulaGraphConfig.java`），需 Owner 批准后才实施。**
+
+---
+
+## §11 待实施清单（等 Owner 批 `@Lazy`，**尚未执行**）
+
+> 本节先落盘，避免「换人接手时同一个坑再踩一次」（TL 02:5x 明确要求）。
+
+### 11.1 待改内容（1 行注解 + 注释，`NebulaGraphConfig.java` —— P3 已收口文件，需授权）
+
+```java
+// NebulaGraphConfig.java:44
+- @Bean(name = "nebulaGraphSessionPool")
++ // 该 Bean **无任何注入点**（全模块 grep 无 @Resource/@Autowired），但 Spring 默认 eager 初始化，
++ // 启动即连 Nebula；V1 图谱栈已退役（Nebula×3 Exited、r12-graphsvc.service 已删、19529 已停），
++ // 于是 graph-service 无法启动。加 @Lazy 后永不初始化，启动不再连 Nebula；
++ // NebulaGraphTemplate 走 `nebulaGraphConfig.getSessionPool(spaceName)` 直接方法调用，不受影响。
++ @Lazy
++ @Bean(name = "nebulaGraphSessionPool")
+  public SessionPool getSessionPool() {
+```
+
+**待改前必须确认的前提（已核）**：`@PostConstruct`/`InitializingBean`/`afterPropertiesSet` 全模块命中 0（否则启动期仍会被别处拉起来）。
+
+### 11.2 实施后四条验收
+
+| # | 判据 | 期望 |
+|---|---|---|
+| 1 | 进程能起 | `Started RagGraphServiceApplication`，端口 18084 监听 |
+| 2 | `POST /graph/search/v2WholeGraph {"spaceName":"kb_9"}` | **200 + `nodeList` 非空**（kb_9 生产图 114 节点 / 94 边）；若 200 空列表 → 贴 `notice` 原文 |
+| 3 | 旧 Nebula 端点（如 `GET /graph/search/instances?spaceName=rag_graph`） | 预期 **500**，evidence 里**写「迁移未完成，本就如此（已坏 42 小时）」，不得写成「既有端点失败/回归」** |
+| 4 | jar 侧三条 | `V2GraphProxyController.class` 命中 ≥1 + `javap v2WholeGraph` + 进程 `lstart` 晚于 jar mtime |
+
+### 11.3 必须写明的遗留限制（TL 加的措辞要求）
+
+> **`@Lazy` 只解决启动期。** 若将来有代码 `@Resource SessionPool`（或按 Bean 名注入
+> `nebulaGraphSessionPool`），会拿到代理对象，并在**首次调用时**抛出与本次启动相同的
+> `ConnectException: NebulaGraph pool init failed`。
+> 因此本修复不改变「graph-service 仍依赖 Nebula 才能提供图检索能力」这一事实 ——
+> 那属 `TASKS.yaml` T-D0 遗留项「**Java graph-service 脱离 Nebula**」，未完成。
+
+### 11.4 一个方法论收获（建议进 CHECKPOINT）
+
+> **「文件看起来是旧版本」时，先看 `ctime`。**
+> `cp -p` / `tar -x` / `rsync -t` 都能保留 `mtime`，但 **`ctime`（inode 状态变更时间）改不了**。
+> 单条 `stat` 即可定案，无需三条交叉印证 —— 且必须带**同目录对照组**（真旧文件的 ctime 应显著更早）。

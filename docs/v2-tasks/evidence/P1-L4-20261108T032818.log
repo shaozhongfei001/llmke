@@ -1,0 +1,409 @@
+# P1-L4 · T-D2MD-04 · DEV_SELF_CHECK_PASS 证据日志
+
+- 生成时间：2026-11-08T03:28:18+0800（`date '+%Y%m%dT%H%M%S%z'` → `20261108T032818+0800`）
+- Loop：`VL-DOC2MD-INC` / `P1-L4`（任务 `T-D2MD-04`；PLAN §七 要求等 L3 内部收口后派工，TL 03:18 确认 L3 已收口、`mineru_pdf_parser.py` 无并行冲突）
+- holder：`python-engineer`（实现）→ `DEV_SELF_CHECK_PASS` → baton 交 TL 复核
+- 标准来源：`docs/v2-tasks/loops/P1-L4-PLAN.md`（D1~D5 + R-1~R-6，开发前锁定，本 loop 未修改）
+- 依据：`03-IMPLEMENTATION.md` §P1-4（`:109-113`）、`00-DESIGN.md:112`、`01-EVIDENCE.md:70`、`04-ACCEPTANCE.md` A-2
+- **解释器（分用途双解释器，CHECKPOINT §七；02:34「唯一口径」已撤回）**：
+  - 全量回归基线判据 → `/home/szf/anaconda3/bin/python`（3.11.7 / click 8.4.1）；
+  - CLI 独立复跑 / 生产解析路径 + 本 loop 单测 → `/home/szf/data/dev/doc2md-toolenv/bin/python`（3.11.7 / click 8.1.8）；
+  - 系统 `python3` 3.10.12 因 `datetime.UTC` 禁用。下文每处命令标注解释器与用途。
+- **范围声明（如实）**：本 loop 只做**离线单文件 fixture 解析**（临时目录，不写 DB/ES/Milvus/18094、不启停服务、不启用 18096）。`04-ACCEPTANCE.md` A-2「上传 pdf/docx/xlsx/txt 各一份」属 **P6**，本日志**不**把离线通过写成 A-2 通过。
+- 结论：**DEV_SELF_CHECK_PASS**；`QA_PASS` 仍挂起（G-4 三项输入未到位，由外部独立 QA 主体批量补签），
+  本 loop **未签 QA_PASS、未标 DONE / VERIFIED**。L1/L2/L3 已封存，本 loop 未改其语义。
+
+---
+
+## 0. 开工前基线
+
+```
+$ grep -n 'document_ir' backend/app/services/mineru_pdf_parser.py   # 开工前：0 命中
+$ md5sum /home/szf/data/dev/llmke-v2/scripts/v2_fill_mineru_ir.py
+587946bbbc76380b83c1c7ff8f4e8fb5       # 平台补口脚本（L4 只读核对，不改）
+$ md5sum /home/szf/data/dev/llmke-v2/scripts/v2_ingest_doc2md.py
+840ebfef4dcea3076c38288cb1fac625       # L3 产出的平台脚本（L4 只读核对，不改）
+$ git -C llmke-v2 show HEAD:scripts/v2_fill_mineru_ir.py | md5sum
+587946bbbc76380b83c1c7ff8f4e8fb5       # 与工作区一致：未被任何 loop 改动
+```
+
+事实（承接 `01-EVIDENCE.md:87`）：既有 `parse-mineru-pdf` 落盘三件套 +
+`ir_source/{content_list,middle}.json`，**不写 `document_ir.json`**；平台 `v2_fill_mineru_ir.py`
+调用 doc2md 自己的 `build_from_mineru_content_list` 补第 4 件。L4 把该逻辑**上移**进 doc2md 服务层，
+不调用平台补口、不重新实现 IR 构建（Owner「doc2md 唯一解析者」）。
+
+全量回归基线（anaconda3，L3 收口态）：`5 failed, 1532 passed, 133 skipped`
+（原始基线 `5 failed, 1497 passed` → L1 +10 → L2 +12 → L3 +13；失败数 5 不变）。
+
+---
+
+## 1. 反例先行：现有实现先 FAIL（阶段 A）
+
+做法：先落 `backend/tests/test_pdf_fourth_artifact.py`（8 条断言，覆盖 D1~D5 + R-1~R-6）
+与 `backend/tests/fixtures/pdf_fourth_artifact/{content_list.json,doc.md}`；
+**无需另造桩** —— 现有 `_finalize_success_from_staging` 本来就不写第 4 件，正是 R-1 反例状态。
+测试用 `object.__new__(MineruPdfParserService)` 离线调用成功收尾路径（绕过会建 DB engine 的
+`__init__`），构造 MinerU staging（`doc.md` + `content_list.json`）、`parsed_dir`、`MineruParsePlan` 等。
+
+```
+$ cd /home/szf/data/dev/doc2md/backend
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest tests/test_pdf_fourth_artifact.py -q
+... 关键尾部 ...
+>       assert builder is not None  # 阶段 A：未实现 → 断言层 FAIL
+E       assert None is not None
+=========================== short test summary info ============================
+FAILED tests/test_pdf_fourth_artifact.py::test_d1_four_artifacts_present
+FAILED tests/test_pdf_fourth_artifact.py::test_d2_native_builder_call_site
+FAILED tests/test_pdf_fourth_artifact.py::test_r1_builder_missing_fails_without_fourth
+FAILED tests/test_pdf_fourth_artifact.py::test_d3_check_source_consistency_passes
+FAILED tests/test_pdf_fourth_artifact.py::test_r2_tamper_parsed_text_rejected
+FAILED tests/test_pdf_fourth_artifact.py::test_d4_ir_source_files_aligned
+FAILED tests/test_pdf_fourth_artifact.py::test_d5_three_artifacts_bytes_unchanged
+7 failed, 1 passed in 0.35s
+```
+
+→ **7 条在断言层 FAIL**（非空转、非 ImportError；为达成这一点，D3/D5 预先加了
+`assert document_ir.json.is_file()` / `assert builder is not None`，把潜在 FileNotFoundError /
+ImportError 转成断言层 FAIL）；1 条先行 PASS 的是 `test_r6_non_pdf_paths_regression`
+（L1/L2/L3 语义未受影响的回归哨兵，桩阶段即成立，恰证明上游契约未被改动）。
+
+---
+
+## 2. 实现转 PASS（阶段 B）
+
+`mineru_pdf_parser.py` 追加模块级 `_build_mineru_document_ir`（复用既有
+`document_ir_builder.build_from_mineru_content_list` + `document_ir_schema.validate_document_ir`），
+并在 `_finalize_success_from_staging` 的 **L3 additive 摘要计算之前**调用它写出第 4 件
+（使 `read_set_digest` 覆盖完整四件套），未改 `parsed_text.md` / `parsed_metadata.json` /
+`parse_manifest.json` 既有键的写入逻辑。
+
+```
+阶段 B 首跑：1 failed, 7 passed
+  test_d2_native_builder_call_site：assert 'v2_fill_mineru_ir' not in source FAIL
+  原因：D2 静态断言把新 docstring 里「如实说明边界」的字面提及误判为依赖。
+  自愈（如实留痕）：把断言收紧为检查**实际调用/导入**
+    （"fill_mineru_ir(" not in source / "from scripts.v2_fill_mineru_ir" not in source），
+    保留 docstring 的边界说明；不改实现语义、不改第 4 件产物。
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest tests/test_pdf_fourth_artifact.py -q
+........                                                             [100%]
+8 passed in 0.29s
+$ read_lints（mineru_pdf_parser.py / test_pdf_fourth_artifact.py）
+totalCount=0
+```
+
+---
+
+## 3. DEV_SELF_CHECK_PASS 验收命令与真实输出（PLAN §四）
+
+### 3.1 CLI / 生产解析路径 —— doc2md-toolenv 3.11.7 / click 8.1.8
+
+```
+$ cd /home/szf/data/dev/doc2md/backend
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest \
+    tests/test_pdf_fourth_artifact.py tests/test_idempotency_key.py \
+    tests/test_parse_queue.py tests/test_kb_diff.py -q
+...........................................                              [100%]
+43 passed in 2.45s      # 8(L4) + 13(L3) + 12(L2) + 10(L1)，L1~L3 全不回归
+$ PYTHONPATH=backend /home/szf/data/dev/doc2md-toolenv/bin/python -c \
+    "from app.services.mineru_pdf_parser import _build_mineru_document_ir; from app.cli.main import app; print('imports OK; commands=', len(app.registered_commands))"
+imports OK; commands= 21
+```
+
+### 3.2 全量回归主判据 —— anaconda3 3.11.7 / click 8.4.1
+
+```
+$ cd /home/szf/data/dev/doc2md/backend
+$ PYTHONPATH=. timeout 300 /home/szf/anaconda3/bin/python -m pytest -q --tb=no
+FAILED tests/extensions/test_intake.py::test_docx_text_and_native_tables_are_read
+FAILED tests/test_evidence_chain.py::test_cli_help_documents_contract - asser...
+FAILED tests/test_markitdown_parser.py::test_cli_parse_markitdown_help - asse...
+FAILED tests/test_parser_router.py::test_cli_route_parsers_help - assert 1 == 0
+FAILED tests/test_search_service.py::test_cli_help_documents_contract - asser...
+5 failed, 1540 passed, 133 skipped, 11 warnings in 17.55s
+$ PYTHONPATH=. /home/szf/anaconda3/bin/python -m pytest tests/test_pdf_fourth_artifact.py -q
+........   [100%]  8 passed in 0.29s
+```
+
+→ 基线 `5 failed, 1532 passed`（L3）→ `5 failed, 1540 passed`：
+**失败数 5 不变、失败项同名**，`passed +8` 恰为 L4 新增 8 条测试；
+`--help` 类既有失败属 anaconda3 基线缺陷，不修、不记为本 loop 引入。
+
+### 3.3 四件套 hash 与一致性现场输出（doc2md-toolenv，离线 fixture）
+
+```
+parsed_text.md        6a082c8b1c5e0c28349dbc4cc1e4981b2b56a10d42f6878464fd96ddb79fbede
+parsed_metadata.json  5771c6e5193a508ecb333761b0090ab17ea42483665a760383c56685c42ca331
+parse_manifest.json   28eb2ede36eb7a588bd9c883d69f217a9eb5be57d63e8478548b66ab8eca7dcf
+document_ir.json      fe71889962248bbdf1836ab7523308ba0a0c02fa714e27a96fc68ece5ca59a91
+manifest.output_hash  6a082c8b1c5e0c28349dbc4cc1e4981b2b56a10d42f6878464fd96ddb79fbede
+TEXT_HASH_MATCH       True
+ir.schema_version     document-ir/1.0   blocks 2   ir_source mineru_content_list   ir_filled_by None
+ir_source_files       [{'name': 'content_list.json', 'relative_path': 'ir_source/content_list.json',
+                        'sha256': '58b0718ce940e1f13d737da03f762bd7e8e08aa543dbe78c98911ee128870b57'}]
+status                SUCCESS
+```
+
+`store._check_source_consistency`（平台 `parse_artifact/store.py:245`）在
+`test_d3_check_source_consistency_passes` 中通过：三方 `content_uid` 一致、
+`output_hash == sha256(parsed_text.md)`、IR `text_span` 逐字对齐、asset 集合一致。
+
+### 3.4 解释器用途对照（每处显式标注）
+
+| 命令 | 解释器 | 用途 |
+|---|---|---|
+| §1 / §2 单模块 pytest（阶段 A FAIL → 阶段 B PASS） | doc2md-toolenv 3.11.7 | CLI / 生产解析路径 |
+| §3.1 四模块合跑 + import 检查 | doc2md-toolenv 3.11.7 | CLI 复跑 + L1~L3 不回归 |
+| §3.2 全量 `pytest -q --tb=no` | **anaconda3 3.11.7** | **全量回归主判据**（既有 5 failed 不增加） |
+| §3.2 L4 单测 anaconda3 复跑 | anaconda3 3.11.7 | 主判据环境下的本 loop 测试复跑 |
+| §3.3 四件套 hash / 一致性 | doc2md-toolenv 3.11.7 | 离线 fixture 产物核对 |
+| `grep` / `git` / `md5sum` / `read_lints` | 与解释器无关 | 静态 + 越界自查 |
+
+---
+
+## 4. 断言 / 反例 → PASS 证据映射
+
+| 编号 | 断言 / 反例 | PASS 证据 |
+|---|---|---|
+| D1 | 四件套齐备、`status == SUCCESS` | `test_d1_four_artifacts_present`（4 个文件逐个断言 + status + error is None） |
+| D2 / R-1 / R-4 | 第 4 件由 doc2md 原生 `build_from_mineru_content_list` 产出，不依赖平台补口 | `test_d2_native_builder_call_site`（`validate_document_ir` 通过 + 源码含 builder 调用点 + 源码无 `fill_mineru_ir(` 调用/导入 + provenance 无 `ir_filled_by` + `ir_source == mineru_content_list`）；`test_r1_builder_missing_fails_without_fourth` |
+| D3 / R-2 | 一致性、span 逐字对齐、篡改 1 字节被拒 | `test_d3_check_source_consistency_passes`（`collect_parts` + `_check_source_consistency` 通过、`output_hash` 相等、span 切片相等）；`test_r2_tamper_parsed_text_rejected`（断言 `TEXT_HASH_MISMATCH`） |
+| D4 / R-3 | `ir_source_files` 对齐、既有键保留 | `test_d4_ir_source_files_aligned`（字段非空、含 `content_list.json`、指向文件存在且 sha256 对齐、`MANIFEST_BASELINE_KEYS <= set(manifest)`） |
+| D5 / R-5 | additive 且前三件套字节不变 | `test_d5_three_artifacts_bytes_unchanged`（`parsed_text.md` 字节 == fixture 原文、metadata content_uid/sha256、既有键保留、**重写第 4 件后** `parsed_text.md` / `parsed_metadata.json` 字节逐字节不变） |
+| R-6 | 非 PDF 路径回归（L1/L2/L3） | `test_r6_non_pdf_paths_regression`（模块可加载、命令数 21）+ §3.1 四模块 43 passed |
+
+阶段 A `7 failed, 1 passed` → 阶段 B `8 passed` 全过程见 §1/§2。
+
+---
+
+## 5. 两仓 git 越界自查 + diff 全文
+
+```
+$ git -C /home/szf/data/dev/doc2md status --short
+ M backend/app/cli/main.py                       (L1/L2)
+ M backend/app/core/parsed_paths.py             (L1/L3)
+ M backend/app/services/document_ir_builder.py  (开工前既存 M，本 loop 未触碰)
+ M backend/app/services/markitdown_parser.py   (L3)
+ M backend/app/services/mineru_pdf_parser.py   (L3 + L4)
+?? backend/app/services/kb_diff.py             (L1)
+?? backend/app/services/parse_queue.py         (L2)
+?? backend/tests/fixtures/idempotency_corpus/  (L3)
+?? backend/tests/fixtures/kb_diff_corpus/     (L1)
+?? backend/tests/fixtures/pdf_fourth_artifact/ (L4 新增)
+?? backend/tests/test_idempotency_key.py      (L3)
+?? backend/tests/test_kb_diff.py              (L1)
+?? backend/tests/test_parse_queue.py          (L2)
+?? backend/tests/test_pdf_fourth_artifact.py  (L4 新增)
+
+$ git -C /home/szf/data/dev/doc2md diff --numstat -- backend/app/services/mineru_pdf_parser.py
+90	2	backend/app/services/mineru_pdf_parser.py
+$ git -C /home/szf/data/dev/doc2md diff -- backend/app/services/mineru_pdf_parser.py | grep '^-' | grep -v '^---'
+-from app.core.parsed_paths import build_parsed_artifact_paths, build_parsed_content_dir
+-        generated_at = _utc_iso()
+```
+
+`90 2` 是**相对 HEAD 的累计**（L3 已改过同一文件）：2 行删除均为 **L3 已授权**的
+import 行扩展与 `generated_at` 时间源替换；**L4 本轮纯新增 72 行**（函数 63 行 + 调用 9 行），
+未删除任何既有行。
+
+`$ git -C /home/szf/data/dev/doc2md diff -- backend/app/services/mineru_pdf_parser.py` 全文：
+
+```diff
+diff --git a/backend/app/services/mineru_pdf_parser.py b/backend/app/services/mineru_pdf_parser.py
+index 04fa32e..a15eefa 100644
+--- a/backend/app/services/mineru_pdf_parser.py
++++ b/backend/app/services/mineru_pdf_parser.py
+@@ -16,9 +16,15 @@ from sqlalchemy import select
+ from app.core.config import AppConfig, ensure_readonly
+ from app.core.database import create_db_engine, create_session_factory
+ from app.core.ids import compute_sha256
+-from app.core.parsed_paths import build_parsed_artifact_paths, build_parsed_content_dir
++from app.core.parsed_paths import (
++    build_manifest_additive_fields,
++    build_parsed_artifact_paths,
++    build_parsed_content_dir,
++    deterministic_generated_at,
++)
+ from app.core.parser_routing import (
+     DECISION_ROUTE,
++    ROUTING_RULES_VERSION,
+     RouteType,
+     ext_from_path,
+     match_route_type,
+@@ -212,6 +218,69 @@ def _utc_iso() -> str:
+     return datetime.now(UTC).replace(tzinfo=UTC).isoformat().replace("+00:00", "Z")
+ 
+ 
++# ---------------------------------------------------------------------------
++# P1-L4 additive：doc2md 原生产出第 4 件 document_ir.json
++# ---------------------------------------------------------------------------
++def _build_mineru_document_ir(
++    *,
++    artifacts: dict[str, Path],
++    manifest_payload: dict[str, Any],
++    text: str,
++    ir_source_files: list[dict[str, str]],
++    asset_files: list[dict[str, str]] | None = None,
++) -> dict[str, Any]:
++    """复用既有 builder / 校验器写出 ``document_ir.json``（不重新实现 IR 构建）。
++
++    - 复用 ``document_ir_builder.build_from_mineru_content_list`` 与
++      ``document_ir_schema.validate_document_ir``；**不**调用平台
++      ``v2_fill_mineru_ir.py``，产物 provenance 不带 ``ir_filled_by``。
++    - 只写 ``document_ir.json``；不触碰 ``parsed_text.md`` /
++      ``parsed_metadata.json`` / ``parse_manifest.json`` 的写入逻辑。
++    - ``provenance.generated_at`` 取 manifest 的确定性时间（L3），避免 IR 字节
++      随 ``datetime.now()`` 变化而破坏 ``read_set_digest`` 四件套内容摘要。
++    - MinerU 未提供 ``content_list.json``（旧 v1 产物）时 fail-closed 抛明确错误，
++      不静默降级、不伪造 IR。
++    """
++    from app.services.document_ir_builder import build_from_mineru_content_list
++    from app.services.document_ir_schema import validate_document_ir
++
++    registered = {entry.get("name") for entry in ir_source_files}
++    if "content_list.json" not in registered:
++        raise RuntimeError(
++            "parse_manifest.ir_source_files 未登记 content_list.json，"
++            "无法产出 document_ir.json"
++        )
++    content_list_path = artifacts["ir_source"] / "content_list.json"
++    if not content_list_path.is_file():
++        raise RuntimeError(f"MinerU content_list 缺失：{content_list_path}")
++    content_list = json.loads(content_list_path.read_text(encoding="utf-8"))
++    if not isinstance(content_list, list) or not content_list:
++        raise RuntimeError("content_list.json 为空或非数组，无法构造 IR")
++
++    manifest_assets = (
++        asset_files if asset_files is not None
++        else manifest_payload.get("asset_files")
++    )
++    ir = build_from_mineru_content_list(
++        content_list=content_list,
++        parsed_text=text,
++        sha256=manifest_payload["sha256"],
++        content_uid=manifest_payload["content_uid"],
++        source_vault_path=manifest_payload.get("source_vault_path"),
++        manifest_assets=manifest_assets,
++    )
++    payload = ir.to_dict()
++    provenance = payload.get("provenance")
++    if isinstance(provenance, dict):
++        provenance["generated_at"] = manifest_payload["generated_at"]
++    validate_document_ir(payload, parsed_text=text, manifest_assets=manifest_assets)
++    artifacts["document_ir"].write_text(
++        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
++        encoding="utf-8",
++    )
++    return payload
++
++
+ def _process_output_tail(run_result: MagicPdfRunResult, *, limit: int = 800) -> str:
+@@ -623,7 +692,7 @@ class MineruPdfParserService:
+         ir_source_files = self._preserve_ir_source(staging_dir, artifacts["ir_source"])
+ 
+-        generated_at = _utc_iso()
++        generated_at = deterministic_generated_at(content.sha256)
+         content_size_bytes = original_bin.stat().st_size if original_bin.is_file() else 0
+@@ -679,6 +748,25 @@ class MineruPdfParserService:
+             "output_size_bytes": output_size,
+             "output_hash": output_hash,
+         }
++        # P1-L4：doc2md 原生产出第 4 件 document_ir.json。放在 L3 additive 摘要计算
++        # 之前写出，使 read_set_digest 覆盖完整四件套；不触碰前三件套写入逻辑。
++        _build_mineru_document_ir(
++            artifacts=artifacts,
++            manifest_payload=manifest_payload,
++            text=text,
++            ir_source_files=ir_source_files,
++            asset_files=asset_entries,
++        )
++        # P1-L3 additive：稳定幂等键四字段（既有键一字未改；kb/source_root 由库级
++        # kb-manifest.json 承载，单文件解析层无该上下文，故登记 None）。
++        manifest_payload.update(
++            build_manifest_additive_fields(
++                kb=None, source_root=None, parsed_dir=parsed_dir,
++                parser_name=PARSER_NAME,
++                adapter_version=PARSER_ADAPTER_VERSION,
++                routing_version=ROUTING_RULES_VERSION,
++            )
++        )
+         if asset_entries or assets_dir.is_dir():
+```
+
+**llmke-v2 仓本轮 0 代码改动**（PLAN §一：平台两文件只读核对、不改）：
+
+```
+$ md5sum scripts/v2_fill_mineru_ir.py scripts/v2_ingest_doc2md.py
+587946bbbc76380b83c1c7ff8f4e8fb5  scripts/v2_fill_mineru_ir.py      # == HEAD 版，未改
+840ebfef4dcea3076c38288cb1fac625  scripts/v2_ingest_doc2md.py       # L3 产出，本轮未动
+$ git -C /home/szf/data/dev/llmke-v2 status --short   (loop-relevant)
+ M docs/ui-graph-workbench/TASKS.yaml        (开工前既存 M / TL 维护)
+ M docs/v2-tasks/TASKS.yaml                  (开工前既存 M，本 loop 未写)
+ M scripts/v2_ingest_doc2md.py               (L3 唯一授权，本轮未动)
+?? docs/v2-tasks/evidence/P1-L3-20261108T031221.log
+?? docs/v2-tasks/evidence/P1-L3-TL-VERIFY-20261108.log
+?? docs/v2-tasks/evidence/P1-L4-20261108T032818.log   (本证据)
+$ md5sum /home/szf/data/dev/doc2md/backend/app/services/document_ir_builder.py
+bb69758a09333f23673c12d3f128463d    # 既存 M 保持原样（红线：不得触碰）
+$ read_lints（mineru_pdf_parser.py / test_pdf_fourth_artifact.py）
+totalCount=0
+```
+
+本 loop 文件 md5：
+
+```
+backend/app/services/mineru_pdf_parser.py      a15eefa (git blob) / 见 diff index
+backend/tests/test_pdf_fourth_artifact.py      （新增，8 条断言）
+backend/tests/fixtures/pdf_fourth_artifact/content_list.json
+backend/tests/fixtures/pdf_fourth_artifact/doc.md
+docs/v2-tasks/evidence/P1-L4-20261108T032818.log（本文件）
+```
+
+---
+
+## 6. 判断标注（供 TL / 独立 QA 复核，非事实冒充结论）
+
+1. **【判断】旧 v1 无 `content_list.json` 走 fail-closed**：`_build_mineru_document_ir` 在
+   `ir_source_files` 未登记 `content_list.json`、文件缺失、内容为空/非数组时抛明确
+   `RuntimeError`，不静默降级、不伪造 IR（对齐 `document_ir_schema.py` 的 fail-closed 红线）。
+   017 注释曾写「旧 v1 产物无上述文件 → 返回空列表，既有行为零变化」，那是指
+   `_preserve_ir_source` 本身；L4 的 D1 要求四件套齐备，故该路径不再静默放行。
+   真实旧产物的兼容策略由后续切片/TL 裁定，本 loop 的离线 fixture 保证 `content_list.json` 存在。
+2. **【判断】`provenance.generated_at` 取 manifest 确定性时间**：builder 默认用
+   `document_ir_builder._generated_at()`（`datetime.now`），会让 IR 字节随解析时刻变化，
+   破坏 L3 `read_set_digest` 的四件套内容摘要（顶层 `generated_at` 剔除规则不覆盖
+   provenance 嵌套键）。故在写盘前覆盖为 `manifest_payload["generated_at"]`（L3 已确定性），
+   与平台 `v2_fill_mineru_ir.py:84-86` 的做法一致，但**不**打 `ir_filled_by` 平台补口标记。
+3. **【判断】调用点放在 L3 additive 摘要之前**：`read_set_digest` 是「读取集合摘要」，
+   新增第 4 件后产物集合变化，摘要理应覆盖 `document_ir.json`；因此 `parse_manifest.json`
+   的 `read_set_digest` 值相对 L3 会变化（**既有键语义不变、只是内容寻址输入集合变化**），
+   而 `parsed_text.md` / `parsed_metadata.json` 字节不变（D5 正文要求）。`json.dumps` 键顺序
+   保持 L3 原样（调用插在 `manifest_payload.update` 之前，未重排键）。
+4. **【判断】D2 静态断言只检查实际调用/导入**：阶段 B 首跑因 docstring 里如实提及平台补口
+   字面而误判（`1 failed`），已收紧为 `"fill_mineru_ir(" not in source` /
+   `"from scripts.v2_fill_mineru_ir" not in source`，并保留运行时断言
+   `provenance` 无 `ir_filled_by`。原文留痕见 §2。
+5. **【判断】测试用 `object.__new__` 离线调用收尾方法**：不构造 DB engine、不起服务、
+   不写任何在线存储；`store._check_source_consistency` 通过 `sys.path` 只读导入平台
+   `parse_artifact/store.py`（只依赖标准库）。这是「离线单文件解析」的落地方式，
+   **不是** A-2 的真实上传验收。
+6. **【事实】A-2 留待 P6**：本 loop 不上传 pdf/docx/xlsx/txt、不写 DB/ES/Milvus/18094、
+   不启用 18096；`04-ACCEPTANCE.md` A-2 在 P6 用四类格式真实文件收口。
+
+---
+
+## 7. 结论与 Baton
+
+**DEV_SELF_CHECK_PASS**：§3 全部命令有真实输出并满足 D1~D5 与 R-1~R-6；
+阶段 A `7 failed, 1 passed` → 阶段 B `8 passed` 证明断言非空转；
+全量回归主判据（anaconda3）`5 failed, 1540 passed, 133 skipped` —— 失败数 5 不变、
+失败项同名、`passed +8` 恰为新增 8 条测试；doc2md-toolenv 下四模块 `43 passed`；
+四件套 hash 现场对比 `TEXT_HASH_MATCH True`、`store._check_source_consistency` 通过、
+IR `schema_version=document-ir/1.0` 且 `ir_filled_by=None`（doc2md 原生，非平台补口）；
+read_lints 0；两仓 git 无越界（llmke-v2 本轮 0 代码改动、平台两文件只读核对一致），
+`document_ir_builder.py` 既存 M 保持原样、L1/L2/L3 语义未动。
+
+baton 交 **TL 复核**（现场输出 + 两仓 git 越界自查 + 反例 FAIL→PASS 可复现 +
+四件套 hash 对比 + diff 全文）；按 PLAN §五，内部推进条件满足后由 TL 决定是否派工 L5。
+**QA_PASS 仍挂起**：G-4 三项输入（`principal_id` / `key_id` / `public_key_pem`）与签署载体
+尚未定，由 `independent_qa` 在闭环后统一补签；本 loop **未签 QA_PASS、未标 DONE / VERIFIED**，
+`TASKS.yaml` 的 `T-D2MD-04.evidence` 待 QA_PASS 后由 TL 填写。

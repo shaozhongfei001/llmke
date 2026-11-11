@@ -1,0 +1,312 @@
+# P1-L5 · T-D2MD-05 · R-0 前置裁定对照（第一阶段，未写任何实现代码）
+
+- 生成时间：2026-11-08T03:35:56+0800（`date '+%Y%m%dT%H%M%S%z'` → `20261108T033556+0800`）
+- Loop：`VL-DOC2MD-INC` / `P1-L5`（snapshot 切读硬前置）；PLAN `docs/v2-tasks/loops/P1-L5-PLAN.md` §二 R-0
+- 状态：**R-0 只读对照完成，待 TL 裁定 `_table_pk`；裁定前未写任何实现代码**（PLAN §二 / TL 03:31 派工）
+- holder：`python-engineer` → R-0 对照 → 回 TL 裁定 → （裁定后）反例 FAIL → 实现 → PASS
+- **解释器口径（PLAN §一：不得机械套用 doc2md 双解释器）**：见 §1，平台 v2 环境
+  `/home/szf/data/dev/llmke-v2-toolenv/bin/python`（3.10.12 / pytest 8.3.5）。
+- **红线遵守**：本阶段只做只读代码/文档探查、只读 HTTP `_count`/`_search`（PLAN §一 明确允许）、
+  纯本地 `hashlib` 计算、`pytest` 只读复跑、`ss`/`printenv`/`git status` 只读；
+  **未切模式、未切读任何库、未启停服务、未写线上 ES/Milvus/DB/18094、未改运行态配置/设计包/
+  MANIFEST/TASKS.yaml/doc2md 仓代码、未改 L1~L4 任何产物**。
+- 两仓 `git diff`：**R-0 阶段平台三文件与 doc2md 均 0 改动**（diff 为空）；
+  实现阶段再补三文件 diff 全文与「服务端口开工前后对比」的后半段。
+
+---
+
+## 1. 解释器口径确认（PLAN §一 / §四）
+
+```
+$ for p in /home/szf/data/dev/llmke-v2-toolenv/bin/python /home/szf/data/dev/parse-v2-venv/bin/python \
+           /home/szf/data/dev/hipporag-toolenv/bin/python /home/szf/data/dev/mineru-toolenv/bin/python; do ...; done
+/home/szf/data/dev/llmke-v2-toolenv/bin/python     Python 3.10.12  pytest 8.3.5
+/home/szf/data/dev/parse-v2-venv/bin/python        Python 3.11.15  (No module named pytest)
+/home/szf/data/dev/hipporag-toolenv/bin/python     Python 3.11.15  pytest 9.2.0
+/home/szf/data/dev/mineru-toolenv/bin/python       Python 3.10.20  (No module named pytest)
+```
+
+既有证据的官方口径（`docs/v2-tasks/evidence/S1-artifact-binding.md:112-113`）：
+
+| 环境 | 绝对路径 | 版本 | 用途 |
+|---|---|---|---|
+| **v2 环境（本 loop 主口径）** | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 / pytest 8.3.5 | v2 平台服务与 `tests/` 测试（无 fastapi） |
+| 图/兼容层环境 | `/home/szf/data/dev/hipporag-toolenv/bin/python` | 3.11.15 / pytest 9.2.0 | 图侧 / 兼容层（fastapi 0.162.0） |
+
+佐证：`S1-artifact-binding.md:82`、`S1-direction.md:122` 均以 `llmke-v2-toolenv` 跑
+`tests/test_*.py`。两个环境对既有 `tests/test_rag_projection.py` 均复跑通过：
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest tests/test_rag_projection.py -q
+.............   [100%]  13 passed in 0.04s
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest tests/test_rag_projection.py -q
+.............   [100%]  13 passed in 0.13s
+```
+
+注：PLAN R-6 写「既有 11 项测试」，现场 `tests/test_rag_projection.py` 实为 **13 条**
+（`grep -c '^def test'` = 13，含 `test_pk_matches_platform_seed_rule` 与
+`test_table_channel_is_separate_from_text`）。按「既有测试全 PASS」口径记录 13 passed，
+请 TL 知悉该数字差异（属 PLAN 描述与现场不一致，非本 loop 改动）。
+
+---
+
+## 2. 两套 seed 静态对照（PLAN §二 / TL 03:31）
+
+### 2.1 `rag_projection/projection.py:93-96`
+
+```python
+def _table_pk(index_name, file_id, ordinal):
+    """表格通道主键：table|index|file_id|ordinal（与正文通道分开，避免互相覆盖）。"""
+    seed = "|".join(["table", str(index_name).lower(), str(file_id), str(ordinal)])
+    return int(hashlib.sha1(seed.encode("utf-8")).hexdigest()[:15], 16)
+```
+
+调用点 `projection.py:259-276`：表格通道按 `enumerate(ir["tables"])` 的 `ordinal` 产出，
+`locator.table_id = table.get("table_id")`（IR 字符串，如 `t001`）。
+
+### 2.2 12340 `alg_doc_parse_service/server/utils.py`
+
+```python
+# :99-100
+def _pk_from_seed(seed: str) -> int:
+    return int(hashlib.sha1(seed.encode("utf-8")).hexdigest()[:15], 16)
+
+# :125-138（TL 03:31 未点名，但同文件、同形，必须一并对照）
+def create_table_pk(index_name, document_id, file_id, table_ordinal) -> int:
+    parts = ("table", "" if index_name is None else str(index_name).lower(),
+             file_id, table_ordinal)
+    return _pk_from_seed("|".join("" if p is None else str(p) for p in parts))
+
+# :141-148（TL 点名的第二套）
+def create_table_chunk_pk(table_id, table_pos) -> int:
+    pos = json.dumps(table_pos, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return _pk_from_seed(f"table_chunk|{table_id}|{pos}")
+```
+
+**关键事实**：`_pk_from_seed` 与 `projection._table_pk` 的 hash **完全相同**
+（`sha1(seed)[:15] → int`）；`create_table_pk` 的 seed 也是 `table|<index.lower>|<file_id>|<ordinal>`，
+即 **`create_table_pk` 与 `projection._table_pk` 在相同入参下算出同一个整数**（§4 数值复核）。
+
+### 2.3 `create_table_chunk_pk` 的实际调用点（`deepdoc/splitter/table.py:34-68`）
+
+```python
+table_id = create_table_pk(document_metadata.knowledge_base_name,
+                           document_metadata.document_id,
+                           document_metadata.file_id, table_ordinal)   # → int pk
+...
+'pk': create_table_chunk_pk(table_id, table_pos),
+'table_summary_id': table_id,
+"offset": table_pos,
+```
+
+即 12340 的 `table_chunk` seed 里 `<table_id>` 是 **int**（`create_table_pk` 的返回值），
+`<table_pos>` 是 deepdoc splitter 把一张表切成多个块时的**块内偏移**（嵌套 list；
+`table.py:124` 还有 `[inner_table_i, table_pos]` 的嵌套表变体），
+并显式拒绝重复 `table_pos`（`R14-C-FIX-08`，避免 pk 相同静默覆盖）。
+
+---
+
+## 3. R-0 ①：doc2md IR `tables[]` 是否带 `table_id` / `table_pos` 等价字段
+
+字段清单（`doc2md/backend/app/services/document_ir_schema.py:1469-1494` 的 `IrTable`，
+由 `document_ir_builder.build_from_mineru_content_list` 装配，`table_id` 形如 `t001`）：
+
+```
+IrTable: table_id(str) / block_id(str) / page_no(int|None) / bbox(BBox|None) /
+         html(str|None) / n_rows(int) / n_cols(int) / cells(TableCell*) /
+         caption_block_id(str|None) / confidence(float|None)
+TableCell: row / col / rowspan / colspan / is_header / text / bbox(=null)
+```
+
+- **有 `table_id`**：是字符串块级编号（`t001/t002/...`，`validate_tables` 要求唯一），
+  与 `projection.py:270` 的 `locator.table_id`、线上 `metadata.table_id="t001"` 对齐。
+- **没有 `table_pos` 等价字段**：12340 的 `table_pos` 是「表格块切分偏移」（嵌套 list，
+  `table.py:52-62` 的 `offset`/`position`），语义是「同一张表被切成第几块、块在页面里的位置」；
+  IR 里最接近的 `cells[].row/col`（格坐标）与 `bbox`（整表矩形）**形状与语义都不同**，
+  不能等价替代。IR 也不建模「一张表切成多个 table_chunk」。
+- **类型/取值也不同**：12340 `table_chunk` seed 里的 `<table_id>` 是 `create_table_pk`
+  派生的 **int**，IR 的 `table_id` 是 **str**；两者不是同一个值。
+
+**结论（R-0 ①）**：doc2md IR **不能直接重建** `create_table_chunk_pk` 的
+`table_chunk|<table_id>|<规范化 table_pos>` seed —— 缺 `table_pos` 等价字段、缺 int 型 `table_id`。
+但 IR 完全能支撑**线上真值口径** `table|<index>|<file_id>|<ordinal>`（§4 证明投影现用、
+且线上 2 条精确匹配），因为 `ordinal` 由 `enumerate(ir["tables"])` 产生，不需要 IR 额外字段。
+
+---
+
+## 4. R-0 ②：线上 `table_chunks_kb_9` 既有 pk 抽样反推（只读）
+
+### 4.1 只读 `_count`（PLAN §一 允许的 HTTP `_count`）
+
+```
+$ curl -sS --max-time 8 'http://127.0.0.1:19200/table_chunks_kb_9/_count'
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+```
+
+### 4.2 只读 `_search` 抽样 2 条（字段摘录）
+
+```
+$ curl -sS --max-time 10 -H 'Content-Type: application/json' \
+    -d '{"size":2,"query":{"match_all":{}}}' \
+    'http://127.0.0.1:19200/table_chunks_kb_9/_search' | python -m json.tool
+
+hits.total.value = 2
+
+doc1: _id="1137902847478273881"
+  metadata.pk=1137902847478273881, chunk_doc_id="1137902847478273881"
+  file_id="329", knowledge_base_name="kb_9", chunk_index=1
+  table_id="t001", type="table", channel="table", offset=[]
+  parse_artifact_id="a636dfe5e8d79d54ee56cd224c87b84b28827fb52d11861352b1f8bfdec5250b"
+  content_uid="53d265c710bc41f1a352030993ede86763cc14eed7df4069e96c4c7ae7e02231"
+  n_rows=5, n_cols=7, parsed_text_ref="table"
+
+doc2: _id="885155839145947657"
+  metadata.pk=885155839145947657, chunk_doc_id="885155839145947657"
+  file_id="333", knowledge_base_name="kb_9", chunk_index=2
+  table_id="t001", type="table", channel="table", offset=[]
+  parse_artifact_id/content_uid/channel/n_rows/n_cols 同形状
+```
+
+`parse_artifact_id` / `content_uid` / `channel` / `table_id` / `n_rows` / `n_cols` /
+`parsed_text_ref="table"` 正是 `ingest_pipeline/enrich.py:95-101` 与
+`kb_pipeline.build_index_payloads:102-109` 写入的 **V2 投影载荷形状**；
+`chunk_doc_id = str(chunk["pk"])`（`enrich.py:75`）且 ES `_id == str(pk)`。
+→ 这 2 条**不是 12340 legacy 解析链路写入的**，而是 V2 投影链路（`rag_projection` +
+`enrich` + `kb_pipeline`）产出的载荷（历史 shadow/离线写入，与当前
+`INGEST_PROJECTION_MODE=legacy` 无冲突，见 §6）。
+
+### 4.3 pk 反推（纯本地 `hashlib.sha1[:15]→int`，逐候选比对）
+
+```
+doc1: file_id=329  pk=1137902847478273881
+  MATCH  seed = 'table|kb_9|329|0'   (ordinal=0)
+doc2: file_id=333  pk=885155839145947657
+  MATCH  seed = 'table|kb_9|333|0'   (ordinal=0)
+  probe 'table|kb_9|329|t001' / '...|t001|1' / 'v2sum|kb_9|329|t001' → 均不匹配
+  create_table_chunk_pk 候选（table_id ∈ {t001,329,333}，pos ∈ {[],[0],[[]],[0,[]],[0,[0,0]]}）
+    → 无 MATCH
+  create_chunk_pk（chunk|kb_9|file_id|seq|sha1(text)，seq 0..5）→ 无 MATCH
+```
+
+数值复核：
+
+```
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python -c "... sha1(seed)[:15] ..."
+seed=table|kb_9|329|0 -> 1137902847478273881  (== doc1 pk)
+seed=table|kb_9|333|0 -> 885155839145947657  (== doc2 pk)
+```
+
+**结论（R-0 ②）**：线上既有 2 条 pk 的真值口径是
+**`table|<index_name.lower>|<file_id>|<ordinal>` → `sha1[:15]` → int**，
+即 `projection.py:_table_pk` 现口径；12340 `create_table_pk`（:125-138）与之
+**同 seed 同 hash、数值完全相同**，两套并不真正冲突。
+`create_table_chunk_pk`（:141-148，`table_chunk|...`）**不是**线上这 2 条的来源，
+不能据「线上有 2 条」把它认作线上口径。
+
+---
+
+## 5. R-0 ③：建议与依据（待 TL 裁定，本 loop 不自行选口径）
+
+**建议：沿用 projection 现口径（= 线上真值口径），`_table_pk` 一字不改。**
+L5 的实现工作集中在 E1 补齐两类表格载荷形状（`table_chunks` + `table_summary`）、
+E3 fail-closed、E4 确定性、E5 不切模式；pk 口径不作为改动项。
+
+依据：
+1. **实测真值**：线上 2 条 pk 精确等于 `table|kb_9|<file_id>|0`（§4），且
+   `create_table_pk` 与之数值一致；沿用即天然满足 B-2「三路 pk 形状对齐」，
+   与线上既有 pk 同口径、不会产生两套 pk 指向同一张表。
+2. **IR 无 `table_pos`**（§3）：若改用 `create_table_chunk_pk`，必须人为约定
+   `table_pos` 的生成规则（IR 无该字段）与 int 型 `table_id` 的映射，
+   属新增隐式行为，直接违反 PLAN §二「不得自行选口径、不得留成隐式行为」与 B-2/B-4；
+   且算出的 pk 与线上 2 条**不匹配**，切读后会与既有行分裂。
+3. **既有测试基线**：`tests/test_rag_projection.py:161` 已断言
+   `table["pk"] == P._table_pk("kb_9", "333", 0)`（R-6 要求既有测试全 PASS）；
+   改口径必然破坏该断言并需要连带改既有测试，属超出「additive 补齐」的语义变更。
+4. **正文/表格分离**：`table|...|ordinal` 用 `ordinal` 区分同文件多张表，
+   与正文通道 `chunk|...|seq|sha1(text)` 天然不撞号（`projection.py:94` 注释意图）。
+
+**备选（不推荐，仅供 TL 对比）**：
+- 「映射方案」：用 `(index, file_id, ordinal)` 经 `create_table_pk` 算出 int `table_id`，
+  再人为构造规范 `table_pos`（如 `[ordinal, [[0,0],[n_rows,n_cols]]]` 或 `[]`），
+  调 `create_table_chunk_pk`。代价：IR 无 `table_pos`、需新约定、与线上 2 条 pk 不匹配、
+  会破坏 B-2/B-4 与既有测试 → **不建议**。
+- 「沿用 12340 `table_chunk` 口径」：与线上样本矛盾（§4.3 无 MATCH）→ **不建议**。
+
+**需 TL 一并裁定的疑点（本 loop 不自行解释）**：
+- PLAN E2 字面写「与线上既有 pk **不重复、不覆盖**」，但沿用内容寻址口径时，
+  同一 `(kb_9, file_id, ordinal)` 重解析必然算出**与线上既有 pk 相同**的值
+  （这正是稳定 id：命中同一行做覆盖更新，而非产生重复行）。
+  请 TL 明确 E2 的判据是「不同表格不得撞号（ordinal 区分）」还是「pk 值必须字面不同」，
+  以便裁定后写断言（否则 E2 无法无歧义实现）。
+- `table_summary_<kb>` 的主键：现 `ingest_pipeline/summary.py:30-36` 用
+  `v2sum|<index>|<file_id>|<table_id>` → `sha1[:15]`，与 12340 `create_table_pk`
+  的 `table_summary_id`（int）也不同源。该口径**未在 TL 03:31 的 R-0 点名**，
+  但 E1 要求「两类载荷与线上形状对齐」时会涉及；请 TL 一并裁定是否纳入本 loop、
+  还是保持现有 `summary.table_summary_id` 不动。
+
+---
+
+## 6. 开工前基线（供实现阶段做「前后对比」）
+
+```
+$ printenv INGEST_PROJECTION_MODE
+INGEST_PROJECTION_MODE unset (code default=legacy)
+$ grep -rn 'INGEST_PROJECTION_MODE' services/rag-alg/index_data_service --include=*.py
+services/rag-alg/index_data_service/rag_projection/projection.py:39:MODE_ENV = "INGEST_PROJECTION_MODE"
+services/rag-alg/index_data_service/ingest_pipeline/pipeline.py:11:（注释）
+$ ss -tlnp | grep -E ':(19995|18094|19531|18082|18083|19200)\b'
+LISTEN 0 2048  127.0.0.1:19531  users:(("python",pid=435286,fd=12))
+LISTEN 0 2048  127.0.0.1:19995  users:(("python",pid=1358208,fd=19),("python",pid=23647,fd=19))
+LISTEN 0 32768 127.0.0.1:19200  (ES，只读 _count/_search 目标)
+LISTEN 0 2048  127.0.0.1:18094  users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+LISTEN 0 100   127.0.0.1:18082  users:(("java",pid=1341032,fd=117))
+LISTEN 0 100   127.0.0.1:18083  users:(("java",pid=450255,fd=94))
+```
+
+两仓 `git status --short`（R-0 阶段快照；本 loop 未写入任何文件，除本证据）：
+
+- doc2md：13 项（5 M + 8 ??，均为 L1~L4 已封存产物），与 TL 03:31 复核一致，**无新增改动**。
+- llmke-v2：既存 `M .gitignore` / `M docs/ui-graph-workbench/TASKS.yaml` /
+  `M docs/v2-tasks/TASKS.yaml` / `M scripts/v2_ingest_doc2md.py`（L3 唯一授权）
+  + 大量既存 `??`（设计包、dispatch、evidence、frontend dist、memory 等）。
+  **本 loop R-0 阶段未改任何代码**；平台三文件 `projection.py` / `enrich.py` /
+  `kb_pipeline.py` 的相对改动为 0，`git diff` 为空。
+
+`git diff` 全文（实现阶段补，PLAN §四 要求）：R-0 阶段为空。
+
+---
+
+## 7. TL 裁定记录（03:4x 回填，裁定人：TL 主 agent）
+
+> 成员 R-0 严格遵守 PLAN §二，裁定前 0 行实现代码。TL 独立复核了全部关键事实后给出裁定。
+> 裁定后允许进入「反例 FAIL → 实现 → PASS」。
+
+**TL 独立复核（现场命令）**：
+- `sha1("table|kb_9|329|0")[:15]` → `1137902847478273881`、`sha1("table|kb_9|333|0")[:15]` → `885155839145947657`，与线上 `table_chunks_kb_9` 两条 `_id` **精确匹配**；
+- 线上 `_source.metadata` 现场读取：含 `pk` / `chunk_doc_id` / `file_id` / `chunk_index` / `table_id=t001` / `channel=table` / `parse_artifact_id` / `content_uid` / `n_rows` / `n_cols` / `parsed_text_ref=table`，`create_time=2026-11-05 18:49:39` → 确认 V2 投影链路产物，非 12340；
+- 12340 `server/utils.py:125-138` `create_table_pk` 的 seed 与 `projection._table_pk`（`projection.py:93-96`）同为 `table|index|file_id|ordinal`、算法同为 `sha1[:15]→int` → 数值一致；真正不同的只有 `create_table_chunk_pk`（`:141-148`）；
+- doc2md `IrTable`（`document_ir_schema.py:1469-1494`）有 `table_id: str`、**无 `table_pos` 等价字段**；
+- `tests/test_rag_projection.py` 实测 **13 条**测试，`:161` 断言 `table["pk"] == P._table_pk("kb_9","333",0)`；
+- `_cat/indices/table*` → 仅 `table_chunks_kb_9 2`；`table_summary_kb_9` 索引不存在（`index_not_found_exception`）；
+- `ingest_pipeline/summary.py:30-36` 用 `v2sum|index|file|table_id`；
+- `/home/szf/data/dev/llmke-v2-toolenv/bin/python` = Python 3.10.12。
+
+**裁定 1 · `_table_pk` 口径**：**沿用 `projection.py:93-96` 现口径，一字不改**；不引入 `create_table_chunk_pk`。依据：线上真值精确匹配、与 12340 `create_table_pk` 同源同值、IR 无重建 `table_chunk` seed 的条件、既有测试已锁定该口径、改口径会与线上 2 条分裂并违反 B-2/B-4。**实现阶段 `_table_pk` 属禁改区，变更即判 FAIL。**
+
+**裁定 2 · E2 字面歧义**：判据明确为「**稳定命中 + 不同表格不撞号**」。同一 `(kb, file_id, ordinal)` 重投影得到**相同 pk 是内容寻址的正确语义**（按 `_id` 幂等覆盖更新、不产生重复行），**不是要求 pk 值字面不同**；「不重复」指不产生重复行 / 不同表格不撞号。PLAN §三 E2 已按此重写。TL 03:31 初版表述有歧义，此处更正。
+
+**裁定 3 · `table_summary_id`**：**本 loop 不纳入口径变更**，`summary.py` 现有 `v2sum|...` 保持不动。E1 在产出侧仍须能产出 table_summary 载荷对象（形状按 `summary.py` 既有契约），但线上无 `table_summary_*` 索引、无真值可对齐；主键对齐记为**已知边界转后续切片 / P6 切读**。不得引入未经线上验证的隐式口径变更。
+
+**裁定 4 · 其它**：解释器口径采纳 R-0 结论（v2 环境 `llmke-v2-toolenv` 3.10.12 / pytest 8.3.5；图/兼容层 `hipporag-toolenv` 3.11.15）；PLAN R-6 的「既有 11 项」更正为现场实测 **13 条**。
+
+**TL 认领一处误判**：03:31 派工单把「线上有 2 条」当作 12340 `create_table_chunk_pk` 口径线索、并写成「两套 seed 冲突」。R-0 反推证明这 2 条匹配的是 `projection` 现口径，且 `create_table_pk` 与之同源。**前提错误已更正并写入 `P1-L5-PLAN.md` §二**；「须显式裁定」这道门槛本身保留且有效。
+
+**状态**：R-0 裁定完成 → 允许进入实现阶段。`QA_PASS` 仍挂起（G-4），不自签、不标 DONE/VERIFIED。
+
+---
+
+## 8. 状态
+
+R-0 只读对照完成，**未写实现代码**；已通过 `send_message` 回 TL 请求裁定。
+`QA_PASS` 挂起（G-4 三项输入待 Owner），未自签、未标 DONE/VERIFIED；
+L1~L4 已封存，本 loop 未改其产物。等待 TL 裁定后再进入实现阶段。

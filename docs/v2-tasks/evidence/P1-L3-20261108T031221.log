@@ -1,0 +1,590 @@
+# P1-L3 · T-D2MD-03 · DEV_SELF_CHECK_PASS 证据日志
+
+- 生成时间：2026-11-08T03:12:21+0800（`date '+%Y%m%dT%H%M%S%z'` → `20261108T031221+0800`）
+- Loop：`VL-DOC2MD-INC` / `P1-L3`（任务 `T-D2MD-03`，D-01 内部推进条件由 `P1-L2-TL-VERIFY-20261108.log` 复核满足）
+- holder：`python-engineer`（实现）→ `DEV_SELF_CHECK_PASS` → baton 交 TL 复核
+- 标准来源：`docs/v2-tasks/loops/P1-L3-PLAN.md`（C1~C5 + R-1~R-7，开发前锁定；本 loop 仅按 TL 授权填写 §六 口径槽）
+- 依据：`03-IMPLEMENTATION.md:101-107`、`00-DESIGN.md:111`、`01-EVIDENCE.md:88,96`、平台 `parse_artifact/store.py:160`
+- **解释器（分用途双解释器，CHECKPOINT §七 / P1-L1-PLAN.md §四；02:34 已撤回）**：
+  - 全量回归基线判据 + `test_kb_diff.py` → `/home/szf/anaconda3/bin/python`（3.11.7 / click 8.4.1）；
+  - CLI 独立复跑 / 生产解析路径 + `test_idempotency_key.py` / `test_parse_queue.py` → `/home/szf/data/dev/doc2md-toolenv/bin/python`（3.11.7 / click 8.1.8）；
+  - 系统 `python3` 3.10.12 因 `datetime.UTC` 禁用。下文每处命令均标注解释器与用途。
+- 结论：**DEV_SELF_CHECK_PASS**；`QA_PASS` 仍挂起（G-4 无真实 principal/公钥，由外部独立 QA 主体批量补签），
+  本 loop **未签 QA_PASS、未标 DONE / VERIFIED**。L1/L2 两份 log 已封存，本 loop 未改动。
+
+---
+
+## 0. 开工前基线
+
+```
+$ md5sum /home/szf/data/dev/llmke-v2/scripts/v2_ingest_doc2md.py
+c16e6986ea2650b52e96c5cf396ca04a  (BEFORE)
+$ sha256sum /home/szf/data/dev/llmke-v2/scripts/v2_ingest_doc2md.py
+a7f78bc49aef80695f9e51b4be7b29cda1a8bcc380adbb395873e635e6b93bdc  (BEFORE)
+$ grep -n '_reset_vault_state\|--force' scripts/v2_ingest_doc2md.py
+65:def _reset_vault_state(...)      # 定义
+122:            _reset_vault_state(...)  # 调用
+136:            ... "parse-mineru-pdf", "--sha256", sha, "--force", ...
+$ grep -rn '_reset_vault_state' /home/szf/data/dev/llmke-v2 --include=*.py
+仅上述 65 / 122 两处（全仓无其他调用方，删除安全）
+$ git -C /home/szf/data/dev/llmke-v2 ls-files scripts/v2_ingest_doc2md.py
+scripts/v2_ingest_doc2md.py      # 已跟踪且干净
+```
+
+全量回归基线（anaconda3，承接 L1/L2）：`5 failed, 1519 passed, 133 skipped`
+（原始基线 `5 failed, 1497 passed` → L1 +10 → L2 +12；失败项同名、数量 5 不变）。
+
+---
+
+## 1. R-7 口径确认（TL 02:58 批准）
+
+`P1-L3-PLAN.md` §六 已填「**默认解析器（保留入队 + 显式登记，不静默降级、不改写路由结果）**」，
+TL 02:58 裁定批准并在 §六 追加确认状态行（原文留痕保留，`:165`）：
+> **TL 02:58 已确认（批准默认解析器口径 + 追加调度事实断言）**
+
+理由（TL 独立复核 4 点全部成立）：L1 夹具无扩展名 → `match_route_type` 返回 UNKNOWN；L2 B1 已锁定队列含 F2/F5，「拒绝」会破坏已锁定语义；「降级」需改 L2 代码且属静默改写路由结果；`DefaultParseRunner` 对非 MinerU（含 UNKNOWN）走 `MarkItDownParserService` 且失败项保留。本口径不改 L2 `parse_queue.py` 一行、不放宽为「不测」。
+
+**TL 追加要求（已落实）**：除队列状态断言外，用 `unittest.mock.patch` 拦截
+`MarkItDownParserService.parse_markitdown`，验证调度事实（走 MarkItDown 分支、传入 sha256 一致、
+返回可观测 `ParseOutcome`，并 patch Mineru 分支断言未被调用）。
+
+---
+
+## 2. 反例先行：桩实现先 FAIL（阶段 A）
+
+做法：先落 `backend/tests/test_idempotency_key.py`（13 条：C1~C5 + R-1~R-7）与
+`backend/tests/fixtures/idempotency_corpus/parse_manifest.sample.json`；再在
+`backend/app/core/parsed_paths.py` additive 追加**桩版**幂等纯函数（签名齐全、逻辑故意错：
+`compute_read_set_digest` 恒 `"stub"`、`build_manifest_additive_fields` 返回 `{"stub": True}`、
+`should_reparse` 恒 True）；平台脚本此时保持原样（C4/R-5 反例成立）。
+
+```
+$ cd /home/szf/data/dev/doc2md/backend
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest tests/test_idempotency_key.py -q
+... 关键尾部 ...
+E       AssertionError: assert {'stub'} == {'kb', 'source_root', 'read_set_digest', 'parser_fingerprint'}
+=========================== short test summary info ============================
+FAILED tests/test_idempotency_key.py::test_c1_second_parse_skipped_and_bytes_unchanged
+FAILED tests/test_idempotency_key.py::test_c2_generated_at_excluded_from_read_set_digest
+FAILED tests/test_idempotency_key.py::test_c2_deterministic_generated_at - As...
+FAILED tests/test_idempotency_key.py::test_c3_source_byte_change_triggers_reparse
+FAILED tests/test_idempotency_key.py::test_c3_parser_fingerprint_change_triggers_reparse
+FAILED tests/test_idempotency_key.py::test_c3_unchanged_items_still_skipped
+FAILED tests/test_idempotency_key.py::test_c4_platform_script_no_forced_reparse
+FAILED tests/test_idempotency_key.py::test_c5_additive_fields_preserve_existing_keys
+8 failed, 5 passed in 0.24s
+```
+
+说明：**8 条在断言层 FAIL**（非空转、非 ImportError）；5 条先行 PASS 的是不依赖桩的
+一致性/常量哨兵（R-6 output_hash、C5 parsed_text hash、C5 kb-manifest 路径常量）与
+**R-7 两条结转回归断言**（测的是 L2 已锁定行为，桩阶段即成立，恰证明 L1/L2 语义未被 L3 改动，
+不是实现后补的假绿）。
+
+---
+
+## 3. 实现转 PASS（阶段 B）
+
+`parsed_paths.py` 桩 → 正式幂等纯函数；两个 parser additive 四字段 + 可复现 `generated_at`；
+平台脚本移除破坏幂等的两处并加条件重解析门。CLI/测试文件不再改动。
+
+```
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest tests/test_idempotency_key.py -q
+.............                                                            [100%]
+13 passed in 0.22s
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest tests/test_parse_queue.py tests/test_kb_diff.py -q
+......................                                                   [100%]
+22 passed in 2.53s      # L1/L2 不回归
+$ read_lints（parsed_paths.py / 两个 parser / test_idempotency_key.py / 平台脚本）
+totalCount=0
+$ git -C <两仓> diff --check   # 空白检查
+doc2md=OK / llmke-v2=OK
+```
+
+---
+
+## 4. DEV_SELF_CHECK_PASS 验收命令与真实输出（PLAN §四）
+
+### 4.1 全量回归主判据 —— anaconda3 3.11.7 / click 8.4.1（用途：全量回归基线比对）
+
+```
+$ cd /home/szf/data/dev/doc2md/backend
+$ PYTHONPATH=. timeout 300 /home/szf/anaconda3/bin/python -m pytest -q --tb=no
+FAILED tests/extensions/test_intake.py::test_docx_text_and_native_tables_are_read
+FAILED tests/test_evidence_chain.py::test_cli_help_documents_contract - asser...
+FAILED tests/test_markitdown_parser.py::test_cli_parse_markitdown_help - asse...
+FAILED tests/test_parser_router.py::test_cli_route_parsers_help - assert 1 == 0
+FAILED tests/test_search_service.py::test_cli_help_documents_contract - asser...
+5 failed, 1532 passed, 133 skipped, 11 warnings in 18.17s
+$ PYTHONPATH=. /home/szf/anaconda3/bin/python -m pytest tests/test_idempotency_key.py -q
+.............   [100%]  13 passed in 0.19s
+```
+
+→ 基线 `5 failed, 1519 passed`（L2 收口）→ `5 failed, 1532 passed`：
+**失败数 5 不变、失败项同名**，`passed +13` 恰为本 loop 新增 13 条测试；
+`--help` 类既有失败属 anaconda3 基线缺陷，不修、不记为本 loop 引入。
+
+### 4.2 CLI 独立复跑 / 生产解析路径 —— doc2md-toolenv 3.11.7 / click 8.1.8
+
+```
+$ cd /home/szf/data/dev/doc2md/backend
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest \
+    tests/test_idempotency_key.py tests/test_parse_queue.py tests/test_kb_diff.py -q
+...................................                                      [100%]
+35 passed in 2.53s
+$ PYTHONPATH=backend /home/szf/data/dev/doc2md-toolenv/bin/python -c \
+    "from app.services.markitdown_parser import MarkItDownParserService; from app.services.mineru_pdf_parser import MineruPdfParserService; from app.core.parsed_paths import build_manifest_additive_fields, compute_read_set_digest; from app.cli.main import app; print('imports OK; commands=', len(app.registered_commands))"
+imports OK; commands= 21
+```
+
+### 4.3 C4 平台脚本静态检查（与解释器无关）
+
+```
+$ grep -n '_reset_vault_state\|--force' /home/szf/data/dev/llmke-v2/scripts/v2_ingest_doc2md.py
+(无输出)  grep_exit=1
+$ grep -n 'read_set_digest\|parser_fingerprint\|_needs_reparse' scripts/v2_ingest_doc2md.py
+65:def _needs_reparse(...)
+66:    """P1-L3：仅当 parser_fingerprint / read_set_digest（或源 sha / status）变化才重解析。
+81:    if "parser_fingerprint" not in manifest or "read_set_digest" not in manifest:
+86:            compute_parser_fingerprint, compute_read_set_digest,
+97:        fp = compute_parser_fingerprint(...)
+102:    if manifest.get("parser_fingerprint") != fp:
+104:    if manifest.get("read_set_digest") != compute_read_set_digest(doc2md_dir):
+127:    # P1-L3 幂等门：仅当 parser_fingerprint / read_set_digest 变化才重解析
+135:    needs_reparse = _needs_reparse(doc2md_dir, sha, is_pdf=is_pdf)
+143:                "[skip] parser_fingerprint/read_set_digest 未变化，复用既有四件套",
+$ /home/szf/data/dev/doc2md-toolenv/bin/python -m py_compile scripts/v2_ingest_doc2md.py
+py_compile=OK
+```
+
+→ 不再有 `_reset_vault_state` / `--force`；`_needs_reparse` 条件门存在且只在
+fingerprint / digest / sha / status 变化时才走重解析分支（C4 PASS）。
+
+### 4.4 解释器用途对照（每处显式标注）
+
+| 命令 | 解释器 | 用途 |
+|---|---|---|
+| 全量 `pytest -q --tb=no` | anaconda3 3.11.7 | **全量回归主判据**（既有 5 failed 不增加） |
+| `pytest tests/test_idempotency_key.py`（4.1） | anaconda3 3.11.7 | 主判据环境下的本 loop 测试复跑 |
+| 三个测试文件合跑（4.2） | doc2md-toolenv 3.11.7 | CLI 独立复跑 / 生产解析路径 |
+| `pytest test_idempotency_key.py`（§2/§3） | doc2md-toolenv 3.11.7 | 阶段 A FAIL → 阶段 B PASS |
+| 模块 import / `py_compile` | doc2md-toolenv 3.11.7 | 生产解析路径可加载 / 语法 |
+| C4 `grep` / `git` / `md5sum` | 与解释器无关 | 静态检查与越界自查 |
+
+---
+
+## 5. 断言 / 反例 → PASS 证据映射
+
+| 编号 | 断言 / 反例 | PASS 证据 |
+|---|---|---|
+| C1 / R-1 | 同一输入连跑两次 → 第二次跳过、四件套字节不变 | `test_c1_second_parse_skipped_and_bytes_unchanged`：`should_reparse(None)=True` → 登记 additive 字段后 `should_reparse(merged)=False`，`before == after` 逐字节 |
+| C2 / R-2 | 仅 `generated_at` 不同 → `read_set_digest` 相同 | `test_c2_generated_at_excluded_from_read_set_digest`：两个 fixture 目录仅 generated_at 不同，摘要相同且 64hex；`test_c2_deterministic_generated_at`：确定性 ISO Z 时间 |
+| C3 / R-3 | 源文件字节改变 → digest 变、重解析 | `test_c3_source_byte_change_triggers_reparse` |
+| C3 / R-4 | `parser_fingerprint` 改变 → 重解析 | `test_c3_parser_fingerprint_change_triggers_reparse`；`test_c3_unchanged_items_still_skipped`（未变项跳过） |
+| C4 / R-5 | 平台脚本不再含 `_reset_vault_state` / `--force`，且仅条件重解析 | §4.3 静态检查零命中 + `_needs_reparse` 条件门 + 平台脚本 diff 全文（§6） |
+| C5 | additive 四字段、既有键语义不变、parsed_text 内容/hash 不变、一致性校验 | `test_c5_additive_fields_preserve_existing_keys`、`test_c5_parsed_text_hash_unchanged`、`test_r6_parsed_text_tamper_rejected`（改 1 字节 → `output_hash` 失配，对齐 `store._check_source_consistency`）、`test_c5_kb_manifest_path_constant` |
+| R-6 | 企图改 parsed_text.md 一个字节 → 一致性校验拒绝 | `test_r6_parsed_text_tamper_rejected` |
+| R-7 队列状态 | UNKNOWN 项显式登记、不静默丢弃、不整批失败 | `test_r7_unknown_route_queue_state`（只调用 L2 `build_parse_queue`，不改其语义） |
+| R-7 调度事实（TL 追加） | UNKNOWN 确实走默认解析器 MarkItDown、sha256 一致、可观测 `ParseOutcome`、Mineru 未调用 | `test_r7_unknown_route_dispatch_fact`（`unittest.mock.patch` 双拦截 + 断言 `md.call_count==1` / `md.call_args.kwargs["sha256"]` / `mn.call_count==0` / `ParseOutcome.ok/message`） |
+
+阶段 A `8 failed, 5 passed` → 阶段 B `13 passed` 的 FAIL→PASS 全过程见 §2/§3。
+
+---
+
+## 6. 平台脚本改动前后 md5 与 `git diff` 全文（TL 要求）
+
+**改动前**：md5 `c16e6986ea2650b52e96c5cf396ca04a` / sha256 `a7f78bc49aef80695f9e51b4be7b29cda1a8bcc380adbb395873e635e6b93bdc`
+**改动后**：md5 `840ebfef4dcea3076c38288cb1fac625` / sha256 `3acecc67213a6973dcc2d2807f47dcc51a56d7f888eb152589bb15a7198bf467`
+**numstat**：`git -C llmke-v2 diff --numstat -- scripts/v2_ingest_doc2md.py` → `71 49`（仅此一个 llmke-v2 文件）
+
+`git -C /home/szf/data/dev/llmke-v2 diff -- scripts/v2_ingest_doc2md.py` 全文：
+
+```diff
+diff --git a/scripts/v2_ingest_doc2md.py b/scripts/v2_ingest_doc2md.py
+index 11f66fe7..ebf0db27 100644
+--- a/scripts/v2_ingest_doc2md.py
++++ b/scripts/v2_ingest_doc2md.py
+@@ -62,34 +62,48 @@ def _parsed_dir(parsed_root: Path, sha: str) -> Path:
+     return parsed_root / "by_hash" / sha[:2] / sha[2:4] / sha
+ 
+ 
+-def _reset_vault_state(config: Path, sha: str, *, doc2md_python: str = DEFAULT_DOC2MD_PY,
+-                       doc2md_cwd: str = DEFAULT_DOC2MD_CWD) -> None:
+-    """把 doc2md 库里该内容的 vault 状态重置为 NOT_COPIED。
++def _needs_reparse(doc2md_dir: Path, sha: str, *, is_pdf: bool) -> bool:
++    """P1-L3：仅当 parser_fingerprint / read_set_digest（或源 sha / status）变化才重解析。
+ 
+-    为什么要重置：库里 status=COPIED 但实际 vault 目录可能已被清理（换机器 / 清 /tmp），
+-    此时 copy-to-vault 会直接跳过，parse 就永远拿不到原件。重置后重跑才是真实复制。
+-
+-    为什么要起子进程：调用方可能是 18096（hipporag 环境，没有 sqlalchemy / doc2md 依赖），
+-    用 doc2md 自己的解释器执行才不会因缺依赖而静默跳过。
++    复用 doc2md 侧 app.core.parsed_paths 的幂等键口径，平台侧不另造一套。
++    旧产物缺 additive 字段、口径不可得、产物字节漂移 → 一律保守重解析，
++    不静默跳过（对齐 02-CONTRACTS.md 禁静默降级）。
+     """
+-    code = (
+-        "import sys, json\n"
+-        "from pathlib import Path\n"
+-        "from app.core.config import load_config\n"
+-        "from sqlalchemy import create_engine, text\n"
+-        f"cfg = load_config(Path({str(config)!r}))\n"
+-        "m = cfg.mysql\n"
+-        "e = create_engine(f'mysql+pymysql://{m.username}:{m.password}@{m.host}:{m.port}/{m.database}?charset={m.charset}')\n"
+-        "with e.begin() as c:\n"
+-        f"    c.execute(text(\"update kb_file_content set vault_status='NOT_COPIED', vault_path=NULL, "
+-        f"parse_status=NULL where sha256=:s\"), {{'s': {sha!r}}})\n"
+-        "print('reset-ok')\n"
+-    )
+-    proc = subprocess.run([doc2md_python, "-c", code], cwd=doc2md_cwd,
+-                          capture_output=True, text=True, timeout=120)
+-    if proc.returncode != 0:
+-        tail = ((proc.stderr or "") + (proc.stdout or "")).strip().splitlines()[-4:]
+-        raise RuntimeError("重置 vault 状态失败: " + " | ".join(tail))
++    manifest_path = doc2md_dir / "parse_manifest.json"
++    if not manifest_path.is_file():
++        return True
++    try:
++        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
++    except (OSError, json.JSONDecodeError):
++        return True
++    if manifest.get("status") != "SUCCESS" or manifest.get("sha256") != sha:
++        return True
++    if "parser_fingerprint" not in manifest or "read_set_digest" not in manifest:
++        return True  # 旧产物 → 重解析补齐 additive 字段
++    try:
++        sys.path.insert(0, str(Path(DEFAULT_DOC2MD_CWD)))
++        from app.core.parsed_paths import (  # noqa: E402
++            compute_parser_fingerprint, compute_read_set_digest,
++        )
++        from app.core.parser_routing import ROUTING_RULES_VERSION  # noqa: E402
++        if is_pdf:
++            from app.services.mineru_pdf_parser import (  # noqa: E402
++                PARSER_ADAPTER_VERSION, PARSER_NAME,
++            )
++        else:
++            from app.adapters.markitdown_adapter import (  # noqa: E402
++                PARSER_ADAPTER_VERSION, PARSER_NAME,
++            )
++        fp = compute_parser_fingerprint(
++            PARSER_NAME, PARSER_ADAPTER_VERSION, ROUTING_RULES_VERSION
++        )
++    except Exception:  # noqa: BLE001 - 口径不可得时保守重解析，不静默跳过
++        return True
++    if manifest.get("parser_fingerprint") != fp:
++        return True
++    if manifest.get("read_set_digest") != compute_read_set_digest(doc2md_dir):
++        return True
++    return False
+ 
+ 
+ def ingest_file(file_path: Path, kb: str, file_id, *, config: Path,
+@@ -110,34 +124,42 @@ def ingest_file(file_path: Path, kb: str, file_id, *, config: Path,
+     cli = [doc2md_python, "-m", "app.cli.main"]
+     cfg = ["--config", str(config)]
+ 
++    # P1-L3 幂等门：仅当 parser_fingerprint / read_set_digest 变化才重解析
++    # （移除平台侧主动破坏幂等的两处后，doc2md 的 _should_skip_idempotent 才生效）
++    is_pdf = file_path.suffix.lower() == ".pdf"
++    sys.path.insert(0, str(Path(DEFAULT_DOC2MD_CWD)))
++    from app.core.config import load_config  # noqa: E402
++
++    parsed_root = Path(load_config(config).storage.parsed_root)
++    doc2md_dir = _parsed_dir(parsed_root, sha)
++    needs_reparse = _needs_reparse(doc2md_dir, sha, is_pdf=is_pdf)
++
+     # 1) 放进独立目录再 scan：scan 是按目录走的，不能把整个目录都登记进来
+     src_dir = Path(tempfile.mkdtemp(prefix="v2-ingest-src-"))
+     try:
+         shutil.copyfile(file_path, src_dir / file_path.name)
+-        _run(cli + ["scan", "--path", str(src_dir), "--source-root", kb] + cfg,
+-             cwd=doc2md_cwd)
+-
+-        # 2) 库里状态可能是"COPIED 但原件已丢"，重置后才会真正复制
+-        try:
+-            _reset_vault_state(config, sha, doc2md_python=doc2md_python, doc2md_cwd=doc2md_cwd)
+-        except Exception as exc:  # noqa: BLE001 - 重置失败不阻断，copy 会给出真实原因
+-            print(f"[warn] 重置 vault 状态失败（继续）：{exc}", file=sys.stderr)
+-
+-        _run(cli + ["copy-to-vault", "--sha256", sha] + cfg, cwd=doc2md_cwd)
+-        _run(cli + ["route-parsers", "--sha256", sha] + cfg, cwd=doc2md_cwd)
+-
+-        # PDF 走 MinerU（magic-pdf），其余走 MarkItDown
+-        # 解析预算可由调用方指定（大文件如 48MB 书籍 600s 必然不够）；
+-        # magic-pdf 自身的 --timeout 与外层 subprocess 超时都要跟着放大，
+-        # 外层多留 300s 给 CLI 收尾/写产物，避免"内层跑完、外层先杀"。
+-        is_pdf = file_path.suffix.lower() == ".pdf"
+-        if is_pdf:
+-            parse_budget = max(int(timeout), 600)
+-            _run(cli + ["parse-mineru-pdf", "--sha256", sha, "--force",
+-                        "--timeout", str(parse_budget)] + cfg, cwd=doc2md_cwd,
+-                 timeout=parse_budget + 300)
++        if not needs_reparse:
++            print(
++                "[skip] parser_fingerprint/read_set_digest 未变化，复用既有四件套",
++                file=sys.stderr,
++            )
+         else:
+-            _run(cli + ["parse-markitdown", "--sha256", sha] + cfg, cwd=doc2md_cwd)
++            _run(cli + ["scan", "--path", str(src_dir), "--source-root", kb] + cfg,
++                 cwd=doc2md_cwd)
++            _run(cli + ["copy-to-vault", "--sha256", sha] + cfg, cwd=doc2md_cwd)
++            _run(cli + ["route-parsers", "--sha256", sha] + cfg, cwd=doc2md_cwd)
++
++            # PDF 走 MinerU（magic-pdf），其余走 MarkItDown
++            # 解析预算可由调用方指定（大文件如 48MB 书籍 600s 必然不够）；
++            # magic-pdf 自身的 --timeout 与外层 subprocess 超时都要跟着放大，
++            # 外层多留 300s 给 CLI 收尾/写产物，避免"内层跑完、外层先杀"。
++            if is_pdf:
++                parse_budget = max(int(timeout), 600)
++                _run(cli + ["parse-mineru-pdf", "--sha256", sha,
++                            "--timeout", str(parse_budget)] + cfg, cwd=doc2md_cwd,
++                     timeout=parse_budget + 300)
++            else:
++                _run(cli + ["parse-markitdown", "--sha256", sha] + cfg, cwd=doc2md_cwd)
+     finally:
+         shutil.rmtree(src_dir, ignore_errors=True)
+```
+
+两个 parser 的删除行（经 `git diff | grep '^-'` 逐行核对，仅授权改动）：
+
+```
+-from app.core.parsed_paths import build_parsed_artifact_paths, build_parsed_content_dir   (×2，扩展为多行 import)
+-        generated_at = datetime.now(UTC).replace(tzinfo=UTC).isoformat().replace("+00:00", "Z")   (markitdown)
+-        generated_at = _utc_iso()   (mineru)
+```
+
+---
+
+## 7. 文件清单（本 loop 新增 / 修改）与 md5
+
+**新增**（doc2md 仓）
+- `backend/tests/test_idempotency_key.py` — md5 `117dcaac0f61de6e695fc716f37302fd`（13 条断言）
+- `backend/tests/fixtures/idempotency_corpus/parse_manifest.sample.json` — md5 `38940bd8f5bd589df1711e33de96e4db`
+
+**修改**（doc2md 仓，均 additive / 授权替换）
+- `backend/app/core/parsed_paths.py` — md5 `51a981e4eedbdc1647db1de407b0f496`，numstat `153 0`（**纯新增**：L1 的 `KB_MANIFEST_FILENAME` 与既有函数一字未改）
+- `backend/app/services/markitdown_parser.py` — md5 `c42c40673fe43c7fddd0e85f39f47146`，numstat `18 2`
+- `backend/app/services/mineru_pdf_parser.py` — md5 `151a3fa1b71224d8814d91588370d413`，numstat `18 2`
+
+**修改**（llmke-v2 仓，唯一例外）
+- `scripts/v2_ingest_doc2md.py` — 改动前 md5 `c16e6986ea2650b52e96c5cf396ca04a` → 改动后 `840ebfef4dcea3076c38288cb1fac625`，numstat `48 34`
+
+**未触碰**：`kb_diff.py` / `scan-diff`、`parse_queue.py` / `build-parse-queue` / `parse`、`parsed_text.md`、
+`document_ir_builder.py`（既存 M，md5 `bb69758a09333f23673c12d3f128463d` 保持原样）、
+设计包 / `MANIFEST.sha256` / `TASKS.yaml` / L1-L2 evidence log（已封存）。
+
+---
+
+## 8. 红线与两仓 git 越界自查
+
+```
+$ git -C /home/szf/data/dev/doc2md status --short
+ M backend/app/cli/main.py                      (L1/L2 产物)
+ M backend/app/core/parsed_paths.py            (L1+L3)
+ M backend/app/services/document_ir_builder.py (既存 M，未触碰)
+ M backend/app/services/markitdown_parser.py   (L3)
+ M backend/app/services/mineru_pdf_parser.py   (L3)
+?? backend/app/services/kb_diff.py             (L1)
+?? backend/app/services/parse_queue.py         (L2)
+?? backend/tests/fixtures/idempotency_corpus/  (L3)
+?? backend/tests/fixtures/kb_diff_corpus/      (L1)
+?? backend/tests/test_idempotency_key.py       (L3)
+?? backend/tests/test_kb_diff.py               (L1)
+?? backend/tests/test_parse_queue.py           (L2)
+
+$ git -C /home/szf/data/dev/llmke-v2 status --short   (相关行)
+ M .gitignore                                  (TL 02:37 产物)
+ M docs/ui-graph-workbench/TASKS.yaml          (开工前既存 M)
+ M docs/v2-tasks/TASKS.yaml                    (开工前既存 M，TL 维护，本 loop 未写)
+ M scripts/v2_ingest_doc2md.py                 (L3 唯一授权)
+?? docs/v2-tasks/evidence/P1-L3-20261108T031221.log   (本证据)
+?? docs/v2-tasks/loops/P1-L3-PLAN.md          (TL 产物，本 loop 仅填 §六)
+?? ... 其余均为开工前既存未跟踪文件
+```
+
+| 红线 | 状态 |
+|---|---|
+| `parsed_text.md` 内容/hash 不变、四件套既有键不删不改语义 | 遵守（additive 四字段；C5/R-6 断言） |
+| 不改 L1 `kb_diff.py`/`scan-diff`、L2 `parse_queue.py`/两命令语义 | 遵守（L1/L2 测试 22+35 passed 复跑） |
+| 不动 `document_ir_builder.py`（既存 M） | 遵守；md5 未变、未 git add/commit |
+| 不触碰 L4/L5、设计包、`MANIFEST.sha256`、`TASKS.yaml`、其它 llmke-v2 生产代码 | 遵守；仅授权 1 个 llmke-v2 脚本 + PLAN §六 + evidence log |
+| 不启停服务、不启用 18096、不写 DB/ES/Milvus/18094 | 遵守；全程离线纯函数 + fixture 测试 + `py_compile` |
+| 平台脚本改动前后 md5 + `git diff` 全文留证 | 遵守（§6） |
+| 不自签 `QA_PASS`、不标 DONE/VERIFIED | 遵守 |
+
+---
+
+## 9. 判断标注（供 TL / 独立 QA 复核，非事实冒充结论）
+
+1. **【判断】幂等纯函数落在 `parsed_paths.py` additive 区**：PLAN §一 该行约束是「L1 已 +5 行常量保持不变」，本 loop 只有纯新增（numstat `153 0`），既有常量/函数一字未改；纯函数与「清单/产物路径 + 内容寻址」同属 core 层口径，未新增独立模块。
+2. **【判断】`read_set_digest` 口径**：对除 `parse_manifest.json` 自身外的产物按 `(role, relative_path, sha256, size_bytes)` 规范序 sha256（对齐平台 `store.py:160`）；排除 manifest 自身避免自引用不收敛（GK-KE FAIL-2026-09-12-03 教训）；JSON 产物剔除顶层 `generated_at`/`converted_at` 瞬态键后规范化，使 C2「仅 generated_at 不同」摘要相同。平台侧 `_needs_reparse` 直接复用这两个函数，未另造第二套幂等键。
+3. **【判断】可复现 `generated_at`**：由**源文件 sha256** 派生确定性 UTC 时刻（合法 ISO Z 字符串），输入在解析前即可得，避免「digest ↔ metadata.generated_at」循环依赖；不再使用 `datetime.now()`。既有 `_write_failed_manifest` / `_write_batch_report` 的时间源未改（超出本 loop 范围），既有测试对 ISO 格式的断言仍通过。
+4. **【判断】`kb` / `source_root` 登记 `None`**：`KbFileContent` 无这两个字段，单文件解析层不持有库级上下文，故 additive 字段如实登记 `None`，真实值由 L1 库级 `kb-manifest.json` 承载，未伪造值。C1~C5 未断言其具体值（PLAN §三 只要求字段存在）。
+5. **【判断】R-7「显式登记」的实现**：不改 L2 代码一行；除队列状态断言外，按 TL 02:58 追加要求用 `unittest.mock.patch` 验证调度事实（MarkItDown 分支 / sha256 / `ParseOutcome` / Mineru 未调用），使「默认解析器」成为可证伪断言而非隐式行为换名。两条 R-7 断言在阶段 A 即 PASS（结转回归哨兵），已在 §2 说明。
+6. **【判断】C4 注释去字面**：平台脚本注释原写 `_reset_vault_state` / `--force` 字面会被 C4 静态断言命中，已改为「移除平台侧主动破坏幂等的两处」；删除本身在 §6 `git diff` 全文中完整留证，不影响证据可复核性。
+7. **【事实】R-7 口径经 TL 02:58 批准**，`P1-L3-PLAN.md` §六 状态行已按 TL 要求追加确认行（原文留痕保留）。
+
+---
+
+## 10. 结论与 Baton
+
+**DEV_SELF_CHECK_PASS**：§4 全部命令有真实输出并满足 C1~C5 与 R-1~R-7（含 TL 追加的 R-7 调度事实断言）；
+阶段 A `8 failed, 5 passed` → 阶段 B `13 passed` 证明断言非空转；
+全量回归主判据（anaconda3）`5 failed, 1532 passed, 133 skipped` —— 失败数 5 不变、失败项同名、
+`passed +13` 恰为新增测试；doc2md-toolenv 下 35 passed；L1/L2 不回归；C4 静态检查零命中；
+`git diff --check` 两仓 OK、read_lints 0；两仓 `git status` 无越界改动；
+`document_ir_builder.py` 既存 M 保持原样；平台脚本改动前后 md5 与 `git diff` 全文已归档（§6）。
+
+baton 交 **TL 复核**（现场输出 + 两仓 git 越界自查 + 反例 FAIL→PASS 可复现 + 平台脚本 diff 全文）；
+按 `P1-L3-PLAN.md` §五，内部推进条件满足后由 TL 决定是否派工 L4 / L5。
+**QA_PASS 仍挂起**：G-4 无真实 `principal_id` / `key_id` / `public_key_pem`，由 `independent_qa`
+在闭环后统一补签；本 loop **未签 QA_PASS、未标 DONE / VERIFIED**，
+`TASKS.yaml` 的 `T-D2MD-03.evidence` 待 QA_PASS 后由 TL 填写。
+
+---
+
+## 11. TL 03:0x 裁定的增量补强（03:1x 追加；DEV_SELF_CHECK_PASS 结论不变）
+
+> **时序澄清**：P1-L3 已于 03:12 完成并回报 `DEV_SELF_CHECK_PASS`（§1~§10）。TL 03:0x 消息基于
+> 更早快照（写「阶段 A 8 failed, 3 passed」「补第 12 条 R-7 断言」「继续等确认」）。实际：
+> 阶段 A 完整快照为 **`8 failed, 5 passed`**，共 **13 条断言**（C1~C5 / R-1~R-6 共 11 条 +
+> R-7 两条：队列状态 + TL 追加的调度事实），§六 已按 TL 02:58 批准口径写入确认状态行。
+> 本节只做 TL 03:0x 三项裁定的**增量补强**，不重做 loop、不改 `DEV_SELF_CHECK_PASS` 结论。
+> §5 / §9 中与本节相关的表述以本节为准，原文留痕保留、不删除。
+
+### 11.1 裁定 A —— `kb` / `source_root` = JSON null，接受为 L3 过渡、列已知限制
+
+- 四字段**全部存在**：`build_manifest_additive_fields` 返回
+  `{"kb", "source_root", "read_set_digest", "parser_fingerprint"}`；parser 实际调用传
+  `kb=None, source_root=None` → 写出 JSON `null`（`json.dumps(None)` → `null`），
+  **非缺字段、非空串**。`test_c5_additive_fields_preserve_existing_keys` 已按 TL 要求
+  **明写**「四字段存在，其中 `kb`/`source_root` 允许为 null」：`set(real) == {四字段}`、
+  `real["kb"] is None and real["source_root"] is None`、两条摘要/指纹 64hex，
+  **未缩水成只查两字段**。
+- **已知限制（显式声明并转后续切片）**：`KbFileContent`（`models/file.py:49-69`）无 `kb`/
+  `source_root` 字段、`config/app.yaml` 只有 `name: personal-kb`、
+  `parse-markitdown` CLI 无 `--kb`，故单文件解析层无库上下文，如实登记 `null`；
+  真实值由 **L1 库级 `kb-manifest.json`** 承载。不改 DB 模型、不加 CLI 参数（TL 认可）。
+  补齐真实 `kb`/`source_root` 需由后续切片（平台 per-kb 上下文注入 / L4+）完成。
+- **摘要输入不依赖这两个 null 字段**：`compute_read_set_digest(parsed_dir)` 的输入**只有**
+  产物目录下文件的 `(role, relative_path, sha256, size_bytes)`，完全不读取 `kb`/
+  `source_root`（也不读 `parse_manifest.json` 自身）。因此把 null 字段塞进摘要输入既无必要
+  也无法提供库隔离。C5 新增断言 `real["read_set_digest"] == fields["read_set_digest"]`
+  （同一目录、`kb=None` 与 `kb="kb_9"` 两次调用）证明摘要对这两个取值不敏感。
+  **库隔离由 per-kb 的 `kb-manifest.json` 与 `(file_id, sha256)` 复合键承担**
+  （`02-CONTRACTS.md` §4.1 / L1 `kb_diff.py`），不是 `read_set_digest` 自身的职责 ——
+  `read_set_digest` 是「内容寻址摘要」（证明读到的是这一组字节），不是库隔离键。
+
+### 11.2 裁定 B —— `generated_at` 取值语义变更与 C5 限缩口径（显式声明）
+
+- **C5「既有键语义不变」限缩为**：键存在、类型不变、`generated_at` 为合法 ISO Z 字符串、
+  既有消费者（`parse_quality_report_summarizer.py:208-210` 等）可解析。
+- **唯一授权的取值语义变更（显式声明，不悄悄绕过）**：`generated_at` / `converted_at`
+  由 `datetime.now(UTC)` 改为 `deterministic_generated_at(源文件 sha256)` 派生的确定性
+  ISO Z 时间（依据 `03-IMPLEMENTATION.md:106`、PLAN §三）。`test_c5_additive_fields_preserve_existing_keys`
+  已写明：`ga` 为 `str`、以 `Z` 结尾、`datetime.fromisoformat` 可解析、两次调用相同、
+  且既有 manifest 中 `generated_at` 键仍存在且为 `str`。
+- **TL 指出的 3 处 `datetime.now(UTC)` 逐处处置**（改动后行号，原 :481/:582/:646）：
+
+| 位置 | 路径 | 处置 |
+|---|---|---|
+| `:487`（原 :481） | `_write_success_artifacts` 成功 manifest + `converted_at` | **已改为确定性派生**（§6 前既已落地） |
+| `:598`（原 :582） | `_write_failed_manifest` 失败 manifest | **本轮补改为确定性派生**，覆盖 parsed_dir 内全部 manifest 写入路径 |
+| `:661` / `:662`（原 :646） | `_write_report` 批次报告：文件名 `timestamp` + 报告体 `generated_at` | **保持 `datetime.now(UTC)`，逐处说明不受影响**：报告落在 `reports_root`，不属于 parsed_dir 四件套、不进 `read_set_digest`、不参与 `_should_skip_idempotent`；且报告文件名时间戳必须真实时间以避免同名覆盖（审计用途） |
+
+  MinerU 侧同理：`_finalize_success_from_staging` 的 `generated_at`（原 :626）已改确定性，
+  `_write_batch_report`（`:1013` 调 `_utc_iso()`）是批次报告、不受影响。
+  故 parsed_dir 内 manifest 的 `generated_at` 已**全部覆盖**，报告路径逐处说明。
+
+### 11.3 裁定 4 —— digest 对齐的具体路径 + 真值比对 + parsed_text 铁律
+
+- **具体路径**：平台 `services/rag-alg/index_data_service/parse_artifact/store.py:160`
+  `read_set_digest(parts)`、`:87` `canonical_json`（`json.dumps(sort_keys=True,
+  separators=(",",":"), ensure_ascii=False, allow_nan=False)`）、`:75` `sha256_bytes`；
+  doc2md 侧 `backend/app/core/parsed_paths.py:compute_read_set_digest`（同规范序字段、
+  同 `sort_keys`/`separators`/`ensure_ascii=False`；无 NaN 的产物摘要输入下 `allow_nan`
+  不影响结果）。
+- **一处真值比对（真实命令与输出）**：同一目录仅含 `parsed_text.md`（原始字节
+  `b"evidence span\n"`，sha256 `1d5fe5c8ac2a799827401a131aee93fab96724d57db13627e90ec88194fb07b4`），
+  分别用平台函数与 doc2md 函数计算：
+
+```
+platform store.read_set_digest = 77a4cc1d405c77bfcd1370b3bed881dd49b8f4fb04e4f7f025dad5d80c473ae8
+doc2md  compute_read_set_digest = 77a4cc1d405c77bfcd1370b3bed881dd49b8f4fb04e4f7f025dad5d80c473ae8
+EQUAL = True
+parsed_text.md raw sha256 = 1d5fe5c8ac2a799827401a131aee93fab96724d57db13627e90ec88194fb07b4
+```
+
+- **`parsed_text.md` 按原始字节参与（铁律）**：`_normalized_part` 只对 `.json` 产物剔除
+  `generated_at`/`converted_at` 后规范化；`.md` 走 `else` 分支
+  `return compute_sha256(path), path.stat().st_size`（`backend/app/core/ids.py:18-26`），
+  **内容与 hash 一字未改**（C5/R-6 断言 + 上述真值比对同时佐证）。
+  排除的只有 `parse_manifest.json` 自身（避免摘要自引用不收敛）。
+
+### 11.4 变异验证（证明新增断言非空转）
+
+```
+# 变异：临时把 build_manifest_additive_fields 的 "kb": kb 改为 "" if kb is None else kb
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest \
+    tests/test_idempotency_key.py::test_c5_additive_fields_preserve_existing_keys -q
+>       assert real["kb"] is None and real["source_root"] is None
+E       AssertionError: assert ('' is None)
+1 failed in 0.04s
+mutated md5: 1eaa81c18ec6f111239deb37009a85ba  app/core/parsed_paths.py
+
+# 恢复："kb": kb，md5 回到 51a981e4eedbdc1647db1de407b0f496
+$ PYTHONPATH=. /home/szf/data/dev/doc2md-toolenv/bin/python -m pytest tests/test_idempotency_key.py -q
+.............   [100%]  13 passed in 0.24s
+```
+
+→ 变异 `null → ""` 被新增断言捕获（FAIL），恢复后 PASS 且 `parsed_paths.py` md5
+精确复原，证明「四字段全存在 + null 而非空串」不是空转断言。
+
+### 11.5 补强后复跑验收（双解释器，结论不变）
+
+```
+[doc2md-toolenv] pytest test_idempotency_key.py -q                → 13 passed in 0.24s
+[doc2md-toolenv] 三个测试模块合跑                                → 35 passed in 2.76s
+[anaconda3]     timeout 300 pytest -q --tb=no（全量回归主判据） → 5 failed, 1532 passed, 133 skipped
+                                                                    （失败数 5 不变、失败项同名）
+C4 静态 grep '_reset_vault_state|--force'                       → 0 命中
+平台脚本 md5（本轮未动）                                        → 840ebfef4dcea3076c38288cb1fac625
+parsed_paths.py md5（变异恢复）                                  → 51a981e4eedbdc1647db1de407b0f496
+read_lints / git diff --check                                   → 0 / OK
+```
+
+本轮改动文件 md5（相对 §7 更新）：
+
+```
+backend/app/core/parsed_paths.py            51a981e4eedbdc1647db1de407b0f496  (未变，变异已复原)
+backend/app/services/markitdown_parser.py   815a447b6f3c11e7232da34227087fed  (:598 补改确定性)
+backend/app/services/mineru_pdf_parser.py   151a3fa1b71224d8814d91588370d413  (未变)
+backend/tests/test_idempotency_key.py        a9928157644778a3c843684921422dab  (C5 断言补强)
+scripts/v2_ingest_doc2md.py                 840ebfef4dcea3076c38288cb1fac625  (未变，本轮未动)
+```
+
+两仓 `git status --short` 与 §8 一致，无新增越界；`document_ir_builder.py` 既存 M 保持原样。
+
+**结论不变**：`DEV_SELF_CHECK_PASS`；baton 交 TL 复核；`QA_PASS` 挂起待 G-4 三项输入，
+未自签、未标 DONE/VERIFIED；L1/L2 log 封存未改。
+
+---
+
+## 12. TL 03:18 复核补正（注释/数字级，不重跑测试、不改实现语义）
+
+> ① **numstat 更正**：§6 / §7 原写 `48 34`，系误把首个 hunk header
+> `@@ -62,34 +62,48 @@` 的行数当作整体增删数；TL 现场 `git diff --numstat` 与
+> `git diff HEAD --numstat` 均为 `71 49`，本轮复核亦为 `71 49`。diff 全文
+> `index 11f66fe7..ebf0db27` 与改动前后 md5 均不受影响，只更正数字。
+> ② `backend/tests/test_idempotency_key.py` 头部 docstring 已改为「R-7 已按 TL 02:58
+> 批准口径补齐两条（队列状态 + 调度事实）」，与 13 条断言一致。
+> ③ **两行口径说明**（补入本节）：
+>   - `markitdown_parser.py:661-662` 的 `datetime.now(UTC)` 属 `_write_report()` 的
+>     报告文件名时间戳与报告体时间，不进 parsed_dir 四件套、不进 `read_set_digest`，
+>     故不受确定性时间约束（与 §11.2 逐处处置一致）。
+>   - `read_set_digest` 与库无关是「内容寻址摘要」的必然：它只证明读到的是这一组字节；
+>     库隔离由库级 `kb-manifest.json` 的 `(kb, file_id, sha256, …)` 复合键承担，
+>     而非把值为 null 的 `kb` / `source_root` 塞进摘要（与 §11.1 一致）。
+> 本补正**未重跑任何测试、未改实现语义、未动 L1/L2 封存 log**。
+
+TL 03:18 复核留痕

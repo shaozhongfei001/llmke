@@ -1,0 +1,392 @@
+# P5-L14 · P5-0b-2'（`@Lazy`）执行记录 —— 18084 脱离 Nebula 启动成功
+
+- 时间：2026-11-08 21:19 ~ 21:25（TZ=Asia/Shanghai）
+- 授权：Owner 批、TL 03:2x 执行令（仅允许改 `NebulaGraphConfig.java` 一处 + 重建 + 重启 18084）
+
+## §0 首段结论
+
+> **`@Lazy` 生效：18084 `Started`（4.151 s）、启动段无 `NebulaGraph pool init failed`、`POST /graph/search/v2WholeGraph {"spaceName":"kb_9"}` 返回 `200` + `nodeList=114` / `edgeList=94`（即生产 kb_9 图的 114 节点 / 94 边）。**
+
+**分清两处变更的贡献（TL 要求）**
+
+| 变更 | 来源 | 贡献 |
+|---|---|---|
+| `V2GraphProxyController.java` | 上一轮已同步进 B 源码，但 jar 曾回滚 → 从未生效 | **让 `/v2WholeGraph` 有路由**（返回 114/94 靠它） |
+| `@Lazy` on `NebulaGraphConfig` | **本次新增** | **让进程能起来**（原来启动即连 Nebula 崩掉） |
+
+**并发结论**：`@Lazy` 只治**启动期**；旧 Nebula 端点仍在**运行时**抛同一个错（本文 §6 实测）。
+graph-service 全部 **18** 个端点中，`v2WholeGraph` / `ping` 可用（2 个），其余 **16 个仍不可用**，
+属 `TASKS.yaml` T-D0 遗留「Java graph-service 脱离 Nebula」**未完成**，**非本次回归**。
+
+---
+
+## §1 ① 留档
+
+```
+NebulaGraphConfig.java  改前 md5 62eb48db950b493642c598f11b2eb195 / 77 行
+18084 jar（改前）       a1e403307eaa2b521b6d4890bcba304d（= 原件，与 11-07 02:57 一致）
+备份 /tmp/p5-lazy-bak/
+  src-rag-graph-service-<ts>.tgz ｜ jar-before-<ts>.jar ｜ NebulaGraphConfig.java.before-<ts>
+复用材料：/tmp/p5-0b-bak/18084.env.json（112 env）；cwd = …/rag-graph-service；cmd 11 段（上轮记录）
+```
+
+> 18084 当时无进程（P5-0b-2 失败后已停），故 cmd/cwd 取自上轮留档，非凭空重写。
+
+---
+
+## §2 ② 改动（**只加不改**，代码零改动）
+
+```diff
+9a10
+> import org.springframework.context.annotation.Lazy;
+43a45,52
+>     // 该 Bean **没有任何注入点**（全模块无 @Resource/@Autowired 引用它或 SessionPool 类型），
+>     // 仅因 Spring 默认 eager 初始化，才在应用启动期去连 Nebula；而 **V1 图谱栈已退役**
+>     // （Nebula×3 容器已 Exited、r12-graphsvc.service 单元文件已删除、19529 已停），
+>     // 启动期连库必然抛 ConnectException，导致整个服务起不来。
+>     // 加 @Lazy 后该 Bean 永不初始化 → 启动不再连 Nebula；
+>     // 而 NebulaGraphTemplate 走的是 nebulaGraphConfig.getSessionPool(spaceName) 的**直接方法调用**
+>     // （非 @Bean 方法，@Configuration 只拦截 @Bean），不受影响，仍为运行时懒加载。
+>     @Lazy
+```
+
+```
+新增 9 行｜删除 0 行｜77 → 86 行｜md5 6ef4f8a1262195a9eeaa9289b2e09e01
+```
+
+**与 TL 预期的「+2 行」差异说明（如实报备）**：`@Lazy` 需 `import ...annotation.Lazy`，
+故为 **1 import + 7 行注释 + 1 注解 = 9 行新增、0 行删除**；**任何既有代码行未改动**（diff 无 `<` 行）。
+
+---
+
+## §3 ③ 编译
+
+```
+$ mvn -o -pl rag-graph-service -am -DskipTests package
+BUILD SUCCESS  8.4 s（实测 9 s）
+```
+
+## §4 ④ 部署前验 jar
+
+```
+V2GraphProxyController.class : 1     （=0 则不部署）
+NebulaGraphConfig.class      : 1
+字节码注解表   : #105 = Utf8 Lorg/springframework/context/annotation/Lazy;
+                 org.springframework.context.annotation.Lazy        ← @Lazy 真进了 class，不是只在源码
+方法签名不变   : getSessionPool() / getSessionPool(String) 均在
+新 jar         : 9c9bba5d7d1bc4e88cbd9ce8402678a0 / 160,696,363 B / 21:20:18
+```
+
+---
+
+## §5 ⑤ 启动与三条判据
+
+```
+新 pid 3203006｜lstart Sun Nov 8 21:20:30 2026  >  jar mtime 21:20:18   ✅
+Tomcat started on port 18084 (http) with context path '/graph'
+Started RagGraphServiceApplication in 4.151 seconds                      ✅
+```
+
+**按进程启动时间切分日志**（自 `Starting RagGraphServiceApplication` 起，28 行；**非全文件 grep**）：
+
+| 关键词 | 计数 |
+|---|---|
+| `ClassNotFoundException` | **0** |
+| `NoClassDefFoundError` | **0** |
+| `NoSuchMethodError` | **0** |
+| **`NebulaGraph pool init failed`** | **0** ← 本次修复的核心判据 |
+| `APPLICATION FAILED TO START` | **0** |
+
+启动段仅有的 WARN：`StatusConsoleListener` 插件扫描弃用、`LoadBalancerCacheManager not available` —— 均非异常。
+
+---
+
+## §6 ⑥ 验收（四条）
+
+### 6.1 服务起来 ✅（§5）
+
+### 6.2 `v2WholeGraph`（核心）
+
+```
+POST http://127.0.0.1:18084/graph/search/v2WholeGraph  {"spaceName":"kb_9"}
+HTTP=200  用时 0.099 s
+外层（统一响应包装）：{"success":true,"errorMsg":null,"errorCode":null,"data":{...}}
+data.nodeList = 114   data.edgeList = 94   data.notice = null
+样例节点 {"vid":"ent:#docx","name":"# DOCX","nodeType":"实体","properties":{"kind":"entity","title":"# DOCX"}}
+样例边   {"id":"ent:#智造贷企业流动资金贷款产品说明书|is|ent:loan...","edgeType":"is","src":{...},"dst":{...}}
+```
+
+**与生产 kb_9 图（114 节点 / 94 边）完全一致** ✅
+
+> 注意：graph-service 有**统一响应包装**（`success/data/errorCode/errorMsg`），`nodeList` 在 `data` 里而非顶层。
+> 若按顶层取 `nodeList` 会得到 0 并误判「空列表」—— 这是本次实操踩到的读数陷阱，已记入 §8。
+
+### 6.3 旧 Nebula 端点 —— **迁移未完成，本就如此**
+
+```
+GET  /graph/search/instances?spaceName=rag_graph&fileIds=1     → HTTP 500
+     {"success":false,"errorMsg":"java.lang.RuntimeException: java.net.ConnectException: NebulaGraph pool init failed."}
+GET  /graph/search/keywordSearch?spaceName=rag_graph&keyword=星航贷 → HTTP 500（同一错误）
+```
+
+日志栈（**运行时**才触发，正是 `@Lazy` 的预期行为）：
+```
+NebulaGraphConfig.getSessionPool(NebulaGraphConfig.java:78 / :73)
+  ← NebulaGraphTemplate.getSessionPool(:52) ← execute(:103) ← callCypher(:384)
+```
+
+**措辞（按 TL 要求固定）**：**「迁移未完成，本就如此（该链路已坏 42 小时），不是本次回归」。**
+
+### 6.4 对照组
+
+```
+GET /graph/search/instances（不带 fileIds） → 500 + "Required request parameter 'fileIds' ..."
+                                              ← 参数校验生效 ⇒ 服务在、路由在
+GET /graph/search/ping                       → 200 {"success":true,"data":true}
+```
+上轮该端点是 404（路由不在），现在是 500（业务错）/ 200（ping）——
+**证明服务确实起来了、路由确实注册了，只是 Nebula 后端不存在。**
+
+### 6.5 端点可用性精确统计（不凭记忆）
+
+`rag-graph-service` 共 **18** 个端点：
+```
+GraphController            2 个（/nodes /edges）                      → 依赖 Nebula ❌
+GraphDataStatisticsController 1 个（/getWholeGraphStatistics）        → 依赖 Nebula ❌
+GraphSearchController     14 个
+  /ping                       → 纯返回 true            ✅ 可用（实测 200）
+  /v2WholeGraph               → 纯转发 18094           ✅ 可用（实测 114/94）
+  其余 12 个（instances/nodeSearch/edgeSearch/keywordSearch/pathSearch/
+              cypherSearch/searchNodesByIds/nodeStepSearch/wholeGraphSearch/
+              canSearchNodeOneStep/commonNeighbourSearch/subGraph/file/pageNum）
+                              → 依赖 Nebula ❌
+V2GraphProxyController     1 个（/v2WholeGraph）
+```
+**⇒ 18 个端点中 2 个可用、16 个不可用**（与 TL 的「16/17」量级一致，我给出的是逐端点核过的数）。
+
+---
+
+## §7 ⑦ 生产侧复核
+
+```
+8088 24525｜18081 3990335｜18082 3130060｜18083 450255｜18084 **3203006（新）**｜18085 4036355
+18094 2227759 + 2774847（共用 fd=12）｜18096 2773520｜19526 19144｜19527 1762713｜19531 435286
+   ← 除 18084 外全部未变
+生产图 current.json md5 e2d0f75440e4553ee1bb33f51ca2ca34  未变
+kb_9 = 44                                                  未变
+nebula 三容器仍 exited（**未启，符合「有意退役」结论**）
+```
+
+---
+
+## §8 本次踩到的读数陷阱（给后来人）
+
+1. **graph-service 的响应被全局包装**：`{"success":true,"data":{nodeList,edgeList}}`。
+   直接 `d["nodeList"]` 会得到 `None`/0，**误判成「200 但空列表」**。取 `d["data"]["nodeList"]`。
+2. **`instances` 不带 `fileIds` 时返回 500「参数缺失」**，看起来像 Nebula 失败，其实只是校验错；
+   必须带齐参数才能测到真正的后端错误。
+3. `@Lazy` 的效果**只能在启动段**观测；运行期调用旧端点仍报同一 `ConnectException`（§6.3），
+   这是设计预期，不是回退。
+
+---
+
+## §9 回滚材料
+
+```bash
+cp -p /tmp/p5-lazy-bak/NebulaGraphConfig.java.before-<ts>  <B>/…/infrastructure/NebulaGraphConfig.java
+cp -p /tmp/p5-lazy-bak/jar-before-<ts>.jar                 <B>/…/target/rag-graph-service-0.0.1-SNAPSHOT.jar
+# 或整包：tar -xzf /tmp/p5-lazy-bak/src-rag-graph-service-<ts>.tgz -C <B>/rag-graph-service/..
+# 重启：/home/szf/data/dev/llmke-v2-toolenv/bin/python /tmp/start_18084.py
+```
+
+---
+
+## §10 补充（TL 03:5x 要求）：把「不要注入本 Bean」写进代码注释
+
+### 10.1 改动（**纯注释，零代码改动**）
+
+在 `NebulaGraphConfig` 的 `@Bean` 注释末尾追加 5 行警告：
+
+```
+⚠️ 后来人注意：**不要用 @Resource / @Autowired 注入本 Bean**（`nebulaGraphSessionPool` 或 `SessionPool` 类型）。
+   一旦注入，@Lazy 只会给你一个代理，**首次调用时**仍会抛 `ConnectException: NebulaGraph pool init failed`
+   （因为 V1 的 Nebula 已退役），而且栈会出现在业务代码里，极难归因。
+   需要图数据的场景请走 18094 的 `/v2/graph/*`，不要再把 graph-service 绑回 Nebula。
+```
+
+```
+相对「改 @Lazy 前」的备份：新增 14 行 / **删除 0 行**（1 import + 12 行注释 + 1 注解）
+77 → 91 行｜md5 01fdb13b9bd9d4a2f4f7dc3cc8166f14
+```
+
+### 10.2 **jar 未重建、18084 未重启**（遵守「待命、不动运行态」）
+
+用「只 `compile` 不 `package`」的方式证明**注释不影响行为**：
+
+```
+jar 内 NebulaGraphConfig.class         3310 B
+重新编译后的 NebulaGraphConfig.class   3310 B
+javap -c 指令级 diff → **完全一致**
+javap -v 全部差异     → 仅 LineNumberTable 行号 +5（因注释插在方法前）
+RuntimeVisibleAnnotations 仍含 Lorg/springframework/context/annotation/Lazy
+```
+
+**⇒ 部署 jar（`9c9bba5d…` / 21:20）与当前源码在行为上完全等价**，18084 仍 `pid 3203006`、`v2WholeGraph` 仍 114/94。
+
+### 10.3 一个必须记住的副作用：**堆栈行号偏移 +5**
+
+jar 是用「加注释之前」的源码编译的，而源码现在多了 5 行注释，因此：
+
+| 栈里看到的 | 对应**当前源码**行 |
+|---|---|
+| `NebulaGraphConfig.java:73`（`throw new ConnectException`） | **`:78`** |
+| `NebulaGraphConfig.java:78`（`throw new RuntimeException(e)`） | **`:83`** |
+
+**查栈时按 +5 换算**；若要求「源码 ↔ jar ↔ 进程」严格逐行一致（本文 §0 的三者一致原则），
+需要**重建 jar + 重启 18084** —— 该动作属运行态变更，等 TL 决定，我不擅自做。
+
+---
+
+## §11 严重问题修正：`@Lazy` 原先**只落在部署仓 B，源码仓 A 没有**
+
+### 11.1 问题（TL 核实，我确认）
+
+```
+A  llmke-v2  …/NebulaGraphConfig.java   77 行  md5 62eb48db…  @Lazy 命中 0
+B  llmke-r12 …/NebulaGraphConfig.java   91 行  md5 01fdb13b…  @Lazy 命中 3
+diff A→B = 14 行新增、0 行删除（全部只在 B）
+```
+
+**危害**：下次任何 A→B 的常规同步都会把 `@Lazy` 覆盖掉 → 18084 重新起不来，且**没人会想到是一次普通同步导致的**。
+**成因**：本轮为「在可构建的那一侧改」而直接在 B 修改，绕过了「A 是唯一可信源」的原则；
+这同时解释了先前观察到的「B 系统性落后 A」——**改动只在 B 做、A 不更新 ⇒ 两仓分叉**，两个方向都成立。
+
+**我的责任**：P5-0b 我一直按「A→B」同步，本轮却在本应写 A 的时候写了 B；
+TL 的执行令未指明仓，是表述缺失，但**我在同一 loop 内已有「A 是源」的上下文，应先落 A 或先问一句**。
+
+### 11.2 处置（按顺序，均已执行）
+
+| # | 动作 | 结果 |
+|---|---|---|
+| 1 | 备份 A 原件 `/tmp/p5-lazy-bak/NebulaGraphConfig.A.before-<ts>.java` | OK |
+| 2 | `cp -p B → A`（把 14 行改动落回源码仓） | OK |
+| 3 | `cmp A B` | **逐字节一致** |
+| 4 | `diff A B` | **空** |
+| 5 | `md5sum` | A = B = `01fdb13b9bd9d4a2f4f7dc3cc8166f14` |
+| 6 | A 仓 git 状态 | ` M …NebulaGraphConfig.java`，`1 file changed, 14 insertions(+)`，**0 deletions** |
+
+### 11.3 重建 + 验 jar（B）
+
+```
+mvn -o -pl rag-graph-service -am -DskipTests package → BUILD SUCCESS 8.9 s
+新 jar a4d9f340bd559a06786f6cd343a97c3c / 160,696,362 B / 21:24:54
+V2GraphProxyController.class = 1 ｜ NebulaGraphConfig.class = 1 ｜ 注解表含 Lazy = 1
+LineNumberTable: line 78 / line 83 均存在 → **行号与当前源码对齐**
+```
+
+### 11.4 重启 + 验收
+
+```
+新 pid 3234127｜lstart 21:25:44 > jar mtime 21:24:54        ✅
+Started RagGraphServiceApplication in 4.16 seconds           ✅
+按启动标记切分（28 行，非全文件 grep）：
+  ClassNotFoundException 0｜NoClassDefFoundError 0｜NoSuchMethodError 0
+  NebulaGraph pool init failed 0｜APPLICATION FAILED TO START 0     ✅
+POST /graph/search/v2WholeGraph {"spaceName":"kb_9"} → 200 ｜ nodes=114 ｜ edges=94 ｜ notice=null   ✅ 回归判据保持
+GET  /graph/search/ping → 200 {"data":true}                                                        ✅
+GET  /graph/search/instances?…&fileIds=1 → 500（Nebula 连不上）—— 迁移未完成，本就如此，非回归        ✅
+```
+
+**行号对齐已被实测证据确认**（这是 §10.3 那个「+5 偏移」的消解）：
+```
+栈：NebulaGraphConfig.getSessionPool(NebulaGraphConfig.java:78)   ← throw new ConnectException
+    NebulaGraphConfig.getSessionPool(NebulaGraphConfig.java:83)   ← throw new RuntimeException(e)
+源码 :78 = throw new ConnectException("NebulaGraph pool init failed.")
+源码 :83 = throw new RuntimeException(e)
+```
+
+### 11.5 生产侧
+
+```
+8088 24525｜18081 3990335｜18082 3130060｜18083 450255｜18084 **3234127（新）**｜18085 4036355
+18094 2774847｜18096 2773520｜19526 19144｜19527 1762713｜19531 435286   ← 除 18084 外全部未变
+生产图 e2d0f754…｜kb_9=44｜nebula 三容器仍 exited（未启）
+```
+
+### 11.6 流程规则（建议进 P6-BACKLOG，TL 提出）
+
+> **Java 任何改动必须先落 A（源码仓），再同步 B（部署仓）构建。禁止直接在 B 上改。**
+> 判据：改完 `diff A B <该文件>` 必须为空。
+
+**补充两条我自己的操作教训**：
+1. **跨仓文件在报告与执行令里必须显式写 A/B**，不能只说「源码」——本轮 A/B 两个仓都叫「源码」；
+2. **`git status --short -- <绝对路径>` 在本仓不匹配 pathspec**（我因此一度误判「A 未跟踪」），
+   查 git 状态**必须用相对仓库根的路径**。
+
+---
+
+## §12 收口摘要（TL 04:2x 收尾要求：A/B 一致性 + 行号对齐 + `git pathspec` 教训 已全部在本文件 §11，此处给可复核的一页摘要）
+
+### 12.1 最终状态快照（2026-11-08 21:2x）
+
+```
+18084        pid 3234127  lstart Sun Nov 8 21:25:44 2026
+jar          a4d9f340bd559a06786f6cd343a97c3c（21:24:54）
+v2WholeGraph POST {"spaceName":"kb_9"} → 200 ｜ nodes=114 ｜ edges=94
+A / B 源文件  md5 均为 01fdb13b9bd9d4a2f4f7dc3cc8166f14（cmp 逐字节一致）
+生产图        e2d0f75440e4553ee1bb33f51ca2ca34（未变）
+kb_9          44（未变）
+nebula ×3     exited（未启，有意退役）
+```
+
+### 12.2 三件关键证据的位置索引
+
+| 事件 | 在哪一节 | 一句话 |
+|---|---|---|
+| A/B 一致性修正 | §11.2 | `cp -p B→A` + `cmp` 一致 + `diff` 为空 + git 显示 14 insertions/0 deletions |
+| **行号对齐** | §11.4 | 栈 `:78` = `throw new ConnectException`、`:83` = `throw new RuntimeException(e)`，与源码同位置 |
+| **`git pathspec` 教训** | §11.6 | `git status --short -- <绝对路径>` 静默返回空 → 误判「未跟踪」；必须用**相对仓库根**的路径 |
+| `cp -p` 伪装旧文件 | §9 / §11.6 | 同步验收只能用「同步前 tar 清单 + `cmp` + `ctime` + git」，**不能看 mtime/大小** |
+| 失败与构建无关的排除法 | §6（P5-0b-1/2 文件） | 旧 jar 复现同一 Nebula 启动失败 |
+| `@Lazy` 遗留限制 | §10.3 / §11.4 | 只治启动期；禁止 `@Resource` 注入该 Bean（已写进代码注释） |
+
+### 12.3 任何人可独立复跑的最小复核命令集
+
+```bash
+# ① A/B 一致性（必须为空 + md5 相同）
+A=/home/szf/data/dev/llmke-v2/services/rag-java/rag-parent/rag-graph-service/src/main/java/com/gientech/raggraphservice/infrastructure/NebulaGraphConfig.java
+B=/home/szf/data/dev/llmke-r12/services/rag-java/rag-parent/rag-graph-service/src/main/java/com/gientech/raggraphservice/infrastructure/NebulaGraphConfig.java
+diff "$A" "$B" && md5sum "$A" "$B"
+
+# ② jar 三条（class / 方法 / 注解表）
+JAR=/home/szf/data/dev/llmke-r12/services/rag-java/rag-parent/rag-graph-service/target/rag-graph-service-0.0.1-SNAPSHOT.jar
+unzip -l "$JAR" | grep -c 'V2GraphProxyController.class'          # ≥1
+unzip -p "$JAR" BOOT-INF/classes/com/gientech/raggraphservice/infrastructure/NebulaGraphConfig.class > /tmp/X.class
+javap -v -p /tmp/X.class | grep -c 'annotation/Lazy'              # ≥1
+javap -v -p /tmp/X.class | grep -E 'line (78|83):'                # 行号对齐
+
+# ③ 进程晚于 jar + 业务回归
+PID=$(ss -tlnpH | grep ':18084' | grep -o 'pid=[0-9]*' | cut -d= -f2); ps -o lstart= -p $PID
+curl -s -X POST http://127.0.0.1:18084/graph/search/v2WholeGraph \
+  -H 'Content-Type: application/json' -d '{"spaceName":"kb_9"}' \
+  | python3 -c 'import json,sys;i=json.load(sys.stdin)["data"];print(len(i["nodeList"]),len(i["edgeList"]))'   # 114 94
+```
+
+### 12.4 明确未做（防误读为本轮遗漏）
+
+| 项 | 状态 | 归属 |
+|---|---|---|
+| `v2-ingest` 启用（`remote.v2-ingest.url`） | **仍未配置**，`enabled()=false` | P5-1 / P5-3，未授权，本轮不做 |
+| graph-service 其余 **16/18** 端点 | 仍不可用（Nebula 已退役） | `TASKS.yaml` T-D0「Java graph-service 脱离 Nebula」未完成 |
+| gateway `noAuthPaths` 缺 `v2WholeGraph` | 未改（前端经 8088 仍 401/403） | P5-0b-4，需真 JWT 验 403，优先权限表数据解法 |
+| `FeignErrorDecode`（下游空体/非 JSON 诊断增强） | 未同步（A 有、B 无） | 并入 P5-1 一起做（TL 裁定） |
+
+### 12.5 本 loop evidence 文件清单
+
+```
+P5-L14-R0-…log            只读核查（jar/classify/依赖）
+P5-L14-R0b-…log           Q8/Q9/Q10（graph_parse_status、五模块落后、死配置）
+P5-L14-P50a-…log          rag-index-service 同步重建重启（v2-ingest 仍关闭）
+P5-L14-P50b1-2-…log       探测 404 + 重建 + **启动失败（Nebula 已退役）** + 旧 jar 复现排除法
+P5-L14-P50b2-lazy-…log    **本文件**：@Lazy 修复 + A/B 一致性 + 行号对齐 + 收口摘要
+```

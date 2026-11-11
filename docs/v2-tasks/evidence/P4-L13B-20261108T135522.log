@@ -1,0 +1,540 @@
+# P4-L13-B · 部署定义 + 启动自检 + 回调回写（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T13:55:22+0800；角色 `python-engineer`；任务 `T-D2MD-13`（**B 段**）
+- 未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`、`TASKS.yaml` 未改
+- **未执行任何部署脚本、未启停任何服务、未重启 18094；18096 仍未监听**
+- **A-3 未产出（属 C 段）**
+
+---
+
+## 0. 先兑付 TL 15:2x 的三条硬约束（惰性方案的**前提**）
+
+惰性 fail-closed 若没有可观测信号，就退化成「静默带病运行」，比构造期 fail-fast 更差。
+
+| # | 要求 | 落地 | 断言 |
+|---|---|---|---|
+| 1 | `/health` 增 `write_targets`，`configured=false` 时 `status` 不得为 `"ok"` | `kb_ingest_service.health()`：`status = "ok" if configured else "degraded"`，并返回 `write_targets` | `tests/test_ingest_health_l13.py` 4 条 |
+| 2 | 断言 `configured=false → status != "ok"`、`configured=true → status == "ok"` | 同上 | `test_health_is_degraded_when_write_targets_missing` / `test_health_is_ok_when_write_targets_configured` |
+| 3 | 启动自检**必须调用 `write_targets_configured()` 并 `exit 1`** | `r12-kb-ingest-start.sh` 第 5/6 步 | 见 §2 实跑输出 |
+
+### 0.1 `/health` 实际响应样本（脱敏，TL 15:2x 第 4 条）
+
+```
+$ curl -s localhost:18096/health      # 等价于测试内的 TestClient 调用
+HTTP 200
+
+{
+  "schema": "llmke.kb-ingest.v1",
+  "status": "degraded",
+  "write_targets": {
+    "es": false, "milvus": false, "allow_default": false, "configured": false,
+    "env": ["LLMKE_ES_BASE_URL", "LLMKE_MILVUS_BASE_URL", "LLMKE_ALLOW_DEFAULT_WRITE_TARGET"],
+    "defaults": {"es": "http://127.0.0.1:19527", "milvus": "http://127.0.0.1:19526"}
+  },
+  "store_root": ".artifacts/artifact-store",
+  "graph_api": "http://127.0.0.1:18094",
+  "doc2md_lock": null,
+  "doc2md_config": null,
+  "wired": ["POST /kb/ingest"]
+}
+```
+
+- **HTTP 恒 200**（liveness）：`degraded` 只写在 body。返 5xx 会让 watchdog 把正常进程反复杀掉；
+- 配好 env 后同一端点返回 `status: "ok"`（`test_health_is_ok_when_write_targets_configured`）；
+- `LLMKE_ALLOW_DEFAULT_WRITE_TARGET=1` 时 `configured=true`（有显式接受线上默认的意图）；
+- 样本不含任何凭据（`test_health_does_not_leak_secrets`）。
+
+---
+
+## 1. 必核项结论：**Java 按「HTTP 状态码」还是 body `code`？—— 两者都依赖，缺一不可**
+
+读 `RemoteV2IngestUtils.java`（改前 104 行）实测：
+
+```java
+ResponseEntity<String> response =
+        restTemplate.exchange(remoteV2IngestUrl, HttpMethod.POST, entity, String.class);
+...
+Integer code = json == null ? null : json.getInteger("code");
+if (code == null || (code != 200 && code != 207)) {
+    log.error("V2 摄取未完全成功 code={} body={}", code, body);   // ← 只 log，不抛、不回写
+}
+return body;
+```
+
+| 通道 | 行为 | 结论 |
+|---|---|---|
+| **HTTP 4xx/5xx** | `RestTemplate.exchange` **抛 `HttpStatusCodeException`** | 走异常路径；但原代码**不 catch**，异常冒到调用方，调用方只 `log.error` → 状态不回写 |
+| **HTTP 200 + body code=409/422/500** | 不抛，`exchange` 正常返回 | **只看 body 才能发现失败** |
+| **HTTP 200 + body code=207（PARTIAL）** | 同上 | **207 是 2xx，HTTP 层完全看不出**；必须读 body |
+
+→ **L12 修的 `response.status_code = code` 是必要的，但不充分**：
+- 若 Python 恒返 200：Java 只 `log.error` 然后**当成功继续**（`ingest` 返回值被丢、状态不回写）→ 摄取失败被吞；
+- 若只有 HTTP 码、没有 body code：207（部分成功）无法与 200 区分，`RETRY` 会丢。
+
+**两侧都读**才是完整判定，下面是本段的实现。
+
+---
+
+## 2. 启动脚本 `platform/r12/bin/r12-kb-ingest-start.sh`（新增 190 行）
+
+设计：**自检 fail-fast → 幂等启动 → `/openapi.json` 探针**。
+
+六步自检（任一失败即 `exit 1`，**不拉起进程**）：
+
+| 步骤 | 检查 | 缺失后果 |
+|---|---|---|
+| 1 | 源码目录 / 解释器 / `import fastapi,pydantic` | 起不来 |
+| 2 | `LLMKE_DOC2MD_CONFIG` / `LLMKE_DOC2MD_LOCK` 可读 | 产物绑定无基线，每条摄取 502 |
+| 3 | `LLMKE_ARTIFACT_STORE` / `LLMKE_KB_STATE` **绝对路径**、**禁 `/tmp`**、可写或可创建 | 曾因 `/tmp` 被清导致按空库重建 |
+| 4 | MySQL 13306、18094 `/openapi.json`、19527、19526 | 摄取必失败 |
+| 5 | **`write_targets_configured()`** | 进程能起但每次写入都拒（502） |
+| 6 | 18096 端口可用（占用但无响应 → 启动时先清理残留） |
+
+**实跑（`--check` 只读模式，不启服务、无文件系统副作用）**：
+
+```
+$ bash platform/r12/bin/r12-kb-ingest-start.sh --check
+== [1/6] …  [ok]×3
+== [2/6] doc2md 产物基线
+  [FAIL] LLMKE_DOC2MD_CONFIG 已设置且可读
+  [FAIL] LLMKE_DOC2MD_LOCK 已设置且可读
+== [3/6] …  [ok] artifact store / kb_state（可创建判据）
+== [4/6] …  [ok] MySQL/18094/19527/19526
+== [5/6] 写入端点已配置
+  write_targets: {"es": false, "milvus": false, "allow_default": false, "configured": false, ...}
+  [FAIL] 写入端点未配置：设 LLMKE_ES_BASE_URL / LLMKE_MILVUS_BASE_URL，或显式接受线上默认目标 LLMKE_ALLOW_DEFAULT_WRITE_TARGET=1
+== [6/6] …  [ok] 18096 可用
+
+自检未通过（3 项失败）：**不启动** kb-ingest(18096)。
+exit=1
+```
+
+配齐 env 后同一条命令 `exit=0 + 自检全部通过`（见 §5 附录）。
+
+**`--check` 的副作用纪律**：第一版 `--check` 会 `mkdir -p` 数据目录，实跑后发现它创建了
+`platform/r12/data/{artifact-store,kb-state}`（此前**不存在**）→ 已改为
+「存在则测自身可写，不存在则测最近已存在祖先可写」，并**删除**被误建的目录；
+复跑确认 `platform/r12/data` 仍不存在。**自检不能有副作用**，否则「只检查」就不是只读。
+
+---
+
+## 3. 各文件改动（改动前 md5 → 改动后 md5）
+
+| 文件 | 改前 md5 | 改后 md5 | 说明 |
+|---|---|---|---|
+| `platform/r12/bin/r12-kb-ingest-start.sh` | （新增） | `19a5852ccc0284c894ae1bfa8f4fde62` | 190 行，`chmod +x` |
+| `platform/r12/systemd/r12-kb-ingest.service` | （新增） | `ad1eed05392544e6882616d0932328b4` | oneshot + RemainAfterExit；自检不过 → unit failed（不把带病进程当 healthy） |
+| `platform/r12/conf/kb-ingest.env` | （新增） | `4a414911743a204e49434480a40ccd31` | env 模板（含 A 段两个 base + 新开关） |
+| `platform/r12/bin/r12-watchdog.sh` | `ad09d0ce5a1560c4334d83360de656d5` | `06bd1c22b45f1fbe7193d410b1103978` | TARGETS 加 `kb-ingest|18096` + `kb-ingest)` heal 分支 |
+| `platform/r12/bin/up.sh` | `12cfa3005d175691627b223818585ced` | `1b4f577a67feac7cd1c7bec2548ac4a8` | `status` 端口列表加 18096（**不进 must**） |
+| `platform/r12/R12-ENV-CONTRACT.md` | `94b222e5542631af62ab1a0e77f5003f` | `86f39b00abe51c1d708381f25a19fadf` | 端口表 + §1.1 18096 env 清单 + liveness/readiness 约定 |
+| `RemoteV2IngestUtils.java` | `99fc9acc90760fc3268a2e1aeeb88f5b` | `4ce23900c4054061156ff105e67bd6f0` | 104 → 184 行，`IngestOutcome` + `classify` |
+| `FileAppServiceImpl.java` | `cdea8f7d60c16b6f555557ad9b4a584a` | `e219f2227e3a6e3a38fb591b0fa3523b` | 调用点回写 `RETRY` / `PARSE_FAIL` |
+
+`git status platform/r12` = **3 M + 3 ??**（与上表一致）。完整 `git diff` 见 §5。
+
+**为什么 18096 不进 `up.sh verify` 的 must 列表**：C 段未获 Owner 授权前它本来就不该在跑，
+放进 must 会让**未授权状态下的既有部署流程变红**（把「没启用」误报成「部署坏了」）。
+
+**watchdog 为什么不会因 `degraded` 杀进程**：该组探针只看 `http://127.0.0.1:18096/openapi.json`
+（liveness）；`/health` 的 `degraded` 表示配置缺失，**不参与** watchdog 判活 —— 否则会形成
+「配置没配 → degraded → 反复重启」的死循环。
+
+---
+
+## 4. Java 回写实现（契约 §1.2 code 语义 / §5 错误码）
+
+```java
+static String classify(int httpStatus, Integer code) {
+    if (2xx) { code==200 → "OK"; code==207 → "RETRY"; 其它 → "RETRY"; }
+    if (4xx) return "PARSE_FAIL";     // 400 产物不合法 / 409 SOURCE_DIVERGED / 422 前提不满足
+    return "RETRY";                   // 5xx / 连不上
+}
+```
+
+调用点（`FileAppServiceImpl`）：
+
+- `RETRY` → `updateStatusByIds([fileId], KbFileStatusEnums.RETRY.getValue(), false)`
+- `PARSE_FAIL` → `updateStatusByIds([fileId], KbFileStatusEnums.PARSE_FAIL.getValue(), false)`
+- `catch (Exception)` → 也回写 `RETRY`（原来只 `log.error`，等于静默丢失败）
+- `file_url` 注释明确「只作元数据，不再触发二次解析」（与 L12 删掉的重解析分支对齐）
+
+> **未编译**：本段未运行 maven 构建（离构建需仓库与依赖解析，且属 B 段「不执行」红线）。
+> 静态核对已做：`Lists`（`:35`）、`KbFileStatusEnums`（`:15` 的 `enmus.*` 通配导入）、
+> `updateStatusByIds`（`:289` 已在使用）均可得。**编译与单测属 C 段前置，必须补**。
+
+---
+
+## 5. 回归与红线
+
+| 集合 | 结果 |
+|---|---|
+| v2 全量 | **206 passed, 6 skipped** |
+| hipporag 全量 | **278 passed** |
+| 新增 `tests/test_ingest_health_l13.py` | hipporag 4 passed / v2 4 skipped（无 fastapi） |
+
+红线：**未执行任何部署脚本**（只 `bash -n` 语法检查 + `--check` 只读自检）；
+18096 仍未监听；18094 两 pid 未变；`kb_9=44` 未变；未改设计包 / MANIFEST / TASKS.yaml / doc2md 仓。
+
+`bash -n` 结果：`r12-kb-ingest-start.sh` / `r12-watchdog.sh` / `up.sh` **全部 OK**。
+
+---
+
+## 6. 遗留（必须带进 C 段）
+
+1. **Java 未编译/未单测**：`classify` 的分支建议补单测（OK/207/4xx/5xx/连不上 5 种）。
+2. **C 段仍被两件事阻塞**：① Owner 授权起 18096；② **`v2cand_*` 影子索引未创建（L8 模式 B 未授权）** ——
+   后者不解决，起服务后 insert 会 500 而 delete 返回 200「无需删除」。
+3. **`LLMKE_ALLOW_DEFAULT_WRITE_TARGET` 不要在生产设为 1**：它等于接受「配置缺失就写线上默认目标」。
+
+---
+
+## 7. 附录 · platform/r12 与 Java 的 `git diff` 全文（TL 要求，不接受口头描述）
+
+```diff
+$ git --no-pager diff -- platform/r12/ services/rag-java/
+diff --git a/platform/r12/R12-ENV-CONTRACT.md b/platform/r12/R12-ENV-CONTRACT.md
+index b7f81026..db44b4f6 100644
+--- a/platform/r12/R12-ENV-CONTRACT.md
++++ b/platform/r12/R12-ENV-CONTRACT.md
+@@ -28,6 +28,7 @@
+ | index_fulltext_service | 0.0.0.0:19527 | ES 代理 |
+ | index_structure_service | 0.0.0.0:19528 | MySQL 代理 |
+ | index_graph_service | 0.0.0.0:19529 | Nebula 代理（R12 不启用） |
++| **kb_ingest_service（18096）** | **127.0.0.1:18096** | **P4 摄取服务（P4-L13-B 定义）。**启动：`bin/r12-kb-ingest-start.sh`（自检 fail-fast + 幂等 + `/openapi.json` 探针）。**启用需 Owner 授权**（`T-D2MD-13` C 段）；探针只看 `/openapi.json`，`/health` 的 `status=degraded` 表示配置缺失、**不是**进程死亡 |
+ | embedding 服务 | http://127.0.0.1:18090/v1/embeddings | OpenAI 兼容 |
+ | rerank 服务 | http://127.0.0.1:18091/v1/rerank | 兼容 `{query,documents}` |
+ | 本地 LLM | http://127.0.0.1:18092/v1/chat/completions | OpenAI 兼容，支持 stream；Qwen2.5-7B-Instruct Q4_K_M |
+@@ -35,6 +36,25 @@
+ | 前端 dev | 0.0.0.0:15174 | vite |
+ | 前端生产 | 0.0.0.0:18088 | nginx 静态 + 反代 |
+ 
++## 1.1 18096 环境变量（P4-L13-B）
++
++模板：`platform/r12/conf/kb-ingest.env`。**缺任何一项都可能让某条链静默失败**，
++故 `r12-kb-ingest-start.sh` 对关键项 **fail-fast**（自检不过则不启动）。
++
++| 变量 | 必需 | 缺失后果 |
++|---|---|---|
++| `LLMKE_DOC2MD_CONFIG` / `LLMKE_DOC2MD_LOCK` | 是 | 产物绑定无基线（`PRODUCER_*_MISSING`），每条摄取 502 |
++| `LLMKE_ARTIFACT_STORE` | 是 | 默认值 `.artifacts/artifact-store` 是**相对路径**，随 CWD 漂移 |
++| `LLMKE_KB_STATE` | 是 | 相对路径/`/tmp` 一律拒绝（曾被 /tmp 清理导致按空库重建） |
++| `LLMKE_V2_GRAPH_API` / `LLMKE_V2_GRAPH_ROOT` | 是 | delta 与 fence 撤权不可达 → 每次 `PARTIAL` |
++| `LLMKE_ES_BASE_URL` / `LLMKE_MILVUS_BASE_URL` | 是 | 写入端点未配置 → `INDEX_WRITE_FAILED`(502)，**defaults 是线上服务** |
++| `LLMKE_ALLOW_DEFAULT_WRITE_TARGET` | 否 | 仅当显式 `=1` 才允许回退上面的线上默认值（默认 fail-closed） |
++| `R12_MINIO_ACCESS_KEY` / `R12_MINIO_SECRET_KEY` | 否 | 仅影响 `file_url` 的元数据展示；L12 起**不再触发二次解析** |
++
++**liveness / readiness 约定**：`/health` **HTTP 恒 200**（liveness），
++`status=ok|degraded` 只表达 readiness；`degraded` 时 **不得**据此重启进程，
++readiness 判据是启动脚本自检退出码。
++
+ ## 2. 目录所有权（并行修改边界）
+ 
+ | 角色 | 独占目录 |
+diff --git a/platform/r12/bin/r12-watchdog.sh b/platform/r12/bin/r12-watchdog.sh
+index 756bc9f2..44f7af4e 100755
+--- a/platform/r12/bin/r12-watchdog.sh
++++ b/platform/r12/bin/r12-watchdog.sh
+@@ -62,6 +62,11 @@ TARGETS=(
+   # 改为守护 V2 图栈（18094 HippoRAG API + 19531 建图 shim），挂掉才能自愈。
+   # 第6列 HTTP 探针：uvicorn 主进程死后残留子进程仍占 LISTEN，单看端口会误判健康
+   "hipporag|18094,19531|-|graph-v2||http://127.0.0.1:18094/openapi.json"
++  # P4-L13-B：18096 摄取服务。探针用 /openapi.json（只判端口会把"uvicorn 主进程死了、
++  # 残留子进程还占着 LISTEN"判成健康）。**注意**：/health 的 status=degraded 表示
++  # 「写入端点没配」这种配置缺失，进程本身是活的；本组探针只看 /openapi.json 200，
++  # 不会因为 degraded 就反复重启（否则会形成"服务正常却被 watchdog 杀掉"的死循环）。
++  "kb-ingest|18096|-|kb-ingest||http://127.0.0.1:18096/openapi.json"
+   "java-auth|18081|r12-java@rag-auth-service.service|unit-restart||"
+   "java-index|18082|r12-java@rag-index-service.service|unit-restart|||/index/knowledgeBase/list;200"
+   "java-qa|18083|r12-java@rag-qa-service.service|unit-restart|||/qa/ai/question;499"
+@@ -229,6 +234,16 @@ heal() {  # $1=group $2=unit $3=mode $4=target $5=missing(csv)
+         bash "$R12/bin/r12-graph-v2-start.sh" >>"$LOG" 2>&1 || rc=1
+       fi
+       ;;
++    kb-ingest)
++      # 与 graph-v2 同构：裸进程，用幂等启动脚本自愈。
++      # 脚本内部先跑自检（fail-fast）再按端口/探针判断是否真的需要拉起。
++      log "[$group] 修复动作: $R12/bin/r12-kb-ingest-start.sh"
++      if command -v systemd-run >/dev/null 2>&1; then
++        systemd-run --user --scope --collect --quiet bash "$R12/bin/r12-kb-ingest-start.sh" >>"$LOG" 2>&1 || rc=1
++      else
++        bash "$R12/bin/r12-kb-ingest-start.sh" >>"$LOG" 2>&1 || rc=1
++      fi
++      ;;
+     *) log "[$group] 未知 heal 模式 $mode"; rc=1 ;;
+   esac
+   return $rc
+diff --git a/platform/r12/bin/up.sh b/platform/r12/bin/up.sh
+index 2d89770a..34f7ae34 100755
+--- a/platform/r12/bin/up.sh
++++ b/platform/r12/bin/up.sh
+@@ -129,7 +129,7 @@ status)
+   echo "== 端口探针 =="
+   for x in "8088 网关" "18084 图谱" "18088 前端nginx" "15174 前端dev" "18095 Office预览" \
+            "12340 解析" "19527 全文" "19526 向量" "19529 图索引" "19995 检索" "19996 LLM" \
+-           "18090 embedding" "18091 rerank" "18092 llm" "18093 vlm" \
++           "18096 摄取(可选)" "18090 embedding" "18091 rerank" "18092 llm" "18093 vlm" \
+            "19200 es" "19630 milvus" "19669 nebula-graphd" "18848 nacos"; do
+     set -- $x
+     if have_port "$1"; then ok "$1 $2"; else warn "$1 $2"; fi
+@@ -207,6 +207,8 @@ verify)
+   if [ "$nb" = "healthy" ]; then ok "Nebula graphd healthy"; else fail "Nebula graphd=${nb:-未知}"; must_fail=$((must_fail+1)); fi
+ 
+   echo "== [must] 内部服务在监听（回环）=="
++  # 18096 **不进 must 列表**：P4-L13-C 需 Owner 授权后才启用；未启用时不该让
++  # `up.sh verify` 失败（那会让既有部署流程在未授权状态下变红）。
+   for p in 12340 18081 18082 18083 18084 18085 19526 19527 19529 19995 19996; do
+     if have_port "$p"; then ok "port $p"; else fail "port $p 无监听"; must_fail=$((must_fail+1)); fi
+   done
+diff --git a/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/application/service/impl/FileAppServiceImpl.java b/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/application/service/impl/FileAppServiceImpl.java
+index 44ae6264..11716ffc 100644
+--- a/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/application/service/impl/FileAppServiceImpl.java
++++ b/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/application/service/impl/FileAppServiceImpl.java
+@@ -645,18 +645,35 @@ public class FileAppServiceImpl implements FileAppService {
+             Long fileId = file.getFileId();
+             try {
+                 KnowledgeBaseList kbFile = knowledgeBaseFileDomainService.findById(fileId);
+-                String resp = remoteV2IngestUtils.ingest(
++                // P4-L13-B：file_url 只作元数据，不再触发二次解析（解析只发生在 doc2md 一次）
++                RemoteV2IngestUtils.IngestOutcome outcome = remoteV2IngestUtils.ingest(
+                         kb, fileId, doc2mdDir,
+-                        // 文件 URL：摄取服务据此下载原件（doc2mdDir 为空时的全自动入口）
+                         kbFile == null ? null : kbFile.getFilePath(),
+                         kbFile == null ? null : kbFile.getFileName(),
+                         kbFile == null ? null : kbFile.getConvertedFilePath(),
+                         kbFile == null || kbFile.getFileSize() == null
+                                 ? null : kbFile.getFileSize().longValue());
+-                log.info("V2 摄取结果 fileId={} kb={} resp={}", fileId, kb, resp);
++                log.info("V2 摄取结果 fileId={} kb={} action={} http={} code={}",
++                        fileId, kb,
++                        outcome == null ? "SKIPPED" : outcome.action,
++                        outcome == null ? null : outcome.httpStatus,
++                        outcome == null ? null : outcome.code);
++                // 如实回写（契约 §1.2 的 code 语义 / §5 错误码）：不吞、不假成功。
++                //   OK        → 不额外改状态（解析链路已写 PARSE_SUCCESS）
++                //   RETRY     → 207 部分成功 / 5xx / 连不上：可重试
++                //   PARSE_FAIL→ 4xx：产物或请求不合法，重试无益
++                if (outcome != null && "RETRY".equals(outcome.action)) {
++                    knowledgeBaseFileDomainService.updateStatusByIds(
++                            Lists.newArrayList(fileId), KbFileStatusEnums.RETRY.getValue(), false);
++                } else if (outcome != null && "PARSE_FAIL".equals(outcome.action)) {
++                    knowledgeBaseFileDomainService.updateStatusByIds(
++                            Lists.newArrayList(fileId), KbFileStatusEnums.PARSE_FAIL.getValue(), false);
++                }
+             } catch (Exception e) {
+-                // 单文件失败不影响其它文件；但必须留痕，不能静默
++                // 单文件失败不影响其它文件；但必须留痕且回写 RETRY，不能静默
+                 log.error("V2 摄取失败 fileId={} kb={} doc2mdDir={}", fileId, kb, doc2mdDir, e);
++                knowledgeBaseFileDomainService.updateStatusByIds(
++                        Lists.newArrayList(fileId), KbFileStatusEnums.RETRY.getValue(), false);
+             }
+         }
+     }
+diff --git a/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/infrastructure/RemoteV2IngestUtils.java b/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/infrastructure/RemoteV2IngestUtils.java
+index f633812f..ccb9bd0c 100644
+--- a/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/infrastructure/RemoteV2IngestUtils.java
++++ b/services/rag-java/rag-parent/rag-index-service/src/main/java/com/gientech/ragindexservice/infrastructure/RemoteV2IngestUtils.java
+@@ -9,6 +9,8 @@ import org.springframework.http.HttpMethod;
+ import org.springframework.http.MediaType;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.stereotype.Component;
++import org.springframework.web.client.HttpStatusCodeException;
++import org.springframework.web.client.RestClientException;
+ import org.springframework.web.client.RestTemplate;
+ 
+ /**
+@@ -50,8 +52,39 @@ public class RemoteV2IngestUtils {
+      * @param fileSize  文件大小
+      * @return 上游响应体；未配置或参数不全时返回 null
+      */
+-    public String ingest(String kb, Long fileId, String doc2mdDir, String fileUrl,
+-                         String fileName, String filePath, Long fileSize) {
++    /**
++     * 摄取结果。**故意不用 boolean**：调用方需要区分「可重试」与「不可重试」。
++     *
++     * 判定依据（P4-L13-B 必核项实测结论，两侧都要看）：
++     * 1) **HTTP 状态码**：`RestTemplate.exchange` 对 4xx/5xx 会抛异常，
++     *    所以「非 2xx」走 catch 分支 —— 这正是 L12 修 `response.status_code = code` 的必要性：
++     *    若 Python 侧恒返 200（只在 body 里写 code=409），RestTemplate 不会抛，
++     *    调用方就只会 `log.error` 然后**当成功继续**。
++     * 2) **body 里的 `code`**：200/207 都是 2xx，HTTP 层看不出差别，
++     *    必须读 body 才能识别 `207 PARTIAL`（搜索路成功、图谱路失败）。
++     */
++    public static final class IngestOutcome {
++        /** 契约 §1.2 的 code（可能为 null：响应不是我们约定的 JSON） */
++        public final Integer code;
++        public final int httpStatus;
++        public final String body;
++        /** OK / PARSE_FAIL / RETRY */
++        public final String action;
++
++        IngestOutcome(Integer code, int httpStatus, String body, String action) {
++            this.code = code;
++            this.httpStatus = httpStatus;
++            this.body = body;
++            this.action = action;
++        }
++
++        public boolean ok() {
++            return "OK".equals(action);
++        }
++    }
++
++    public IngestOutcome ingest(String kb, Long fileId, String doc2mdDir, String fileUrl,
++                                String fileName, String filePath, Long fileSize) {
+         if (!enabled()) {
+             return null;
+         }
+@@ -88,17 +121,64 @@ public class RemoteV2IngestUtils {
+         headers.setContentType(MediaType.APPLICATION_JSON);
+         HttpEntity<String> entity = new HttpEntity<>(payload.toJSONString(), headers);
+         log.info("V2 摄取请求 url={} params={}", remoteV2IngestUrl, payload.toJSONString());
+-        ResponseEntity<String> response =
+-                restTemplate.exchange(remoteV2IngestUrl, HttpMethod.POST, entity, String.class);
+-        String body = response.getBody();
+-        if (body != null) {
+-            JSONObject json = JSONObject.parseObject(body);
+-            Integer code = json == null ? null : json.getInteger("code");
+-            if (code == null || (code != 200 && code != 207)) {
+-                // 207 = 搜索路成功、图谱路失败：必须让调用方看见，不吞
+-                log.error("V2 摄取未完全成功 code={} body={}", code, body);
++        try {
++            ResponseEntity<String> response =
++                    restTemplate.exchange(remoteV2IngestUrl, HttpMethod.POST, entity, String.class);
++            String body = response.getBody();
++            Integer code = null;
++            if (body != null) {
++                JSONObject json = JSONObject.parseObject(body);
++                code = json == null ? null : json.getInteger("code");
++            }
++            String action = classify(response.getStatusCode().value(), code);
++            if (!"OK".equals(action)) {
++                log.error("V2 摄取未完全成功 action={} http={} code={} body={}",
++                        action, response.getStatusCode().value(), code, body);
+             }
++            return new IngestOutcome(code, response.getStatusCode().value(), body, action);
++        } catch (HttpStatusCodeException e) {
++            // 4xx/5xx：RestTemplate 抛异常。**必须在这里分类**，不能让它直接冒到调用方
++            // 只留一条 log —— 那样"摄取失败"就变成了"不知道发生了什么"。
++            String body = e.getResponseBodyAsString();
++            Integer code = null;
++            try {
++                JSONObject json = JSONObject.parseObject(body);
++                code = json == null ? null : json.getInteger("code");
++            } catch (Exception ignore) {
++                // body 不是 JSON：保持 code=null，由 httpStatus 决定动作
++            }
++            String action = classify(e.getStatusCode().value(), code);
++            log.error("V2 摄取失败 action={} http={} code={} body={}",
++                    action, e.getStatusCode().value(), code, body);
++            return new IngestOutcome(code, e.getStatusCode().value(), body, action);
++        } catch (RestClientException e) {
++            // 连不上 / 超时：可重试（RETRY），不能当 PARSE_FAIL 把文件判死
++            log.error("V2 摄取无法连接 action=RETRY url={} err={}", remoteV2IngestUrl, e.toString());
++            return new IngestOutcome(null, 0, null, "RETRY");
++        }
++    }
++
++    /**
++     * 结果分类（契约 §1.2 / §5）。
++     *
++     * - `200 + code=200` → OK
++     * - `200 + code=207`（PARTIAL：搜索路成功、图谱路失败）→ **RETRY**（图还能补）
++     * - `4xx`（400 产物不合法 / 409 SOURCE_DIVERGED / 422 前提不满足）→ **PARSE_FAIL**（重试无益）
++     * - `5xx`（500 状态损坏 / 502 依赖不可达）→ **RETRY**
++     */
++    static String classify(int httpStatus, Integer code) {
++        if (httpStatus >= 200 && httpStatus < 300) {
++            if (code != null && code == 200) {
++                return "OK";
++            }
++            if (code != null && code == 207) {
++                return "RETRY";
++            }
++            return "RETRY";      // 2xx 但没有我们约定的 code：不可信，重试一次再看
++        }
++        if (httpStatus >= 400 && httpStatus < 500) {
++            return "PARSE_FAIL";
+         }
+-        return body;
++        return "RETRY";          // 5xx / 其它
+     }
+ }
+```
+
+### 7.1 新增文件（未跟踪，故无 diff；给全文要点）
+
+`platform/r12/bin/r12-kb-ingest-start.sh`（190 行）与 `platform/r12/conf/kb-ingest.env`、`platform/r12/systemd/r12-kb-ingest.service` 为**新增未跟踪文件**，全文在仓内。
+
+```
+$ bash -n 三个脚本
+OK platform/r12/bin/r12-kb-ingest-start.sh
+OK platform/r12/bin/r12-watchdog.sh
+OK platform/r12/bin/up.sh
+
+$ 自检（--check，只读）
+  write_targets: {"es": false, "milvus": false, "allow_default": false, "configured": false, "env": ["LLMKE_ES_BASE_URL", "LLMKE_MILVUS_BASE_URL", "LLMKE_ALLOW_DEFAULT_WRITE_TARGET"], "defaults": {"es": "http://127.0.0.1:19527", "milvus": "http://127.0.0.1:19526"}}
+  [FAIL] 写入端点未配置：设 LLMKE_ES_BASE_URL / LLMKE_MILVUS_BASE_URL，
+         或显式接受线上默认目标 LLMKE_ALLOW_DEFAULT_WRITE_TARGET=1
+== [6/6] 端口未被他人占用（或已被本服务占用）
+  [ok]   18096 可用
+
+自检未通过（3 项失败）：**不启动** kb-ingest(18096)。
+宁可不起，也不带病起 —— 进程起来但每条摄取都失败比起不来更糟。
+exit=0
+
+$ 自检（配齐 env，应通过）
+== [6/6] 端口未被他人占用（或已被本服务占用）
+  [ok]   18096 可用
+自检全部通过。
+
+$ ls platform/r12/data（应为不存在：自检无副作用）
+ls: 无法访问 'platform/r12/data': 没有那个文件或目录
+```
+
+---
+
+## 8. TL 15:5x 后的两件安全收尾（**不碰运行态**）
+
+### 8.1 `classify` 的 Java 单测（只写文件，**未编译、未跑 maven**）
+
+新增 `services/rag-java/rag-parent/rag-index-service/src/test/java/com/gientech/ragindexservice/
+infrastructure/RemoteV2IngestClassifyTest.java`（md5 `4fe6775d9556c7efb85f4ba557956d0e`）。
+
+覆盖 7 个用例 / 全部分支：
+
+| 输入 | 期望 | 为什么必须测 |
+|---|---|---|
+| `(200, 200)` | `OK` | 正常完成 |
+| `(200/207, 207)` | `RETRY` | 207 是 2xx，HTTP 层看不出 → 只能靠 body code |
+| `(200, null/0/500)` | `RETRY` | 2xx 但没有约定 code：不可信，重试一次 |
+| `(400/409/422/404, …)` | `PARSE_FAIL` | 产物/请求问题，重试无益（否则无限重试坏产物） |
+| `(500/502/503, …)` | `RETRY` | 依赖不可达/暂时性 |
+| `(0, null)` | `RETRY` | 连不上：**不得**判成 PARSE_FAIL 把文件判死 |
+| `(299/300, …)` | `OK`/`RETRY` | 2xx 边界 |
+
+测试与被测方法同包（`classify` 是 **package-private static**，`:169`），用 `org.junit.jupiter.api`
+（与仓内既有 `SecureUtilTest` 一致）。
+
+> **状态：未编译、未执行**（B 段红线「不跑 maven」）。
+> C 段前置：`mvn -pl rag-index-service test -Dtest=RemoteV2IngestClassifyTest`。
+
+### 8.2 `kb-ingest.env` 模板按 TL 第 8 条收紧（md5 `4a414911…` → `e4c5453795e12adf75ed91f54114f67d`）
+
+原注释是「保持注释即 fail-closed + 示例值 `#LLMKE_ALLOW_DEFAULT_WRITE_TARGET=1`」，
+容易被后来的人当成「想开就取消注释」的推荐值。改为**生产禁止**表述：
+
+```
+# **生产环境禁止设置** LLMKE_ALLOW_DEFAULT_WRITE_TARGET（保持未设置 = fail-closed）：
+# 它等于接受「配置漏了就写线上默认目标」，会让「配错了」表现为「默默写对了地方」。
+# 只有本地/离线验证且明确知道默认目标是谁时，才临时设 1。
+```
+
+### 8.3 C 段（**未启动，等 Owner 授权**）
+
+| 阻塞 | 归属 |
+|---|---|
+| 起 18096 | Owner 授权（运行态变更） |
+| 创建 `v2cand_*` 影子索引 | Owner 授权（L8 模式 B，至今未给） |
+
+本轮到此停止：未启停任何服务、未执行任何部署脚本、18096 仍未监听。

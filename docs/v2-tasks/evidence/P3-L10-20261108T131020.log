@@ -1,0 +1,240 @@
+# P3-L10 · R-0 只读核实证据（python-engineer 现场复核）
+
+- 时间：2026-11-08T13:10:20+0800
+- 角色：`python-engineer`；本文件**只记 R-0**，**无任何实现代码、无任何文件改动**
+- 任务：`T-D2MD-10` / loop `P3-L10`（`docs/v2-tasks/loops/P3-L10-PLAN.md` §二）
+- 状态：`R0_VERIFIED_WITH_DEVIATIONS` —— 三项现状与 PLAN 措辞不一致，**另有 1 项并发正确性隐患需裁定**
+- 红线：**未重启/未启停 18094**、未启监听端口、未写线上、未改任何文件
+
+## 0. 开工基线
+
+```
+$ md5sum graph_engine_adapter/{api,rebuild,fence,lease_mysql,lease}.py
+842a300c5c8ce7ac1628f3dddc2fab66  graph_engine_adapter/api.py          (800 行)
+c4953492fcdaab476d8de3baee1be548  graph_engine_adapter/rebuild.py      (289 行)
+cbb9151f3691d9ffe09f8c3d856c2a2f  graph_engine_adapter/fence.py
+98bf6bce7e5af306e0b4f31f3bc84a77  graph_engine_adapter/lease_mysql.py
+4118ff95855a1efad41dd37097dae5aa  graph_engine_adapter/lease.py
+```
+
+`api.py` = L9 交付指纹 `842a300c…`；`rebuild.py` / `fence.py` 与 L9 R-0 基线一致（`c4953492…` / `cbb9151f…`）→ L9 产物未被改动。
+
+---
+
+## 1. `api.py` 当前 `state` 形状（R-0 第 1 项）
+
+```python
+# api.py:351-352（create_app 内闭包）
+state: Dict[str, Any] = {"engine": None, "text_to_idx": None, "snapshot": None,
+                         "fence": None, "snapshot_kb": None}
+```
+
+**是全局单槽**。字段与 PLAN 措辞对照：
+
+| PLAN 写法 | 代码实际 | 备注 |
+|---|---|---|
+| `engine` | `state["engine"]` | ✅ |
+| `idx_map` | `state["text_to_idx"]` | 名字不同（是"文本→idx"映射，`_text_to_idx()` 的产物） |
+| `fence_state` | `state["fence"]` | 名字不同（存 `FenceState`） |
+| `snapshot` | `state["snapshot"]` | ✅ |
+| （未提） | `state["snapshot_kb"]` | 记录了"当前槽属于哪个库"，**但没有隔离** |
+
+跨库污染的直接证据（`api.py:360-372`）：
+
+```python
+def engine_for_kb(kb: str) -> Optional[Any]:
+    snap = _resolve_snapshot(kb)
+    if not snap:
+        return None
+    if state["engine"] is not None and state["snapshot"] == snap:
+        return state["engine"]
+    eng = (engine_factory or (lambda: _load_engine(snap)))()
+    state["engine"] = eng          # ← 覆盖上一个库的引擎
+    state["snapshot"] = snap
+    state["text_to_idx"] = _text_to_idx(eng)
+    state["snapshot_kb"] = kb
+    return eng
+```
+
+→ **K1 现状必 FAIL**：先查 kb_A 再查 kb_B，`state` 整槽被 kb_B 覆盖；`idx_map()`（`:374-377`）也只认单槽。
+
+**其余引用点**（改造面清单）：`:356-358`（`engine()` 无库回退）、`:365-371`（`engine_for_kb`）、
+`:374-377`（`idx_map`）、`:428-431` 与 `:473-476`（build / delta 路由建完重置缓存）、
+`:488/:583/:607`（query / view / fence 读 `state.get("fence")`）、`:594-595`（status 里 fence 摘要）、
+`:433-436`（build 路由写 `kb.json`）。
+
+---
+
+## 2. `fencing=1` 的写法与全部调用点（R-0 第 2 项）
+
+```
+$ grep -n "fencing" graph_engine_adapter/api.py
+106:    - `fencing`：透传给 `rebuild_*` 做 CAS 校验；**本 loop 不推进 `fence.generation`**。
+114:    fencing: Optional[int] = None                      # DeltaRequest 字段（L9）
+265:    result = rebuild(root, fence, live, full_build, fencing=1)   # ← 写死 1
+597:                            "fencing": (pointer or {}).get("fencing"),  # status 只读回显
+```
+
+`_default_build:265` 是**唯一**把 fencing 写进重建的调用点；`delta_build.py` 透传 `req.fencing`（可为 None）。
+
+**后果**：
+- 每次全量建图都写 `fencing=1`；
+- `_promote:169` 判据 `current_fencing > fencing` → `1 > 1` 为 **False** → **旧主不会被拒**；
+- 指针里的 fencing 永远停在 1 → **K2 / R-2 / R-5 现状必 FAIL**。
+
+---
+
+## 3. `.pointer.lock` flock 实现（R-0 第 3 项）
+
+```python
+# rebuild.py:135-155
+def _cas_write_pointer(root: str, payload: Dict[str, Any]) -> None:
+    import fcntl
+    lock_path = os.path.join(root, ".pointer.lock")
+    with open(lock_path, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)      # 阻塞式独占
+        try:
+            current = read_pointer(root)
+            current_fencing = int((current or {}).get("fencing", 0) or 0)
+            fencing = int(payload.get("fencing", current_fencing) or 0)
+            if current_fencing > fencing:
+                raise StaleFencingError(...)
+            _write_pointer(root, payload)
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)   # finally 释放
+```
+
+- 机制：**`fcntl.flock`**（不是三方锁库），阻塞式 `LOCK_EX`；
+- 粒度：**每个 `root` 一把锁**；而 `root = <base>/<kb>`（`_kb_root`）→ **天然已经是 per-kb**；
+- 覆盖范围：**只有指针写**。`build_fn` / `copytree` / `apply_fn` 都在锁外；
+- 释放：# 在 `finally` 里 `LOCK_UN` + close（异常也会释放，不会死锁）。
+
+→ K3 的「跨 kb 不互阻塞」**天然成立**（不同 root → 不同锁文件）；但「同 kb 串行化」只到**指针写**这一层，构建阶段仍并发（见 §7 Q4）。
+
+---
+
+## 4. `fence.generation` 递增点 / 是否存在"重建代次"（R-0 第 4 项）
+
+```python
+# fence.py:30-39
+def revoke(self, file_ids, reason="REVOKED") -> int:
+    changed = False
+    for fid in file_ids:
+        if fid not in self.revoked:
+            self.revoked[fid] = {"reason": reason, "generation": self.generation + 1}
+            changed = True
+    if changed:
+        self.generation += 1
+    return self.generation
+```
+
+- **唯一递增点 = `revoke()`**，且**仅当新增撤权**（重复撤权幂等，不推进）；
+- **不存在"重建代次"概念**：`FenceState` 只有 `generation` + `revoked`；
+- 重建的顺序性**完全由指针里的 `fencing` 承担**（`_promote` / `_cas_write_pointer` 都读它）。
+
+→ 结论见 §7 Q3：建议**不新增** fence.py 的第二个计数器。
+
+---
+
+## 5. `lease_mysql` 现状（R-0 第 5 项）
+
+| 项 | 事实 |
+|---|---|
+| 模块存在 | `graph_engine_adapter/lease_mysql.py`（`MySqlLease`）+ `lease.py`（`FileLease`） |
+| 构造 | `MySqlLease(connection_factory, *, owner=None, ttl=120.0, lease_key='rebuild', clock=None, op_budget_s=5.0)` —— **必须注入 connection_factory**，无 env 自动接线 |
+| 未配置时行为 | 没有 `LLMKE_LEASE*` / MySQL 相关环境变量（`printenv | grep -i lease` **空**）；`api.py` / `rebuild.py` **都没有实例化 lease** → 当前运行态**没有租约**，`_cas_write_pointer` 的 docstring 已写明「跨机租约仍由 lease_mysql 负责」 |
+| 驱动 | `pymysql 2.2.8` 两个 toolenv 都有；`make_pymysql_factory(**conn_kwargs)` 惰性 import |
+| 返回值 | `acquire()` → `{"ttl", "fencing"}`；fencing 首次 **1**、接管过期租约 **+1**、自己续租**不变**；`release()` **保留行**（fencing 不复位，避免回退） |
+| 与 `fence.generation` 的优先级 | 代码里**没有**任何 `max(...)` 组合；`rebuild_scheduler.py:60` 单独维护 `self.lease_fencing`，由 build 回调写进快照 |
+
+**措辞订正**：lease 暴露的字段叫 **`fencing`**，不叫 `lease_epoch`（`TASKS.yaml` 的 `next_action` 写「`max(fence.generation, lease_mysql.lease_epoch)`」—— 按代码应理解为 **lease 的 `fencing`**）。两者语义等价（都是"第几次接管"），但字段名要对齐代码。
+
+---
+
+## 6. `_promote` 的"旧主拒绝"读哪个字段（R-0 第 6 项）
+
+```python
+# rebuild.py:167-175（_promote，锁外预检）
+current_pointer = read_pointer(root)
+current_fencing = int((current_pointer or {}).get("fencing", 0) or 0)
+if fencing is not None and current_fencing > fencing:
+    shutil.rmtree(target, ignore_errors=True)
+    raise StaleFencingError(...)
+...
+payload = {..., "fencing": fencing if fencing is not None else current_fencing, ...}
+_cas_write_pointer(root, payload)
+```
+
+```python
+# rebuild.py:147-152（_cas_write_pointer，锁内复检）
+current = read_pointer(root); current_fencing = int((current or {}).get("fencing", 0) or 0)
+fencing = int(payload.get("fencing", current_fencing) or 0)
+if current_fencing > fencing: raise StaleFencingError(...)
+```
+
+→ **两级都读指针 `current.json` 里的 `fencing` 字段**（不是 `fence.generation`）。
+真正生效的是**锁内那一级**（锁外只是提前失败、省掉建图开销）。
+
+---
+
+## 7. 【并发隐患 + 5 项请裁定】
+
+### 7.1【关键】fencing 自增必须放在 **flock 内**，否则并发丢更新
+
+现状：`_promote:175` 在 `fencing is None` 时把 payload 的 `fencing` **替换成 `current_fencing`**（等于"不递增"）。
+若改成"自动 +1"，**但仍在锁外算**（比如在 `_promote` 里 `current+1`），两个并发写者会算出**同一个值**：
+
+```
+A: 读 current=1 → 算 2
+B: 读 current=1 → 算 2      ← 同一秒并发
+A: 锁内 current=1，1 > 2? 否 → 写 fencing=2   ✓
+B: 锁内 current=2，2 > 2? 否 → 写 fencing=2   ✗ 覆盖 A，两个"第 2 代"并存
+```
+
+→ **正确做法**：`payload` 不携带具体值时，由 `_cas_write_pointer` **在锁内**取
+`effective = max(current_fencing, fence.generation, lease_fencing) + 1` 再写；
+`_promote` 不再把 `None` 替换成 `current_fencing`。**请裁定按此实现。**
+
+### 7.2 请裁定 5 项
+
+| # | 问题 | 我的建议 |
+|---|---|---|
+| **Q1** | fencing 自增点：锁内（改 `_cas_write_pointer`）还是锁外？ | **锁内**（§7.1 推演）。同时 `_promote` 保留锁外预检用于"提前失败"，但 payload 不再替换 None |
+| **Q2** | `_default_build:265` 的 `fencing=1` 改成什么？ | 改成**不传**（`fencing=None` → 锁内自增）。这样每次建图严格递增，第二次建图后旧主（fencing=1）的写会被 `1 < 2` 拒掉。**属 api.py 授权面** |
+| **Q3** | `fence.py` 要不要新增「重建代次」字段？ | **不要，且建议 `fence.py` 完全不改**：重建顺序性已由指针 `fencing` 承担；再加一个计数器必然与它漂移（两个真相源）。PLAN §一 允许改 fence.py，但**允许 ≠ 必须**——请确认「可以不改」 |
+| **Q4** | K3「同 kb 并发 → 串行化」的口径 | 现状是**构建阶段并发、指针写 CAS 串行**：同 kb 两个重建各自跑完，锁内按 fencing 排序，**后到者胜出、旧主被拒，不会交错写**。若要求「连构建都串行」，得在 `rebuild` 外层加 per-root 长锁 → 建图耗时翻倍，且与"租约串行"重复。**建议接受现状口径**，并在 evidence 写明边界 |
+| **Q5** | 解释器口径（同 L9 的 D-3） | `api.py` 依赖 fastapi → **K1/K4 只能在 hipporag** 验证；`fencing 自增 / 旧主拒绝 / per-kb 锁粒度` 都在 `rebuild.py` 层，**v2 可测**。v2 主口径跑纯逻辑，路由层测试在该 env `importorskip` |
+
+### 7.3 TestClient 并发可行性（R-0 第 7 项，已实测）
+
+```
+$ （hipporag env，进程内 TestClient，注入 delta_runner 睡 0.3s）
+per-request: [('kb_B', 200, 0.316), ('kb_A', 200, 0.317)]
+wall: 0.317 → 并发可用（<0.5s）
+```
+
+→ **同进程多线程并发打 TestClient 有效**（两个 0.3s 请求总墙钟 0.317s），K3 可在路由层构造；
+但**跨 kb 是否"不互阻塞"取决于 flock 粒度**（§3 已证 per-kb），建议同时在 `rebuild.py` 层
+用两个临时 root + 线程做**决定性**验证（v2 env，不依赖 fastapi）。
+
+---
+
+## 8. 红线自查（R-0 阶段）
+
+| 红线 | 自查 |
+|---|---|
+| 不重启/不启停 18094 | ✅ 只 `ss` / `/proc` 读；两个 pid 仍 `3189651 / 3202203` |
+| 不启监听端口 | ✅ TestClient 探针是**进程内 ASGI**，无 uvicorn、无 bind |
+| 不写线上 | ✅ 探针只调内存 runner；未触 ES/Milvus/DB/图快照 |
+| 不改 `engine_hipporag.py` / `rebuild.py` / `fence.py` / `api.py` | ✅ 本阶段**零文件改动** |
+| 不改设计包 / MANIFEST / TASKS.yaml / 运行态配置 / doc2md 仓 | ✅ 只读 |
+| 裁定前不写实现代码 | ✅ 本文件无实现代码 |
+| 不自签 `QA_PASS` / 不标 DONE | ✅ 仅 `R0_VERIFIED_WITH_DEVIATIONS` |
+
+**本阶段新增文件**：仅本 evidence log。
+
+> **口径澄清**：「零文件改动」指**本 R-0 阶段未产生新改动**。工作区里
+> `M graph_engine_adapter/api.py` 与 `?? graph_engine_adapter/delta_build.py` 是 **L9 已收口的交付物**
+> （`api.py 842a300c…` / `delta_build.py bf509721…`，与 `P3-L9-20261108T130627.log` 逐位一致），
+> 不是本阶段改的。`rebuild.py c4953492…` / `fence.py cbb9151f…` / `lease_mysql 98bf6bce…`
+> 与 L9 基线一致，未被触碰。

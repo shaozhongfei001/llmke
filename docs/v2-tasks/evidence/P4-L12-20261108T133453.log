@@ -1,0 +1,369 @@
+# P4-L12 · `KbDeltaService + IngestRequest` 实现证据（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T13:34:53+0800；角色 `python-engineer`
+- 任务：`T-D2MD-12` / loop `P4-L12`；**未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`、`TASKS.yaml` 未改**
+- R-0：`P4-L12-20261108T132803.log`（206 行 + §8 追加至 260 行）；Q1~Q9 全部由 TL 裁定
+
+## 0. 两条禁止声明（PLAN §一末，逐字遵守）
+
+> **1. 本 loop 未产出 A-3 的验收证据，A-3 属 P6。**
+> A-3 要求「全量与增量同入口的**真实请求/响应样本 + 摄取服务访问日志**」，需起 18096；
+> 本 loop 只做**代码级契约验证**（`IngestRequest` 校验、响应模型、同入口、错误码映射）。
+>
+> **2. 本 loop 未使 18096 可用。** 结束时 `ss -tlnp | grep :18096` 仍为空，
+> 全程未执行 uvicorn / 未启停任何服务。
+
+---
+
+## 1. 断言 × 环境 × 结果（v2 的 skip 单列，不并入"全绿"）
+
+| 断言 | 文件 | v2 (`llmke-v2-toolenv`) | hipporag |
+|---|---|---|---|
+| B1 空 diff 短路（三路零调用 + cursor 不动） | `test_kb_delta_l12.py` | **真跑 PASS** | 真跑 PASS |
+| B2 revoke 先于 delta / 撤权文件不在 wanted docs | 同上 | **真跑 PASS** | 真跑 PASS |
+| B3 三路任一失败不推 cursor + 可重放 | 同上 | **真跑 PASS** | 真跑 PASS |
+| B8 wanted docs 不重投影 | 同上 | **真跑 PASS** | 真跑 PASS |
+| Q1 `diff_source` / manifest 与退化路径 | 同上 | **真跑 PASS** | 真跑 PASS |
+| Q2 `IngestPlan` 是内部 dataclass | 同上 | **真跑 PASS** | 真跑 PASS |
+| Q5 `kb_delta.py` 无 pydantic/fastapi（AST） | 同上 | **真跑 PASS** | 真跑 PASS |
+| Q7 additive 字段不推 version / 旧 state 兼容 | 同上 | **真跑 PASS** | 真跑 PASS |
+| B4 `SourceDiverged` → 409（表 + 端点） | `test_kb_ingest_l12.py` | **skip（无 pydantic/fastapi，R-0 D-5）** | **真跑 PASS** |
+| B5 `IngestRequest` 422 / 未知字段 / source 真传 | 同上 | **skip** | **真跑 PASS** |
+| B6 全量与增量同入口同响应模型 | 同上 | **skip** | **真跑 PASS** |
+| B7 无 `file_url` 自动重解析（静态 + 行为） | 同上 | **skip** | **真跑 PASS** |
+| Q4 契约 11 条 + 白名单 9 条表驱动 | 同上 | **skip** | **真跑 PASS** |
+| Q8 `ProjectionRefused` 按 code 映射（非整体） | 同上 | **skip** | **真跑 PASS** |
+| Q9 表外 code → 500 + 日志含原文 | 同上 | **skip** | **真跑 PASS** |
+| 两个 207 语义不混 | 同上 | **skip** | **真跑 PASS** |
+
+**v2 主口径结果**：`19 passed`（`test_kb_delta_l12.py`）。
+**hipporag**：`19 passed + 43 passed`。
+**v2 侧 skip 数**：合计 **43**（`test_kb_ingest_l12.py` 整文件因 `importorskip("fastapi")` 跳过），
+**单列不计入通过数** —— 即本 loop 的"代码级契约"有一半证据只在 hipporag 成立，不谎称两环境等价。
+
+---
+
+## 2. 实现内容
+
+### 2.1 新增 `ingest_pipeline/kb_delta.py`（449 行，md5 `5baa418843d4a68d36711749949fa2db`）
+
+| 方法 | 关键点 |
+|---|---|
+| `diff(kb, manifest_path=None, *, file_id, content_hash, operation, full_rebuild, parser_fingerprint)` | 有 manifest → 读**文件**（不跨仓 import doc2md 代码）做 file-set diff；无 → 退化单文件 diff。`reason` 优先级严格照 §4.3 |
+| `wanted_docs(kb)` | 只转发 `kb_pipeline.build_wanted_docs(state, kb)`，**零投影**（B8） |
+| `plan(req)` | 空 diff → `SKIPPED_FRESH` 直接返回（三路零调用）；否则 封快照 → 投影 → `index_writer.build` → `assert_same_artifact` 闸门 |
+| `commit(plan)` | `revoke`（removed 非空）→ 状态事务（ACTIVE / REVOKED + `revoked_at` + `parser_fingerprint`）→ wanted docs → 可选 delta |
+| `run(req)` | plan + commit |
+
+**顺序不可调换**（写进模块 docstring）：
+
+```
+diff → (skip? 返回) → 封快照 → 投影 → build → assert_same_artifact → 状态事务 → revoke → delta
+```
+
+- 三路在**进事务之前**全部完成 → 任一路异常都不会留下「已提交但缺一路」（B3 的结构性保证，不是 try/except 兜的）；
+- `revoke` 在 `delta` 之前（B2）；
+- **不引入第二套写入者**：ES/Milvus 请求体只由 `index_writer.build` 产生，本模块一行都没拼。
+
+### 2.2 改 `kb_ingest_service.py`（226 → 318 行，md5 `fb00f042…` → `f5f548a7e02f0a8d85891c44a03d6710`）
+
+| 变更 | 依据 |
+|---|---|
+| 请求体改 `IngestRequest`（Pydantic，`extra="forbid"`）；`operation` / `requested_mode` 枚举；`FULL_REBUILD` 必带 `fallback_reason` | 契约 §1.1、B5 |
+| 响应改 `IngestResult`（`schema=llmke.kb-ingest.result/1`），全量与增量**同一模型** | 契约 §1.2、B6 |
+| **删** `file_url` 全自动重解析分支（原 `:158-185`）及其专用代码：`_download_minio`、`_SCRIPTS_DIR` sys.path 注入、`tempfile`/`urllib.parse`/`boto3` 引用 | B7、Q6（只删文件内，`requirements*.txt` 未动） |
+| **新增唯一** `ERROR_HTTP` 表 + `http_status_for()`；表外 code → 500 + 日志含 code 原文 | Q4/Q8/Q9 |
+| `SKIPPED_FRESH` 归 200（原实现会落到 207） | 契约 §1.2 |
+| 真实 HTTP 码用 `response.status_code` 设置（返回 dict 恒为 200，是**实测踩到的坑**） | B4 端点断言 |
+| 新增 `logger = logging.getLogger(__name__)`（原文件零 logger） | Q9 要求 |
+| `producer_inputs` 改**惰性**：只在真要封快照时取（`KbDeltaService(producer_inputs_provider=...)`） | 否则 DELETE / SKIPPED 会被 `PRODUCER_LOCK_MISSING` 拦住 |
+| `create_app(consume=None, service=None)` 增加注入缝 | 测试与 L13 接线 |
+| `_notify_callback()` 只留**调用点** + 日志，**不实现回写** | 契约 §1.3 属 `T-D2MD-13` |
+
+**未改** `kb_pipeline.py`（`e1e9f909…`）、`index_writer.py`（`d9853ade…`）：
+Q7 的 `parser_fingerprint` / `revoked_at` 直接写进 state 的 entry dict 即可，`_kb_state_txn` 不校验 entry 键，
+所以**不需要**动 L7/L8 已验收文件。
+
+---
+
+## 3. 阶段 A · 反例先跑红（实现前）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python -m pytest tests/test_kb_delta_l12.py -q
+17 failed, 2 passed in 0.19s
+（2 passed = Q2 dataclass / Q5 AST 两条**结构守卫**，骨架即满足，非本 loop 修复成果）
+
+$ PYTHONPATH=… hipporag-toolenv/bin/python -m pytest tests/test_kb_ingest_l12.py -q
+43 failed in 0.38s
+```
+
+- 全部红在**断言 / 行为层**（`NotImplementedError` / `AttributeError: IngestRequest` / `TypeError: create_app()`），
+  **不是 collection 层**：`kb_delta.py` 先落的是**只有 docstring + `NotImplementedError` 的骨架（0 业务逻辑）**。
+- **一处防空转**：B3 最初写 `pytest.raises(Exception)`，骨架的 `NotImplementedError` 也会"通过"（3 条假绿）。
+  已改成 `pytest.raises(RuntimeError, match="injected failure at <path>")`，只认**注入的**故障。
+
+---
+
+## 4. 阶段 B · 转绿
+
+| 命令 | 结果 |
+|---|---|
+| `pytest tests/test_kb_delta_l12.py`（v2） | **19 passed** |
+| `pytest tests/test_kb_delta_l12.py`（hipporag） | 19 passed |
+| `pytest tests/test_kb_ingest_l12.py`（hipporag） | **43 passed** |
+| `pytest tests/test_kb_ingest_l12.py`（v2） | 0 passed / **43 skipped**（`importorskip`，单列） |
+
+---
+
+## 5. 变异验证（10/10 全被捕获，md5 逐位复原）
+
+| # | 变异（打回缺陷形态） | 期望 | 实测 |
+|---|---|---|---|
+| M1 | 取消空 diff 短路 | B1 FAIL | 2 failed |
+| M2 | `revoke` 挪到 `delta` 之后 | B2 FAIL | 1 failed |
+| M3 | 状态事务提到三路之前（写前提交） | B3 FAIL | **3 failed**（三个路径各一条） |
+| M4 | `SOURCE_DIVERGED` 映射成 500 | B4 FAIL | 3 failed |
+| M5 | `ProjectionRefused` 整体 400（bug 换个位置保留） | Q8 FAIL | 2 failed |
+| M6 | 表外 code 退回 502 | Q9 FAIL | 2 failed |
+| M7 | `file_url` 自动重解析"复活" | B7 FAIL | 1 failed |
+| M8 | `wanted_docs` 重新投影 | B8 FAIL | 1 failed |
+| M9 | 不再暴露 `diff_source` | Q1 FAIL | 10 failed |
+| M10 | `SKIPPED_FRESH` 算成 207 | 契约 §1.2 FAIL | 1 failed |
+
+M3 / M6 首次实现时**没被捕获**（M3 的变异写了 `setdefault` → 状态没变 → 不推 version；
+M6 anchor 未命中），已修正变异体后重跑捕获 —— 记录在此，避免把"变异没生效"当成"断言有效"。
+
+恢复后：`kb_delta.py 5baa4188…`、`kb_ingest_service.py f5f548a7…`，与基线逐位一致；
+末态 `19 passed`（v2）/ `43 passed`（hipporag）。
+
+---
+
+## 6. 回归
+
+| 集合 | v2 | hipporag |
+|---|---|---|
+| 全量（LB 全目录 + rag_projection + artifact_binding + projection_read + runtime_switches + L8 + L9 + L10 + L11 + L12） | **184 passed, 4 skipped** | **246 passed** |
+| PLAN §四 指定集 | 104 passed, 2 skipped | — |
+
+构成：L11 收口时 v2 `165 passed / 4 skipped` → `184`（+19 本 loop）；
+hipporag L11 `184` → `246`（+19 kb_delta +43 ingest）。
+**`kb_ingest_service.py` 此前无任何测试**（grep 实测），所以本 loop 的改动没有既有用例可回归 —— 新增 43 条即其首套用例。
+
+仓根 3 个既有失败口径同 L8~L11：`test_scripts_compile`（doc2md 侧脚本 `IndentationError`，HEAD 同样报错）、
+`test_security_scan`、`test_q_acceptance`。**未修、不称"全 PASS"。**
+
+---
+
+## 7. 错误码表落地（TL 终版逐条对齐）
+
+**A · 契约 §5 十一条** —— `test_q4_contract_code_maps_to_contract_http` 逐条参数化，11/11 PASS，
+另有 `test_q4_table_has_no_extra_contract_codes_missing` 防漏登。
+
+**B · 表外白名单** —— `PROJECTION_NOT_APPLICABLE 422` / `DOCS_EMPTY 422` / `KB_REQUIRED 422` /
+`GRAPH_API_UNREACHABLE 502`（注明是契约 `GRAPH_UNREACHABLE` 的别名，L7 既有命名未改名）/
+`GRAPH_BUILD_NOT_BUILT 502` / `POLICY_INVALID 500` / `PROJECTION_COVERAGE_LOST 500` /
+`PROJECTION_EMPTY_CHUNK 500` / `PROJECTION_MODE_INVALID 500`；
+`GRAPH_BUILD_HTTP_*` 走前缀表 `ERROR_HTTP_PREFIXES`。
+
+**C · 类型** —— `ArtifactRefused` 整体 400；`ProjectionRefused` **禁止整体映射**：
+其中 8 条 `ARTIFACT_*` 逐条登记 400，另 4 条按表 500。
+`test_q8_projection_refused_is_mapped_per_code_not_blanket` + `test_policy_invalid_must_not_be_400` 锁死。
+`POLICY_INVALID` 处已写注释「若将来 policy 参数进请求体，须改回 400」。
+
+**D · 兜底** —— 表外 / `code is None` → 500，`logger.error` 带 **code + 类型 + kb + artifact_id + detail**；
+`test_q9_unknown_code_is_500_and_logged`（`caplog` 断言 code 原文出现）+ `test_q9_none_code_is_500` 各一条。
+
+### 7.1 两个 207 不混
+
+- **成功路 PARTIAL**：`commit()` 返回 `status="PARTIAL"`（图路失败）→ 端点 207 + `"搜索路完成、图谱路失败（PARTIAL）"`；
+- **异常路 COMMUNITY_INVALID**：走 `ERROR_HTTP` → 207 + `"COMMUNITY_INVALID: …"`。
+`test_two_207s_are_distinct` 断言两条 msg **不同**且异常路含 code 原文。
+
+---
+
+## 8. 红线自查
+
+| 红线 | 证据 |
+|---|---|
+| 不启停服务 / 18096 仍不可用 | `ss :18096` 为空；全程未执行 uvicorn |
+| 18094 未重启 | 同两个 pid（3202203 / 3189651），与 L11 一致 |
+| 不写线上 ES/Milvus | `kb_9=44`、`table_chunks_kb_9=2`、`v2cand*` 仍空；测试全程用替身，无网络写 |
+| 不改 `api.py` / P3 四文件 | `api.py 4bf0b21f`、`delta_build bf509721`、`rebuild 782c8be3`、`fence cbb9151f`、`capabilities 4820fac2` —— 与 L11 收口逐位一致 |
+| 不改 `kb_pipeline.py` / `index_writer.py` | `e1e9f909` / `d9853ade`（L8 确认值）未变 |
+| 不改 Java / `platform/r12/` / 设计包 / MANIFEST / TASKS.yaml | `platform/r12` git status 0 项；Java 未触；`TASKS.yaml` 未改 |
+| 不改 doc2md 仓 | `git -C doc2md status --short` 仍 14 项（L4 封口清单） |
+| 不声称 A-3 / 18096 | 见 §0 |
+
+---
+
+## 9. 已知边界与缺口（上线前必须知道）
+
+### 9.1 【高】契约 §3 的 `POST /v2/fence/revoke` **端点不存在**
+
+`api.py` AST 实测只有 9 条路由，`/v2/fence` 只有 **GET**；`fence.revoke` 是 **18094 进程内方法**，
+而 18096 是另一个进程、拿不到对方内存态。
+
+> **本 loop 只保证「removed 非空时 revoke 调用先于 delta」的调用序（mock 证明），
+> 不代表线上已支持撤权。任何报告不得暗示"撤权已支持"。**
+> 该缺口属 P3 收尾遗留，应由 `T-D2MD-13`（或新增任务）补端点 + 跨进程撤权路径。
+
+### 9.2 【中】无 `kb-manifest` 时 `removed` 恒空
+
+数据来源决定，不是 bug：18096 看不到全库文件集。响应已带 `diff_source: "request"` 如实暴露；
+退化路径也有 `logger` 记录。**调用方不得把 `removed==[]` 当作"全库无删除"。**
+
+### 9.3 【中】`GRAPH_API_UNREACHABLE` 与契约 `GRAPH_UNREACHABLE` 命名不一致
+
+TL 裁定不改名（L7 已验收），表里登记一行并注明别名；**留 P6 文档收敛**。
+
+### 9.4 【低】`SKIPPED_FRESH` 时 `wanted_docs` 返回空列表
+
+短路路径不读 `kb_state.chunks`（B1 要求三路零调用）。若 L13 需要"跳过时也回传引用"，
+应显式改成"只读 state"（不算投影），**当前如实返回空**，不伪造。
+
+### 9.5 未做（明确不属本 loop）
+
+| 项 | 去向 |
+|---|---|
+| 回调 Java 回写（`TaskReq` + `X-Internal-Token`） | `T-D2MD-13`；本 loop 只有 `_notify_callback` 调用点 |
+| 真正写到 ES/Milvus（`index_writer.apply`） | 后续；本 loop 的 `build` 只产计划 |
+| delta 真实调用 18094（`delta` 注入默认 `None`） | L13 接线；本 loop 用注入替身验证顺序 |
+| `expected_cursor` / `CURSOR_CONFLICT` 乐观并发 | 表里已定义 409；校验逻辑未接（L7 用 flock 串行化） |
+| A-3 真实样本 + 访问日志 | **P6** |
+
+---
+
+## 10. 状态
+
+```text
+R-0（132803.log，Q1~Q9 裁定）→ 骨架（0 逻辑）→ 阶段A：v2 17 failed / hipporag 43 failed
+  → 实现（kb_delta 449 行 / service 226→318）→ 阶段B：v2 19 passed / hipporag 19+43 passed
+  → 变异 10/10（M3/M6 首轮未捕获，修正变异体后捕获）→ 回归 v2 184 / hipporag 246
+  → 红线全守 → DEV_SELF_CHECK_PASS → 待 TL 复核 → T-D2MD-13（部署定义，需 Owner 授权起 18096）
+```
+
+- 指纹：`kb_delta.py 5baa418843d4a68d36711749949fa2db`（449 行）、
+  `kb_ingest_service.py f5f548a7e02f0a8d85891c44a03d6710`（226→318 行）、
+  `test_kb_delta_l12.py 55e021136aa001a6a6a08c801a0c8775`（373 行 / 19 条）、
+  `test_kb_ingest_l12.py 68a92ee59026f77ea3f15ea03c8ba896`（259 行 / 43 条）
+- 回滚：删 `kb_delta.py` + 两个测试文件，`kb_ingest_service.py` 恢复 `fb00f0427a4ade8d7a49aef4b5211065`。
+  18096 未启用 → 线上零影响。
+
+> `T-D2MD-13.next_action` 建议补一条：**「契约 §3 `POST /v2/fence/revoke` 端点缺失，撤权当前只有调用点」**。
+
+---
+
+## 11. 附录 · 真实输出
+
+### 11.1 阶段 A（实现前，必须红）
+
+```
+$ pytest tests/test_kb_delta_l12.py -q      # v2，实现前
+17 failed, 2 passed in 0.19s
+$ pytest tests/test_kb_ingest_l12.py -q     # hipporag，实现前
+43 failed in 0.38s
+（逐条 FAILED 明细见阶段 A 现场，均为 NotImplementedError / AttributeError / TypeError）
+```
+
+### 11.2 阶段 B（实现后）
+
+```
+$ （v2）pytest tests/test_kb_delta_l12.py -q
+19 passed in 0.07s
+$ （hipporag）pytest tests/test_kb_delta_l12.py tests/test_kb_ingest_l12.py -q
+62 passed in 0.31s
+$ （v2）pytest tests/test_kb_ingest_l12.py -q     # 整文件 skip，单列
+1 skipped in 0.04s
+```
+
+### 11.3 变异验证（真实输出，10 组）
+
+```
+$ bash /tmp/p4l12_mutation.sh
+----- MUTATION M1 · B1 空 diff 不再短路 -----
+FAILED tests/test_kb_delta_l12.py::test_b1_skipped_does_not_advance_cursor_or_version
+2 failed, 17 passed in 0.08s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M2 · B2 revoke 挪到 delta 之后 -----
+FAILED tests/test_kb_delta_l12.py::test_b2_revoke_precedes_delta - AssertionE...
+1 failed, 18 passed in 0.09s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M3 · B3 状态事务提到三路之前 -----
+FAILED tests/test_kb_delta_l12.py::test_b3_any_path_failure_does_not_advance_cursor[build]
+3 failed, 16 passed in 0.08s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M4 · B4 SOURCE_DIVERGED 映射错 -----
+FAILED tests/test_kb_ingest_l12.py::test_b4_source_diverged_endpoint_returns_409
+3 failed, 40 passed in 0.35s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M5 · Q8 ProjectionRefused 整体 400 -----
+FAILED tests/test_kb_ingest_l12.py::test_policy_invalid_must_not_be_400 - Ass...
+2 failed, 41 passed in 0.36s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M6 · Q9 表外 code 退回 502 -----
+FAILED tests/test_kb_ingest_l12.py::test_q9_none_code_is_500 - AssertionError...
+2 failed, 41 passed in 0.31s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M7 · B7 file_url 自动重解析复活 -----
+FAILED tests/test_kb_ingest_l12.py::test_b7_no_auto_reparse_path_left - Asser...
+1 failed, 42 passed in 0.31s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M8 · B8 wanted docs 重新投影 -----
+FAILED tests/test_kb_delta_l12.py::test_b8_wanted_docs_read_state_without_reprojecting
+1 failed, 18 passed in 0.07s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M9 · Q1 不暴露 diff_source -----
+FAILED tests/test_kb_delta_l12.py::test_q1_manifest_path_enables_full_file_set_diff
+10 failed, 9 passed in 0.20s
+restore: kb_delta=OK service=OK
+
+----- MUTATION M10 · SKIPPED_FRESH 被算成 207 -----
+FAILED tests/test_kb_ingest_l12.py::test_skipped_fresh_is_200_not_207 - Asser...
+1 failed, 42 passed in 0.34s
+restore: kb_delta=OK service=OK
+
+===== 最终指纹 =====
+5baa418843d4a68d36711749949fa2db  services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+f5f548a7e02f0a8d85891c44a03d6710  services/rag-alg/index_data_service/kb_ingest_service.py
+baseline: 5baa418843d4a68d36711749949fa2db f5f548a7e02f0a8d85891c44a03d6710
+===== 恢复后复跑 =====
+19 passed in 0.07s
+43 passed in 0.38s
+```
+
+### 11.4 红线取证
+
+```
+$ ss -tlnp | grep -E ":1809[46]\b"
+LISTEN 0      2048       127.0.0.1:18094      0.0.0.0:*    users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+
+$ curl -s http://127.0.0.1:19200/kb_9/_count  # 44 未变
+{"count":44,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s http://127.0.0.1:19200/table_chunks_kb_9/_count  # 2 未变
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s "http://127.0.0.1:19200/_cat/indices/v2cand*?h=index"
+(空)
+
+$ md5sum 禁改区
+4bf0b21fe082b737722c5a074e8cc4ec  services/rag-alg/index_data_service/graph_engine_adapter/api.py
+4820fac25fd843009bdef76dabb8e06d  services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+e1e9f909cf1d77db8a5ca76a67528f23  services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+d9853aded53d0facbd86ae0bc03860f9  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+
+$ git status --short（本轮）
+ M services/rag-alg/index_data_service/kb_ingest_service.py
+?? services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+?? tests/test_kb_delta_l12.py
+?? tests/test_kb_ingest_l12.py
+
+$ git -C /home/szf/data/dev/doc2md status --short | wc -l
+14
+```

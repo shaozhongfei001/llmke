@@ -1,0 +1,155 @@
+# P5-L14 · R-0b（Q8 / Q9 / Q10）· 只读核实
+
+- 时间：2026-11-08T23:40 ~ 23:55；角色 `python-engineer`
+- 授权：TL 23:4x 追加三问；**只读**：未改 `.java/.yml`、未 `package`、未重启 Java、未动 18096
+
+---
+
+## §0 结论摘要
+
+1. **Q8**：`graph_parse_status` 现在由 **`generateGraph`** 写 3/4（`:748` / `:771`），`doFail` 另写 4（`:431`）；`v2Ingest` **完全不写**。
+   切到 v2 后**必须由 `v2Ingest` 承接 3/4**，否则该字段永远停在 1（未做）。建议值域映射见 §1。
+2. **Q9（最重要）**：**不是只有 `rag-index-service` 落后** —— 5 个模块在部署仓与源码仓**内容不一致**，
+   而运行中的 jar 全部由**部署仓**构建（11-07 02:57 那批）。⇒ **「Java 侧改好了」在本仓历史上有多处不成立。**
+3. **Q10**：`remote.file-revise_date.url` 注入到 `RemoteFileUtils.filereviseDate()`（`:352`），
+   而**该方法零调用点**（全模块仅定义处 1 处命中）⇒ 该键是**死配置**。无反射、无通用取值。
+
+---
+
+## §1 Q8：`graph_parse_status` 的写入责任
+
+### 1.1 现状（全部写入点，逐个给行号）
+
+| 位置 | 动作 | 值 | 触发时机 |
+|---|---|---|---|
+| `FileAppServiceImpl:748` | `setGraphParseStatus(...)` | **3 PARSE_SUCCESS** | `generateGraph` 成功（且 `edges_written>0`） |
+| `FileAppServiceImpl:771` | `setGraphParseStatus(...)` | **4 PARSE_FAIL** | `generateGraph` 异常/零产出 |
+| `FileParseTaskAppServiceImpl:431` | `updateExtractStatusByIds(...)` | **4 PARSE_FAIL** | 解析任务 `doFail`（解析失败 ⇒ 图也失败） |
+| `KnowledgeBaseListAppServiceImpl:1213` / `:2504` | `updateGraphExtractByIds(...)` | **2 PARSE_ING** | 用户点「重新建图」时置「解析中」 |
+| `KnowledgeBaseListRepositoryImpl:47` | 空值兜底 | **1 NORMAL** | 读取时若为 null |
+| **`v2Ingest`（`:621-679`）** | **无任何写入** | — | — |
+
+值域（`GraphParseStatusEnums`）：`1 NORMAL` / `2 PARSE_ING` / `3 PARSE_SUCCESS` / `4 PARSE_FAIL`。
+
+### 1.2 建议方案（P5-1 必要项）
+
+**责任归属：由「知道结果的一方」写** —— 即 `v2Ingest`（它拿到 `IngestOutcome`）。
+
+| 事件 | 谁写 | 值 | 理由 |
+|---|---|---|---|
+| 触发建图（用户/RETRY） | 现有触发点（`1213/2504`）不变 | 2 PARSE_ING | 前端要看到「进行中」 |
+| `outcome.action == OK` | `v2Ingest` | **3 PARSE_SUCCESS** | 与 legacy 同语义（图已建好） |
+| `outcome.action == RETRY`（207/5xx/连不上） | `v2Ingest` | **保持 2 PARSE_ING** | **不要落 4**：这是「可重试」，落 4 会让前端显示失败并停止自动重试 |
+| `outcome.action == PARSE_FAIL`（4xx） | `v2Ingest` | **4 PARSE_FAIL** | 产物/请求不合法，重试无益 |
+| 解析任务 `doFail` | `doFail`（`:431` 保持） | 4 | 解析本身失败，图不可能成功 |
+
+### 1.3 冲突处理（TL 问「两者都写会冲突吗」）
+
+**会**。若 `generateGraph` 仍在（`isGraphParse=true`）而 `v2Ingest` 也写，就会出现「legacy 先写 3，v2 后写 4」或反之，
+最终值取决于完成顺序 —— **不可接受**。
+
+**建议**：P5-1 的删除**必须与开关同批**，二选一执行路径：
+- `remote.generate-graph.url` 为空（或新增 `remote.v2-ingest.mode=v2`）→ 只跑 `v2Ingest`，`generateGraph` 不调；
+- 反向则只跑 legacy。
+**禁止两条同时写同一字段。**
+
+---
+
+## §2 Q9：部署仓 Java 源码 vs 运行 jar（**系统性问题，不止一个模块**）
+
+### 2.1 全模块对照表
+
+| 模块 | 源码仓(v2) 最新 | 部署仓(r12) 最新 | 运行 jar 构建 | 差异文件数 | 行数 v2/r12 | 判定 |
+|---|---|---|---|---|---|---|
+| `rag-index-service` | **2026-11-08 13:54** | 2026-10-29 22:10 | 11-07 02:57 | **8** | 25602 / 25244 | **落后**（少 332 行，且缺 v2-ingest 全部代码） |
+| `rag-common` | 2026-11-07 02:47 | 2026-11-07 02:57 | 11-07 02:57 | **2** | 17679 / 17646 | **落后**（缺 `doc2mdDir` 等） |
+| `rag-qa-service` | 2026-11-07 20:56 | 2026-11-07 20:56 | **11-07 20:57** | **1** | 10134 / 10000 | **落后**（`AiServiceImpl` 少 6848 B） |
+| `rag-graph-service` | 2026-11-04 15:49 | 2026-01-21 11:35 | 11-07 02:57 | **1** | 3988 / 3874 | **落后**（缺 `V2GraphProxyController`） |
+| `rag-gateway` | 2026-11-03 21:23 | 2026-10-26 22:32 | **10-28 23:51** | **1** | 494 / 490 | **落后**（`AuthFilter` 少 385 B） |
+| `rag-auth-service` | 2026-10-30 21:01 | 2026-10-25 11:25 | 11-07 02:57 | 0 | 14512 / 14512 | 内容一致（时间差=拷贝） |
+| `sensitive-words-service` | 2026-10-30 21:01 | 2026-01-21 11:35 | 11-07 02:57 | 0 | 1361 / 1361 | 内容一致 |
+| `elastic-search-service` | 2026-10-30 21:01 | 2026-01-21 11:35 | 10-25 01:35 | 0 | 569 / 569 | 内容一致 |
+| `gien-starter-*`（4 个） | 2026-10-30 21:01 | 10-25 ~ 10-27 | 10-25 ~ 10-28 | 0 | — | 内容一致 |
+
+### 2.2 差异文件明细（`是否落后` 的「落后内容」）
+
+```
+rag-index-service（8 个）
+  大小不同  application/service/FileAppService.java                     1842 / 1305
+  大小不同  application/service/impl/FileAppServiceImpl.java          62176 / 54461   ← v2Ingest 在这里
+  大小不同  application/service/impl/FileParseTaskAppServiceImpl.java 26003 / 25576   ← doSuccess 调 v2Ingest
+  大小不同  application/service/impl/KnowledgeBaseListAppServiceImpl.java 159501 / 158891
+  大小不同  domain/service/impl/GraphDomainServiceImpl.java             3619 / 3006
+  大小不同  infrastructure/PdfConvertorUtils.java                      12797 / 12342
+  大小不同  infrastructure/RemoteGraphUtils.java                        3494 / 2884
+  **仅源码仓有**  infrastructure/RemoteV2IngestUtils.java                8444 / —     ← 部署侧完全没有
+
+rag-common（2 个）
+  大小不同  feign/FeignErrorDecode.java                                 3976 / 1963
+  大小不同  index/parameter/FileParseTaskInfo.java                      7094 / 6645   ← 部署侧**无 doc2mdDir**
+
+rag-graph-service（1 个）
+  **仅源码仓有**  interfaces/V2GraphProxyController.java                5645 / —      ← 部署侧没有；运行 jar 内 `V2GraphProxy` 命中 **0**
+
+rag-gateway（1 个）
+  大小不同  filter/AuthFilter.java                                    15027 / 14642
+
+rag-qa-service（1 个）
+  大小不同  application/service/impl/AiServiceImpl.java              161429 / 154581
+```
+
+### 2.3 运行中的 Java 服务 → 实际 jar
+
+```
+18081 auth       pid 3990335  rag-auth-service/target/…jar  (11-07 02:57)
+18082 index      pid 1341032  rag-index-service/target/…jar (11-07 02:57)
+18083 qa         pid 450255   rag-qa-service/target/…jar    (11-07 20:57)
+18084 graph      pid 4043286  rag-graph-service/target/…jar (11-07 02:57)
+18085 sensitive  pid 4036355  sensitive-words-service/…jar  (11-07 02:57)
+8088  gateway    pid 24525    rag-gateway/target/…jar       (10-28 23:51)
+```
+
+**四个服务（auth/index/graph/sensitive）的 jar 都是同一批 11-07 02:57 构建的**，qa 是 11-07 20:57 单独构建，gateway 停在 10-28。
+⇒ **构建方式是「在部署仓手工 `mvn package`」，按需构建，且从未做过全量重建。**
+
+### 2.4 这条的影响（必须写进 CHECKPOINT）
+
+**「Java 侧改好了」在本仓历史上有多处不成立**：
+- `RemoteV2IngestUtils` + `v2Ingest`：源码有、部署仓无、jar 无 ⇒ **线上从未存在**；
+- `V2GraphProxyController`（graph-service 的 v2 代理）：同上；
+- `rag-common.FileParseTaskInfo.doc2mdDir`：源码有、部署仓无 ⇒ **部署侧即使同步 index-service 也会编译失败**（这正是 `-pl` 编译失败的另一半原因）。
+
+**建议**：凡涉及 Java 的 loop，验收必须包含 **「运行 jar 内 class 是否含本次关键符号」** 这一条（类似 Python 的 pyc 字节码扫描），
+不能只看「源码改了 / 单测绿了」。
+
+---
+
+## §3 Q10：`remote.file-revise_date.url` 的真实使用点 —— **查清了：死配置**
+
+```
+RemoteFileUtils:36   @Value("${remote.file-revise_date.url}")
+RemoteFileUtils:37   private String remoteFilereviseDateUrl;         ← 注意拼写：remoteFilereviseDateUrl
+RemoteFileUtils:352  public String filereviseDate(String requestPara) {
+RemoteFileUtils:353      return doExchange(requestPara, remoteFilereviseDateUrl, HttpMethod.POST).getBody();
+RemoteFileUtils:354  }
+
+$ grep -rn "filereviseDate(" --include=*.java .
+  → 只有 :352 定义处 1 处命中，**零调用点**
+```
+
+**排除其它可能**：
+- 反射：全模块仅 `FaqTypeEnumsSerializer` 引入 `java.lang.reflect.Type`（序列化用），**无 `getDeclaredField`/`getFields`/通用 `getUrlByKey`**；
+- 子类/覆写：`RemoteFileUtils` 是 `@Component` 具体类，未被继承；
+- 配置驱动通用方法：不存在（每个 URL 都是独立 `@Value` 字段）。
+
+**结论**：`remote.file-revise_date.url` 注入到一个**从未被调用**的方法上，属**死配置**。
+**P5-3 删该键前建议人工确认一次**（理由：该结论依赖「本模块内无调用点」；
+若将来 Java 侧通过 MQ/定时任务字符串反射调用，本 grep 覆盖不到 —— 我未在其它模块发现对该类的跨模块调用）。
+
+---
+
+## §4 边界自查
+
+- 改文件：**0**（纯读取 + `/tmp` 无写入）
+- 未 `mvn package/install`、未重启任何 Java 服务、未动 18096、未改 `TASKS.yaml`
+- 运行态：`18081 3990335` / `18082 1341032` / `18083 450255` / `18084 4043286` / `18085 4036355` / `8088 24525` 均未动

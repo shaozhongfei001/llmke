@@ -1,0 +1,123 @@
+# P3-L11 · T-D2MD-11 · TL 独立复核证据
+
+- 生成时间：2026-11-08T13:3x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P3-L11-20261108T132502.log`（355 行 / `d5b6ad043461c9dbfd1a333364d65581`）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立 → P3 阶段代码面收口 → 派工 P4-L12**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹（全部吻合，`api.py` 未变是关键红线）
+
+```
+capabilities.py                    4820fac25fd843009bdef76dabb8e06d   218 → 227
+api.py                             4bf0b21fe082b737722c5a074e8cc4ec   **未变**（= L10 值）
+tests/test_capabilities_http_l11.py c8c1b2040a52638c98b39cc663b55e18   280 行 / 17 条
+evidence                           d5b6ad043461c9dbfd1a333364d65581   355 行
+```
+
+**`api.py` md5 与 L10 完全一致 → 本 loop 只做登记、未碰路由**，符合「只改 `capabilities.py`」的授权边界。
+
+## 2. `http` 字段实测（TL 现场 import 校验）
+
+```
+SCHEMA = llmke.graph-engine.describe.v1        ← 未升版 ✅
+含 http 的项 = 3 / 20
+  index_build        -> [{'method':'POST','path':'/v2/graph/build'}]
+  incremental_update -> [{'method':'POST','path':'/v2/graph/delta'}]
+  community_report   -> [{'method':'POST','path':'/v2/graph/global'}]
+其余 17 项键集 = {('evidence','note','status')}   ← 严格三键，未被污染 ✅
+community_report.note 仍含 '/v2/graph/global'    ← 散文原样保留 ✅
+```
+
+四项裁定据此逐条印证：Q1（B 形状、method 大写、path 含 `/v2`、**可选**）、Q2（散文保留 + 另两项 note 未动）、Q3（3 条写路由全覆盖）、Q5（SCHEMA 与 counts 未动）。
+
+## 3. M1 是否「真比对」而非自证 —— M6 变异已证明
+
+```python
+routes_from_source()  →  ast.parse(API_SOURCE.read_text()) + ast.walk 找装饰器
+测试中无任何硬编码期望路径（TL grep 确认）
+```
+
+**M6 变异是本 loop 最关键的证据**：把 `api.py` 里的真实路由改名 `/v2/graph/delta → /v2/graph/delta-renamed` → **2 failed**，restore 后 `api.py` md5 逐位复原。
+
+这直接证明 M1 的比对是「**源码真值 vs 声明**」，而不是「同一个字符串写两遍再自比」。TL 要求的「单向真比对」成立。
+
+`NO_REGISTER_POST` 白名单是**测试常量**（非注释），含 `POST /v2/graph/query` 与理由（POST 但只读，登记会让调用方误以为能触发写入），并断言理由非空。
+
+## 4. 独立复跑
+
+```
+v2        test_capabilities_http_l11.py + test_graph_engine_capabilities.py
+          20 passed, 1 skipped        ← skip = 需真建 app 的 fastapi 加强用例
+hipporag  test_capabilities_http_l11.py
+          17 passed
+```
+
+既有 `test_graph_engine_capabilities.py` 4 条零退化（两环境各 4 passed）—— 反证 `http` 确实是可选字段。
+
+## 5. TL 认可成员对 Q4 的修正
+
+TL 在 Q4 裁定「M1 需 import fastapi 解析路由 → 只能 hipporag」，隐含把「比对路由」等同于「建 app 拿 `app.routes`」。
+
+**成员实测反驳成立**：AST 解析**源码文本**不需要执行模块，v2 环境即可解析出全部 9 条路由。因此 M1/M3 的源码比对在**两个环境都能真跑**，只有「真建 app 再比一次」的加强用例才需要 fastapi（v2 侧 1 skipped，已单列不计通过）。
+
+**TL 裁定：采纳该修正，本 loop 实际强于 Q4 原裁定一档。** 该 skip 是加强项而非核心断言的替代，不构成「降级通过」。
+
+## 6. 阶段 A：7 红 / 9 绿 / 1 skip，且逐条标注性质
+
+**本 loop 修复的红（7 条）**：`m1_incremental_update_declares_delta_endpoint`、`m1_declared_endpoints_are_uppercase_and_prefixed`（含「声明集合非空」前置）、`m3_precondition_all_write_routes_declared`、`m3_each_write_route_registered_on_expected_capability`、`m3_source_write_routes_have_no_silent_missing`、`m4_community_report_prose_subset_of_http`、`m5_http_field_is_optional_for_old_producers`。
+
+**既有满足的守卫绿（9 条，不计为成果）**：`m2_note_keeps_both_semantics`、`m2_bare_incremental_claim_is_not_honest`、`m4_three_keys_unchanged_*`、`m4_new_keys_limited_to_http`、`m3_whitelist_reason_present`、`m1_declared_vs_source_routes_match`（空集恒真，靠 M3 前置保证判别力）。
+
+TL 认可：成员按 TL 要求**把守卫绿与修复红分开标注**，没有让守卫绿冒充修复绿。
+
+## 7. 变异 6/6
+
+| 变异 | 命中断言 | 结果 |
+|---|---|---|
+| M1 删 `incremental_update` 的 `http` | M1/M3 | 5 failed |
+| M2 note 收窄为「只增量」 | M2 | 3 failed |
+| M3 幽灵端点 | M1/M3 | 5 failed |
+| M4 改别人 note | M4 三键不变 | 1 failed |
+| M5 未授权键 | M4 新增键限制 | 1 failed |
+| **M6 改 `api.py` 真实路由名** | M1/M3 | **2 failed** |
+
+每组 restore 后 md5 逐位复原（含 `api.py`），末态 16 passed。
+
+## 8. 回归
+
+```
+v2        165 passed, 4 skipped     （L10 收口 145+3 → +16 本 loop +4 既有）
+hipporag  184 passed                （163 → +17 +4）
+仓根 3 个既有失败口径同前，未修、不称全 PASS
+```
+
+## 9. 生效边界（成员按 R-0 §4.1 精确版写入 evidence §0，TL 认可）
+
+> `capabilities` 是模块级常量，`api.py` **没有** `/capabilities` 端点，所以不存在「端点缓存」；真实边界是**模块加载时机**：新起的读取方立即可见，**已在运行的 18094 不会 reload、报旧值，需重启才反映**。不声称「线上已更新」。
+
+TL 认可该表述比 PLAN 原文（「若 18094 有 `/capabilities` 端点缓存」）更准确 —— 那是 TL 的假设性措辞，实际无该端点。
+
+## 10. 红线
+
+```
+18094 pid 3189651 / 3202203 启动于 2026-11-07 01:20:04 / 01:21:34（36.1h）→ 未重启 ✅
+kb_9=44、table_chunks_kb_9=2、v2cand* 空 ✅
+api.py / rebuild.py / fence.py / delta_build.py 全未变 ✅
+doc2md 仓 14 项封存态 ✅
+```
+
+## 11. P3 阶段代码面收口声明（TL）
+
+**P3 三项（L9 DELTA 端点 / L10 per-kb state + fencing / L11 能力登记）全部内部收口。**
+
+跨 loop 必传结论（已写进 `T-D2MD-10.blocker` 与 `T-D2MD-13.blocker`）：
+- **L9/L10 改的是进程内结构，重启 18094 前不生效**；线上仍是单槽 `state` + `fencing=1`；
+- **L11 是模块级常量，不 reload 即旧值**；
+- P4/P6 部署窗口必须复核「是否真正生效」，不得以「代码已合入」代替「线上已生效」。
+
+## 12. TL 红线自查
+
+只写 `docs/v2-tasks/` 证据与计划 + `TASKS.yaml`；未改实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED。

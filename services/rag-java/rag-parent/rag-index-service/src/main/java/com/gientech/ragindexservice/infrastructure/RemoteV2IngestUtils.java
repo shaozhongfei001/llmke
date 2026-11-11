@@ -9,6 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -50,8 +52,39 @@ public class RemoteV2IngestUtils {
      * @param fileSize  文件大小
      * @return 上游响应体；未配置或参数不全时返回 null
      */
-    public String ingest(String kb, Long fileId, String doc2mdDir, String fileUrl,
-                         String fileName, String filePath, Long fileSize) {
+    /**
+     * 摄取结果。**故意不用 boolean**：调用方需要区分「可重试」与「不可重试」。
+     *
+     * 判定依据（P4-L13-B 必核项实测结论，两侧都要看）：
+     * 1) **HTTP 状态码**：`RestTemplate.exchange` 对 4xx/5xx 会抛异常，
+     *    所以「非 2xx」走 catch 分支 —— 这正是 L12 修 `response.status_code = code` 的必要性：
+     *    若 Python 侧恒返 200（只在 body 里写 code=409），RestTemplate 不会抛，
+     *    调用方就只会 `log.error` 然后**当成功继续**。
+     * 2) **body 里的 `code`**：200/207 都是 2xx，HTTP 层看不出差别，
+     *    必须读 body 才能识别 `207 PARTIAL`（搜索路成功、图谱路失败）。
+     */
+    public static final class IngestOutcome {
+        /** 契约 §1.2 的 code（可能为 null：响应不是我们约定的 JSON） */
+        public final Integer code;
+        public final int httpStatus;
+        public final String body;
+        /** OK / PARSE_FAIL / RETRY */
+        public final String action;
+
+        IngestOutcome(Integer code, int httpStatus, String body, String action) {
+            this.code = code;
+            this.httpStatus = httpStatus;
+            this.body = body;
+            this.action = action;
+        }
+
+        public boolean ok() {
+            return "OK".equals(action);
+        }
+    }
+
+    public IngestOutcome ingest(String kb, Long fileId, String doc2mdDir, String fileUrl,
+                                String fileName, String filePath, Long fileSize) {
         if (!enabled()) {
             return null;
         }
@@ -88,17 +121,64 @@ public class RemoteV2IngestUtils {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(payload.toJSONString(), headers);
         log.info("V2 摄取请求 url={} params={}", remoteV2IngestUrl, payload.toJSONString());
-        ResponseEntity<String> response =
-                restTemplate.exchange(remoteV2IngestUrl, HttpMethod.POST, entity, String.class);
-        String body = response.getBody();
-        if (body != null) {
-            JSONObject json = JSONObject.parseObject(body);
-            Integer code = json == null ? null : json.getInteger("code");
-            if (code == null || (code != 200 && code != 207)) {
-                // 207 = 搜索路成功、图谱路失败：必须让调用方看见，不吞
-                log.error("V2 摄取未完全成功 code={} body={}", code, body);
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.exchange(remoteV2IngestUrl, HttpMethod.POST, entity, String.class);
+            String body = response.getBody();
+            Integer code = null;
+            if (body != null) {
+                JSONObject json = JSONObject.parseObject(body);
+                code = json == null ? null : json.getInteger("code");
             }
+            String action = classify(response.getStatusCode().value(), code);
+            if (!"OK".equals(action)) {
+                log.error("V2 摄取未完全成功 action={} http={} code={} body={}",
+                        action, response.getStatusCode().value(), code, body);
+            }
+            return new IngestOutcome(code, response.getStatusCode().value(), body, action);
+        } catch (HttpStatusCodeException e) {
+            // 4xx/5xx：RestTemplate 抛异常。**必须在这里分类**，不能让它直接冒到调用方
+            // 只留一条 log —— 那样"摄取失败"就变成了"不知道发生了什么"。
+            String body = e.getResponseBodyAsString();
+            Integer code = null;
+            try {
+                JSONObject json = JSONObject.parseObject(body);
+                code = json == null ? null : json.getInteger("code");
+            } catch (Exception ignore) {
+                // body 不是 JSON：保持 code=null，由 httpStatus 决定动作
+            }
+            String action = classify(e.getStatusCode().value(), code);
+            log.error("V2 摄取失败 action={} http={} code={} body={}",
+                    action, e.getStatusCode().value(), code, body);
+            return new IngestOutcome(code, e.getStatusCode().value(), body, action);
+        } catch (RestClientException e) {
+            // 连不上 / 超时：可重试（RETRY），不能当 PARSE_FAIL 把文件判死
+            log.error("V2 摄取无法连接 action=RETRY url={} err={}", remoteV2IngestUrl, e.toString());
+            return new IngestOutcome(null, 0, null, "RETRY");
         }
-        return body;
+    }
+
+    /**
+     * 结果分类（契约 §1.2 / §5）。
+     *
+     * - `200 + code=200` → OK
+     * - `200 + code=207`（PARTIAL：搜索路成功、图谱路失败）→ **RETRY**（图还能补）
+     * - `4xx`（400 产物不合法 / 409 SOURCE_DIVERGED / 422 前提不满足）→ **PARSE_FAIL**（重试无益）
+     * - `5xx`（500 状态损坏 / 502 依赖不可达）→ **RETRY**
+     */
+    static String classify(int httpStatus, Integer code) {
+        if (httpStatus >= 200 && httpStatus < 300) {
+            if (code != null && code == 200) {
+                return "OK";
+            }
+            if (code != null && code == 207) {
+                return "RETRY";
+            }
+            return "RETRY";      // 2xx 但没有我们约定的 code：不可信，重试一次再看
+        }
+        if (httpStatus >= 400 && httpStatus < 500) {
+            return "PARSE_FAIL";
+        }
+        return "RETRY";          // 5xx / 其它
     }
 }

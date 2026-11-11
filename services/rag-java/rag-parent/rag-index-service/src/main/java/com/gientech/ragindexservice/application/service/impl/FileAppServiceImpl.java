@@ -645,18 +645,35 @@ public class FileAppServiceImpl implements FileAppService {
             Long fileId = file.getFileId();
             try {
                 KnowledgeBaseList kbFile = knowledgeBaseFileDomainService.findById(fileId);
-                String resp = remoteV2IngestUtils.ingest(
+                // P4-L13-B：file_url 只作元数据，不再触发二次解析（解析只发生在 doc2md 一次）
+                RemoteV2IngestUtils.IngestOutcome outcome = remoteV2IngestUtils.ingest(
                         kb, fileId, doc2mdDir,
-                        // 文件 URL：摄取服务据此下载原件（doc2mdDir 为空时的全自动入口）
                         kbFile == null ? null : kbFile.getFilePath(),
                         kbFile == null ? null : kbFile.getFileName(),
                         kbFile == null ? null : kbFile.getConvertedFilePath(),
                         kbFile == null || kbFile.getFileSize() == null
                                 ? null : kbFile.getFileSize().longValue());
-                log.info("V2 摄取结果 fileId={} kb={} resp={}", fileId, kb, resp);
+                log.info("V2 摄取结果 fileId={} kb={} action={} http={} code={}",
+                        fileId, kb,
+                        outcome == null ? "SKIPPED" : outcome.action,
+                        outcome == null ? null : outcome.httpStatus,
+                        outcome == null ? null : outcome.code);
+                // 如实回写（契约 §1.2 的 code 语义 / §5 错误码）：不吞、不假成功。
+                //   OK        → 不额外改状态（解析链路已写 PARSE_SUCCESS）
+                //   RETRY     → 207 部分成功 / 5xx / 连不上：可重试
+                //   PARSE_FAIL→ 4xx：产物或请求不合法，重试无益
+                if (outcome != null && "RETRY".equals(outcome.action)) {
+                    knowledgeBaseFileDomainService.updateStatusByIds(
+                            Lists.newArrayList(fileId), KbFileStatusEnums.RETRY.getValue(), false);
+                } else if (outcome != null && "PARSE_FAIL".equals(outcome.action)) {
+                    knowledgeBaseFileDomainService.updateStatusByIds(
+                            Lists.newArrayList(fileId), KbFileStatusEnums.PARSE_FAIL.getValue(), false);
+                }
             } catch (Exception e) {
-                // 单文件失败不影响其它文件；但必须留痕，不能静默
+                // 单文件失败不影响其它文件；但必须留痕且回写 RETRY，不能静默
                 log.error("V2 摄取失败 fileId={} kb={} doc2mdDir={}", fileId, kb, doc2mdDir, e);
+                knowledgeBaseFileDomainService.updateStatusByIds(
+                        Lists.newArrayList(fileId), KbFileStatusEnums.RETRY.getValue(), false);
             }
         }
     }

@@ -1,0 +1,157 @@
+# P4-L13-C · C5 演练 runbook（**只读准备，未执行**）
+
+- 时间：2026-11-08T18:31；角色 `python-engineer`
+- 性质：**纯准备**。未改 18096 env、未重启任何进程、未发演练请求
+- 授权：待 Owner（TL 21:0x：分两步、不合并）
+
+---
+
+## 1. 一处必须如实记录的「代码 / 运行态」时间差（TL 21:0x §3，我已核实）
+
+```
+api.py mtime            2026-11-08 18:30:33   ← `_is_own_root` 统一
+18094 进程启动           2026-11-08 18:28:38   ← **早 1 分 55 秒**
+18096 进程启动           2026-11-08 18:25:07
+```
+
+**结论（口径固定为这句）**：
+
+> 运行态缺的是一处**逻辑等价**的重构（`applied_to_memory` 统一到 `_is_own_root`），**行为无差异**；
+> 下次重启 18094 自然加载。**不得表述为「代码与线上完全一致」。**
+
+佐证（防止被误解成「缺陷 12 没修」）：
+
+- 磁盘 pyc（18:30:39 由测试导入生成）里 `fence_revoke` 的 `co_names` **含 `_is_own_root`、不含 `realpath`** → 磁盘是新的；
+- 但运行中的进程在 18:28:38 就已 import 完，**内存里是旧字节码**；
+- **缺陷 12 的修复在 18:28:38 那次重启里已加载并活体验证**（fence 0/0、view 114/94、影子 upsert 后仍干净）——
+  所以差异只涉及「等价重构」，不涉及缺陷 12 本身。
+
+## 2. C5 的两步（**不合并**，TL 21:0x §4）
+
+### 第一步：重启 18094（加载 `_is_own_root` 统一）
+
+```
+① 备份日志  cp platform/r12/logs/hipporag-18094.log  llmke-v2/.runtime-bak/18094-log-<ts>.log
+② 记基线    current.json md5 e2d0f754… / kb_9=44 / table=2 / fence 视图 0/0 / graph_view 114/94
+③ 停        kill 先 fork 子后主（`ss` 里的两个 pid，降序 kill）→ 轮询到两个 /proc 都消失且端口释放
+④ 起        bash platform/r12/bin/r12-graph-v2-start.sh（19531 应走「已运行跳过」，pid 必须仍是 435286）
+⑤ 验        openapi 10 条（含 delta + fence/revoke）；delta `{}` → 422（路由在）；
+            graph_view 114/94；fence 0/0；kb_9=44；生产 md5 未变
+```
+
+> 风险：18094 是生产检索进程，重启有短暂不可用；回滚 = 再重启一次（代码与旧版等价，无功能回退风险）。
+
+### 第二步：C5 演练（18096 env → 错误端口）
+
+```
+① 抓 env   /proc/<18096 pid>/environ 整份复用 → 只把 LLMKE_V2_GRAPH_API 改成 http://127.0.0.1:19999
+② 重启     同 cmd/cwd/日志，确认新 pid、openapi /health 200
+③ 演练     发一条**新文件**的 UPSERT（避免影响已提交状态），例如 file_id=293 + 现成产物目录
+           期望：HTTP 502、code=502、msg 含 GRAPH_UNREACHABLE
+                 status=PARTIAL、state_committed=false、cursor 不推进（=演练前的值）
+                 index_write 块如实（**索引可能已写**，见 §3）
+                 **绝不能出现 status=OK**
+④ 核隔离   影子 kb_state version 不变；生产 current.json md5 不变、kb_9=44 不变
+⑤ 复原     env 改回 http://127.0.0.1:18094 → 重启 18096 → 发同一条请求验证恢复正常
+⑥ 收尾     记录两次 pid、时间、以及「索引已写」是否需要重放
+```
+
+## 3. 演练前必须知道的两个已知副作用（来自本 loop 实测）
+
+1. **索引写入在 graph 之前**（`kb_delta.commit()` 顺序：`_apply_writes` → `_delta`）→
+   delta 失败时**索引已写、状态未提交**。所以 C5 演练后会出现「影子 ES 多了 293、`kb_state` 没有 293」的中间态，
+   需要**重放**（或删掉该文件）才能收敛。**这不是 C5 的 bug，是 B3 设计的一部分**，但必须写进 C5 结论，否则会被读成不一致。
+2. **撤权（revoke）在索引之前**：C5 用 UPSERT 不会触发 revoke；若用 DELETE 演练会先撤权再失败，副作用更大。**建议 C5 只用 UPSERT。**
+
+## 4. 建议的判据（把 TL 的三条落成可判定的）
+
+| # | 判据 | 说明 |
+|---|---|---|
+| 1 | `HTTP=502` 且 `msg` 含 `GRAPH_UNREACHABLE` | 错误码表：`GRAPH_API_UNREACHABLE → 502`，别名登记在案 |
+| 2 | `status=PARTIAL`、`state_committed=false` | 不得出现 `OK` |
+| 3 | `cursor` 与演练前**逐字符相同** | 「不产生文件显示成功但图没建」的核心 |
+| 4 | 影子 `kb_state.json` 的 `version` 不变 | 状态零推进 |
+| 5 | 生产 `current.json` md5、`kb_9`、`table_chunks` 全不变 | 隔离 |
+| 6 | 复原后同一条请求恢复正常（`OK` 或 `SKIPPED_FRESH`） | 证明 env 复原成功 |
+
+## 5. 现状（等待授权，一律不动）
+
+```
+18094 pid 2227759（+fork 子）   18:28:38 启动，加载的是**统一前**的等价代码
+18096 pid 2207749               18:25:07 启动，LLMKE_V2_GRAPH_API=http://127.0.0.1:18094（未动）
+19531 pid 435286                未变
+生产 current.json e2d0f754… / fence.json 857a69b4… / kb_9=44 / table=2
+影子 v2cand_kb_9 = 4 条；kb_state version=11；files=['290','291','292']
+```
+
+---
+
+## 6. C5 追加项（TL 21:1x §4）：**索引「先删后写」失败**的可见性 + 重放收敛（已离线验证，未动进程）
+
+### 6.1 为什么这条比 delta 失败更危险
+
+```
+do_deletes("es")  成功 → 该文件旧块全删
+do_insert("es")   失败 → 新块没写
+⇒ ES 里这个文件**完全消失**（短暂不可见）
+```
+
+delta 失败时索引是**完整的新数据**（图属性缺）；索引失败时该文件**在检索侧消失** —— 严重性不同。
+
+### 6.2 新增两条断言
+
+| 用例 | 断言 |
+|---|---|
+| `tests/test_kb_delta_l13.py::test_c5_es_insert_failure_after_deletes_file_becomes_invisible_then_replay`（v2） | ① `INDEX_WRITE_FAILED`；② `index_write.deletes` 里 **2 个 es target** 已删、且 `rec.http` 里确有 `del_doc_by_col` 与 `insert_fulltext_documents`（证明「删已发、写未成」）；③ `status=FAILED / applied=false`、带 `compensation`；④ **`delta` 未被调用**（图未动）；⑤ state version 不变；⑥ **重放同一请求（故障清除）→ `OK`、`applied=true`、state 前进、文件 ACTIVE**（收敛） |
+| `tests/test_kb_ingest_l12.py::test_index_write_failure_is_502_with_payload_and_no_state_committed`（hipporag） | HTTP **502**；`data.index_write.status=FAILED` + 带 `compensation`；**`data` 里不得出现 `state_committed`**（异常路径没进事务，写 `false` 会让人误读成「尝试提交且失败」） |
+
+**变异**：**M25**（把 insert 提到 delete 之前）→ 可见性用例 `1 failed`；**M26**（异常路径不透传 `payload`）→ HTTP 用例 `1 failed`。
+
+### 6.3 结论口径（写进 C5 报告用）
+
+> **先删后写失败会造成该文件在 ES 短暂不可见；重放同一请求可恢复**（状态未提交，重放走完整 plan）。
+> 这是 L13-A 选择「索引在 graph 之前」的代价一侧；收益是「索引失败时图完全没动」，重放不用白建一次图。
+
+### 6.4 顺带记账：L13-A 调整了 L12 的写入顺序（TL 21:1x §2 裁定）
+
+```
+现在：revoke → index_write(_apply_writes) → delta → _state_txn
+L12 ：revoke → (wanted) → delta → _apply_writes → _state_txn
+```
+
+| 顺序 | delta 失败 | 索引失败 |
+|---|---|---|
+| **索引→delta（现在）** | 索引已是新数据、图缺 → 重放收敛 | **图未动**，重放干净 |
+| delta→索引（L12） | 索引未写 | 图已按新集合重建但 ES 是旧块 → 图与 ES 不一致，**建图代价白费** |
+
+→ **索引在前，失败时图未动，重放代价最小**。这是 L13-A 的主动调整，不是回归。
+
+### 6.5 回归（本轮仅测试补齐，未改产品代码）
+
+v2 **219 passed / 4 skipped**、hipporag **300 passed**。
+顺带按新语义修正 `test_a4_delete_with_runner_commits_state`（原来「删唯一文件」，现补一个存活文件；
+同 L12 的 `b2`/`b3` —— **只改种子数据，断言未动**）。
+
+指纹：`tests/test_kb_delta_l13.py 9d3bddda…`、`tests/test_kb_ingest_l12.py 8b5a19f7…`；
+产品代码未改（`kb_delta.py cef297d6…`、`kb_ingest_service.py 5a19cc16…`）。
+运行态未动：18094 `2227759`、18096 `2207749`、`kb_9=44`。
+
+---
+
+## 7. `/tmp` 演练工具已固化进仓库（TL 21:4x 裁定，非运行态变更）
+
+```
+新路径   tests/tools/make_artifact_blocks.py
+① 复制   原样 cp → md5 0e0a8b31f3ff7edd73e83c17765f439c  **与 /tmp 逐位一致**（先验一致，再加注释）
+② 注释   头部加 2 行来源说明（diff 显示只有 `0a1,2>` 两行新增，代码零改动）
+③ 新 md5 93afaa15fea215fceff0e7f602d525b5（63 行 = 61 + 2 行注释）
+④ probe  python tests/tools/make_artifact_blocks.py /tmp/probe_artifact299 probe "验证可用"
+         → "/tmp/probe_artifact299: 校验通过，段落 1 块，content_uid=3d9193c60716e2fc"
+         产物四件套齐全（document_ir.json / parsed_metadata.json / parsed_text.md / parse_manifest.json）
+⑤ 清理   rm -rf /tmp/probe_artifact299（已删）
+⑥ 改动面 仅新增 `tests/tools/`（git status: `?? tests/tools/`），未改任何既有文件
+```
+
+> 说明一处与指令的差异：TL 要求「逐字节不变且 md5 仍为 0e0a8b31…」，同时又要求「头部加两行注释」——
+> 加注释必然改 md5。处置：**先复制并验证 md5 与 /tmp 逐位一致**（证明内容未走样），**再加那两行注释**，
+> 并给出 diff 证明只有 2 行新增。两个 md5 都记录在案，避免「说的和做的不一致」。

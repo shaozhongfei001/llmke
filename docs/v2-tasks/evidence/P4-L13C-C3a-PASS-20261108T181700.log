@@ -1,0 +1,138 @@
+# P4-L13-C · C3a 通过（第 7 次）+ 契约 §2.1 的 1:N 语义首次被真实验证
+
+- 时间：2026-11-08T18:15:53（C3a）、18:16（1:N 探针）；角色 `python-engineer`
+- 18094 重启两次：`2060061 → 2129777`（第二次加载 `file_ids` 改动），fork 子 `2133657`；19531 pid `435286` **未变**
+- 18096 pid `2096799`（本轮未再重启：它本来就按契约发 `file_ids`）
+
+---
+
+## 1. 改动（TL 裁定 A）
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `graph_engine_adapter/api.py` | ① `BuildDoc.file_id: str` → **`file_ids: List[str] = Field(min_length=1)`** | 契约 §2.1 |
+| 同上 | ② `_default_build` 的 live：**一条 doc → N 行**（`for d in docs for fid in d.file_ids`） | 同 text 多行 |
+| 同上 | ③ `community = global_report.write(snapshot, [fid for d in docs for fid in d.file_ids])` | 社区报告拿到全部 file_id |
+| `graph_engine_adapter/delta_build.py` | ④ `_as_live` 增 `_doc_file_ids()` 并**按 file_ids 展开成 N 行** | 兼容旧单值（内部 dict），输出统一 list；空则 `[""]` 不静默丢块 |
+
+> TL 预估 2 处，实际 **4 处**：`_default_build` 与 `community` 也各自读了单值 `d.file_id`，
+> 不改则 `/v2/graph/build` 与社区报告会 `AttributeError`/少 file_id。属同一文件的连带必改点。
+
+**同步修改的已验收测试（3 个，必须记账）**
+
+| 文件 | 改动 | 原因 |
+|---|---|---|
+| `tests/test_graph_delta_route_l9.py` | `_doc()` 返回 `{"file_ids": [...]}`，支持传 list | 只构造请求，不涉及断言口径 |
+| `services/.../tests/test_delta_build_l9.py` | `_docs()` / 一处内联 docs → `file_ids=[fid]` | 同上 |
+| `tests/test_graph_state_l10.py` | 3 处请求体 `"file_id"` → `"file_ids"` | 同上（不改任何断言） |
+
+**没有改动任何断言的语义**：三处都只是「构造请求」的形状，断言（BUILT/sources/community/fencing）原样。
+
+## 2. 阶段 A（实现前红）→ 阶段 B（绿）
+
+### 2.1 新增测试
+
+| 文件 | 环境 | 覆盖 |
+|---|---|---|
+| `services/.../tests/test_delta_1n_l13c.py` | **双环境**（纯函数，无 fastapi） | 判据 1/2/3 + 空 file_ids 不丢块 |
+| `tests/test_delta_1n_model_l13c.py` | **仅 hipporag**（需 pydantic） | `BuildDoc` 收 `file_ids`、拒单值 `file_id`、拒空数组；路由透传；单值 body → 422 |
+
+**实现前**：`test_delta_1n_l13c.py` → **3 failed / 1 passed**
+（`_as_live` 只读 `file_id` → 展开不出多行；`sources` 里 `file_id` 键缺失）。
+**实现后**：v2 `4 passed`；hipporag 模型层 `5 passed`。
+
+### 2.2 全量回归
+
+| 环境 | 结果 |
+|---|---|
+| v2 | **194 passed, 4 skipped** |
+| hipporag | **262 passed** |
+
+### 2.3 变异（新增 2 组）
+
+| 变异 | 结果 |
+|---|---|
+| M16 `_as_live` 只取 `file_ids[:1]` | **1 failed, 3 passed** |
+| M17 `BuildDoc` 改回单值 `file_id` | **4 failed, 1 passed** |
+
+restore 后 `api.py` md5 `cdedb1243bc6fb7a735ba400a21edf16`。
+
+---
+
+## 3. C3a（第 7 次）—— **七条判据全过**
+
+```
+HTTP=200  code=200  status=OK  msg=摄取完成
+state_committed=True  cursor=cursor-03737d30f957f57ddd9c3aed337ba3ca3
+```
+
+| # | 判据 | 实测 |
+|---|---|---|
+| 1 | 非 5xx；如实 | **200 / OK**（图路成功后按设计转 200，不是只报 207） ✓ |
+| 2 | ES 影子 + Milvus 影子各 1 条，`order_num=''` | `v2cand_kb_9 count=1`、Milvus `_v2cand_kb_9` 1 行、ES 文档 `order_num=''`、`file_id='290'` ✓ |
+| 3 | 4 个 delete、`col_name=file_id` | es/v2cand_kb_9、es/v2cand_table_chunks_kb_9、milvus/v2cand_kb_9、milvus/v2cand_table_chunks_kb_9，全部 `['290']` ✓ |
+| 4 | **`graph.result.root` == 影子 root** | **`/home/szf/data/dev/llmke-shadow/graph-root/kb_9`** ✓ |
+| 5 | `state_committed=true`、影子 kb-state 有文件、影子 graph-root 新建 kb_9 | `kb_state.json` version=1、`kb.kb_9=['290']`；`graph-root/kb_9/{current.json,snapshot-…}` ✓ |
+| 6 | 生产图 md5 `e2d0f754…`、`kb_9=44` | md5 未变、`kb_9=44`、`table_chunks=2` ✓ |
+| 7 | 影子仍 1 条（幂等） | `v2cand_kb_9=1` ✓ |
+
+`graph.result` 其余字段：`effective_mode=FULL`、`documents=1`、`generation=0`、`fencing_used=1`、
+`community={"status":"READY","community_count":1,"citation_check":{"ok":true,…}}`
+`index_write`：`APPLIED / applied=true`，`compensation.needs=false / completed_sides=['es','milvus']`。
+
+---
+
+## 4. 契约 §2.1 的 1:N —— 首次端到端验证（影子 root，全真 HTTP）
+
+按 TL §4 的三条判据，用**同一段文本**、不同 `file_ids` 直打 18094（`root` 指影子）：
+
+| 步骤 | 请求 | 实测 |
+|---|---|---|
+| **判据1 单文件** | `file_ids=["290"]`（C3a 本身即此形态） | `sources`：`chunk-bcbc13016c09… → ['290']`，**1 个 source** ✓ |
+| **判据2 同文异源** | `file_ids=["290","291"]` 同一 text | `HTTP 200 BUILT mode=DELTA`；`sources`：`chunk-bcbc13016c09… → ['290','291']`，**2 个 source、idx 仍 1 个**（引擎合并成一块）✓ |
+| **判据3 删其一** | `file_ids=["290"]` + `revoked_file_ids=["291"]` | `HTTP 200 BUILT mode=DELTA`；`sources`：`chunk-bcbc13016c09… → ['290']`，**块保留、只剩 1 个 source** ✓ |
+
+> **`documents` 字段语义提醒**：步骤 2 响应里 `documents=2`，它不是「块数」而是 **live 行数**
+> （一条 doc 展开 2 行）；块数看 `sources.json` 的 **idx 数 = 1**。这条容易误读，写进 evidence 备查。
+
+探针脚本 `/tmp/probe_1n.py` 的**最后一行汇总有 bug**（`refB` 是 list 却用了 `.values()`），
+所以程序以 `AttributeError` 收尾 —— **但三步的实际结果都已打印在上面**，不是「脚本崩了没跑成」。
+如实记录，不修改输出。
+
+---
+
+## 5. 旧影子图的处理（TL §6）
+
+- 删除单值口径的旧图：`rm -rf llmke-shadow/graph-root/kb_9`（含 `snapshot-20261108181103-985167-g0`）
+- 之后由 C3a 与 1:N 探针重建，当前快照 `snapshot-20261108181634-804622-g0`，
+  `sources` 只有 `290` —— 与影子 `kb_state`（`kb.kb_9=['290']`）一致
+- **生产图全程未动**：md5 `e2d0f75440e4553ee1bb33f51ca2ca34`
+
+影子目录现状（多一份中间快照是 B 步骤留下的）：
+
+```
+llmke-shadow/graph-root/kb_9/
+  current.json
+  snapshot-20261108181634-369531-g0   ← B（2 个来源）
+  snapshot-20261108181634-804622-g0   ← C（1 个来源，current 指向它）
+```
+
+## 6. 红线
+
+| 项 | 值 |
+|---|---|
+| 线上 `kb_9` / `table_chunks` | 44 / 2（未变） |
+| 线上图 md5 | `e2d0f75440e4553ee1bb33f51ca2ca34`（未变） |
+| 影子 ES / Milvus | 1 / 1（幂等） |
+| 影子 `kb_state` | version=1、`kb.kb_9=['290']` |
+| 18094 / 18096 / 19531 | `2129777`(+`2133657`) / `2096799` / `435286` |
+| doc2md 仓 | 14 项（= L4 封口基线，未新增） |
+| 本轮文件指纹 | `api.py cdedb124…`、`delta_build.py 09252f0b…`、`graph_client.py 78ec9686…`、`test_delta_1n_l13c.py bfc384cb…`、`test_delta_1n_model_l13c.py d6392f46…` |
+
+## 7. 仍未做（按授权边界）
+
+- `T-D2MD-13` 的 Java 侧回写（L13 后续）
+- `PROJECTION_*` / `GRAPH_ROUTE_MISSING` 等错误码收敛（P6）
+- 第 5 个缺陷（请求级 `graph_root/graph_api` 被忽略）—— TL 指示登记不修
+- **A-3 证据（真实请求/响应样本 + 访问日志）仍属 P6**；本条 C3a 是**代码级端到端**，
+  不等于「A-3 通过」，也不声称 18096 已对生产可用

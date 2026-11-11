@@ -1,0 +1,120 @@
+# P4-L13-C · C3b/C4 中途：**撤权误写生产图目录（已还原）** + 两个契约缺口
+
+- 时间：2026-11-08T18:18 ~ 18:21；角色 `python-engineer`
+- **本文件含一次红线事故，先看 §1**
+
+---
+
+## 1. ⚠️ 事故：`POST /v2/fence/revoke` 写到了**生产** graph-root
+
+### 1.1 事实
+
+C4-2（`operation=DELETE` file_id=291，影子测试）后核对 fence：
+
+```
+生产 current.json md5           e2d0f754…（未变）
+生产 snapshot …/kb_9/fence.json  mtime 2026-11-08 18:19:16   ← 被写
+                                 {"generation": 1, "revoked": {"291": {"generation": 1, "reason": "REVOKED"}}}
+影子 snapshot …/kb_9/fence.json  {"generation": 0, "revoked": {}}   ← 没被写
+GET /v2/fence?kb=kb_9            仍 generation=0 / count=0（视图未反映）
+```
+
+### 1.2 根因（缺陷 10，真实且必须修）
+
+`graph_client.post_fence_revoke(kb, file_ids, graph_api=...)` 的 payload **没有 `root`**：
+
+```python
+payload = {"kb": kb or "", "file_ids": ids, "reason": reason}     # graph_client.py:124
+```
+
+而 delta 是带 root 的：`post_graph_delta(..., root=graph_root)`。
+`FenceRevokeRequest`（`api.py:128-133`）本身也**没有 root 字段** → 18094 只能用自己的
+env `LLMKE_V2_ROOT`（= **生产** `platform/r12/data/graph-root`）→ 撤权写进生产。
+
+**结论**：只要经过 18096 做 DELETE，撤权就会落到 18094 所在进程的**默认 root**，
+与「影子实验」的隔离假设直接冲突。C3a 之所以没暴露，是因为它走 FULL/UPSERT，不触发 revoke。
+
+### 1.3 影响面（如实评估，不夸大也不缩小）
+
+- 生产 `current.json` md5 未变；生产 44 条数据、检索链路未变；
+- 生产 `sources.json` 的 11 个 file_id 里**没有 `291`** → 该撤权在生产上**不会过滤掉任何真实数据**；
+- `GET /v2/fence?kb=kb_9` 仍读 0（视图与文件不一致，另有小问题，见 §1.4）；
+- **但生产目录下确有一个文件被写入了不属于它的内容** —— 这是事实，按事故记录。
+
+### 1.4 处置（已做）
+
+```
+备份污染版本   .runtime-bak/prod-fence.json.polluted-181916.bak   (md5 4411fdd4…)
+还原            printf '{"generation": 0, "revoked": {}}' > …/snapshot-20261107212905-365431-g0/fence.json
+还原后          md5 857a69b4…，与同库另一快照（snapshot-20261106214944…）文本逐字相同
+复测            GET /v2/fence?kb=kb_9 → generation=0 / count=0；current.json md5 e2d0f754… 未变
+```
+
+**已停止所有会触发 revoke 的测试**（DELETE），在缺陷 10 修好前不再跑。
+
+## 2. 缺陷 9：契约 §2.2 的 `apply_result` 在实现里**根本不存在**
+
+TL 要的 C3b 判据是「`apply_result.reused > 0`、`added == 新块数`、`consistent=true`」。
+实测 delta 响应**没有 `apply_result` 字段**：
+
+```
+grep -n "reused\|consistent\|added" graph_engine_adapter/delta_build.py   → 0 命中
+grep -n "reused\|consistent\|added" graph_engine_adapter/rebuild.py        → 0 命中
+```
+
+契约 §2.2 明写响应含 `apply_result{deleted,added,reused,duplicates,remaining,expected,consistent}`、
+`sources{written,entries}`、`fence{generation,revoked}`、`fallback_reason`；**§2.3 不变式 #2 还依赖
+`apply_result.consistent`**（「`effective_mode=DELTA` 时 `consistent==true` 且 `remaining==expected==documents`」）。
+→ 这条不变式现在**无法断言**，因为字段不存在。
+
+**可用的替代证据**（C3b 实测，见 §3）：`effective_mode=DELTA`、`documents` 1→2、
+`sources.json` idx 1→2、`fencing_used` 4→5、`community_count` 1→2。
+
+## 3. C3b（真增量）实测：语义成立
+
+请求 `UPSERT file_id=291`（`/tmp/artifact291`，新文本「星港贷BBB档…」，用仓库自己的
+`parse_artifact.store.build_artifact` **先本地校验通过**再投喂，不是伪造格式）：
+
+```
+HTTP=200 code=200 status=OK msg=摄取完成   state_committed=True
+diff.reason=FILE_SET_CHANGED  diff.added=['291']
+index_write=APPLIED applied=True  inserts: es OK / milvus OK
+graph: status=BUILT  effective_mode=DELTA
+       documents=2（1 旧 + 1 新）   fencing_used=4
+       snapshot=…/snapshot-20261108181840-409342-g0   root=影子
+       freshness={"stale":true,"reason":"SNAPSHOT_OUT_OF_DATE","missing":["291"]}
+       community: READY, community_count=2, citation_check ok (checked 4)
+sources.json: idx 数 2 → {chunk-bcbc…:['290'], chunk-5459…:['291']}
+```
+
+→ **真增量生效**（没有重跑全局、旧块保留、新块增量加入），但「reused/added 的具体数字」**取不到**（§2）。
+
+## 4. C4-1（幂等）实测：机制成立，但**判据需要补一个前提**
+
+| 请求 | 结果 |
+|---|---|
+| 重复 `UPSERT 291`（**不带** `content_hash`） | `CONTENT_CHANGED` → 真的重摄取（`index_write=APPLIED`、cursor 推进） |
+| 重复 `UPSERT 291`（**带** state 里的 `content_hash`） | **`SKIPPED_FRESH`**：`state_committed=false`、`index_write=NOT_APPLICABLE/applied=false`、`deletes=0`、`graph.result=null`、影子计数 2 不变 |
+
+原因在 L12 的既有设计（`IngestRequest.content_hash` 注释）：
+**「缺省时按『可能已变』处理，宁可重摄取」** —— 没有内容指纹时平台无法判等。
+所以「重复同一请求 → SKIPPED_FRESH」这句话**只在带 `content_hash`（或 `manifest_path`）时成立**。
+这不是 bug，是判据少了前提；请 TL 认定表述。
+
+## 5. C4-2（删除）实测：索引侧全对，撤权侧见 §1
+
+```
+删前 ES=2  → DELETE 291 → 删后 ES=1、剩 ['290']
+Milvus 同样 2 → 1，剩 ['290']            （两侧都查真实 count，不看 HTTP 200）
+state_committed=True  diff.removed=['291']
+graph: BUILT / DELTA / documents=1 / fencing_used=5
+```
+
+## 6. 待定
+
+- **缺陷 10 修法**：`FenceRevokeRequest` 增 `root: Optional[str]`；`post_fence_revoke` 传 `root`；
+  `_fence_revoke(graph_api, graph_root)` 绑定 env 的 `LLMKE_V2_GRAPH_ROOT`。
+  → 改 `api.py`（P3 文件，需授权）+ `graph_client.py` + `kb_ingest_service.py`（我方）。
+- **缺陷 9 修法**：`rebuild`/`delta_build` 返回真实统计并写进响应（`apply_result`），
+  或先在契约里降级该字段（不建议 —— §2.3 不变式依赖它）。改 P3 文件，需授权。
+- **C4-3（缩水重摄取）**：走 UPSERT 路径、不触发 revoke，**可以安全继续**；等 TL 确认是否先修缺陷 10 再跑。

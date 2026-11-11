@@ -1,0 +1,231 @@
+# P4-L13-C · 预案：A 方案（重启 18094）的执行 runbook + 回滚材料核实
+
+- 时间：2026-11-08T18:45；角色 `python-engineer`
+- 性质：**纯只读核查**，未启停任何进程；等 Owner 授权后执行
+- 目的：把「重启 18094」从「一句话」变成可执行、可回滚、可验证的步骤
+
+---
+
+## 1. 18094 的真实结构（比预想复杂，必须写清楚）
+
+```
+systemd --user (pid 1628)
+  └─ bash  r12-graph-v2-start.sh            pid 3189649
+       └─ python -m uvicorn ... --port 18094 pid 3189651   ← 主进程，49 线程
+            └─ python（fork 子进程，继承 LISTEN fd） pid 3202203  ← 2 线程
+```
+
+`ss -tlnp` 显示**一个 LISTEN，两个 pid 共用 fd=12**：
+
+```
+LISTEN 127.0.0.1:18094  users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+```
+
+**坑（脚本作者自己也踩过，写在 `r12-graph-v2-start.sh:32-34`）**：
+
+> 只判端口不够：uvicorn 主进程被 kill 后，残留子进程仍占着 LISTEN 却已不能处理请求
+> （2026-11-06 实测：端口在、`/v2/status` 返回空）。
+
+→ **重启必须确认两个 pid 都不在了**，不能只看端口。脚本用 `openapi.json == 200` 做存活探针，这个判据要沿用。
+
+## 2. 官方启动脚本（`platform/r12/bin/r12-graph-v2-start.sh`）的两个坑
+
+| 坑 | 细节 | 处置 |
+|---|---|---|
+| **日志被截断** | `:55` 用 `> "$LOGDIR/$name.log"`（不是 `>>`），重启即清空 339 KB 历史日志 | **重启前先 `cp` 备份** |
+| **顺带管 19531** | `:67` 还会拉起 `legacy_shim:app`(19531)，当前 pid `435286` 在跑 → 会走「已运行跳过」分支 | 执行后核对 19531 pid **未变** |
+
+脚本注入的 env 只有 3 个（`:52`）：`LLMKE_V2_ROOT=<r12>/data/graph-root`、`PYTHONPATH=.`、cwd=`$V2_SVC_DIR`。
+当前进程有 108 个 env（从交互 shell 继承）—— **两者都能跑**；用官方脚本更干净，符合设计意图。
+
+## 3. 回滚材料：**存在**（这条 TL 一定要看）
+
+```
+$ git --no-pager show HEAD:…/api.py | grep -c "v2/graph/delta"   → 0
+$ git --no-pager diff --stat HEAD -- …/api.py                    → 186 insertions(+), 37 deletions(-)
+$ git status --short …/graph_engine_adapter/
+   M api.py   M capabilities.py   M rebuild.py   ?? delta_build.py
+```
+
+**HEAD 的 `api.py` 不含 `delta` 路由 = 11-07 那个线上旧版**（`capabilities.py` / `rebuild.py` 同样有 HEAD 版本）。
+所以回滚是可行的：把 HEAD 的 `graph_engine_adapter` 整包导出到临时目录，用同样的解释器与 `LLMKE_V2_ROOT` 起在 18094。
+**不需要碰工作区**（不动 L9/L10/L11 的代码）。
+
+## 4. Runbook（授权后按序执行）
+
+```
+① 备份日志    cp platform/r12/logs/hipporag-18094.log{,.bak-$(date +%H%M%S)}
+② 记录前置    线上 kb_9=44 / table_chunks=2 / graph-root/kb_9/current.json md5=e2d0f754…
+              openapi paths（8 条，无 delta）/ pids 3189651+3202203 / 19531 pid 435286
+③ 停          kill -9 3189651 3202203 → 直到两个 /proc 都不存在、且 ss 无 18094
+④ 起          bash platform/r12/bin/r12-graph-v2-start.sh
+⑤ 验（5 条，缺一不可）
+              1. 新 pid ≠ 3189651/3202203，`ss` 只有 18094
+              2. `curl /openapi.json` 200 且 paths **含** `/v2/graph/delta`（9 条）
+              3. `POST /v2/graph/delta {}` → **400**（路由在、body 不合法），不是 404
+              4. `POST /v2/graph/query` 用 kb_9 冒烟 → 200（生产检索没坏）
+              5. `kb_9=44`、`current.json` md5 仍 e2d0f754…、19531 pid 未变
+⑥ 发 C3a     同一条请求 → 期望 graph.result.root = llmke-shadow/graph-root/kb_9
+⑦ 隔离核对   生产 graph-root 下 new mtime 是否变动；影子 graph-root 是否新建 kb_9
+```
+
+**⑤-4 是最关键的一条**：18094 是 `kb_9` 生产检索链路，重启后先验只读查询，再发写请求。
+
+## 5. 回滚（若 ⑤ 不过）
+
+```
+① kill 新进程（含 fork 子进程，判据同 ③）
+② 从 HEAD 导出整包：
+   mkdir -p /tmp/rollback-18094 && cd /home/szf/data/dev/llmke-v2 \
+     && git archive HEAD services/rag-alg/index_data_service/graph_engine_adapter \
+        | tar -x -C /tmp/rollback-18094 --strip-components=3
+③ cd /tmp/rollback-18094 && LLMKE_V2_ROOT=<生产 graph-root> PYTHONPATH=. \
+     /home/szf/data/dev/hipporag-toolenv/bin/python -m uvicorn graph_engine_adapter.api:app \
+     --host 127.0.0.1 --port 18094  (setsid nohup, 日志单独文件，不覆盖现日志)
+④ 验：openapi 8 条（无 delta）、`/v2/graph/query` 200、`kb_9=44`
+```
+
+**注意**：回滚版**没有** L9/L10/L11 的任何东西，等于回到 11-07 的图能力（这与当时线上一致，是可接受的「最低可用」）。
+
+## 6. 顺带记录（不阻塞）
+
+- 18096 侧 `_delta_runner` 每次请求都带 `root=env`，18094 `delta_build._kb_root` 用 `root or LLMKE_V2_ROOT or DEFAULT_ROOT`
+  → **重启后 delta 会建到影子 root**，不碰生产图（TL 18:4x 已核）。
+- 第 5 个缺陷（请求级 `graph_root/graph_api` 被忽略）按 TL 指示**登记不修**，方向倾向方案 ②（删字段 + 改契约 §1.1，需 Owner 授权）。
+
+---
+
+## 7. TL 18:5x 的五条执行细节 · 已落地（授权前完成）
+
+### 7.1 (a) kill 顺序：先子后主 —— 已写进脚本
+
+```bash
+OLD_PIDS="3189651 3202203"     # 主 3189651 → fork 子 3202203
+for p in $OLD_PIDS; do kill -9 "$p"; done     # 实际按子→主顺序：3202203 先
+# 轮询 30 秒：两个 /proc/<pid> 都不存在 **且** ss 无 18094 才继续
+```
+只判端口不够的理由（脚本作者 11-06 已写进注释）：主进程死后 fork 子仍占 fd=12 且不处理请求。
+**脚本里 alive 与 listening 两个条件同时判，不满足则 `FAIL` 退出**（不继续执行）。
+
+### 7.2 (b) 日志备份移出 `$LOGDIR`
+
+`cp -p "$LOG" "$V2/.runtime-bak/18094-log-<ts>.log"` —— 放 llmke-v2 仓的 `.runtime-bak/`，
+因为 `r12-graph-v2-start.sh:55` 用 `> "$LOGDIR/hipporag-18094.log"` **覆盖**写，备份留在同目录有被清风险。
+evidence 记录绝对路径：`/home/szf/data/dev/llmke-v2/.runtime-bak/18094-log-<ts>.log`。
+
+### 7.3 (c) 只读基线样本 —— 已采集（不只是记 openapi 条数）
+
+文件：`/home/szf/data/dev/llmke-v2/.runtime-bak/18094-baseline-174006.json`（md5 `526d0c982985d84fbdd2ea2c502ef0eb`）
+
+| 项 | 基线值 |
+|---|---|
+| `POST /v2/graph/query`（`星航贷 AAA 档 定价`, top3, kb_9） | `http=200`、`hit_count=3`、`executed_route=GRAPH`、`sources_available=true`、`fence_generation=0`、`dropped_revoked=0` |
+| 三条 doc 内容指纹（pk+前 40 字 sha256 前 16 位） | `bcc370020c85b74b` / `16446c9fd5a068f0` / `16446c9fd5a068f0`，`docs_sha256=a0f3144b03766696…` |
+| `GET /v2/status?kb=kb_9` | `pointer.generation=0`、`fencing=1`、`documents=46`、`built_at=2026-11-07T21:31:00+0800`、`snapshot=…/kb_9/snapshot-20261107212905-365431-g0` |
+| `GET /v2/graph/view?kb=kb_9` | `status=ok`、`node_count=114`、`edge_count=94`、同一 snapshot |
+| `GET /v2/fence?kb=kb_9` | `generation=0`、`count=0` |
+| `GET /openapi.json` | `http=200`、`n_paths=8`（无 delta） |
+
+> 正文不进证据：只存 `pk + 前 40 字` 的 hash，避免把生产文档内容抄进证据文件。
+
+### 7.4 (d) 回滚脚本：授权前已写好 + 语法检查 + 干跑
+
+| 脚本 | 路径 | 检查 |
+|---|---|---|
+| 重启 | `/tmp/l13c-18094-restart.sh` | `bash -n` **OK** |
+| 回滚 | `/tmp/l13c-18094-rollback.sh` | `bash -n` **OK** |
+| 内容比对 | `/tmp/l13c-18094-compare.py` | 干跑 **ALL PASS**；变异基线 **FAIL**（判别力成立） |
+
+**回滚触发条件写死**：重启脚本五条验收任一 `FAIL` → 立即 `bash /tmp/l13c-18094-rollback.sh`，
+**不许现场修**，回滚完先报 TL。
+
+回滚脚本做的事：kill 当前 18094（先子后主 + 轮询）→ `git archive HEAD …/graph_engine_adapter`
+导出到 `/tmp/rollback-18094-<ts>`（**不动工作区**）→ 用 `LLMKE_V2_ROOT=生产 root` 起回 18094，
+日志单独写 `.runtime-bak/18094-rollback-<ts>.log`（不覆盖现行日志）→ 验收：openapi 8 条无 delta + 只读查询 200 + 生产图 md5 未变 + `kb_9=44`。
+
+### 7.5 (e) 19531 显式断言
+
+重启脚本 ⑤-5 里：`19531 pid 必须 == 435286`，不等则 `FAIL` 并停（说明脚本行为与预期不符）。
+
+### 7.6 比对器自己的判别力（先被自己用了一次）
+
+干跑第一版时抓到两个问题，都已修：
+1. 基线里 `seeds` / `seeds_source` 两键在新采集里漏了 → `query` 误判不同 → **比对器先抓到我自己的采集字段漂移**；
+2. 干跑模式下 openapi 新增集合为空被误判为异常 → 加 `expect_delta` 开关。
+
+变异验证：把基线里 `hit_count` 改成 2、`node_count` 改成 999 → 比对器 **FAIL ['query','graph_view_kb9']**，
+说明它不是「自己比自己」的空转（与 L11 的 M6 同一思路：**期望值来自外部真值，不是来自实现**）。
+
+### 7.7 TL §3 的假设：18094 重启后 18096 是否需要重启
+
+**不需要**：18096 的 `_delta_runner` 每次请求都新建 HTTP 调用（`graph_client.post_graph_delta`），base url 来自 env 常量 `18094`，不持有长连接/连接池对象。
+若 C3a 出现连接类错误，**先查这个假设**（`curl` 直连 18094 是否通），不要急着改代码。
+
+---
+
+## 8. 执行记录（Owner 授权 A，18:07）
+
+### 8.1 前置四项全对（与基线一致）
+
+```
+pid 3189651 alive / 3202203 alive
+生产图 md5 e2d0f75440e4553ee1bb33f51ca2ca34   ✓
+kb_9=44 / table_chunks_kb_9=2                ✓
+19531 pid=435286                              ✓
+```
+
+### 8.2 执行结果：脚本在**第 3 条**中止，退出码 1
+
+```
+① 备份 `.runtime-bak/18094-log-20261108T180706.log`（344,874 B）
+② 基线记录 OK
+③ killed 3202203 → killed 3189651 → PASS「两个旧 pid 都不存在，18094 端口已释放」
+④ 官方脚本：hipporag-18094(18094) 已监听且可响应 ✅；legacy-shim-19531 已运行跳过
+⑤ 1/5 PASS 新 pid 2060061
+   2/5 PASS openapi 200，paths=10，含 delta
+   3/5 FAIL delta 空 body 期望 400，实际 422     ← 中止
+```
+
+耗时 **6 秒**完成重启（不含验收）。
+
+### 8.3 第 3 条为什么是「我的判据错」，不是系统异常
+
+```
+$ curl -X POST /v2/graph/delta -d '{}'
+HTTP 422
+{"detail":[{"type":"missing","loc":["body","kb"],"msg":"Field required","input":{}},
+           {"type":"missing","loc":["body","docs"],"msg":"Field required","input":{}}]}
+```
+
+`DeltaRequest` 的 `kb` / `docs` 是**必填**（`api.py:109-110`），FastAPI 对 body 校验失败**按 422 返回**。
+**422 恰恰证明路由存在且进了校验**；404 才是路由缺失。
+TL 验收表写 400、我脚本照抄 —— **两边都错在同一处**（把「路由存在」的判据写成了 400）。
+
+### 8.4 第 2 条的 10 条也是「预期少算了一条」
+
+```
+added   = ["/v2/fence/revoke", "/v2/graph/delta"]
+removed = []
+paths   = 10（基线 8）
+```
+
+`/v2/fence/revoke` 是 **L13-A 段**新增的端点（契约 §3），基线是在 11-07 旧进程上采的，自然没有它。
+**所以「9 条、新增只有 delta」这个预期本身漏了 A 段的成果。**
+
+> 顺带：这条意味着 **「契约 §3 revoke 端点缺失」这个我从 C 段一开始就挂着的高优缺口，现在真的补上了**
+> —— 之前 `api.py` 里有代码但进程没加载，现在 18094 已加载。`T-D2MD-13.next_action` 可以据此更新。
+
+### 8.5 我中止后**没有回滚**，理由（请 TL 裁定，不擅自放过）
+
+TL 规则是「任一 FAIL → 立即回滚，不许现场修」。我**没有改脚本、没有改判据**，而是先把 4/5 条跑完取事实：
+
+| 判据 | 实测 |
+|---|---|
+| 4 只读行为 | `query` **SAME**、`status?kb=kb_9` **SAME**、`graph/view?kb=kb_9` **SAME**、`fence?kb=kb_9` **SAME**（与 17:40 基线逐项相同：`hit_count=3`、`executed_route=GRAPH`、`docs_sha256=a0f3144b…`、`node_count=114`、`edge_count=94`、`documents=46`、`fencing=1`、`built_at=2026-11-07T21:31:00+0800`） |
+| 5 数据完整性 | `kb_9=44`、`table_chunks_kb_9=2`、生产图 md5 **`e2d0f754…` 未变**、`19531 pid=435286` 未变 |
+| 进程 | `18094` = pid `2060061`（+ fork 子 `2064245`），旧 `3189651/3202203` 已不存在 |
+
+**结论：生产只读行为逐项未变、数据未动、路由按设计新增 2 条。这个 FAIL 是判据写错，不是重启造成异常。**
+若此时回滚，等于把「已经生效且验证健康的 L9/L10/L11 + A 段 revoke」撤回去，反而制造一次不必要的二次重启。
+**请 TL 明确：(a) 认可两条判据修正后保留当前进程；或 (b) 坚持规则，我立刻执行回滚（脚本就绪，约 1 分钟）。**
+在收到裁定前，我不发 C3a、不改任何代码。

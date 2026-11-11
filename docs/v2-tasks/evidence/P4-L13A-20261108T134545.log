@@ -1,0 +1,222 @@
+# P4-L13-A · R-0 只读核实（`T-D2MD-13` A 段）
+
+- 时间：2026-11-08T13:45:45+0800；角色 `python-engineer`
+- 状态：**只读完成，未写任何实现代码**（`kb_delta.py 089a7775…`、`kb_ingest_service.py f5f548a7…`、`api.py 4bf0b21f…` 与 L12 收口一致）
+- 结论：7 项**全部有答案**；其中 **第 5 项（fence 跨进程）结论是「A 段装得下」**，但附带 3 个必须先裁定的细节（Q5-1~Q5-3）
+- 另发现 **2 处 A 段之外但会影响"是否真的写完"的问题**（D-3 / D-4），需裁定是否纳入 A 段
+
+---
+
+## 1. `index_writer.apply` 的返回结构（PLAN 第 1 项）—— 现成够用，不用改
+
+```python
+@dataclass(frozen=True)
+class IndexWriteResult:
+    status: str                 # "OK" | "FAILED"
+    side: str | None            # 失败侧 "es" | "milvus"
+    error: str | None
+    completed_sides: list       # 已完成的侧（A3 需要的「已写的一侧」）
+    needs_compensation: bool    # = (side == "milvus")，即「ES 已写、Milvus 失败」
+    calls: list                 # 每条 body 的 {side, url, target}
+```
+
+- 失败时**立即 return**（不继续下一侧），并把 `completed_sides` 带出；
+- A3「部分成功必须显式记录」→ **不用改 `index_writer`**，只需在 `kb_delta.apply` 调用点把
+  `completed_sides` / `needs_compensation` / `calls` 原样抬进响应与日志即可。
+
+## 2. `es_url` / `milvus_url` 来源（第 2 项）—— **全仓无生产来源**，必须新定
+
+| 事实 | 证据 |
+|---|---|
+| `api.py` 的 `_urls()` **只有 llm/embed**，没有 ES/Milvus | `api.py:123-128` 返回 `{llm, embed}` |
+| 全仓 `index_data_service/` 无任何 ES/Milvus 写入 URL 的环境变量或配置读取 | grep `19200|19526|19527` 仅命中测试/脚本 docstring |
+| `apply` 的 URL 语义是**完整端点**（不是基址） | `test_index_writer.py:208` 用 `http://mock-es/insert_fulltext_documents`、`http://mock-mv/insert_vector_documents_custom` |
+| 真实端点存在且可 curl（只读） | 19527 `index_fulltext_service`：`/insert_fulltext_documents`；19526 `index_vector_service`：`/insert_vector_documents_custom`（openapi 实测） |
+| 19527 是 **ES 写入 shim**（真 ES 在 19200，`cluster_name=r12-rag`，8.13.4） | `curl 19200/` 返回 ES 横幅；`curl 19527/` 返回 `{"detail":"Not Found"}`（FastAPI） |
+
+→ **需新定两个环境变量**（建议 `LLMKE_ES_WRITE_URL` / `LLMKE_MILVUS_WRITE_URL`，默认值指向
+`http://127.0.0.1:19527/insert_fulltext_documents` / `http://127.0.0.1:19526/insert_vector_documents_custom`），
+并在 B 段写进 `R12-ENV-CONTRACT.md`。**A 段只用注入替身，绝不连真端点。**
+
+## 3. `apply` 的补偿语义（第 3 项）—— 有，但只是「标记」，没有真正的补偿队列
+
+- `needs_compensation=(side == "milvus")`：只有「ES 已写、Milvus 失败」才置真；
+- 全仓**没有**补偿任务的登记表/队列（grep `compensat` 只命中 `index_writer` 自身）；
+- 契约 §5 要求「已写的一侧显式记录补偿任务，不得只 log」。
+
+→ A3 的落法：响应里加 `index_write.compensation = {needs: bool, completed_sides: [...], calls: [...]}`，
+并 `logger.error` 一条结构化记录（含 kb/file_id/artifact_id/completed_sides）。
+**真正重试补偿**不在本段（无队列、无 worker），需另行登记为缺口。
+
+## 4. `apply` 是否幂等（第 4 项）—— **写入侧幂等（同 pk 覆盖），但「缩水文件」会残留旧块**
+
+- `19527` 的 `add_documents_async` → `_add_documents_async_impl` → `async_bulk`，
+  `build_actions` **没有显式 `_op_type`** → 走默认 `index`（按 `_id`=pk 覆盖），
+  所以**重放同一 plan 不会重复写**，只是覆盖。
+- **但**：写后剪枝（`delete_by_query` by `metadata.source.keyword` + `must_not ids`）
+  只在 `duplicate_flag=True` 时执行（`:539-551`）；而 L6 硬约束 `duplicate_flag=False`
+  （避免按 source 全量替换掉同 source 下别的文件）。**结果：文件变小/块减少时，旧块不会被删除。**
+
+### D-3【中，需裁定】`delete_scope` 只有计划、没有执行点
+
+`index_writer.delete_scope()` 产出「按 file_id+pk 精确删除」的计划，但：
+- 它**不在 `IndexWritePlan` 里**，`apply` 只发 `es_plan`/`milvus_plan`（都是 insert）；
+- L6 注释写「落地由 L7 生产调用点完成」，但 **L7 的 `consume_for_kb` 也没调用它**（grep 0 命中）。
+
+→ 若 A 段只接 `apply`，**"写"是"只增不减"**：重摄取缩水文件后 ES/Milvus 留旧块，
+检索会命中已删除内容。**这属"写完没"的真问题，不是可选优化。**
+建议：A 段一并接 `delete_scope`（调 19527 `/del_by_id` 或 `/del_doc_by_col` + 19526 `/del_doc_entity`），或明确登记为 A 段不做并写进 blocker。
+
+## 5. `POST /v2/fence/revoke` 跨进程（第 5 项）—— **A 段装得下**，但有 3 个细节要裁定
+
+### 5.1 现状（关键：fence **已经会持久化**）
+- `FenceState.save(path)` / `FenceState.load(path)` 已存在（`fence.py:62-75`，原子替换）；
+- 持久化点是 **快照目录下的 `fence.json`**：`api.py:269`（每次 build 后）、`delta_build.py:142`（每次 delta 后）；
+- `api.py:254-258`：build 前从**当前指针指向的快照目录** `FenceState.load(...)` 恢复 → **重启后保留**；
+- `_slot(kb)["fence"]` 是 per-kb 的内存态，`delta_build`/`rebuild` 都按它判 `is_revoked`。
+
+### 5.2 结论：走新端点，不需要共享文件轮询
+18096 → `POST 18094 /v2/fence/revoke {kb, file_ids, reason}` → 18094 内：
+`_slot(kb)["fence"].revoke(file_ids)` → `fence.save(os.path.join(_resolve_snapshot(kb), FENCE_FILE))`
+→ 返回 `{generation, revoked, count}`。
+这样：内存态立即生效（同进程的检索立刻看不到）、落盘后重启可恢复（5.1 的 load 路径已通）。
+**不需要**18096 直接写 `fence.json`（那会绕过内存态，18094 不 reload 就看不见）。
+
+### 5.3 必须先裁定的 3 个细节
+| # | 问题 | 我的建议 |
+|---|---|---|
+| **Q5-1** | `GET /v2/fence` 现在只读**无库槽**（`state = states[""]`，`api.py:605`）。按 kb 撤权后，无库槽看不到 → A5 的「GET 能读到刚撤权的项」会失败 | 给 `GET /v2/fence` 加**可选 `kb` 参数**（缺省仍返回无库总览，保持兼容）；撤权端点返回体本身也带 `revoked` 供断言 |
+| **Q5-2** | `_resolve_snapshot(kb)` 在**未建图**时返回 `None` → 无快照目录可写 `fence.json` | 撤权仍要在内存生效；落盘降级为「无快照则不落盘 + 响应标 `persisted=false`」，不得报错也不得静默 |
+| **Q5-3** | 撤权是否需要 `generation` 单调递增参与 `fencing`（`delta_build` 用 `fence.generation` 算 fencing） | 保持 `FenceState.revoke()` 既有语义（幂等、不重复递增），不改 L9/L10 已验收行为 |
+
+## 6. `fence.revoke` 持久化与重启（第 6 项）
+见 5.1：**已持久化到 `<snapshot>/fence.json`，重启后由 `api.py:254-258` 恢复**。
+唯一的缺口是：**当前没有任何地方会因为"撤权"而 save**（只有 build/delta 结束后 save）。
+新端点补上这次 save 即可，不需要改 `fence.py`。
+
+## 7. delta runner 注入点（第 7 项）—— 有注入点，无现成客户端
+
+- `KbDeltaService.__init__(delta=...)` 已留（L12），`commit()` 在状态事务前调用；
+- **全仓没有调 `POST /v2/graph/delta` 的客户端**（grep 只命中 `capabilities.py` 的登记与 `delta_build.py` 的服务端实现）；
+- 可复用模板：`kb_pipeline.post_graph_build()`（`requests.post` + 超时 + 错误码映射到 `PipelineRefused`）——
+  A 段照它写 `post_graph_delta()`，请求体按契约 §2.1 `DeltaRequest`：
+  `{schema, kb, docs, requested_mode, fallback_reason, set_digest, revoked_file_ids, root, fencing}`。
+- **注意**：§2.1 要求 `docs` 是**该库全量 wanted texts**（不是本次新增），而 L12 的 `plan.wanted_docs`
+  正是从 `prospective` state 组装的**全库** docs → 数据已就绪，不需要重投影。
+- `docs` 需要 `file_ids`（1:N）与 `content_hash`，而当前 `build_wanted_docs()` 产出的是
+  `{file_id(single), text, locator, pk, title, parse_artifact_id}` → **需要一层 1:N 归并**（按 text 分组）
+  与 `content_hash` 补齐。属 A 段新增的小函数，不改 `build_wanted_docs`（L7 已验收）。
+
+---
+
+## 8. 另一处发现（不影响 A 段实现，但要记录）
+
+### D-4【低】`GET /v2/fence` 的 `revoked` 是**排序后的 key 列表**，不含 `reason`/`generation`
+`fence_view` 返回 `sorted(fence_state.revoked)`（`api.py:606`）。撤权端点若要回显原因，需自行组织，
+不要改 `fence_view` 的既有字段集（L10 收口时锁过）。
+
+---
+
+## 9. 请裁定（Q1~Q6）
+
+| # | 问题 | 建议 |
+|---|---|---|
+| Q1 | ES/Milvus 写入 URL 新环境变量名与默认值（第 2 项） | `LLMKE_ES_WRITE_URL` / `LLMKE_MILVUS_WRITE_URL`，默认 19527/19526 的完整端点；A 段只用替身 |
+| Q2 | A3 的「显式记录」以什么为准（响应字段 + 结构化日志） | `index_write.compensation = {needs, completed_sides, calls}` + `logger.error` 一条 |
+| Q3 | **D-3 是否纳入 A 段**：接 `delete_scope`（否则"只增不减"） | 建议**纳入**，否则 A1 的 `OK` 是"写了一半"的 OK |
+| Q4 | Q5-1：`GET /v2/fence` 加可选 `kb` 参数 | 同意，缺省行为不变 |
+| Q5 | Q5-2：无快照时撤权落盘降级（`persisted=false`） | 同意，不报错 |
+| Q6 | `post_graph_delta` 放哪个文件 | 建议放 `kb_pipeline.py`（与 `post_graph_build` 同处）——**但那是 L7/L8 已验收文件**，若不允许动，则放新文件 `ingest_pipeline/graph_client.py` |
+
+**第 5 项结论：A 段装得下**，不需要重新划段；但 Q3（写删）与 Q6（文件归属）会决定 A 段的实际体量。
+
+---
+
+## 10. R-0 补项（TL 14:5x 要求）：删除端点字段名逐项核对 —— **发现一处会静默不删的字段名错配**
+
+### 10.1 19527（ES）`POST /del_doc_by_col`
+
+请求模型 `OperateDataModel(IndexModel)`（`index_fulltext_service/src/.../base.py:65-69`）：
+
+```python
+class IndexModel(BaseModel):
+    index_name: str                 # ← 字段名是 index_name
+class OperateDataModel(IndexModel):
+    condition_logic_operations: str = 'and'
+    col_name: str = ""
+    col_values: List[str] = []
+    condition_json: List[dict] = []   # 可选，空默认
+```
+
+→ 请求体：`{"index_name": "...", "col_name": "...", "col_values": ["290"]}`，**不需要 `condition_json`**。
+`IndexModel` 只有 `index_name`，**`document_list` 不要求**（那是 `InsertDataModel`）。
+
+### 10.2 ⚠️ **字段名错配（本段必须处理）**
+
+`19527` 的 `delete_by_col_documents` → `query_es_sql(..., QueryType.METADATA)` → `init_field_body`：
+
+```python
+# controller/es_query.py:11-21
+if queryType != QueryType.PK:
+    f = f"metadata.{field}.keyword"      # ← 服务端【自动】加 metadata. 前缀 + .keyword 后缀
+```
+
+而 `index_writer.delete_scope()` 返回的是 **`col_name = "metadata.file_id"`**。
+若原样发给 19527 → 实际查询字段变成 **`metadata.metadata.file_id.keyword`** → **0 命中、静默不删、接口还返回 200**。
+
+**这正是「看起来删了，其实没删」的静默错误**，比报错更危险。
+
+### 10.3 19526（Milvus）`POST /del_doc_by_col`
+
+请求模型 `DataParamModel(DataBaseModel)`（`index_vector_service/src/.../base.py:103-111`）：
+
+```python
+collection_name: str = ""      # ← 字段名是 collection_name（不是 index_name）
+collection_name_list: List[str] = []
+expr: str = ''
+col_name: str = ''
+col_values: List = []
+condition_json: List[dict] = []
+```
+
+实现（`milvus_kb_service.py:1421-1424`）：
+
+```python
+if not del_param.col_name and del_param.collection_name:
+    coll.drop()                                   # ← TL 指出的删库高危，已确认
+elif del_param.col_name:
+    delete_res = coll.delete(expr=f'{del_param.col_name} in {del_param.col_values}')
+```
+
+→ `col_name` **原样**拼进 expr，所以这里必须给 **`metadata.file_id`**（带前缀）。
+请求体：`{"collection_name": "...", "col_name": "metadata.file_id", "col_values": ["290"]}`。
+
+### 10.4 结论：**同一个 `col_name` 两侧语义相反**
+
+| 侧 | 端点 | 目标字段名 | `col_name` 应传 | 原因 |
+|---|---|---|---|---|
+| ES(19527) | `/del_doc_by_col` | `index_name` | **`file_id`** | 服务端自动拼 `metadata.<col>.keyword` |
+| Milvus(19526) | `/del_doc_by_col` | `collection_name` | **`metadata.file_id`** | 原样拼 `expr` |
+
+`delete_scope().targets` 的字段名（`index_name` / `collection_name`）**对得上**，但**单一个 `col_name` 两侧不能共用**。
+→ 客户端必须按侧映射，并各配一条断言（否则任一侧静默 0 命中）。
+ES 侧 `metadata.file_id.keyword` 的合法性已核：mapping 里 `file_id` 是 `text` + `keyword` 子字段（`es_kb_config.py:82-89`）。
+
+### 10.5 附带确认：`file_id` mapping 存在 `.keyword`，但 `v2cand_*` 索引**不存在**
+
+- 写入目标由 `index_writer` 固定为 `v2cand_<kb>` / `v2cand_table_chunks_<kb>`（L6/L8 语义）；
+- R-0（L8）/本轮只读 `_cat/indices/v2cand*` 均**为空** —— 影子索引从未创建；
+- 19527 的写入路径会先 `get_index_mapping_field_async(index_name)`，**拿不到 mapping 直接 500**（`controller/es.py:463-470`）；
+  而删除路径遇到不存在的索引是 `200 + "无需删除"`（`es_kb_service.py:349-351`）。
+
+→ **真实运行时**：insert 会 500、delete 会"成功"，组合起来是"删了但没写"。本段只用替身验证接线与请求体，**索引创建属 C 段前置**，需在 evidence 与 `T-D2MD-13` 中写明。
+
+### 10.6 删库高危的客户端侧防护（TL 要求）
+
+`milvus_kb_service.py:1421-1422`：`col_name` 为空 → `coll.drop()` 整个集合。
+客户端侧（本段）拦截规则：
+1. `col_name` 必须非空，且**等于预期的按侧值**（ES=`file_id`，Milvus=`metadata.file_id`）；
+2. `col_values` 必须非空，且每个都是**目标 file_id 的字符串形式**（不接受空串/None/列表嵌套）；
+3. `collection_name` / `index_name` 必须非空；
+4. 任一不满足 → **不发送请求**，抛 `KB_REQUIRED`/`DOCS_EMPTY`…（走既有错误码表，不新增 code）。
+反例测试：`col_name=""` 时断言"未发出任何请求"。

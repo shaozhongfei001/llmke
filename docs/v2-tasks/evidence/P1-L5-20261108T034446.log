@@ -1,0 +1,338 @@
+# P1-L5 · T-D2MD-05 · 实现阶段 DEV_SELF_CHECK_PASS 证据日志
+
+- 生成时间：2026-11-08T03:44:46+0800（`date '+%Y%m%dT%H%M%S%z'` → `20261108T034446+0800`）
+- Loop：`VL-DOC2MD-INC` / `P1-L5`（snapshot 切读硬前置）
+- 标准来源：`docs/v2-tasks/loops/P1-L5-PLAN.md`（TL 03:4x 修订版：§一 解释器 / §二 R-0 结论与裁定 / §三 E1 字段真值、E2 重写 / R-6 13 条）
+- **R-0 对照与 TL 裁定记录**（PLAN §四 要求）：见 `docs/v2-tasks/evidence/P1-L5-20261108T033556.log`
+  —— 当前 312 行 / md5 `757c411fa0d58431ee879944857a1128`，其 §7 由 **TL 回填完整裁定**，本 loop 未改该文件。
+  四项裁定摘录：① `_table_pk` 沿用 `projection.py:93-96` 现口径、**禁改区**；② E2 判据 = 稳定命中 + 不同表格不撞号（同输入相同 pk 是内容寻址正确语义）；③ `table_summary_id` 本 loop 不纳入口径变更（`summary.py` 的 `v2sum|...` 保持不动，主键对齐转 P6）；④ 解释器 v2 = `llmke-v2-toolenv` 3.10.12 / pytest 8.3.5，R-6 基线 13 条。
+- **解释器（每处标注，见 §4 对照表）**：
+  - v2 平台环境（本 loop 主口径）：`/home/szf/data/dev/llmke-v2-toolenv/bin/python`（Python 3.10.12 / pytest 8.3.5）
+  - 图/兼容层（交叉验证）：`/home/szf/data/dev/hipporag-toolenv/bin/python`（Python 3.11.15 / pytest 9.2.0）
+  - **不套用 doc2md 仓的 anaconda3 / doc2md-toolenv 双解释器**（PLAN §一 明令）。
+- **结论**：`DEV_SELF_CHECK_PASS`；baton 交 TL 复核。`QA_PASS` 仍挂起（G-4 三项输入待 Owner），
+  本 loop **未签 QA_PASS、未标 DONE / VERIFIED**。L1~L4 已封存，本 loop 未改其产物。
+
+---
+
+## 1. 范围与开工前基线
+
+**实现范围**（PLAN §一「只改三个平台文件 + 新增测试」的允许范围内）：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py` | `26 3`（numstat） | 唯一有实现改动的文件：`build_index_payloads` additive |
+| `services/rag-alg/index_data_service/rag_projection/projection.py` | **0** | `_table_pk` 属 TL 裁定 1 禁改区；表格通道已提供 `table_id`/`rows`/`cols`/`text`，无需改动 |
+| `services/rag-alg/index_data_service/ingest_pipeline/enrich.py` | **0** | `build_payload` 已产出与线上一致的 38 键字段集、且已有 `now` 参数，无需改动 |
+| `services/rag-alg/index_data_service/tests/test_table_projection.py` | 新增 | 7 条断言（E1~E5 + R-1~R-6），路径已回报 TL |
+| `services/rag-alg/index_data_service/tests/fixtures/p1_l5/online_table_chunk_metadata_keys.json` | 新增 | 线上 `_source.metadata` 38 键与 2 个 pk 真值固化（离线测试不依赖在线服务） |
+
+**开工前基线**（R-0 阶段，`P1-L5-20261108T033556.log` §6）：`INGEST_PROJECTION_MODE` unset → 代码默认
+legacy；六端口 `19531/19995/19200/18094/18082/18083` 全 LISTEN（附 pid）；线上
+`table_chunks_kb_9/_count` = 2；两仓 git 状态 0 本 loop 代码改动。
+
+---
+
+## 2. 反例先行：阶段 A 真实 FAIL（未改实现）
+
+```
+$ cd /home/szf/data/dev/llmke-v2
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_table_projection.py -q
+FAILED ...::test_e1_two_channels_and_metadata_field_set
+FAILED ...::test_r2_unadjudicated_seed_would_fail
+FAILED ...::test_e4_projection_is_deterministic
+3 failed, 4 passed in 0.06s      [解释器：llmke-v2-toolenv 3.10.12 / pytest 8.3.5]
+```
+
+3 条在**断言层** FAIL（非 ImportError / 空转）：
+- E1：`assert summaries` 为空 —— 当前 `build_index_payloads` 只产出 `table_chunks`，缺 `table_summary`（R-1）；
+- R-2：缺 `table_summary_kb_9` 载荷 → FAIL；
+- E4：`assert "now" in inspect.signature(K.build_index_payloads).parameters` → 当前签名无 `now`，载荷时间不可控。
+
+4 条先行 PASS 的是回归哨兵（E2 pk 真值 / E3 fail-closed / E5 legacy / R-6 正文通道），
+恰证明禁改区与既有契约未被改动。
+
+**阶段 A 自愈留痕（如实）**：首次跑为 `4 failed, 3 passed`，其中 E3 的 1 条是**测试自身设计问题**
+（四件套目录无 `artifact.json`，`P.project` 抛 `ARTIFACT_MANIFEST_MISSING` 而非 span 错，
+因 `collect_parts` 拒绝未知顶层文件）。已改为「四件套目录验 `store._check_source_consistency`、
+独立快照目录（带 `artifact.json`）验投影链路」，重跑得到干净的 `3 failed, 4 passed`；
+**未改实现语义、未放宽断言**。
+
+---
+
+## 3. 实现（阶段 B）
+
+`kb_pipeline.build_index_payloads` 三处 additive（完整 diff 见 §7）：
+
+1. `from . import summary`：复用既有 `summary.build_summary_payloads` 契约，**不重新实现**摘要/主键；
+2. 签名新增 `now: Optional[str] = None` 与 `summarizer: Optional[Any] = None`，
+   `now` 透传给 `enrich.build_payload`（不传时行为与改动前一致，正文通道仍用当前时间）；
+3. 循环产出正文 + `table_chunks` 载荷后，收集 `table_payloads`，调用
+   `summary.build_summary_payloads(...)` 产出 `table_summary_<kb>` 载荷并 `payloads.extend(summaries)`。
+
+**刻意不采用其返回的 `updated`**：`build_summary_payloads` 会回填 `table_summary_id` 到表格块
+metadata；线上 `table_chunks_kb_9` 的 `_source.metadata` 为 38 键、**无该键**，E1 要求字段集
+与线上一致（多字段判 FAIL）。主键对齐按 §二 裁定 3 记为已知边界转 P6 切读（见 §9 判断）。
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_table_projection.py -q
+.......                                                                  [100%]
+7 passed in 0.03s
+$ read_lints（kb_pipeline.py / test_table_projection.py）
+totalCount=0
+```
+
+---
+
+## 4. DEV_SELF_CHECK_PASS 验收命令与真实输出（每处标注解释器）
+
+### 4.1 解释器与用途对照表（CHECKPOINT §七 / PLAN §一）
+
+| 命令 | 解释器绝对路径 | 版本 | 用途 |
+|---|---|---|---|
+| §2 阶段 A 单模块 pytest | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 / pytest 8.3.5 | 反例先 FAIL |
+| §3 阶段 B 单模块 pytest | 同上 | 3.10.12 / pytest 8.3.5 | 实现转 PASS |
+| §4.2 新测试 / 既有 13 项 / 合跑 | 同上 | 3.10.12 / pytest 8.3.5 | **平台 v2 主判据** |
+| §4.2 交叉验证 | `/home/szf/data/dev/hipporag-toolenv/bin/python` | 3.11.15 / pytest 9.2.0 | 图/兼容层环境（R-0 双环境口径） |
+| §4.3 `hashlib` pk 真值 | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 | 纯本地计算，禁改区复核 |
+| §6 两类载荷现场输出 | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 | 离线产物核对 |
+| `curl` / `ss` / `git` / `md5sum` / `printenv` | 与解释器无关 | — | 只读边界与越界自查 |
+
+### 4.2 pytest 主判据
+
+```
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python --version
+Python 3.10.12
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest --version
+pytest 8.3.5
+
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_table_projection.py -q
+.......   [100%]  7 passed in 0.02s                  # E1~E5 + R-1~R-6
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest tests/test_rag_projection.py -q
+.............   [100%]  13 passed in 0.04s          # R-6 正文通道既有 13 条全 PASS
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_table_projection.py tests/test_rag_projection.py -q
+....................   [100%]  20 passed in 0.06s   # 合跑无回归
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_table_projection.py tests/test_rag_projection.py -q
+....................   [100%]  20 passed in 0.08s   # 图/兼容层环境交叉验证
+```
+
+### 4.3 静态边界 / 禁改区 / 线上只读对照
+
+```
+$ printenv INGEST_PROJECTION_MODE
+INGEST_PROJECTION_MODE unset (code default=legacy)
+$ grep -rn 'INGEST_PROJECTION_MODE' services/rag-alg/index_data_service --include=*.py
+projection.py:39:MODE_ENV = "INGEST_PROJECTION_MODE"
+tests/test_table_projection.py:6 / :252 / :254（本 loop 新增测试，仅断言，不切模式）
+ingest_pipeline/pipeline.py:11（注释）
+
+$ curl -sS --max-time 8 'http://127.0.0.1:19200/table_chunks_kb_9/_count'
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}   # 与 R-0 一致，未写线上
+
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python -c "... sha1(seed)[:15] ..."
+table|kb_9|329|0 -> 1137902847478273881    # 线上真值，禁改区未动
+table|kb_9|333|0 -> 885155839145947657
+```
+
+---
+
+## 5. 断言 / 反例 → PASS 证据映射（PLAN §三）
+
+| 编号 | 断言 / 反例 | PASS 证据 |
+|---|---|---|
+| E1 / R-1 | 两类载荷齐备；`table_chunks` 字段集与线上 38 键一致（缺/多字段 FAIL）；`table_summary` 按 `summary.py` 契约 | `test_e1_two_channels_and_metadata_field_set`：`set(meta) == ONLINE_KEYS(38)`、11 个真值字段齐全、`channel/table_id/parsed_text_ref/n_rows/n_cols` 对齐、`table_summary` 载荷 `type/channel/pk/[extractive]`、无 `table_summary_id` |
+| E2 / R-2 | `_table_pk` 稳定命中线上真值、不同表格不撞号、无重复行、禁改区 | `test_e2_pk_stable_hits_online_truth_and_no_collision`（2 个线上 pk 精确匹配、同输入稳定、不同 ordinal/file_id 不撞号、静态断言 seed 未改、payload pk 全不重复）；`test_r2_unadjudicated_seed_would_fail` |
+| E3 / R-3 | span 不对齐 fail-closed 抛错而非 PARTIAL | `test_e3_span_mismatch_fail_closed_not_partial`：`store._check_source_consistency` 抛 `IR_SPAN_MISMATCH`、`P.project` 抛 `ARTIFACT_SPAN_MISMATCH`，均非 PARTIAL |
+| E4 / R-4 | 投影确定性，载荷逐字节相同、seq/pk 稳定、正文通道不变 | `test_e4_projection_is_deterministic`：`now` 透传 + 两次 `json.dumps(sort_keys=True)` 全等、pk/chunk_index 序列一致、正文载荷形状不变；既有 13 项全 PASS |
+| E5 / R-5 | `INGEST_PROJECTION_MODE` 仍 legacy，snapshot 未被启用 | `test_e5_mode_still_legacy_no_snapshot_enabled`：`mode_from_env({}) == legacy`、env unset、`mode=None` 时 `P.project` 返回 `NOT_APPLICABLE`；§4.3 静态复核 |
+| R-6 | 正文通道回归 | `tests/test_rag_projection.py` 既有 **13 条** 全 PASS（§4.2），`test_r6_text_channel_and_summary_contract_regression` 断言正文载荷形状 + `summary.py` 禁改区静态检查 |
+
+阶段 A `3 failed, 4 passed` → 阶段 B `7 passed`（全过程见 §2/§3）。
+
+---
+
+## 6. 两类载荷现场输出（离线 fixture）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service:.../tests /home/szf/data/dev/llmke-v2-toolenv/bin/python -c "... _payloads(now=FIXED_NOW) ..."
+payload count = 3
+  kb_9 | pk= 669021587971138239 | metadata keys= 35           # 正文通道（38-3：无 table_id/n_rows/n_cols）
+  table_chunks_kb_9 | pk= 885155839145947657 | metadata keys= 38
+    table_id= t001 channel= table n_rows= 2 n_cols= 2 parsed_text_ref= table
+    field_set_matches_online_38 = True | table_summary_id present = False
+  table_summary_kb_9 | pk= 1067425300739190674 | metadata keys= 11
+    type= table_summary channel= table_summary page_content_prefix= '[extractive] 表格 t001：指标 | 指标；日均存款 | 100'
+```
+
+`table_chunks` 的 pk `885155839145947657` 与线上 2 条真值之一精确一致；
+`table_summary` 的 pk 由既有 `summary.table_summary_id("kb_9","333","t001")`
+（`v2sum|kb_9|333|t001` → sha1[:15]）产出，未改口径。
+
+---
+
+## 7. 两仓 `git diff` 全文与越界自查
+
+```
+$ git diff --numstat -- services/rag-alg/index_data_service/rag_projection/projection.py \
+    services/rag-alg/index_data_service/ingest_pipeline/enrich.py \
+    services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+26	3	services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+```
+
+三文件 diff 全文（`projection.py` / `enrich.py` 为空，故只显示 `kb_pipeline.py`）：
+
+```diff
+diff --git a/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py b/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+index b53cb0d6..070ef112 100644
+--- a/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
++++ b/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+@@ -30,6 +30,7 @@ from parse_artifact import store
+ from rag_projection import projection as P
+ 
+ from . import enrich
++from . import summary
+ 
+ GRAPH_API_DEFAULT = "http://127.0.0.1:18094"
+ DEFAULT_CHUNK_CHARS = 800
+@@ -91,13 +92,22 @@ def build_graph_docs(chunks: List[Dict[str, Any]], *, file_id: Any,
+ def build_index_payloads(chunks: List[Dict[str, Any]], *, index_name: str, file_id: Any,
+                          file_name: Optional[str] = None, file_path: Optional[str] = None,
+                          file_size: Optional[int] = None,
+-                         source: Optional[str] = None) -> List[Dict[str, Any]]:
+-    """投影块 → 索引层可直接落库的载荷（覆盖生产集合字段，形状由 enrich 统一）。"""
++                         source: Optional[str] = None,
++                         now: Optional[str] = None,
++                         summarizer: Optional[Any] = None) -> List[Dict[str, Any]]:
++    """投影块 → 索引层可直接落库的载荷（覆盖生产集合字段，形状由 enrich 统一）。
++
++    P1-L5 additive：
++    - ``now`` 透传给 ``enrich.build_payload``，使同一 IR 两次投影的载荷逐字节相同
++      （不传时行为与改动前一致：正文通道仍用当前时间）；
++    - 产出 ``table_summary_<kb>`` 载荷，复用 ``summary.build_summary_payloads``
++      既有契约（不重新实现摘要 / 主键）。正文通道行为不变。
++    """
+     payloads: List[Dict[str, Any]] = []
+     for chunk in chunks:
+         meta, fill = enrich.build_payload(chunk, index_name=index_name, file_id=file_id,
+                                           file_name=file_name, file_path=file_path,
+-                                          file_size=file_size)
++                                          file_size=file_size, now=now)
+         # `source` 在本栈里是"文件身份键"，不是解析产物路径（见 ingest._chunk_payload 注释）
+         meta["pk"] = chunk["pk"]
+         meta["source"] = source or file_path or ""
+@@ -112,6 +122,19 @@ def build_index_payloads(chunks: List[Dict[str, Any]], *, index_name: str, file_
+             "pk": chunk["pk"],
+             "_fill": fill,
+         })
++    # P1-L5 additive：补齐表格总结通道（E1 / R-1）。复用 summary.py 既有
++    # build_summary_payloads 契约产出 table_summary_<kb> 载荷，不重新实现摘要/主键。
++    # 刻意不采用其返回的 updated（会给表格块回填 table_summary_id）：线上
++    # table_chunks_kb_9 的 _source.metadata 为 38 键、无该键，E1 要求字段集与线上
++    # 一致（多字段判 FAIL）。主键对齐按 §二 裁定 3 记为已知边界转 P6 切读。
++    table_payloads = [p for p in payloads
++                      if p["index"] == f"table_chunks_{index_name}"]
++    if table_payloads:
++        if summarizer is None:
++            summarizer = summary.extractive_summarizer
++        summaries, _updated = summary.build_summary_payloads(
++            table_payloads, index_name=index_name, summarizer=summarizer)
++        payloads.extend(summaries)
+     return payloads
+ 
+ 
+```
+
+两仓 `git status --short`（loop-relevant）：
+
+```
+# llmke-v2
+ M docs/ui-graph-workbench/TASKS.yaml                (开工前既存 M，非本 loop)
+ M docs/v2-tasks/TASKS.yaml                          (开工前既存 M，非本 loop)
+ M scripts/v2_ingest_doc2md.py                       (L3 唯一授权，本 loop 未动)
+ M services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py   (本 loop 唯一实现改动)
+?? docs/v2-tasks/evidence/P1-L5-20261108T033556.log  (R-0 + TL 裁定，未改)
+?? docs/v2-tasks/evidence/P1-L5-20261108T034446.log  (本证据)
+?? services/rag-alg/index_data_service/tests/        (本 loop 新增测试 + fixtures)
+
+# doc2md（L1~L4 封存态，与 TL 03:31 复核一致，无新增改动）
+ M backend/app/cli/main.py / parsed_paths.py / document_ir_builder.py(既存 M) /
+   markitdown_parser.py / mineru_pdf_parser.py
+?? backend/app/services/kb_diff.py / parse_queue.py
+?? backend/tests/fixtures/{idempotency_corpus,kb_diff_corpus,pdf_fourth_artifact}/
+?? backend/tests/test_{idempotency_key,kb_diff,parse_queue,pdf_fourth_artifact}.py
+```
+
+> **计数说明（如实留痕）**：现场 `git -C doc2md status --short | wc -l` = **14**（5 M + 9 ??），
+> 而 L4 复核记录写「13 项（5 M + 8 ??）」。逐项比对**文件清单完全一致**，且
+> `find backend -type f -newermt '2026-11-08 03:29:00' -not -path '*/__pycache__/*'` 为**空**
+> （L4 封存后 doc2md 无任何文件变动），故属历史计数误差（少算一个 `??` fixture 目录），
+> **非本 loop 新增越界**。`document_ir_builder.py` 既存 M 保持原样。
+
+交付物 md5：
+
+```
+fcafaa117df037712b654a7f67f9d013  services/rag-alg/index_data_service/tests/test_table_projection.py
+aa67cf3c28e467b94f2d71354be2bd32  services/rag-alg/index_data_service/tests/fixtures/p1_l5/online_table_chunk_metadata_keys.json
+addcbb15503cc750d42517a58cb92e02  services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+757c411fa0d58431ee879944857a1128  docs/v2-tasks/evidence/P1-L5-20261108T033556.log (312 行，TL §7 回填后，本 loop 未改)
+```
+
+---
+
+## 8. 服务端口开工前后对比（PLAN §四）
+
+| 端口 | 开工前（R-0 §6） | 开工后（本阶段） | 结论 |
+|---|---|---|---|
+| 19531 | LISTEN python pid=435286 fd=12 | LISTEN python pid=435286 fd=12 | 一致 |
+| 19995 | LISTEN python pid=1358208/23647 fd=19 | LISTEN python pid=1358208/23647 fd=19 | 一致 |
+| 19200 | LISTEN（ES 只读目标） | LISTEN（ES 只读目标） | 一致 |
+| 18094 | LISTEN python pid=3202203/3189651 fd=12 | LISTEN python pid=3202203/3189651 fd=12 | 一致 |
+| 18082 | LISTEN java pid=1341032 fd=117 | LISTEN java pid=1341032 fd=117 | 一致 |
+| 18083 | LISTEN java pid=450255 fd=94 | LISTEN java pid=450255 fd=94 | 一致 |
+
+**未启停任何服务**（pid 与 fd 逐项一致）；线上 ES 仅只读 `_count`/`_search`，
+`table_chunks_kb_9/_count` 前后均为 `2`，无写入。
+
+---
+
+## 9. 判断标注（供 TL / 独立 QA 复核）
+
+1. **【判断】不采用 `summary.build_summary_payloads` 的 `updated`（不回填 `table_summary_id`）**：
+   线上 ES `table_chunks_kb_9` 的 38 键无该键，E1「多字段判 FAIL」要求字段集一致；
+   `summary.py` docstring 的回填针对 **Milvus `_table_chunks_*`**，与 ES 载荷不是同一集合。
+   `table_summary` 载荷对象仍按 `summary.py` 既有契约（形状/主键算法）产出，
+   只是主键对齐与回填按 §二 裁定 3 记为已知边界转 P6 切读，本 loop 不引入隐式口径变更。
+2. **【判断】`now` 透传而非改 `enrich._now()` 默认值**：保持不传 `now` 时正文通道行为
+   与改动前一致（E4「正文通道输出与改动前一致」）；确定性由调用方显式传 `now` 保证。
+   `consume` / `consume_for_kb` 未传 `now`，故在线链路行为不变。
+3. **【判断】三文件中仅 `kb_pipeline.py` 有改动**：`projection.py` 的 `_table_pk` 是禁改区、
+   表格通道已提供必要字段；`enrich.py` 已产出与线上一致的 38 键。两者 diff 为空，
+   属「允许改」范围内选择最小 additive 面，非遗漏；请 TL 复核该取向。
+4. **【判断】E3 用两个目录分别验证**：`collect_parts` 拒绝未知顶层文件（`artifact.json`），
+   故四件套目录验 `store._check_source_consistency`、独立快照目录验 `P.project` 的
+   fail-closed；PLAN 原文「IR cells[] 与 span 不对齐」按 `blocks[].content_ref.text_span`
+   落实（store 校验的是 block span，不是 cells）。
+5. **【判断】E1 字段真值固化为 fixture**：线上 38 键与 2 个 pk 来自 R-0 只读 `_search`
+   （现场输出见 `P1-L5-20261108T033556.log` §4），固化进
+   `fixtures/p1_l5/online_table_chunk_metadata_keys.json`，使离线测试不依赖在线服务。
+6. **【事实】未切模式 / 未放量**：`INGEST_PROJECTION_MODE` unset → legacy；
+   `P.project(mode=None)` 返回 `NOT_APPLICABLE`；未写线上 ES/Milvus/DB/18094；
+   snapshot 切读仍是后续切片的硬前置，本 loop **不宣称 snapshot 可切**。
+
+---
+
+## 10. 结论与 Baton
+
+**DEV_SELF_CHECK_PASS**：阶段 A `3 failed, 4 passed` → 阶段 B `7 passed` 证明断言非空转；
+平台 v2 解释器（`llmke-v2-toolenv` 3.10.12 / pytest 8.3.5）下新测试 7 passed、
+既有 13 项（R-6）全 PASS、合跑 20 passed，图/兼容层环境亦 20 passed；
+E1 两类载荷与线上 38 键字段集一致、`table_summary` 按既有契约产出；
+E2 `_table_pk` 禁改区未动、pk 精确命中线上 2 条真值且不撞号；
+E3 fail-closed 抛明确错误而非 PARTIAL；E4 `now` 透传后载荷逐字节相同；
+E5 模式仍 legacy、六服务端口前后 pid 一致、线上 `_count` 前后均为 2；
+read_lints 0；两仓 git 无越界（doc2md 封存态未动、平台仅 `kb_pipeline.py` 一处 additive）。
+
+baton 交 **TL 复核**（现场输出 + 两仓无越界 + 反例 FAIL→PASS 可复现 + 未切模式/未启停服务）。
+按 PLAN §五，内部推进条件满足后由 TL 决定是否派工 P2。
+**`QA_PASS` 仍挂起**（G-4 三项输入与签署载体待 Owner），本 loop **未签 QA_PASS、
+未标 DONE / VERIFIED**；`TASKS.yaml` 的 `T-D2MD-05.evidence` 待 QA_PASS 后由 TL 填写。

@@ -1,0 +1,6 @@
+== POST /v2/graph/build ==
+{"schema":"llmke.graph-api.v1","status":"BUILT","snapshot":"/tmp/v2-api-evidence/snapshot-20261102213303-583749-g0","generation":0,"documents":2,"chunks":2,"sources":2}
+== POST /v2/graph/query ==
+
+-- 说明：构建后首次查询需加载引擎，首次调用空响应；下面是同一快照的实测查询 --
+{"schema":"llmke.graph-api.v1","query":"单笔授信超过五亿元由谁审议通过","executed_route":"GRAPH","reason":"GRAPH_CALLED","trace":{"graph_calls":1,"seed_hits":[],"fact_candidates":3,"rerank_fallback":true},"hit_count":2,"docs":[{"rank":1,"text":"授信台账\n\n华东精密制造有限公司 信用评级 AA 授信额度 30000 万元。","idx":"chunk-8ece41cdc463f91f008da8c07fec0124","sources":[{"file_id":"f-404","locator":"table:r2"}]},{"rank":2,"text":"授信管理办法\n\n单笔授信超过五亿元须经董事会审议通过，并报监事会备案。","idx":"chunk-3b56c83f2012a8cb704fe624accc93c0","sources":[{"file_id":"f-403","locator":"p1"}]}],"citations":[{"file_id":"f-404","locator":"table:r2"},{"file_id":"f-403","locator":"p1"}],"sources_available":true}

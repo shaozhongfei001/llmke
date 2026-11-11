@@ -1,0 +1,111 @@
+# P3-L9 · T-D2MD-09 · TL 独立复核证据
+
+- 生成时间：2026-11-08T13:1x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P3-L9-20261108T130627.log`（324 行 / `dfb664ea7870a0afaabc18c15d0f6b19`）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立 → 派工 P3-L10**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹核对（全部吻合）
+
+```
+delta_build.py                bf50972155069ba0cf5dd274f5501fa5   323 行（新增）
+api.py                        842a300c5c8ce7ac1628f3dddc2fab66   735 → 800 行
+index_writer.py               d9853aded53d0facbd86ae0bc03860f9
+tests/test_delta_build_l9.py  1d5349ea07c674141bd01279f563e728   15 条
+tests/test_graph_delta_route_l9.py  965ce2d25913271b7cbe8d53956ae555  11 条
+evidence                      dfb664ea7870a0afaabc18c15d0f6b19   324 行
+```
+
+## 2. 独立复跑
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service pytest \
+    services/rag-alg/index_data_service/tests/ tests/test_projection_read.py \
+    tests/test_runtime_switches.py tests/test_rag_projection.py -q
+77 passed, 1 skipped in 0.52s
+```
+
+（成员报 v2 `14 passed, 2 skipped` + hipporag `26 passed`；TL 实跑含 L8 基线的合集 77 passed，零失败。skip 项为 v2 env 缺 fastapi/pydantic 的 J1/D-1 等价性，属既有环境限制。）
+
+## 3. 三处过程偏差的裁定
+
+### 3.1 先实现后测试（流程偏差）—— **接受，但记录**
+
+成员如实报备：本轮先写实现、后写测试，不符合 L1~L8 的「先 FAIL 再 PASS」。
+
+**裁定：接受。** 判别力由三件事共同证明，强于形式流程：
+1. **变异 5/5 全捕获**且每组恢复后 md5 逐位复原 —— M1 `auto` 跟随 canary full（J8）、M2 不重算 sources（J3）、M3 无基准自动降级（J4a）、M4 `or "kb"`（J5）、M5 freshness 取反（J2）；
+2. **首跑即红 2 条**，其中 1 条是**实现真缺陷**（`_finalize_snapshot` 用请求的 live 写 sources，未剔除已撤权文件），说明测试不是事后盖章；
+3. 另一条红是测试自身 grep 命中 docstring，改用 `ast.parse` 只看真实 import 节点 —— 修正的是测试工具而非断言强度。
+
+**约束**：该偏差记入本 log；**L10 起恢复「先 FAIL 再 PASS」**，若再次先实现后测试，须在回报第一段显式声明并给出等效变异证据。
+
+### 3.2 `_finalize_snapshot` 放在 `delta_build.py` 而非 PLAN 写的 `api.py` —— **接受并认可**
+
+理由成立且是正确判断：`api.py` 顶层 `import fastapi`，把 `_finalize_snapshot` 放进去会让 `delta_build` 反向依赖 api，直接违反 D-3「`delta_build.py` 禁 import fastapi/pydantic」。`api.py` 只保留「校验 + 调 runner + 映射状态码 + 重置缓存」，职责更干净。
+
+**要求**：PLAN 修订留痕（`P3-L9-PLAN.md` 已在本 log 之后同步）。
+
+### 3.3 J3 对 `fence.json` 的 sha 口径 —— **接受**
+
+成员说明：L9 不推进 `fence.generation`，无撤权时 fence 内容语义相同，故用「基准 fixture `indent=2` vs `fence.save` compact」让 sha 必不同，证明文件确被重写，同时断言语义 `== {"generation":0,"revoked":{}}`。
+
+**TL 核实：J3 不是只靠 sha 取巧**，`test_j3_four_files_rewritten_from_current_input`（`:220-238`）有强内容断言：
+
+```
+assert "idx-old" not in sources                  # copytree 带进来的旧 sentinel 不得留下
+assert "DELETED-FILE" not in json.dumps(sources) # 已删文件不得复活
+assert {ref["file_id"] ...} == {"A", "B"}        # sources 只含 live 集合
+```
+
+另有 `test_j3_community_receives_live_file_ids` 验证 `global_report.write` 收到的是 live 集合。**裁定**：J3 成立；但结论表述须准确 ——「四文件都被重写（sha 不同）；sources/community/kb 有内容级重算断言；fence 因不推进 generation 只做语义等价 + 重写证明」，**不得**概括为「四文件 sha 全不同 ⟹ 都重算了」。
+
+## 4. `surviving` 过滤（首跑发现的实现真缺陷）
+
+```139:145:services/rag-alg/index_data_service/graph_engine_adapter/delta_build.py
+surviving = [d for d in live if not fence.is_revoked(str(d.get("file_id", "")))]
+fence.save(os.path.join(target, FENCE_FILE))
+sources = _write_sources(target, surviving, engine)
+_write_kb_json(target, kb)
+community = global_report.write(target, [str(d["file_id"]) for d in surviving])
+```
+
+**TL 认可**：`rebuild_*` 已从快照剔除撤权文件，若按请求里的 `live` 写 `sources.json`，查询侧拿 idx 回查必然落空。这是真实引擎下会炸的缺陷，成员自己首跑打出来并改实现、不动测试，处置正确。
+
+## 5. D-11 落地复核（本 loop 最重要项）
+
+```
+D.default->delta：_resolve_mode 中 mode 与 default 来源均为 "default" → DELTA，canary_source="default->delta"
+J8 正向：assert canary.load(None).mode_for(KB) == "full"   ← 把「默认是 full」这一事实也钉住
+         assert full_calls == []、effective_mode == "DELTA"
+J8 反向：LLMKE_CANARY_MODE=full + SCOPE=kb_9 → effective_mode="FULL"、full_calls==1
+M1 变异：auto 改回跟随 canary full → J8 1 failed
+```
+
+**TL 认可**：把「canary 默认确实是 full」写成断言是**自保护设计** —— 将来若有人改 `DEFAULT_MODE`，J8 会先红而不是悄悄失效。这比只断 `full_calls==[]` 强。
+
+## 6. 红线
+
+```
+18094 pid 3189651 / 3202203 启动于 2026-11-07 01:20:04 / 01:21:34（已运行 35.8h）→ 未重启 ✅
+INGEST_PROJECTION_MODE unset ✅
+v2cand* 索引 0 ✅
+kb_9=44 ✅
+八端口 pid 与 L8 收口时一致 ✅
+doc2md 仓仍 14 项封存态 ✅
+```
+
+## 7. 成员提醒的待办（已转入任务）
+
+`capabilities.incremental_update` 仍只声明引擎能力、**未声明 HTTP 端点** → 属 `T-D2MD-11`，已写入其 `next_action`，防止 L11 漏项导致能力登记与实际不符。
+
+## 8. 一处 PLAN 偏离的后续影响
+
+`delta_build.py` 承担 `_finalize_snapshot` 后，P4（`T-D2MD-12/13`）接线时应复用 `delta_build` 而非在 `api.py` 内重写；L10 改 `api.py` 的 `state` 结构时**不要**把 `_finalize_snapshot` 挪回 `api.py`。
+
+## 9. TL 红线自查
+
+只写 `docs/v2-tasks/` 下证据与计划 + `TASKS.yaml`；未改实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED。

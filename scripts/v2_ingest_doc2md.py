@@ -62,34 +62,48 @@ def _parsed_dir(parsed_root: Path, sha: str) -> Path:
     return parsed_root / "by_hash" / sha[:2] / sha[2:4] / sha
 
 
-def _reset_vault_state(config: Path, sha: str, *, doc2md_python: str = DEFAULT_DOC2MD_PY,
-                       doc2md_cwd: str = DEFAULT_DOC2MD_CWD) -> None:
-    """把 doc2md 库里该内容的 vault 状态重置为 NOT_COPIED。
+def _needs_reparse(doc2md_dir: Path, sha: str, *, is_pdf: bool) -> bool:
+    """P1-L3：仅当 parser_fingerprint / read_set_digest（或源 sha / status）变化才重解析。
 
-    为什么要重置：库里 status=COPIED 但实际 vault 目录可能已被清理（换机器 / 清 /tmp），
-    此时 copy-to-vault 会直接跳过，parse 就永远拿不到原件。重置后重跑才是真实复制。
-
-    为什么要起子进程：调用方可能是 18096（hipporag 环境，没有 sqlalchemy / doc2md 依赖），
-    用 doc2md 自己的解释器执行才不会因缺依赖而静默跳过。
+    复用 doc2md 侧 app.core.parsed_paths 的幂等键口径，平台侧不另造一套。
+    旧产物缺 additive 字段、口径不可得、产物字节漂移 → 一律保守重解析，
+    不静默跳过（对齐 02-CONTRACTS.md 禁静默降级）。
     """
-    code = (
-        "import sys, json\n"
-        "from pathlib import Path\n"
-        "from app.core.config import load_config\n"
-        "from sqlalchemy import create_engine, text\n"
-        f"cfg = load_config(Path({str(config)!r}))\n"
-        "m = cfg.mysql\n"
-        "e = create_engine(f'mysql+pymysql://{m.username}:{m.password}@{m.host}:{m.port}/{m.database}?charset={m.charset}')\n"
-        "with e.begin() as c:\n"
-        f"    c.execute(text(\"update kb_file_content set vault_status='NOT_COPIED', vault_path=NULL, "
-        f"parse_status=NULL where sha256=:s\"), {{'s': {sha!r}}})\n"
-        "print('reset-ok')\n"
-    )
-    proc = subprocess.run([doc2md_python, "-c", code], cwd=doc2md_cwd,
-                          capture_output=True, text=True, timeout=120)
-    if proc.returncode != 0:
-        tail = ((proc.stderr or "") + (proc.stdout or "")).strip().splitlines()[-4:]
-        raise RuntimeError("重置 vault 状态失败: " + " | ".join(tail))
+    manifest_path = doc2md_dir / "parse_manifest.json"
+    if not manifest_path.is_file():
+        return True
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return True
+    if manifest.get("status") != "SUCCESS" or manifest.get("sha256") != sha:
+        return True
+    if "parser_fingerprint" not in manifest or "read_set_digest" not in manifest:
+        return True  # 旧产物 → 重解析补齐 additive 字段
+    try:
+        sys.path.insert(0, str(Path(DEFAULT_DOC2MD_CWD)))
+        from app.core.parsed_paths import (  # noqa: E402
+            compute_parser_fingerprint, compute_read_set_digest,
+        )
+        from app.core.parser_routing import ROUTING_RULES_VERSION  # noqa: E402
+        if is_pdf:
+            from app.services.mineru_pdf_parser import (  # noqa: E402
+                PARSER_ADAPTER_VERSION, PARSER_NAME,
+            )
+        else:
+            from app.adapters.markitdown_adapter import (  # noqa: E402
+                PARSER_ADAPTER_VERSION, PARSER_NAME,
+            )
+        fp = compute_parser_fingerprint(
+            PARSER_NAME, PARSER_ADAPTER_VERSION, ROUTING_RULES_VERSION
+        )
+    except Exception:  # noqa: BLE001 - 口径不可得时保守重解析，不静默跳过
+        return True
+    if manifest.get("parser_fingerprint") != fp:
+        return True
+    if manifest.get("read_set_digest") != compute_read_set_digest(doc2md_dir):
+        return True
+    return False
 
 
 def ingest_file(file_path: Path, kb: str, file_id, *, config: Path,
@@ -110,34 +124,42 @@ def ingest_file(file_path: Path, kb: str, file_id, *, config: Path,
     cli = [doc2md_python, "-m", "app.cli.main"]
     cfg = ["--config", str(config)]
 
+    # P1-L3 幂等门：仅当 parser_fingerprint / read_set_digest 变化才重解析
+    # （移除平台侧主动破坏幂等的两处后，doc2md 的 _should_skip_idempotent 才生效）
+    is_pdf = file_path.suffix.lower() == ".pdf"
+    sys.path.insert(0, str(Path(DEFAULT_DOC2MD_CWD)))
+    from app.core.config import load_config  # noqa: E402
+
+    parsed_root = Path(load_config(config).storage.parsed_root)
+    doc2md_dir = _parsed_dir(parsed_root, sha)
+    needs_reparse = _needs_reparse(doc2md_dir, sha, is_pdf=is_pdf)
+
     # 1) 放进独立目录再 scan：scan 是按目录走的，不能把整个目录都登记进来
     src_dir = Path(tempfile.mkdtemp(prefix="v2-ingest-src-"))
     try:
         shutil.copyfile(file_path, src_dir / file_path.name)
-        _run(cli + ["scan", "--path", str(src_dir), "--source-root", kb] + cfg,
-             cwd=doc2md_cwd)
-
-        # 2) 库里状态可能是"COPIED 但原件已丢"，重置后才会真正复制
-        try:
-            _reset_vault_state(config, sha, doc2md_python=doc2md_python, doc2md_cwd=doc2md_cwd)
-        except Exception as exc:  # noqa: BLE001 - 重置失败不阻断，copy 会给出真实原因
-            print(f"[warn] 重置 vault 状态失败（继续）：{exc}", file=sys.stderr)
-
-        _run(cli + ["copy-to-vault", "--sha256", sha] + cfg, cwd=doc2md_cwd)
-        _run(cli + ["route-parsers", "--sha256", sha] + cfg, cwd=doc2md_cwd)
-
-        # PDF 走 MinerU（magic-pdf），其余走 MarkItDown
-        # 解析预算可由调用方指定（大文件如 48MB 书籍 600s 必然不够）；
-        # magic-pdf 自身的 --timeout 与外层 subprocess 超时都要跟着放大，
-        # 外层多留 300s 给 CLI 收尾/写产物，避免"内层跑完、外层先杀"。
-        is_pdf = file_path.suffix.lower() == ".pdf"
-        if is_pdf:
-            parse_budget = max(int(timeout), 600)
-            _run(cli + ["parse-mineru-pdf", "--sha256", sha, "--force",
-                        "--timeout", str(parse_budget)] + cfg, cwd=doc2md_cwd,
-                 timeout=parse_budget + 300)
+        if not needs_reparse:
+            print(
+                "[skip] parser_fingerprint/read_set_digest 未变化，复用既有四件套",
+                file=sys.stderr,
+            )
         else:
-            _run(cli + ["parse-markitdown", "--sha256", sha] + cfg, cwd=doc2md_cwd)
+            _run(cli + ["scan", "--path", str(src_dir), "--source-root", kb] + cfg,
+                 cwd=doc2md_cwd)
+            _run(cli + ["copy-to-vault", "--sha256", sha] + cfg, cwd=doc2md_cwd)
+            _run(cli + ["route-parsers", "--sha256", sha] + cfg, cwd=doc2md_cwd)
+
+            # PDF 走 MinerU（magic-pdf），其余走 MarkItDown
+            # 解析预算可由调用方指定（大文件如 48MB 书籍 600s 必然不够）；
+            # magic-pdf 自身的 --timeout 与外层 subprocess 超时都要跟着放大，
+            # 外层多留 300s 给 CLI 收尾/写产物，避免"内层跑完、外层先杀"。
+            if is_pdf:
+                parse_budget = max(int(timeout), 600)
+                _run(cli + ["parse-mineru-pdf", "--sha256", sha,
+                            "--timeout", str(parse_budget)] + cfg, cwd=doc2md_cwd,
+                     timeout=parse_budget + 300)
+            else:
+                _run(cli + ["parse-markitdown", "--sha256", sha] + cfg, cwd=doc2md_cwd)
     finally:
         shutil.rmtree(src_dir, ignore_errors=True)
 

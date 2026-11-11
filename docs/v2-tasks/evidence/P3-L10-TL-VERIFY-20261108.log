@@ -1,0 +1,134 @@
+# P3-L10 · T-D2MD-10 · TL 独立复核证据
+
+- 生成时间：2026-11-08T13:2x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P3-L10-20261108T131830.log`（790 行 / `9a186b8abce9684fb9d59f1b81a52354`）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立 → 派工 P3-L11**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹（全部吻合）
+
+```
+api.py                   4bf0b21fe082b737722c5a074e8cc4ec   800 → 823
+rebuild.py               782c8be31a4b2528da6d7f1d09f8775f   289 → 346
+fence.py                 cbb9151f3691d9ffe09f8c3d856c2a2f   **未改**（= R-0 记录值）
+tests/test_fencing_l10.py          d3eb79eea70eb4141fc4ea75f65b15c2   11 条
+tests/test_graph_state_l10.py      536c964363bb281a5ca856f6ce9a2848   6 条
+evidence                 9a186b8abce9684fb9d59f1b81a52354   790 行
+```
+
+## 2. 独立复跑（TL 现场）
+
+```
+v2  rebuild 层 test_fencing_l10.py    11 passed ×2（连跑无偶发）
+hipporag api 层 test_graph_state_l10.py  6 passed
+L9 回归合集（含 L9 全部）                88 passed, 1 skipped   ← L9 时 77，+11 正是 L10 新增
+```
+
+## 3. `or 0` 地雷：已按裁定同一提交落地
+
+```python
+raw = payload.get("fencing")
+if raw is None:
+    effective = max(current_fencing, int(floor or 0)) + 1
+else:
+    effective = int(raw)
+    if current_fencing > effective:
+        raise StaleFencingError(...)
+final = {**payload, "fencing": effective}
+_write_pointer(root, final)
+return final
+```
+
+TL 核验四点全部成立：**显式判 `None`、无 `or 0`、自增在 `flock` 内、返回 `final` 供 `_promote` 当响应**。守门用例 `test_k2_first_build_with_none_fencing_succeeds_and_is_positive` 与实现同一次改动落地；变异 M1（恢复 `or 0`）→ 2 failed。
+
+成员另外用独立探针复现了地雷原形（`首次 fencing=None → 0`、`第二次仍 0`、`cur=1 + None → StaleFencingError`），比口头确认更有价值。
+
+## 4. 成员实现中发现的**第二个真缺陷**（TL 认可）
+
+Q4 下 TL 只核实了「`target` 含纳秒尾巴、天然唯一，无文件级竞态」，**漏了 `keep_last` 清理会删掉另一个写者的在建目录**：
+
+```
+写者 A 建好 target_A、尚未 promote（指针还指旧目录）
+写者 B promote 后执行 keep_last 清理 → target_A 被当旧目录删掉
+写者 A promote 成功 → 指针指向**已不存在的目录**（建图成功但图打不开）
+```
+
+修复：建目录即写 `.building` 标记；清理时跳过 ①指针当前指向目录（`live_dirs`）②带 `.building` 的目录。
+
+TL 核验标记时机正确：
+```
+rebuild.py:140   _mark_building(target)      ← makedirs 之后立即标记
+rebuild.py:232   _unmark_building(target)    ← promote 成功、写指针前取消
+rebuild.py:233   live_dirs = {target,...}    ← 保护当前指针
+rebuild.py:240   if path in live_dirs: continue
+rebuild.py:242   if exists(path/.building): continue   # 对方在建，删它等于让指针悬空
+rebuild.py:278   _mark_building(target)      ← rebuild_delta 同样标记
+```
+
+并补了**确定性用例** `test_k3_cleanup_never_deletes_building_or_live_dir`（不靠并发撞运气），修复后连跑 15 次全绿。
+
+## 5. 五项裁定落地核验
+
+| # | 裁定 | 落地 |
+|---|---|---|
+| Q1 | 锁内自增 + 返回 final + 禁 `or 0` | ✅ 见 §3 |
+| Q2 | `_default_build` 改 `fencing=None` | ✅ `api.py:267`，配守门用例 |
+| Q3 | `fence.py` 不改 | ✅ md5 未变；用例断言 `FenceState` 字段集仍为 `{generation, revoked}` |
+| Q4 | 不加长锁 | ✅ per-kb 锁天然成立；「同 kb 并发浪费一次建图」写入 evidence 为已知代价 |
+| Q5 | hipporag 真跑绿、v2 skip 单列 | ✅ v2 11 条真跑、hipporag 6 条真跑；v2 的 3 条 skip 单列未计入通过 |
+
+追加两条也落地：`rebuild_delta` 走同一 `_promote`，用例断言 FULL→DELTA→FULL 三次严格递增；`test_k2_floor_makes_fencing_monotonic_but_not_consecutive` 显式验证 `generation=100` 时跳变但仍 `> f1`。
+
+## 6. 「先 FAIL 再 PASS」已恢复
+
+```
+阶段 A（rebuild 层，v2）      8 failed, 2 passed
+阶段 A（api 层，hipporag）    4 failed, 2 passed
+阶段 B（实现后）             11 passed / 6 passed
+```
+
+2 条先行 PASS 是「per-kb 锁现状已成立」与「禁改区哨兵」，保留未删，已说明非假绿。
+
+## 7. 变异：5/5 全捕获，且两次失败设计如实记录
+
+| 变异 | 命中断言 | 结果 |
+|---|---|---|
+| M1 恢复 `or 0` 地雷 | K2 守门 | 2 failed |
+| M2 `_promote` 用 `current_fencing` 兜底（锁外定值） | K2/K3 | 2 failed, 2 passed |
+| M3 `_default_build` 恢复 `fencing=1` | K2 路由层 | 1 failed |
+| M4 清理不保护在建目录 | K3 清理规则 | 1 failed |
+| M5 `engine_for_kb` 退回全局单槽 | K1 | 1 failed |
+
+**TL 特别认可**：成员主动记了两次变异设计失败 —— M2 初版写成「锁内取 max」**没被捕获**（真缺陷形态是「锁外定值」），M4 初版靠并发命中**是概率性的**（一次 1 passed），均已修正为确定性必红。并明确「没有把变异没打中算成通过」。这是本轮最值得肯定的诚实点。
+
+## 8. 回归与既有失败（HEAD 对照，非「全 PASS」）
+
+```
+v2        145 passed, 3 skipped     （L9 基线 134 → +11）
+hipporag  163 passed                （146 → +11 +6）
+```
+
+成员做了**逐行对照**：`api.py`/`rebuild.py` 临时回退 HEAD 跑同组 11 个文件 → `18 failed, 111 passed`；改后 → 同样 `18 failed, 111 passed`，失败项完全一致，`diff` 只差耗时行。**18 个既有失败与本 loop 无关，TL 认可该取证方式。**
+
+## 9. 生效边界（原样写入 evidence 头部，TL 认可）
+
+> 本 loop 改的是 `api.py` 的进程内结构，**不重启 18094 就不生效**。合入到重启窗口之间磁盘代码与运行态不一致属预期：线上此刻仍是**旧的单槽 state** 与 `_default_build` 里**写死的 `fencing=1`**。**不声称"已生效"。**
+
+TL 补充：这意味着 **P3 的代码改动直到重启窗口才真正生效**，P4/P6 部署前必须复核这一点，不能把「代码已合入」当成「线上已具备 per-kb state 与 fencing 递增」。
+
+## 10. 红线
+
+```
+18094 pid 3189651 / 3202203 启动于 2026-11-07 01:20:04 / 01:21:34（35.9h）→ 未重启 ✅
+kb_9=44、v2cand*=0 ✅
+未执行 uvicorn ✅
+fence.py 未改 ✅
+git 越界：api.py M / rebuild.py M / delta_build.py ??（L9）/ tests/ ??（新目录）
+```
+
+## 11. TL 红线自查
+
+只写 `docs/v2-tasks/` 证据与计划 + `TASKS.yaml`；未改实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED。

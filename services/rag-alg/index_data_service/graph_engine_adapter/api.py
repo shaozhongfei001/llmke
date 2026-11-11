@@ -24,11 +24,30 @@ import json
 import os
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+from typing import Literal
+
+
+def _delta_status_code(out: Dict[str, Any]) -> int:
+    """delta 结论 → HTTP 码（契约 §5 的码位；拒绝不伪装成成功）。"""
+    status = str(out.get("status") or "")
+    if status in ("BUILT", "SKIPPED_FRESH"):
+        return 200
+    reason = str(out.get("reason") or "")
+    if status == "REJECTED":
+        # 请求前提不满足（要 422 的几类）：无基准快照 / 全量缺理由 / 空/未知模式
+        if (reason.startswith("NO_BASELINE_SNAPSHOT")
+                or reason.startswith("FULL_REQUIRES_FALLBACK_REASON")
+                or reason.startswith("DOCS_EMPTY")
+                or reason.startswith("UNKNOWN_REQUESTED_MODE")):
+            return 422
+        return 409
+    return 500
 
 from .fence import FENCE_FILE, FenceState
+from . import delta_build as _delta
 from . import entity_link, global_report
 
 SCHEMA = "llmke.graph-api.v1"
@@ -54,7 +73,11 @@ class GlobalRequest(BaseModel):
 
 
 class BuildDoc(BaseModel):
-    file_id: str = Field(min_length=1)
+    # 契约 §2.1：`file_ids` 是**数组**，承载 1:N（同文异源——两块相同文本在引擎里
+    # 合并成一块，这块同时属于多个文件）。原来这里是单值 `file_id`，是 L9 的实现缺陷：
+    # 平台侧按契约发 `file_ids`，18094 会以 `file_id Field required` 422 拒掉
+    # （P4-L13-C 真实跨进程往返实测，见 evidence C3a-R4-R6）。
+    file_ids: List[str] = Field(min_length=1)
     text: str = Field(min_length=1)
     locator: Optional[str] = None
     title: Optional[str] = None
@@ -72,6 +95,47 @@ class BuildRequest(BaseModel):
     artifact: Optional[Dict[str, Any]] = None
     # 知识库标识（如 kb_9）。给了就按库落盘到 <root>/<kb>，各库图谱互不覆盖。
     kb: Optional[str] = None
+
+
+class DeltaRequest(BaseModel):
+    """增量端点契约（P4 的 `IngestRequest` 会复用，**不要再改字段语义**）。
+
+    - `docs` **必填**：给默认空列表会把"调用方漏传"变成"静默建空图"；
+    - `requested_mode`：
+        `auto`          按 canary 灰度策略；**无 canary 配置时按 delta**（D-11，
+                        canary 的 `DEFAULT_MODE="full"` 只是 dataclass 默认值，不代表运维意图）；
+        `delta`         强制增量；没有基准快照 → `REJECTED / NO_BASELINE_SNAPSHOT`；
+        `full`          强制全量；**必须**带 `fallback_reason`，否则 422；
+        `skip_if_fresh` 不 stale 就返回 `SKIPPED_FRESH`（零引擎调用）；
+    - `fencing`：透传给 `rebuild_*` 做 CAS 校验；**本 loop 不推进 `fence.generation`**。
+    """
+
+    kb: str = Field(min_length=1)
+    docs: List[BuildDoc]
+    root: Optional[str] = None
+    requested_mode: Literal["auto", "delta", "full", "skip_if_fresh"] = "auto"
+    fallback_reason: Optional[str] = None
+    fencing: Optional[int] = None
+
+    @model_validator(mode="after")
+    def _check_full_reason(self):
+        if self.requested_mode == "full" and not (self.fallback_reason or "").strip():
+            raise ValueError("requested_mode=full 必须带 fallback_reason（禁止静默走全量）")
+        return self
+
+
+class FenceRevokeRequest(BaseModel):
+    """契约 §3 `POST /v2/fence/revoke` 的请求体。
+
+    `root` 是**必填**（缺失由 handler 返 400，不是默认可选）：
+    撤权必须写调用方指定的图根，**禁止默认落到本进程 env 的 `LLMKE_V2_ROOT`**
+    —— P4-L13-C 实测过这条路径会把影子测试的撤权写进**生产** `fence.json`。
+    """
+
+    kb: str = ""
+    file_ids: List[Any] = Field(default_factory=list)
+    reason: str = "REVOKED"
+    root: Optional[str] = None
 
 
 def _urls() -> Dict[str, str]:
@@ -117,7 +181,23 @@ def _root_dir() -> str:
     return os.environ.get("LLMKE_V2_ROOT") or ".artifacts/api-root"
 
 
-def _resolve_snapshot(kb: str) -> Optional[str]:
+def _is_own_root(path: Optional[str]) -> bool:
+    """这次请求的图根是不是**本进程自己的**（env `LLMKE_V2_ROOT`）。
+
+    不是的话，构建结果只落盘到那个 root，**不得改动本进程的 kb 槽**
+    （`slot["snapshot"]` / `slot["fence"]` / 引擎缓存）—— 否则影子构建会让
+    18094 对生产 kb 的内存视图指向影子快照：实测 `GET /v2/fence?kb=kb_9`
+    会显示影子里的 `revoked`（P4-L13-C 缺陷 12）。
+    """
+    if not path:
+        return True
+    try:
+        return os.path.realpath(str(path)) == os.path.realpath(_root_dir())
+    except OSError:
+        return False
+
+
+def _resolve_snapshot(kb: str, root: Optional[str] = None) -> Optional[str]:
     """按库解析快照目录。找不到返回 None（调用方如实报"未建图"，不冒充别的库）。
 
     解析顺序：
@@ -133,7 +213,7 @@ def _resolve_snapshot(kb: str) -> Optional[str]:
     try:
         from .rebuild import read_pointer
 
-        ptr = read_pointer(os.path.join(_root_dir(), kb))
+        ptr = read_pointer(os.path.join(root or _root_dir(), kb))
     except Exception:  # noqa: BLE001 - 目录/指针损坏等同"没快照"
         ptr = None
     if ptr and os.path.isdir(ptr.get("dir") or ""):
@@ -201,9 +281,12 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
     # 建图前装中文补丁：index() 期就调用 text_processing 做实体键，装晚了中文实体全是空串。
     _ensure_cjk_compat()
     urls = _urls()
-    live = [{"file_id": d.file_id, "text": d.text, "locator": d.locator,
+    # 一条 doc 的 N 个 `file_ids` → N 行同 text 的 live；`_write_sources` 会把它们
+    # append 到同一个 idx 下，从而在 `sources.json` 里保留 1:N（契约 §2.1）。
+    live = [{**{"file_id": fid},
+             "text": d.text, "locator": d.locator,
              "title": d.title, "pk": d.pk, "parse_artifact_id": d.parse_artifact_id}
-            for d in docs]
+            for d in docs for fid in d.file_ids]
     # D8：撤权 fence 跨构建/重启持久化——从当前指针指向的快照目录恢复，再随新快照落盘。
     fence = FenceState()
     _cur = read_pointer(root)
@@ -216,7 +299,9 @@ def _default_build(docs: List[BuildDoc], root: str) -> Dict[str, Any]:
                                 embedding_base_url=urls["embed"])
         return engine.build([x["text"] for x in items])
 
-    result = rebuild(root, fence, live, full_build, fencing=1)
+    # P3-L10：**不再写死 fencing=1**（写死等于永不递增、旧主永不被拒）。
+    # 传 None → `_cas_write_pointer` 在锁内算 `max(当前, fence.generation)+1`。
+    result = rebuild(root, fence, live, full_build, fencing=None)
     target = result["current"]["dir"]
     fence.save(os.path.join(target, FENCE_FILE))
 
@@ -285,7 +370,7 @@ def _ensure_cjk_compat() -> Dict[str, Any]:
     return _CJK_STATE
 
 
-def create_app(engine_factory=None, builder=None) -> FastAPI:
+def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
     """engine_factory / builder 用于测试注入；生产按环境变量加载。"""
     app = FastAPI(title="LLMKE V2 Graph API", version=SCHEMA)
     # D4 前端直连（dev）：放行本机前端源；生产走网关，此列表按部署收紧。
@@ -302,33 +387,51 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
     # 之前只有 scripts/v2_* 里显式调用，服务端从不安装 —— 结果 18094 上
     # text_processing 仍把中文清成空串，事实变成 ("","","5000")、种子换算撞空实体。
     # 可用 LLMKE_V2_CJK_COMPAT=0 显式关掉（对照实验用），关掉时 health 必须如实报。
-    state: Dict[str, Any] = {"engine": None, "text_to_idx": None, "snapshot": None, "fence": None,
-                              "snapshot_kb": None}
+    # P3-L10：**per-kb 状态槽**。key = 库标识；保留键 `""` 表示"无库上下文 / legacy 单快照"。
+    # 改造前是全局单槽：`engine_for_kb` 一切库就整槽覆盖，A 库的 engine/idx_map/fence
+    # 会被 B 库顶掉（并发时甚至互相返回对方的图）。现在每个库一份，互不可见。
+    def _new_slot(kb: str = "") -> Dict[str, Any]:
+        return {"kb": kb, "engine": None, "text_to_idx": None, "snapshot": None, "fence": None}
+
+    states: Dict[str, Dict[str, Any]] = {"": _new_slot()}
+    # 兼容既有引用：health / fence / view 这些"无库总览"路径继续用无库槽
+    state = states[""]
+    # 供运维与测试核对 per-kb 隔离（不是 HTTP 响应字段，K4 的字段集不受影响）
+    app.state.states = states
+
+    def _slot(kb: str = "") -> Dict[str, Any]:
+        key = (kb or "").strip()
+        if not key:
+            return states[""]
+        return states.setdefault(key, _new_slot(key))
 
     def engine() -> Any:
         # 无库上下文时回退到 env 单快照（health 等只读总览用）
-        if state["engine"] is None:
-            state["engine"] = (engine_factory or (lambda: _load_engine(state["snapshot"])))()
-        return state["engine"]
+        slot = states[""]
+        if slot["engine"] is None:
+            slot["engine"] = (engine_factory or (lambda: _load_engine(slot["snapshot"])))()
+        return slot["engine"]
 
     def engine_for_kb(kb: str) -> Optional[Any]:
-        """按库加载引擎：解析不到快照返回 None；快照变化时重载。"""
+        """按库加载引擎：解析不到快照返回 None；快照变化时**只重载该库的槽**。"""
         snap = _resolve_snapshot(kb)
         if not snap:
             return None
-        if state["engine"] is not None and state["snapshot"] == snap:
-            return state["engine"]
+        slot = _slot(kb)
+        if slot["engine"] is not None and slot["snapshot"] == snap:
+            return slot["engine"]
         eng = (engine_factory or (lambda: _load_engine(snap)))()
-        state["engine"] = eng
-        state["snapshot"] = snap
-        state["text_to_idx"] = _text_to_idx(eng)
-        state["snapshot_kb"] = kb
+        slot["engine"] = eng
+        slot["snapshot"] = snap
+        slot["text_to_idx"] = _text_to_idx(eng)
         return eng
 
-    def idx_map() -> Dict[str, str]:
-        if state["text_to_idx"] is None:
-            state["text_to_idx"] = _text_to_idx(engine())
-        return state["text_to_idx"]
+    def idx_map(kb: str = "") -> Dict[str, str]:
+        slot = _slot(kb)
+        if slot["text_to_idx"] is None:
+            eng = (engine_for_kb(kb) if (kb or "").strip() else None) or engine()
+            slot["text_to_idx"] = _text_to_idx(eng)
+        return slot["text_to_idx"]
 
     @app.get("/health")
     def health() -> Dict[str, Any]:
@@ -378,22 +481,25 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         except Exception as exc:  # noqa: BLE001 - 失败要带原因回到调用方
             raise HTTPException(status_code=500,
                                 detail=f"build failed: {type(exc).__name__}: {exc}") from exc
-        # 新快照可以立刻被查询：重置缓存，指向新目录（不改进程环境变量）
-        state["engine"] = None
-        state["text_to_idx"] = None
-        state["snapshot"] = str(out.get("snapshot") or "")
-        state["fence"] = FenceState.load(os.path.join(state["snapshot"], FENCE_FILE))
+        # 新快照可以立刻被查询：只重置**该库的槽**，指向新目录（不改进程环境变量）。
+        # 但**只有写本进程自己的 root 时才动槽**：影子构建不能污染生产的内存视图。
+        if _is_own_root(base_root):
+            slot = _slot(kb)
+            slot["engine"] = None
+            slot["text_to_idx"] = None
+            slot["snapshot"] = str(out.get("snapshot") or "")
+            slot["fence"] = FenceState.load(os.path.join(slot["snapshot"], FENCE_FILE))
         # 快照归属标记：查询侧据此确认"这份图属于哪个库"，没有标记就不认领。
-        if kb and state["snapshot"]:
+        if kb and slot["snapshot"]:
             try:
-                with open(os.path.join(state["snapshot"], "kb.json"), "w", encoding="utf-8") as fh:
+                with open(os.path.join(slot["snapshot"], "kb.json"), "w", encoding="utf-8") as fh:
                     json.dump({"kb_id": kb}, fh, ensure_ascii=False)
             except OSError:
                 pass
         # 构建后立刻预热：否则首次查询要现场加载图与向量，实测会空响应/超时。
         # 预热失败不影响构建结果，查询时会再报真实错误。
         try:
-            hp = getattr(engine(), "hp", None)
+            hp = getattr(engine_for_kb(kb) or engine(), "hp", None)
             if hp is not None and hasattr(hp, "prepare_retrieval_objects"):
                 hp.prepare_retrieval_objects()
         except Exception:  # noqa: BLE001
@@ -404,13 +510,35 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         # 建图成功即产社区报告（global 的前提）：报告读的是刚落盘快照里的 openie 结果与
         # sources.json，所以和查询用的是同一份数据，不存在"报告说 A、检索给 B"。
         # 报告失败不影响建图结果（图已经建好了），但必须在响应里写明失败原因，不能装作没这回事。
-        snapshot = str(state["snapshot"] or "")
+        snapshot = str(slot["snapshot"] or "")
         try:
-            community = global_report.write(snapshot, [d.file_id for d in docs])
+            community = global_report.write(
+                snapshot, [fid for d in docs for fid in d.file_ids])
         except Exception as exc:  # noqa: BLE001 - 报告失败要带原因回调用方
             community = {"status": "FAILED", "error": f"{type(exc).__name__}: {exc}",
                          "snapshot": snapshot}
         return {"schema": SCHEMA, "status": "BUILT", **out, "community": community}
+
+    @app.post("/v2/graph/delta")
+    def graph_delta(req: DeltaRequest, response: Response) -> Dict[str, Any]:
+        """增量/全量/跳过三档编排（P3-1）。**本路由不重启进程、不新增监听。**
+
+        响应体永远是同一份 JSON（带 `requested_mode` / `effective_mode` / `canary`），
+        HTTP 码表示结论：200=BUILT/SKIPPED_FRESH，422=NO_BASELINE_SNAPSHOT 等「请求前提不满足」，
+        409=其它拒绝，500=执行失败。**任何非 2xx 都不自动改走 full**。
+        """
+        runner = delta_runner or _delta.delta_build
+        out = runner(req)
+        if out.get("status") == _delta.STATUS_BUILT and _is_own_root(req.root or _root_dir()):
+            # 新快照立刻可查：与 build 路由同样**只重置该库的槽**（不改进程环境变量）；
+            # 影子 root（≠ env）时不动槽，否则生产的内存视图会被影子快照覆盖（缺陷 12）。
+            slot = _slot(req.kb)
+            slot["engine"] = None
+            slot["text_to_idx"] = None
+            slot["snapshot"] = str(out.get("snapshot") or "")
+            slot["fence"] = FenceState.load(os.path.join(slot["snapshot"], FENCE_FILE))
+        response.status_code = _delta_status_code(out)
+        return out
 
     @app.post("/v2/graph/query")
     def query(req: QueryRequest) -> Dict[str, Any]:
@@ -420,7 +548,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
                     "status": "NOT_BUILT",
                     "reason": f"知识库 {req.kb or '(未指定)'} 尚未构建图谱",
                     "hit_count": 0, "docs": [], "citations": [], "sources_available": False}
-        fence_state = state.get("fence") or FenceState()
+        fence_state = _slot(req.kb).get("fence") or state.get("fence") or FenceState()
         seeds = list(req.seeds)
         seeds_source = "caller" if seeds else "none"
         if not seeds and req.enable_graph:
@@ -430,7 +558,7 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
         out = eng.retrieve(req.query, seeds=seeds, top_k=req.top_k,
                            use_graph=req.enable_graph)
         docs = list(out.get("docs") or [])
-        mapping = idx_map()
+        mapping = idx_map(req.kb)
         sources = _load_sources(getattr(eng, "save_dir", None))
         items = []
         for i, text in enumerate(docs):
@@ -515,8 +643,9 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
 
         root = _root_dir()
         pointer = read_pointer(os.path.join(root, kb)) if kb else read_pointer(root)
-        fence_state = state.get("fence") or FenceState()
-        snapshot = _resolve_snapshot(kb) or state["snapshot"] or getattr(engine(), "save_dir", None)
+        fence_state = _slot(kb).get("fence") or state.get("fence") or FenceState()
+        snapshot = (_resolve_snapshot(kb) or _slot(kb)["snapshot"]
+                    or state["snapshot"] or getattr(engine(), "save_dir", None))
         community = {"communities": None, "citation_check_ok": None}
         if snapshot:
             report = global_report.load(snapshot)
@@ -537,12 +666,81 @@ def create_app(engine_factory=None, builder=None) -> FastAPI:
                 "cjk_compat": _CJK_STATE}
 
     @app.get("/v2/fence")
-    def fence_view() -> Dict[str, Any]:
-        """D8：撤权 fence 只读视图（generation + 已撤权 file_id 列表）。"""
-        fence_state = state.get("fence") or FenceState()
-        return {"schema": SCHEMA, "generation": fence_state.generation,
+    def fence_view(kb: str = "") -> Dict[str, Any]:
+        """D8：撤权 fence 只读视图（generation + 已撤权 file_id 列表）。
+
+        P4-L13-A additive：新增可选 `kb`。
+        - 缺省（不带 kb）：仍读**无库总览槽**，字段集与 L10 收口时逐字相同；
+        - 带 kb：读该库 slot 的 fence —— 因为撤权是按库的，不带 kb 看不到。
+        """
+        key = (kb or "").strip()
+        if key:
+            fence_state = _slot(key).get("fence") or FenceState()
+        else:
+            fence_state = state.get("fence") or FenceState()
+        body = {"schema": SCHEMA, "generation": fence_state.generation,
                 "revoked": sorted(fence_state.revoked),
                 "count": len(fence_state.revoked)}
+        if key:
+            body["kb"] = key
+        return body
+
+    @app.post("/v2/fence/revoke")
+    def fence_revoke(req: FenceRevokeRequest) -> Dict[str, Any]:
+        """契约 §3：撤权（删除前置）。**必须在重建开始前让旧索引不可读。**
+
+        为什么需要这个端点：18096（摄取服务）与 18094 是**两个进程**，
+        18096 拿不到本进程的 `FenceState` 内存态；而 fence 只在 build/delta 结束时才
+        `fence.save()`，所以「撤权」没有别的进程可达路径。
+
+        行为：
+        1. `FenceState.revoke()` —— 幂等，重复撤权**不重复递增** generation；
+        2. 更新该库 slot，让同进程的检索**立刻**看不到；
+        3. 落盘到当前快照的 `fence.json`（`api.py:254-258` 重启时会从同一位置 load）；
+           没有快照时**内存仍生效**，但 `persisted=false` 如实返回（不静默、不报错）。
+        """
+        file_ids = [str(f) for f in (req.file_ids or []) if str(f).strip()]
+        if not file_ids:
+            raise HTTPException(status_code=422, detail="file_ids 不能为空（防误撤整库）")
+        # fail-closed：没有显式 root 就拒绝。绝不回落到 env 的 root ——
+        # 那会把调用方（如影子测试）的撤权写进本进程指向的**生产**图目录。
+        root = (req.root or "").strip()
+        if not root:
+            raise HTTPException(
+                status_code=400,
+                detail="revoke 必须显式指定 root（禁止默认落到本进程 env 的 root："
+                       "P4-L13-C 事故就是影子撤权写进了生产 fence.json）")
+        slot = _slot(req.kb or "")
+        fence_state = slot.get("fence") or state.get("fence") or FenceState()
+        before = fence_state.generation
+        generation = fence_state.revoke(file_ids, reason=req.reason or "REVOKED")
+        # 只有「写自己进程的 root」才更新共享内存态；写别的图根时**不动内存**，
+        # 否则影子测试会顺带影响本进程对生产库的检索（撤权是进程级内存态）。
+        # 与 build/delta 的槽守卫**同一份实现**（`_is_own_root`）：
+        # 同一判断只允许一处实现，否则将来只改一边就会出现两套语义。
+        applied_to_memory = _is_own_root(root)
+        if applied_to_memory:
+            slot["fence"] = fence_state
+        snapshot = _resolve_snapshot(req.kb or "", root=root)
+        persisted = False
+        if snapshot:
+            try:
+                fence_state.save(os.path.join(snapshot, FENCE_FILE))
+                persisted = True
+            except OSError as exc:   # 落盘失败不能让"内存已撤权"变成 500
+                return {"schema": SCHEMA, "kb": req.kb or "",
+                        "generation": generation, "advanced": generation > before,
+                        "revoked": sorted(fence_state.revoked),
+                        "count": len(fence_state.revoked),
+                        "persisted": False, "snapshot": snapshot,
+                        "applied_to_memory": applied_to_memory, "root": root,
+                        "persist_error": f"{type(exc).__name__}: {exc}"}
+        return {"schema": SCHEMA, "kb": req.kb or "", "generation": generation,
+                "advanced": generation > before,
+                "revoked": sorted(fence_state.revoked),
+                "count": len(fence_state.revoked),
+                "persisted": persisted, "snapshot": snapshot,
+                "applied_to_memory": applied_to_memory, "root": root}
 
     @app.get("/v2/graph/view")
     def graph_view(kb: str = "") -> Dict[str, Any]:

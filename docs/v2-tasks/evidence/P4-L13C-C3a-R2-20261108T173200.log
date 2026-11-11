@@ -1,0 +1,117 @@
+# P4-L13-C · C3a 重发：19527 修复**已验证生效**；新阻塞在 L6 的 `db_name=kb`
+
+- 时间：2026-11-08T17:31:53（请求）、17:33（取证）；角色 `python-engineer`
+- **未绕过、未改代码、未重试第三次**；停在 C3a 报 TL
+- 线上仍未写入（`kb_9=44`、线上图 md5 未变）
+
+---
+
+## 1. 先给结论：19527 的修复**确实生效了**
+
+| 证据 | 结果 |
+|---|---|
+| ES insert 是否还 500 | **不再 500** —— 请求走到了 Milvus 侧才失败 |
+| 影子 `v2cand_kb_9` | **1 条**（写入成功） |
+| 写进去的 `order_num` | **`''`**（与线上 46 个 doc 同形态，未被我方「归一化」污染） |
+| 4 个 delete | **全部执行**：`('es','v2cand_kb_9') ('es','v2cand_table_chunks_kb_9') ('milvus','v2cand_kb_9') ('milvus','v2cand_table_chunks_kb_9')` |
+| Milvus 删除未报错 | 说明 A2 修正后的 `col_name="file_id"` 在真实 Milvus 上**能跑通**（不再 `metadata.file_id`） |
+
+**这条很重要**：`order_num=''` 原样落库，证明「删掉/保护强转」的修复方向正确 —— 若按我最初 A/B 方案填 `str(seq)`，这里会是 `'0'`，与线上形态不一致。
+
+### 1.1 A3 的补偿机制在真实环境**第一次被触发并正确记录**
+
+```
+index_write.status=FAILED  applied=False
+compensation.needs=True    completed_sides=['es']
+```
+
+即「ES 已写、Milvus 失败」被显式记录 —— 不是只 log。这是 A3 设计在真实故障下的第一次验证（此前只有 mock）。
+
+---
+
+## 2. 新阻塞：`milvus: insert HTTPError: HTTP Error 500`
+
+```
+HTTP=502  code=502
+msg=INDEX_WRITE_FAILED: milvus: insert HTTPError: HTTP Error 500: Internal Server Error
+```
+
+19526 日志（原文）：
+
+```
+controller/milvus.py:242 - 检查集合是否存在失败:
+  <MilvusException: (code=800, message=database not found[database=kb_9])>
+milvus_kb_service.py:444 await asyncio.to_thread(do_create_collection, dc)
+pymilvus ... _get_connection(): ConnectionNotExistException: should create connection first.
+```
+
+### 2.1 根因：**我们（L6 `index_writer`）把 `kb` 当成 Milvus 数据库名发下去了**
+
+```python
+# services/rag-alg/index_data_service/ingest_pipeline/index_writer.py:270-277
+milvus_plan.append({
+    "db_name": kb,              # ← kb = "kb_9"，被当成 Milvus database
+    "collection_name": target,
+    "model_name": ES_MODEL_NAME,
+    "document_list": documents,
+    ...
+})
+```
+
+Milvus 里没有 `kb_9` 这个 database（真实库是 `rag_knowledge_base`）→
+`check_collection_exists_async` 抛 `database not found` → 被 `except` 吞成 `False` →
+进入「自动建集合」分支 → 该分支在 worker 线程里没有连接别名 → `ConnectionNotExistException` → 500。
+
+**所以不是 19526 的问题**：只要 `db_name` 是对的，存在性检查会返回 True，根本不会进建集合分支。
+`del_doc_by_col` 没传 `db_name`（用默认）所以删除正常 —— 只有 insert 计划带了错值。
+
+### 2.2 为什么以前没暴露
+
+L6/L8 只验证「产出的计划结构」，`apply` 生产零调用；**计划里的 `db_name` 从没被真发出去过**。
+这与 A 段发现的 `delete_scope` 无执行点、`order_num` 强转同一类：**计划正确 ≠ 能被服务端接受**。
+
+---
+
+## 3. 修法（需 TL 批准；改的是 L6 已验收文件）
+
+| 方案 | 改动 | 评价 |
+|---|---|---|
+| **A（建议）** | `index_writer.build` 里**删掉** `"db_name": kb` 一行，让 19526 用 pydantic 默认值（`server_config["milvus_database"]`=`rag_knowledge_base`） | 最小改动；与 `del_doc_by_col` 的行为对齐（它也不传 db_name） |
+| B | 改成 `os.environ.get("LLMKE_MILVUS_DB_NAME", "rag_knowledge_base")` | 更显式，但引入一个新 env（B 段 env 清单要同步） |
+
+我倾向 **A**：数据库名属于**部署配置**，不该由业务计划携带；`kb` 与 Milvus database 是**两个不同维度**的东西，硬编码成等号是语义错误。
+
+**加断言**：计划里 `milvus_plan[*]` 不得含 `db_name` 或（若保留）其值必须 ≠ `kb`。
+
+---
+
+## 4. 当前中间态（如实记录，不掩盖）
+
+| 项 | 状态 |
+|---|---|
+| 影子 `v2cand_kb_9` | **1 条**（ES 已写） |
+| 影子 `v2cand_table_chunks_kb_9` | 0 |
+| 影子 Milvus `_v2cand_kb_9` | **0 条**（写失败） |
+| 影子 `kb-state/` | **空**（`state_committed=false`，未提交） |
+| 影子 `graph-root/` | **未创建**（delta 未调用） |
+| 线上 `kb_9` | **44**（未变） |
+| 线上图 `current.json` | md5 **`e2d0f754…` 未变** |
+| 18094 / 18096 | pid `3189651/3202203`、`1332063` 未变 |
+
+**这个中间态是安全且可收敛的**：重放时 `_apply_writes` 会先按 `file_id` 删 4 个 target（幂等），再重新写入；
+ES 侧那 1 条会被删掉重写，不会累积。
+
+---
+
+## 5. 附带发现（不影响本步，记录）
+
+19526 有**两个** `vector_milvus_api_start.py` 进程（`19144` 监听、`19860` 不监听），
+`ConnectionNotExistException` 也可能与此有关（连接别名按进程注册），但因 `db_name` 错误是**第一因**，
+修好 `db_name` 后若仍出现该异常，再单独查这条。
+
+---
+
+## 6. 请裁定
+
+**Q10：按方案 A 删掉 `"db_name": kb` 并加断言？**（这是 L6 已验收文件，需你批）
+批准后我会：改 → 重跑 L12/L13 全量 → 报你 → 重发**同一条** C3a。

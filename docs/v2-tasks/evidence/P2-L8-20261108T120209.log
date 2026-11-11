@@ -1,0 +1,272 @@
+# P2-L8 · R-0 只读核实证据（python-engineer 现场复核）
+
+- 时间：2026-11-08T12:02:09+0800
+- 角色：`python-engineer`；本文件**只记录 R-0**，不含实现代码
+- 任务：`T-D2MD-08` / loop `P2-L8`（`docs/v2-tasks/loops/P2-L8-PLAN.md` §二）
+- 模式：**模式 A**（离线/mock）；**模式 B 未获 Owner 授权，全程未进入**
+- 状态：`R0_VERIFIED_WITH_DEVIATIONS` —— **PLAN 的三处前提与现场不一致，需 TL 先裁定再实现**
+
+> 所有输出均为命令实际 stdout。红线：全程只读（`grep` / `sed` / `curl -s GET` / `pytest` / `md5sum` / `ss`），
+> 未创建任何索引/collection、未启停服务、未改任何文件。
+
+---
+
+## 1. `projection_read.py` 现状（R-0 第 1 项）
+
+```
+$ md5sum services/rag-alg/alg_retrieval_service/app/projection_read.py
+773d746b3dc2c39e0600e5ec71ac96d2  services/rag-alg/alg_retrieval_service/app/projection_read.py
+$ wc -l services/rag-alg/alg_retrieval_service/app/projection_read.py
+56 services/rag-alg/alg_retrieval_service/app/projection_read.py
+$ git status --short services/rag-alg/alg_retrieval_service/app/projection_read.py
+（空 = 已跟踪且未修改）
+$ git log --oneline -1 -- services/rag-alg/alg_retrieval_service/app/projection_read.py
+5365be48 docs(policy): 登记运行时开关（INGEST_READ_*）+ 防漂移测试
+```
+
+| 问 | 现场答案 |
+|---|---|
+| 是否已有 `INGEST_READ_MODE` | **有**（`projection_read.py:36`，本次调用时读 env） |
+| 是否已有 `INGEST_READ_PREFIX` | **有**（`:42`） |
+| 是否已有 `INGEST_READ_KBS` | **有**（`:45`，按库灰度） |
+| 默认值 | `DEFAULT_MODE="legacy"`、`DEFAULT_PREFIX="v2cand"`（`:25-26`） |
+| 读哪些索引名 | **不直接读**：只改写「基础名」，下游 `retrieval_service.py:56-60` 再拼 `faq_` / `table_summary_` / `table_chunks_` |
+| 合法 mode | `MODES = ("legacy", "snapshot")`（`:24`）——**没有 `shadow`** |
+| 非法值 | `:37-38` 抛 `ValueError`（fail-closed，符合 I2 的"未知值必须拒绝"） |
+| `canary.load` 接口 | **不存在**（`grep -rn canary services/rag-alg/alg_retrieval_service/` 零命中） |
+| 唯一调用点 | `retrieval_service.py:49-51`（`from projection_read import resolve`） |
+| env 是否已注入运行态 | **未注入**：`platform/r12/conf|.env|bin` 零命中 → 线上实际就是 `legacy` |
+
+```
+$ for v in INGEST_READ_MODE INGEST_READ_PREFIX INGEST_READ_KBS INGEST_PROJECTION_MODE; do printf "%s=" $v; printenv $v || echo "(unset)"; done
+INGEST_READ_MODE=(unset)
+INGEST_READ_PREFIX=(unset)
+INGEST_READ_KBS=(unset)
+INGEST_PROJECTION_MODE=(unset)
+```
+
+`resolve()` 语义（`projection_read.py:33-56`）：`snapshot` 时把每个基础名换成 `f"{prefix}_{name}"`，
+并在 `info` 里返回 `switched` / `kept_legacy`；`legacy` 时原样返回。
+
+---
+
+## 2. `index_prefix` 是否已能从 `consume_for_kb` 全链路传入（R-0 第 2 项）
+
+**答案：不能。现场存在三重断点。**
+
+```
+$ grep -n "index_prefix" services/rag-alg/index_data_service/ingest_pipeline/*.py
+index_writer.py:29:DEFAULT_INDEX_PREFIX = "v2cand_"
+index_writer.py:117:          index_prefix: str = DEFAULT_INDEX_PREFIX,
+index_writer.py:139:        raise IndexWriterError("INDEX_PREFIX_EMPTY", ...)
+index_writer.py:158:        target = _target_name(channel, kb=kb, index_prefix=index_prefix)
+```
+
+| 断点 | 现场 |
+|---|---|
+| B-1 `consume_for_kb` 不传 prefix | `kb_pipeline.consume_for_kb` 里 `index_writer.build(chunks, artifact, kb=index, file_id=real_file_id)` —— **无 `index_prefix`**，只能用默认 `v2cand_`；`consume_for_kb` 形参表里也没有任何 prefix 入口 |
+| B-2 平台有**两条**命名口径 | `build_index_payloads`（L5，ES 实际写入载荷形状）产 `kb_9` / `table_chunks_kb_9` / `table_summary_kb_9` —— **完全不含 prefix**；只有 `index_writer.build` 产 `v2cand_*` |
+| B-3 两侧 prefix 常量语义不同 | 写侧 `DEFAULT_INDEX_PREFIX="v2cand_"`（**带尾下划线**，直接拼）；读侧 `DEFAULT_PREFIX="v2cand"`（**不带**，拼时补 `_`）。名字碰巧相同，但改一个不牵动另一个 |
+
+---
+
+## 3. `v2cand_*` 索引 / collection 是否存在（R-0 第 3 项）
+
+**答案：ES 与 Milvus 均不存在**（模式 A 的干净基线）。
+
+见 §6 的真实输出：ES 只有 `db1 / kb_1004 / kb_9 / none / table_chunks_kb_9`；
+Milvus 10 个 collection 全部 `_` 前缀且无 `v2cand`。
+
+**附带一项必须记住的「别去修」事实**：Milvus 名称由服务端统一归一，
+`milvus_kb_service.generate_collection_name_uuid()`（`:181-182`）做
+`collection_name = "_" + collection_name.replace("-", "_")`（含中文/非 `[A-Za-z0-9_]` 时先 uuid5），
+且**写**（`add_doc_custom:434`）与**读**（`:366 / :386 / :818 / :1166 / :1239`）**同源调用**。
+→ `index_writer` 的 `milvus_plan[].collection_name` 应保持 `v2cand_kb_9`（**不得自己加 `_`**），
+与设计包 `03-IMPLEMENTATION.md:216` 的验收命令一致。
+
+---
+
+## 4. 切影子后引用回查是否仍有效（R-0 第 4 项）
+
+用同一份 chunks 离线跑两条构建路径，逐键比对 metadata（**不联网、不写盘**）。
+
+| 项 | 生产（`build_index_payloads`） | 影子（`index_writer.build`） | 判定 |
+|---|---|---|---|
+| metadata 键数 | 35 | 35 | 相同数量、**不同集合** |
+| `parse_artifact_id` | ✅ | ✅ | **引用回查主键有效** |
+| `pk` | ✅ | ✅ | **引用回查主键有效**（ES `_id` / Milvus 主键 / 邻块反查都靠它） |
+| `source` | ✅ | ❌ **缺** | 退化（见下） |
+| `parsed_text_ref` | ✅ | ❌ **缺** | 退化（审计字段缺失） |
+| `artifact_id` | ❌ | ✅ 多 | additive，读侧无消费者，无害 |
+| `content_hash` | ❌ | ✅ 多 | additive，同源校验用 |
+| `table_summary_id` | ❌ | ❌ | 两侧都无（L5 已知边界，非本 loop 引入） |
+
+`source` 缺失的实际影响（读侧逐处核实）：
+
+| 位置 | 依赖形式 | 缺失后行为 |
+|---|---|---|
+| `reranker_service.py:130` | `if "source" in doc.metadata ...` 才用 `os.path.split(doc.metadata["source"])` | **不崩**（有 `in` 兜底），但重排文本少了「文件名\n」前缀 → 重排质量下降 |
+| `retrieval_fun_tool.py:985,1017` | `{"term": {"metadata.source.keyword": file_name}}` | 该精确匹配（按文件名 + `chunk_index` 定位）在影子上**永远无命中** |
+| `multiple_retrieval.py:308,376` | `{"match": {"metadata.source": question}}`（`should` 子句） | 少一路加分，不致命 |
+
+---
+
+## 5. **【本 loop 最关键】命名不一致：读侧拼出的名字，写侧根本不生产**
+
+PLAN §一文首写「只要把**基础名**换掉，三条通道会一起切走」，`projection_read.py` docstring 也这么讲。
+现场推演（离线，`resolve` 真实调用）：
+
+```
+resolve(["kb_9"], mode="snapshot", prefix="v2cand")
+  -> ['v2cand_kb_9']  {'mode': 'snapshot', 'prefix': 'v2cand', 'switched': ['kb_9'], 'kept_legacy': []}
+
+读侧下游拼出：                     写侧 index_writer 实际计划目标名：
+  正文            v2cand_kb_9          v2cand_kb_9            ✅ 一致
+  table_chunks_   table_chunks_v2cand_kb_9   v2cand_table_chunks_kb_9   ❌ 不等
+  table_summary_  table_summary_v2cand_kb_9  （写侧没有该通道）          ❌ 永不存在
+```
+
+**三条通道实际只有正文那一条对齐。**「一起切走」是真的（三条都换了名），但换出来的名字
+写侧不生产 → snapshot 模式下表格通道**静默空**、表格总结通道**必然空**。
+
+而且这个错名已被既有测试**锁死**：
+
+```
+tests/test_projection_read.py:20-26
+def test_snapshot_switches_base_name_so_all_channels_follow():
+    names, info = resolve(["kb_9"], mode="snapshot", prefix="v2cand")
+    assert names == ["v2cand_kb_9"]
+    # 下游拼出来就是 v2cand_kb_9 / table_chunks_v2cand_kb_9 / table_summary_v2cand_kb_9
+    assert "table_chunks_" + names[0] == "table_chunks_v2cand_kb_9"
+    assert "table_summary_" + names[0] == "table_summary_v2cand_kb_9"
+```
+
+**额外：图召回通道也会断。** `multiple_retrieval.py:463-470`：基础名（非 `faq_/table_chunks_/table_summary_`
+前缀者）被当作**知识库名**传给 18094（`{"kb": k_name}`）。snapshot 模式下 `k_name = "v2cand_kb_9"`，
+而 18094 的 kb 是按库目录（`kb_9`）组织的 → **图通道在 snapshot 模式下必然查不到库**。
+
+---
+
+## 6. I2 的 `shadow` 模式与既有守卫冲突
+
+| 冲突 | 现场 |
+|---|---|
+| `MODES` 只有 `(legacy, snapshot)` | `projection_read.py:24`；I2 要求 `{legacy, shadow, snapshot}` |
+| 加 `shadow` 会破防漂移测试 | `tests/test_runtime_switches.py:22` assert `tuple(reg["INGEST_READ_MODE"]["values"]) == MODES`；登记表 `docs/policies/RUNTIME-SWITCHES.yaml` 现为 `values: [legacy, snapshot]`。**必须同步改该 yaml**（它不在 `FROZEN-MANIFEST.json` / 设计包 `MANIFEST.sha256` 内，但该文件首行自述"未登记的开关不得进主干"） |
+| `shadow` 语义无法在 `resolve()` 内实现 | I2 要求「双读并比对（**不改变返回结果**）」。`resolve()` 只做名字改写，要让"不改变结果"就必须再发一次查询并比对 → 落在 `multiple_retrieval.py`，而 PLAN §一 写的是「不改检索算法」 |
+
+现有读侧测试基线（未改动）：
+
+```
+$ PYTHONPATH=services/rag-alg/alg_retrieval_service/app llmke-v2-toolenv/bin/python \
+  -m pytest tests/test_projection_read.py tests/test_runtime_switches.py -q
+........                                                                 [100%]
+8 passed in 0.04s
+```
+
+---
+
+## 7. 请 TL 裁定的 5 项（未裁定前不写实现代码）
+
+| # | 问题 | 我的建议 |
+|---|---|---|
+| **Q1** | 命名基准取哪边对齐？<br>(a) 读侧改成 `v2cand_<完整名>`（`v2cand_table_chunks_kb_9`、`v2cand_table_summary_kb_9`），需改 `retrieval_service` 三处前缀拼接 + **修改 `tests/test_projection_read.py` 里锁死的错名断言**；<br>(b) 写侧改成 `table_chunks_v2cand_kb_9`，需改 L6/L7 已验收的 `_target_name`，且与设计包 `:213` 的 `v2cand_kb_9` 验收命令不一致 | **(a)**。理由：影子命名空间语义应是「整个索引名前缀」（`v2cand_` + 任何最终名），与 `index_writer.DEFAULT_INDEX_PREFIX` 一致；改读侧成本低、不动已验收的写入计划 |
+| **Q2** | snapshot 模式下图召回的 `kb` 用什么？ | `resolve()` 的 `info` 增 `graph_kb` 映射（`v2cand_kb_9 → kb_9`），`multiple_retrieval.py:463-470` 取 `info` 里的原名；**只在取 kb 处改一行**，不碰召回算法 |
+| **Q3** | 表格总结通道影子怎么办？写侧目前**不产** `v2cand_table_summary_*` | 本 loop **不新增**该通道（属 L5/L6 语义，需另立 CR）；在 `projection_read` 里显式声明 `missing_channels=["table_summary"]`，并在 evidence 写「snapshot 模式当前仅供正文+表格块双通道验证，全量切读前必须补齐表格总结」 |
+| **Q4** | 是否授权改 `docs/policies/RUNTIME-SWITCHES.yaml` + 更新 `tests/test_projection_read.py` 的锁死断言？`shadow` 是否降级为「只解析名字+记录比对钩子，不真发第二次查询」？ | 建议：**授权改 yaml 与测试**（否则 `shadow` 无法登记，`test_runtime_switches` 必红）；**shadow 降级**为「名字解析 + 返回 `shadow_names` 供调用方比对，不改返回结果」——真双读比对留给 P6（PLAN 禁止改检索算法） |
+| **Q5** | 是否授权在 `index_writer.build` 补 `source` / `parsed_text_ref` 到 metadata？（**非 prefix 相关**，属 L6 已验收 body 形状） | 建议**授权**，否则影子索引一落地就有 3 处读侧退化（§4）。若你判断应留给 P6，请在 PLAN 标注为已知缺通道 |
+
+---
+
+## 8. 模式 A 断言清单（R-0 建议稿，待 Q1~Q5 裁定后定稿）
+
+| # | 断言 | 反例（先 FAIL） |
+|---|---|---|
+| I1-a | `index_writer.build` 默认 `index_prefix="v2cand_"`，目标名 `v2cand_kb_9` / `v2cand_table_chunks_kb_9` | 默认值被改成 `""` → FAIL |
+| I1-b | `index_prefix` 为空 / 等于 `kb` / 不含 `v2cand` 语义 → 拒绝（`INDEX_PREFIX_EMPTY` 已存在，需补「等于 kb」拒绝） | 传 `""` 或 `"kb_9"` → 必须抛错 |
+| I1-c | **读写前缀对齐**：`resolve(snapshot)` 产出的三条通道名，逐条 ∈ `index_writer` 可能产出的目标名集合（按 Q1 裁定口径） | 任一条不等 → FAIL（当前**必 FAIL**，即本 loop 要修的核心缺陷） |
+| I2-a | `INGEST_READ_MODE ∈ {legacy, shadow, snapshot}`，未知值抛错 | `bogus` → 不抛错即 FAIL |
+| I2-b | `legacy` → 名字原样、`info["switched"]==[]` | 改坏即 FAIL |
+| I2-c | `shadow` → 返回结果名与 `legacy` **完全相同**（不改结果），仅 `info["shadow_names"]` 有值 | 返回名变了 → FAIL |
+| I2-d | `snapshot` → 全部换 `v2cand_` 前缀（按 Q1 口径）；`INGEST_READ_KBS` 外保持 legacy | 混入旧名前缀 → FAIL |
+| I3-a | 模式 A 全程：`index_writer.apply` / `post_graph_build` 零调用；ES `_cat/indices/v2cand*` 仍空；旧索引 `_count` 不变 | 任一变化 → FAIL |
+| I4-a | 回滚：`INGEST_READ_MODE=legacy` 下 `resolve` 行为与改动前逐字一致（用现有 8 条读侧测试 + 新增回归对拍） | 不一致 → FAIL |
+| I5 | 既有 55 条平台侧 + 8 条读侧测试全 PASS，doc2md 仓 14 项封存态不变 | 退化 → FAIL |
+
+## 9. 模式 B 准备清单（**需 Owner 明确授权后才执行**，本文件只列清单）
+
+1. 写前快照：`curl -s 'http://127.0.0.1:19200/_cat/indices?h=index,docs.count&s=index'` + Milvus `collections/list`（记录在案）。
+2. 需创建的影子对象（按 Q1/Q3 裁定）：ES `v2cand_kb_9`、`v2cand_table_chunks_kb_9`（+ 若 Q3 授权 `v2cand_table_summary_kb_9`）；Milvus 同名（服务端自动加 `_`）。
+3. 写前需确认：`INGEST_PROJECTION_MODE` 仍 `legacy`（只影响投影路径）、`index_prefix` 显式传入而非靠默认。
+4. 写后核对：`v2cand_kb_9/_count` > 0、Milvus `_v2cand_kb_9` 实体数一致、**旧 `kb_9`(44) / `table_chunks_kb_9`(2) 的 `_count` 一位不变**。
+5. 回滚：删除 `v2cand_*` 与 `_v2cand_*`，`INGEST_READ_MODE` 保持 `legacy`（从未切过）。
+
+---
+
+## 10. 红线自查（R-0 阶段）
+
+| 红线 | 自查 |
+|---|---|
+| 不创建任何索引/collection（模式 A） | ✅ 只发 GET：ES `_cat/indices`、Milvus `collections/list`（只读列举） |
+| 不写旧命名空间 | ✅ 未发任何写入请求；`_count` 未变（`kb_9=44`、`table_chunks_kb_9=2`） |
+| 默认保持 `INGEST_READ_MODE=legacy` | ✅ 三个 `INGEST_READ_*` 全 unset，运行态零注入 |
+| 不启停服务 | ✅ 无 systemctl / 无启动脚本 |
+| 不改 L1~L7 语义、`_table_pk`/`table_summary_id` | ✅ 本轮**零文件改动**（`git status` 已核） |
+| 不改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置 / doc2md 仓 | ✅ 只读 |
+| 未授权不进模式 B | ✅ 未创建、未写入任何影子对象 |
+| 不自签 `QA_PASS` / 不标 `DONE`/`VERIFIED` | ✅ 仅 `R0_VERIFIED_WITH_DEVIATIONS` |
+| 裁定前不写实现代码 | ✅ 本文件无实现代码 |
+
+**本阶段新增文件**：仅本 evidence log。**零代码改动、零索引创建。**
+
+---
+
+## 11. 附录 · 现场原始输出（只读命令，未加工）
+
+### 11.1 ES(19200) 索引清单与 `v2cand*` 专项
+
+```
+$ curl -s "http://127.0.0.1:19200/_cat/indices?h=index,docs.count&s=index"
+db1                 41
+kb_1004           4520
+kb_9                44
+none                 1
+table_chunks_kb_9    2
+
+$ curl -s "http://127.0.0.1:19200/_cat/indices/v2cand*?h=index,docs.count"
+(空行 = 不存在 v2cand_* 索引)
+```
+
+### 11.2 Milvus(19630) collection 清单
+
+```
+$ curl -s -X POST http://127.0.0.1:19630/v2/vectordb/collections/list -H 'Content-Type: application/json' -d '{"dbName":"rag_knowledge_base"}'
+{"code":0,"data":["_None","_kb_9","_table_summary_r12_it_parse_002","_r12_it_idem","_kb_1004","_r12_alg_test","_r12_it_parse_001","_table_chunks_r12_it_parse_002","_r12_it_parse_003","_r12_it_parse_005"]}
+```
+
+### 11.3 生产 vs 影子 metadata 键集差异（离线，不联网不写盘）
+
+```
+生产 text metadata 键数 = 35  影子 text = 35
+影子缺失 = ['parsed_text_ref', 'source']
+影子多出 = ['artifact_id', 'content_hash']
+  parse_artifact_id: 生产=True 影子=True
+  pk: 生产=True 影子=True
+  source: 生产=True 影子=False
+  parsed_text_ref: 生产=True 影子=False
+生产 payload index 名 = ['kb_9', 'table_chunks_kb_9', 'table_summary_kb_9']
+影子计划目标名      = ['v2cand_kb_9', 'v2cand_table_chunks_kb_9']
+```
+
+### 11.4 读侧快照模式的名字推演 vs 写侧目标名
+
+```
+resolve -> ['v2cand_kb_9'] {'mode': 'snapshot', 'prefix': 'v2cand', 'switched': ['kb_9'], 'kept_legacy': []}
+读侧  正文           : v2cand_kb_9
+读侧  table_chunks_  : table_chunks_v2cand_kb_9
+读侧  table_summary_ : table_summary_v2cand_kb_9
+写侧  text  : v2cand_kb_9
+写侧  table : v2cand_table_chunks_kb_9
+写侧  是否有 table_summary 通道 : NO（index_writer.build 只产 text/table 两份计划）
+```
+

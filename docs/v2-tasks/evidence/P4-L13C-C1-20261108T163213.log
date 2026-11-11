@@ -1,0 +1,223 @@
+# P4-L13-C · C1 建 4 个影子目标（验收 + 一个必须先知会的缺陷）
+
+- 时间：2026-11-08T16:32:13+0800；角色 `python-engineer`
+- Owner 授权：① 创建 `v2cand_*` 影子索引；② 启动 18096。本步只用 ①
+- **本步完成 C1 后停下，未做 C2**
+
+---
+
+## 1. C1 执行（命令原文 + 真实输出）
+
+### 1.1 ES：经 19527 `/create_es_index`
+
+```
+$ curl -s -X POST http://127.0.0.1:19527/create_es_index \
+       -H 'Content-Type: application/json' -d '{"index_name":"v2cand_kb_9"}'
+{"code":200,"msg":"索引v2cand_kb_9创建成功","data":null}
+
+$ curl -s -X POST http://127.0.0.1:19527/create_es_index \
+       -H 'Content-Type: application/json' -d '{"index_name":"v2cand_table_chunks_kb_9"}'
+{"code":200,"msg":"索引v2cand_table_chunks_kb_9创建成功","data":null}
+```
+
+mapping 校验（删除依赖 `.keyword`）：
+
+```
+$ GET /v2cand_kb_9/_mapping
+metadata.file_id = {"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}
+有 file_id.keyword: True
+有 source.keyword:   False        ← 见 §3 注意
+```
+
+### 1.2 Milvus：**必须经 19526，不是 19630**
+
+先踩了一次坑，记下来避免后人重复：
+
+```
+$ curl -X POST http://127.0.0.1:19630/v2/vectordb/create_milvus_collection -d '{"collection_name":"v2cand_kb_9"}'
+404 page not found
+```
+
+**19630 是 Milvus 自己的 REST**（只有 `/v2/vectordb/collections/list|describe|query…`，没有 create）；
+**建集合在 `index_vector_service`（19526）的 `/create_milvus_collection`**（即 `LLMKE_MILVUS_BASE_URL` 指向的那个服务）。
+
+```
+$ curl -s -X POST http://127.0.0.1:19526/create_milvus_collection \
+       -H 'Content-Type: application/json' -d '{"collection_name":"v2cand_kb_9"}'
+{"code":200,"msg":"集合:v2cand_kb_9创建成功","data":{...}}
+$ 同法建 v2cand_table_chunks_kb_9 → 200
+```
+
+Milvus 侧真实名带 `_` 前缀（与 L8 结论一致）：
+
+```
+$ GET 19630 /v2/vectordb/collections/list
+集合总数: 12
+v2cand 相关: ['_v2cand_kb_9', '_v2cand_table_chunks_kb_9']
+```
+
+维度与主键（服务端按 Nacos embedding 配置解析，**请求里未传**）：
+
+```
+pk  : INT64, is_primary=True, auto_id=False
+vector: FLOAT_VECTOR, dim=1024
+```
+
+---
+
+## 2. C1 验收（逐条对照 TL 判据）
+
+| 判据 | 结果 |
+|---|---|
+| `GET /v2cand_kb_9/_count` 可访问 | `{"count":0}` ✅ |
+| `GET /v2cand_table_chunks_kb_9/_count` 可访问 | `{"count":0}` ✅ |
+| Milvus 含 `_v2cand_kb_9` / `_v2cand_table_chunks_kb_9` | ✅（共 12 个集合） |
+| **`kb_9` 仍 44** | `{"count":44}` ✅ |
+| `table_chunks_kb_9` 仍 2 | `{"count":2}` ✅ |
+| 线上 `_cat/indices` 条目不变 | 原 5 条 → 现 7 条（**新增的 2 条就是影子**），原有 5 条的 `docs.count` / `store.size` 逐字相同：`db1 41/287.6kb`、`kb_1004 4520/2.2mb`、`kb_9 44/1.1mb`、`none 1/21.3kb`、`table_chunks_kb_9 2/28.5kb` ✅ |
+| 18094 pid `3189651 / 3202203` | ✅ 未变 |
+| 线上图 `kb_9` | mtime `2026-11-07 21:31:00`、`current.json` md5 `e2d0f75440e4553ee1bb33f51ca2ca34` —— 与 C1 前**逐位相同** ✅ |
+| 18096 | **仍未监听** ✅（本步未启动） |
+
+---
+
+## 3. ⚠️ C1 验证时发现一个会让 C4「静默不删」的缺陷（**必须先定，再进 C2**）
+
+### 3.1 事实
+
+```
+$ POST 19630 /v2/vectordb/collections/describe  {"collectionName":"_kb_9"}
+字段数: 33
+含 file_id（顶层）: True
+含 metadata.file_id:  False
+含 metadata（嵌套容器）: False
+
+$ 同法 describe _v2cand_kb_9
+含 file_id（顶层）: True
+含 metadata.file_id:  False
+```
+
+Milvus 集合是**平铺字段**（`enable_dynamic_field=False`），文件 id 就是顶层 `file_id`（VARCHAR 50）。
+
+### 3.2 我 A 段的结论是错的
+
+`kb_delta.MILVUS_DELETE_FIELD = "metadata.file_id"`，拼进 19526 的
+`expr=f'{col_name} in {col_values}'` → 查询 **`metadata.file_id in ['290']`**，
+而该字段**不存在** → 删不到。
+
+当时我按「ES 自动加 `metadata.` 前缀 ⇒ Milvus 要显式加」推的，方向错了：
+Milvus **原样使用**没错，但真实字段名本来就是 `file_id`，不是 `metadata.file_id`。
+
+### 3.3 正确值：两侧其实都是 `file_id`，**理由不同**
+
+| 侧 | 客户端传 | 服务端与真实字段 |
+|---|---|---|
+| ES 19527 | **`file_id`** | 服务端拼成 `metadata.file_id.keyword`（mapping 里 `file_id` 在 `metadata` 下） |
+| Milvus 19526 | **`file_id`** | 原样拼进 expr，而集合顶层字段就叫 `file_id` |
+
+→ 「两侧不同值」的结论要撤回；「不能统一成 `metadata.file_id`」这个**约束仍然成立**（那会让 ES 双前缀、Milvus 找不到字段），只是两侧的正确值恰好相同。
+
+### 3.4 影响面
+
+- **C4 的删除/缩水验证会静默失败**（delete 返回 200、0 条被删），正是我们要防的那类；
+- A2 的测试会**继续通过**（它断言的是我们自己发出的值，不是服务端真实字段）——
+  只有到 C4 端到端才会暴露。**这就是为什么 C1 阶段先取 schema 描述是对的。**
+- 修法（**一处常量 + 一条测试**）：`MILVUS_DELETE_FIELD = "file_id"`；
+  把 `test_a2_es_and_milvus_use_different_col_name` 改成断言「两侧都传 `file_id`」，
+  并**新增一条**从 Milvus describe 读真实字段名的断言（对齐 A2 的 ES 侧做法：拿服务端真值比，而不是自说自话）。
+
+### 3.5 另一个较小的问题：`source.keyword` 不存在
+
+`v2cand_kb_9` 的 `metadata.source` **没有** `.keyword` 子字段（`file_id` 有）。
+影响：19527 的「写后按 source 剪枝」用 `metadata.source.keyword` → 在本索引上是 0 命中。
+但我们用 `duplicate_flag=False`（L6 硬约束）**不走那条剪枝**，删除走 `file_id`，所以**不影响 C4**；
+仅记录，避免将来有人打开 `duplicate_flag` 时误以为剪枝生效。
+
+---
+
+## 4. 请裁定（两件）
+
+| # | 事项 | 建议 |
+|---|---|---|
+| **Q4** | `MILVUS_DELETE_FIELD` 由 `metadata.file_id` 改为 `file_id`（+ 改 1 条测试、加 1 条从 describe 取真值的断言） | **批准修改**。否则 C4 的删除验证是假的；改完我会重跑 L12/L13 全量（预期只这一条断言变化） |
+| **Q5** | 是否允许在 C 段中改这一次代码 | C 段原则是「验证已测版本」，但这条不修则后续验证无意义。建议：**修 → 重跑单测 → 重跑 4 个影子目标的创建校验（无需重建）→ 再进 C2** |
+
+C1 本身**已完成且通过**，线上零写入（`kb_9=44`、线上图 mtime/md5 未变、18094 pid 未变）。
+**在 Q4/Q5 裁定前不启动 18096、不进 C2。**
+
+---
+
+## 5. Q4 修复（TL 16:5x 批准）：`MILVUS_DELETE_FIELD` → `file_id`
+
+### 5.1 代码改动（1 个常量 + 注释）
+
+```diff
+-# 同一个 `col_name` 两侧语义**相反**（R-0 实测）：
+-# - 19527 会自己拼 `metadata.{field}.keyword` → 必须传裸字段名；
+-# - 19526 原样拼 `expr=f'{col_name} in {values}'` → 必须带 `metadata.`。
++# 两侧**都传 `file_id`，但理由不同**（C1 阶段用 `describe` 核出的服务端真值）：
++# - 19527 会自己拼 `metadata.{field}.keyword` → 传裸名 → 落成 `metadata.file_id.keyword`；
++# - 19526 原样拼 `expr`，而 Milvus 集合是**平铺字段**（enable_dynamic_field=False），
++#   文件 id 就是顶层 `file_id` → 也必须传 `file_id`。
+ ES_DELETE_FIELD = "file_id"
+-MILVUS_DELETE_FIELD = "metadata.file_id"
++MILVUS_DELETE_FIELD = "file_id"
+```
+
+`build_delete_body` 的报错文案同步更正（不再说「Milvus 必须带 metadata. 前缀」）。
+
+指纹：`kb_delta.py d9ed9927…` → **`f29142fb1aef13fed5e7559aefb2bb7f`**。
+
+### 5.2 测试按 TL 两条要求改
+
+**(a) 改名 + 保留反向断言**：`test_a2_es_and_milvus_use_different_col_name`
+→ **`test_a2_both_sides_use_file_id_for_different_reasons`**。
+断言两侧都是 `file_id`，并保留「统一传 `metadata.file_id` 时两侧都必须被拒」的反向断言
+（ES 会双前缀、Milvus 无该字段）。测试 docstring 写明**为什么改名**，防止后人按旧名字改回去。
+
+**(b) 新增服务端真值断言**：`test_a2_milvus_field_exists_in_server_schema`
+从 **19526 的 schema 源** `milvus_kb_config.py` 用 `ast` 解析 `MILVUS_FIELDS` /
+`MILVUS_FIELDS_TABLE_CHUNKS` 的**顶层键**（与 ES 侧从 `init_field_body` 取真值同一标准），断言：
+
+- `"file_id" in fields` 且 `"metadata.file_id" not in fields`；
+- **我们 `build_delete_body` 实际发出的 `col_name` 必须存在于该 schema 里**。
+
+→ 这条正是 A2 漏掉的对称检查：**「我们发了什么」不算验证，「服务端有没有这个字段」才算。**
+
+指纹：`tests/test_kb_delta_l13.py 8ebfdbe4…` → **`1145a364d5ec8c36fb62dc33d43f521d`**。
+
+### 5.3 变异验证（M21：退回错值）
+
+| 变异 | 结果 |
+|---|---|
+| `MILVUS_DELETE_FIELD = "metadata.file_id"`（退回 C1 前的错值） | **2 failed**：`test_a2_both_sides_use_file_id_for_different_reasons`、`test_a2_milvus_field_exists_in_server_schema` |
+
+restore 后 md5 逐位复原。**说明新断言对这类错有判别力**（旧断言对它是绿的 —— 这就是它活到 C1 的原因）。
+
+### 5.4 「修改前 → 修改后」单测对比（TL 要求）
+
+| 集合 | 改前 | 改后 |
+|---|---|---|
+| `test_kb_delta_l12.py + test_kb_delta_l13.py` | **41 passed** | **42 passed**（+1 = 新增的 Milvus schema 断言；改名的那条仍 1 条） |
+| v2 全量 | 206 passed / 6 skipped | **207 passed / 6 skipped** |
+| hipporag 全量 | 278 passed | **279 passed** |
+
+失败 0。**C1 的成果保留**（4 个影子目标仍在：`v2cand_kb_9` / `v2cand_table_chunks_kb_9` 各 0 条，
+Milvus `_v2cand_*` 在列表里），无需重建；**C2 起的将是改后的版本**。
+
+### 5.5 红线复核（改完仍未启服务）
+
+```
+kb_9 = 44 ; v2cand_kb_9 = 0 ; v2cand_table_chunks_kb_9 = 0
+18096 仍未监听
+18094 pid 3189651 / 3202203（未变）
+线上图 current.json md5 e2d0f754…（未变）
+```
+
+---
+
+## 6. C4 的硬要求（TL 16:5x 追加，先记下）
+
+**删除验证不能只看 HTTP 200**：`del_doc_by_col` 遇「集合或字段不存在」也返回 200（「未执行删除」）。
+C4 必须验**实际数据变化**：删前 `_count = N` → 删后 `_count = 0`（ES 与 Milvus 两侧都要）。
+否则「删不到」会伪装成「删成功」—— 正是本步这个 bug 的另一面。

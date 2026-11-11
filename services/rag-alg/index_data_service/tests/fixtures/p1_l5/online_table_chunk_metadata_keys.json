@@ -1,0 +1,53 @@
+{
+  "_source": "read-only HTTP _search on http://127.0.0.1:19200/table_chunks_kb_9 (P1-L5 R-0, 2026-11-08)",
+  "_note": "线上 table_chunks_kb_9 抽样 _source.metadata 的键集真值；缺/多字段均判 E1 FAIL。固化进 fixture 以便离线测试不依赖在线服务。",
+  "count": 38,
+  "metadata_keys": [
+    "att_id",
+    "channel",
+    "chunk_doc_id",
+    "chunk_index",
+    "content_uid",
+    "create_time",
+    "document_id",
+    "file_id",
+    "file_path",
+    "file_size",
+    "folder_id",
+    "image_path",
+    "knowledge_base_name",
+    "labels",
+    "main_id",
+    "n_cols",
+    "n_rows",
+    "offset",
+    "order_num",
+    "page_number",
+    "page_size",
+    "parent_file_name",
+    "parse_artifact_id",
+    "parsed_text_ref",
+    "pic_children_id_list",
+    "pic_offset_list",
+    "pic_url_list",
+    "pk",
+    "position",
+    "revise_date",
+    "source",
+    "table_id",
+    "table_name",
+    "text_parent_id_list",
+    "title",
+    "title_path",
+    "type",
+    "update_time"
+  ],
+  "truth_fields_for_e1": [
+    "pk", "chunk_doc_id", "file_id", "chunk_index", "table_id", "channel",
+    "parse_artifact_id", "content_uid", "n_rows", "n_cols", "parsed_text_ref"
+  ],
+  "online_pk_truth": {
+    "table|kb_9|329|0": 1137902847478273881,
+    "table|kb_9|333|0": 885155839145947657
+  }
+}

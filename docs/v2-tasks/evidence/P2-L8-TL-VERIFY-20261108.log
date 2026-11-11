@@ -1,0 +1,72 @@
+# P2-L8 · T-D2MD-08 · TL 独立复核证据（修正后最终版）
+
+- 生成时间：2026-11-08T12:3x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P2-L8-20261108T120810.log`（1088 行 / `b432b632eb8cbb80c67dbee2280d3d79`，§12 为修正记录并 supersede §4/§5/§8/§9）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立 → 派工 P3-L9**（模式 B 仍未进入）
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹核对（全部吻合）
+
+```
+projection_read.py     0d96540175112f046c84ca2b7f58d171
+multiple_retrieval.py  e09013761d644494d6e679baa8133d29
+index_writer.py        1ec116e54ad9b654fc9aa08f5d3df89a   347 行
+kb_pipeline.py         e1e9f909cf1d77db8a5ca76a67528f23   678 行
+evidence               b432b632eb8cbb80c67dbee2280d3d79  1088 行
+```
+
+## 2. `source` 修正复核（TL 12:2x 指出的缺陷已修）
+
+`_resolve_source()`（`index_writer.py:116-134`）优先级实现正确：
+
+```
+显式 source  >  urlparse(file_path).path.lstrip("/")  >  ""
+```
+
+无 scheme 时 `path = str(file_path)`，不误剥；`build(..., source=None)` additive。`kb_pipeline.py:530-531` 调用点已补 `file_path=file_path, source=source`。断言用**派生真值**（`urlparse` 去前缀）而非写死路径，并加「无 `http` / 无 `://` / `scheme==""`」三重校验 —— 认可。
+
+## 3. 命名与残留拼接点
+
+`multiple_retrieval.py:571` 已收口为 `_channel_name("table_chunks", _original_kb(...))`；全仓裸拼接扫描后仅剩 `retrieval_service_cec.py:227`（`table_summary_`，已由 Q3 的 `T-D2MD-17` 硬前置覆盖，按裁定不动）。残留拼接点登记测试集已从 2 收紧为 `{retrieval_service_cec.py}`。
+
+## 4. 独立复跑
+
+```
+$ pytest services/rag-alg/index_data_service/tests/ tests/test_rag_projection.py \
+    tests/test_projection_read.py tests/test_runtime_switches.py -q
+63 passed in 0.44s
+
+$ 追加 tests/test_artifact_binding.py
+93 passed in 0.46s
+```
+
+零失败。成员报的 120 与我实测 93 的差异仅在于测试集合口径（它含更多文件），关键是无失败。
+
+**变异 6/6 全捕获**，其中 M6（`source` 退回直接取 `file_path`）→ 3 failed，正是本轮修正的守卫。成员还如实记录了 M3 首跑「锚点没匹配 → 判定变异没生效并修锚点后重跑」，**没有把「没变异成」当「断言满足」** —— 这是本次复核里最值得肯定的一处严谨性。
+
+## 5. 红线
+
+`INGEST_READ_MODE` / `INGEST_PROJECTION_MODE` 双 unset；`_cat/indices/v2cand*` **0**；`kb_9=44`、`table_chunks_kb_9=2` 未变；八端口 pid 与 R-0 时点一致；doc2md 仍 14 项；`_table_pk` / `table_summary_id` / `_target_name` / `projection` / `enrich` / `summary` 未动；**模式 B 未进入、零索引创建**。
+
+## 6. 仓根全量测试的既有失败（非本轮引入，已固化口径）
+
+`3 failed, 1053 passed, 19 skipped`，三项均既有：
+
+| 失败 | 根因 | 硬证据 |
+|---|---|---|
+| `test_scripts_compile` | `scripts/v2_community_report.py:80` `IndentationError` | `git show HEAD:` 版同报错；该文件本轮未改 |
+| `test_security_scan` | 既有文件命中 `PERSONAL_ABSOLUTE_PATH`/`REAL_CREDENTIAL`（`build/systemd/*`、`docs/NEXT.md`、`docs/design/unified-documents-v2/EVIDENCE-*.md`） | 均未被本轮修改 |
+| `test_q_acceptance` | `scripts/v2_q_acceptance.py` 判 `verdict=FAIL` | 脚本与测试均未改；成员补充观察：该项计数随在线 ES 数据漂移（`FAIL:4/PASS:46` 与 `FAIL:3/PASS:47`），进一步证明与代码无关 |
+
+**裁定**：不修（不属本切片），但要求后续所有 loop 的 evidence 统一写「本 loop 回归范围 + 仓根 3 个既有失败与本 loop 无关」，**不得**把 `1053 passed` 表述为「全 PASS」。
+
+## 7. L9 派工
+
+`docs/v2-tasks/loops/P3-L9-PLAN.md` 已锁定并派工 `T-D2MD-09`。
+
+## 8. TL 红线自查
+
+只写 `docs/v2-tasks/` 下证据与计划 + `TASKS.yaml`；未改实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED。
