@@ -1,0 +1,268 @@
+# P3-L9 · R-0 只读核实证据（python-engineer 现场复核）
+
+- 时间：2026-11-08T13:01:18+0800
+- 角色：`python-engineer`；本文件**只记 R-0**，**无任何实现代码、无任何文件改动**
+- 任务：`T-D2MD-09` / loop `P3-L9`（`docs/v2-tasks/loops/P3-L9-PLAN.md` §二）
+- 状态：`R0_VERIFIED_WITH_DEVIATIONS` —— **PLAN 点名的 4 个符号在代码里不存在**，
+  另有 4 项需 TL 裁定（§7 `D-1`/`D-3`/`D-8`/`D-9`/`D-10`）
+- 红线：**未重启/未启停 18094**、未启任何新监听端口、未写线上存储、未改任何文件
+
+## 0. 开工基线指纹
+
+```
+$ md5sum graph_engine_adapter/{api,rebuild,fence,global_report,capabilities}.py \
+         ingest_pipeline/index_writer.py
+89785a15a70ef927bacd0da4116aa71e  graph_engine_adapter/api.py            (735 行)
+c4953492fcdaab476d8de3baee1be548  graph_engine_adapter/rebuild.py
+cbb9151f3691d9ffe09f8c3d856c2a2f  graph_engine_adapter/fence.py
+4e1d2d6678f555752483c0358ab31aeb  graph_engine_adapter/global_report.py
+32ce3e11f85a9ff4ed59e68cbcd40481  graph_engine_adapter/capabilities.py
+1ec116e54ad9b654fc9aa08f5d3df89a  ingest_pipeline/index_writer.py         (= L8 交付指纹)
+```
+
+`index_writer.py` 与 L8 收口值逐位一致 → L8 产物未被改动，回退基线干净。
+
+---
+
+## 1. `api.py` 路由清单与复用函数（R-0 第 1 项）
+
+### 1.1 路由现况（8 条，含 `/health`）
+
+```
+$ grep -n "@app\.\(get\|post\)" graph_engine_adapter/api.py
+333:    @app.get("/health")
+356:    @app.post("/v2/graph/build")
+415:    @app.post("/v2/graph/query")
+468:    @app.get("/v2/entities")
+511:    @app.get("/v2/status")
+539:    @app.get("/v2/fence")
+547:    @app.get("/v2/graph/view")
+634:    @app.post("/v2/graph/global")
+735:app = create_app()
+```
+
+进程内实测（hipporag-toolenv，**不监听端口**）：
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service hipporag-toolenv/bin/python -c "import graph_engine_adapter.api as A; app=A.create_app(); ..."
+import OK; create_app= True
+routes= ['/health', '/v2/entities', '/v2/fence', '/v2/graph/build', '/v2/graph/global',
+         '/v2/graph/query', '/v2/graph/view', '/v2/status']
+```
+
+### 1.2 【D-1 · 高】PLAN/TL 点名的 4 个符号**不存在**
+
+```
+$ for s in _kb_root _load_fence _default_build _write_sources _write_kb_json; do
+    printf "%-18s : " $s; grep -rn "def $s\|$s(" --include=*.py graph_engine_adapter/ | head -2; done
+_kb_root           :
+_load_fence        :
+_default_build     : api.py:196:def _default_build(docs, root) -> Dict[str, Any]:
+_write_sources     :
+_write_kb_json     :
+```
+
+**只有 `_default_build` 存在**；其余四个在全仓 `graph_engine_adapter/` 内 **0 命中**。它们实际是内联代码：
+
+| PLAN 里的名字 | 代码里的真实位置 | 形态 |
+|---|---|---|
+| `_kb_root(kb)` | `api.py:371-375`（build 路由）、`api.py:136`（`_resolve_snapshot`） | `os.path.join(base_root, kb)`，`base_root = req.root or env LLMKE_V2_ROOT or ".artifacts/api-root"` |
+| `_load_fence(dir)` | `api.py:208-212`（`_default_build`）、`api.py:385`（build 路由） | `FenceState.load(os.path.join(dir, FENCE_FILE))` |
+| `_write_sources(target, live)` | `api.py:223-238`（`_default_build` 内） | 用 `HippoRAGEngine(save_dir=target).openie_docs()` 建 text→idx，再写 `sources.json` |
+| `_write_kb_json(target, kb)` | `api.py:387-392`（**build 路由**内，`_default_build` 之后） | `json.dump({"kb_id": kb})` |
+
+→ **实现含义**：`_finalize_snapshot` 不是"复用四个现成 helper"，而是**把这四处内联逻辑收拢**。
+
+---
+
+## 2. `rebuild_delta` / `rebuild_by_policy` / `check_freshness`（R-0 第 2 项）
+
+```python
+# rebuild.py:61
+def check_freshness(pointer, live_docs, fence=None) -> Dict[str, Any]
+    # → {"stale": bool, "reason": "NO_POINTER"|"OK"|"SNAPSHOT_OUT_OF_DATE",
+    #    "missing": [...], "removed": [...], "changed": [...]}
+
+# rebuild.py:192
+def rebuild_delta(root, fence, docs, apply_fn, *, keep_last=2, fencing=None) -> Dict[str, Any]
+    # apply_fn(target: str, texts: List[str])
+    # → {"schema","status":"BUILT","mode":"DELTA","pointer","current","apply_result","previous"}
+    # 无基准快照 → raise RebuildFailed("没有可复用的上一份快照（或目录不存在）…")
+
+# rebuild.py:256
+def rebuild_by_policy(root, fence, docs, kb_id, policy, full_build, delta_apply,
+                      *, keep_last=2, fencing=None) -> Dict[str, Any]
+    # 需要 policy.mode_for(kb_id) ∈ {"full","delta"}；
+    # → 在 rebuild_* 返回上补 {"requested_mode","effective_mode","kb_id"}
+    # 明确「没有 delta 失败自动退回 full」
+```
+
+**关键实现事实（J3 的根因）**：`rebuild_delta:221` 先 `shutil.copytree(base_dir, target)` ——
+**新快照目录里带着基准快照的 `sources.json` / `community.json` / `kb.json` / `fence.json`**，
+`apply_fn` 只改引擎增量。**不重算这四份就是"copytree 带旧文件"**（正是 `03-IMPLEMENTATION.md:252-256` 点名的缺陷）。
+
+引擎侧：`HippoRAGEngine.apply_delta(texts)`（`engine_hipporag.py:76`）、`openie_docs()`（`:104`）、
+`build(texts)`（`:60`）。→ `delta_apply = lambda target, texts: HippoRAGEngine(save_dir=target, …).apply_delta(texts)`。
+
+---
+
+## 3. `global_report.write` 与四文件写入点（R-0 第 3 项）
+
+### 3.1 接口（**签名与 TL 消息不同，注意**）
+
+```python
+# global_report.py:296
+def write(snapshot: Optional[str], built_file_ids: Sequence[str]) -> Dict[str, Any]:
+    """生成并写 community.json；返回 {path, sha256, community_count, citation_check, status}"""
+```
+
+- 第三个参数不是 `target` 而是 `snapshot`（快照目录）；`FILE_NAME = "community.json"`（`:45`）；
+- 内部 = `build_report_for_snapshot(snapshot, ids)` → `render()` → 写 `community.json`；
+- `build_report_for_snapshot` 读快照内的 openie 结果与 `sources.json`，**不调 LLM / embedding**。
+
+### 3.2 耗时量级（只读实测；样本为空快照，仅证明"无重活"）
+
+```
+$ （hipporag-toolenv，只调 build_report_for_snapshot，不写盘）
+snapshot = .artifacts/api-root/snapshot-20261102225353-716462-g0
+files = ['llm_cache', 'qwen2.5-7b-instruct_text-embedding-bge-m3']   ← 空引擎目录，无 openie 产物
+build_report_for_snapshot 耗时 0.2 ms; status=BLOCKED, community_count=0
+render 长度 = 1136
+```
+
+**诚实边界**：仓内没有真实规模的图快照（该目录 24K、无 openie 产物），所以这个 0.2ms
+**不能代表生产量级**；能确定的只有「纯 Python 读 JSON 组装，无 LLM/embedding 调用」。
+真实量级随 openie 块数线性，P4/P6 在真实快照上测。
+
+### 3.3 四文件当前写入点分散在**三处**（`_finalize_snapshot` 要收敛的对象）
+
+| 文件 | 写入位置 | 写入者 |
+|---|---|---|
+| `fence.json` | `api.py:221`（`_default_build` 内） | `FenceState.save()` |
+| `sources.json` | `api.py:237-238`（`_default_build` 内） | 内联 |
+| `kb.json` | `api.py:389-390`（**build 路由**内） | 内联 |
+| `community.json` | `api.py:409`（**build 路由**内） | `global_report.write()` |
+
+→ `_finalize_snapshot(target, kb, live, …)` 必须覆盖**全部四个**，否则 DELTA 后 J3/R-3~R-5 必 FAIL。
+
+---
+
+## 4. `fence.py` 语义（R-0 第 4 项）
+
+```python
+@dataclass
+class FenceState:
+    generation: int = 0
+    revoked: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+
+    def revoke(self, file_ids, reason="REVOKED") -> int   # 只有**新增**撤权才 generation += 1；重复撤权幂等
+    def is_revoked(self, file_id) -> bool                 # 纯 dict 查：str(file_id) in revoked
+    def live(self, file_ids) -> Set[str]
+    def save(path)                                        # 原子替换（tmp + os.replace）
+    @classmethod
+    def load(path) -> "FenceState"                        # 文件缺失/损坏 → 空 fence（不抛）
+```
+
+- `generation` 是**撤权代次**，不是重建次数；`assert_index_fresh(index_generation, fence)` 用它挡旧索引读（`:81-87`）；
+- `rebuild_delta` 里 `fence` **只用于剔除已撤权 docs**（`:213`）与拼快照目录名（`-g{fence.generation}`），
+  **不推进 generation** —— 那份推进属 P3-3（L10），本 loop 不碰。
+
+---
+
+## 5. `capabilities.py` 现状（R-0 第 5 项）
+
+```
+$ sed -n '53,60p' graph_engine_adapter/capabilities.py
+    "incremental_update": {
+        "status": "VERIFIED",
+        "note": "复制上一份快照后就地应用差异：hp.delete 去掉多余块、hp.index(to_add) 复用 "
+                "load_existing_openie 只对新块抽取（**增量抽取 + 全量重建图**，两件事分开说）。"
+                "真跑 5 块：全量 32.4s → 增量 7.5s（4.3×），删 3 增 1 复用 2，"
+                "openie 5→3 == 期望 5-3+1；检索层 full vs delta 命中完全一致",
+        "evidence": "docs/design/unified-documents-v2/EVIDENCE-DELTA-REBUILD-20261031.md",
+    },
+```
+
+**现状**：`incremental_update` 已 `VERIFIED`，但 note **只说「引擎侧能力」、没有声明任何 HTTP 端点**
+（对比同文件 `graph_global` 明写「已接线到 HTTP：… POST /v2/graph/global …」）。
+→ 本 loop 落地 `POST /v2/graph/delta` 后，**能力登记必须补一句**，否则「能力登记与实际不符」
+（正好是 `T-D2MD-11` 的任务；本 loop 不动该文件）。
+
+---
+
+## 6. 不重启 18094 前提下的验证边界（R-0 第 6 项）
+
+```
+$ ss -tlnp | grep ':18094\b'
+LISTEN 0 2048 127.0.0.1:18094 0.0.0.0:* users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+```
+
+pid `3189651 / 3202203`（与 TL 所述一致）。**全程不重启**。
+
+### 6.1 【D-3 · 关键】解释器不对称 → 双解释器口径在本 loop 不适用
+
+```
+$ for e in llmke-v2-toolenv hipporag-toolenv; do printf "%s: " $e; $e/python -c "import fastapi, starlette; from fastapi.testclient import TestClient; import httpx, pydantic; ..."; done
+llmke-v2-toolenv: ModuleNotFoundError: No module named 'fastapi'
+hipporag-toolenv: fastapi 0.162.0 | starlette 1.10.0 | httpx 0.28.1
+$ pydantic
+llmke-v2-toolenv: ModuleNotFoundError: No module named 'pydantic'
+hipporag-toolenv: 2.14.2
+```
+
+→ **`llmke-v2-toolenv` 既无 fastapi 也无 pydantic**。若 `delta_build` / `DeltaRequest` 依赖 pydantic，
+本 loop 就**无法像 L5~L8 那样双解释器验证**。
+
+**建议拆分（请裁定）**：
+- `delta_build(req)` 用**鸭子类型**（只读 `req.requested_mode / fallback_reason / docs / kb / root / fencing`），
+  **不 import fastapi/pydantic** → J2/J3/J4 可在 `llmke-v2-toolenv` 主口径验证；
+- J1（路由存在性 + `DeltaRequest` 校验 422）只能在 `hipporag-toolenv` 验证 → evidence 明确标注，
+  **不谎称"双解释器全绿"**。
+
+### 6.2 TestClient 能覆盖 / 不能覆盖什么
+
+| 能覆盖（进程内） | 不能覆盖（须 P4/P6 维护窗口） |
+|---|---|
+| 路由存在性、`DeltaRequest` 字段与校验（`full` 缺 `fallback_reason` → 422） | 真实引擎建图/增量抽取（要 LLM+embedding） |
+| 请求 → 响应契约（`status`/`requested_mode`/`effective_mode`/失败原因） | 真实 18094 端到端（连接、超时、鉴权） |
+| 注入替身下的分支编排（freshness 短路、REJECTED、delta 失败不回退） | 真实快照指针切换对**在线读者**的影响 |
+| `_finalize_snapshot` 的四文件重算（小 fixture + 假引擎 `openie_docs()`） | 多实例并发 / fencing 跨机租约（L10 才做） |
+
+**注意**：`create_app(engine_factory=None, builder=None)` 目前只支持两个注入点；
+delta 路径若不加注入点，TestClient 一打就会真跑引擎 → 需 **additive 增加一个注入点**
+（`delta_runner=None`）。这是 api 面的扩张，请确认（`D-8`）。
+
+---
+
+## 7. 请 TL 裁定的 5 项
+
+| # | 问题 | 我的建议 |
+|---|---|---|
+| **D-1** | `_kb_root/_load_fence/_write_sources/_write_kb_json` 不存在（是内联代码）。实现时：<br>(a) 新建 4 个模块级私有 helper 并在 **delta 路径**使用，`/v2/graph/build` 路由**不动**；<br>(b) 顺手把 build 路由也重构成调这些 helper | **(a)**。build 路由属 L1~L8 已验收行为，重构成共享 helper 会引入"我改动了在线建图路径"的风险，收益只是消重 |
+| **D-3** | 双解释器不可行（v2 env 无 fastapi/pydantic） | 按 §6.1 拆分：`delta_build` 鸭子类型（v2 可测）；J1 只在 hipporag 测并如实标注 |
+| **D-8** | 是否授权 `create_app` **additive** 增 `delta_runner` 注入点 | 授权。否则 TestClient 测试会真跑引擎（可能拉 LLM/embedding，甚至写盘） |
+| **D-9** | J4「无基准快照 → REJECTED」如何判定？`RebuildFailed` 只有字符串消息，且红线不许改 `rebuild.py` | **调用前先 `read_pointer(root)`**判定，空则直接返回 `REJECTED / NO_BASELINE_SNAPSHOT`；**不做字符串匹配**，也不改 `rebuild.py` |
+| **D-10** | `DeltaRequest` 字段面 | 建议 `{ kb: str, docs: List[BuildDoc] = [], root: Optional[str] = None, requested_mode: Literal["auto","delta","full","skip_if_fresh"] = "auto", fallback_reason: Optional[str] = None, fencing: Optional[int] = None }`；`requested_mode="full"` 时 `fallback_reason` 必填（`model_validator` → 422）。请确认，避免 P4 再改契约 |
+
+### 另附两项事实（不需裁定，需要记）
+
+- **D-4** `global_report.write(snapshot, built_file_ids)`——TL 消息里的 "`write(target, file_ids)`" 措辞不同，
+  实际第一参是**快照目录**，返回带 `sha256`/`community_count`/`citation_check`/`status`。
+- **D-7** `capabilities.incremental_update` 已 VERIFIED 但**未声明 HTTP 端点** → 本 loop 收口后
+  `T-D2MD-11` 必须补，否则能力登记失真。
+
+---
+
+## 8. 红线自查（R-0 阶段）
+
+| 红线 | 自查 |
+|---|---|
+| 不重启 / 不启停 18094 | ✅ 只 `ss` 查看；pid 仍 `3189651/3202203` |
+| 不启新监听端口 | ✅ 所有验证都是 `python -c` 进程内（import + `create_app()` + 只读函数调用），无 `uvicorn`、无 bind |
+| 不写线上图快照 / ES / Milvus / DB | ✅ `build_report_for_snapshot` 是**只读**函数（未调 `write`）；未写任何目录 |
+| 不改 `rebuild.py` / `fence.py` / `engine_hipporag.py` | ✅ 只读 |
+| 不改 `api.py` / 设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置 / doc2md 仓 | ✅ 只读；**本轮零文件改动** |
+| 裁定前不写实现代码 | ✅ 本文件无实现代码 |
+| 不自签 `QA_PASS` / 不标 DONE/VERIFIED | ✅ 仅 `R0_VERIFIED_WITH_DEVIATIONS` |
+
+**本阶段新增文件**：仅本 evidence log。**零代码改动、零索引/端口变化。**

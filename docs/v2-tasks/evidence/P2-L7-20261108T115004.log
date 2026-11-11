@@ -1,0 +1,379 @@
+# P2-L7 · R-0 只读核实证据（python-engineer 现场复核）
+
+- 时间：2026-11-08T11:50:04+0800（命令时间戳见各处）
+- 角色：`python-engineer`（实现角色）；本文件**只记录 R-0 只读核实**，不含实现代码
+- 任务：`T-D2MD-07` / loop `P2-L7`（`docs/v2-tasks/loops/P2-L7-PLAN.md` §二）
+- 状态：`R0_VERIFIED`（待 TL 裁定后进入「反例 FAIL → 实现 → PASS」）
+- 结论摘要：**TL 11:45 预研的四项事实全部成立**；另发现 **1 项 PLAN 未写明的落地约束**（`index_writer.build` 无 `file_id` 入参）与 **2 处需精确化的表述**（见 §5）
+
+> 说明：本文件的所有输出均为**本条命令的实际 stdout**，未加工、未补写。
+> TL 预研（`CHECKPOINT` §十五 11:45）仅作为对照基线，以下以现场命令为准。
+
+---
+
+## 0. 开工基线（红线自查用）
+
+```
+$ TZ=Asia/Shanghai date '+%Y-%m-%dT%H:%M:%S%z'
+2026-11-08T11:50:04+0800
+
+$ md5sum services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py \
+         services/rag-alg/index_data_service/ingest_pipeline/index_writer.py \
+         services/rag-alg/index_data_service/rag_projection/projection.py \
+         services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py
+addcbb15503cc750d42517a58cb92e02  services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+db0ddc9be5a868f50ebfc05dc3ef1901  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+3a4a87d8260b3f926c2327fe13115894  services/rag-alg/index_data_service/rag_projection/projection.py
+e81e51510ff9ea858c587b7f547ba1cc  services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py
+
+$ wc -l services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+376 services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+```
+
+**比对**：`kb_pipeline.py = addcbb15…` 与 `P1-L5-20261108T034446.log:276` 的 L5 产物指纹逐字一致；
+`index_writer.py = db0ddc9b…` 与 `P2-L6-TL-VERIFY-20261108.log` §1 的 L6 交付物指纹一致。
+→ **L5/L6 产物未被改动，开工基线干净。**
+
+两仓 `git status`（只读）：
+
+```
+$ git -C /home/szf/data/dev/llmke-v2 status --short
+ M .gitignore
+ M docs/ui-graph-workbench/TASKS.yaml
+ M docs/v2-tasks/TASKS.yaml
+ M scripts/v2_ingest_doc2md.py
+ M services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+?? .codebuddy/teams/
+?? .playwright-cli/
+?? docs/design/…（设计与评审包，略）
+?? docs/v2-tasks/CHECKPOINT-VL-DOC2MD-INC.md
+?? docs/v2-tasks/evidence/P1-L1-20261108T023149.log
+…（L1~L6 的 12 个 evidence log + TL 复核 log）
+?? docs/v2-tasks/loops/
+?? docs/v2-tasks/tools/
+?? services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+?? services/rag-alg/index_data_service/tests/
+?? frontend/plateform/dist-*
+
+$ git -C /home/szf/data/dev/doc2md status --short
+ M backend/app/cli/main.py
+ M backend/app/core/parsed_paths.py
+ M backend/app/services/document_ir_builder.py
+ M backend/app/services/markitdown_parser.py
+ M backend/app/services/mineru_pdf_parser.py
+?? backend/app/services/kb_diff.py
+?? backend/app/services/parse_queue.py
+?? backend/tests/fixtures/idempotency_corpus/
+?? backend/tests/fixtures/kb_diff_corpus/
+?? backend/tests/fixtures/pdf_fourth_artifact/
+?? backend/tests/test_idempotency_key.py
+?? backend/tests/test_kb_diff.py
+?? backend/tests/test_parse_queue.py
+?? backend/tests/test_pdf_fourth_artifact.py
+```
+
+- llmke-v2：5 M 中 `scripts/v2_ingest_doc2md.py`（L3 唯一授权）与 `kb_pipeline.py`（L5 产物）为既有改动；本 loop 开工时**未新增任何改动**。
+- doc2md：14 项（5 M + 9 ??），与 `P1-L4-TL-VERIFY` §8 修订后的清单一致，**本 loop 不碰 doc2md 仓**。
+
+---
+
+## 1. `consume_for_kb` 的实际调用方（R-0 第 1 项）
+
+```
+$ cd /home/szf/data/dev/llmke-v2 && grep -rn "consume_for_kb" \
+    --include=*.py --include=*.yaml --include=*.sh . | grep -v "^./docs/"
+./services/rag-alg/index_data_service/kb_ingest_service.py:123:    # 用 consume_for_kb：本次文件并入该库清单后，用**该库全部文件**重建图谱，
+./services/rag-alg/index_data_service/kb_ingest_service.py:125:    runner = consume or K.consume_for_kb
+./services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py:219:def consume_for_kb(doc2md_dir, store_root, *, kb: str, file_id: Any,
+./services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py:...
+./services/rag-alg/index_data_service/ingest_pipeline/index_writer.py:8:- 只产出计划 / mock 端点测试；**不接生产调用点**（`consume_for_kb` 内接 `build` +
+./scripts/v2_ingest_doc2md.py:203:    result = K.consume_for_kb(
+```
+
+**判定：调用方恰为 2 处，与 TL 预研一致；但需精确化 1 处表述。**
+
+| 位置 | 形态 | 实际语义 |
+|---|---|---|
+| `kb_ingest_service.py:125` | `runner = consume or K.consume_for_kb` | **不是直接调用**，是**把函数对象绑到 `runner`**；真正的调用在 `:171`（`ingest_file` 分支→间接）与 `:193`（`runner(doc2md_dir, _store_root(), kb=…, file_id=raw_file_id, …)`） |
+| `scripts/v2_ingest_doc2md.py:203` | `K.consume_for_kb(...)` | **直接调用**，`ingest_file()` 内（`:112` `store_root` 形参默认 `DEFAULT_STORE_ROOT`） |
+
+旁证（`kb_pipeline.py:312` 的 `consume()` 是**另一个函数**，不调用 `consume_for_kb`，无交叉污染）。
+
+**在线入口判定**：
+
+```
+$ printenv INGEST_PROJECTION_MODE ; echo exit=$?
+（无输出）exit=1
+$ printenv LLMKE_ARTIFACT_STORE ; echo exit=$?
+（无输出）exit=1
+$ ss -tlnp | grep -E ':(19526|19527|19531|19995|19200|18094|18082|18083)\b'
+LISTEN 0 2048 127.0.0.1:19531  0.0.0.0:* users:(("python",pid=435286,fd=12))
+LISTEN 0 2048 127.0.0.1:19526  0.0.0.0:* users:(("python",pid=19144,fd=24))
+LISTEN 0 2048 127.0.0.1:19527  0.0.0.0:* users:(("python",pid=23140,fd=19))
+LISTEN 0 2048 127.0.0.1:19995  0.0.0.0:* users:(("python",pid=1358208,fd=19),("python",pid=23647,fd=19))
+LISTEN 0 32768 127.0.0.1:19200  0.0.0.0:*
+LISTEN 0 2048 127.0.0.1:18094  0.0.0.0:* users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+LISTEN 0 100  127.0.0.1:18082  0.0.0.0:* users:(("java",pid=1341032,fd=117))
+LISTEN 0 100  127.0.0.1:18083  0.0.0.0:* users:(("java",pid=450255,fd=94))
+$ ss -tlnp | grep -E ':18096\b' || echo "18096 未监听"
+18096 未监听
+```
+
+**结论**：18096（`kb_ingest_service` 唯一在线入口）**未监听** → `kb_ingest_service.py` 这一路当前不可达；
+`scripts/v2_ingest_doc2md.py` 是**离线 CLI**，仅在人工/测试时执行。
+→ **`consume_for_kb` 当前无在线调用方，改它不影响线上检索**；证据链完整（调用点 + 端口 + 模式变量）。
+
+---
+
+## 2. `_kb_state_path` / `_load_kb_state` / `_save_kb_state` 现状（R-0 第 2 项）
+
+源码原文（`kb_pipeline.py:197-216`，逐行核对）：
+
+```python
+def _kb_state_path(store_root) -> Path:
+    return Path(store_root) / "kb_state.json"
+
+
+def _load_kb_state(store_root) -> Dict[str, Dict[str, Any]]:
+    path = _kb_state_path(store_root)
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) or {}
+    except (OSError, ValueError):
+        return {}          # ← 损坏静默返回空态（待修缺陷，G3/R-3 目标）
+
+
+def _save_kb_state(store_root, state: Dict[str, Dict[str, Any]]) -> None:
+    path = _kb_state_path(store_root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")   # ← 固定临时名，无 flock（G3/R-4 目标）
+    tmp.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+    os.replace(tmp, path)
+```
+
+```
+$ printenv LLMKE_KB_STATE ; echo "LLMKE_KB_STATE exit=$?"
+（无输出）LLMKE_KB_STATE exit=1
+$ ls -la platform/r12/data
+ls: 无法访问 'platform/r12/data': 没有那个文件或目录
+$ find /home/szf/data/dev/llmke-v2 /home/szf/data/dev/llmke -maxdepth 8 -name "kb_state.json*"
+（无输出，0 命中）
+$ ls -la platform/r12/ | head
+drwxrwxr-x 21 szf szf 4096 11月 4 16:24 .
+drwxrwxr-x  5 szf szf 4096 11月 3 20:35 ..
+drwxrwxr-x  2 szf szf 4096 11月 6 21:57 bin
+drwxrwxr-x  8 szf szf 4096 10月 30 21:01 conf
+…
+（无 data/ 目录）
+$ ls -la .artifacts | head -4
+drwxr-xr-x 13 szf szf 4096 11月 2 22:56 .
+drwxr-xr-x 27 szf szf 4096 11月 8 02:13 ..
+drwxr-xr-x  3 szf szf 4096 11月 2 22:56 api-root
+-rw-rw-r--  1 szf szf  2547 11月 1 21:47 artifacts.json
+```
+
+**`store_root` 的真实来源**（`grep -n store_root`）：
+
+```
+services/rag-alg/index_data_service/kb_ingest_service.py:49:def _store_root() -> str:
+...:50:    return os.environ.get("LLMKE_ARTIFACT_STORE") or DEFAULT_STORE_ROOT
+...:39:DEFAULT_STORE_ROOT = ".artifacts/artifact-store"
+scripts/v2_ingest_doc2md.py:40:DEFAULT_STORE_ROOT = ".artifacts/artifact-store"
+scripts/v2_ingest_doc2md.py:112:                store_root: str = DEFAULT_STORE_ROOT,
+scripts/v2_ingest_doc2md.py:219:    p.add_argument("--store-root", default=DEFAULT_STORE_ROOT, help="平台快照仓目录")
+```
+
+**三点必须精确化的现状（比 TL 预研更严重）**：
+
+1. `platform/r12/data` **整目录不存在**（不只是 `kb-state/` 子目录），`platform/r12/` 下只有 `bin conf docker graph log4j2 logs maven nacos offline parse preview qa backup`。
+2. **默认 `store_root` 是相对路径** `.artifacts/artifact-store`，随进程 CWD 漂移；`.artifacts/` 下现存只有 `api-root/` 与 `artifacts.json`，**没有** `artifact-store/`。→ 现状不止「路径不在受控位置」，而是**相对路径**，违反契约 §4.2「绝对路径、禁 `/tmp`」的同类要求（相对路径同样不可审计）。
+3. `LLMKE_KB_STATE` / `LLMKE_ARTIFACT_STORE` 均未设置；`platform/r12/R12-ENV-CONTRACT.md` **零命中** `KB_STATE`/`ARTIFACT_STORE`/`DOC2MD`，`platform/r12/.env` 只有 5 个 `R12_*` 密钥键，`platform/r12/bin/*` 无 `KB_STATE` 注入。→ **运行态尚无任何注入约定**（设计包把 env 注入放在 P4 `:336`）。
+
+历史缺陷的书面旁证（`scripts/v2_graph_rebuild_from_es.py:9`）：
+
+```
+- 不依赖 /tmp 下的 doc2md 四件套或 kb_state.json（这两者曾随 /tmp 被清空）；
+```
+
+---
+
+## 3. 契约 §4.2 `llmke.kb-state/2` 与现有实现的差异（R-0 第 3 项）
+
+契约位置：`docs/design/doc2md-incremental-graphrag/02-CONTRACTS.md:226`（标题 `### 4.2 kb_state.json（平台侧升级，schema llmke.kb-state/2）`），schema 块 `:230-250`，强制要求 `:253-259`。
+
+**契约字段清单**：
+
+| 层级 | 字段 |
+|---|---|
+| 顶层 | `schema`(=`llmke.kb-state/2`) / `version`(int) / `cursor`(`cursor-<sha256>`) / `set_digest`(sha256) / `kb` / `chunks` / `graph` |
+| `kb.<kb>.<file_id>` | `artifact_id` / `snapshot`(绝对路径) / `content_uid` / `content_hash` / `file_name` / `status`(ACTIVE/TOMBSTONE)；TOMBSTONE 另有 `revoked_at` |
+| `chunks.<kb>.<file_id>[]` | `pk` / `text` / `locator` / `channel` / `content_hash` |
+| `graph.<kb>` | `snapshot`(绝对路径) / `fencing` / `mode`(DELTA/…) |
+
+**现有实现（`kb_pipeline.py:240-249`）实际落盘形状**：
+
+```python
+state = _load_kb_state(store_root)
+state.setdefault(kb, {})[str(file_id)] = {
+    "artifact_id": artifact["artifact_id"],
+    "snapshot": str(snapshot),
+    "file_name": file_name,
+    "file_path": file_path,
+    "file_size": file_size,
+    "source": source,
+}
+_save_kb_state(store_root, state)
+```
+
+→ 实际是 **`{kb: {file_id: {…6 个字段}}}`**，**顶层无 `schema`**（与契约差一整层）。
+
+**逐项差异表**：
+
+| 契约要求 | 现状 | 差异性质 |
+|---|---|---|
+| 顶层 `schema` | **缺** | 缺字段（同时导致「旧 v1 文件」无法靠 `schema` 判别，只能靠「顶层键是否全为 kb 名」推断） |
+| 顶层 `version` / `cursor` | **缺** | 缺字段；**乐观并发（`CURSOR_CONFLICT`）完全不存在** |
+| 顶层 `set_digest` | **缺** | 缺字段 |
+| 顶层 `chunks` | **缺** | 缺整棵子树；→ `consume_for_kb:263-271` 只能**每次重新 `project_snapshot` 全部历史快照**（正是 G4/R-5 要消除的行为） |
+| 顶层 `graph` | **缺** | 缺整棵子树（`snapshot`/`fencing`/`mode`） |
+| 每条目 `content_uid` | **缺** | 缺字段（artifact 里有，但没落盘） |
+| 每条目 `content_hash` | **缺** | 缺字段（L6 的 `plan.content_hash` 没落盘） |
+| 每条目 `status`(ACTIVE/TOMBSTONE) | **缺** | 缺字段；→ **无 TOMBSTONE 语义、无 `revoked_at`**，删除即物理丢弃 |
+| 每条目 `file_path` / `file_size` / `source` | **有** | 现状是「额外字段」（契约未列，可保留，不冲突） |
+| 绝对路径 | `Path(store_root)/"kb_state.json"`，`store_root` 默认**相对** | 不满足 |
+| `flock` 保护读-改-写 | **无**（`_load` 与 `_save` 各自独立，中间无锁） | 不满足（G3/R-4） |
+| pid/uuid 临时名 | **固定 `.json.tmp`** | 不满足 |
+| 损坏/schema 不符 → `KB_STATE_CORRUPT` | **`except (OSError, ValueError): return {}`** | 不满足（G3/R-3），**静默按空库重建** |
+| `expected_cursor` 不符 → `CURSOR_CONFLICT` | **无机制** | 不满足 |
+| `chunks` 为 wanted docs 唯一装配源、`seq` 首次分配后固定 | **无 `chunks`**，`seq` 每次重投影重算 | 不满足（G4 直接依赖此项） |
+
+---
+
+## 4. `assert_same_artifact` 入参形状与可接入位置（R-0 第 4 项）
+
+源码（`graph_engine_adapter/artifact_binding.py:179-199`）：
+
+```python
+def assert_same_artifact(a, b):
+    """断言两份绑定指向同一份产物；不同就抛错，绝不返回 True/False 让调用方忽略。"""
+    for name, bound in (("a", a), ("b", b)):
+        if not isinstance(bound, dict):
+            raise ArtifactBindingError(f"{name} 必须是 bind_artifact 的输出（dict）")
+        for field in ("artifact_id", "content_hash"):
+            if not bound.get(field):
+                raise ArtifactBindingError(f"{name} 缺少 {field}，无法比对")
+
+    if a["artifact_id"] != b["artifact_id"]:
+        raise ArtifactBindingError(f"artifact_id 不同：…（不是同一份解析产物）")
+    if a["content_hash"] != b["content_hash"]:
+        raise ArtifactBindingError(f"content_hash 不同：…（同一编号下内容已变）")
+```
+
+**入参形状**：`(a, b)` 两个 **`bind_artifact(...)` 输出的 dict**（`{"artifact_id","document_id","content_hash","docs"}`，见 `:175-176`）；
+校验语义 = **`artifact_id` 与 `content_hash` 任一不同即抛 `ArtifactBindingError`**；两者都相同才**返回 `None`**（无布尔返回，调用方无法忽略）。**与 TL 预研一致。**
+
+**现有调用点（全仓 grep）**——**全部在测试里，无生产调用**：
+
+```
+$ grep -rn "assert_same_artifact" --include=*.py .
+./services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py:58  （注释）
+./services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py:179 （定义）
+./services/rag-alg/index_data_service/tests/test_index_writer.py:24,130,146,153
+./tests/test_artifact_binding.py:15,162-204（6 条用例）
+```
+
+**可接入位置（只加调用点、不改算法）**：
+
+```
+consume_for_kb()
+  ├─ commit_snapshot()                      # 产 artifact + snapshot
+  ├─ index_writer.build(chunks, artifact, kb=kb)  → plan      # ← a = plan.binding（bind_chunks 复用 bind_artifact）
+  ├─ build_graph_docs(chunks, file_id, …, content_hash=plan.content_hash)
+  │     → graph_binding = bind_artifact(_binding_input(chunks, artifact))   # ← b
+  ├─ assert_same_artifact(plan.binding, graph_binding)                       # ← 唯一新增调用点
+  └─ index_writer.apply(plan, …) / post_graph_build(…)                       # 之后才写
+```
+
+**关键有利事实**：`index_writer.build()` **只产计划、不发写请求**（写请求在 `apply()`，`:215` `_post_json`）。
+→ 把 `assert_same_artifact` 放在 `build` 与 `apply` 之间，**天然满足 G2「禁止先写后校验」**，无需重排写入顺序，也无需给 `apply` 加回滚。
+
+---
+
+## 5. 与 TL 11:45 预研的偏差 / 补充（需裁定）
+
+| # | TL 预研表述 | 现场实况 | 影响 |
+|---|---|---|---|
+| 5-1 | 「`kb_ingest_service.py:125`…（18096 摄取服务，已关闭）」 | `:125` 是 `runner = consume or K.consume_for_kb` **函数对象绑定**，真实调用在 `:171`/`:193` | **结论不变**（仍无在线入口）；仅需在 evidence 里写准，避免后续误判「有个直接调用点漏改」 |
+| 5-2 | 「`platform/r12/data/kb-state/` 不存在」 | `platform/r12/data` **整目录不存在**；且 `store_root` 默认 `.artifacts/artifact-store` 是**相对路径**（`LLMKE_ARTIFACT_STORE` 也未设） | 迁移落盘时「默认绝对路径」必须**从仓根解析**，不能依赖 `store_root` 现默认值；且**不得在 import 期 mkdir**（副作用） |
+| 5-3 | （未涉及） | **`index_writer.build(chunks, artifact, *, kb, index_prefix)` 无 `file_id` 参数**；`index_writer.py:136` `file_id = str(artifact.get("file_id") or kb)` 就是 L6 判断①的回落点 | **G1 必须 additive 加 `file_id` 入参**（PLAN §一 允许「暴露 `file_id` 注入参数」）；不加则 G1 物理上无法满足，只能靠 `artifact` 预先塞 `file_id`（污染 artifact 形状、影响 L6 已验收断言） |
+| 5-4 | （未涉及） | `R12-ENV-CONTRACT.md` 零命中 `KB_STATE`，`platform/r12/bin/*` 无注入 | env 注入属 P4（设计包 `:336`）；本 loop **不得**改运行态配置，只能读 env + 代码内默认 |
+
+### 5-5 待 TL 裁定的 4 个具体口径
+
+1. **`file_id` 注入方式**：加 `build(..., file_id=<str>)` 关键字参数（缺省 `None` → **fail-closed 抛错**，不再回落 `kb`），还是保留回落但由 `consume_for_kb` 显式传入？→ 我倾向**前者**（与 G1「缺则 fail-closed」字面一致），但会改变 L6 已验收的 `build` 缺省行为（`test_index_writer.py` 若有用例不传 `file_id` 会 RED）。**请裁定是否允许改 L6 缺省行为。**
+2. **默认落盘路径基准**：`platform/r12/data/kb-state/kb_state.json` 的「绝对」以什么为根？建议以 `Path(__file__).resolve().parents[3]`（`index_data_service` → `rag-alg` → `services` → 仓根）拼 `platform/r12/data/kb-state/`，**写入时才 mkdir**（不在 import 期创建）。请确认。
+3. **旧 v1 迁移触发条件**：现文件顶层是「`{kb: {...}}`」而非带 `schema`，无法用 `schema` 判别。建议判据 = **文件存在且 `"schema" not in doc`** → 视为 v1，只读迁移并写 `<name>.v1.bak`（**永不覆盖已存在的 `.v1.bak`**）。请确认。
+4. **`chunks` 与 G4 的兼容**：G4 要求「返回本次 chunks + 全量 wanted docs 的引用」。现有 `consume_for_kb` 返回体里已有 `per_file` / `payloads` / `graph`。是否**保持返回 JSON 形状不变**（仅内部改成读 `state["chunks"]` 而非重投影），以免破坏 `kb_ingest_service` 的 `:216` 响应处理与 `v2_ingest_doc2md.py` 的解析？→ 我倾向**形状不变、语义变更处逐条写入 evidence 的行为差异说明**。请确认。
+
+---
+
+## 6. R-6 回归基线（只读 pytest，不写任何存储）
+
+**主口径** `llmke-v2-toolenv`（3.10.12 / pytest 8.3.5）：
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest \
+  tests/test_rag_projection.py \
+  services/rag-alg/index_data_service/tests/test_table_projection.py \
+  services/rag-alg/index_data_service/tests/test_index_writer.py -q
+...............................                                          [100%]
+31 passed in 0.08s
+```
+
+**交叉口径** `hipporag-toolenv`（3.11.15 / pytest 9.2.0）：
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest <同上三文件> -q
+...............................                                          [100%]
+31 passed in 0.10s
+```
+
+**比对**：`31 = 13(test_rag_projection) + 7(test_table_projection) + 11(test_index_writer)`，与 `P2-L7-PLAN.md` R-6 的「13+7+11」**逐项吻合**；两解释器均 31 passed。
+→ R-6 基线成立，实现后须仍为 31 passed（新增测试另行计数）。
+
+**测试文件真实路径**（与 PLAN 的 `.../` 省略不同）：
+
+- `tests/test_rag_projection.py`（仓根 `tests/`）
+- `services/rag-alg/index_data_service/tests/test_table_projection.py`
+- `services/rag-alg/index_data_service/tests/test_index_writer.py`
+
+---
+
+## 7. 红线自查（R-0 阶段）
+
+| 红线 | 自查 |
+|---|---|
+| 不启停服务 | ✅ 全程仅 `ss` / `printenv` / `ls` / `git status` / `md5sum` / `grep` / `sed` / `pytest` |
+| 不写线上 ES(19527)/Milvus(19526)/DB/18094 | ✅ 未发任何写请求；仅 `pytest` 离线用例（`0.08s`，无网络） |
+| 不切 `INGEST_PROJECTION_MODE` | ✅ 仍 unset（`printenv` exit=1，前后一致） |
+| 不改 L1~L6 语义或产物 | ✅ `kb_pipeline.py addcbb15…`（L5）、`index_writer.py db0ddc9b…`（L6）开工前后同一；`projection.py` / `enrich.py` / `summary.py` / `artifact_binding.py` 未改；doc2md 仓未碰 |
+| 不改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置 | ✅ 仅**读**设计包；未改 `TASKS.yaml`、未改 `.env` / `conf/**` |
+| R-0 裁定前不写实现代码 | ✅ 本文件不含任何实现代码；`kb_pipeline.py` / `index_writer.py` 零改动 |
+| 不自签 `QA_PASS`、不标 `DONE`/`VERIFIED` | ✅ 仅 `R0_VERIFIED`，`QA_PASS` 挂起待 G-4 |
+
+**本阶段新增文件**：仅本 evidence log（`docs/v2-tasks/evidence/P2-L7-20261108T115004.log`）。
+**未新增**测试 / fixtures / 代码改动（按 PLAN「R-0 确认后才写实现」）。
+
+---
+
+## 8. 状态与下一步
+
+```text
+R0_VERIFIED（本文件） → 待 TL 裁定 §5-5 四项 → 反例 FAIL（R-1~R-6） → 实现 → PASS → DEV_SELF_CHECK_PASS
+```
+
+- baton：`python-engineer`（等待 TL 裁定，不自行开工实现）
+- `T-D2MD-07`：保持 `DOING` + `WAIT_QA_ATTESTATION`，本阶段只补 `evidence` 指针

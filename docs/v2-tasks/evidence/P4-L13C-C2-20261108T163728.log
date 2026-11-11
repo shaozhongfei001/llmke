@@ -1,0 +1,154 @@
+# P4-L13-C · C2 起 18096（影子隔离，三重验证通过）
+
+- 时间：2026-11-08T16:37:28+0800；角色 `python-engineer`
+- Owner 授权：启动 18096（本次仅此一步，**未进 C3**）
+- 18096 pid **1332063**，监听 `127.0.0.1:18096`
+
+---
+
+## 0. 隔离方案：**所有落点都在仓外影子目录**
+
+```
+LLMKE_V2_GRAPH_ROOT   = /home/szf/data/dev/llmke-shadow/graph-root      # 实际落 .../graph-root/kb_9
+LLMKE_ARTIFACT_STORE  = /home/szf/data/dev/llmke-shadow/artifact-store
+LLMKE_KB_STATE        = /home/szf/data/dev/llmke-shadow/kb-state/kb_state.json
+LLMKE_ES_BASE_URL     = http://127.0.0.1:19527
+LLMKE_MILVUS_BASE_URL = http://127.0.0.1:19526
+LLMKE_V2_GRAPH_API    = http://127.0.0.1:18094
+LLMKE_DOC2MD_CONFIG   = /home/szf/data/dev/doc2md/config/app.yaml
+LLMKE_DOC2MD_LOCK     = /home/szf/data/dev/coordination/doc2md.lock
+# 未设 LLMKE_ALLOW_DEFAULT_WRITE_TARGET（保持 fail-closed）
+```
+
+仓外目录的理由（TL 17:0x）：不污染工作区、不产生 git 噪音、**C 段结束整目录删除即完全回滚**。
+
+---
+
+## 1. Step 1 · `--check` 预检（只读，不起服务）
+
+```
+$ bash platform/r12/bin/r12-kb-ingest-start.sh --check
+== [1/6] 代码与解释器
+  [ok]   V2 源码目录存在（kb_ingest_service.py）
+  [ok]   解释器可执行（需 fastapi+pydantic）
+  [ok]   解释器可 import fastapi
+== [2/6] doc2md 产物基线
+  [ok]   LLMKE_DOC2MD_CONFIG 已设置且可读
+  [ok]   LLMKE_DOC2MD_LOCK 已设置且可读
+== [3/6] artifact store / kb_state 落点
+  [ok]   artifact store 可写（或可创建）：/home/szf/data/dev/llmke-shadow/artifact-store
+  [ok]   kb_state 目录可写（或可创建）：/home/szf/data/dev/llmke-shadow/kb-state
+== [4/6] 依赖服务可达
+  [ok]   MySQL 13306 可连
+  [ok]   18094 /openapi.json = 200
+  [ok]   19527 全文写服务在线
+  [ok]   19526 向量写服务在线
+== [5/6] 写入端点已配置
+  write_targets: {"es": true, "milvus": true, "allow_default": false, "configured": true, ...}
+  [ok]   写入端点已配置（或显式允许默认目标）
+== [6/6] 端口未被他人占用
+  [ok]   18096 可用
+自检全部通过。
+exit=0
+```
+
+---
+
+## 2. Step 2 · 起服务
+
+```
+$ bash platform/r12/bin/r12-kb-ingest-start.sh
+自检全部通过。
+启动 kb-ingest(18096) ...
+kb-ingest(18096) 已监听且可响应 ✅（日志 platform/r12/logs/kb-ingest.log）
+SCRIPT_EXIT=0
+
+$ tail platform/r12/logs/kb-ingest.log
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18096 (Press CTRL+C to quit)
+```
+
+pid 文件：`platform/r12/run/kb-ingest.pid` = `1332063`。
+
+---
+
+## 3. Step 3 · 三重验证（缺一不可）
+
+### ① 路由
+
+```
+$ curl -s http://127.0.0.1:18096/openapi.json
+paths: ['/health', '/kb/ingest']
+含 /kb/ingest: True
+```
+
+### ② 配置
+
+```
+$ curl -s -w '\nHTTP=%{http_code}\n' http://127.0.0.1:18096/health
+HTTP= 200
+status = ok
+write_targets.configured = True
+```
+
+→ **不是 `degraded`**，满足「degraded 就不许进 C3」的前置。
+
+### ③ env 真生效（读 `/proc/<pid>/environ`，不是「我以为设了」）
+
+```
+$ ss -tlnp | grep :18096   → pid=1332063
+$ tr '\0' '\n' < /proc/1332063/environ | grep ^LLMKE_
+LLMKE_V2_GRAPH_ROOT=/home/szf/data/dev/llmke-shadow/graph-root      ← 影子，不是线上
+LLMKE_ARTIFACT_STORE=/home/szf/data/dev/llmke-shadow/artifact-store
+LLMKE_V2_GRAPH_API=http://127.0.0.1:18094
+LLMKE_ES_BASE_URL=http://127.0.0.1:19527
+LLMKE_MILVUS_BASE_URL=http://127.0.0.1:19526
+LLMKE_KB_STATE=/home/szf/data/dev/llmke-shadow/kb-state/kb_state.json
+```
+
+`LLMKE_ALLOW_DEFAULT_WRITE_TARGET` **未出现**（fail-closed 保持）。
+
+---
+
+## 4. Step 4 · 红线确认
+
+| 项 | 实测 |
+|---|---|
+| 18094 pid | `3189651` / `3202203` —— 未 touch |
+| `kb_9` | `{"count":44}` —— 未变 |
+| `table_chunks_kb_9` | `{"count":2}` —— 未变 |
+| `v2cand_*` | `v2cand_kb_9 0` / `v2cand_table_chunks_kb_9 0` —— C2 只起服务、未 ingest |
+| 线上图 `current.json` | md5 `e2d0f75440e4553ee1bb33f51ca2ca34` —— 未变 |
+| 线上图 `kb_9` mtime | `2026-11-07 21:31:00.295396703` —— 未变 |
+| 影子目录 | `kb-state/`、`artifact-store/` 已被启动脚本创建；`graph-root/` **尚未创建**（首次建图时才生成，符合预期） |
+
+---
+
+## 5. 顺带修正：env 模板里的**假路径**
+
+`platform/r12/conf/kb-ingest.env` 原写：
+
+```
+LLMKE_DOC2MD_CONFIG=/home/szf/data/dev/llmke-r12/platform/r12/data/doc2md/app.yaml   ← 目录不存在
+LLMKE_DOC2MD_LOCK=/home/szf/data/dev/llmke-r12/platform/r12/data/doc2md/runtime.lock ← 目录不存在
+```
+
+这是 B 段我按「R12 运行仓」猜的路径，**实际不存在** —— 与「示例值」同一类陷阱：照抄模板会让自检直接失败。
+已改为 C 段实测可用的真实路径，并在文件里注明「原模板误写、该目录不存在」。
+
+```
+LLMKE_DOC2MD_CONFIG=/home/szf/data/dev/doc2md/config/app.yaml
+LLMKE_DOC2MD_LOCK=/home/szf/data/dev/coordination/doc2md.lock      # 文件头写明「doc2md 冻结版本…锚点」
+```
+
+`platform/r12/conf/kb-ingest.env` md5：`e4c54537…` → **`639cace169778e76c96910a5e881c932`**（**模板，不影响运行态**；
+本次服务用的是命令行显式 env，不读该模板）。
+
+---
+
+## 6. 状态与下一步
+
+- **C2 完成**：18096 已起且三重验证通过，env 全部影子化（`/proc` 佐证）。
+- **未进 C3**（TL 要求起完即报）。
+- 已知前置（Q2 裁定）：`LLMKE_KB_STATE` 是全新目录 → C3 **首次必须 `operation=FULL_REBUILD` + `fallback_reason`**，
+  否则 `effective=DELTA` 且无基准快照 → **422 `NO_BASELINE_SNAPSHOT`**（不是 bug）。

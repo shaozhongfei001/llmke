@@ -1,0 +1,324 @@
+# P3-L9 · T-D2MD-09 实现证据（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T13:06:27+0800
+- 角色：`python-engineer`；**未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`**、`TASKS.yaml` 未改
+- 任务：`T-D2MD-09` / loop `P3-L9`
+- 前置：R-0 已确认（`P3-L9-20261108T130118.log`）+ TL 13:1x 裁定 D-1/D-3/D-8/D-9/D-10/**D-11**
+- 结论：`DEV_SELF_CHECK_PASS` —— J1~J8 满足，R-1~R-6 覆盖，5 组变异全捕获；
+  **18094 未重启**（`/proc` 证据见 §8）
+
+> 本轮**先写实现、后补测试**（过程偏差，如实记在 §4.1）。补偿手段不是自证"我测过了"，
+> 而是 §6 的变异验证：每个关键分支都被 mutate 成**原缺陷形态**并确认测试变红。
+
+---
+
+## 1. 解释器口径与**硬限制**（D-3 裁定）
+
+| 用途 | 解释器 | fastapi / pydantic | 能跑什么 |
+|---|---|---|---|
+| `delta_build` 编排（J2/J3/J4/J5/J8）**主口径** | `/home/szf/data/dev/llmke-v2-toolenv/bin/python`（3.10.12 / pytest 8.3.5） | **无 / 无** | 全部编排断言 |
+| **J1 路由与校验 + D-1 等价性** | `/home/szf/data/dev/hipporag-toolenv/bin/python`（3.11.15 / pytest 9.2.0 / fastapi 0.162.0 / starlette 1.10.0 / httpx 0.28.1 / pydantic 2.14.2） | 有 / 有 | `TestClient` 进程内 | 
+
+**如实声明**：**J1（路由 + `DeltaRequest` 校验）只在 `hipporag-toolenv` 验证**；
+`llmke-v2-toolenv` 缺 fastapi / pydantic / starlette 是**既有环境限制，非本 loop 引入**，
+我**没有**为"双解释器全绿"去装包（改环境属越界）。
+`delta_build.py` 用 AST 断言**不得** import fastapi/pydantic/starlette（`test_r6_...`），
+否则 v2 侧连 import 都过不去、J2~J4 全废。
+
+---
+
+## 2. 五项裁定 + D-11 的落地位置
+
+| 裁定 | 落地 |
+|---|---|
+| **D-1 (a)** 4 个 helper 新建、只给 delta 路径用、build 路由不动 | 落在 **`delta_build.py`**：`_kb_root` / `_load_fence` / `_write_sources` / `_write_kb_json`。**`/v2/graph/build` 与 `_default_build` 一行未改** |
+| **D-1 附加**：与内联写法**逐字节等价** | `test_d1_write_sources_byte_identical_to_default_build`：用假引擎跑**真实** `_default_build`，与 `_write_sources` 输出做 `read_bytes()` 对拍（hipporag env，v2 下 skip） |
+| **D-3** 鸭子类型 + 不 import web | `delta_build(req)` 只读 `kb/docs/requested_mode/root/fallback_reason/fencing`；`_as_live()` 同时吃 `BuildDoc` / dict / SimpleNamespace |
+| **D-8** `create_app(..., delta_runner=None)` | 已加；默认 `None` → 真实 `delta_build`；仅测试注入。既有 8 条路由**未改**（`test_j1_route_exists` 逐条断言仍在） |
+| **D-9** 无基准 → REJECTED，判空前置 | `_base_snapshot(root)` 先 `read_pointer` 判空；`effective=DELTA 且 base_dir is None` → `REJECTED/NO_BASELINE_SNAPSHOT`。**没有字符串匹配、没改 `rebuild.py`** |
+| **D-10** 字段面（三处修正） | `docs` **必填**（无默认）；四枚举语义写死并落到代码/文档串；`fencing` 透传但**不推进 `fence.generation`**，响应回报 `fencing_requested` / `fencing_used` |
+| **D-11** `auto` 不得跟随 canary 的默认 `full` | `_resolve_mode()`：`sources["mode"]=="default" and sources["default"]=="default"` → **DELTA** + `canary_source="default->delta"`；显式配置（file/env）才采纳 canary 的 full。`test_j8_*` 两条互为反例 |
+
+### 2.1 `DeltaRequest` 契约（**P4 复用，不再改**）
+
+```python
+class DeltaRequest(BaseModel):
+    kb: str = Field(min_length=1)                                  # 必填
+    docs: List[BuildDoc]                                            # 必填（无默认，防静默建空图）
+    root: Optional[str] = None
+    requested_mode: Literal["auto", "delta", "full", "skip_if_fresh"] = "auto"
+    fallback_reason: Optional[str] = None                           # full 时必填 → 否则 422
+    fencing: Optional[int] = None                                   # 透传 CAS，不推进 generation
+```
+
+响应体（**任何分支都返回同一形状**）：
+`schema / kb / root / status / requested_mode / effective_mode / canary_source / canary? /
+freshness / fencing_requested / reason? / snapshot? / documents? / generation? /
+fencing_used? / pointer? / dropped_revoked? / community? / file_shas? / sources?`
+
+HTTP 码映射（`_delta_status_code`）：`BUILT`/`SKIPPED_FRESH` → **200**；
+`REJECTED` 且 reason ∈ {`NO_BASELINE_SNAPSHOT`,`FULL_REQUIRES_FALLBACK_REASON`,`DOCS_EMPTY`,
+`UNKNOWN_REQUESTED_MODE`} → **422**；其它 `REJECTED` → **409**；`FAILED` → **500**。
+
+---
+
+## 3. 实现要点（为什么这么写）
+
+1. **编排放 `delta_build.py` 而非 `api.py`**（与 PLAN 原文不同）：PLAN 写「`api.py` 新增
+   `_finalize_snapshot()`」，但 `api.py` 顶层 import fastapi；把编排放进去就等于让
+   `delta_build` 反向依赖 api，直接违反 D-3。所以 `_finalize_snapshot()` **落在
+   `delta_build.py`**，`api.py` 的路由只做「校验 + 调 runner + 映射状态码 + 重置缓存」。
+2. **四文件重算是 J3 的全部**：`rebuild_delta:221` 先 `copytree(base_dir, target)`，
+   新目录带着旧的 `sources.json`/`community.json`/`kb.json`/`fence.json`。`_finalize_snapshot()`
+   按 `fence.save → _write_sources → _write_kb_json → global_report.write` 顺序全部重写。
+3. **已撤权文件不进 sources**：`_finalize` 用 `surviving = live 去掉 fence.is_revoked` 再写，
+   而不是直接用请求里的 `live`。**这是补测试时发现的真缺陷**（见 §4.2）：
+   快照里本来就没有撤权文件的块，sources 若按请求写就会指向不存在的 idx。
+4. **`DOCS_EMPTY` 在编排层也拒**：pydantic 允许空数组，但空 docs 建图等于静默清库。
+
+---
+
+## 4. 阶段 A / 阶段 B（含**过程偏差**与**首跑发现的真缺陷**）
+
+### 4.1 过程偏差（如实）
+
+本轮我先写 `delta_build.py` / `api.py` / `index_writer.py`，**之后**才写测试，
+不符合 L1~L8 一直坚持的「先 FAIL 再 PASS」。补偿：
+- §6 用 5 组变异把每个关键分支打回**原缺陷形态**，确认测试确实变红（可证伪性）；
+- §4.2 记录首跑就红的两条 —— 说明测试不是事后盖章。
+
+### 4.2 首跑失败的两条（都是测试**真的**在挑错，不是我改测试凑绿）
+
+| 首跑失败 | 根因 | 处置 |
+|---|---|---|
+| `test_r5_revoked_file_never_reaches_sources`（`{'A','B'} != {'A'}`） | **实现缺陷**：`_finalize_snapshot` 用请求里的 `live` 写 sources，未剔除已撤权文件；真实引擎里 B 的块不存在，sources 会指向空 idx | **改实现**（`surviving` 过滤），测试一字未动 |
+| `test_r6_protected_regions_untouched`（`'import fastapi' in src`） | **测试缺陷**：我用 grep 源码字符串，命中的是模块 docstring 里「刻意不 import fastapi」这句解释 | **改测试**：改用 `ast.parse` 只看真实 `Import`/`ImportFrom` 节点 |
+
+### 4.3 阶段 B 结果
+
+```
+$ （v2 env）pytest services/rag-alg/index_data_service/tests/test_delta_build_l9.py \
+             tests/test_graph_delta_route_l9.py -q
+14 passed, 2 skipped        # 2 skip = J1 的 11 条整体 skip + D-1 等价性（都因 v2 无 fastapi）
+
+$ （hipporag env）同一命令
+26 passed                    # delta 15 + route 11，全真跑
+```
+
+---
+
+## 5. 覆盖对照（J1~J8）
+
+| 断言 | 用例 | 环境 |
+|---|---|---|
+| **J1** 路由存在 + `DeltaRequest` 校验（未知 mode / full 缺 reason / docs 必填 / kb 必填 → 422；`full` 带 reason 通过；状态码映射） | `test_j1_route_exists` / `..._unknown_mode_rejected_422` / `..._full_requires_fallback_reason` / `..._full_with_reason_passes_validation` / `..._docs_is_required` / `..._docs_must_not_be_empty_list_semantically` / `..._kb_is_required` / `..._rejected_maps_to_4xx` / `..._skipped_fresh_is_200` / `..._failed_maps_to_500` | **hipporag only** |
+| **J2** freshness 短路零引擎调用 | `test_j2_not_stale_auto_skips_with_zero_engine_calls` / `..._skip_if_fresh_same_as_auto_when_fresh` | v2 |
+| **J3** 四文件由本次输入重算 | `test_j3_four_files_rewritten_from_current_input` / `..._community_receives_live_file_ids` | v2 |
+| **J4** 无自动降级（A 无基准 / B full 缺理由 / C delta 失败） | `test_j4a...` / `test_j4b...` / `test_j4c...` | v2 |
+| **J5** `_binding_input` 收口 + L6/L7 不退化 | `test_j5_binding_input_no_longer_falls_back_to_kb` / `..._l6_l7_assertions_not_regressed` | v2 |
+| **J6** 不启停服务 / 不写线上 | §8（/proc + 端口 + `_count`） | — |
+| **J7** 回归 | §7 | 双 |
+| **J8** 无 canary 配置时 `auto` 必须走 delta | `test_j8_auto_without_canary_config_must_go_delta`（含 `assert canary.load(None).mode_for(KB)=="full"` 钉住默认值事实）/ `test_j8_explicit_canary_full_allows_full_build` | v2 |
+| **R-3/R-4/R-5** | 并入 J3 用例 + `test_r5_revoked_file_never_reaches_sources` | v2 |
+| **R-6** | `test_r6_protected_regions_untouched`（`_table_pk` + AST 无 web 依赖） | v2 |
+| **D-1 等价性** | `test_d1_write_sources_byte_identical_to_default_build` / `test_d1_helpers_exist_and_are_private` | hipporag / v2 |
+
+---
+
+## 6. 变异验证（5/5 全捕获）
+
+脚本 `/tmp/p3l9_mutation.sh`（临时，不入仓）：备份 → 定点变异 → 跑相关用例 → 恢复 → md5 比对。
+
+| # | 变异（打回原缺陷形态） | 期望 | 实测 |
+|---|---|---|---|
+| M1 | `auto` 跟随 canary 默认 `full`（**D-11 要修的隐患**） | J8 FAIL | 1 failed |
+| M2 | `_finalize_snapshot` 不重算 sources（保留 copytree 旧文件） | J3 FAIL | 1 failed |
+| M3 | 无基准快照时自动降级走 full | J4a FAIL | 1 failed |
+| M4 | `_binding_input` 恢复 `or "kb"` 回落 | J5 FAIL | 1 failed |
+| M5 | freshness 短路判据取反 | J2 FAIL | 2 failed |
+
+每组 restore 后 md5 **逐位复原**，末态 `14 passed, 1 skipped`。
+
+```
+$ bash /tmp/p3l9_mutation.sh
+（真实输出见下）
+```
+
+---
+
+## 7. 回归（J7）
+
+```
+$ （v2 env）pytest services/rag-alg/index_data_service/tests/ tests/test_rag_projection.py \
+    tests/test_artifact_binding.py tests/test_projection_read.py tests/test_runtime_switches.py \
+    tests/test_p2_l8_shadow_namespace.py tests/test_graph_delta_route_l9.py -q
+134 passed, 2 skipped
+
+$ （hipporag env）同一集
+146 passed
+```
+
+构成：**L8 基线 120**（L8 27 + 读侧 8 + R-6 55 + artifact_binding 30）+ **L9 14**（v2）；
+hipporag 另加 J1 的 11 + D-1 的 1 = 146。
+
+**仓根 3 个既有失败**（口径同 L8，与本 loop 无关，未修）：
+`test_scripts_compile`（`scripts/v2_community_report.py:80` `IndentationError`，`git show HEAD:` 同样报错）、
+`test_security_scan`（既有文件命中路径/凭据规则）、`test_q_acceptance`（依赖在线 ES 数据，计数会漂）。
+**不称"全 PASS"**。
+
+---
+
+## 8. 红线自查（J6）
+
+| 红线 | 证据 |
+|---|---|
+| **不重启/不启停 18094** | `/proc/<pid>/stat` 实测：pid `3189651` 启动于 **2026-11-07 01:20:05**、pid `3202203` 于 **01:21:35**，已运行 **35.8 h**；本 loop 开工 13:01 → **远早于开工，未重启** |
+| 不起新监听端口 | 本轮所有验证都是 `pytest`（`TestClient` = 进程内 ASGI）与 `python -c`；**未执行 uvicorn / 任何启动脚本** |
+| 不写线上图快照 | 所有写操作都在 `tmp_path` / 假引擎上；`_finalize_snapshot` 只被测试以临时目录调用 |
+| 不写 ES/Milvus/DB | `kb_9/_count=44`、`table_chunks_kb_9/_count=2`、`_cat/indices/v2cand*` **仍空** |
+| 不改 `rebuild.py`/`fence.py`/`engine_hipporag.py` 核心算法 | 三者 md5 与 R-0 基线一致（`c4953492…` / `cbb9151f…` / 未在改动清单） |
+| 不改 L1~L8 语义 | `/v2/graph/build` 路由与 `_default_build` 内联逻辑一行未改；L8 的 120 条全 PASS |
+| 不改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置 / doc2md 仓 | doc2md 仍 14 项；未动 config |
+| 不自签 `QA_PASS` / 不标 DONE | 仅 `DEV_SELF_CHECK_PASS` |
+
+**诚实说明**：我没有在开工前做「全端口快照」，所以**不宣称**"逐端口未新增"；
+只宣称"未由本 loop 启动任何监听进程"（无 uvicorn 调用、TestClient 进程内）。
+
+---
+
+## 9. 已知边界 / 转后续
+
+1. **`capabilities.py` 未更新**：`incremental_update` 现在还没有声明 HTTP 端点 →
+   属 `T-D2MD-11`，本 loop 按 PLAN 不动该文件。**不更新就是能力登记与实际不符**，请 L11 别漏。
+2. **J3 对 `fence.json` 的字面要求不可满足**：L9 **不推进 `fence.generation`**（推进属 L10），
+   无撤权变更时 fence 内容与基准**语义相同**。我的做法：基准 fixture 用 `indent=2` 写、
+   `fence.save` 用 `compact+sort_keys` 写 → **sha 必不同**（证明文件确被重写），
+   同时断言内容语义 `== {"generation":0,"revoked":{}}`。**口径已在此写明，避免 QA 误判"至少四文件 sha 全不同"。**
+3. **FULL 分支在 v2 env 不可真测**：`_default_full_build` 需要 `api._urls()`（fastapi 依赖），
+   J8 的 full 用例注入 `full_builder` 替身验证「**被调用与否**」，不是真实建图。
+4. **真实引擎未验证**：`apply_delta` / `build` 的真实行为（LLM、embedding、耗时）本 loop 全程替身；
+   真实端到端留 P4/P6 维护窗口（R-0 §6.2 已列边界）。
+5. **`_finalize_snapshot` 顺序**与 build 路由一致（fence → sources → kb → community）；
+   若将来 build 路由也改成调它（D-1 (b)），需重新做一次字节等价对拍。
+
+---
+
+## 10. 状态
+
+```text
+R-0（130118.log）→ TL 裁定 D-1/D-3/D-8/D-9/D-10/D-11 → 实现 → 补测（首跑 2 红，1 实现缺陷 + 1 测试缺陷）
+  → 阶段 B：v2 14 passed / 2 skipped；hipporag 26 passed
+  → 变异 5/5 全捕获 + md5 复原 → 回归 134 passed(v2) / 146 passed(hipporag)
+  → 18094 未重启（/proc 证据）→ DEV_SELF_CHECK_PASS
+  → 待 TL 独立复核 → 可派工 P3-L10 或 P2-L8 之后的 P4
+  → QA_PASS 仍由 independent_qa 在 G-4 闭环后统一补签（本角色不自签）
+```
+
+- 文件指纹：`delta_build.py`（新增 323 行 `bf50972155069ba0cf5dd274f5501fa5`）、
+  `api.py`（735 → 800 行 `842a300c5c8ce7ac1628f3dddc2fab66`）、
+  `index_writer.py`（`d9853aded53d0facbd86ae0bc03860f9`）、
+  新增测试 `test_delta_build_l9.py`（15 条）+ `tests/test_graph_delta_route_l9.py`（11 条）
+- `T-D2MD-09` 保持 `DOING`；`evidence` 指针建议改为本文件
+
+---
+
+## 11. 附录 · 现场原始输出（未加工）
+
+### 11.1 双环境测试
+
+```
+$ （v2 env）pytest services/rag-alg/index_data_service/tests/test_delta_build_l9.py tests/test_graph_delta_route_l9.py -q
+............s..                                                          [100%]
+14 passed, 2 skipped in 0.09s
+
+$ （hipporag env）同一命令
+..........................                                               [100%]
+26 passed in 0.38s
+
+$ （v2 env）回归全集
+............s........................................................... [ 53%]
+...............................................................          [100%]
+134 passed, 2 skipped in 0.58s
+
+$ （hipporag env）回归全集
+........................................................................ [ 98%]
+..                                                                       [100%]
+146 passed in 0.87s
+```
+
+### 11.2 变异验证（6 段真实输出）
+
+```
+$ bash /tmp/p3l9_mutation.sh
+----- MUTATION M1-auto-follows-canary-full (J8 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_delta_build_l9.py::test_j8_auto_without_canary_config_must_go_delta
+1 failed, 1 passed, 13 deselected in 0.08s
+restore: delta_build=OK index_writer=OK
+
+----- MUTATION M2-no-four-file-rewrite (J3 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_delta_build_l9.py::test_j3_four_files_rewritten_from_current_input
+1 failed, 1 passed, 13 deselected in 0.07s
+restore: delta_build=OK index_writer=OK
+
+----- MUTATION M3-auto-downgrade-to-full (J4a FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_delta_build_l9.py::test_j4a_no_baseline_rejected_not_fallback
+1 failed, 14 deselected in 0.06s
+restore: delta_build=OK index_writer=OK
+
+----- MUTATION M4-binding-fallback-kb (J5 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_delta_build_l9.py::test_j5_binding_input_no_longer_falls_back_to_kb
+1 failed, 1 passed, 13 deselected in 0.05s
+restore: delta_build=OK index_writer=OK
+
+----- MUTATION M5-freshness-inverted (J2 FAIL) -----
+FAILED services/rag-alg/index_data_service/tests/test_delta_build_l9.py::test_j2_not_stale_auto_skips_with_zero_engine_calls
+FAILED services/rag-alg/index_data_service/tests/test_delta_build_l9.py::test_j2_skip_if_fresh_same_as_auto_when_fresh
+2 failed, 13 deselected in 0.06s
+restore: delta_build=OK index_writer=OK
+
+===== 最终指纹 =====
+bf50972155069ba0cf5dd274f5501fa5  services/rag-alg/index_data_service/graph_engine_adapter/delta_build.py
+d9853aded53d0facbd86ae0bc03860f9  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+baseline: bf50972155069ba0cf5dd274f5501fa5 d9853aded53d0facbd86ae0bc03860f9
+===== 恢复后复跑 =====
+............s..                                                          [100%]
+14 passed, 1 skipped in 0.10s
+```
+
+### 11.3 J6 红线现场取证
+
+```
+$ cat /proc/<pid>/stat（第 22 字段 starttime）+ /proc/uptime 换算启动时刻
+pid 3189651: 运行 35.79 h，启动于 2026-11-07 01:20:05
+pid 3202203: 运行 35.76 h，启动于 2026-11-07 01:21:35
+now = 2026-11-08 13:07:19
+
+$ curl -s http://127.0.0.1:19200/kb_9/_count ; curl -s http://127.0.0.1:19200/table_chunks_kb_9/_count
+{"count":44,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s "http://127.0.0.1:19200/_cat/indices/v2cand*?h=index,docs.count"
+(空 = v2cand 仍空)
+
+$ ss -tlnp | grep -E ":(18094|19526|19527|19531|19995|19200|18082|18083)\b"
+LISTEN 0      2048       127.0.0.1:19531      0.0.0.0:*    users:(("python",pid=435286,fd=12))                              
+LISTEN 0      2048       127.0.0.1:19526      0.0.0.0:*    users:(("python",pid=19144,fd=24))                               
+LISTEN 0      2048       127.0.0.1:19527      0.0.0.0:*    users:(("python",pid=23140,fd=19))                               
+LISTEN 0      2048       127.0.0.1:19995      0.0.0.0:*    users:(("python",pid=1358208,fd=19),("python",pid=23647,fd=19))  
+LISTEN 0      32768      127.0.0.1:19200      0.0.0.0:*                                                                     
+LISTEN 0      2048       127.0.0.1:18094      0.0.0.0:*    users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+LISTEN 0      100        127.0.0.1:18082      0.0.0.0:*    users:(("java",pid=1341032,fd=117))                              
+LISTEN 0      100        127.0.0.1:18083      0.0.0.0:*    users:(("java",pid=450255,fd=94))                                
+
+$ md5sum 禁改区（应与 R-0 基线一致）
+c4953492fcdaab476d8de3baee1be548  services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+cbb9151f3691d9ffe09f8c3d856c2a2f  services/rag-alg/index_data_service/graph_engine_adapter/fence.py
+4e1d2d6678f555752483c0358ab31aeb  services/rag-alg/index_data_service/graph_engine_adapter/global_report.py
+32ce3e11f85a9ff4ed59e68cbcd40481  services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+
+$ git -C doc2md status --short | wc -l
+14
+```

@@ -1,0 +1,145 @@
+# P4-L13-C · A-fix2：删掉 `index_writer` 的 `db_name=kb`，重启 18096
+
+- 时间：2026-11-08T17:34；角色 `python-engineer`
+- 授权：TL 18:1x「Q10 批准方案 A」+「改完必须重启 18096」
+- 未发 C3a（按 TL 要求：报新 pid 后再发）
+
+---
+
+## 1. 改动（两处，均在 llmke-v2）
+
+### 1.1 `ingest_pipeline/index_writer.py:270-277`（L6 文件，TL 已批）
+
+```diff
+         milvus_plan.append({
+-            "db_name": kb,
++            # 不传 db_name：`kb` 与 Milvus database 是两个维度...（注释见原文）
+             "collection_name": target,
+```
+
+**依据**（不是「删了就对了」，是查过兜底）：
+
+```
+19526 milvus_kb_service.py:262   db_name = db_name or server_config["milvus_database"]
+19526 milvus_kb_service.py:304   db_name = database.db_name or server_config["milvus_database"]
+19526 milvus_kb_service.py:364   db_name = milvus_config_model.db_name or server_config["milvus_database"]
+19526 真实 database 列表          ["default", "rag_knowledge_base", "graph_base"]（无 kb_9）
+```
+
+即：**不传 → 19526 用 `server_config["milvus_database"]`（`rag_knowledge_base`）兜底**；
+`del_doc_by_col` 一直不传也正常 →「不传」是本系统既有约定。
+
+### 1.2 `tests/test_index_writer.py`（**L6 已验收测试，必须单独报备**）
+
+这个测试原先把 bug 写成了期望值：
+
+```python
+MV_KEYS = {"db_name", ...}                 # 原
+assert body["db_name"] == "kb_9"           # 原 ← 把错值钉成契约
+```
+
+改为：
+
+```python
+MV_KEYS = {"collection_name", ...}         # 去掉 db_name
+assert "db_name" not in body, "不要把 kb 当 Milvus database 发下去"
+```
+
+**为什么必须改**：不改则 `1 failed`，且这个断言正是「L6 计划级验证"保护了一个错假设"」的典型 ——
+它断言得越严，错得越稳。改后它变成**防回归的守卫**。
+
+> 这是一处「改已验收测试」的动作，我没有自作主张：它是 Q10 批准的语义变更的直接后果，
+> 但**请在收口时明确记一笔** —— 否则 P5/P6 看到 `test_index_writer.py` 变了会以为被绕过。
+
+---
+
+## 2. 回归（改后）
+
+| 环境 | 范围 | 结果 |
+|---|---|---|
+| v2 | L12 + platform 全量（`index_data_service/tests/` 等 10 个集） | **189 passed, 3 skipped** |
+| hipporag | 同上 + `test_kb_ingest_l12.py` | **240 passed** |
+
+### 2.1 变异 M13（新增）
+
+把 `"db_name": kb,` 加回去 → `test_index_writer.py` **1 failed, 10 passed**；
+restore 后 `index_writer.py` md5 复原为 `d27d3884a489dabd1ffa897373215524`。
+→ 新断言对「错值回归」有判别力，不是空转。
+
+---
+
+## 3. 重启 18096（TL 18:1x §2 的执行细节）
+
+### 3.1 先抓原进程完整 env（cmd 里看不到，这是 17:3x 的坑）
+
+- 原 pid `1332063`，`/proc/1332063/environ` **115 个变量** → 存 `/tmp/18096.env.json`
+- 关键 6 项（影子/下游全部指向影子侧）：
+
+```
+LLMKE_KB_STATE          = /home/szf/data/dev/llmke-shadow/kb-state/kb_state.json
+LLMKE_V2_GRAPH_ROOT     = /home/szf/data/dev/llmke-shadow/graph-root
+LLMKE_ARTIFACT_STORE    = /home/szf/data/dev/llmke-shadow/artifact-store
+LLMKE_ES_BASE_URL       = http://127.0.0.1:19527
+LLMKE_MILVUS_BASE_URL   = http://127.0.0.1:19526
+LLMKE_V2_GRAPH_API      = http://127.0.0.1:18094
+```
+
+### 3.2 重启方式（逐项与原进程一致）
+
+| 项 | 原（1332063） | 新（1795316） |
+|---|---|---|
+| cmd | `hipporag-toolenv/bin/python -m uvicorn kb_ingest_service:app --host 127.0.0.1 --port 18096` | 同（多 `-u`，与 `PYTHONUNBUFFERED=1` 等价） |
+| cwd | `services/rag-alg/index_data_service` | 同 |
+| 日志 | `platform/r12/logs/kb-ingest.log`（fd1=fd2） | 同文件 append |
+| env | 115 个 | **整份复用**（不是重拼） |
+
+启动日志：
+
+```
+INFO:     Finished server process [1332063]
+INFO:     Started server process [1795316]
+INFO:     Application startup complete.
+```
+
+### 3.3 证明运行期真的是新代码（避免第三次「改了不生效」）
+
+```
+源文件 ingest_pipeline/index_writer.py  mtime 17:34:20
+pyc                                      mtime 17:34:31  ← 与新进程启动同秒
+pyc 字节码递归扫描字符串常量 "db_name"  →  无
+```
+
+即：新进程加载的字节码里**已无 `db_name` 字面量**，不会再发错值。
+
+---
+
+## 4. 红线核对
+
+| 项 | 值 |
+|---|---|
+| 线上 `kb_9` | **44**（未变） |
+| 影子 `v2cand_kb_9` | **1 条**（C3a 第一次写入的，未被清；重放会先删后写） |
+| 线上图 `current.json` | md5 `e2d0f75440e4553ee1bb33f51ca2ca34`（未变） |
+| 18094 | pid `3189651 / 3202203`（未动） |
+| 18096 | pid **1795316**（本次重启，17:34:31） |
+| `api.py` | `af387855782d133b01dc1d39bd14d1ef`（未改） |
+| `capabilities.py` | `4820fac25fd843009bdef76dabb8e06d`（未改） |
+| `kb_pipeline.py` | `e1e9f909cf1d77db8a5ca76a67528f23`（未改） |
+| doc2md 仓 | **14 项**（= L4 封口清单基线，未新增；`kb_diff.py` 等 mtime 03:1x–03:27） |
+
+本轮指纹：
+
+```
+d27d3884a489dabd1ffa897373215524  index_writer.py
+c89f6f0b3349fd35781184ce947a4d96  tests/test_index_writer.py
+f29142fb1aef13fed5e7559aefb2bb7f  ingest_pipeline/kb_delta.py    （未改）
+54230b562df36f2ced5a86aa22699cd4  kb_ingest_service.py          （未改）
+```
+
+---
+
+## 5. 阻塞状态
+
+- 19527 修复：**已生效**（C3a-R2 证据）
+- L6 `db_name`：**本步已修**
+- 下一步：等 TL 确认新 pid → 重发同一条 C3a → **重点确认影子 `v2cand_kb_9` count 仍为 1（不是 2）**，即「先删后写」幂等成立

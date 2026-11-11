@@ -1,0 +1,5 @@
+{
+  "appBaseUrl": "http://10.15.12.13:9008/",
+  "apiBaseUrl": "http://10.15.12.13:8888/qa/",
+  "apiDocUrl": "/api/openapi.json"
+}

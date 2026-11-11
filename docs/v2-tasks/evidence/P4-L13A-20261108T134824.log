@@ -1,0 +1,232 @@
+# P4-L13-A · 写入接线 + 删除落地 + 撤权端点（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T13:48:24+0800；角色 `python-engineer`；任务 `T-D2MD-13`（**仅 A 段**）
+- 前序：R-0 `P4-L13A-20261108T134545.log`（222 行）
+- 未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`、`TASKS.yaml` 未改
+- **A-3 未产出（属 C 段）；18096 仍未启用**
+
+---
+
+## 1. A1~A6 对照
+
+| # | 要求 | 落地 | 断言 |
+|---|---|---|---|
+| **A1** | `apply` 接线后 UPSERT 能返回 `OK`/200，`index_write={APPLIED, applied:true}` | `commit()` 在 delta 之前调 `_apply_writes()` | `test_a1_upsert_writes_and_reports_applied` / `test_a1_write_order_is_delete_insert_per_side` |
+| **A2** | 删除落地（4 target）+ 删库防护 | `build_delete_body()` 客户端侧校验 + `delete_scope` 的 4 个 target 全删 | `test_a2_all_four_targets_are_deleted` / `..._es_and_milvus_use_different_col_name` / `..._es_field_path_matches_server_side_transform` / `..._mapping_declares_file_id_keyword` / `..._guard_refuses_metadata_prefixed_col_name_on_es` / `..._guard_refuses_empty_col_name_before_sending` |
+| **A3** | 部分成功必须显式记录「已写的一侧」 | 失败时 `INDEX_WRITE_FAILED` + `exc.payload.index_write.compensation{needs, completed_sides, calls}` + `logger.error`；服务层把 payload 放进响应 `data` | `test_a3_partial_failure_records_completed_side` / `test_a3_status_not_ok_when_compensation_needed` |
+| **A4** | runner 配好后 DELETE 能落状态 | `_delta_runner()` → `graph_client.post_graph_delta` | `test_a4_delete_with_runner_commits_state` |
+| **A5** | `POST /v2/fence/revoke` 存在、生效、幂等、`GET` 可读 | 新增端点 + `GET /v2/fence?kb=` | `tests/test_fence_revoke_l13.py` 6 条 |
+| **A6** | 不破坏 L12 语义 | delta 仍在状态事务之前；`state_committed` 不变；错误码表 11+9 未动 | `test_a6_delta_still_before_state_txn` / `test_a6_apply_runs_before_delta` + L12 全绿 |
+
+**执行顺序（TL 15:0x 裁定，逐字落地）**：`delete ES(2) → insert ES → delete Milvus(2) → insert Milvus`。
+插入仍只走 `index_writer.apply`（拆成「只 ES」「只 Milvus」两次调用，**不引入第二套写入者**）。
+
+---
+
+## 2. A2 的关键修正：同一个 `col_name` 两侧**语义相反**
+
+| 侧 | 端点 | 目标字段 | `col_name` |
+|---|---|---|---|
+| ES 19527 | `/del_doc_by_col` | `index_name` | **`file_id`**（服务端自己拼 `metadata.<col>.keyword`） |
+| Milvus 19526 | `/del_doc_by_col` | `collection_name` | **`metadata.file_id`**（原样拼 `expr`） |
+
+**端到端断言**（TL 15:0x 要求的升级版）：测试从 **19527 源码**载入 `init_field_body`（不是我们抄一遍），
+把我们实际发出的 `col_name` 喂进去，断言产出正好是 `{"terms": {"metadata.file_id.keyword": ["290"]}}`；
+并反证「若统一传 `metadata.file_id`」会得到 `metadata.metadata.file_id.keyword`（0 命中）。
+mapping 的 `file_id` 是否 `text + keyword` 也**从配置源码读**（`_mapping_block("file_id")`），不硬编码假设。
+
+---
+
+## 3. 阶段 A 真实红 → 阶段 B 绿
+
+```
+阶段 A（骨架：构造参数 + NotImplementedError）
+  tests/test_kb_delta_l13.py → 12 failed, 1 passed
+  （1 passed = `test_a2_mapping_declares_file_id_keyword`，只读配置的守卫，实现前就该绿）
+
+阶段 B
+  v2:        tests/test_kb_delta_l13.py 13 passed
+  v2 全量:   202 passed, 5 skipped
+  hipporag:  tests/test_kb_delta_l13.py 13 + test_fence_revoke_l13 6
+  hipporag 全量: 270 passed
+```
+
+---
+
+## 4. 变异验证（5 组，4 捕获 + 1 如实标注未捕获）
+
+| # | 变异 | 期望 | 实测 |
+|---|---|---|---|
+| M14 | 每侧改成「先写后删」 | A1 顺序 FAIL | 1 failed |
+| M15 | 只删主集合（漏 `table_chunks_*`） | A2 FAIL | **2 failed** |
+| M16 | 两侧 `col_name`「统一」成 `metadata.file_id` | A2 映射 + 防护 FAIL | **3 failed** |
+| M17 | 去掉空 `col_name` 防护 | 防护 FAIL | **13 passed（未捕获）** |
+| **M17b** | 去掉**按侧相等**校验 | 防护 FAIL | 1 failed |
+| M18 | 失败只 log、不带 compensation payload | A3 FAIL | 1 failed |
+
+**M17 为什么没被捕获（如实记录，不粉饰）**：`build_delete_body` 里「空 `col_name`」分支与
+「`col_name != expected`」分支**冗余** —— 去掉前者，空值仍会被后者拦下（`expected` 非空）。
+所以「空 `col_name` 被拒 + 未发请求」这条性质仍然成立，测试也仍然通过；
+但**被删掉的那行不是判别力来源**。补 **M17b**（去掉相等校验）后测试立即变红，证明该性质真被覆盖。
+结论：**防护有效，但 M17 是「冗余守卫」而非「有效断言」**，两者必须分开记。
+
+---
+
+## 5. 对既有已验收文件的改动（逐条披露）
+
+| 文件 | 改动 | 理由 |
+|---|---|---|
+| `graph_engine_adapter/api.py` | 新增 `POST /v2/fence/revoke`、`GET /v2/fence` 加可选 `kb`、新增 `FenceRevokeRequest` | A 段 Scope 明确允许；`fence_view` 缺省字段集**未变**（`test_a5_get_fence_by_kb_reads_revoked` 断言 `set(default)=={schema,generation,revoked,count}`） |
+| `tests/test_capabilities_http_l11.py` | `NO_REGISTER_POST` 白名单加 `POST /v2/fence/revoke` + 理由 | **L11 的守卫按设计生效**：新 POST 路由若不登记就让 L11 红。该端点是**运维面**（跨进程撤权），不是「图引擎能力」，登记进 `capabilities` 会改变 20 项集合与 `counts`，故走白名单 |
+| `tests/test_kb_delta_l12.py` | ① 替身补 `delete_scope`/`apply` 并**注入 `poster`**；② 3 条「诚实占位」断言改为新事实 | ① 若不注入 `poster`，默认会**真的 POST 线上 19527**（红线）；② L12 的 `applied=False / status=PARTIAL` 是「未接线」的占位，A1 已接线 → 同一位置改为 `APPLIED/applied=True`；`status≠OK` 规则保留但改为「需要补偿时不得 OK」（A3） |
+
+> `fence.py` / `capabilities.py` / `kb_pipeline.py` / `index_writer.py` **md5 全部未变**
+> （`cbb9151f` / `4820fac2` / `e1e9f909` / `d9853ade`）→ L9/L10/L11 语义与 L6/L7 生产者均未被改。
+
+---
+
+## 6. 两个缺口分开记（TL 15:0x 要求，别混成一条）
+
+### 6.1 【归属：L6 产出正确 / L7 未接 / 本段补】`delete_scope` 从未有生产调用点
+`index_writer.delete_scope()` 的 docstring 写「落地由 L7 生产调用点完成」，
+但 L7 的 `consume_for_kb` 里 **grep 0 命中**。本段在 `kb_delta._apply_writes` 补上。
+→ 这是**代码没接**的问题，与索引是否存在无关。
+
+### 6.2 【归属：L8 模式 B 授权缺口】`v2cand_*` 影子索引未创建
+`_cat/indices/v2cand*` 为空；19527 写入路径先取 mapping，拿不到直接 500；删除路径遇不存在索引返回 `200 + "无需删除"`。
+→ **C 段前必须解决**：要么 Owner 授权创建影子索引（L8 模式 B），要么改 `index_prefix`（**禁止**，会污染线上索引并破坏 L6/L8 语义）。
+本段只用替身验证接线与请求体，**不声称"能真跑"**。
+
+---
+
+## 7. 红线自查
+
+| 红线 | 结果 |
+|---|---|
+| 不启停服务 / 18096 仍不可用 | `ss :18096` 为空；全程未执行 uvicorn |
+| 不重启 18094 | 同两 pid（3202203 / 3189651） |
+| 不写线上 ES/Milvus/DB | `kb_9=44`、`table_chunks_kb_9=2` 未变；`v2cand*` 仍空；**所有测试注入 `poster` 替身**，无一发起真实写请求 |
+| 不改 `platform/r12`（B 段）/ Java（B 段）/ 设计包 / MANIFEST / TASKS.yaml / doc2md | `platform/r12` git status 0；doc2md 14 项未变 |
+| 不改 L9/L10/L11 已验收语义 | `fence.py`/`capabilities.py`/`delta_build.py`/`rebuild.py` md5 未变；新增端点属 additive |
+| 不改 `kb_pipeline.py` / `index_writer.py` | md5 未变（Q6 按裁定新建 `graph_client.py`） |
+
+---
+
+## 8. 指纹
+
+| 文件 | md5 | 行数 |
+|---|---|---|
+| `ingest_pipeline/kb_delta.py` | `c96f724fecd68c65718ecf5a66128a90` | 514 → **710** |
+| `ingest_pipeline/graph_client.py`（新） | `a44880932e24fcd87d370455de0bf120` | 132 |
+| `kb_ingest_service.py` | `15f9a88f6d09a9054b94e4b67c28de98` | 318 → 约 360 |
+| `graph_engine_adapter/api.py` | `af387855782d133b01dc1d39bd14d1ef` | 884 |
+| `tests/test_kb_delta_l13.py`（新） | `1f14119e43aa0372014a38dc54fddb41` | 355（13 条） |
+| `tests/test_fence_revoke_l13.py`（新） | `b6c857c219603b21b6e6127c315e5f31` | 6 条 |
+| `tests/test_kb_delta_l12.py` | `e5fcee5e1f2ebdc227ce4bd513af6a9b` | 24 条（断言已按 A1 更新） |
+| `tests/test_capabilities_http_l11.py` | `3412279f4245c9f96ffa908e4b67bff0` | 17 条（白名单 +1） |
+
+---
+
+## 9. 边界
+
+1. **`_apply_writes` 失败后 ES 可能已删/已写、状态未提交**：重放时按 `pk` 覆盖写、按 `file_id` 再删，**幂等收敛**；
+   与 L12 的「delta 成功、状态未提交」同类中间态，已在前轮经 TL 认可。
+2. **`post_graph_delta` 未传 `fencing`**：`set_digest`/`kb`/`docs`/`revoked_file_ids` 已传，
+   `fencing` 由 18094 侧按自身 pointer 计算（契约 §2.1 未要求平台必传）。
+3. **空 docs + 无撤权** → 提前抛 `DOCS_EMPTY`(422)，不发请求（服务端也是 400，禁止当"清空图谱"）。
+4. **撤权落盘失败不 500**：返回 `persisted=false` + `persist_error`，内存仍生效（不静默成功）。
+
+---
+
+## 10. 附录 · 真实输出
+
+```
+$ （v2）pytest tests/test_kb_delta_l12.py tests/test_kb_delta_l13.py -q
+37 passed in 0.12s
+$ （hipporag）pytest tests/test_fence_revoke_l13.py -q
+6 passed in 0.31s
+$ （v2）全量
+202 passed, 5 skipped in 0.92s
+$ （hipporag）全量 + fence
+270 passed in 1.47s
+
+$ bash /tmp/p4l13a_mutation.sh
+----- MUTATION M14 · 每侧改成先写后删 -----
+1 failed, 12 passed in 0.08s
+restore: OK
+----- MUTATION M15 · 只删主集合(漏 table_chunks) -----
+2 failed, 11 passed in 0.09s
+restore: OK
+----- MUTATION M16 · 两侧 col_name 统一成 metadata.file_id -----
+3 failed, 10 passed in 0.12s
+restore: OK
+----- MUTATION M17 · 去掉空 col_name 防护 -----
+13 passed in 0.05s
+restore: OK
+----- MUTATION M18 · 失败不带补偿 payload -----
+1 failed, 12 passed in 0.08s
+restore: OK
+c96f724fecd68c65718ecf5a66128a90  services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+baseline: c96f724fecd68c65718ecf5a66128a90
+13 passed in 0.07s
+
+$ ss -tlnp | grep -E ":1809[46]\b"
+LISTEN 0      2048       127.0.0.1:18094      0.0.0.0:*    users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+$ curl kb_9/_count ; curl table_chunks_kb_9/_count ; curl v2cand*
+{"count":44,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+(空)
+```
+
+---
+
+## 11. 加固轮（TL 15:1x）—— 写入端点 fail-closed + 插入 URL 显式化
+
+### 11.1 (a) 写入端点不再静默回退「线上默认目标」
+
+```python
+ALLOW_DEFAULT_WRITE_ENV = "LLMKE_ALLOW_DEFAULT_WRITE_TARGET"
+DEFAULT_ES_BASE = "http://127.0.0.1:19527"      # 线上
+DEFAULT_MILVUS_BASE = "http://127.0.0.1:19526"  # 线上
+
+def _resolve_write_base(side, given, default) -> str:
+    """显式值 > env > 仅当 LLMKE_ALLOW_DEFAULT_WRITE_TARGET=1 时默认；否则拒绝。"""
+```
+
+- **解析时机**：构造期**不**解析（否则 `import kb_ingest_service` 就炸，连 `/health` 都拿不到，
+  现场没法诊断），改为**首次写入时**解析 —— 未配置即 `INDEX_WRITE_FAILED`(502)，**永不回退默认**。
+- **启动期 fail-fast** 由 B 段的启动自检 + `/health` 承担：新增 `kb_delta.write_targets_configured()`
+  （纯读 env，不连网），返回 `{es, milvus, allow_default, configured, env, defaults}`。
+- 测试断言三层：① 未配置且无开关 → 首次写入即拒 + **零请求**；② 开关=1 → 才用默认；
+  ③ env 配好 → 无需开关。
+
+### 11.2 (b) `do_insert` 的 URL 显式化
+
+```python
+url_es = (self.es_base + ES_INSERT_PATH) if side == "es" else None
+url_mv = (self.milvus_base + MILVUS_INSERT_PATH) if side == "milvus" else None
+```
+
+不再依赖「`_SidePlan` 空计划 → `apply` 不发请求」这个**隐含行为**。
+断言：`side=milvus` 的那次 `apply` 收到的 `es_url is None`，且所有 ES URL 必含 `insert_fulltext_documents`。
+
+### 11.3 变异（对惰性版复跑，判别力仍在）
+
+| # | 变异 | 实测 |
+|---|---|---|
+| M19 | 恢复静默回退默认目标 | `test_harden_a_write_targets_fail_closed_without_config` **1 failed** |
+| M20 | 恢复 `url_es or ...` 隐式回退 | `test_harden_b_milvus_insert_carries_no_es_url` **1 failed** |
+
+restore 后 `kb_delta.py` md5 逐位复原。
+
+### 11.4 回归（加固后）
+
+| 集合 | 结果 |
+|---|---|
+| v2 全量 | **206 passed, 5 skipped** |
+| hipporag 全量 | **274 passed** |
+| `test_kb_delta_l12.py + test_kb_delta_l13.py` | **41 passed**（L13 由 13 → **17** 条） |
+
+指纹：`kb_delta.py d9ed992728365d7d989f8bbb381750cc`（751 行）、
+`tests/test_kb_delta_l13.py 8ebfdbe4fe801d98aa6af0ed63bf72b2`（409 行 / 17 条）。
+**B 段未开工**（本条加固完成后转入 B 段；B 段不执行任何脚本）。

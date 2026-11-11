@@ -1,0 +1,108 @@
+# P4-L13B · T-D2MD-13 B 段 · TL 独立复核证据
+
+- 生成时间：2026-11-08T15:5x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P4-L13B-20261108T135522.log`（493 行 / `cc173dcd75ef4ad08b8c334af137bcff`，含 `git diff` 全文）
+- **TL 复核结论：B 段通过，P4 代码面完成（C 段需 Owner 双重授权）**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 三条硬约束已兑付（惰性方案的前提成立）
+
+| # | 要求 | 落地 | TL 核实 |
+|---|---|---|---|
+| 1 | `/health` 增 `write_targets`，`configured=false` → `status="degraded"`，HTTP 恒 200 | `kb_ingest_service.py` + `tests/test_ingest_health_l13.py` 4 条 | ✅ 断言含 `status=="degraded"`、字段集 `>= {es,milvus,allow_default,configured,env}` |
+| 2 | `false→degraded` / `true→ok` 双向 | 同上 | ✅ `test_health_is_ok_when_write_targets_configured` |
+| 3 | 自检调 `write_targets_configured()` 未配置即 `exit 1` | `r12-kb-ingest-start.sh` 六步自检 | ✅ `--check` 无 env → exit 1（3 项失败）；配齐 → exit 0 |
+
+**惰性 fail-closed 方案自此成立** —— 不再是「写入会拒 + 无可观测信号」。
+
+## 2. 必核项结论（TL 采信，且这是本轮最有价值的技术判断）
+
+成员两侧都查了 Java，结论：**HTTP 状态码与 body `code` 两者都依赖，缺一不可**。
+
+```
+RestTemplate.exchange：
+  - HTTP 4xx/5xx → 抛 HttpStatusCodeException → HTTP 码决定「是否抛」
+  - 207 是 2xx → HTTP 层完全看不出，必须读 body code 才能识别 PARTIAL
+```
+
+**推论（TL 认可并记入跨 loop 结论）**：L12 的 `response.status_code = code` **必要但不充分**：
+
+- 若 Python 恒返 200（不修 L12）→ Java 只 `log.error` 后当成功继续；
+- 若只有 HTTP 码（不读 body `code`）→ 207 与 200 无法区分 → `RETRY` 丢失。
+
+**两层都得有。** 这解释了为什么 L12 那个「FastAPI `return dict` 恒 200」的坑必须先修。
+
+## 3. `classify` 5 分支（TL 核实）
+
+```
+2xx + code=200 → OK
+2xx + code=207 → RETRY
+2xx + 其它/null → RETRY      （不可信，重试一次）
+4xx            → PARSE_FAIL  （产物或请求不合法，重试无益）
+5xx / 其它     → RETRY
+```
+
+且 `HttpStatusCodeException` 分支**就地分类**（`RemoteV2IngestUtils:139-153`），不再让它冒到调用方只留一条 log —— 这解决了原来「摄取失败变成不知道发生了什么」的问题。`RestClientException`（连不上/超时）→ `RETRY`，不判死文件。
+
+`FileAppServiceImpl` 调用点按 `outcome.action` 回写 `RETRY` / `PARSE_FAIL`，catch 分支也回写 `RETRY`。
+
+## 4. 成员自己发现并修掉的坏味道（TL 特别认可）
+
+`--check` 第一版会 `mkdir -p` 数据目录，实跑后发现它**创建了此前不存在的** `platform/r12/data/{artifact-store,kb-state}`。改为「存在测自身可写，不存在测最近已存在祖先可写」，并删掉误建目录。
+
+**TL 现场核实：`platform/r12/data` 不存在** ✅
+
+这个发现的价值在于：**自检脚本一旦有副作用，「只检查」就不是只读** —— `--check` 被运维拿来排障时会污染环境，甚至让后续「目录不存在」的判断失真。成员主动跑出来并修掉，而不是等 TL 发现。
+
+## 5. TL 的一处误判（如实记录）
+
+TL 曾担心 `Type=oneshot` + `Restart=on-failure` 组合无效、会导致「自检失败不重试」或「systemd 不跟踪进程」。
+
+**核实后该担心是多余的**：既有 `r12-alg.service` 就是 `Type=oneshot` + `RemainAfterExit=yes` + `Restart=on-failure` + `RestartSec=30`；`r12-models` / `r12-java@` / `r12-watchdog` 同为 oneshot。新 unit **与既有模式完全一致**，`RemainAfterExit=yes` 让 unit 进入 active，`Restart=on-failure` 有效。
+
+`systemd-analyze verify` 未对本 unit 报错（输出的都是系统其它 unit 的既有问题）。
+
+**TL 撤回该疑虑，不做修改要求。**
+
+## 6. 交付物与脚本校验
+
+```
+新增  platform/r12/bin/r12-kb-ingest-start.sh      190 行（755）
+新增  platform/r12/systemd/r12-kb-ingest.service
+新增  platform/r12/conf/kb-ingest.env
+改    platform/r12/bin/r12-watchdog.sh             （TARGETS + kb-ingest heal，探针只看 /openapi.json，不因 degraded 重启）
+改    platform/r12/bin/up.sh                       （status 加 18096，不进 must）
+改    platform/r12/R12-ENV-CONTRACT.md             （端口表 + §1.1 env + liveness/readiness 约定）
+改    RemoteV2IngestUtils.java                     （IngestOutcome + classify）
+改    FileAppServiceImpl.java                      （回写 RETRY/PARSE_FAIL）
+```
+
+`bash -n` 三个脚本全部 OK（TL 现场复跑）。启动方式 `setsid nohup uvicorn ... &` + 30 秒探针轮询，符合 oneshot 语义。
+
+**`up.sh` 的 18096 不进 must** —— 正确：未授权起服务时不该让既有 `verify` 变红。**C 段后须改为 must**，已记入 C 段清单。
+
+## 7. 红线
+
+```
+未执行任何部署脚本（仅 bash -n + 只读 --check）✅
+18096 未监听 ✅ | 18094 两 pid 未变 ✅ | kb_9=44 未变 ✅
+platform/r12/data 不存在（副作用已清）✅
+未改设计包 / MANIFEST / TASKS.yaml / doc2md ✅
+```
+
+## 8. 遗留（全部转 C 段前置）
+
+1. **Java 未编译、未单测** —— 未跑 maven（B 段「不执行」）。`classify` 5 分支应在 C 段前补单测并编译验证。
+2. **C 段双重阻塞**：① Owner 授权起 18096；② **`v2cand_*` 影子索引未创建（L8 模式 B 未授权）**。
+3. **生产不得设 `LLMKE_ALLOW_DEFAULT_WRITE_TARGET=1`** —— 等于接受「配置缺失就写线上默认目标」。`kb-ingest.env` 模板应显式注释掉。
+
+## 9. 结论
+
+**P4 的代码面到此完成**（L12 + L13-A + L13-B）。`T-D2MD-13` 保持 `DOING`，剩余 C 段为**运行态操作**，需 Owner 双重授权后方可执行。
+
+## 10. TL 红线自查
+
+只写 `docs/v2-tasks/evidence/`；未改实现代码、未改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`。

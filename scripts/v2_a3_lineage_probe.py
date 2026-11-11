@@ -117,8 +117,15 @@ print("        inputs.facts=%s inputs.triples=%s" % (rep["inputs"]["facts"], rep
 print("        该事实出现在社区: %s" % [(c["community"], c["size"]) for c in sec])
 print("        两次生成 sha256: %s / %s  相同=%s"
       % (r1["sha256"], r2["sha256"], r1["sha256"] == r2["sha256"]))
-print("        引用失效数=%s (checked=%s)"
-      % (rep["citation_check"].get("failed"), rep["citation_check"].get("checked")))
+invalid = rep["citation_check"].get("invalid") or []
+isolated = [c for c in rep["communities"] if c.get("isolated")]
+print("        引用失效 invalid=%s (checked=%s)"
+      % (invalid, rep["citation_check"].get("checked")))
+print("        孤点社区保留=%s (%d 个)" % (bool(isolated), len(isolated)))
 
-print("\n[结论] openie → 断言 → export_facts → build_communities → community.json 五跳闭合=%s"
-      % bool(sec and in_export and r1["sha256"] == r2["sha256"]))
+same_sha = r1["sha256"] == r2["sha256"]
+ok = bool(sec and in_export and same_sha and not invalid and isolated)
+print("\n[结论] openie → 断言 → export_facts → build_communities → community.json "
+      "五跳闭合=%s；引用 0 失效=%s；孤点保留=%s；两次 sha 相同=%s"
+      % (bool(sec and in_export), not invalid, bool(isolated), same_sha))
+sys.exit(0 if ok else 4)

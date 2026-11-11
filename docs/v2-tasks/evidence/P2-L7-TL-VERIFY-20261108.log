@@ -1,0 +1,72 @@
+# P2-L7 · T-D2MD-07 · TL 独立复核证据（不是成员自证、不是 QA_PASS）
+
+- 生成时间：2026-11-08T12:05 +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P2-L7-20261108T115634.log`（1169 行 / `e053d0060fdc689a38fa874efddfd89d`）；R-0 证据 `…T115004.log` 保留
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立 → 派工 P2-L8**
+- `QA_PASS` 仍挂起（G-4）；本 log 未签、未标 DONE / VERIFIED
+
+---
+
+## 1. 交付物指纹（全部吻合）
+
+```
+kb_pipeline.py                dc60bd09703612c324e735c0bb4242eb   675 行
+index_writer.py               1f2fa0aef28f304a9b088da2b487574e
+tests/test_kb_pipeline_l7.py  0b69477e07f8664e940f2e3540b11abc
+evidence P2-L7-…T115634.log   e053d0060fdc689a38fa874efddfd89d   1169 行
+```
+
+## 2. 越界与红线
+
+- 平台仅 `kb_pipeline.py`（`377/55`，其中 `26/3` 属 L5，本 loop 净 +299）+ 新增 `index_writer.py`；`projection.py` / `enrich.py` / `summary.py` / `artifact_binding.py` 与 HEAD 一致。
+- `_save_kb_state` 签名变更影响面：全仓 grep 仅本模块 `:427` 与测试，无其它生产调用方 ✅（且保留 `store_root=None` 默认参数）。
+- doc2md 仓仍 14 项封存态。
+- `INGEST_PROJECTION_MODE` unset、`LLMKE_KB_STATE` unset、`platform/r12/data` 仍不存在（import 期无副作用）、`table_chunks_kb_9 _count=2`、八端口 pid/fd 未变。
+
+## 3. 反例 / 变异 / 回归（TL 独立复跑）
+
+```
+阶段 A 22 failed, 2 passed（22 条全在断言/行为层：DID NOT RAISE / AttributeError / 值不符 /
+  post_graph_build 被调用；2 条原本 PASS 的哨兵保留未删）
+阶段 B 24 passed（主口径 0.35s / 交叉 0.36s）
+变异 5/5 全捕获：M1 删 assert_same_artifact → 2 failed；M2 损坏改回静默 {} → 1 failed；
+  M3 file_id 回落 kb → 1 failed；M4 去 flock → 1 failed；M5 恢复 post_graph_build → 1 failed；
+  每组恢复后 md5 逐位复原
+TL 复跑 v2 / hipporag 两解释器：55 passed / 55 passed（13+7+11+24）
+```
+
+## 4. 四项裁定落地核验
+
+| 裁定 | 落地 |
+|---|---|
+| 1 `file_id` fail-closed | `_resolve_file_id()`：显式 > artifact > `FILE_ID_MISSING`；`or kb` 已删；**L6 的 11 条零 RED**（与 TL 预判一致：`test_index_writer.py:57` 的 artifact 本含 `file_id="333"`） |
+| 2 默认路径 | `parents[4]` + 锚点单测（`platform/` 与 `docs/v2-tasks/` 同时存在）；env 优先、相对路径拒（`KB_STATE_PATH_NOT_ABSOLUTE`）；写盘时才 mkdir |
+| 3 v1 迁移 | `"schema" not in doc` → 迁移 + `.v1.bak`（已存在则 `<base>.<pid>.<uuid8>`）；round-trip 校验缺字段 → `KB_STATE_CORRUPT` |
+| 4 返回体不变 | 顶层键逐字不变（含 `doc2md_dir`）、`projection` 5 键不变；仅 `graph` additive `deferred` |
+
+## 5. 七处判断裁定（全部认可）
+
+1. `SourceDiverged(PipelineRefused, ArtifactBindingError)` 双基类 —— 认可，任何一族 `except` 都不会漏。
+2. `status="PARTIAL"` + `graph.error="GRAPH_REBUILD_DEFERRED: …"` + `result=None` + `deferred=true` —— **认可，这是本 loop 最重要的诚实性设计**（不把「图没建」谎报成 OK）。
+3. `graph` 加 `deferred`（additive）—— 认可。
+4. `chunks` additive 存 `seq` + `parse_artifact_id` —— 认可（G4 返回 wanted docs 引用所需）。
+5. 幂等用「内容未变不写盘」—— 认可。
+6. `_save_kb_state(state, store_root)` 私有签名变更 —— **接受**，grep 已证无其它生产调用方，且保留默认参数。
+7. import 期不建目录 —— 认可，符合裁定 2。
+
+## 6. 三条边界的处置（TL 裁定）
+
+| # | 边界 | 裁定 |
+|---|---|---|
+| 1 | **【高】摄取后图谱不再自动更新**（G4 停全库重建，P3/P4 未落地） | **接受并升级为硬约束**：当前 18096 未启用、在线无影响；但 **P4 部署（`T-D2MD-13`）前必须完成 P3（`T-D2MD-09/10/11`）**，否则不得放量。`PARTIAL` + `deferred` 必须保留，禁止改成 OK。已写入 `TASKS.yaml` 的 `T-D2MD-13.blocker` 与本 log |
+| 2 | **【中】`SOURCE_DIVERGED` HTTP 502 而非 409** | 接受：错误**类型**正确（双基类），HTTP 映射属 `kb_ingest_service.py:211-212`（不在本 loop 授权面）。记入 `T-D2MD-12`（P4 `KbDeltaService`）待办：把 `SourceDiverged` 映射为 409 |
+| 3 | **【低】L6 `_binding_input` 仍留 `or "kb"`** | 接受：经 `build()` 路径已不可达，直接 `bind_chunks` 才触发。记入 `T-D2MD-09`（P3）待办一并收口 |
+
+## 7. L8 派工
+
+`P2-L8-PLAN.md` 已锁定。**模式 A（默认，离线/mock）** 立即派工；**模式 B（真实创建 `v2cand_*` 索引）需 Owner 明确授权**，未授权不得进入。
+
+## 8. TL 红线自查
+
+只写 `docs/v2-tasks/` 下证据与计划 + `TASKS.yaml`；未改实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED。

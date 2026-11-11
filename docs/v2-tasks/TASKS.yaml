@@ -5,7 +5,7 @@ meta:
   run_id: V2-POST-REVIEW-20261102
   taskbook: docs/v2-tasks/TASKBOOK.md
   base_commit: bb32876
-  updated: '2026-11-03T23:00:00+08:00'
+  updated: '2026-11-08T00:00:00+08:00'
 tasks:
 - id: T-V2-01
   parent: VL0
@@ -235,10 +235,8 @@ tasks:
   evidence: ''
   blocker: T-A3 仅证 F001–F012 夹具；需真实业务语料重跑 scripts/v2_a3_lineage_probe.py 同一五跳。
   artifacts:
-  - docs/v2-tasks/evidence/A1-open-original.md
-  - scripts/a1_reference_resolve_check/
-  - services/rag-java/rag-parent/rag-qa-service/src/main/java/com/gientech/ragqaservice/application/service/impl/AiServiceImpl.java
-  - services/rag-java/rag-parent/rag-qa-service/src/test/java/com/gientech/ragqaservice/application/service/AiServiceReferenceResolveTest.java
+  - docs/v2-tasks/evidence/A3-community-lineage.md
+  - scripts/v2_a3_lineage_probe.py
 - id: T-A2
   parent: VL3
   loop: L3
@@ -423,3 +421,382 @@ tasks:
   - services/rag-alg/index_data_service/graph_engine_adapter/d10_eval.py
   - tests/fixtures/d10_spec.json
   - docs/v2-tasks/D10-ACCEPTANCE-SPEC.md
+- id: T-D2MD-00
+  title: P0 基线冻结 + 5 项 Gate 收集
+  parent: VL-DOC2MD-INC
+  loop: P0-L0
+  owner: TL
+  depends_on: []
+  state: VERIFIED
+  next_action: 已收口；G-5 由 Owner 2026-11-08「同意复工」闭环，其余 Gate 按派工单时点闭环
+  acceptance:
+  - E-1
+  evidence: docs/dispatch/evidence/hybrid-baseline-doc2md-v2.json
+  blocker: ''
+  artifacts:
+  - docs/dispatch/evidence/hybrid-baseline-doc2md-v2.json
+  - memory/BLOCKED.md
+- id: T-D2MD-01
+  title: P1 scan-diff --kb + kb_diff.py
+  parent: VL-DOC2MD-INC
+  loop: P1-L1
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-00
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑）；待 G-4 闭环后由 independent_qa 补签 QA_PASS；成员补 P1-L1-<ts>.log
+  acceptance:
+  - 'A1: DiffResult 精确返回 added/removed/changed/unchanged 四集合'
+  - 'A2: 删除写 TOMBSTONE 不物理删，重放 diff 幂等且 cursor/set_digest 不变'
+  - 'A3: 反例 错 parser_fingerprint -> no_change 夹具全 ACTIVE 标 changed 且 reason=PARSER_FINGERPRINT_CHANGED；主夹具按契约优先级仍 FILE_SET_CHANGED'
+  evidence: docs/v2-tasks/evidence/P1-L1-20261108T023149.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P1-L1-PLAN.md
+  - docs/v2-tasks/evidence/P1-L1-20261108T023149.log
+  - docs/v2-tasks/evidence/P1-L1-TL-VERIFY-20261108.log
+- id: T-D2MD-02
+  title: P1 build-parse-queue / parse 替换 placeholder
+  parent: VL-DOC2MD-INC
+  loop: P1-L2
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-01
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑）；待 G-4 闭环后由 independent_qa 补签 QA_PASS
+  acceptance:
+  - 'B1: --dry-run 零写入且待解析清单含 route_type/parser_adapter_version'
+  - 'B2: 失败项保留在队列并带 fail_reason，不静默丢弃、不阻断其它项'
+  - 'B3: 反例 缺路由结果的 sha256 不得进入 parse 队列'
+  evidence: docs/v2-tasks/evidence/P1-L2-20261108T024837.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P1-L2-PLAN.md
+  - docs/v2-tasks/evidence/P1-L2-20261108T024837.log
+  - docs/v2-tasks/evidence/P1-L2-TL-VERIFY-20261108.log
+- id: T-D2MD-03
+  title: P1 kb-manifest.json + 稳定幂等键
+  parent: VL-DOC2MD-INC
+  loop: P1-L3
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-02
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑）；待 G-4 闭环后由 independent_qa 补签 QA_PASS
+  acceptance:
+  - 'C1: 第二次解析命中幂等，四件套字节与 sha256 不变'
+  - 'C2: generated_at 可复现，read_set_digest 稳定'
+  - 'C3: 内容或 parser_fingerprint 变化才触发重解析'
+  - 'C4: 平台脚本移除 _reset_vault_state 与 --force'
+  - 'C5: additive 且 parsed_text.md 内容与 hash 不变'
+  evidence: docs/v2-tasks/evidence/P1-L3-20261108T031221.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P1-L3-PLAN.md
+  - docs/v2-tasks/evidence/P1-L3-20261108T031221.log
+  - docs/v2-tasks/evidence/P1-L3-TL-VERIFY-20261108.log
+- id: T-D2MD-04
+  title: P1 PDF 原生第 4 件 document_ir.json
+  parent: VL-DOC2MD-INC
+  loop: P1-L4
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-02
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑）；待 G-4 闭环后由 independent_qa 补签 QA_PASS
+  acceptance:
+  - A-2
+  evidence: docs/v2-tasks/evidence/P1-L4-20261108T032818.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P1-L4-PLAN.md
+  - docs/v2-tasks/evidence/P1-L4-20261108T032818.log
+  - docs/v2-tasks/evidence/P1-L4-TL-VERIFY-20261108.log
+- id: T-D2MD-05
+  title: P1 表格通道投影补齐（硬前置）
+  parent: VL-DOC2MD-INC
+  loop: P1-L5
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-03
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑，R-0 四项裁定已落实）；待 G-4 闭环后由 independent_qa 补签 QA_PASS
+  acceptance:
+  - B-2
+  - B-4
+  evidence: docs/v2-tasks/evidence/P1-L5-20261108T034446.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P1-L5-PLAN.md
+  - docs/v2-tasks/evidence/P1-L5-20261108T033556.log
+  - docs/v2-tasks/evidence/P1-L5-20261108T034446.log
+  - docs/v2-tasks/evidence/P1-L5-TL-VERIFY-20261108.log
+- id: T-D2MD-06
+  title: P2 index_writer 适配层 + delete_scope
+  parent: VL-DOC2MD-INC
+  loop: P2-L6
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-05
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑）；待 G-4 闭环后由 independent_qa 补签 QA_PASS
+  acceptance:
+  - B-1
+  evidence: docs/v2-tasks/evidence/P2-L6-20261108T035512.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P2-L6-PLAN.md
+  - docs/v2-tasks/evidence/P2-L6-20261108T035512.log
+  - docs/v2-tasks/evidence/P2-L6-TL-VERIFY-20261108.log
+- id: T-D2MD-07
+  title: P2 同源校验落生产 + kb_state.json v2 chunks 持久化
+  parent: VL-DOC2MD-INC
+  loop: P2-L7
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-06
+  state: DOING
+  next_action: 内部收口已完成（TL 独立复跑 55 passed × 双解释器）；待 G-4 闭环后由 independent_qa 补签 QA_PASS
+  acceptance:
+  - B-1
+  - B-4
+  evidence: docs/v2-tasks/evidence/P2-L7-20261108T115634.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P2-L7-PLAN.md
+  - docs/v2-tasks/evidence/P2-L7-20261108T115004.log
+  - docs/v2-tasks/evidence/P2-L7-20261108T115634.log
+  - docs/v2-tasks/evidence/P2-L7-TL-VERIFY-20261108.log
+- id: T-D2MD-08
+  title: P2 影子命名空间
+  parent: VL-DOC2MD-INC
+  loop: P2-L8
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-07
+  state: DOING
+  next_action: 内部收口已完成（TL 复跑 93 passed；source 语义已修正）；待 G-4 闭环后补签 QA_PASS；模式 B 需 Owner 授权后方可进入
+  acceptance:
+  - B-1
+  - B-2
+  evidence: docs/v2-tasks/evidence/P2-L8-20261108T120810.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)；模式 B 另需 Owner 授权'
+  artifacts:
+  - docs/v2-tasks/loops/P2-L8-PLAN.md
+  - docs/v2-tasks/evidence/P2-L8-20261108T120209.log
+  - docs/v2-tasks/evidence/P2-L8-20261108T120810.log
+  - docs/v2-tasks/evidence/P2-L8-TL-VERIFY-20261108.log
+- id: T-D2MD-09
+  title: P3 POST /v2/graph/delta + _finalize_snapshot
+  parent: VL-DOC2MD-INC
+  loop: P3-L9
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-05
+  state: DOING
+  next_action: 内部收口已完成（TL 复跑 77 passed，变异 5/5）；待 G-4 闭环后补签 QA_PASS
+  acceptance:
+  - C-1
+  - C-3
+  - C-5
+  evidence: docs/v2-tasks/evidence/P3-L9-20261108T130627.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P3-L9-PLAN.md
+  - docs/v2-tasks/evidence/P3-L9-20261108T130627.log
+  - docs/v2-tasks/evidence/P3-L9-TL-VERIFY-20261108.log
+- id: T-D2MD-10
+  title: P3 state per-kb 化 + fencing 递增
+  parent: VL-DOC2MD-INC
+  loop: P3-L10
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-09
+  state: DOING
+  next_action: 内部收口已完成（TL 复跑 11×2 + 6 passed，L9 回归 88 passed）；待 G-4 闭环后补签 QA_PASS。注意：代码尚未生效，P4/P6 重启窗口前线上仍是单槽 state + fencing=1
+  acceptance:
+  - D-2
+  evidence: docs/v2-tasks/evidence/P3-L10-20261108T131830.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4)；代码未重启不生效，部署前须复核'
+  artifacts:
+  - docs/v2-tasks/loops/P3-L10-PLAN.md
+  - docs/v2-tasks/evidence/P3-L10-20261108T131830.log
+  - docs/v2-tasks/evidence/P3-L10-TL-VERIFY-20261108.log
+- id: T-D2MD-11
+  title: P3 能力登记
+  parent: VL-DOC2MD-INC
+  loop: P3-L11
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-09
+  state: DOING
+  next_action: 内部收口已完成（TL 复跑 v2 20 passed/1 skipped、hipporag 17 passed，M6 变异证明非自证）；待 G-4 闭环后补签 QA_PASS
+  acceptance:
+  - 'M1: incremental_update 声明 POST /v2/graph/delta，且与 api.py 路由逐字符比对一致'
+  - 'M3: 声明↔路由双向一致（无幽灵端点、无漏登）'
+  - 'M2: 表述如实，含「增量抽取」+「全量重建图」'
+  evidence: docs/v2-tasks/evidence/P3-L11-20261108T132502.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)'
+  artifacts:
+  - docs/v2-tasks/loops/P3-L11-PLAN.md
+  - docs/v2-tasks/evidence/P3-L11-20261108T132502.log
+  - docs/v2-tasks/evidence/P3-L11-TL-VERIFY-20261108.log
+- id: T-D2MD-12
+  title: P4 KbDeltaService + IngestRequest schema
+  parent: VL-DOC2MD-INC
+  loop: P4-L12
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-07
+  - T-D2MD-09
+  state: DOING
+  next_action: 内部收口已完成（R2 修正 delta 前移 + index_write 如实块；TL 复跑 24 passed）；待补 docstring/evidence 的「delta 成功但事务失败」中间态说明；待 G-4 闭环后补签 QA_PASS。注意：本 loop 交付为不可独立运行半链路（UPSERT 恒 207、索引未写、delta runner 未配）
+  acceptance:
+  - 'A-3 仅做代码级契约验证；真实请求/响应样本属 P6，不得声称 A-3 通过'
+  - 'B1/B3: 空 diff→SKIPPED_FRESH 零调用；三路成功才推 cursor，失败可重放'
+  - 'B2/B4: removed 先 revoke 再 delta；SourceDiverged→409'
+  - 'B5~B8: IngestRequest 强校验；全量增量同入口；file_url 不再自动重解析；wanted docs 不重投影'
+  evidence: docs/v2-tasks/evidence/P4-L12-R2-20261108T133817.log
+  blocker: 'WAIT_QA_ATTESTATION (G-4 无独立 QA principal/公钥)；18096 未启用，本 loop 只做离线验证'
+  artifacts:
+  - docs/v2-tasks/loops/P4-L12-PLAN.md
+  - docs/v2-tasks/evidence/P4-L12-20261108T133453.log
+  - docs/v2-tasks/evidence/P4-L12-R2-20261108T133817.log
+  - docs/v2-tasks/evidence/P4-L12-TL-VERIFY-20261108.log
+  - docs/v2-tasks/evidence/P4-L12-TL-VERIFY-R2-20261108.log
+- id: T-D2MD-13
+  title: P4 部署定义 + 环境变量 + 启动自检 + 回调回写
+  parent: VL-DOC2MD-INC
+  loop: P4-L13
+  owner: python-engineer
+  depends_on:
+  - T-D2MD-12
+  state: DOING
+  next_action: '**C 段代码面全部完成，停手待命。** 已完成：C1~C4、C5 主体（18096→19999 演练得 207/PARTIAL/state_committed=false/cursor 逐字不变/graph.error=GRAPH_API_UNREACHABLE+Connection refused/生产四项不变；恢复后重放 293 → 200/OK、count 5→5 幂等、version 11→12、293 ACTIVE；18096 重启 2 次、18094 **0 次**）、C5 离线（索引失败 502 + compensation + delta 未调用 + 重放收敛）、D-1 门控补丁（源码侧，默认关闭，含内容探针 graph_api/configured）。**保持 DOING**，三项形式未达成：①D-1 部署侧 6 项未同步（up.sh / r12-watchdog.sh / r12-kb-ingest-start.sh / conf/kb-ingest.env / systemd/r12-kb-ingest.service / R12-ENV-CONTRACT.md）**且 unit 因部署仓缺 EnvironmentFile 现不可启动**（fail-fast 预期）；②D-3 用改端口等价模拟、**未真停 18094**；③D-4 Java 未编译未单测。启用 18096 前置：设 LLMKE_INGEST_ENABLED=1 → 先同步 6 项 → 再启 systemd'
+  acceptance:
+  - D-1
+  - D-3
+  - D-4
+  - 'L13 必核：Java 按 HTTP 状态码还是 body code 判断失败（结论：两者都依赖——HTTP 码决定是否抛、body code 决定 207 vs 200）'
+  - '**不得以 C5 完成代替 D-1/D-3/D-4**：C5 只覆盖「图谱不可达时服务行为」；D-1 部署侧未同步、D-3 未真停 18094、D-4 Java 未验证'
+  - 'unit 已就绪 ≠ unit 能启动：部署仓缺 kb-ingest.env，现在 start 必失败；失败原因易被误读成「unit 写错」'
+  evidence: docs/v2-tasks/evidence/P4-L13C-D1-GATE-20261108T204500.log
+  blocker: '**剩余均需 Owner 或环境**：部署侧同步 6 项（运行态变更，需授权）、D-3 真停 18094（影响生产查询，不建议）、D-4 Java 编译单测（需构建环境）、A-3 真实样本（P6）。**结构性风险**：部署脚本双副本人工同步无校验（P6 第 7 项），Python 代码单份不受影响。P6 收敛项：缺陷 13（/health 重读 env）、§2.2 三项、documents vs remaining 计数并列、GRAPH_API_UNREACHABLE 两路径两种码、命名 GRAPH_API_UNREACHABLE vs 契约 GRAPH_UNREACHABLE、POLICY_INVALID 500 前提'
+  artifacts:
+  - docs/v2-tasks/evidence/P4-L12-TL-VERIFY-R2-20261108.log
+  - docs/v2-tasks/evidence/P4-L13C-C5-RUNBOOK-20261108T183100.log
+  - docs/v2-tasks/evidence/P4-L13C-C5-DRILL-20261108T200500.log
+  - docs/v2-tasks/evidence/P4-L13C-D1-GATE-20261108T204500.log
+  - docs/v2-tasks/P6-BACKLOG.md
+  - platform/r12/bin/r12-kb-ingest-start.sh
+  - platform/r12/conf/kb-ingest.env
+  - platform/r12/systemd/r12-kb-ingest.service
+  - tests/tools/make_artifact_blocks.py
+- id: T-D2MD-14
+  title: P5 Java 派发改 18096 + 停 generateGraph + 状态回写
+  parent: VL-DOC2MD-INC
+  loop: P5-L14
+  owner: backend-engineer
+  depends_on:
+  - T-D2MD-13
+  state: DOING
+  next_action: '**P5-0a 已完成**（rag-index-service + rag-common 同步重建重启 18082，pid 3130060；jar 内 RemoteV2IngestUtils.class 命中 1、javap 方法签名在、lstart 21:07:40 > jar 21:05:49，三条判据全成立；**v2-ingest 仍关闭**，两仓均无该键）。**P5-0b 被环境阻塞**：18084 graph-service 重启失败（Nebula pool init），已回滚 jar 为原件 a1e40330…。**根因**：Nebula×3 于 2026-11-07 03:04:52 被**有意退役**（`r12-graphsvc.service` unit 文件已删除、19529 未监听、RECOVERY 文档有记录），而 graph-service 仍通过 `@Bean(name="nebulaGraphSessionPool")` 在启动期 eager 连库。**待 Owner 批 `@Lazy`**（1 行注解）→ 重建 → 重启 18084 → 验 `POST /graph/search/v2WholeGraph` 返回 114 节点/94 边。**不做则 18084 保持下线，并入 T-D0**'
+  acceptance:
+  - A-1
+  - 'R-0 已答：改 A（唯一含 v2Ingest/RemoteV2IngestUtils）；但改 A 不会自动上线，jar 由部署仓构建，须「构建+部署+重启」'
+  - '**Java 侧生效判据（强制）**：jar 内 class 存在 + 方法签名存在 + 进程启动晚于 jar mtime，三者同时成立'
+  - '**不得以「源码改了/单测绿了/jar 构建了」代替「线上生效」** —— 本轮已证三者可全真而线上仍旧'
+  evidence: docs/v2-tasks/evidence/P5-L14-P50a-20261108T211000.log
+  blocker: '**P5-0b 待 Owner 批 `@Lazy`**（动 P3 已收口文件 NebulaGraphConfig.java）。即使批了，16/17 个端点仍不可用（依赖 Nebula），属 T-D0「graph-service 脱离 Nebula」未完成，不是回归。另：mvn 离线缺 surefire-junit3:2.12.4，只能 `-DskipTests` 做编译基线；Java 实现阶段仍缺 backend 角色'
+  artifacts:
+  - docs/v2-tasks/loops/P5-L14-PLAN.md
+  - docs/v2-tasks/evidence/P5-L14-R0-20261108T204800.log
+  - docs/v2-tasks/evidence/P5-L14-R0b-20261108T235500.log
+  - docs/v2-tasks/evidence/P5-L14-P50a-20261108T211000.log
+  - docs/v2-tasks/evidence/P5-L14-P50b1-2-20261108T211500.log
+- id: T-D2MD-15
+  title: P5 两仓配置同步 + 机器比对
+  parent: VL-DOC2MD-INC
+  loop: P5-L15
+  owner: backend-engineer
+  depends_on:
+  - T-D2MD-14
+  state: TODO
+  next_action: 两仓 application-r12.yml 关键键逐项 diff 一致；启动自检打印实际加载地址
+  acceptance: []
+  evidence: ''
+  blocker: ''
+  artifacts: []
+- id: T-D2MD-16
+  title: P5 12340 退役
+  parent: VL-DOC2MD-INC
+  loop: P5-L16
+  owner: backend-engineer
+  depends_on:
+  - T-D2MD-15
+  state: TODO
+  next_action: ss 无 12340、无 remote.file-parse.*；三类辅助接口承接实测；P5-3 前留 E2E 记录
+  acceptance:
+  - A-1
+  evidence: ''
+  blocker: 需 G-1 裁定 database_desc 是否保留 12340 只读子集
+  artifacts: []
+- id: T-D2MD-17
+  title: P6 kb_9 影子切读 + delta 策略
+  parent: VL-DOC2MD-INC
+  loop: P6-L17
+  owner: integration-agent
+  depends_on:
+  - T-D2MD-16
+  state: TODO
+  next_action: INGEST_READ_MODE=snapshot + INGEST_READ_KBS=[kb_9]；读 v2cand 可查；切读前核对 table_summary 影子通道已补齐
+  acceptance: []
+  evidence: ''
+  blocker: 'table_summary 影子通道补齐前不得切读（L8 裁定 Q3：写侧不产该通道，snapshot 下表格总结会静默空）'
+  artifacts: []
+- id: T-D2MD-18
+  title: P6 required_checks 全量 + 检索等价性门禁（分档）
+  parent: VL-DOC2MD-INC
+  loop: P6-L18
+  owner: e2e-verify
+  depends_on:
+  - T-D2MD-17
+  state: TODO
+  next_action: A-1~E-3 全过；50 条固定 query full vs delta 召回/排序分开统计；不达标→DELTA 收窄只用于新增
+  acceptance:
+  - B-3
+  - C-2
+  - E-1
+  - E-2
+  - E-3
+  evidence: ''
+  blocker: 需 G-2 放行阈值（P6 压测数据）
+  artifacts: []
+- id: T-D2MD-19
+  title: P6 kb_1004 放量 + E2E 回归
+  parent: VL-DOC2MD-INC
+  loop: P6-L19
+  owner: integration-agent
+  depends_on:
+  - T-D2MD-18
+  state: TODO
+  next_action: 中英文各≥10 条三入口；基线 query 不回退；删除后 global 无残留引用
+  acceptance:
+  - E-2
+  - E-3
+  evidence: ''
+  blocker: ''
+  artifacts: []
+- id: T-D2MD-20
+  title: P7 旧链路退役 + 契约登记 + 证据归档
+  parent: VL-DOC2MD-INC
+  loop: P7-L20
+  owner: TL
+  depends_on:
+  - T-D2MD-19
+  state: TODO
+  next_action: 破坏性操作 Owner 单独授权；registry 登记 + make check 通过；证据含现场命令与真实输出
+  acceptance: []
+  evidence: ''
+  blocker: ''
+  artifacts: []

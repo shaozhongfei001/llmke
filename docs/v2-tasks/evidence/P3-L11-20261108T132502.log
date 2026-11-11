@@ -1,0 +1,355 @@
+# P3-L11 · T-D2MD-11 实现证据（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T13:25:02+0800
+- 角色：`python-engineer`；**未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`**、`TASKS.yaml` 未改
+- 任务：`T-D2MD-11` / loop `P3-L11`
+- 前置：R-0（`P3-L11-20261108T132135.log`）+ TL 13:4x 裁定 Q1~Q5
+- 结论：`DEV_SELF_CHECK_PASS` —— M1~M5 满足，R-1~R-5 覆盖，**恢复「先 FAIL 再 PASS」**
+  （阶段 A 真实跑红：`7 failed, 9 passed, 1 skipped`）
+
+## 0. 生效边界（TL 第 8 条，按 R-0 §4.1 的精确化版本）
+
+> `capabilities` 是**模块级常量**。`api.py` **没有** `/capabilities` 端点（R-0 实测），
+> 所以不存在「端点缓存」问题；真实的生效边界是**模块加载时机**：
+> **新起的读取方（测试 / 文档生成 / 未来的编排进程）立即可见新声明；
+> 已在运行的 18094 进程不会自动 reload，它报的仍是旧值，需重启才反映。
+> 不声称「线上已更新」。**
+
+---
+
+## 1. 解释器口径（**对 TL Q4 的一处修正**）
+
+TL Q4 写「M1 需 import fastapi 解析路由 → 只能 hipporag」，同时 13:4x 又要求
+「从 `api.py` 源码 AST 解析路由」。**AST 解析源码不需要 import fastapi** —— 已实测可行：
+
+```
+$ （llmke-v2-toolenv，无 fastapi）AST 解析 api.py
+AST 解析到的路由 = 9
+  GET    /health
+  GET    /v2/entities
+  GET    /v2/fence
+  POST   /v2/graph/build
+  POST   /v2/graph/delta
+  POST   /v2/graph/global
+  POST   /v2/graph/query
+  GET    /v2/graph/view
+  GET    /v2/status
+```
+
+所以本 loop 的口径比 Q4 更好一档：**M1/M3 的源码比对在 v2 与 hipporag 都能真跑**，
+只有「真建 app 再比一次」那条**加强**用例需要 fastapi（v2 侧 skip，已单列）。
+
+| 用途 | v2（主口径） | hipporag（交叉） |
+|---|---|---|
+| M1/M2/M3/M4/M5 全部 | **16 passed** | **17 passed** |
+| 其中 `test_m1_cross_check_with_real_app_routes`（真 app 路由表） | **1 skipped**（无 fastapi） | 真跑 |
+| skip 单列 | v2 `1 skipped`（本文件），**不计入通过数** | — |
+
+---
+
+## 2. 五项裁定逐条落地
+
+| 裁定 | 落地 |
+|---|---|
+| **Q1 = B**：`http: [{method, path}]` | 字段名 `http`；列表形状；`method` 大写；`path` 含 `/v2` 前缀；**可选**（20 项中 17 项没有该键） |
+| **Q2**：分两类，`note` 不许改 | `community_report`：只新增 `http`，**散文原样保留**，并加 `test_m4_community_report_prose_subset_of_http`（note 里的 `/v2/...` ⊆ `http` 路径）；`index_build` / `incremental_update`：只新增 `http`，**note 一字未动**（M4 逐项 sha 证明） |
+| **Q2·M4 判据修订** | 从「整块 sha 不变」改为「**三键 `status`/`note`/`evidence` 逐项 sha256 不变 + 新增键仅允许 `http`**」，由 `test_m4_three_keys_unchanged_for_every_capability` + `test_m4_new_keys_limited_to_http` 执行 |
+| **Q3 = (ii) 全覆盖** | 3 条写路由全登：`index_build→POST /v2/graph/build`、`incremental_update→POST /v2/graph/delta`、`community_report→POST /v2/graph/global`；`POST /v2/graph/query` 进**不登记白名单**，理由写成**测试常量** `NO_REGISTER_POST`（不是注释） |
+| **Q4 = 确认** | 见 §1（并修正为：AST 路径 v2 也可跑） |
+| **Q5**：`SCHEMA`/`counts` 不动 | `schema` 仍 `llmke.graph-engine.describe.v1`（**不升 v1**）；`counts` 仍 `{VERIFIED:19, NOT_VERIFIED:1, NOT_IMPLEMENTED:0}`；`http` 可选 → 旧消费方读不到也不受影响（`test_m5_http_field_is_optional_for_old_producers`） |
+| **TL 收紧的前置** | 不是「≥1 项声明 http」，而是「**3 条写路由全部已声明**」：`test_m3_precondition_all_write_routes_declared` |
+| **M1 必须单向真比对** | 路由集合由 `routes_from_source()` **AST 解析 `api.py` 源码**得到；测试里**没有任何硬编码的期望路径**。变异 M6（把 api.py 里真实路由改名）→ 2 failed，证明不是自比 |
+
+---
+
+## 3. 阶段 A · 先写反例跑红（实现前）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python -m pytest tests/test_capabilities_http_l11.py -q
+FAILED …::test_m1_incremental_update_declares_delta_endpoint
+FAILED …::test_m1_declared_endpoints_are_uppercase_and_prefixed
+FAILED …::test_m3_precondition_all_write_routes_declared
+FAILED …::test_m3_each_write_route_registered_on_expected_capability
+FAILED …::test_m3_source_write_routes_have_no_silent_missing
+FAILED …::test_m4_community_report_prose_subset_of_http
+FAILED …::test_m5_http_field_is_optional_for_old_producers
+7 failed, 9 passed, 1 skipped in 0.09s
+```
+
+### 3.1 逐条标注「哪条是本 loop 修的红、哪条是守卫绿」（TL 要求）
+
+| 用例 | 阶段 A | 性质 |
+|---|---|---|
+| `m1_incremental_update_declares_delta_endpoint` | **FAIL** | **本 loop 修复项**（R-3 漏登） |
+| `m1_declared_endpoints_are_uppercase_and_prefixed` | **FAIL** | **本 loop 修复项**（我加了「声明集合非空」前置：空集上「每条都合法」恒真，是最典型的假绿） |
+| `m1_declared_vs_source_routes_match` | PASS | **守卫**（空集恒真；由 M3 前置保证非空后才有判别力） |
+| `m1_cross_check_with_real_app_routes` | skip | 环境限制，单列 |
+| `m2_note_keeps_both_semantics` | PASS | **既有满足项 / 守卫**（note 原本就含「增量抽取 + 全量重建图」）**不计为修复成果** |
+| `m2_bare_incremental_claim_is_not_honest` | PASS | **守卫**（反向：窄化表述会被判不诚实） |
+| `m3_precondition_all_write_routes_declared` | **FAIL** | **本 loop 修复项** |
+| `m3_each_write_route_registered_on_expected_capability` | **FAIL** | **本 loop 修复项** |
+| `m3_source_write_routes_have_no_silent_missing` | **FAIL** | **本 loop 修复项** |
+| `m3_whitelist_reason_present` | PASS | **守卫**（白名单常量与理由） |
+| `m4_three_keys_unchanged_for_every_capability` | PASS | **守卫**（当前即在基线，用于证明实现没顺手改文案） |
+| `m4_new_keys_limited_to_http` | PASS | **守卫** |
+| `m4_community_report_prose_subset_of_http` | **FAIL** | **本 loop 修复项**（此前没有结构化 `http`，散文 ⊆ 空集不成立） |
+| `m5_*`（4 条） | 3 PASS + 1 **FAIL** | `m5_http_field_is_optional_for_old_producers` 为**本 loop 修复项**（此前 20 项全无 `http`，「三键项数 = 20-3」不成立）；其余 3 条为守卫 |
+
+---
+
+## 4. 实现（3 处 additive，`note`/`evidence`/`status` 一字未动）
+
+```python
+"index_build":       ..., "http": [{"method": "POST", "path": "/v2/graph/build"}],
+"incremental_update":..., "http": [{"method": "POST", "path": "/v2/graph/delta"}],
+"community_report":  ..., "http": [{"method": "POST", "path": "/v2/graph/global"}],
+```
+
+- 每处都带注释说明「`http` 是可选 additive 字段」「note 原样保留」；
+- `capabilities.py`：218 → **227 行**，md5 `32ce3e11…` → **`4820fac25fd843009bdef76dabb8e06d`**；
+- **`api.py` md5 未变**（`4bf0b21f…`）→ 路由零改动（`git status` 里 api.py 的 M 是 L10 交付，非本轮）。
+
+---
+
+## 5. 阶段 B · 转绿
+
+```
+$ （v2）pytest tests/test_capabilities_http_l11.py -q          → 16 passed, 1 skipped
+$ （hipporag）同文件                                          → 17 passed
+$ （v2 / hipporag）pytest tests/test_graph_engine_capabilities.py -q  → 4 passed / 4 passed
+```
+
+既有 4 条 capabilities 测试**零退化**（`describe()` 的 `dict(v)` 复制让新字段自动透出，
+`test_verified_without_evidence_is_rejected` 用三键 dict 造 fake cap 仍然合法 → 证明 `http` 是可选）。
+
+---
+
+## 6. 变异验证（6/6 全捕获；含一条专治「假比对」）
+
+| # | 变异（打回缺陷形态） | 期望 | 实测 |
+|---|---|---|---|
+| M1 | 删掉 `incremental_update` 的 `http` | M1/M3 FAIL | 5 failed |
+| M2 | note 收窄成「增量重建」（丢掉「全量重建图」） | M2/M4 FAIL | 3 failed |
+| M3 | 声明幽灵端点 `/v2/graph/deltaX` | M1/M3 FAIL | 5 failed |
+| M4 | 顺手改 `visibility_fence` 的 note | M4 FAIL | 1 failed |
+| M5 | 新增未授权键 `endpoints` | M4 FAIL | 1 failed |
+| **M6** | **把 `api.py` 里真实路由改名** `/v2/graph/delta → /v2/graph/delta-renamed` | M1/M3 FAIL | **2 failed** |
+
+**M6 是本 loop 最关键的变异**：它证明 M1 的比对是「拿源码真值 vs 声明」，
+而不是「同一个字符串写两遍再自比」。每组 restore 后 md5 逐位复原（含 api.py），末态 `16 passed`。
+
+---
+
+## 7. 回归
+
+```
+$ （v2 主口径）pytest services/rag-alg/index_data_service/tests/ tests/test_rag_projection.py \
+    tests/test_artifact_binding.py tests/test_projection_read.py tests/test_runtime_switches.py \
+    tests/test_p2_l8_shadow_namespace.py tests/test_graph_delta_route_l9.py \
+    tests/test_graph_state_l10.py tests/test_graph_engine_capabilities.py \
+    tests/test_capabilities_http_l11.py -q
+165 passed, 4 skipped
+
+$ （hipporag 交叉）同一集
+184 passed
+```
+
+构成：L10 收尾时 v2 `145 passed, 3 skipped` → **165 passed, 4 skipped**
+（+16 本 loop、+4 既有 capabilities；skip +1 是本文件的 fastapi 交叉校验）；
+hipporag `163` → **184**（+17 +4）。
+
+**仓根 3 个既有失败**（口径同 L8/L9/L10，与本 loop 无关，未修）：
+`test_scripts_compile`（`scripts/v2_community_report.py:80` `IndentationError`，HEAD 同样报错）、
+`test_security_scan`、`test_q_acceptance`。**不称"全 PASS"。**
+
+---
+
+## 8. 红线自查（K 系 / 本 loop）
+
+| 红线 | 证据 |
+|---|---|
+| **只改 `capabilities.py`（+新增测试）** | `git status`：本轮只 `M capabilities.py` + `?? tests/test_capabilities_http_l11.py`；`api.py` md5 未变 |
+| 不改 `api.py` 路由 / 引擎 / `delta_build.py` / `rebuild.py` / `fence.py` | 各自 md5 与本 loop 开工一致（`api.py 4bf0b21f…`、`rebuild.py 782c8be3…`、`fence.py cbb9151f…`、`delta_build.py bf509721…`） |
+| 不重启 18094 | `/proc`：pid `3189651` 启动 2026-11-07 01:20:05（36.08 h）、`3202203` 01:21:35（36.06 h）→ **未重启**；全程未执行 uvicorn |
+| 不写线上 | `kb_9/_count=44`、`table_chunks_kb_9/_count=2` 未变；`_cat/indices/v2cand*` **仍空** |
+| 不改设计包 / MANIFEST / TASKS.yaml / 运行态配置 / doc2md 仓 | doc2md 仍 14 项；未触 `platform/r12/**` |
+| 不把 `status` 提到 VERIFIED 以上 | 20 项状态集合与基线逐项 sha 一致（M4 断言）；无「VERIFIED 以上」这种枚举值 |
+
+---
+
+## 9. 已知边界
+
+1. **只登记 3 条写路由**：GET 只读路由（`status`/`fence`/`entities`/`view`）按 Q3 不逐条登记；
+   `POST /v2/graph/query` 虽 POST 但只读，进白名单并附理由（常量 `NO_REGISTER_POST`）。
+2. **`SCHEMA` 未升版**：`http` 是可选项，旧消费方读不到也不受影响；若要「强制携带」才需要新版本。
+3. **`capabilities` 无 HTTP 面**：要对外暴露需新增 `/capabilities` 路由 —— 属新需求，本 loop 不做。
+4. **已运行的 18094 报旧值**：不是缓存问题，是模块已加载不 reload（见 §0）。
+5. **M1 的比对粒度**：只比 `method + path`，不校验请求体 schema（那是 P4 的 `IngestRequest` 契约）。
+
+---
+
+## 10. 状态
+
+```text
+R-0（132135.log，Q1~Q5 + PLAN §三-2 作废）→ 阶段A：7 failed / 9 passed / 1 skipped
+  → 实现（3 处 additive http）→ 阶段B：v2 16 passed / hipporag 17 passed
+  → 变异 6/6（含 M6 改真实路由名，证明非自比）→ 回归 v2 165 / hipporag 184
+  → 既有 capabilities 4 条零退化 → 18094 未重启 → DEV_SELF_CHECK_PASS
+  → 待 TL 独立复核 → P3 阶段收口，进入 P4
+```
+
+- 指纹：`capabilities.py 4820fac25fd843009bdef76dabb8e06d`（218 → 227 行）、
+  `tests/test_capabilities_http_l11.py c8c1b2040a52638c98b39cc663b55e18`（280 行 / 17 条用例）
+- `T-D2MD-11` 保持 `DOING`；`evidence` 指针建议改指本文件
+
+---
+
+## 11. 附录 · `capabilities.py` 改动的 git diff 全文
+
+```diff
+$ git diff -- services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+diff --git a/services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py b/services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+index c358254a..66a46cac 100644
+--- a/services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
++++ b/services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+@@ -24,6 +24,9 @@ CAPABILITIES = {
+         "status": "VERIFIED",
+         "note": "hipporag 2.0.0a4 在本机真实 index()：66/83 块、跨文件合并后仍可回指来源",
+         "evidence": "docs/design/unified-documents-v2/EVIDENCE-C1-HIPPORAG-20261031.md",
++        # P3-L11 additive：登记 HTTP 面。`http` 是**可选**字段（旧消费方读不到也不受影响），
++        # 形状 [{method, path}]，method 大写、path 含 /v2 前缀。不含它也能构造合法能力项。
++        "http": [{"method": "POST", "path": "/v2/graph/build"}],
+     },
+     "retrieve_dense_fallback": {
+         "status": "VERIFIED",
+@@ -57,6 +60,9 @@ CAPABILITIES = {
+                 "真跑 5 块：全量 32.4s → 增量 7.5s（4.3×），删 3 增 1 复用 2，"
+                 "openie 5→3 == 期望 5-3+1；检索层 full vs delta 命中完全一致",
+         "evidence": "docs/design/unified-documents-v2/EVIDENCE-DELTA-REBUILD-20261031.md",
++        # P3-L11 additive：此前只声明引擎能力、没声明怎么调用，导致「按 capabilities 判断
++        # 能不能通过 HTTP 做增量」会得到错误结论。note 保持「增量抽取 + 全量重建图」原样。
++        "http": [{"method": "POST", "path": "/v2/graph/delta"}],
+     },
+     "visibility_fence": {
+         "status": "VERIFIED",
+@@ -96,6 +102,9 @@ CAPABILITIES = {
+                 "同一快照报告逐字节可复现，但端到端因上游 LLM 抽取非确定（68/72）不可复现",
+         "evidence": "docs/design/unified-documents-v2/EVIDENCE-COMMUNITY-REPORT-20261031.md；"
+                     "docs/v2-tasks/evidence/S3-retrieval-shim.md",
++        # P3-L11 additive：note 里的散文端点（`POST /v2/graph/global`）**原样保留**，
++        # 这里补结构化版本。测试断言「note 里出现的 /v2 路径 ⊆ 本列表」，防散文与结构化漂移。
++        "http": [{"method": "POST", "path": "/v2/graph/global"}],
+     },
+     "platform_assertion_layer": {
+         "status": "VERIFIED",
+```
+
+## 12. 附录 · 阶段 A/B、变异、红线的真实输出
+
+### 12.1 阶段 A（实现前，必须红）
+
+```
+$ pytest tests/test_capabilities_http_l11.py -q      # 实现前
+（原文见 §3，此处为其摘要行）
+7 failed, 9 passed, 1 skipped in 0.09s
+```
+
+### 12.2 阶段 B（实现后，双解释器）
+
+```
+$ （v2）pytest tests/test_capabilities_http_l11.py -q
+...s.............                                                        [100%]
+16 passed, 1 skipped in 0.05s
+
+$ （hipporag）同一文件
+.................                                                        [100%]
+17 passed in 0.27s
+
+$ （双）pytest tests/test_graph_engine_capabilities.py -q
+4 passed in 0.03s
+4 passed in 0.02s
+```
+
+### 12.3 变异验证（真实输出）
+
+```
+$ bash /tmp/p3l11_mutation.sh
+mutated M1
+----- MUTATION M1-drop-delta-http (M1/M3 FAIL) -----
+FAILED tests/test_capabilities_http_l11.py::test_m3_source_write_routes_have_no_silent_missing
+FAILED tests/test_capabilities_http_l11.py::test_m5_http_field_is_optional_for_old_producers
+5 failed, 11 passed, 1 skipped in 0.11s
+restore: capabilities=OK api=OK
+
+mutated M2
+----- MUTATION M2-note-narrowed (M2/M4 FAIL) -----
+FAILED tests/test_capabilities_http_l11.py::test_m2_bare_incremental_claim_is_not_honest
+FAILED tests/test_capabilities_http_l11.py::test_m4_three_keys_unchanged_for_every_capability
+3 failed, 13 passed, 1 skipped in 0.07s
+restore: capabilities=OK api=OK
+
+mutated M3
+----- MUTATION M3-ghost-endpoint (M1/M3 FAIL) -----
+FAILED tests/test_capabilities_http_l11.py::test_m3_each_write_route_registered_on_expected_capability
+FAILED tests/test_capabilities_http_l11.py::test_m3_source_write_routes_have_no_silent_missing
+5 failed, 11 passed, 1 skipped in 0.08s
+restore: capabilities=OK api=OK
+
+mutated M4
+----- MUTATION M4-touch-other-cap (M4 FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_capabilities_http_l11.py::test_m4_three_keys_unchanged_for_every_capability
+1 failed, 15 passed, 1 skipped in 0.07s
+restore: capabilities=OK api=OK
+
+mutated M5
+----- MUTATION M5-unauthorized-key (M4 FAIL) -----
+=========================== short test summary info ============================
+FAILED tests/test_capabilities_http_l11.py::test_m4_new_keys_limited_to_http
+1 failed, 15 passed, 1 skipped in 0.08s
+restore: capabilities=OK api=OK
+
+mutated M6
+----- MUTATION M6-rename-real-route (M1/M3 FAIL) -----
+FAILED tests/test_capabilities_http_l11.py::test_m1_declared_vs_source_routes_match
+FAILED tests/test_capabilities_http_l11.py::test_m3_source_write_routes_have_no_silent_missing
+2 failed, 14 passed, 1 skipped in 0.08s
+restore: capabilities=OK api=OK
+
+===== 最终指纹 =====
+4820fac25fd843009bdef76dabb8e06d  services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+4bf0b21fe082b737722c5a074e8cc4ec  services/rag-alg/index_data_service/graph_engine_adapter/api.py
+baseline: 4820fac25fd843009bdef76dabb8e06d 4bf0b21fe082b737722c5a074e8cc4ec
+===== 恢复后复跑 =====
+...s.............                                                        [100%]
+16 passed, 1 skipped in 0.05s
+```
+
+### 12.4 红线现场取证
+
+```
+$ /proc/<pid>/stat 第 22 字段 + /proc/uptime 换算启动时刻
+pid 3189651: 运行 36.09 h，启动于 2026-11-07 01:20:05
+pid 3202203: 运行 36.07 h，启动于 2026-11-07 01:21:35
+now = 2026-11-08 13:25:39
+
+$ curl -s http://127.0.0.1:19200/kb_9/_count
+{"count":44,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s http://127.0.0.1:19200/table_chunks_kb_9/_count
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+$ curl -s "http://127.0.0.1:19200/_cat/indices/v2cand*?h=index,docs.count"
+(空 = v2cand 仍空)
+
+$ md5sum 未改动文件（应与本 loop 开工一致）
+4bf0b21fe082b737722c5a074e8cc4ec  services/rag-alg/index_data_service/graph_engine_adapter/api.py
+782c8be31a4b2528da6d7f1d09f8775f  services/rag-alg/index_data_service/graph_engine_adapter/rebuild.py
+cbb9151f3691d9ffe09f8c3d856c2a2f  services/rag-alg/index_data_service/graph_engine_adapter/fence.py
+bf50972155069ba0cf5dd274f5501fa5  services/rag-alg/index_data_service/graph_engine_adapter/delta_build.py
+
+$ git -C doc2md status --short | wc -l
+14
+
+$ git status --short（本轮相关）
+ M services/rag-alg/index_data_service/graph_engine_adapter/capabilities.py
+?? tests/test_capabilities_http_l11.py
+```

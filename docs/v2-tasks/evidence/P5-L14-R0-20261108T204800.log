@@ -1,0 +1,235 @@
+# P5-L14 · R-0 只读核实（Java 派发切换）
+
+- 时间：2026-11-08T20:45 ~ 21:00；角色 `python-engineer`（本轮只做 R-0，不写 Java）
+- 授权：TL 23:2x；红线：不改 `.java/.yml/脚本`、不 `package/install`、不重启 Java、不实现
+- **结论先说：PLAN 有 4 处前提需要修正；最要紧的是「运行中的 rag-index-service 完全没有 v2-ingest 代码」，且 `mvn` 基线在当前离线仓库下跑不起来。**
+
+---
+
+## §0 结论摘要（10 行内）
+
+1. **真值 = A（`llmke-v2`）**；但**运行中的 jar 是 B 侧 `target` 构建的**（11-07 02:57），其 `FileAppServiceImpl` **无 `v2Ingest` 方法**、jar 内**无 `RemoteV2IngestUtils.class`** ⇒ 线上**没有任何 v2-ingest 实现**。
+2. `v2Ingest` + `RemoteV2IngestUtils` **早已在 A 的 HEAD 里**（不是本轮新写）；11-08 工作区改的是 `IngestOutcome/classify`（+104 行）。
+3. **`mvn -o -pl rag-index-service test` 直接失败**：`getDoc2mdDir()` 找不到 —— 因为 `~/.m2` 里 `rag-common` 是 **10-31** 的旧 jar，而源码 `rag-common` **有** `doc2mdDir`（`:169`）。加 `-am` 后**编译通过**（185 main + 16 test），但 surefire 报**缺 `surefire-junit3:2.12.4`** ⇒ **离线跑不了测试**。
+4. PLAN 的「Tests run 7」**不可复现**；7 = **`RemoteV2IngestClassifyTest` 一个类的 @Test 数**；整模块 @Test 共 **21**。
+5. `RemoteV2IngestUtils` **同时看 HTTP 码与 body `code`**（200+200→OK、200+207→RETRY、2xx 其它→RETRY、4xx→PARSE_FAIL、5xx/连不上→RETRY）；**无显式超时**（`new RestTemplate()`）。
+6. `doSuccess` **两条路并存**：`:355 generateGraph`（19531 legacy）与 `:361 v2Ingest` 都在，P5-1 未做。
+7. `v2-ingest` 键：`llmke-v2/platform/r12/conf/...:108` 有但**值为 `""`（显式关闭）**；`llmke-r12` conf **无该键**；Java 是 `@Value("${remote.v2-ingest.url:}")` 空默认 ⇒ **缺键不会启动失败**，只是跳过。
+8. 10 个 `remote.*` 键：**9 个两仓完全一致**，只有 `v2-ingest` 一边有一边无。
+9. **构建流程无脚本证据**：`bin/` 下 `grep "mvn "` **0 命中** ⇒ 部署 jar 是**人工 `mvn package`** 的，需 Owner/运维确认。
+10. C（`dist/offline/payload/src-build`）是**离线包快照（10-29）**，与 B 同代，**不是真值**，改它等于改归档。
+
+---
+
+## §1 R-0-1：三份源码 / 运行 jar / 构建流程
+
+### 1.1 三份源码指纹
+
+```
+A  llmke-v2/services/rag-java/.../rag-index-service/.../FileAppServiceImpl.java
+   62176 B / 1076 行 / md5 e219f2227e3a6e3a38fb591b0fa3523b / mtime 2026-11-08 13:54:58
+   工作区状态：M（相对 HEAD 有改动）
+B  llmke-r12/services/rag-java/.../同类路径
+   54461 B /  953 行 / md5 81f0c266e6aaa32d564dcf291f107f34 / mtime 2026-10-29 22:10:38
+C  llmke-r12/platform/r12/dist/offline/payload/src-build/services/rag-java/.../同类路径
+   51894 B /  919 行 / md5 e7fac7d89e13521edf2637ce59d58076 / mtime 2026-10-29 14:22:43
+```
+
+### 1.2 运行中的 rag-index-service 加载的是哪份产物
+
+```
+$ ss -tlnpH | grep :18082          → pid=1341032
+$ tr '\0' ' ' < /proc/1341032/cmdline
+java -Xms256m … -Dlogging.config=.../llmke-r12/platform/r12/log4j2/rag-index-service.xml
+     -jar /home/szf/data/dev/llmke-r12/services/rag-java/rag-parent/rag-index-service/target/rag-index-service-0.0.1-SNAPSHOT.jar
+     --spring.profiles.active=r12 --spring.config.additional-location=file:/home/szf/data/dev/llmke-r12/platform/r12/conf/rag-index-service/
+
+$ ls -l 该 jar            → 225754208 B  mtime 2026-11-07 02:57:38  md5 26662d0bbdba7c90a0bcc610be5beac9
+$ unzip -l jar | grep File(Root)AppServiceImpl
+   BOOT-INF/classes/.../FileAppServiceImpl.class         21406  2026-11-07 02:57
+   BOOT-INF/classes/.../FileParseTaskAppServiceImpl.class 43969  2026-11-07 02:57
+$ unzip -l jar | grep -c RemoteV2IngestUtils            → 0（**没有**）
+$ javap -p 保存的 FileAppServiceImpl.class
+   public void filesParse(...)
+   public void filesParseSync(...)
+   private void doParse(...)
+   public void generateGraph(...)
+   ⇒ **没有 v2Ingest**
+```
+
+**结论**：运行中的服务 = **11-07 02:57 从部署仓（B 侧）构建的 jar**，其中**不含任何 v2-ingest 实现**。
+`llmke-v2` 自己也有一个 jar（11-06 01:20），**不是**运行中的那个。
+
+### 1.3 构建流程：**没有脚本证据**
+
+```
+$ grep -rn "mvn " --include=*.sh llmke-v2/platform/r12/bin llmke-r12/platform/r12/bin | head
+（空）
+$ grep -n "mvn\|package\|target" llmke-v2/platform/r12/bin/r12-change.sh
+（只有注释里提到「加载 C 的 new-index5.jar」，无构建动作）
+```
+
+⇒ 没有 Jenkinsfile/Makefile/构建脚本可引；**只能推断「人工在部署仓 `mvn package`」**（jar 落在部署仓 `target/`，class 时间与 jar 同秒）。
+**这条必须由 Owner/运维确认**（见 §8 Q2）。
+
+### 1.4 C 的用途
+
+`dist/offline/payload/src-build/…` 是**离线安装包的源码快照**（10-29，与 B 同代、还更旧 7 行），
+用途是离线包可自洽重建，**不是开发真值**。改它等于改归档产物，下次打包会被覆盖。
+
+### 1.5 一句话结论
+
+> **本 loop 应改 A（`llmke-v2`），因为**：Python 侧（18096/18094）代码只在 `llmke-v2`；
+> A 是唯一包含 `v2Ingest`/`RemoteV2IngestUtils` 的源码；B/C 都是 10-29 的旧快照，
+> 且运行时 jar 由 B 侧 `target` 构建 —— 若改 B 会让「源码新逻辑」与「Python 契约」继续分叉。
+> **但必须同时接受一条现实**：改 A **不会**自动上线，P5 落地需要**在部署侧重新构建 jar 并重启**（另需授权）。
+
+## §2 R-0-2：四个方法现状（基于 A）
+
+| 方法 | 行号 | 下游 URL（配置键） | 返回怎么处理 | 失败怎么回写 |
+|---|---|---|---|---|
+| `filesParse` | `:198` 调用 `remoteFileUtils.fileParse(...)` | `remote.file-parse.url` = `http://127.0.0.1:12340/parse` | 读 body 的 **`success` 布尔**（`:200`），**不读 `code`** | 成功→`PARSE_ING` + task `DEAL_ING`；失败→`PARSE_FAIL` + `DEAL_FAIL` + `synLog`（`:212-217`） |
+| `filesParseSync` / `doParse` | `:229` / `:296`，`:306` 调 `remoteFileUtils.fileSyncParse(...)` | `remote.file-parse-sync.url` = `12340/parse_sync` | 同上（`success`） | 同上 |
+| `v2Ingest` | `:621`（`@Async`），`:649` 调 `remoteV2IngestUtils.ingest(...)` | `remote.v2-ingest.url`（当前 `""` → 关闭） | `IngestOutcome{code,httpStatus,body,action}`；`action=OK/RETRY/PARSE_FAIL` | `RETRY`→`updateStatusByIds(...,RETRY)`；`PARSE_FAIL`→`PARSE_FAIL`；异常→`RETRY` 并 `log.error`（`:665-677`） |
+| `generateGraph` | `:683`（`@Async`），`:730` 调 `remoteGraphUtils.generateGraph(...)` | `remote.generate-graph.url` = **`http://127.0.0.1:19531/generate_triple_data`**（legacy shim） | 读 body `code==200`（`:732`）且 `data.edges_total>0 && edges_written>0`（`:738-746`）；再调 `generate-community`（现为空 → skipped） | 成功→`graph_parse_status=PARSE_SUCCESS`（`:748`）；异常/零产出→`PARSE_FAIL`（`:771`）+ `synLog` |
+
+**`generateGraph` 的 19531 路径（P5-1 要删的正是它）**：
+`POST http://127.0.0.1:19531/generate_triple_data`，请求体含 `space_name`（原库名 `kb_9`）、`col_values=[matchTitle]`、
+`generation=knowledgeBaseFile.getVersion()`、可选 `entity_types`（来自 `graphPrompt`），另有 `model_info`；
+返回判定为「`code==200` 且 `edges_written>0`」。
+
+## §3 R-0-3：`RemoteV2IngestUtils`（A，184 行）
+
+- **超时**：`private final RestTemplate restTemplate = new RestTemplate();`（`:29`）—— **没有设置 connect/read timeout**，走 JDK 默认（连接可能长时间挂起）。**这是风险项。**
+- **返回类型**：`IngestOutcome`（内部 `static final class`，`:66-84`），字段 `code(Integer)` / `httpStatus(int)` / `body(String)` / `action(String)`，`ok()` 便捷方法。
+- **是否按 HTTP 码判断**：**是**（4xx/5xx 由 `HttpStatusCodeException` 分支处理，`:139-153`）。
+- **是否读 body `code`**：**是**（`:128-133` 与 catch 分支 `:143-150` 都解析 `code`，交给 `classify`）。
+- **`classify` 语义**（`:169-183`）：
+  ```
+  2xx + code==200 → OK
+  2xx + code==207 → RETRY      ← L13 的 PARTIAL 已被正确识别
+  2xx + 其它/无 code → RETRY
+  4xx → PARSE_FAIL
+  5xx / 其它 → RETRY
+  连不上/超时（RestClientException）→ RETRY（:154-158）
+  ```
+- **与 L13 结论的差距**：**没有差距** —— 200/207/502 三态都被覆盖；`502` 落 5xx → RETRY，符合「索引硬失败可重试」。
+  唯一缺的是**超时配置**与「`PARSE_FAIL` 是否真的不再自动重试」的端到端验证（D-4 未做）。
+
+## §4 R-0-4：`FileParseTaskAppServiceImpl.doSuccess`（A，`:310-363`）
+
+`:310` 起依次：写 task 成功(`SUCESS`+endTime) → 写文件 `PARSE_SUCCESS`(+reviseDate/chunking/chunkType) →
+多版本解析(`fileMultiversionParse`) → FAQ 抽取(`faqExtract`) → **`:354-355` `if(isGraphParse) generateGraph(...)`** →
+**`:359-362` `if(!isExtract) v2Ingest(...)`**。
+
+- **是否无条件触发建图**：**不是「无条件」**，是 **`isGraphParse` 为真时触发**（该字段默认 `false`，见 `rag-common` `FileParseTaskInfo:30`），
+  但**只要 `isGraphParse=true` 就一定会跑 legacy 19531 建图**，**与 v2 是否启用无关** —— 这就是 P5-1 要处理的双路。
+- **删除后状态机是否完整**：`graph_parse_status` 的写入点在 `generateGraph` 内（`:748` 成功 / `:771` 失败）。
+  若直接删掉调用，则该字段会停在「未做(1)」——**必须先确认 v2 侧的图谱状态由谁写**（当前 `v2Ingest` **不写 `graph_parse_status`**）。
+
+## §5 R-0-5：10 个 `remote.*` 键两仓对比
+
+对比对象：`llmke-v2/platform/r12/conf/rag-index-service/application-r12.yml`（v2）
+vs `llmke-r12/platform/r12/conf/rag-index-service/application-r12.yml`（r12，**运行中实际加载的那份**，见 `:1.2` 的 `--spring.config.additional-location`）。
+
+| 键 | v2 | r12 |
+|---|---|---|
+| `file-parse` | `http://127.0.0.1:12340/parse` | 同 |
+| `file-parse-sync` | `12340/parse_sync` | 同 |
+| `file-revise_date` | `12340/parse/revise_date` | 同 |
+| `file-multi-version` | `12340/parse/multi_version` | 同 |
+| `tl-database-table-description` | `12340/parse/database_desc` | 同 |
+| `generate-graph` | `http://127.0.0.1:19531/generate_triple_data` | 同 |
+| `generate-community` | `""` | `""` |
+| `del-graph-space` | `""` | `""` |
+| `del-graph-entity` | `""` | `""` |
+| **`v2-ingest`** | **`""`（显式关闭，:108-111）** | **缺键** |
+
+**v2 conf 的关闭注释（`:102-107`）原文要点**：「2026-11-07 起关闭，统一走 generate-graph(19531 legacy_shim)。原因：① 18096 无启动定义/看门狗，依赖的 doc2md 环境变量与 kb_state.json 均缺失；② 该链路不写 ES/Milvus…；③ 新上传文件的 ES/Milvus 由 12340 双写」。
+
+> ⚠️ **这三条理由现在有过时的**：① 18096 已有 `r12-kb-ingest-start.sh` + 门控 unit/watchdog（默认关闭）、env 模板已补；② 18096 现已 **真写 ES/Milvus**（C3a/C4 实测）。P5 启用前**必须更新这段注释**，否则运维会按旧理由继续关闭。
+
+**缺键是否导致启动失败？** **不会**：`@Value("${remote.v2-ingest.url:}")`（`:32`）带空默认 ⇒ 缺键 = 空串 ⇒ `enabled()=false` ⇒ 跳过 + 告警。
+
+## §6 R-0-6：`mvn` 基线（**PLAN 的判据不成立**）
+
+```
+$ mvn -v → Apache Maven 3.6.3；java 21.0.11（Ubuntu OpenJDK）
+
+$ mvn -o -pl rag-index-service test
+  ERROR …FileAppServiceImpl.java:[629,33] 找不到符号  符号: 方法 getDoc2mdDir()
+  BUILD FAILURE
+
+根因：~/.m2/repository/com/gientech/rag-common/0.0.1-SNAPSHOT/rag-common-0.0.1-SNAPSHOT.jar
+      mtime 2026-10-31，**不含 doc2mdDir**（unzip+strings 计数 0）
+      而源码 rag-common/.../FileParseTaskInfo.java:169 **有** `private String doc2mdDir;`（@JsonProperty("doc2md_dir")）
+
+$ mvn -o -pl rag-index-service -am test
+  rag-common ……… SUCCESS
+  rag-index-service … Compiling 185 source files / 16 test sources → 编译通过
+  然后 surefire 失败：
+  MultipleArtifactsNotFoundException: Missing:
+    1) org.apache.maven.surefire:surefire-junit3:jar:2.12.4
+  ⇒ **离线无法执行任何测试**
+```
+
+**「Tests run 7」的真相**：
+```
+$ grep -rc "@Test" src/test/java/... | sort -rn
+7  RemoteV2IngestClassifyTest.java      ← 7 就是它
+4  FileStorageUtilsTest.java
+3  KnowledgeBaseFileControllerTest.java
+2  CommonMarkTest.java
+1×4 其它
+合计 **21** 个 @Test（9 个测试类）
+```
+⇒ PLAN 的「Tests run 7 且 failures errors 为 0」**只是单个测试类**，且**当前离线仓库连测试都跑不起来**。
+两个仓库的 `target/surefire-reports/` 都是空/不存在 ⇒ **没有历史报告可对账**。
+
+## §7 R-0-7：12340 的调用面（P5-3 前置情报）
+
+`RemoteFileUtils` 注入的 12340 相关键（`:36/:43/:49/:161`）与方法：
+
+| 键 | 方法 | 调用点 |
+|---|---|---|
+| `file-parse` | `fileParse(String)`（`:339`） | `FileAppServiceImpl:198`（`filesParse`） |
+| `file-parse-sync` | `fileSyncParse(String)`（`:343`） | `FileAppServiceImpl:306`（`doParse`） |
+| `file-multi-version` | `fileMultiVersion(String)`（`:165`） | `FileAppServiceImpl:830`、`:900`（多版本解析 / 主流程） |
+| `file-revise_date` | `faqUpdateField` 等（`:36` 注入） | `FileAppServiceImpl:1050-1054`（revise_date 字段回写，走 **faq** 端点而非 12340？见注） |
+| `tl-database-table-description` | 注入在 `TLDatabaseController:44` / `TLDatabaseAppServiceImpl:104` 的 `.model` 子键 | **url 子键在本模块未见注入点** |
+
+> 注：`file-revise_date.url` 虽被注入 `RemoteFileUtils:36`，但 `FileAppServiceImpl:1052/1054` 实际调的是
+> `faqUpdateField`/`updateFieldteEs`（走 ES），**未直接使用该 URL** —— 需要单独确认它是否仍被任何方法使用（**我没查到底，标为未决**）。
+
+## §8 需要 TL 裁定（Q1..Q7，每条含建议）
+
+**Q1（改哪份）**：建议 **改 A + 让 `rag-common` 参与 reactor**（`doc2mdDir` 已在源码里，只需 `-am` 或重建 jar）。
+理由：A 是唯一有 v2-ingest 的源码；B/C 是 10-29 旧快照；Python 只在源码仓。**但需你确认「P5 是否允许同时改 `rag-common`」**（它属共享 DTO，影响 5 个服务）。
+
+**Q2（构建/部署流程无证据）**：`bin/` 下无任何 `mvn` 调用，运行 jar 却是部署仓 `target` 产物（11-07）。
+建议：**请 Owner 明确「由谁、在哪、用什么命令构建并部署 jar」**，否则 P5 改完无法上线验证。
+
+**Q3（207 语义）**：A 已实现 `200+207→RETRY`、`4xx→PARSE_FAIL`、`5xx→RETRY`，与 L13 实测**一致**。
+建议**保持现状**，并在 D-4 里补端到端（真实 207 时文件状态变 RETRY）。
+
+**Q4（`v2-ingest` 键）**：r12 conf 缺键但空默认让其等价关闭。
+建议：**启用时在 r12 conf 显式加 `v2-ingest: url: http://127.0.0.1:18096/kb/ingest`**，并**同步改 v2 conf 里那段 11-07 的关闭注释**（理由 ①② 已过时）。
+
+**Q5（P5-1 删 legacy 建图）**：`doSuccess` 目前两路并存；`graph_parse_status` 只由 `generateGraph` 写，
+`v2Ingest` **不写**它。建议**不要直接删**，先加显式开关（`remote.generate-graph.url` 为空即不跑），
+否则删完该字段永远停在「未做(1)」。
+
+**Q6（mvn 基线）**：离线缺 `surefire-junit3:2.12.4`。三个选项：① 允许联网跑一次 `mvn -am test`；
+② 预置该 provider 到 `~/.m2`；③ 用 `-DskipTests` 只做编译基线（最弱）。
+建议 ②，避免每次联网。
+
+**Q7（运行态与源码不一致）**：运行 jar（11-07，B 侧）**没有** v2-ingest；A 的 11-08 改动也未进任何 jar。
+建议：把「P5 落地 = 构建 + 重启 rag-index-service」列为**独立运行态步骤**（需 Owner 授权），
+**不要**在 P5 代码完成时就声称「已生效」。
+
+## §9 红线自查
+
+- **改了哪些文件：0**（只读 + `/tmp` 临时解包 `javap`）。
+- 跑过的命令：`ss/ps/proc`、`grep/find/ls/stat/md5sum`、`unzip -l`、`unzip` 到 `/tmp/jarx`、`javap -p`、
+  `mvn -o -pl rag-index-service test`（失败）、`mvn -o -pl rag-index-service -am test`（编译通过、surefire 缺依赖）。
+- **未做**：`mvn package/install`、未改 `.java/.yml/脚本`、未重启任何 Java 服务、未改 `TASKS.yaml`、未开始实现。

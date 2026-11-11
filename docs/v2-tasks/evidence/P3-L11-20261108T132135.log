@@ -1,0 +1,216 @@
+# P3-L11 · R-0 只读核实证据（python-engineer 现场复核）
+
+- 时间：2026-11-08T13:21:35+0800
+- 角色：`python-engineer`；本文件**只记 R-0**，**无任何实现代码、无任何文件改动**
+- 任务：`T-D2MD-11` / loop `P3-L11`（`docs/v2-tasks/loops/P3-L11-PLAN.md` §三）
+- 状态：`R0_VERIFIED_WITH_DEVIATIONS` —— **PLAN 假设「已有端点字段可照抄」不成立**，
+  另有 3 项需 TL 裁定（字段名 / M4 例外 / 漏登范围）
+- 红线：未重启 18094、未改任何文件
+
+## 0. 开工基线
+
+```
+$ md5sum graph_engine_adapter/capabilities.py
+32ce3e11f85a9ff4ed59e68cbcd40481  graph_engine_adapter/capabilities.py   (218 行)
+```
+
+---
+
+## 1. `capabilities.py` 顶层结构（R-0 第 1 项）
+
+| 符号 | 内容 |
+|---|---|
+| `SCHEMA` | `"llmke.graph-engine.describe.v1"` |
+| `CAPABILITIES` | **dict**，20 个能力项；每项键**只有三个**：`{status, note, evidence}`（逐项实测 `键=['evidence','note','status']`） |
+| `ALLOWED` | `{"VERIFIED", "NOT_VERIFIED", "NOT_IMPLEMENTED"}` |
+| `describe(engine_version=None, adapter_version="0.1.0")` | 返回 `{schema, engine, adapter, declared, capabilities, counts, acceptance_rule, env}`（顶层 8 键）；内含两条硬校验：状态非法 → `ValueError`；`VERIFIED` 无 `evidence` → `ValueError` |
+| `to_json(**kwargs)` | `json.dumps(describe(...), ensure_ascii=False, indent=1)`；`__main__` 直接打印 |
+
+**无 `describe()` 之外的版本字段**；`SCHEMA` 是唯一版本标识。
+
+---
+
+## 2. 【关键】是否已有能力项声明过 HTTP 端点（R-0 第 2 项）
+
+**结论：没有结构化字段，只有一处散文。**
+
+```
+$ grep -n "POST\|GET\|/v2/\|http" graph_engine_adapter/capabilities.py
+93:                "已接线到 HTTP：建图后写 community.json，POST /v2/graph/global 返回 answer+citations，"
+```
+
+- 唯一提及 HTTP 的是 **`community_report.note` 里的散文**；
+- `CAPABILITIES` 里**没有任何 `endpoints` / `http` / `routes` 之类的键**（20 项全是三键）；
+- 因此 PLAN §三-2「有就照它的字段名写，不要自创」**不成立** —— **没有字段名可照抄**，只能新造。
+
+顺带核对（M3 会用到）：
+
+| 能力项 | 是否已声明 HTTP | 说明 |
+|---|---|---|
+| `community_report` | 仅 **note 散文** 提到 `POST /v2/graph/global` | 无结构化字段 |
+| `index_build` | **完全没有**提 HTTP（note 只说 index() 实跑） | 对应 `/v2/graph/build` 未登记 |
+| `incremental_update` | **完全没有**（note 只讲引擎增量） | 对应 `/v2/graph/delta` 未登记 ← 本 loop 目标 |
+
+---
+
+## 3. `api.py` 的 `/v2` 路由全集（R-0 第 3 项）
+
+```
+$ （进程内 create_app，不监听端口）
+GET          /health
+GET          /v2/entities
+GET          /v2/fence
+POST         /v2/graph/build
+POST         /v2/graph/delta
+POST         /v2/graph/global
+POST         /v2/graph/query
+GET          /v2/graph/view
+GET          /v2/status
+total = 9        # 其中 /v2* = 8 条，与你初查一致
+```
+
+- **无动态注册**：`grep add_api_route|include_router|APIRouter` → **0 命中**，全部是 `@app.get/@app.post` 静态装饰器；
+- 写路由（POST 且写状态）= `build` / `delta` / `global`；`query` 虽 POST 但**只读**；
+- 只读路由 = `status` / `fence` / `entities` / `view`。
+
+---
+
+## 4. 消费方与「生效边界」的精确化（R-0 第 4 项）
+
+```
+$ grep -rn "capabilities" --include=*.py . | grep -v capabilities.py
+./services/rag-alg/index_data_service/graph_engine_adapter/__init__.py:6:from .capabilities import describe  # noqa: F401
+```
+
+- **唯一代码消费方 = 包级再导出**（`graph_engine_adapter.describe`），供 Python 侧调用；
+- `tests/test_graph_engine_capabilities.py` 是主要断言方（见 §5）；
+- **`api.py` 里没有 `/capabilities` 路由**（`grep capabilit|describe api.py` → 0 命中），
+  所以 capabilities **没有 HTTP 面**。
+
+### 4.1 对 TL 第 8 条假设的**精确化（重要）**
+
+> TL 写「若 18094 有 `/capabilities` 端点缓存，重启前仍是旧值」。
+
+现场是：**没有 `/capabilities` 端点，也就不存在"端点缓存"**。但结论方向一致、理由不同：
+
+- capabilities 是**模块级常量**，在进程 import 时一次性加载；
+- 已在运行的 18094 进程**不会自动 reload 模块** → 它（若将来某处调用 `describe()`）报的是**旧值**；
+- 新起的进程 / 测试 / 文档生成读到的是新值。
+
+→ 准确表述应是：**「静态声明：新起的读取方立即可见；已运行的 18094 进程需重启才反映新声明（不是缓存，是模块已加载）」**，
+而不是"端点缓存"。evidence 会按此写。
+
+---
+
+## 5. 既有测试对 `capabilities` 的断言（R-0 第 5 项）
+
+`tests/test_graph_engine_capabilities.py`（4 条）：
+
+```python
+def test_describe_shape_and_counts():
+    assert d["schema"] == "llmke.graph-engine.describe.v1"
+    assert set(d["counts"]) == {"VERIFIED", "NOT_VERIFIED", "NOT_IMPLEMENTED"}
+    assert sum(d["counts"].values()) == len(d["capabilities"])
+    assert d["declared"] == sorted(d["capabilities"])
+
+def test_every_verified_has_evidence():      # 遍历 cap["evidence"]
+def test_graph_route_verified_only_with_replayable_evidence():   # 点名几个能力项
+def test_verified_without_evidence_is_rejected(monkeypatch):
+    broken["fake_cap"] = {"status": "VERIFIED", "note": "吹的", "evidence": None}   # ← 三项 dict
+```
+
+**对本次改动的影响**：
+
+| 事实 | 含义 |
+|---|---|
+| 没有 `assert set(cap) == {...}` 这类键集断言 | **新增字段不会打破既有测试** |
+| `test_verified_without_evidence_is_rejected` 用**三键 dict** 构造 fake cap | 新字段必须**可选**（缺省合法），不能设成必填 |
+| `describe()` 用 `dict(v)` 复制每项 | 新字段会**自动透出**到 `describe()["capabilities"]` |
+| `counts` / `declared` 由 `status` 派生 | 本次不增删能力项 → 计数不变（19 VERIFIED / 1 NOT_VERIFIED / 0 NOT_IMPLEMENTED） |
+
+---
+
+## 6. 与 PLAN 断言相关的现状（哪些会先红）
+
+| 断言 | 现状 | 阶段 A 预期 |
+|---|---|---|
+| **M1** `incremental_update` 声明 DELTA 端点且 method/path 正确 | **完全没有声明** | **红** |
+| **M2** note 同时含「增量抽取」+「全量重建图」 | **已满足**（note 原文见下） | **绿（既有满足项，作为守卫用例保留）** |
+| **M3-①** 声明的 `/v2` 路径都能在 `api.py` 找到 | 当前无声明 → 空集恒真 | 绿（空转！**需要"声明数 > 0"的前置断言**才有判别力） |
+| **M3-②** 写路由不漏登 | `build` / `delta` / `global` **全部未结构化登记**（global 只有散文） | **红** |
+| **M4** 其余能力项一字不变 | — | 守卫 |
+| **M5** 可 import / `json.dumps` / schema 兼容 | 当前已满足 | 守卫 |
+
+`incremental_update` 现 note（M2 依据）：
+
+```
+复制上一份快照后就地应用差异：hp.delete 去掉多余块、hp.index(to_add) 复用 load_existing_openai
+只对新块抽取（**增量抽取 + 全量重建图**，两件事分开说）。真跑 5 块：全量 32.4s → 增量 7.5s（4.3×），
+删 3 增 1 复用 2，openie 5→3 == 期望 5-3+1；检索层 full vs delta 命中完全一致
+```
+
+**M3-① 的空转风险我要显式提出来**：如果实现时"没登记任何端点"，`声明的每个路径都能找到`
+在空集上恒真 —— 这正是 L1~L10 反复遇到的"空转假绿"。我会加一条
+`assert 至少有一个能力项声明了 http 端点`（数量 > 0）作为**前置**，否则 M3-① 不许通过。
+
+---
+
+## 7. 请裁定的 3 项（+1 项确认）
+
+### Q1 · 新字段叫什么、什么形状？（**没有既有字段名可照抄**，只能新造）
+
+| 选项 | 形状 | 评估 |
+|---|---|---|
+| A | `http: {"method": "POST", "path": "/v2/graph/delta"}` | 最简；单项能力一个端点够用 |
+| B | `http: [{"method": "POST", "path": "/v2/graph/delta"}]` | 列表，天然支持一个能力多个端点（`community_report` 既有散文里就有多个 HTTP 痕迹） |
+| C | `endpoints: [{"method", "path"}]` | 名字更通用，但与既有散文用词「已接线到 HTTP」不同源 |
+
+**我建议 B（`http` 列表）**：字段名与 `community_report.note` 的既有措辞「HTTP」一致，
+避免造出第三个词；列表形状让 Q3 若扩到多端点时不用改结构。
+
+### Q2 · M4「其余能力项一字不变」的例外
+
+`community_report` 的端点事实现在**只活在 note 散文里**。若不动它，就会出现
+「`incremental_update` 有结构化 `http`、`community_report` 只有散文」的两套风格 —— 正是 PLAN 想避免的。
+
+**请裁定**：是否允许给 `community_report`（及 Q3 涉及的 `index_build`）**只新增 `http` 字段**，
+而 `note` / `evidence` / `status` **一字不动**（即 M4 从"整块 sha 不变"放宽为
+"`note`+`evidence`+`status` 不变，仅允许新增 `http` 键"）？
+- 允许 → 三处写路由统一结构化，未来不会漂移；
+- 不允许 → 只动 `incremental_update`，其余保持散文，我按 M4 字面执行并在 evidence 标注这个不一致。
+
+### Q3 · 「漏登」的口径（M3-②）
+
+`api.py` 的 3 条写路由：`build` / `delta` / `global`。
+
+| 方案 | 做法 | 代价 |
+|---|---|---|
+| (i) 最小面 | 只登记 `incremental_update → POST /v2/graph/delta`；`build` / `global` 列入「不登记清单」并写明理由（如：`build` 由 `index_build` 覆盖引擎能力，HTTP 面由 P4 接线时再登记） | 改动面最小；但 M3-② 的"无漏登"要打折成"白名单" |
+| (ii) 全覆盖 | `index_build` 补 `POST /v2/graph/build`、`community_report` 补 `POST /v2/graph/global`、`incremental_update` 补 `POST /v2/graph/delta` | 需要 Q2 放行；但登记与路由**真正双向一致** |
+
+**我建议 (ii)**，否则 M3-② 只能靠白名单自证。
+
+### Q4（确认）· 解释器拆分
+
+M1 要「与 `api.py` 路由逐字符比对」，需 import fastapi → **该断言只能在 `hipporag-toolenv`**；
+`capabilities` 结构与 M2/M4/M5 在 `llmke-v2-toolenv` 可跑。v2 侧 skip 会**单列不计通过**（同 L9/L10 口径）。请确认。
+
+---
+
+## 8. 红线自查（R-0 阶段）
+
+| 红线 | 自查 |
+|---|---|
+| 不重启/不启停 18094 | ✅ 仅 `python -c` 进程内 introspect；两 pid 仍 `3189651 / 3202203` |
+| 不改 `capabilities.py` / `api.py` / 引擎 / `delta_build.py` / `rebuild.py` / `fence.py` | ✅ **本阶段零文件改动** |
+| 不改设计包 / MANIFEST / TASKS.yaml / 运行态配置 / doc2md 仓 | ✅ 只读 |
+| 不把 `status` 提到 VERIFIED 以上 | ✅ 本阶段未动状态 |
+| 裁定前不写实现代码 | ✅ 本文件无实现代码 |
+
+**本阶段新增文件**：仅本 evidence log。
+
+> **口径澄清**：「零文件改动」指**本 R-0 阶段未产生新改动**。工作区里
+> `M graph_engine_adapter/api.py`（`4bf0b21f…`，L10 交付）、`M …/rebuild.py`（`782c8be3…`，L10 交付）、
+> `?? …/delta_build.py`（`bf509721…`，L9 交付）都是**前序 loop 已收口的产物**，不是本阶段改的。
+> **`capabilities.py` 不在改动清单里**（md5 仍 `32ce3e11…`，与 §0 基线一致）→ 本 loop 目标文件**未被触碰**。
+> `fence.py` 仍 `cbb9151f…`（L10 裁定未改）。

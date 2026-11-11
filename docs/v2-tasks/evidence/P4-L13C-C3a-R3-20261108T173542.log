@@ -1,0 +1,186 @@
+# P4-L13-C · C3a 第 3 次：**写入路径全绿（ES+Milvus 都落库）**；图路径被「18094 未加载 L9 路由」卡住
+
+- 时间：2026-11-08T17:35:42；角色 `python-engineer`
+- 前置：`index_writer` 去掉 `db_name=kb`（`d27d3884…`）、19527 已修、18096 重启为 pid `1795316`
+- 请求：同一条（`kb_9` / `FULL_REBUILD` / `SHADOW_BOOTSTRAP` / `file_id=290` / 同一 `doc2md_dir` / 不带 `graph_root`）
+
+---
+
+## 1. 逐条结果
+
+| # | 判据 | 实测 | 结论 |
+|---|---|---|---|
+| ① | HTTP 非 5xx，失败要如实 | `HTTP=207`、`status=PARTIAL`、`msg=搜索路完成、图谱路失败（PARTIAL）` | ✅ |
+| ② | ES 影子写入、值形态与线上一致 | `v2cand_kb_9` = **1 条**，`order_num=''`、`file_id='290'` | ✅ |
+| ③ | Milvus 影子写入 | `insert_vector_documents_custom` → `{"status":"OK"}`；`_v2cand_kb_9` 查询 **1 行** | ✅ |
+| ④ | 4 个 delete 全执行、`col_name=file_id` | 见 §2.1（2 ES + 2 Milvus，全部 `file_id=["290"]`） | ✅ |
+| ⑤ | 图路径成功（delta 建图 + 影子 graph-root） | **`GRAPH_API_UNREACHABLE: …/v2/graph/delta: HTTP Error 404`** | ❌ 阻塞（运行态，非代码） |
+| ⑥ | 失败时状态不提交、cursor 不推进、线上零变化 | `state_committed=false`、`cursor=None`、`kb-state` 无文件、`graph-root` 未创建、线上 `kb_9=44`/`table_chunks=2` | ✅ |
+| ⑦ | **幂等**：`v2cand_kb_9` 仍为 1（不是 2） | `{"count":1}`；Milvus `_v2cand_kb_9` 也 **1 行** | ✅ |
+
+**5/6 + ⑦ 全过；唯一没过的是 ⑤，且不是我们的代码问题**（见 §3）。
+
+---
+
+## 2. 完整四段（TL 要求「不要只报最终 500」）
+
+### 2.1 `index_write`
+
+```json
+{"status":"APPLIED","applied":true,"required":true,
+ "deletes":[
+   {"side":"es","target":"v2cand_kb_9","col_name":"file_id","col_values":["290"]},
+   {"side":"es","target":"v2cand_table_chunks_kb_9","col_name":"file_id","col_values":["290"]},
+   {"side":"milvus","target":"v2cand_kb_9","col_name":"file_id","col_values":["290"]},
+   {"side":"milvus","target":"v2cand_table_chunks_kb_9","col_name":"file_id","col_values":["290"]}],
+ "inserts":{"es":{"status":"OK","side":"es"},"milvus":{"status":"OK","side":"milvus"}},
+ "compensation":{"needs":false,"completed_sides":["es","milvus"],"calls":[
+   {"side":"es","op":"delete","url":"http://127.0.0.1:19527/del_doc_by_col","target":"v2cand_kb_9"},
+   {"side":"es","op":"delete","url":".../del_doc_by_col","target":"v2cand_table_chunks_kb_9"},
+   {"side":"es","url":"http://127.0.0.1:19527/insert_fulltext_documents","target":"v2cand_kb_9"},
+   {"side":"milvus","op":"delete","url":"http://127.0.0.1:19526/del_doc_by_col","target":"v2cand_kb_9"},
+   {"side":"milvus","op":"delete","url":".../del_doc_by_col","target":"v2cand_table_chunks_kb_9"},
+   {"side":"milvus","url":"http://127.0.0.1:19526/insert_vector_documents_custom","target":"v2cand_kb_9"}]}}
+```
+
+→ **`apply` 在生产路径第一次真正发出全部 6 个调用**，顺序是「两侧各先删后写」；
+`compensation.needs=false` 说明两侧都成功（上一次失败时它是 `true` + `completed_sides=['es']`，两次对照说明该字段不是常量）。
+
+### 2.2 `graph`
+
+```json
+{"result":null,"error":"GRAPH_API_UNREACHABLE: http://127.0.0.1:18094/v2/graph/delta: HTTPError: HTTP Error 404: Not Found"}
+```
+
+### 2.3 `diff` / `artifact` / `projection`
+
+```
+diff_source = "request"          （无 manifest → 退化单文件 diff，Q1 的如实标注生效）
+diff        = added=["290"], removed=[], reason=FULL_REBUILD_…
+cursor      = cursor-fbb7537f…（计算出来了，但未提交，符合 ⑥）
+artifact    = artifact_id ed775c68…、content_uid 64242367…、content_hash 66152bbb…
+projection  = {"status":"READY","chunks":1}
+wanted_docs = 1 条
+state_path  = /home/szf/data/dev/llmke-shadow/kb-state/kb_state.json（文件不存在）
+```
+
+---
+
+## 3. ⑤ 的根因：**18094 是 11-07 启动的，根本没加载 L9 加的 `/v2/graph/delta`**
+
+```
+源码    api.py:490   @app.post("/v2/graph/delta")          mtime 2026-11-08 13:47:25
+进程    18094 pid 3189651                                 启动 Sat Nov 7 01:20:04   ← 早 36 小时
+实测    POST /v2/graph/delta  → 404
+        POST /v2/graph/build  → 400   （路由在，body 不合法）
+        POST /v2/graph/global → 200
+openapi {"paths": ["/v2/graph/build","/v2/graph/global","/v2/graph/query","/v2/graph/view"]}
+```
+
+**`/openapi.json` 里没有 `delta`** —— 这是路由缺失的硬证据，不是「请求体不对」。
+`build` 回 400、`delta` 回 404 的对照排除了「端口不对 / 方法不对」的解释。
+
+**这正好印证 TL 在 P3 收口时写的跨 loop 结论**：L9/L10 是**进程内结构**，代码合入 ≠ 线上生效；
+而 18094 是从 11-07 就在跑的**生产进程**（`kb_9=44`），重启它是运行态变更，**不属我可自主推进范围**（且 TL 明确禁止启停服务）。
+
+### 3.1 顺带记一个诊断弱点（不阻塞）
+
+`/v2/graph/delta` 返回 **404（路由不存在）**，被归成 `GRAPH_API_UNREACHABLE`（契约里 502 的「不可达」）。
+「路由不存在」与「网络不可达」在运维上是**完全不同的动作**（前者要部署新版本，后者查网络），
+建议 P6 把 `HTTPError 404` 单列一个 code（如 `GRAPH_ROUTE_MISSING`），复用现有表加一行即可。
+
+---
+
+## 4. 两个判据的旁证
+
+### 4.1 ⑦ 幂等（这是本轮新增判据，专门验「先删后写」）
+
+```
+第 1 次 C3a（17:31）后：v2cand_kb_9 = 1（只写了 ES，Milvus 失败）
+第 3 次 C3a（17:35）后：v2cand_kb_9 = 1，Milvus _v2cand_kb_9 = 1
+```
+
+若「删」没生效，第二次插入会产生 pk 冲突或计数变 2 —— 实测**仍为 1**，
+说明 `del_doc_by_col(file_id=["290"])` 在 ES 与 Milvus **两侧都真的删掉了**上一次的数据。
+**这条同时验证了 A2 那个 `col_name="file_id"` 的修正不是只在 mock 里对。**
+
+### 4.2 ⑥ 的隔离
+
+| 项 | 值 |
+|---|---|
+| 线上 `kb_9` | **44**（未变） |
+| 线上 `table_chunks_kb_9` | **2**（未变） |
+| 线上图 `current.json` | md5 `e2d0f75440e4553ee1bb33f51ca2ca34`（未变） |
+| 影子 `kb-state/kb_state.json` | **不存在**（未提交） |
+| 影子 `graph-root/` | **未创建**（delta 没调成功） |
+| 18094 | pid `3189651 / 3202203`（未动） |
+| 18096 | pid `1795316`（本次重启的） |
+
+---
+
+## 5. 结论与建议
+
+**写入路径（B1~B8 的真实版）已经端到端打通**：快照 → 投影 → 4 删 → ES 写 → Milvus 写 → 状态不提交（因图失败）→ 幂等成立。
+**唯一未过的是图路径，且阻塞点是「18094 进程版本」，不是代码。**
+
+三条路（需 TL/Owner 定，我不动生产）：
+
+| 方案 | 内容 | 风险 |
+|---|---|---|
+| **A（建议，放 P6 部署窗口）** | 授权窗口内重启 18094 加载 L9 路由，再发同一条 C3a | 生产进程重启，需回滚预案 |
+| B（影子专用实例） | 另起一个 graph API 实例（如 18098）指向影子 `graph-root`，18096 的 `LLMKE_V2_GRAPH_API` 改指它并重启 18096 | 起新进程（也是运行态变更），但**不碰生产 18094** |
+| C（本 loop 收口） | 记「图路径待 P6 验证」，C3a 以 5/6+⑦ 收 | 图路径仍未被真实验证 |
+
+我倾向 **B**：它不碰生产 18094，又能真实验证 delta + graph-root 落盘；代价是 P6 要清理这个临时实例。
+
+---
+
+## 6. 追加发现（18:3x，只读核实）：**请求级 `graph_root` / `graph_api` 被静默忽略**
+
+TL 让我等 Owner 授权，我停手期间做只读核查，发现我自己的 L12 有一个同类缺陷。
+
+### 6.1 事实链
+
+| 环节 | 代码 | 行为 |
+|---|---|---|
+| 契约 §1.1 | `02-CONTRACTS.md:24-25` | 请求体**含** `graph_root` / `graph_api` |
+| 模型 | `kb_ingest_service.py:164-165` | `IngestRequest.graph_root/graph_api: Optional[str]` —— **接受** |
+| 传递 | `:189 to_service_request()` | `model_dump()` → 两个字段**进了 payload** |
+| 执行 | `:307 create_app` → `service = _build_service()` | **不带参数**调，只用 env |
+| 绑定 | `:247 _build_service()` → `_delta_runner(graph_api, graph_root)` | delta 闭包在**建 app 时**就绑死 env 值 |
+| 端点 | `:353 service.run(payload)` | `KbDeltaService.run` **不读** `req["graph_api"]/["graph_root"]` |
+
+**结论**：请求里传 `graph_root`/`graph_api` **被接受、被回显、但不生效** —— 与 `order_num`、`db_name` 同一族
+（「看起来接受了，其实没作用」）。**测试零覆盖**：`tests/test_kb_ingest_l12.py` 里没有任何
+`assert ... graph_root` 的断言（B6 只对比了 `model_fields`，没验「传进去有没有用」）。
+
+### 6.2 对 C3a 的影响：**结论不变**
+
+C3a 的隔离**不是**靠请求级覆盖，而是靠 18096 进程 env：
+```
+LLMKE_V2_GRAPH_ROOT = /home/szf/data/dev/llmke-shadow/graph-root
+LLMKE_V2_GRAPH_API  = http://127.0.0.1:18094
+```
+所以前三次 C3a 若 delta 成功，图会落在**影子** root —— 隔离成立，之前的结果有效。
+但「不带 graph_root」这条请求设计其实**一直是空操作**，TL 当时以为是靠它控制落点。
+
+### 6.3 这条发现直接把 Owner 的三选一缩成一个
+
+`DeltaRequest.root: Optional[str]`（`api.py:111`）—— **18094 按请求给的 root 建图**。
+18096 已经通过 env 传影子 root，所以：
+
+> **只要重启 18094（方案 A），delta 就会建到影子 root，不碰生产图。方案 B（起 18098）是多余的。**
+
+A 的代价仍然存在（18094 是 `kb_9=44` 的生产检索进程，重启有短暂不可用 + 新代码风险），
+但 **B 并不能减少这个代价** —— 它只是换一个进程做同一件事，还得改 18096 env 并重启 18096（两次重启 vs 一次）。
+
+### 6.4 建议修法（等 TL 批，不在停手期实施）
+
+二选一，我倾向 ①：
+
+| # | 方案 | 后果 |
+|---|---|---|
+| ① **让覆盖真的生效** | `ingest()` 里 `if req.graph_api or req.graph_root: svc = _build_service(req.graph_api, req.graph_root) else: svc = service` | 契约 §1.1 名副其实；代价是带覆盖的请求会新建一次协调器（无引擎、无 IO，成本可忽略）。**必须补断言**：mock `graph_client.post_graph_delta` 捕获 `root`，断言收到的是请求里的值 |
+| ② 删除这两个字段（`extra="forbid"` 已开） | 契约与代码一致地「不支持」 | 最小，但 §1.1 的示例要改，属改契约文档 |
+
+**不建议**保留现状：它是「静默忽略」，比拒绝更危险 —— 调用方以为切了影子，实际写的是 env 指定的位置。

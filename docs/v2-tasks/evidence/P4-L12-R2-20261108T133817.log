@@ -1,0 +1,236 @@
+# P4-L12 修订轮（TL 14:2x 两处必改）+ 表述更正 · `DEV_SELF_CHECK_PASS`
+
+- 时间：2026-11-08T13:38:17+0800；角色 `python-engineer`
+- 前序证据：`P4-L12-20261108T133453.log`（R-0 结果 + 首轮实现）；本文件**取代**其中 §1/§2 的存量描述
+- `T-D2MD-12` 保持 `DOING`；未自签 `QA_PASS`、未标 `DONE`/`VERIFIED`、`TASKS.yaml` 未改
+- **A-3 证据未产出（属 P6）；18096 仍未启用**
+
+---
+
+## 0. 先更正我的错误表述（TL 要求）
+
+我在 R2 报告里写过「**三路在进事务之前全部完成 —— B3 是结构性保证**」。**这句是错的**，实际：
+
+| 路 | 真实位置（修订前） |
+|---|---|
+| 封快照（artifact） | 状态事务**之前** ✅ |
+| 投影（projection） | 状态事务**之前** ✅ |
+| `index_writer.build`（ES/Milvus 计划） | 状态事务**之前**，但**只产计划、从未写入** ⚠️ |
+| **图（delta）** | **状态事务之后** ❌ → cursor 已推进、失败不回滚 |
+| `index_writer.apply`（真正写 ES/Milvus） | **生产零调用** ⚠️ |
+
+所以 B3 当时**没有任何结构性保证**，我的措辞让它看起来已经成立。如果 TL 只看报告就收口，这个死锁会带到 L13 上线。
+正确的表述见 §2；结论见 §3。
+
+---
+
+## 1. 必改一 · delta 前移到状态事务之前（B3 真正落实）
+
+### 1.1 TL 指认的死锁（我复核成立）
+
+```text
+delta 失败 → cursor 已推进 → status=PARTIAL / HTTP 207
+→ Java 回写 RETRY → 重放同一 manifest
+→ diff 发现 set_digest 一致 → NO_CHANGE → SKIPPED_FRESH
+→ 不再调 delta → 图永远建不起来，且每次重放都"成功"返回
+```
+
+与 L9 抓到的「清理删掉在建目录 → 指针悬空」同类：**报成功但目标状态没达成**。
+
+### 1.2 修订后的 `commit()` 顺序（写进 docstring）
+
+```text
+revoke(removed)                     ← B2：先让可见性失效
+prospective = deepcopy(load_state())  ← 内存预算，不写盘
+_apply_plan(prospective)            ← 只为算 wanted docs
+wanted = build_wanted_docs(prospective)
+delta(plan)                         ← 图在事务【之前】；失败 → 直接返回，不提交
+  └ 失败 → status=PARTIAL, state_committed=False, cursor=plan.cursor_before（原值）
+index_write 块                       ← 如实标注 applied=False
+with _kb_state_txn() as state:      ← 只有三路+图都成功才进
+    _apply_plan(state, plan)        ← version+1 / 重算 cursor
+```
+
+`wanted_docs` 对"应用后状态"的依赖，用 `copy.deepcopy` 的 **prospective** 解决（纯内存，不落盘），
+不引入第二次读盘，也不改 `build_wanted_docs` 语义。
+
+### 1.3 `_delta is None` 不再报 OK
+
+```
+graph_error = "delta_runner_not_configured: 未注入 delta runner，图未建；不得报 OK"
+```
+→ `status=PARTIAL`、`state_committed=False`。生产漏配 runner 不会再静默产出「成功但无图」。
+
+---
+
+## 2. 必改二 · `index_write` 如实标注（ES/Milvus 未写入）
+
+响应新增：
+
+```json
+"index_write": {
+  "status": "PLANNED", "applied": false, "required": true,
+  "reason": "L12 红线：未写线上 ES/Milvus，apply 由 L13 接线",
+  "es": {"bodies": 1}, "milvus": {"bodies": 1}, "documents": 1
+}
+```
+
+- DELETE 路径：`{"status": "NOT_APPLICABLE", "required": false, ...}`（撤权不写索引）；
+- SKIPPED 路径：`{"status": "NOT_APPLICABLE", "required": false, "reason": "空 diff：未写任何索引"}`。
+
+**status 规则**（`_result`）：
+
+```python
+landed = (not index_write["required"]) or bool(index_write["applied"])
+status = "OK" if landed and graph_error is None else "PARTIAL"
+```
+
+因为 `applied` 在本 loop 恒为 `False` 且 `required=True`（UPSERT），**UPSERT 成功路径的 `status` 恒为 `PARTIAL`（HTTP 207）** ——
+这是如实的：写索引这一路确实没做。断言 `test_status_must_not_be_ok_when_index_write_not_applied` 锁死。
+
+另新增 `state_committed: true|false` 顶层字段：delta 失败时 `false`，调用方不必从 `status` 反推。
+
+---
+
+## 3. 阶段 A（本轮新增两条反例先跑红）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python -m pytest tests/test_kb_delta_l12.py -q
+FAILED …::test_b3_replay_after_failure_runs_full_plan            # 期望 PARTIAL（原断言 OK）
+FAILED …::test_b3_delta_runs_before_state_commit                 # 顺序：delta 在 txn 之后
+FAILED …::test_b3_delta_failure_does_not_advance_cursor          # cursor 被推进 + 状态残留
+FAILED …::test_no_delta_runner_is_not_ok                         # 无 runner 仍报 OK
+FAILED …::test_index_write_reports_planned_and_not_applied       # 无 index_write 块
+FAILED …::test_status_must_not_be_ok_when_index_write_not_applied
+6 failed, 18 passed in 0.13s
+```
+
+修订后：**24 passed**（v2）。新增 5 条用例（`delta 顺序` / `delta 失败不推 cursor` / `无 runner 不报 OK` /
+`index_write=PLANNED` / `applied=False ⇒ status≠OK`），另 1 条原用例断言改为符合真相的 `PARTIAL`。
+
+---
+
+## 4. 阶段 B · 转绿与回归
+
+| 集合 | v2 | hipporag |
+|---|---|---|
+| `test_kb_delta_l12.py` | **24 passed** | 24 passed |
+| `test_kb_ingest_l12.py` | 0 passed / 43 skipped（无 pydantic/fastapi） | **43 passed** |
+| 全量（LB + L7~L12 相关面） | **189 passed, 4 skipped** | **251 passed** |
+
+构成：L11 收口 v2 `165` → `189`（+24）；hipporag `184` → `251`（+24 +43）。
+仓根 3 个既有失败口径同前（`test_scripts_compile` / `test_security_scan` / `test_q_acceptance`），**未修、不称全 PASS**。
+
+---
+
+## 5. 变异（本轮新增 M11~M13，3/3 捕获）
+
+| # | 变异 | 期望 | 实测 |
+|---|---|---|---|
+| M11 | delta 失败不再阻止提交（等价于把状态提交提前到 delta 之前） | cursor 被推进 → FAIL | **2 failed** |
+| M12 | 漏配 delta runner 时静默报 OK | FAIL | 1 failed |
+| M13 | `status` 计算忽略 `index_write.applied` | FAIL | **2 failed** |
+
+每组 restore 后 `kb_delta.py md5 089a7775…` 逐位复原，末态 `24 passed`。
+（首轮 M1~M10 的记录保留在前序证据 §5；本轮 M11 的变异体我写成「不放宽 `if graph_error is not None`」，
+它等价于顺序倒置的**可观测后果**，不是字面挪动代码 —— 这一点如实标注，不宣称"已直接验证代码行序"；
+行序本身由 `test_b3_delta_runs_before_state_commit`（断言 `events.index("delta") < events.index("txn")`）直接锁死。）
+
+---
+
+## 6. 红线自查
+
+| 项 | 结果 |
+|---|---|
+| 18096 | **仍未监听**（全程未执行 uvicorn） |
+| 18094 | 同两 pid（3202203 / 3189651），未重启 |
+| 线上 ES | `kb_9=44`、`table_chunks_kb_9=2` 未变；`v2cand*` 仍空 |
+| `api.py` / P3 四文件 | `api.py 4bf0b21f`、`capabilities 4820fac2` 等与 L11 一致 |
+| `kb_pipeline.py` / `index_writer.py` | `e1e9f909` / `d9853ade` 未变 |
+| doc2md 仓 | 仍 14 项，未触 |
+| `platform/r12` / Java / 设计包 / MANIFEST / TASKS.yaml | 未触 |
+
+---
+
+## 7. 指纹（以本文件为准）
+
+| 文件 | md5 | 行数 |
+|---|---|---|
+| `ingest_pipeline/kb_delta.py` | `089a7775400c7212a9ef17ee8a576336` | 449 → **514** |
+| `kb_ingest_service.py` | `f5f548a7e02f0a8d85891c44a03d6710` | 318（未变） |
+| `tests/test_kb_delta_l12.py` | `b81cca7e4f48abeb79f31f918c48ae52` | 373 → **459**（19→24 条） |
+| `tests/test_kb_ingest_l12.py` | `68a92ee59026f77ea3f15ea03c8ba896` | 259（43 条，未变） |
+
+---
+
+## 8. 遗留缺口（不因本轮修订而消失）
+
+1. **【高】契约 §3 `POST /v2/fence/revoke` 端点不存在** —— 本 loop 只有调用点，
+   且**现在 DELETE 也需要 delta 成功才提交状态**：若 delta runner 未配置，DELETE 会停在
+   `PARTIAL / state_committed=false`（撤权调用已发出但状态未落）。这是「宁可重试也不半提交」的取舍，
+   需 L13 接线时明确 delta runner 必配。建议写进 `T-D2MD-13.next_action`。
+2. **【中】`index_write.applied` 恒 false** → UPSERT 成功路径恒 207，Java 侧若按 207 回写 RETRY
+   会形成「删不掉的重试」。**L13 必须同时完成 `index_writer.apply` 接线**，否则不能放量。
+3. **【中】无 manifest 时 `removed` 恒空**（`diff_source="request"` 已暴露）。
+4. **【中】`GRAPH_API_UNREACHABLE` 与契约 `GRAPH_UNREACHABLE` 命名不一致**（按 TL 裁定保留，P6 收敛）。
+5. **【低】`SKIPPED_FRESH` 的 `wanted_docs` 返回空**（短路路径不读 state，如实返回空）。
+
+---
+
+## 9. 附录 · 真实输出
+
+### 9.1 修订后阶段 B
+
+```
+$ （v2）pytest tests/test_kb_delta_l12.py -q
+24 passed in 0.08s
+$ （hipporag）pytest tests/test_kb_delta_l12.py tests/test_kb_ingest_l12.py -q
+67 passed in 0.36s
+```
+
+### 9.2 M11~M13 变异（真实输出）
+
+```
+$ bash /tmp/p4l12_mutation2.sh
+----- MUTATION M11 · delta 失败不再阻止提交（cursor 先推进） -----
+FAILED tests/test_kb_delta_l12.py::test_no_delta_runner_is_not_ok - Assertion...
+2 failed, 22 passed in 0.10s
+restore: OK
+
+----- MUTATION M12 · 漏配 delta runner 静默报 OK -----
+FAILED tests/test_kb_delta_l12.py::test_no_delta_runner_is_not_ok - Assertion...
+1 failed, 23 passed in 0.09s
+restore: OK
+
+----- MUTATION M13 · status 忽略 index_write.applied -----
+FAILED tests/test_kb_delta_l12.py::test_status_must_not_be_ok_when_index_write_not_applied
+2 failed, 22 passed in 0.15s
+restore: OK
+
+===== 最终指纹 =====
+089a7775400c7212a9ef17ee8a576336  services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+baseline: 089a7775400c7212a9ef17ee8a576336
+===== 恢复后复跑 =====
+24 passed in 0.07s
+```
+
+### 9.3 回归与红线
+
+```
+$ （v2）全量
+189 passed, 4 skipped in 0.83s
+$ （hipporag）全量 + ingest
+251 passed in 1.45s
+
+$ ss -tlnp | grep -E ":1809[46]\b"
+LISTEN 0      2048       127.0.0.1:18094      0.0.0.0:*    users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+
+$ md5sum 关键文件
+4bf0b21fe082b737722c5a074e8cc4ec  services/rag-alg/index_data_service/graph_engine_adapter/api.py
+e1e9f909cf1d77db8a5ca76a67528f23  services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+d9853aded53d0facbd86ae0bc03860f9  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+089a7775400c7212a9ef17ee8a576336  services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+f5f548a7e02f0a8d85891c44a03d6710  services/rag-alg/index_data_service/kb_ingest_service.py
+b81cca7e4f48abeb79f31f918c48ae52  tests/test_kb_delta_l12.py
+68a92ee59026f77ea3f15ea03c8ba896  tests/test_kb_ingest_l12.py
+```

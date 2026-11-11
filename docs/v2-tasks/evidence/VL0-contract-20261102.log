@@ -1,0 +1,10 @@
+== make contract-all ==
+generate: PASS (27 contracts, clean staged outputs)
+check: PASS (27 contracts, semantic + exact linkage)
+
+== make contract-v2-check ==
+{"status": "PASS", "scope": "LOCAL_REGISTRY_SCHEMA_REFS_AND_BUNDLED_OPENAPI_ONLY", "contract_count": 27, "network_attempts": 0, "generic_generate_check": "NOT_RUN_AFTER_AUTO_REVIEW_REJECTION", "product_e2e": "NOT_EXECUTED"}
+{"status": "PASS", "scope": "SYNTHETIC_CONTRACT_CONSISTENCY_ONLY", "product_e2e": "NOT_EXECUTED", "upstream_doc2md_ir_validator": "REQUIRED_IN_ADAPTER_SEPARATE_FROM_THIS_CHECK"}
+........................................................................ [ 75%]
+.......................                                                  [100%]
+95 passed in 24.24s

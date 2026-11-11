@@ -1,0 +1,201 @@
+# P4-L13-C · 缺陷 11(b) + 缺陷 9 + 缺陷 12 + C4-3 —— 全部完成并真进程验证
+
+- 时间：2026-11-08T18:24 ~ 18:29；角色 `python-engineer`
+- 授权：TL 20:2x（缺陷 11 选 (b)、检测点前移；缺陷 9 接线；C4-3 可跑）
+
+---
+
+## 1. 缺陷 11（b）：删到空库 → `ALL_REVOKED`，**零副作用**
+
+### 1.1 改动
+
+`ingest_pipeline/kb_delta.py` `commit()` 里**把 `wanted` 的计算前移到所有副作用之前**：
+
+```python
+prospective = copy.deepcopy(self._load_state())   # 纯内存
+self._apply_plan(prospective, plan)
+wanted = self._build_wanted_docs(prospective, plan.kb)
+
+if not wanted:                                     # ← 前置检测（README: 零副作用）
+    raise KbDeltaRefused("ALL_REVOKED",
+        "删到空库需人工介入（契约 §5 ALL_REVOKED）；本次零副作用：未撤权、未改索引、状态未动")
+
+if plan.removed and self._revoke is not None:      # ← 从这里开始才有副作用
+    self._revoke(...)
+```
+
+之前 `revoke` 在 `wanted` 之前 → 删到空库时「撤权已发、索引已删、状态未提交」。
+
+### 1.2 同时采纳 (c) 的一半：DELETE 也回 `index_write` 块并如实
+
+```python
+"mode": "DELETE" if is_delete else "UPSERT",
+"inserts": None if is_delete else {...},     # DELETE 没有新块，不能报「inserts OK」
+```
+
+### 1.3 验证（真进程）
+
+| 判据 | 实测 |
+|---|---|
+| 删最后一个文件（290） | **HTTP 422**，`msg=ALL_REVOKED: 删到空库需人工介入…；本次零副作用：未撤权、未改索引、状态未动` |
+| 影子 `v2cand_kb_9` count | **仍 1**（未删） |
+| 影子 `kb_state` version | **仍 4**，状态未变 |
+| 影子 `fence.json`（两个快照） | 都是 `{"generation":0,"revoked":{}}`（未写） |
+| 生产 `current.json` | `e2d0f754…` 未变 |
+| 删非最后一个（291） | `200 / OK`；`index_write.mode=DELETE`、`inserts=None`、4 个 delete；`graph=BUILT DELTA documents=1`；ES 2→1；state 前进 |
+
+测试：`test_delete_last_file_is_all_revoked_with_zero_side_effects`（断言 revoke/索引/事务**都没发生**）、
+`test_delete_non_last_file_writes_and_reports_index_block`、`test_all_revoked_maps_to_422`（hipporag）。
+**阶段 A 三条全红**（`KbDeltaRefused` 未抛 / 无 `mode` 键 / 无 422）；
+两条既有用例（`b2_revoke_precedes_delta`、`b3_delta_runs_before_state_commit`）原先是「删唯一文件」，
+按新语义补了**一个存活文件**（只改种子数据，断言未动）。
+变异：**M20**（前置检测挪回 revoke 之后）`1 failed`；**M21**（DELETE 恢复 inserts OK 块）`1 failed`。
+
+## 2. 缺陷 9：`apply_result` 接线（不新造统计）
+
+- 事实核对：`engine_hipporag.apply_delta()` 返回 `{deleted,added,reused,duplicates,remaining,expected,consistent}`；
+  `rebuild.py:294` 已放进 `out["apply_result"]`；**只是 `delta_build` 拼响应时漏了**。
+- 改动（`delta_build.py` BUILT 返回）：`"apply_result": out.get("apply_result")` —— **纯透传**。
+- 真实响应（`292` 1 段 → 2 段）：
+
+```
+apply_result = {"schema":"llmke.graph-engine.hipporag.v1","deleted":0,"added":1,"reused":2,
+                "duplicates":0,"remaining":3,"expected":3,"consistent":true}
+documents=3  sources=3   ES=3  Milvus=3
+```
+
+→ **`reused=2`（= 原有块数）、`added=1`（= 新块数）、`consistent=true`、`remaining==expected==documents==3`** ——
+这就是 C3b 里缺的那组数字，现在有真值了（契约 §2.3 不变式 #2 可断言）。
+测试 `test_built_response_carries_apply_result`（先红后绿）；变异 **M22**（去掉透传）`1 failed`。
+
+**仍未实现**：契约 §2.2 的 `sources{written,entries}`（现为 `sources: 3` 整数）、`fence{generation,revoked}`、`fallback_reason`。
+不在本次授权范围，登记待 P6。
+
+## 3. 缺陷 12（**新发现，属真隔离泄漏**）：影子构建会改写 18094 的 kb 内存槽
+
+### 3.1 现象与定位
+
+修完缺陷 10 后，`GET /v2/fence?kb=kb_9` 在生产上显示 `generation=1 / revoked=["291"]`，
+而**生产 `fence.json` 是干净的**（`{"generation":0,"revoked":{}}`，mtime 还是还原时的 18:19:44）。
+
+根因（`api.py` 原 `:473` / `:520-523`）：
+
+```python
+if out.get("status") == STATUS_BUILT:          # ← 无条件
+    slot = _slot(req.kb)
+    slot["snapshot"] = str(out["snapshot"])    # ← 影子快照
+    slot["fence"] = FenceState.load(...)       # ← 影子 fence（含 291 撤权）
+```
+
+**任何一次影子构建都会把本进程对 `kb_9` 的内存槽指向影子快照**（`graph_build` 与 `graph_delta` 两处）。
+缺陷 10 的 `applied_to_memory` 只守住了 revoke 端点，**没守住 build/delta 处理器**。
+
+### 3.2 影响面（逐条核实，不夸大）
+
+| 项 | 实测 |
+|---|---|
+| 生产 `fence.json` / `current.json` | **未被写**（md5 `857a69b4…` / `e2d0f754…`） |
+| 生产 `GET /v2/graph/view?kb=kb_9` | 仍是 **114 节点 / 94 边**、生产快照（未劫持） |
+| 生产 `POST /v2/graph/query` | 仍 `hit_count=3 / executed_route=GRAPH` |
+| **被污染的** | 本进程 `slot["fence"]`（fence 视图显示 291 撤权）、`slot["snapshot"]`（指向影子） |
+
+即：**磁盘与检索结果未受影响，但进程内 kb 槽指向了影子**，属**潜在**泄漏（任何走 slot 的代码路径都会读到影子）。
+
+### 3.3 修法
+
+```python
+def _is_own_root(path):  # 与 env LLMKE_V2_ROOT realpath 比较
+if out.get("status") == STATUS_BUILT and _is_own_root(req.root or _root_dir()):
+    ... 才更新 slot
+```
+`graph_build` 用 `_is_own_root(base_root)`；`graph_delta` 用 `_is_own_root(req.root or _root_dir())`。
+
+### 3.4 验证
+
+- 新用例 `test_shadow_build_does_not_rewrite_process_slot`：**先红**（`count=1`，正是生产症状）→ 修后绿。
+- 变异 **M23**（去掉 own-root 守卫）→ `1 failed`。
+- **活体验证**（重启后）：
+  ```
+  重启后          fence 0/0，graph_view 114/94（生产快照）
+  影子 upsert 291 之后  fence 0/0，graph_view 114/94   ← 槽不再被改
+  ```
+- 重启也清掉了被污染的内存槽（这是唯一的「解锁」手段，因为污染只在内存里，无文件痕迹）。
+
+## 4. C4-3：缩水重摄取 —— 旧块不残留（两侧 count + 内容级）
+
+```
+摄取 292（2 段）→ projection.chunks=2，ES=3（290 + 292×2），Milvus 3
+缩水重摄取（1 段）→ CONTENT_CHANGED，projection.chunks=1，deletes 4 targets（两侧）
+ES=2，292 命中 1 条；旧段落 match_phrase「提前还款不收违约金」→ **命中 0**
+Milvus 全量 2 行：{290: pk 573455706903922035, 292: pk 911245626372528635}
+```
+→ **旧块在 ES 与 Milvus 两侧都不残留**（不是只看 HTTP 200）。
+
+## 5. 回归与变异汇总
+
+| 项 | 结果 |
+|---|---|
+| v2 全量 | **200 passed / 4 skipped** |
+| hipporag 全量 | **273 passed** |
+| M20 前置检测 | 1 failed |
+| M21 DELETE inserts | 1 failed |
+| M22 apply_result 透传 | 1 failed |
+| M23 own-root 守卫 | 1 failed |
+
+## 6. 终态
+
+| 项 | 值 |
+|---|---|
+| 生产 `current.json` | `e2d0f75440e4553ee1bb33f51ca2ca34` |
+| 生产 `fence.json` | `857a69b451e728876a5cc3eeb9a1ca94`（`{"generation":0,"revoked":{}}`） |
+| 生产 `kb_9` / `table_chunks` | 44 / 2 |
+| 生产 fence 视图 / graph_view | 0/0、114 节点 94 边 |
+| 影子 ES / state | 4 条（290×1、291×1、292×2）；version=11，三者 ACTIVE |
+| 进程 | 18094 `2227759`、18096 `2207749`、19531 `435286`（未变） |
+| 指纹 | `kb_delta.py cef297d6…`、`delta_build.py 1204a914…`、`api.py 64e44ed1…`、`graph_client.py f3d3747b…` |
+
+## 7. 待办
+
+- 契约 §2.2 其余字段（`sources` 结构、`fence`、`fallback_reason`）—— 登记 P6
+- 重跑 C4-2（删非最后一个的正常路径）已在本文件 §1.3 完成（291 删除）
+- 第 5 个缺陷（请求级 `graph_root/graph_api` 被忽略，TL 指示登记不修）仍在
+
+---
+
+## 8. TL 20:5x 建议的「同一判断一处实现」—— 已统一（18:31）
+
+### 8.1 改动
+
+```python
+# revoke 端点（原）
+applied_to_memory = os.path.realpath(root) == os.path.realpath(_root_dir())
+# 现在
+applied_to_memory = _is_own_root(root)      # 与 build/delta 的槽守卫同一份实现
+```
+
+### 8.2 断言（三条，防「只改一边」）
+
+| 用例 | 断言 |
+|---|---|
+| `test_is_own_root_matches_realpath_rule`（参数化 `"" "/" "/./" "//"`） | 本 root 的四种写法都判 True（与 realpath 规则逐点一致） |
+| `test_is_own_root_rejects_other_root` | 别的 root → False |
+| `test_revoke_memory_flag_uses_same_rule` | 行为级：写 env root → `applied_to_memory=true`；写影子 root → `false` |
+| `test_own_root_rule_has_single_implementation` | **静态**：源码里必须有 `applied_to_memory = _is_own_root(root)`，且**不得**再出现 `os.path.realpath(root) == os.path.realpath(_root_dir())` |
+
+变异 **M24**（把 revoke 改回内联 realpath 比较）→ 静态用例 **1 failed**（说明「重复实现」这件事本身可被抓住，
+不只是行为等价就算过）。
+
+### 8.3 一处必须说清的边界：**这次改的是 18094 的 api.py，不是 18096**
+
+`applied_to_memory` 在 `graph_engine_adapter/api.py`（18094 进程）。所以：
+
+- 改动**逻辑等价**（两种写法判定完全相同），**运行中的 18094 行为不需要立刻更新**；
+- 真正生效要等**下一次重启 18094**（可并入 C5 之后，**但 C5 动的是 18096 的 env**，两者是不同进程、两次重启）；
+- 本步**没有重启任何进程**，也没动 18096 的 env（`LLMKE_V2_GRAPH_API=http://127.0.0.1:18094` 原样）。
+
+回归：v2 `200 passed / 4 skipped`、hipporag `280 passed`。
+指纹：`api.py ae321af2…`、`tests/test_fence_revoke_root_l13c.py ccd5ef1b…`。
+
+### 8.4 缺陷 9 剩余三项 → P6
+
+`sources{written,entries}`（现为整数）、`fence{generation,revoked}`、`fallback_reason` 仍未实现，登记 P6，不在 C 段补。

@@ -1,0 +1,252 @@
+# P4-L13-C 收尾 · D-1 门控补丁（默认关闭）+ 一处**双副本**重要发现
+
+- 时间：2026-11-08T20:40 ~ 20:50；角色 `python-engineer`
+- 授权：TL 22:4x「派工补门控（默认关闭）」
+- **未启停任何进程、未改 `.env`、未动 18094、未执行 watchdog**
+
+---
+
+## 1. ⚠️ 先说一处必须纠正的发现：部署脚本有**两份**
+
+| 路径 | md5（改前） | 是否被 systemd 使用 | 含 18096 |
+|---|---|---|---|
+| `llmke-v2/platform/r12/bin/up.sh` | `1b4f577a…` | 否（源码侧） | **有**（`:132` 展示、`:210` must 排除说明） |
+| `llmke-r12/platform/r12/bin/up.sh` | `12cfa300…` | 是（部署侧） | **无** |
+| `llmke-v2/platform/r12/bin/r12-watchdog.sh` | `06bd1c22…` | 否 | **有**（硬编码 `kb-ingest` 条目） |
+| `llmke-r12/platform/r12/bin/r12-watchdog.sh` | `ad09d0ce…` | **是**（`r12-watchdog.service:16 ExecStart=…/llmke-r12/…/r12-watchdog.sh`） | **无** |
+
+**这意味着两件事**：
+
+1. TL 引用的 `up.sh:132 "18096 摄取(可选)"`、`:210-211` 说明——**属实，但在 `llmke-v2` 那份**；
+2. 我上一轮报的「全仓没有任何脚本引用 18096」——**搜索范围只有 `llmke-r12`**，对部署侧成立、对源码侧**不成立**。
+   **这是我的表述不完整**，此处更正：**源码侧已有 L13-B 补丁，部署侧完全没有。**
+
+→ D-1 的真实状态是「**源码就绪 / 部署未同步**」，与「代码已合入 ≠ 线上已生效」同构。
+
+## 2. 本次改动（只在 `llmke-v2` 那份，与 L13-B 同一处）
+
+### 2.1 `up.sh`（`d94f924614bcfe23c275b52269a3a820`；+28 行 / **-0 行**）
+
+- `up)`：新增 `== 6.5 知识库摄取（18096，门控）==`
+  - `LLMKE_INGEST_ENABLED=1` → 调 `r12-kb-ingest-start.sh`（先 fail-fast 自检，失败 `exit 1`）
+  - 默认（未设置/0）→ `ok "跳过 18096（未开启，保持人工管理）"`
+- `verify)`：新增门控 must 段
+  ```
+  [must] port 18096
+  [must] 18096 /health http = 200
+  [must] 18096 graph_api == ${LLMKE_V2_GRAPH_API:-http://127.0.0.1:18094}
+  [must] 18096 write_targets.configured == true
+  ```
+  门控关闭时打印 `== [skip] 18096 摄取：LLMKE_INGEST_ENABLED 未开启，不计入 must ==`
+
+**`up.sh` 的 diff 是纯新增（28 行 / 0 删除）** → 门控关闭时既有 must/warn 行为**逐条不变**（实测见 §3.2）。
+
+### 2.2 `r12-watchdog.sh`（`1bb255d8c6e9375b3f40c2781500a1e1`；+33 行 / -7 行）
+
+**删掉的 7 行**是原先**硬编码无条件纳管** 18096 的那条（5 行注释 + 1 行条目 + 1 空行）——
+**这正是本次要的语义变化**：默认不纳管，避免 watchdog 把人工管理的实例重启掉。
+（其余为纯新增，没有改动任何既有服务组。）
+
+- 新增门控变量：`INGEST_ENABLED="${LLMKE_INGEST_ENABLED:-0}"`、`EXPECTED_GRAPH_API="${LLMKE_V2_GRAPH_API:-http://127.0.0.1:18094}"`
+- 新增 `ingest_content_ok()`：`/health` 的 `graph_api` 必须等于期望值、`write_targets.configured` 必须 `true`
+- `TARGETS` 之后门控追加：`kb-ingest|18096|-|kb-ingest||http://127.0.0.1:18096/openapi.json`
+- `unhealthy_ports()` 增 `group` 参数；`group == kb-ingest` 时额外跑 `ingest_content_ok`，
+  失败则把 `content:graph_api_or_configured` 计入「不健康」
+
+## 3. 验收（离线可判定）
+
+### 3.1 语法
+
+```
+$ bash -n up.sh              → OK
+$ bash -n r12-watchdog.sh    → OK
+```
+（首版门控块误插在数组内，`bash -n` 立刻报 `行 94: 未预期的记号 ";"` —— 已修正为「数组结束后追加」，重验通过。）
+
+### 3.2 门控关闭：既有行为不变
+
+```
+$ LLMKE_INGEST_ENABLED=0 bash up.sh verify   → must 项 4 个未通过（既有失败，与 18096 无关）
+                                               并出现 == [skip] 18096 摄取：…不计入 must ==
+$ LLMKE_INGEST_ENABLED=1 bash up.sh verify   → must 项 4 个未通过（**同为 4 个**）
+                                               18096 四条 must 全 ok
+```
+→ 门控开关**不改变既有 must 失败数**，只增/减 18096 自己的检查。
+
+### 3.3 门控开启：四条 must 实测
+
+```
+== [must] 知识库摄取 18096（门控开启：LLMKE_INGEST_ENABLED=1）==
+  [ok] port 18096
+  [ok] 18096 /health http = 200
+  [ok] 18096 graph_api = http://127.0.0.1:18094
+  [ok] 18096 write_targets.configured = true
+```
+
+### 3.4 负向验证：内容不一致必须判失败
+
+```
+$ LLMKE_INGEST_ENABLED=1 LLMKE_V2_GRAPH_API=http://127.0.0.1:19999 bash up.sh verify
+  [FAIL] 18096 graph_api = http://127.0.0.1:18094（期望 http://127.0.0.1:19999）
+  [FAIL] 验收失败：must 项 5 个未通过（warn 1 个）      ← 由 4 变 5
+```
+
+### 3.5 内容探针单测（复现 C5 演练态）
+
+`/tmp/test_ingest_probe.sh` 把 `ingest_content_ok` 抽出来喂假响应（起三个临时 HTTP 服务）：
+
+```
+① graph_api 错（19999，C5 演练态）→ 判不健康 ✅
+② write_targets.configured=false  → 判不健康 ✅
+③ 正常响应                        → 判健康   ✅
+④ 端口无监听                      → 判不健康 ✅
+结果: ALL PASS
+```
+
+**①就是这次要防的场景**：端口通、`/health` 200，但配置指错 —— 只看端口会判健康。
+
+### 3.6 watchdog 门控开关（`--status` 只读，不触发自愈）
+
+```
+$ LLMKE_INGEST_ENABLED=0 bash r12-watchdog.sh --status | grep -c kb-ingest   → 0
+$ LLMKE_INGEST_ENABLED=1 bash r12-watchdog.sh --status | grep -c kb-ingest   → 1
+  kb-ingest        18096          -   naked   0   -
+```
+门控开启时 `FAILS=0` 说明**内容探针判为健康**（当前 18096 确实指向 18094、`configured=true`）。
+
+## 4. 边界与未做
+
+| 项 | 状态 |
+|---|---|
+| 启动 watchdog / 重启 18096 / 改 `.env` | **均未做** |
+| 部署侧（`llmke-r12`）两份脚本 | **未改**（改前改后 `grep -c 18096` 均为 0）⇒ 运行环境**不生效** |
+| `LLMKE_INGEST_ENABLED` 默认值 | **关闭**（`${…:-0}`），18096 仍人工管理 |
+| 18094 相关段落 | 未触碰 |
+
+## 5. D-1 的准确表述（供 T-D2MD-13 引用）
+
+> **D-1 部分完成**：门控补丁已在**源码侧**落地并通过离线验收（语法、开关路径、内容探针负向用例）；
+> **门控默认关闭**、18096 仍由人工管理；**部署侧脚本尚未同步**，因此运行环境**未生效**。
+> 启用前置：Owner 决定正式纳管 18096 时设 `LLMKE_INGEST_ENABLED=1` 并同步部署副本。
+> **不得写成「D-1 通过」。**
+
+---
+
+## 6. TL 22:5x 的三处修正（源码侧，纯文件改动）
+
+### 6.1 ①`conf/kb-ingest.env` 注释自指矛盾 —— 已改
+
+```diff
+-# 本文件是**模板**：真实值放 `platform/r12/conf/kb-ingest.env`（含口令，不入库）。
++# 本文件是**模板**（在**源码仓** `llmke-v2/platform/r12/conf/kb-ingest.env`）。
++# 真实值在**部署仓** `llmke-r12/platform/r12/conf/kb-ingest.env`（含口令，不入库）。
++# ⚠️ 同步时**不要覆盖部署仓那份**：这里只是模板，部署仓可能已填了真实口令/路径。
+```
+理由：原文「本文件是模板：真实值放 `<自己所在路径>`」自指，同步的人会把自己覆盖掉。
+
+### 6.2 ②`systemd/r12-kb-ingest.service` 的 `WorkingDirectory` —— 已加说明
+
+```diff
++# WorkingDirectory 指向**源码仓**是**有意**的：Python 代码只有源码仓一份
++# （`services/rag-alg/index_data_service`，`r12-kb-ingest-start.sh:23` 同理）。
++# ⚠️ 同步到部署仓时**不要**把它改成 `llmke-r12` —— 那边没有这套代码，改了会 import 失败。
+ WorkingDirectory=/home/szf/data/dev/llmke-v2
+```
+
+### 6.3 ③`EnvironmentFile` 去掉 `-` —— 已改（并核实 fail-closed 成立）
+
+```diff
+-EnvironmentFile=-/home/szf/data/dev/llmke-r12/platform/r12/conf/kb-ingest.env
++# 不加 `-`：`kb-ingest.env` 是**必需**的（缺了就自检失败）。让 systemd 在缺文件时
++# 直接失败，而不是「systemd 静默通过、启动脚本再报错」——失败点越靠前越容易定位。
++EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/conf/kb-ingest.env
+```
+
+**核实结论（TL 让我判断的）**：去掉 `-` 是对的，两条依据：
+
+1. **启动脚本确实会兜住**：`env -i PATH=… bash r12-kb-ingest-start.sh --check` → **退出码 1**，
+   输出「自检未通过（3 项失败）：**不启动** kb-ingest(18096)」（`[FAIL] 写入端点未配置…`）。
+   所以保留 `-` 不会让服务带病启动 —— 但会变成「systemd 静默通过、脚本再报错」，定位要靠翻日志；
+2. 去掉 `-` 后 `systemd` 在 `ExecStart` 之前就失败，**失败点更靠前**，且与「env 是必需项」的语义一致。
+
+### 6.4 校验
+
+```
+$ systemd-analyze verify systemd/r12-kb-ingest.service | grep -i r12-kb-ingest
+（空）→ 没有针对本 unit 的报错（其余输出是系统里别的 unit 的历史噪音）
+$ grep -n "WorkingDirectory=\|EnvironmentFile=" systemd/r12-kb-ingest.service
+20:WorkingDirectory=/home/szf/data/dev/llmke-v2
+23:EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/conf/kb-ingest.env
+```
+**未启 systemd unit、未 `daemon-reload`、未动 `.env`、未重启 18096。**
+
+## 7. P6 新增第 7 项：双副本无一致性校验
+
+已写入 `docs/v2-tasks/P6-BACKLOG.md` §7（110 行 / `addfd732884cdb2edcc99df046cc198e`）：
+现象（`up.sh d94f9246` vs `12cfa300`；`r12-watchdog 1bb255d8` vs `ad09d0ce`；`r12ctl 2617e96c` 两侧相同）、
+根因、影响、修法（`verify`/`doctor` 对比关键脚本 md5，不一致 **warn** 不 fail）、发现 loop。
+
+**并写明一个易误判点**：Python 代码**只有源码仓一份**（`r12-kb-ingest-start.sh:23` 的 `V2_SVC_DIR` 指向 `llmke-v2`，是有意设计）
+→「双副本」只影响 `bin/` 与 `conf/`，**不影响 L9~L13 代码生效**。
+
+## 8. D-1 表述（定稿，含 TL 补的两句）
+
+> **D-1 部分完成**：门控补丁在**源码侧**落地并通过离线验收；**门控默认关闭**、18096 仍人工管理；
+> **部署侧 6 项产物未同步**，运行环境**未生效**。
+> 启用前置：Owner 决定正式纳管时 ①设 `LLMKE_INGEST_ENABLED=1` ②**先同步 6 项到部署仓** ③再启 systemd。
+> 补充：`r12-watchdog.timer` 是 active 且跑**部署侧**（无 18096 条目）→ **不会重启手工管理的 18096（pid 2773520）**。
+
+**同步清单（6 项，缺一不可）**：
+`bin/up.sh`、`bin/r12-watchdog.sh`、`bin/r12-kb-ingest-start.sh`（新增）、
+`conf/kb-ingest.env`（新增）、`systemd/r12-kb-ingest.service`（新增）、`R12-ENV-CONTRACT.md`。
+
+---
+
+## 9. TL 23:0x 追加：**unit 已就绪 ≠ unit 能启动**（必记）
+
+### 9.1 事实（只读核实）
+
+```
+$ ls -l /home/szf/data/dev/llmke-r12/platform/r12/conf/kb-ingest.env
+ls: 无法访问 '…/llmke-r12/platform/r12/conf/kb-ingest.env': 没有那个文件或目录
+
+源码仓模板存在：llmke-v2/platform/r12/conf/kb-ingest.env（2650 B）
+unit 引用路径：:23 EnvironmentFile=/home/szf/data/dev/llmke-r12/platform/r12/conf/kb-ingest.env
+部署仓 systemd 目录里 kb-ingest 相关 unit：0 个
+```
+
+⇒ **当前状态 `systemctl start r12-kb-ingest` 必然失败**（`EnvironmentFile` 无 `-`，文件缺失即失败）。
+**这是 fail-fast 的预期结果，不是缺陷。**
+
+### 9.2 必须与 D-1 表述一起引用的一句
+
+> **unit 已就绪 ≠ unit 能启动。** 启用前置必须包含「**先同步 6 项到部署仓**」，否则一启就失败，
+> 而且失败原因（缺 `EnvironmentFile`）很容易被误读成「unit 写错了」。
+
+### 9.3 关于「去掉 `-` 是必须的」——TL 的补充比我原判断更强，采纳
+
+我原来的说法（「保留 `-` 也会自检失败，去掉只是让失败点靠前」）**偏保守**。更准确的是：
+
+`-` 的语义是「文件不存在也继续」，systemd 会**正常进入 ExecStart**。若将来启动脚本的自检
+被人改松（例如把 fail-fast 改成 warn），「缺 env 也起服务」就会变成**静默的带病启动**。
+去掉 `-` 把这个可能性从 **systemd 层**掐掉 —— **一层防护靠脚本、一层靠 systemd，比只有一层好。**
+
+### 9.4 §4 的措辞小问题：**登记，本轮不改**
+
+`conf/kb-ingest.env` 注释现写「部署仓**可能已填了**真实口令/路径」——而部署仓实际**没有**该文件。
+更准确的说法是「**若**部署仓已填真实值，同步时不要覆盖」。
+按 TL 意见**不值得单独改一轮**，留待下次动该文件时顺手修正（已记在此处，避免遗忘）。
+
+### 9.5 安全性再确认
+
+`r12-watchdog.timer` 为 active，但运行的是**部署侧** `r12-watchdog.sh`（`ad09d0ce…`，**无 18096 条目**）
+⇒ 不会尝试启动 18096、不会重启手工管理的 `2773520`。
+
+### 9.6 运行态（停手前最终确认）
+
+```
+18096 pid 2773520   graph_api=http://127.0.0.1:18094   write_targets.configured=true
+18094 pid 2227759（+fork 子 2774847）
+19531 pid 435286
+生产 current.json e2d0f75440e4553ee1bb33f51ca2ca34   fence.json 857a69b451e728876a5cc3eeb9a1ca94
+```

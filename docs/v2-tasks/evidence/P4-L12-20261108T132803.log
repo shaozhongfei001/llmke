@@ -1,0 +1,260 @@
+# P4-L12 · R-0 只读核实（`T-D2MD-12`）
+
+- 时间：2026-11-08T13:28:03+0800；角色 `python-engineer`
+- 状态：**只读探查完成，未写任何实现代码**（`kb_ingest_service.py` md5 `fb00f0427a4ade8d7a49aef4b5211065` / 226 行，与开工一致）
+- PLAN 路径笔误已记（见 D-6）
+- 结论：**PLAN 的 7 个待核实项有 4 项与现场不符**（D-1/D-2/D-3/D-4），另有 2 项环境前提需裁定（D-5）
+
+---
+
+## 1. `kb_ingest_service.py:142-221` 现有分支结构（逐行）
+
+| 区段 | 行 | 内容 |
+|---|---|---|
+| 签名 | `:142-143` | `def ingest(body: Any = Body(default=None))` —— **裸 dict**，无模型、无字段校验 |
+| 手写校验 | `:144-155` | `isinstance(body, dict)`→400；`kb`→400；`file_id`→400；`doc2md_dir`/`file_url` 至少一个→400 |
+| **`file_url` 全自动重解析** | **`:158-185`** | `_download_minio()` 下载原件 → `ingest_file(...)`（`scripts/v2_ingest_doc2md.py:109`）**重跑 doc2md 全链路** → 临时目录 `shutil.rmtree` |
+| `doc2md_dir` 分支 | `:186-205` | 目录存在检查 → `_producer_inputs()` → `runner(...)` |
+| `source` 来源 | **`:201`** | `source=body.get("source")` —— **doc2md_dir 分支已经真传**；但 `file_url` 分支（`:168-181`）**压根没有 source 参数**（`ingest_file` 签名无 source） |
+| 异常链 | `:206-214` | `ArtifactRefused`→400、`ProjectionRefused`→400、`K.PipelineRefused`→**502**、`Exception`→500 |
+| **`payloads` pop 歧义** | **`:216-218`** | `if not body.get("include_payloads"): result["projection"].pop("payloads", None)` —— ①**就地改写入参返回体**；② 调用方无法区分「按设计未返回」与「本来就是空」；③ `include_payloads` 不在任何契约字段表里 |
+| `code` 语义 | `:220-221` | `200 if status=="OK" else 207` —— 只看 `status`，`SKIPPED_FRESH` 会被判成 207（与契约 §1.2 冲突） |
+
+`_download_minio`（`:82-119`）与 `_SCRIPTS_DIR` sys.path 注入（`:42-44`）只为这条分支存在 → 删除分支后可一并清理（**待裁定是否允许删**，见 Q6）。
+
+---
+
+## 2. 契约原文要点（**以此为准，不自创字段**）
+
+### 2.1 §4.3 `DiffResult`（`llmke.kb-diff/1`）
+`{kb, added, changed, removed, unchanged, cursor, set_digest, reason, computed_at}`，
+`reason` 枚举 5 个，判定优先级：`FULL_REBUILD_REQUESTED` > removed > added/changed > parser_fingerprint > `NO_CHANGE`。
+
+### 2.2 §1.1 `IngestRequest`（`llmke.kb-ingest.request/1`）
+`kb`(必填, `^[a-zA-Z0-9_]+$`) / `file_id`(必填) / `operation`(必填, `UPSERT|DELETE|FULL_REBUILD`) /
+`doc2md_dir`(条件) / `file_url`(否, **不得触发第二次解析**) / `file_name` / `file_path` / `file_size` /
+`index_name` / `build_graph` / `graph_root` / `graph_api` / `requested_mode`(auto|delta|full|skip_if_fresh) /
+`expected_cursor` / `include_payloads` / `timeout` / `fallback_reason`(full 必填)。
+
+### 2.3 §1.2 `IngestResult`（`llmke.kb-ingest.result/1`）
+`data` 里 **7 个块**：`status/kb/cursor/diff/artifact/projection/index_write/graph`。
+`code` 语义：`200 OK`、`200 SKIPPED_FRESH`、`207 PARTIAL`、`4xx/5xx REJECTED/FAILED`。
+
+### 2.4 §1.3 回调 `TaskReq`
+`{success, msg, task_id, task_statuses[{file_path, file_id, success, fail_reason, revise_date}]}` + `X-Internal-Token`。
+
+---
+
+## 3. 四项**与 PLAN 前提不符**（请裁定）
+
+### D-1【高】`KbDeltaService.diff` 的数据源在平台侧**不存在**
+
+`DiffResult` 的唯一实现是 **doc2md 仓** `backend/app/services/kb_diff.py`（L1 交付）：
+
+```python
+compute_kb_diff(*, kb, scan_path, previous_manifest, parser_fingerprint, full_rebuild=False)
+```
+
+它的两个输入平台侧都拿不到：
+- `scan_path` = **全库文件落盘扫描目录**（`_collect_source_files` 遍历）；18096 只收到**单个文件**的 `doc2md_dir`；
+- `previous_manifest` = `kb-manifest.json`（schema `llmke.doc2md.kb-manifest/1`，doc2md 侧写）——
+  **平台仓全库 0 命中** `kb-manifest`（实测 grep 空）。
+
+三条路：
+
+| 选项 | 代价 |
+|---|---|
+| (a) 跨仓 `import` doc2md 的 `kb_diff` | 违反 `kb_ingest_service.py:5-7` 自述边界「跨容器 import 会把部署绑死」，doc2md 是独立部署 |
+| (b) 平台侧按 §4.3 重算 | = **第二套 DiffResult 实现**，判定优先级易与 L1 漂移 |
+| (c) 请求/环境带 `kb-manifest.json` 路径，平台**只解析比对**，不 import 代码 | 需要 `IngestRequest` 增字段（契约里没有）→ 也要裁定 |
+
+**关键事实（不是实现选择，是数据可得性）**：18096 天然看不到全库文件集，因此
+**`removed` 只能来自 ①调用方给的 manifest，或 ②显式 `operation=DELETE`**；否则恒为空。
+PLAN 的 B2（removed 非空）若不做 (a)/(c)，只能靠 ② 构造。
+
+→ **请裁定选哪条。** 我建议 **(c) + 退化**：`diff()` 接受可选 `manifest_path`；有则做 file-set diff（能产 removed），
+无则退化为「单文件 vs `kb_state`」的 UPSERT 级 diff（`removed` 仅来自 `operation=DELETE`），并在响应里如实标 `diff_source`。
+
+### D-2【高】`IngestPlan` 在契约里**不存在**
+
+§4.3 只定义 `DiffResult`；`IngestPlan` 全仓 0 命中（除 PLAN 自身）。
+PLAN §二-2 要求「以 §4.3 为准，不自创字段」，但 §4.3 **没有** `IngestPlan` 可照。
+
+→ **请裁定**：`IngestPlan` 是**纯内部结构**（我可自定字段，只要不进响应契约），还是你直接给字段清单？
+我的建议：内部 dataclass，字段 `{diff, snapshot, artifact, chunks, plan(IndexWritePlan), wanted_docs, cursor_before}`，
+**不出现在 `IngestResult` 里**（响应只按 §1.2 的 7 个块给）。
+
+### D-3【中】`fence.revoke` **没有 HTTP 面**，且跨进程不可达
+
+- `repo` 里只有 **`FenceState.revoke(file_ids, reason)`**（`fence.py:30`，进程内方法）；
+- 契约 §3 要求的 `POST /v2/fence/revoke` **端点不存在**：`api.py` 只有 `GET /v2/fence`（AST 实测 9 条路由）；
+- 18096 与 18094 是**两个进程**，18096 拿不到 18094 的内存 `FenceState`。
+
+→ 所以 B2「removed 非空 → `fence.revoke` 在 delta 之前」本 loop 只能验证
+**调用点与调用序（mock 计数/顺序）**，无法验证真实撤权生效。
+若你要求真撤权，必须先给 18094 补 `/v2/fence/revoke` 端点 —— 那是 **P3 收口后的新缺口**，超出本 loop 授权面。
+
+### D-4【中】「既有 HTTP 状态码映射机制」**不存在**，且现有映射与契约 §5 冲突
+
+`kb_ingest_service.py:206-214` 是**内联 except 链**，没有表：
+
+```
+ArtifactRefused    → 400
+ProjectionRefused  → 400
+K.PipelineRefused  → 502    ← 全部 502
+Exception          → 500
+```
+
+而契约 §5 要求按 `code` 区分：`SOURCE_DIVERGED`→**409**、`KB_STATE_CORRUPT`→**500**、
+`CURSOR_CONFLICT`→**409**、`NO_BASELINE_SNAPSHOT`→**422**、`GRAPH_UNREACHABLE`→502……
+
+B4 写「走既有异常映射不自建状态码表」——**既有的就是这条链，没有表**。两种做法：
+- (i) 在本文件内建**唯一**一张 `ERROR_HTTP = {code: http}`，`_resp` 统一查表；
+- (ii) 只加 `except K.SourceDiverged: return _resp(409, ...)` 一行，其余不动。
+
+→ **请裁定 (i) 还是 (ii)。** 我建议 (i)：L7 已把 `SourceDiverged` 做成双基类，
+若只做 (ii)，`KB_STATE_CORRUPT` 仍回 502，与 §5 不符，等于把同一个洞留在原地。
+
+---
+
+## 4. 其余三项答复（PLAN §二 3/4/6/7 项）
+
+### 4.1 `commit()` 的 cursor/version 落在哪（PLAN 第 3 项）
+**`kb_state.json`（`llmke.kb-state/2`，L7 已实现）**，不是 MySQL、不是 doc2md manifest：
+
+- 路径：`LLMKE_KB_STATE` 或仓根 `platform/r12/data/kb-state/kb_state.json`（`kb_pipeline._kb_state_path`）；
+- 读写 API **已有**：`_load_kb_state()` / `_save_kb_state()` / **`_kb_state_txn(store_root)`**（flock + 自动 `version+1` + 重算 `set_digest`/`cursor` + 回读校验）；
+- **注意**：`_kb_state_txn` 是「**有变化才推进**」——`commit()` 只要落在 txn 内改 `state` 就会推 cursor，
+  B1「cursor 不推进」= **不要进入 txn**（或进了但不改 state）；B3「任一路失败不推进」= **txn 之外先跑完三路**。
+- 既有 `kb_state.kb[kb][file_id]` 字段：`artifact_id/snapshot/content_uid/content_hash/file_name/status/file_path/file_size/source`
+  —— **没有 `parser_fingerprint`、没有 `revoked_at`、没有 TOMBSTONE 语义**，DELETE 需要扩字段（待确认是否允许，见 Q7）。
+
+### 4.2 「组装全库 wanted docs」**已有函数，不要重写**（PLAN 第 4 项）
+`kb_pipeline.build_wanted_docs(state, kb) -> List[dict]`（`:453`，L7 交付）——
+从 `state["chunks"][kb][file_id][]` 组装，**天然跳过 `status != "ACTIVE"`**，正是 B2「撤权文件不出现在 wanted docs」的现成机制。
+`consume_for_kb` 里的 `per_file` 统计也对齐该结构。
+
+### 4.3 `projection` 入口函数名（PLAN 第 7 项 / B8 mock 目标）
+**`kb_pipeline.project_snapshot(snapshot_dir, *, index_name, file_id, chunk_chars)`**（`:190`）。
+B8 断言「未重投影」= monkeypatch `kb_pipeline.project_snapshot`，计数必须为 0。
+（`ProjectionResult` 由 `rag_projection.projection` 产生，但调用点只有 `project_snapshot` 这一个包装，mock 它就够。）
+
+### 4.4 `TaskReq` / `X-Internal-Token`（PLAN 第 6 项）
+- Java 侧已存在：`TaskReq`（`rag-index-service`）、`X-Internal-Token` 由 `AuthFilter` 强制（**空配置一律拒绝，fail-closed**）；
+- **平台 Python 侧 0 命中**（没有任何回写代码）。
+- 按 PLAN 本 loop **只留调用点**（一个 `_notify_callback(...)` 占位 + TODO 指向 L13），**不实现回写**、不发 HTTP。
+
+---
+
+## 5. 两项**环境前提**需裁定
+
+### D-5【中】`pydantic` 只在 hipporag，v2 **完全没有**
+
+```
+llmke-v2-toolenv : pydantic ❌  fastapi ❌
+hipporag-toolenv : pydantic 2.14.2  fastapi 0.162.0
+```
+
+PLAN §四写「主口径（v2，不依赖 fastapi）」，但 `IngestRequest`/`IngestResult` 是 Pydantic 模型 →
+**B5/B6 只能在 hipporag 跑**，v2 一条都跑不了。
+
+→ 建议分工（请确认）：
+- **`kb_delta.py` 不 import pydantic/fastapi**（纯 dataclass + 纯函数）→ B1/B2/B3/B8 在 **v2 主口径**真跑；
+- `IngestRequest`/`IngestResult` 模型留在 `kb_ingest_service.py` → B4/B5/B6/B7 在 **hipporag** 真跑；
+- **v2 的 skip 单列、不计通过**（同 L11 口径）。
+
+### D-6【低】PLAN 路径笔误
+PLAN §一写 `services/rag-alg/index_data_service/ingest_pipeline/kb_ingest_service.py`，
+实际是 **`services/rag-alg/index_data_service/kb_ingest_service.py`**（无 `ingest_pipeline/`，226 行 / `fb00f042…`）。
+
+### D-7【低】`source` 现状（澄清 PLAN 第 1 项的一半）
+`:201` 已 `source=body.get("source")` 真传 → **doc2md_dir 分支本来就没丢**；
+真正丢 source 的是 `file_url` 分支（`:168-181`，`ingest_file` 无该参数）。删掉该分支后源自然全通，
+B5 只需补「mock 断言 runner 收到的 source 等于请求值」即可。
+
+---
+
+## 6. 请裁定的 7 项（Q1~Q7）
+
+| # | 问题 | 我的建议 |
+|---|---|---|
+| Q1 | `diff()` 数据源：跨仓 import / 平台重算 / 读 doc2md manifest 文件（D-1） | **(c) 读 manifest 文件 + 无 manifest 时退化**，响应标 `diff_source` |
+| Q2 | `IngestPlan` 契约缺位（D-2） | 作**内部结构**，不进响应；字段按我列的 7 项 |
+| Q3 | `fence.revoke` 无 HTTP 面（D-3） | 本 loop 只验证调用点+顺序（mock）；真撤权端点另立任务 |
+| Q4 | 错误码表：建唯一 `ERROR_HTTP` 表（i）还是只加 SourceDiverged 一行（ii）（D-4） | **(i)**，否则 `KB_STATE_CORRUPT` 仍 502 |
+| Q5 | `kb_delta.py` 是否允许**不依赖 pydantic**、由 `kb_ingest_service` 持有模型（D-5） | 是，这样才能保住 v2 主口径 |
+| Q6 | 删 `file_url` 分支时，是否**连同** `_download_minio`（`:82-119`）、`_SCRIPTS_DIR`（`:42-44`）、`boto3` 依赖一并删 | 建议删，否则留死代码仍被误用 |
+| Q7 | `kb_state` 是否允许 **additive** 加 `parser_fingerprint` / `revoked_at`（DELETE 需要） | 建议允许，additive 不破 §4.2 |
+
+---
+
+## 7. 现场取证（只读，未加工）
+
+```
+$ ss -tlnp | grep -E ':18096\b'        → 18096 未监听 ✓
+$ ss -tlnp | grep -E ':18094\b'        → pid=3202203, pid=3189651（与 L11 一致，未重启）
+$ md5sum kb_ingest_service.py          → fb00f0427a4ade8d7a49aef4b5211065（226 行）
+$ md5sum ingest_pipeline/kb_pipeline.py→ e1e9f909cf1d77db8a5ca76a67528f23（L8 确认值）
+$ md5sum ingest_pipeline/index_writer.py→ d9853aded53d0facbd86ae0bc03860f9（L8 确认值）
+$ grep -rn "kb-manifest|kb_manifest" services/ scripts/  → 0 命中
+$ grep -rn "DiffResult|KbDeltaService|IngestPlan"      → 仅 delta_build 的 STATUS_SKIPPED_FRESH
+$ grep -rn "ingest_file"                               → 仅 :160（待删分支）+ 脚本自身 CLI
+$ Plan 指定回归集（v2）: 104 passed, 2 skipped
+```
+
+基线回归集（PLAN §四原命令，v2）：**104 passed / 2 skipped**（此集合不含 artifact_binding / L8 / L9 / L10 / capabilities；
+L11 收口时的全量口径是 165 passed / 4 skipped，本 loop 收尾两个口径都会报）。
+
+---
+
+## 8. Q8 补充答复 · `ProjectionRefused` 的 code 取值与归类（TL 14:0x 追问）
+
+### 8.1 `ProjectionRefused` 实际会抛 12 个 code（`projection.py` 全量枚举）
+
+| code | 抛出点 | 语义 | 我的归类 |
+|---|---|---|---|
+| `ARTIFACT_ID_MISSING` | 快照侧 | 产物缺 artifact_id | **400**（产物不合法） |
+| `ARTIFACT_MANIFEST_MISSING` | 快照侧 | 缺 manifest | **400** |
+| `ARTIFACT_PART_MISSING` | 快照侧 | 缺件 | **400** |
+| `ARTIFACT_IR_UID_MISMATCH` | 快照侧 | IR uid 不符 | **400** |
+| `ARTIFACT_SPAN_MISMATCH` | 快照侧 | span 不符 | **400** |
+| `ARTIFACT_SPAN_OUT_OF_RANGE` | 快照侧 | span 越界 | **400** |
+| `ARTIFACT_SPAN_OVERLAP` | 快照侧 | span 重叠 | **400** |
+| `ARTIFACT_TEXT_HASH_MISMATCH` | 快照侧 | 文本哈希不符 | **400** |
+| `POLICY_INVALID` ×2 | `:133` `:135`（`chunk_chars<=0` / `overlap` 非法） | **参数/配置**非法 | **400**（请求不可满足；若来自服务端默认值则是部署缺陷，但对外语义仍是 400） |
+| `PROJECTION_COVERAGE_LOST` | `:159` | 投影漏字（**算法/仪表**问题） | **500** |
+| `PROJECTION_EMPTY_CHUNK` | `:247` | 切出空块（**算法**问题） | **500** |
+| `PROJECTION_MODE_INVALID` | `:88` | `INGEST_PROJECTION_MODE` 取值非法（**服务端配置**） | **500** |
+
+**答复 TL 的问题**：`ProjectionRefused` 的 `code` **就是它自己的字符串**（`code` 是构造参数，不是枚举常量），
+现状被 `except ProjectionRefused → 400` **一律**映射成 400 —— 12 条里 **4 条（含 3 条服务器侧缺陷）被错误地报成 400**，
+这会让调用方把「投影算法漏字」「投影模式配错」当成「自己的产物有问题」去重试。**「现在返回 400」确实不等于正确。**
+
+**归类建议**：8 条 `ARTIFACT_*` 归入 `DOC2MD_ARTIFACT_INCOMPLETE`(400) 一族（契约 §5 的定义就是
+「四件套缺失或不合法」）；`PROJECTION_*` / `POLICY_INVALID` 属表外 → 按 Q9 兜底 500。
+但这会让 `POLICY_INVALID` 也变 500 —— 若你希望它是 400，请在 Q8 的裁定里显式列出，我按表实现。
+
+### 8.2 顺带发现：`PipelineRefused` 有 6 个 code **也不在契约 §5**（同一类洞）
+
+| code | 现归 | 语义 | 建议 |
+|---|---|---|---|
+| `KB_STATE_CORRUPT` | 502 | 在表内，应 **500** | 500 ✓ |
+| `KB_REQUIRED` | 502 | 请求缺 kb（Pydantic 必填后不可达） | 400 |
+| `PROJECTION_NOT_APPLICABLE` ×2 | 502 | 该文件无可投影内容 | **422**（前提不满足，非服务端故障） |
+| `DOCS_EMPTY` | 502 | 组装出空 docs | 400 |
+| `GRAPH_API_UNREACHABLE` | 502 | 契约里叫 `GRAPH_UNREACHABLE` | 502（**别名**，见 8.3） |
+| `GRAPH_BUILD_NOT_BUILT` / `GRAPH_BUILD_HTTP_<code>` | 502 | 图谱路失败 | 502 |
+
+### 8.3 需要你确认的三个设计点
+
+1. **别名映射**：`GRAPH_API_UNREACHABLE`（代码里）vs `GRAPH_UNREACHABLE`（契约 §5）。
+   我建议**代码改名为契约名**（`GRAPH_UNREACHABLE`），而不是在表里加别名 —— 别名会让「两套名字」永久存在。
+   但 `GRAPH_API_UNREACHABLE` 在 `kb_pipeline.py`（L7 已验收）里，改名即改 L7 语义 → **除非你授权，我保持原名并在表里登记一行**。
+2. **`PROJECTION_NOT_APPLICABLE` → 422** 是否可接受（合同表里没有它，我按「前提不满足」归类）。
+3. **`ArtifactRefused` 的 40+ code**：是否允许按**异常类型**整体映射 400（不是逐 code 列表），
+   Table-driven 只覆盖「契约 11 条 + 上述表外白名单」，`ArtifactRefused` 一族整体 400。
+   理由：40+ 条逐条抄进表会立刻过期（`store.py` 新增 code 就漏），而该异常**类型本身**已经表达「产物不合法」。
+
+### 8.4 Q9 落地前提
+`kb_ingest_service.py` **当前完全没有 logger**（`grep logger` 0 命中）→ 表外 code 的「日志含 code 原文」
+需要新增 `import logging` + `logger = logging.getLogger(__name__)`（标准库，无新依赖）。

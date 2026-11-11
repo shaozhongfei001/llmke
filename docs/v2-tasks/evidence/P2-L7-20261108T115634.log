@@ -1,0 +1,1169 @@
+# P2-L7 · T-D2MD-07 实现证据（`DEV_SELF_CHECK_PASS`）
+
+- 时间：2026-11-08T11:56:34+0800（各段命令时间戳见标注）
+- 角色：`python-engineer`（实现角色）；**未自签 `QA_PASS`、未标 `DONE` / `VERIFIED`**
+- 任务：`T-D2MD-07` / loop `P2-L7`（`docs/v2-tasks/loops/P2-L7-PLAN.md`）
+- 前置：R-0 已确认并由 TL 12:0x 裁定四项口径（本文件 §2 逐条落地）
+- 结论：`DEV_SELF_CHECK_PASS` —— G1~G5 全部满足，R-1~R-6 反例先 FAIL 后 PASS，
+  5 组变异验证证明断言非空转，R-6 基线 31 passed（双解释器）未退化
+
+> 本文件所有输出均为**命令实际 stdout**，diff 与文件片段由 `git diff` / `sed` 直接追加，未手抄。
+
+---
+
+## 1. 解释器口径与用途（延续 L5/L6，逐处标注）
+
+| 用途 | 绝对路径 | 版本 | pytest |
+|---|---|---|---|
+| 新增/回归测试**主口径** | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 | 8.3.5 |
+| **交叉口径** | `/home/szf/data/dev/hipporag-toolenv/bin/python` | 3.11.15 | 9.2.0 |
+| `kb_ingest_service` 导入烟测（该 env 有 fastapi 0.162.0） | `/home/szf/data/dev/hipporag-toolenv/bin/python` | 3.11.15 | — |
+
+**已知环境限制（既有、非本轮引入）**：`llmke-v2-toolenv` **无 `fastapi`**
+（`python -c "import fastapi"` → `ModuleNotFoundError`），故 `kb_ingest_service`
+无法在该 venv 内导入烟测；`ingest_pipeline` 本体在该 venv 正常。已用
+`hipporag-toolenv` 完成 `kb_ingest_service` 导入烟测（不启动服务）。
+
+---
+
+## 2. TL 裁定四项口径的落地位置（逐条可指认）
+
+| 裁定 | 落地 | 位置 |
+|---|---|---|
+| **1** `file_id` fail-closed、不影响 L6 | `build(chunks, artifact, *, kb, index_prefix=…, file_id=None)`；`_resolve_file_id()`：显式参数 > `artifact['file_id']` > `IndexWriterError("FILE_ID_MISSING")`；**`or kb` 回落已删除** | `index_writer.py:116-118,120-137,142-146,162,175-191` |
+| **1** 注释改写 | 原「回落 kb」注释改为「fail-closed，由调用点注入」+ 说明为何不得回落 | `index_writer.py:127-131,175-191` |
+| **2** 基准 `parents[4]`（TL 纠正我算错的 `parents[3]`） | `_REPO_ROOT = Path(__file__).resolve().parents[4]`；`DEFAULT_KB_STATE_PATH = _REPO_ROOT/"platform/r12/data/kb-state/kb_state.json"`；单测锚点断言 `platform/` 与 `docs/v2-tasks/` 同时存在 | `kb_pipeline.py:41-47`；测试 `test_g3_default_path_is_absolute_under_repo_root` |
+| **2** env 优先 + 写入时才 mkdir | `_kb_state_path()` 先读 `LLMKE_KB_STATE`（**相对路径直接拒**）；`_save_kb_state` / `_kb_state_lock` 内才 `mkdir`，import 期零副作用 | `kb_pipeline.py:_kb_state_path / _save_kb_state / _kb_state_lock` |
+| **3** v1 迁移 + `.v1.bak` 不覆盖 | `_backup_one_v1()`：同内容既有备份直接复用；`base` 存在时改用 `<base>.<pid>.<uuid8>[.n]` | `kb_pipeline.py:_backup_one_v1 / _migrate_v1` |
+| **3** round-trip 校验 | `_kb_state_txn` 写完调 `_verify_kb_state_round_trip()`，缺 `version/cursor/set_digest` → `KB_STATE_CORRUPT` | `kb_pipeline.py:_verify_kb_state_round_trip` |
+| **4** 返回体形状不变 | 顶层键集合逐字不变（含 `doc2md_dir`）、`projection` 5 键不变；仅 `graph` **additive `deferred`** | 测试 `test_g5_return_shape_unchanged_and_build_graph_false`；§6 行为差异表 |
+| **G2 接入点采纳** | `assert_same_artifact` 置于 `build`（只产计划）与 `apply`（才发请求）之间，**未重排写入顺序、未加回滚** | `kb_pipeline.consume_for_kb`：`plan = build(...)` → `graph_binding = bind_chunks(...)` → `assert_same_artifact(...)` |
+
+**对我 R-0 的自我更正**：R-0 §5-5 建议的 `parents[3]` 是错的
+（`parents[3]` = `.../llmke-v2/services`，会算出 `.../services/platform/...`）。
+TL 实测纠正为 `parents[4]` = 仓根，已按裁定实现，并加单测锚点防止将来文件移动再错层。
+
+---
+
+## 3. 阶段 A · 反例先 FAIL（实现前，2026-11-08T11:53 前后）
+
+命令与真实输出（`llmke-v2-toolenv`）：
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest \
+  services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py -q
+FAILED …::test_g1_build_requires_real_file_id_no_kb_fallback
+FAILED …::test_g1_build_accepts_injected_file_id
+FAILED …::test_g1_build_prefers_explicit_over_artifact
+FAILED …::test_g1_consume_rejects_missing_file_id
+FAILED …::test_g2_source_diverged_blocks_all_writes
+FAILED …::test_g2_gate_is_wired_not_noop
+FAILED …::test_g2_divergence_is_artifact_binding_error_too
+FAILED …::test_g3_state_has_v2_schema_and_fields
+FAILED …::test_g3_default_path_is_absolute_under_repo_root
+FAILED …::test_g3_env_path_wins_and_must_be_absolute
+FAILED …::test_g3_corrupt_state_raises_instead_of_empty
+FAILED …::test_g3_wrong_schema_raises
+FAILED …::test_g3_save_is_atomic_without_fixed_tmp_residue
+FAILED …::test_g3_concurrent_writers_do_not_lose_updates
+FAILED …::test_g3_round_trip_verification_rejects_incomplete
+FAILED …::test_g3_v1_migration_keeps_backup
+FAILED …::test_g3_v1_backup_never_overwrites_existing
+FAILED …::test_g4_no_full_library_graph_rebuild
+FAILED …::test_g4_returns_wanted_docs_references
+FAILED …::test_g4_wanted_docs_helper_shape
+FAILED …::test_g5_return_shape_unchanged_and_build_graph_false
+FAILED …::test_g5_reingest_same_content_does_not_bump_version
+22 failed, 2 passed in 0.22s
+```
+
+**判别力说明（不是 collection 层假 FAIL）**：
+新符号（`KB_STATE_SCHEMA` / `SourceDiverged` / `build_wanted_docs` / `_kb_state_txn` /
+`build(..., file_id=)`）一律在**用例体内**用 `getattr` / 关键字实参取，
+故阶段 A 的 22 条 FAIL 全部发生在**断言或被测代码路径**上，实测到的失败类型为：
+
+- `DID NOT RAISE`（`FILE_ID_MISSING` / `KB_STATE_CORRUPT` / `SOURCE_DIVERGED` / `KB_STATE_PATH_NOT_ABSOLUTE`）；
+- 值不符（`_kb_state_path()` 仍从 `store_root` 派生、非 env/仓根；metadata `file_id` 仍是 `kb`）；
+- `AttributeError`（`build_wanted_docs` / `_kb_state_txn` / `SourceDiverged` / `KB_STATE_SCHEMA` 尚不存在）；
+- 副作用可见（`post_graph_build` 被调用、历史文件被重投影）。
+
+阶段 A 已 PASS 的 2 条**刻意保留**：`test_g5_partial_payloads_and_counts`
+（L5 `build_index_payloads` 行为本 loop 不改）与 `test_r6_protected_regions_untouched`
+（禁改区哨兵）。它们不是空转，而是**「不该变的东西没变」的守卫**。
+
+---
+
+## 4. 变更清单（区分「累计 diff」与「本 loop 净增」）
+
+```
+$ md5sum（实现后）
+dc60bd09703612c324e735c0bb4242eb  …/ingest_pipeline/kb_pipeline.py      (675 行)
+1f2fa0aef28f304a9b088da2b487574e  …/ingest_pipeline/index_writer.py     (277 行)
+0b69477e07f8664e940f2e3540b11abc  …/tests/test_kb_pipeline_l7.py        (420 行，新增)
+
+$ wc -l  → 675 / 277 / 420
+
+$ git diff --numstat -- …/kb_pipeline.py
+377	55	services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+```
+
+**口径必须分两层读（避免 L3 那次 `48 34` 误读重演）**：
+
+| 量 | 值 | 推导 |
+|---|---|---|
+| `git diff --numstat`（**相对 HEAD 累计**） | `377 +/55 -` | 含 **L5 已收口的 `26 +/3 -`**（L5 时点 md5 `addcbb15…`、376 行） |
+| **本 loop 净行数变化** | `376 → 675` = **+299** | 以 L5 收口指纹为基准 |
+| 本 loop 自身增删（推算） | `351 +/52 -` | `377-26=351`、`55-3=52`，净值 `+299` 自洽 |
+
+**其余文件**：`index_writer.py` 与 `tests/` 目录整体在 git 中为 `??`（L6 起未跟踪），
+故无 HEAD 版可 diff；本 loop 对其只做 additive（形参 + `_resolve_file_id` + 注释），
+全文见 §5.3。doc2md 仓 `git status` 仍为 14 项、与 L4 封口清单逐字一致（**未碰**）。
+
+---
+
+## 5. 改动 diff 全文
+
+### 5.1 `kb_pipeline.py` · 累计 diff（含 L5 的 26/3，本 loop 部分见 §6 行为差异表）
+
+```diff
+$ git diff -- services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+diff --git a/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py b/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+index b53cb0d6..9b932756 100644
+--- a/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
++++ b/services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+@@ -21,19 +21,38 @@
+ - 不伪造来源：file_id / locator / pk 全部来自投影，缺就不给，不填占位。
+ """
+ 
++import copy
++import fcntl
++import hashlib
+ import json
+ import os
++import uuid
++from contextlib import contextmanager
+ from pathlib import Path
+ from typing import Any, Dict, List, Optional
+ 
++from graph_engine_adapter.artifact_binding import (
++    ArtifactBindingError,
++    assert_same_artifact,
++)
+ from parse_artifact import store
+ from rag_projection import projection as P
+ 
+ from . import enrich
++from . import index_writer
++from . import summary
+ 
+ GRAPH_API_DEFAULT = "http://127.0.0.1:18094"
+ DEFAULT_CHUNK_CHARS = 800
+ 
++# `kb_state.json` 契约（`02-CONTRACTS.md` §4.2）：绝对路径 + schema 版本化。
++KB_STATE_SCHEMA = "llmke.kb-state/2"
++KB_STATE_ENV = "LLMKE_KB_STATE"
++# 仓根：services/rag-alg/index_data_service/ingest_pipeline → parents[4]。
++# 注意 parents[3] 是 `services/`（差一层），单测里有锚点断言防止将来文件移动再错层。
++_REPO_ROOT = Path(__file__).resolve().parents[4]
++DEFAULT_KB_STATE_PATH = _REPO_ROOT / "platform" / "r12" / "data" / "kb-state" / "kb_state.json"
++
+ 
+ class PipelineRefused(RuntimeError):
+     """编排被拒绝（快照不合规 / 图谱服务不可用）。"""
+@@ -44,6 +63,18 @@ class PipelineRefused(RuntimeError):
+         super().__init__(f"{code}: {detail}" if detail else code)
+ 
+ 
++class SourceDiverged(PipelineRefused, ArtifactBindingError):
++    """搜索载荷与图谱 docs 不同源（契约 §5 `SOURCE_DIVERGED`）。
++
++    同时继承 `PipelineRefused`（编排层既有错误族，`kb_ingest_service` 已按它映射 HTTP）
++    与 `ArtifactBindingError`（`assert_same_artifact` 的错误语义），
++    这样调用方无论按哪一族捕获都能拿到，不会因为类型不匹配而静默放过。
++    """
++
++    def __init__(self, detail=""):
++        PipelineRefused.__init__(self, "SOURCE_DIVERGED", detail)
++
++
+ def locator_text(chunk: Dict[str, Any]) -> str:
+     """把结构化的 locator 压成可读字符串。
+ 
+@@ -91,13 +122,22 @@ def build_graph_docs(chunks: List[Dict[str, Any]], *, file_id: Any,
+ def build_index_payloads(chunks: List[Dict[str, Any]], *, index_name: str, file_id: Any,
+                          file_name: Optional[str] = None, file_path: Optional[str] = None,
+                          file_size: Optional[int] = None,
+-                         source: Optional[str] = None) -> List[Dict[str, Any]]:
+-    """投影块 → 索引层可直接落库的载荷（覆盖生产集合字段，形状由 enrich 统一）。"""
++                         source: Optional[str] = None,
++                         now: Optional[str] = None,
++                         summarizer: Optional[Any] = None) -> List[Dict[str, Any]]:
++    """投影块 → 索引层可直接落库的载荷（覆盖生产集合字段，形状由 enrich 统一）。
++
++    P1-L5 additive：
++    - ``now`` 透传给 ``enrich.build_payload``，使同一 IR 两次投影的载荷逐字节相同
++      （不传时行为与改动前一致：正文通道仍用当前时间）；
++    - 产出 ``table_summary_<kb>`` 载荷，复用 ``summary.build_summary_payloads``
++      既有契约（不重新实现摘要 / 主键）。正文通道行为不变。
++    """
+     payloads: List[Dict[str, Any]] = []
+     for chunk in chunks:
+         meta, fill = enrich.build_payload(chunk, index_name=index_name, file_id=file_id,
+                                           file_name=file_name, file_path=file_path,
+-                                          file_size=file_size)
++                                          file_size=file_size, now=now)
+         # `source` 在本栈里是"文件身份键"，不是解析产物路径（见 ingest._chunk_payload 注释）
+         meta["pk"] = chunk["pk"]
+         meta["source"] = source or file_path or ""
+@@ -112,6 +152,19 @@ def build_index_payloads(chunks: List[Dict[str, Any]], *, index_name: str, file_
+             "pk": chunk["pk"],
+             "_fill": fill,
+         })
++    # P1-L5 additive：补齐表格总结通道（E1 / R-1）。复用 summary.py 既有
++    # build_summary_payloads 契约产出 table_summary_<kb> 载荷，不重新实现摘要/主键。
++    # 刻意不采用其返回的 updated（会给表格块回填 table_summary_id）：线上
++    # table_chunks_kb_9 的 _source.metadata 为 38 键、无该键，E1 要求字段集与线上
++    # 一致（多字段判 FAIL）。主键对齐按 §二 裁定 3 记为已知边界转 P6 切读。
++    table_payloads = [p for p in payloads
++                      if p["index"] == f"table_chunks_{index_name}"]
++    if table_payloads:
++        if summarizer is None:
++            summarizer = summary.extractive_summarizer
++        summaries, _updated = summary.build_summary_payloads(
++            table_payloads, index_name=index_name, summarizer=summarizer)
++        payloads.extend(summaries)
+     return payloads
+ 
+ 
+@@ -171,26 +224,259 @@ def post_graph_build(kb: str, docs: List[Dict[str, Any]], *, root: Optional[str]
+     return body
+ 
+ 
+-def _kb_state_path(store_root) -> Path:
+-    return Path(store_root) / "kb_state.json"
++def _kb_state_path(store_root=None) -> Path:
++    """状态文件绝对路径：`LLMKE_KB_STATE` 优先，否则仓内受控默认位置。
++
++    刻意**不再从 `store_root` 派生**：`store_root` 默认值是相对路径
++    `.artifacts/artifact-store`，随进程 CWD 漂移，且曾出现过 `kb_state.json`
++    落在 `/tmp` 后被清空、图谱按空库重建的事故（`scripts/v2_graph_rebuild_from_es.py:9`）。
++    契约 §4.2 要求绝对路径，相对路径同样不可审计，故直接拒绝。
++    """
++    env = os.environ.get(KB_STATE_ENV)
++    if env:
++        path = Path(env).expanduser()
++        if not path.is_absolute():
++            raise PipelineRefused(
++                "KB_STATE_PATH_NOT_ABSOLUTE",
++                f"{KB_STATE_ENV}={env!r} 必须是绝对路径（契约 §4.2，禁相对路径与 /tmp）")
++        return path
++    return DEFAULT_KB_STATE_PATH
++
+ 
++def _empty_kb_state() -> Dict[str, Any]:
++    return {"schema": KB_STATE_SCHEMA, "version": 0, "cursor": None,
++            "set_digest": None, "kb": {}, "chunks": {}, "graph": {}}
+ 
+-def _load_kb_state(store_root) -> Dict[str, Dict[str, Any]]:
++
++def _canonical_sha256(payload: Any) -> str:
++    return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True,
++                                     separators=(",", ":")).encode("utf-8")).hexdigest()
++
++
++def _compute_set_digest(state: Dict[str, Any]) -> str:
++    """只覆盖 `status=ACTIVE` 的条目（契约 §4.2）。"""
++    active = []
++    for kb_name in sorted(state.get("kb") or {}):
++        for file_id in sorted(state["kb"][kb_name] or {}):
++            entry = state["kb"][kb_name][file_id] or {}
++            if entry.get("status", "ACTIVE") != "ACTIVE":
++                continue
++            active.append([kb_name, str(file_id),
++                           entry.get("content_hash") or entry.get("artifact_id") or ""])
++    return _canonical_sha256(active)
++
++
++def _compute_cursor(state: Dict[str, Any]) -> str:
++    return "cursor-" + _canonical_sha256(
++        {"schema": KB_STATE_SCHEMA, "version": state.get("version"),
++         "set_digest": state.get("set_digest")})
++
++
++def _backup_one_v1(path: Path) -> Path:
++    """把旧 v1 文件复制一份备份；**绝不覆盖已有备份**。
++
++    若某个既有备份与当前 v1 内容逐字节相同，直接复用（否则每次只读迁移都会
++    新增一个冗余备份，把目录刷满）。
++    """
++    source_bytes = path.read_bytes()
++    base = path.with_name(path.name + ".v1.bak")
++    candidates = [base] + sorted(p for p in path.parent.iterdir()
++                                 if p.name.startswith(base.name + "."))
++    for candidate in candidates:
++        if candidate.is_file() and candidate.read_bytes() == source_bytes:
++            return candidate
++    target = base
++    if target.exists():
++        target = path.with_name(f"{base.name}.{os.getpid()}.{uuid.uuid4().hex[:8]}")
++        attempt = 1
++        while target.exists():
++            target = path.with_name(
++                f"{base.name}.{os.getpid()}.{uuid.uuid4().hex[:8]}.{attempt}")
++            attempt += 1
++    target.write_bytes(source_bytes)
++    return target
++
++
++def _migrate_v1(path: Path, doc: Dict[str, Any]) -> Dict[str, Any]:
++    """v1（顶层直接是 `{kb: {file_id: {...}}}`、无 `schema`）→ v2，保留 `.v1.bak`。"""
++    backup = _backup_one_v1(path)
++    state = _empty_kb_state()
++    for kb_name, files in (doc or {}).items():
++        if not isinstance(files, dict):
++            raise PipelineRefused("KB_STATE_CORRUPT",
++                                  f"{path}: v1 条目 {kb_name!r} 形状非法（期望对象）")
++        bucket = state["kb"].setdefault(str(kb_name), {})
++        for file_id, entry in files.items():
++            item = dict(entry or {})
++            item.setdefault("status", "ACTIVE")
++            bucket[str(file_id)] = item
++        state["chunks"].setdefault(str(kb_name), {})
++        state["graph"].setdefault(str(kb_name),
++                                  {"snapshot": None, "fencing": 0, "mode": "DELTA"})
++    state["version"] = 1
++    state["set_digest"] = _compute_set_digest(state)
++    state["cursor"] = _compute_cursor(state)
++    state["migrated_from"] = str(backup)  # 留痕：告诉运维这次迁移读的是哪个备份
++    return state
++
++
++def _load_kb_state(store_root=None) -> Dict[str, Any]:
++    """读状态：**损坏 / schema 不符一律抛 `KB_STATE_CORRUPT`，禁止静默返回空态**。
++
++    静默空态等于「按空库重建」：历史文件全部从 wanted docs 消失，图谱被覆盖，
++    而且没有任何告警——这正是 L7 要修掉的缺陷（`03-IMPLEMENTATION.md:193`）。
++    """
+     path = _kb_state_path(store_root)
+     if not path.is_file():
+-        return {}
++        return _empty_kb_state()
++    try:
++        raw = path.read_text(encoding="utf-8")
++    except OSError as exc:
++        raise PipelineRefused("KB_STATE_CORRUPT",
++                              f"{path}: {type(exc).__name__}: {exc}") from exc
++    try:
++        doc = json.loads(raw)
++    except ValueError as exc:
++        raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: JSON 解析失败 {exc}") from exc
++    if not isinstance(doc, dict):
++        raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: 顶层必须是对象")
++    if "schema" not in doc:
++        return _migrate_v1(path, doc)
++    if doc.get("schema") != KB_STATE_SCHEMA:
++        raise PipelineRefused(
++            "KB_STATE_CORRUPT",
++            f"{path}: schema={doc.get('schema')!r} 期望 {KB_STATE_SCHEMA!r}")
++    for key in ("version", "kb", "chunks", "graph"):
++        if key not in doc:
++            raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: 缺字段 {key}")
++    doc.setdefault("cursor", None)
++    doc.setdefault("set_digest", None)
++    return doc
++
++
++def _save_kb_state(state: Dict[str, Any], store_root=None) -> None:
++    """原子写：pid+uuid 临时文件 + `os.replace`，不留固定 `.json.tmp`。
++
++    注意签名相对 L7 之前变化（原为 `(store_root, state)`）：改成「数据在前」
++    以免把 store_root 误当状态对象写进去；调用点仅本模块内（已逐一更新）。
++    """
++    path = _kb_state_path(store_root)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    tmp = path.with_name(f"{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
++    try:
++        tmp.write_text(json.dumps(state, ensure_ascii=False, indent=1, sort_keys=True),
++                       encoding="utf-8")
++        os.replace(tmp, path)
++    finally:
++        if tmp.exists():
++            try:
++                tmp.unlink()
++            except OSError:
++                pass
++
++
++def _verify_kb_state_round_trip(store_root=None) -> None:
++    """落盘后回读校验（TL 裁定 3）：字段不齐 → `KB_STATE_CORRUPT`，不继续。"""
++    path = _kb_state_path(store_root)
++    try:
++        doc = json.loads(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError) as exc:
++        raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: 回读失败 {exc}") from exc
++    if not isinstance(doc, dict) or doc.get("schema") != KB_STATE_SCHEMA:
++        raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: 回读 schema 不符")
++    if not isinstance(doc.get("version"), int):
++        raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: 回读缺 version")
++    for key in ("cursor", "set_digest"):
++        if not doc.get(key):
++            raise PipelineRefused("KB_STATE_CORRUPT", f"{path}: 回读缺 {key}")
++
++
++@contextmanager
++def _kb_state_lock(path: Path):
++    """读-改-写全程独占 `flock`（锁文件与数据文件分开，避免 `os.replace` 换掉锁 inode）。"""
++    path.parent.mkdir(parents=True, exist_ok=True)
++    lock_path = path.with_name(path.name + ".lock")
++    handle = os.open(str(lock_path), os.O_CREAT | os.O_RDWR, 0o644)
+     try:
+-        return json.loads(path.read_text(encoding="utf-8")) or {}
+-    except (OSError, ValueError):
+-        return {}
++        fcntl.flock(handle, fcntl.LOCK_EX)
++        yield
++    finally:
++        try:
++            fcntl.flock(handle, fcntl.LOCK_UN)
++        finally:
++            os.close(handle)
++
+ 
++@contextmanager
++def _kb_state_txn(store_root=None):
++    """状态事务：加锁 → 读 → 交给调用方改 → 有变化才推进 version/cursor 并原子写 → 回读校验。
+ 
+-def _save_kb_state(store_root, state: Dict[str, Dict[str, Any]]) -> None:
++    「有变化才写」让同内容重摄取保持幂等（不空推进 `version`/`cursor`）。
++    """
+     path = _kb_state_path(store_root)
+-    path.parent.mkdir(parents=True, exist_ok=True)
+-    tmp = path.with_suffix(".json.tmp")
+-    tmp.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+-    os.replace(tmp, path)
++    with _kb_state_lock(path):
++        state = _load_kb_state(store_root)
++        before = copy.deepcopy(state)
++        yield state
++        if state == before:
++            return
++        state["schema"] = KB_STATE_SCHEMA
++        state["version"] = int(state.get("version") or 0) + 1
++        state["set_digest"] = _compute_set_digest(state)
++        state["cursor"] = _compute_cursor(state)
++        _save_kb_state(state, store_root)
++        _verify_kb_state_round_trip(store_root)
++
++
++def _chunk_state_records(chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
++    """投影块 → `chunks` 落盘记录（契约 §4.2 必备 5 字段 + 2 个溯源字段）。
++
++    `seq` 与 `parse_artifact_id` 是契约清单之外 additive 的：`seq` 已编进 `locator`
++    （`chunk=<seq>`），但重建 BuildDoc 时要能回指 `parse_artifact_id`，否则
++    「wanted docs 引用」失去溯源，图谱侧的引用就不可复核。
++    """
++    records: List[Dict[str, Any]] = []
++    for chunk in chunks:
++        text = str(chunk.get("text") or "")
++        records.append({
++            "pk": chunk.get("pk"),
++            "text": text,
++            "locator": locator_text(chunk),
++            "channel": chunk.get("channel", "text"),
++            "content_hash": hashlib.sha256(text.encode("utf-8")).hexdigest(),
++            "seq": chunk.get("seq"),
++            "parse_artifact_id": chunk.get("parse_artifact_id"),
++        })
++    return records
++
++
++def build_wanted_docs(state: Dict[str, Any], kb: str) -> List[Dict[str, Any]]:
++    """从 `kb_state.chunks` 组装该库「全量 wanted docs 的引用」——**不重新投影**。
++
++    契约 §4.2：`chunks` 是 wanted docs 的唯一装配来源；投影只算一次落盘，
++    `seq` 在文件首次投影时分配后固定。重新投影会让 `seq` 重排 → pk 变化 →
++    图谱 source.pk 与 ES `_id` 脱钩（`00-DESIGN.md` §7.5.1）。
++    """
++    docs: List[Dict[str, Any]] = []
++    files = (state.get("kb") or {}).get(kb) or {}
++    chunks_by_file = (state.get("chunks") or {}).get(kb) or {}
++    for file_id in sorted(files, key=str):
++        entry = files[file_id] or {}
++        if entry.get("status", "ACTIVE") != "ACTIVE":
++            continue
++        for chunk in chunks_by_file.get(file_id) or []:
++            doc: Dict[str, Any] = {
++                "file_id": str(file_id),
++                "text": chunk.get("text", ""),
++                "locator": chunk.get("locator", ""),
++                "pk": chunk.get("pk"),
++            }
++            if entry.get("file_name"):
++                doc["title"] = str(entry["file_name"])
++            if chunk.get("parse_artifact_id"):
++                doc["parse_artifact_id"] = str(chunk["parse_artifact_id"])
++            docs.append(doc)
++    return docs
+ 
+ 
+ def consume_for_kb(doc2md_dir, store_root, *, kb: str, file_id: Any,
+@@ -200,61 +486,95 @@ def consume_for_kb(doc2md_dir, store_root, *, kb: str, file_id: Any,
+                    chunk_chars: int = DEFAULT_CHUNK_CHARS, artifact_id: Optional[str] = None,
+                    build_graph: bool = True, graph_root: Optional[str] = None,
+                    graph_api: Optional[str] = None, timeout: float = 1800) -> Dict[str, Any]:
+-    """按库摄取：把本次文件并入该库清单后，用**该库全部文件**重建图谱。
+-
+-    为什么必须合并（实测缺陷）：`/v2/graph/build` 是全量重建，只传本次文件的 docs 时，
+-    该库之前文件的图谱会被整体覆盖——多文件库传完第二个文件，第一个就"消失"了。
+-    这里维护 `<store_root>/kb_state.json`（kb → file_id → 快照），每次用全量重建。
++    """按库摄取：封快照 → 同源校验 → 落状态（本次 chunks）+ 返回 wanted docs 引用。
++
++    P2-L7 三处行为变更（对外 JSON 形状不变，`03-IMPLEMENTATION.md` §P2-2/§P2-3）
++    -----------------------------------------------------------------------
++    1. **同源闸门前移到写入之前**：`index_writer.build` 只产写入计划、`apply` 才发请求，
++       所以把 `assert_same_artifact` 放在两者之间即可「不一致时三路 0 写入」，
++       不需要重排写入顺序、也不需要给写入加回滚。
++    2. **不再全库重建图谱**：原实现遍历 `kb_state` 里全部历史文件、逐个**重新投影**再
++       `post_graph_build`，于是每次摄取都是「该库全量重建」。现在改为把本次 chunks
++       落进 `kb_state.chunks`（投影只算一次），再返回「本次 chunks + 全量 wanted docs
++       引用」，全量/delta 重建交给 P3/P4。`build_graph=True` 时如实返回
++       `PARTIAL` + `GRAPH_REBUILD_DEFERRED`，**不谎报图谱已建好**。
++    3. **`file_id` 必须真实**：缺则 `FILE_ID_MISSING` fail-closed，不再回落 `kb`
++       （回落会让同库多文件在 ES metadata 上撞成同一个 file_id）。
++
++    `graph_root` / `graph_api` / `timeout` 保留是为了不改调用方签名，
++    本 loop 内不再使用（建图已移交 P3/P4）。
+     """
+     if not kb:
+         raise PipelineRefused("KB_REQUIRED", "必须指定知识库标识")
+     index = index_name or kb
++    real_file_id = "" if file_id is None else str(file_id).strip()
++    if not real_file_id:
++        raise PipelineRefused(
++            "FILE_ID_MISSING",
++            "consume_for_kb 必须收到真实 file_id（平台文件 id），不得回落 kb")
+ 
+     artifact, snapshot = commit_snapshot(doc2md_dir, store_root,
+                                          producer_inputs=producer_inputs,
+                                          artifact_id=artifact_id)
+ 
+-    state = _load_kb_state(store_root)
+-    state.setdefault(kb, {})[str(file_id)] = {
++    current = project_snapshot(snapshot, index_name=index, file_id=real_file_id,
++                               chunk_chars=chunk_chars)
++    if current.status == "NOT_APPLICABLE":
++        raise PipelineRefused("PROJECTION_NOT_APPLICABLE", str(current.stats.get("reason")))
++    chunks = current.chunks
++
++    # G1：生产写入计划（真实 file_id 注入，缺则 IndexWriterError → 统一成编排错误族）
++    try:
++        plan = index_writer.build(chunks, artifact, kb=index, file_id=real_file_id)
++    except index_writer.IndexWriterError as exc:
++        raise PipelineRefused(exc.code, exc.detail) from exc
++
++    # G2：图谱侧用**同一份 chunks + 同一 file_id** 复算，任何一侧被改写都在这里被拒。
++    # 位置刻意放在 apply / 建图之前 —— 禁止「先写后校验」。
++    graph_binding = index_writer.bind_chunks(
++        chunks, {**artifact, "file_id": real_file_id})
++    try:
++        assert_same_artifact(plan.binding, graph_binding)
++    except ArtifactBindingError as exc:
++        raise SourceDiverged(str(exc)) from exc
++
++    payloads = build_index_payloads(chunks, index_name=index, file_id=real_file_id,
++                                    file_name=file_name, file_path=file_path,
++                                    file_size=file_size, source=source)
++
++    # G3：状态落盘（同源校验通过之后才写），chunks 只算这一次
++    entry = {
+         "artifact_id": artifact["artifact_id"],
+         "snapshot": str(snapshot),
++        "content_uid": artifact.get("content_uid"),
++        "content_hash": plan.content_hash,
+         "file_name": file_name,
++        "status": "ACTIVE",
++        # 以下三个是既有字段（契约未列但历史落盘有），保留以免丢信息
+         "file_path": file_path,
+         "file_size": file_size,
+         "source": source,
+     }
+-    _save_kb_state(store_root, state)
+-
+-    # 本次文件的投影（搜索路载荷只回传本次，避免响应过大）
+-    current = project_snapshot(snapshot, index_name=index, file_id=file_id,
+-                               chunk_chars=chunk_chars)
+-    if current.status == "NOT_APPLICABLE":
+-        raise PipelineRefused("PROJECTION_NOT_APPLICABLE", str(current.stats.get("reason")))
+-    payloads = build_index_payloads(current.chunks, index_name=index, file_id=file_id,
+-                                    file_name=file_name, file_path=file_path,
+-                                    file_size=file_size, source=source)
+-
+-    # 图谱这一路：该库**全部文件**的 docs（本次 + 历史）
+-    all_docs: List[Dict[str, Any]] = []
++    with _kb_state_txn(store_root) as state:
++        state["kb"].setdefault(kb, {})[real_file_id] = entry
++        state["chunks"].setdefault(kb, {})[real_file_id] = _chunk_state_records(chunks)
++        slot = state["graph"].setdefault(
++            kb, {"snapshot": None, "fencing": 0, "mode": "DELTA"})
++        slot["snapshot"] = str(snapshot)
++        slot.setdefault("fencing", 0)   # 不推进：本 loop 不建图，不能假造 fencing
++        slot["mode"] = "DELTA"
++
++    # G4：wanted docs 只从 state.chunks 组装（引用），不重投影、不触发全库建图
++    wanted = build_wanted_docs(state, kb)
+     per_file: List[Dict[str, Any]] = []
+-    for fid, meta in sorted(state[kb].items()):
+-        snap = meta.get("snapshot")
+-        if not snap or not Path(snap).is_dir():
+-            per_file.append({"file_id": fid, "chunks": 0, "skipped": "snapshot_missing"})
+-            continue
+-        proj = project_snapshot(snap, index_name=index, file_id=fid, chunk_chars=chunk_chars)
+-        docs = build_graph_docs(proj.chunks, file_id=fid, title=meta.get("file_name"))
+-        all_docs.extend(docs)
+-        per_file.append({"file_id": fid, "chunks": len(docs)})
++    for fid in sorted((state.get("chunks") or {}).get(kb) or {}, key=str):
++        count = len((state["chunks"][kb][fid]) or [])
++        per_file.append({"file_id": fid, "chunks": count} if count
++                        else {"file_id": fid, "chunks": 0, "skipped": "chunks_missing"})
+ 
+-    graph_result: Optional[Dict[str, Any]] = None
+-    graph_error: Optional[str] = None
+-    if build_graph:
+-        try:
+-            graph_result = post_graph_build(kb, all_docs, root=graph_root,
+-                                            graph_api=graph_api, timeout=timeout)
+-        except PipelineRefused as exc:
+-            graph_error = f"{exc.code}: {exc.detail}"
++    deferred = bool(build_graph)
++    graph_error = ("GRAPH_REBUILD_DEFERRED: 全库/增量图谱重建已移交 P3/P4 delta 链路；"
++                   "本 loop 只在 kb_state 记录 wanted docs 引用") if deferred else None
+ 
+     counts: Dict[str, int] = {}
+     for item in payloads:
+@@ -269,7 +589,7 @@ def consume_for_kb(doc2md_dir, store_root, *, kb: str, file_id: Any,
+         "snapshot": str(snapshot),
+         "projection": {
+             "status": current.status,
+-            "chunks": len(current.chunks),
++            "chunks": len(chunks),
+             "channels": {"text": current.stats.get("chunks_text"),
+                          "table": current.stats.get("chunks_table")},
+             "counts": counts,
+@@ -277,10 +597,12 @@ def consume_for_kb(doc2md_dir, store_root, *, kb: str, file_id: Any,
+         },
+         "graph": {
+             "requested": bool(build_graph),
+-            "docs": len(all_docs),
++            "docs": len(wanted),
+             "files": per_file,
+-            "result": graph_result,
++            "result": None,
+             "error": graph_error,
++            # additive：显式标出「建图已移交」，调用方不会把 result=None 当成功
++            "deferred": deferred,
+         },
+         "doc2md_dir": str(doc2md_dir),
+     }
+```
+
+### 5.2 `index_writer.py` · 改动区域全文（文件为 L6 新增未跟踪，故给区域而非 HEAD diff）
+
+```python
+$ sed -n '108,200p' services/rag-alg/index_data_service/ingest_pipeline/index_writer.py   # 尾部换成 108-193（delete_scope 起点前），见下
+def _target_name(channel: str, *, kb: str, index_prefix: str) -> str:
+    """text → <prefix><kb>；table → <prefix>table_chunks_<kb>。"""
+    if channel == "text":
+        return f"{index_prefix}{kb}"
+    return f"{index_prefix}table_chunks_{kb}"
+
+
+def _resolve_file_id(artifact: dict, file_id: str | None) -> str:
+    """解析真实 `file_id`：显式参数 > `artifact['file_id']` > `FILE_ID_MISSING`。
+
+    刻意**不回落 `kb`**（P2-L7 裁定 1）：`store.commit()` 的 artifact 没有 `file_id`，
+    回落会把「库」当「文件」，同库多文件在 ES metadata 上撞成同一 file_id，
+    删除范围与邻块召回都会跨文件错配。
+    """
+    for candidate in (file_id, artifact.get("file_id")):
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate.strip()
+        if candidate is not None and not isinstance(candidate, str):
+            return str(candidate)
+    raise IndexWriterError(
+        "FILE_ID_MISSING",
+        "缺真实 file_id：artifact 不含 file_id 且调用点未注入（不得回落 kb）")
+
+
+# --------------------------------------------------------------------------- build
+def build(chunks: list, artifact: dict, *, kb: str,
+          index_prefix: str = DEFAULT_INDEX_PREFIX,
+          file_id: str | None = None) -> IndexWritePlan:
+    """按 channel 分组产出 es_plan / milvus_plan 两份写入计划。
+
+    - 每份计划按目标 index/collection 拆成 body（text / table 分别一组）；
+    - document_list 的每项 = `{page_content, metadata}`，顶层 `pk` / `_fill` 已剥掉
+      （metadata 由 `enrich.build_payload` 生成，仅补 `metadata.pk` 与同源三元组）；
+    - `duplicate_flag=False` 硬约束；`v2cand_` 前缀不碰线上索引名；
+    - `content_hash` 由 `bind_artifact` 从同一份 chunks 复算，写入每份 metadata。
+
+    P2-L7 additive：`file_id` 由调用点注入（`consume_for_kb` 的真实平台文件 id）。
+    解析优先级 **显式参数 > `artifact['file_id']` > 抛 `FILE_ID_MISSING`**，
+    **不再回落 `kb`**：`store.commit()` 的 artifact 不含 `file_id`，回落 `kb` 会把
+    「按知识库」当成「按文件」写进 ES metadata / 删除范围，同一库多文件必然互相覆盖。
+    """
+    if not chunks:
+        raise IndexWriterError("CHUNKS_EMPTY", "chunks 为空，无法构建写入计划")
+    artifact_id = artifact.get("artifact_id")
+    content_uid = artifact.get("content_uid")
+    if not artifact_id or not content_uid:
+        raise IndexWriterError("ARTIFACT_IDENTITY_MISSING",
+                               "artifact 缺 artifact_id / content_uid")
+    if not index_prefix:
+        raise IndexWriterError("INDEX_PREFIX_EMPTY", "index_prefix 不得为空（防误写线上索引）")
+
+    resolved_file_id = _resolve_file_id(artifact, file_id)
+    now = artifact.get("committed_at")  # 确定性：来自快照，不用当前时间
+    # 绑定输入也带上解析后的 file_id：否则 ES 计划写的是真实文件 id、binding.docs 里
+    # 却是回落值，同源校验的两份输入口径不一致（content_hash 不含 file_id，但溯源会错）。
+    binding = bind_chunks(chunks, {**artifact, "file_id": resolved_file_id})
+    content_hash = binding["content_hash"]
+
+    groups: dict[str, list] = {}
+    for chunk in chunks:
+        groups.setdefault(chunk.get("channel", "text"), []).append(chunk)
+
+    es_plan: list[dict] = []
+    milvus_plan: list[dict] = []
+    for channel in ("text", "table"):
+        if channel not in groups:
+            continue
+        target = _target_name(channel, kb=kb, index_prefix=index_prefix)
+        documents: list[dict] = []
+        for chunk in groups[channel]:
+            meta, _fill = enrich.build_payload(
+                chunk, index_name=kb, file_id=resolved_file_id, now=now)
+            # metadata.pk 保留（ES 用它当 _id，Milvus 用它当主键）；
+            # 顶层 pk / _fill 不进 document_list（端点契约只收 page_content + metadata）。
+            meta["pk"] = chunk["pk"]
+            meta["artifact_id"] = artifact_id
+            meta["content_hash"] = content_hash
+            documents.append({"page_content": chunk["text"], "metadata": meta})
+
+        es_plan.append({
+            "index_name": target,
+            "document_list": documents,
+            "type": "",
+            "duplicate_flag": False,
+        })
+        milvus_plan.append({
+```
+
+> 该文件的 L7 改动仅三处：`build` 形参加 `file_id`、docstring 增「不得回落 kb」段、新增 `_resolve_file_id()`，并把 `enrich.build_payload` 的 `file_id` 与 `bind_chunks` 的绑定输入都改为解析后的值。`delete_scope` / `apply` / `IndexWritePlan` / `duplicate_flag` 语义**零改动**。
+
+```python
+# 承接 §5.2 被截断处（上段止于 milvus_plan.append({），补 186-193 行：
+
+        es_plan.append({
+            "index_name": target,
+            "document_list": documents,
+            "type": "",
+            "duplicate_flag": False,
+        })
+        milvus_plan.append({
+```
+
+### 5.3 新增测试文件（`git status` 中 `?? services/rag-alg/index_data_service/tests/`，与 L6 同一未跟踪目录）
+
+`services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py` · 420 行 / md5 `0b69477e07f8664e940f2e3540b11abc` · 24 条用例（G1×4 / G2×3 / G3×11 / G4×3 / G5×3，其中 G3 含 v1 迁移 2 条）。全文在仓内，此处不重复粘贴。
+
+---
+
+## 6. 行为差异说明（TL 裁定 4 要求；「内部变了什么 / 对外什么不变」）
+
+### 6.1 内部行为变更（3 处，均有对应断言）
+
+| # | 变更 | 改前 | 改后 | 断言 |
+|---|---|---|---|---|
+| B-1 | **`file_id` 来源** | `index_writer.build` 内 `artifact.get("file_id") or kb`（artifact 无该字段 → 回落成库名） | 显式参数 > artifact > `FILE_ID_MISSING` | `test_g1_*`（4 条） |
+| B-2 | **同源闸门** | `assert_same_artifact` 无生产调用点（只在测试里） | `consume_for_kb` 内、`build` 与 `apply` 之间强制调用，失败抛 `SourceDiverged`（`SOURCE_DIVERGED`） | `test_g2_*`（3 条） |
+| B-3 | **图谱重建路径** | 遍历 `kb_state` 全部历史文件 → **每个都重新 `project_snapshot`** → 拼全量 docs → `post_graph_build`（全库重建） | 投影只算**本次**文件一次并落 `kb_state.chunks`；wanted docs 从 `chunks` 组装成**引用**；`post_graph_build` **不再调用**（移交 P3/P4） | `test_g4_*`（3 条） |
+| B-4 | **状态文件** | `<store_root>/kb_state.json`（`store_root` 默认相对路径）、损坏静默 `{}`、固定 `.json.tmp`、无锁、无 schema/version/cursor/set_digest/chunks/graph | 绝对路径（`LLMKE_KB_STATE` 或仓根默认）、`llmke.kb-state/2`、损坏抛 `KB_STATE_CORRUPT`、`flock` + pid/uuid 临时名 + `os.replace`、回读校验 | `test_g3_*`（11 条） |
+| B-5 | **幂等** | 每次摄取无条件覆写（无版本概念） | 内容未变则不推进 `version`/`cursor`（不空写盘） | `test_g5_reingest_same_content_does_not_bump_version` |
+
+### 6.2 **对外契约明确不变**（逐项断言）
+
+| 项 | 保证 |
+|---|---|
+| 返回顶层键集合 | `{status, kb, artifact_id, content_uid, artifact_quality, snapshot, projection, graph, doc2md_dir}` **逐字不变**（`test_g5_...`） |
+| `projection` 子键 | `{status, chunks, channels, counts, payloads}` 不变；`counts` 仍含 `table_summary_<kb>`（L5 通道未被改动） |
+| `graph` 子键 | 原 5 键（`requested/docs/files/result/error`）**全在**，仅 **additive `deferred`** |
+| 调用方兼容 | `kb_ingest_service.py:216-221` 只读 `result["projection"].pop("payloads")` 与 `result["status"]`；`scripts/v2_ingest_doc2md.py:209,241` 只补/读 `doc2md_dir`、`projection.payloads` → **均不受影响** |
+| 函数签名 | `consume_for_kb` 形参表一字未改（`graph_root/graph_api/timeout` 保留但本 loop 不再使用，已在 docstring 说明） |
+| L5 载荷语义 | `build_index_payloads` **零改动**（`now` 仍未透传，行为与 L5 收口时一致） |
+| 禁改区 | `projection.py` / `enrich.py` / `summary.py` / `artifact_binding.py` 工作区与 HEAD 一致（`git status` 无条目）；`_table_pk` / `table_summary_id` 语义不变（`test_r6_...` 哨兵） |
+
+### 6.3 `wanted docs` 引用结构（P3/P4 的消费面）
+
+```json
+{"file_id": "333", "text": "...", "locator": "chunk=0;offset=0-5", "pk": 111,
+ "title": "a.md", "parse_artifact_id": "<64hex>"}
+```
+
+来源严格是 `kb_state.chunks[kb][file_id][]`（**不重新投影**）。
+排序：`file_id` 字典序 → 文件内按落盘时的投影顺序（`seq` 固定）。
+
+### 6.4 真实落盘样本（离线替身跑出，非手写）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python /tmp/p2l7_sample.py
+=== consume_for_kb 返回（payloads 已裁掉）===
+{
+  "status": "PARTIAL",
+  "kb": "kb_9",
+  "artifact_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "content_uid": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "artifact_quality": null,
+  "snapshot": "/tmp/p2l7-sample/snapshot-abs-path",
+  "projection": {
+    "status": "APPLICABLE",
+    "chunks": 2,
+    "channels": {
+      "text": 1,
+      "table": 1
+    },
+    "counts": {
+      "kb_9": 1,
+      "table_chunks_kb_9": 1,
+      "table_summary_kb_9": 1
+    }
+  },
+  "graph": {
+    "requested": true,
+    "docs": 2,
+    "files": [
+      {
+        "file_id": "333",
+        "chunks": 2
+      }
+    ],
+    "result": null,
+    "error": "GRAPH_REBUILD_DEFERRED: 全库/增量图谱重建已移交 P3/P4 delta 链路；本 loop 只在 kb_state 记录 wanted docs 引用",
+    "deferred": true
+  },
+  "doc2md_dir": "/doc2md-out"
+}
+=== 落盘 kb_state.json ===
+{
+ "chunks": {
+  "kb_9": {
+   "333": [
+    {
+     "channel": "text",
+     "content_hash": "b05b8c2eb50f548483ffd5ff0d7063499b14ec80e7e5c55917a23058ddec65e4",
+     "locator": "chunk=0;offset=0-5",
+     "parse_artifact_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "pk": 111,
+     "seq": 0,
+     "text": "说明如下。"
+    },
+    {
+     "channel": "table",
+     "content_hash": "360582632f1c3b04769058123cb4577ea22d595a349f253752e09c71dc2262ec",
+     "locator": "chunk=1;table=t001",
+     "parse_artifact_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+     "pk": 222,
+     "seq": 1,
+     "text": "指标 | 值\n日均存款 | 100"
+    }
+   ]
+  }
+ },
+ "cursor": "cursor-85a0315a9de181d7f1b658f4d51e62024615924b2df442b601c6338cc43758e1",
+ "graph": {
+  "kb_9": {
+   "fencing": 0,
+   "mode": "DELTA",
+   "snapshot": "/tmp/p2l7-sample/snapshot-abs-path"
+  }
+ },
+ "kb": {
+  "kb_9": {
+   "333": {
+    "artifact_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "content_hash": "e5c55270c13bb4492186cf301801dea01dc1db5486d1d31f6fe9a905ca8bb610",
+    "content_uid": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "file_name": "a.md",
+    "file_path": "/tmp/a.md",
+    "file_size": 10,
+    "snapshot": "/tmp/p2l7-sample/snapshot-abs-path",
+    "source": "kb_9/a.md",
+    "status": "ACTIVE"
+   }
+  }
+ },
+ "schema": "llmke.kb-state/2",
+ "set_digest": "7eb1c2bbfc352207375b170dd5441709c42cb8450cde8adacee89004b8b08d4c",
+ "version": 1
+}
+=== 目录（无 .tmp 残留 / 有 .lock） ===
+  kb_state.json 1533
+  kb_state.json.lock 0
+```
+
+---
+
+## 7. 阶段 B · 反例 FAIL → PASS（24 passed）
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest \
+  services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py -q
+........................                                                 [100%]
+24 passed in 0.35s
+
+$ （交叉口径）PYTHONPATH=services/rag-alg/index_data_service \
+  /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest <同一文件> -q
+........................                                                 [100%]
+24 passed in 0.36s
+```
+
+---
+
+## 8. 变异验证（证明 24 条断言**非空转**：mutate → FAIL / restore → PASS）
+
+脚本 `/tmp/p2l7_mutation.sh`（临时脚本，不入仓）：每组「备份 → 定点变异 → 跑相关用例 →
+恢复原文件 → **md5 逐位比对**」。
+
+| # | 变异 | 期望 | 实测 |
+|---|---|---|---|
+| M1 | 删掉 `assert_same_artifact(plan.binding, graph_binding)` 调用点 | G2 FAIL | 2 failed（`g2_source_diverged_blocks_all_writes` / `g2_gate_is_wired_not_noop`） |
+| M2 | `_load_kb_state` 损坏时改回 `return _empty_kb_state()`（静默空态） | R-3 FAIL | 1 failed（`g3_corrupt_state_raises_instead_of_empty`） |
+| M3 | `_resolve_file_id` 缺省改回回落 `"kb"` | G1 FAIL | 1 failed（`g1_build_requires_real_file_id_no_kb_fallback`） |
+| M4 | `_kb_state_lock` 去掉 `fcntl.flock(LOCK_EX)` | R-4 FAIL | 1 failed（`g3_concurrent_writers_do_not_lose_updates`） |
+| M5 | `consume_for_kb` 恢复 `post_graph_build(kb, wanted)`（全库建图回来） | G4 FAIL | 1 failed（`g4_no_full_library_graph_rebuild`） |
+
+命令与真实输出：
+
+```
+$ bash /tmp/p2l7_mutation.sh
+----- MUTATION M1-gate-removed (G2 FAIL) -----
+FAILED services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py::test_g2_source_diverged_blocks_all_writes
+FAILED services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py::test_g2_gate_is_wired_not_noop
+2 failed, 1 passed, 21 deselected in 0.05s
+restore: kb_pipeline=OK index_writer=OK
+
+----- MUTATION M2-corrupt-silent (R-3 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py::test_g3_corrupt_state_raises_instead_of_empty
+1 failed, 23 deselected in 0.04s
+restore: kb_pipeline=OK index_writer=OK
+
+----- MUTATION M3-file-id-fallback (G1 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py::test_g1_build_requires_real_file_id_no_kb_fallback
+1 failed, 3 passed, 20 deselected in 0.04s
+restore: kb_pipeline=OK index_writer=OK
+
+----- MUTATION M4-no-flock (R-4 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py::test_g3_concurrent_writers_do_not_lose_updates
+1 failed, 23 deselected in 0.20s
+restore: kb_pipeline=OK index_writer=OK
+
+----- MUTATION M5-full-rebuild-back (G4 FAIL) -----
+=========================== short test summary info ============================
+FAILED services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py::test_g4_no_full_library_graph_rebuild
+1 failed, 2 passed, 21 deselected in 0.05s
+restore: kb_pipeline=OK index_writer=OK
+
+===== 最终指纹 =====
+dc60bd09703612c324e735c0bb4242eb  services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+1f2fa0aef28f304a9b088da2b487574e  services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+baseline: dc60bd09703612c324e735c0bb4242eb 1f2fa0aef28f304a9b088da2b487574e
+===== 恢复后全量复跑 =====
+........................                                                 [100%]
+24 passed in 0.36s
+```
+
+---
+
+## 9. 回归（R-6 与相关面）
+
+R-6 要求：平台既有 `test_rag_projection` 13 + `test_table_projection` 7 + `test_index_writer` 11
+= **31 全 PASS**。真实测试路径（与 PLAN 的 `.../` 省略不同）：
+`tests/test_rag_projection.py`（仓根）、
+`services/rag-alg/index_data_service/tests/{test_table_projection,test_index_writer}.py`。
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service llmke-v2-toolenv/bin/python -m pytest \
+  tests/test_rag_projection.py services/rag-alg/index_data_service/tests/test_table_projection.py \
+  services/rag-alg/index_data_service/tests/test_index_writer.py -q
+...............................                                          [100%]
+31 passed in 0.09s
+
+$ （交叉）hipporag-toolenv 同命令
+...............................                                          [100%]
+31 passed in 0.09s
+
+$ rag-alg tests 全目录（含新增 L7）
+..........................................                               [100%]
+42 passed in 0.37s
+
+$ tests/test_artifact_binding.py（同源校验消费者）
+..............................                                           [100%]
+30 passed in 0.04s
+
+$ 导入烟测（kb_ingest_service，不启动服务；hipporag 有 fastapi）
+kb_ingest_service import OK, title= LLMKE KB Ingest
+
+$ 语法编译 scripts/v2_ingest_doc2md.py
+compile OK
+```
+
+---
+
+## 10. 红线自查：模式 / 端口 / 线上计数 / 副作用（开工前 vs 交付时）
+
+```
+$ printenv INGEST_PROJECTION_MODE ; printenv LLMKE_KB_STATE
+INGEST_PROJECTION_MODE exit=1
+LLMKE_KB_STATE exit=1
+
+$ ss -tlnp | grep -E ":(19526|19527|19531|19995|19200|18094|18082|18083)\b"
+LISTEN 0      2048       127.0.0.1:19531      0.0.0.0:*    users:(("python",pid=435286,fd=12))                              
+LISTEN 0      2048       127.0.0.1:19526      0.0.0.0:*    users:(("python",pid=19144,fd=24))                               
+LISTEN 0      2048       127.0.0.1:19527      0.0.0.0:*    users:(("python",pid=23140,fd=19))                               
+LISTEN 0      2048       127.0.0.1:19995      0.0.0.0:*    users:(("python",pid=1358208,fd=19),("python",pid=23647,fd=19))  
+LISTEN 0      32768      127.0.0.1:19200      0.0.0.0:*                                                                     
+LISTEN 0      2048       127.0.0.1:18094      0.0.0.0:*    users:(("python",pid=3202203,fd=12),("python",pid=3189651,fd=12))
+LISTEN 0      100        127.0.0.1:18082      0.0.0.0:*    users:(("java",pid=1341032,fd=117))                              
+LISTEN 0      100        127.0.0.1:18083      0.0.0.0:*    users:(("java",pid=450255,fd=94))                                
+
+$ curl -s http://127.0.0.1:19200/table_chunks_kb_9/_count
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+
+$ ls -la platform/r12/data（默认状态目录是否被意外创建）
+ls: 无法访问 'platform/r12/data': 没有那个文件或目录
+
+$ find . -name "kb_state.json*" -not -path "*/pytest-of-*"（仓内是否留下状态文件）
+(空 = 未创建)
+
+$ git -C /home/szf/data/dev/doc2md status --short | wc -l
+14
+
+$ md5sum 禁改区
+3a4a87d8260b3f926c2327fe13115894  services/rag-alg/index_data_service/rag_projection/projection.py
+e81e51510ff9ea858c587b7f547ba1cc  services/rag-alg/index_data_service/graph_engine_adapter/artifact_binding.py
+
+$ git status --short | grep -E "kb_pipeline|index_writer|tests/"
+ M services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+?? services/rag-alg/index_data_service/ingest_pipeline/index_writer.py
+?? services/rag-alg/index_data_service/tests/
+```
+
+---
+
+## 11. 已知边界与未做项（**上线前必须知道的三条**）
+
+### 11.1 【高】摄取后图谱不再自动更新，直到 P3/P4 落地
+
+`consume_for_kb` 已按 G4 **停止全库重建**，但 P3（18094 delta 端点）/P4（`KbDeltaService`）
+尚未实现。因此 **18096 一旦启用**：文档会正常进 ES/Milvus 计划与 `kb_state`，
+但**图谱不会自动刷新**。本 loop 用 `status="PARTIAL"` + `graph.error="GRAPH_REBUILD_DEFERRED: …"`
++ `graph.result=None` + `graph.deferred=true` **显式暴露**，不谎报 `OK`。
+→ 放量前必须有 P3/P4，或运维侧有手工建图兜底；Java 侧对 `207` 的处理见
+`RemoteV2IngestUtils.java:96-100`（设计包已列为需修的缺陷），本 loop 未改 Java。
+
+### 11.2 【中】`SOURCE_DIVERGED` 的 HTTP 码是 502 而非契约的 409
+
+契约 §5（`02-CONTRACTS.md:278`）要求 `SOURCE_DIVERGED` → **409**。
+`kb_ingest_service.py:211-212` 把 `K.PipelineRefused` 统一映射为 **502**，
+而该服务**不在本 loop 授权改动范围**（PLAN §一 只允许 `kb_pipeline.py` / `index_writer.py` / 新测试）。
+本 loop 已保证错误**类型**正确（`SourceDiverged` 同时是 `PipelineRefused` 与
+`ArtifactBindingError`，不会被任何一族 except 静默漏掉），**HTTP 码待 P4/P5 对齐**。
+
+### 11.3 【低】L6 `_binding_input` 里仍保留 `or "kb"` 回落
+
+`index_writer._binding_input()` 的 `file_id = str(artifact.get("file_id") or "kb")` 未改
+（L6 已验收代码，本 loop 只 additive）。经 `build()` 路径**已不可达**（`build` 先解析
+`_resolve_file_id` 并把结果注入绑定输入），但直接调 `bind_chunks(chunks, artifact_without_file_id)`
+仍会回落。建议 P3 一并收口为 fail-closed。
+
+### 11.4 其它未做（明确不属本 loop）
+
+| 项 | 去向 |
+|---|---|
+| `kb_state` 的 `expected_cursor` / `CURSOR_CONFLICT` 乐观并发 CAS | 本 loop 用 `flock` 串行化满足「不丢更新」；CAS 属契约 §4.2 加强项，随 P3 快照切指针一起做 |
+| `index_writer.apply()` 生产调用点（真正写 19527/19526） | P2-L8 及后续；本 loop 只让 `build()` 进生产路径作为闸门输入 |
+| `graph.fencing` 推进 | 不建图就不能假造 fencing，保持既有值（默认 0） |
+| `chunks` 落盘体积 | 全文入库（契约要求「wanted docs 唯一装配源」）；大库（如 4520 文件）的体积与加载耗时需 P6 压测评估 |
+| 18096 环境变量注入（`LLMKE_KB_STATE`/`LLMKE_ARTIFACT_STORE`） | P4（设计包 `03-IMPLEMENTATION.md:336`）；本 loop 只读 env + 代码内默认，**未改运行态配置** |
+
+---
+
+## 12. 判断标注（本 loop 我做的设计判断，供 TL 逐条裁定）
+
+1. **`SourceDiverged` 双基类**：同时继承 `PipelineRefused`(RuntimeError) 与
+   `ArtifactBindingError`(ValueError)。理由：既满足 G2「抛 `SOURCE_DIVERGED`（`ArtifactBindingError`）」，
+   又让既有 `kb_ingest_service` 的 `except K.PipelineRefused` 能捕获（否则落到 `except Exception` → 500，
+   错误码全丢）。已用 `test_g2_divergence_is_artifact_binding_error_too` 锁死。
+2. **`status="PARTIAL"`**：建图移交后不返回 `OK`。宁可让调用方看到 207，也不让
+   「文件显示解析成功但图没建」重演（这正是设计包 §P4 要修的缺陷模式）。
+3. **`graph` 加 `deferred`**：契约 §4.2/§5 未定义该字段，但 `result=None` 本身无法区分
+   「未请求建图」与「已移交」。additive 一个布尔比让调用方猜更安全；已在不改原 5 键的前提下加。
+4. **`chunks` 记录多存 `seq` / `parse_artifact_id`**：契约 §4.2 列 5 字段（pk/text/locator/channel/content_hash）。
+   重建 BuildDoc 时若没有 `parse_artifact_id`，图谱引用无法回指解析产物（D1 的溯源要求），
+   故 additive 两个字段并在 `_chunk_state_records` docstring 说明。
+5. **幂等用「内容未变则不写盘」**：避免同内容重摄取空推进 `version`/`cursor`（否则每次巡检都
+   让 cursor 变、下游误判有变化）。代价是「重摄取不刷新 `graph.snapshot` 时间戳」——本 loop 不建图，无影响。
+6. **`_save_kb_state` 形参顺序改为 `(state, store_root=None)`**：原为 `(store_root, state)`，
+   新旧签名都接受位置参数，误传不会报错而是写错内容，故改成「数据在前」并全文更新调用点
+   （全仓 grep 确认除本模块外无调用方）。这是**私有函数**签名变更，已在此显式声明。
+7. **不建 `platform/r12/data/kb-state/` 目录**：只在真正写盘时 `mkdir`，`import` 期零副作用；
+   当前仓内该目录仍不存在（§10 已验）。
+
+---
+
+## 13. 红线自查清单
+
+| 红线 | 结论 | 依据 |
+|---|---|---|
+| 不启停服务 | ✅ | 全程仅 `pytest` / `printenv` / `ss` / `curl -s _count` / `git` / `md5sum` / `sed`；无 systemctl/脚本启停 |
+| 不写线上 ES(19527)/Milvus(19526)/DB/18094 | ✅ | `index_writer.apply` 在测试中被替身拦截（`calls["apply"] == []`）；`post_graph_build` 被替身拦截并断言 0 调用；`_count` 前后均 `2` |
+| 不切 `INGEST_PROJECTION_MODE` / 不切读 | ✅ | `printenv` exit=1（unset），前后一致 |
+| 不改 L1~L6 语义 | ✅（唯一例外已获授权） | `projection.py` / `enrich.py` / `summary.py` / `artifact_binding.py` 工作区与 HEAD 一致；`index_writer.build` 的 additive 属 TL 裁定 1 明确授权；L6 的 31 条测试全 PASS |
+| 不改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置 | ✅ | 本 loop 只**读**设计包；`TASKS.yaml` 未改（evidence 指针留给 TL）；`platform/r12/.env` / `conf/**` 未改 |
+| 不改 doc2md 仓 | ✅ | `git -C doc2md status --short` 仍 14 项，与 L4 封口清单逐字一致 |
+| 不自签 `QA_PASS` / 不标 `DONE`/`VERIFIED` | ✅ | 本文件只写 `DEV_SELF_CHECK_PASS` |
+| 不删失败凑 PASS | ✅ | 阶段 A 的 22 条 FAIL 原文保留（§3）；2 条原本就 PASS 的用例**保留未删**并说明理由 |
+
+**本阶段新增/改动文件（全部）**：
+
+| 文件 | 性质 |
+|---|---|
+| `services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py` | M（含 L5 既有改动 + 本 loop 净 +299 行），md5 `dc60bd09703612c324e735c0bb4242eb` |
+| `services/rag-alg/index_data_service/ingest_pipeline/index_writer.py` | additive（`file_id` 形参 + `_resolve_file_id` + 注释），md5 `1f2fa0aef28f304a9b088da2b487574e` |
+| `services/rag-alg/index_data_service/tests/test_kb_pipeline_l7.py` | 新增 24 条，md5 `0b69477e07f8664e940f2e3540b11abc` |
+| `docs/v2-tasks/evidence/P2-L7-20261108T115004.log` | 新增（R-0 核实） |
+| `docs/v2-tasks/evidence/P2-L7-20261108T115634.log` | 本文件 |
+
+**未新增 fixtures**：所有用例用内存替身（`SimpleNamespace` + monkeypatch），
+不落盘、不依赖外部语料，故无 `fixtures/p2_l7/` 目录。
+
+---
+
+## 14. 状态与交接
+
+```text
+R0_VERIFIED（115004.log）→ 阶段A 22 failed/2 passed → 实现 → 阶段B 24 passed
+  → 5 组变异全被捕获 + md5 复原 → R-6 31 passed（双解释器）→ DEV_SELF_CHECK_PASS（本文件）
+  → 待 TL 独立复核 → 可派工 P2-L8（影子命名空间）
+  → QA_PASS 仍由 independent_qa 在 G-4 闭环后统一补签（本角色不自签）
+```
+
+- baton：`python-engineer` → **`DEV_SELF_CHECK_PASS`** → 交回 TL
+- `T-D2MD-07`：保持 `DOING` + `WAIT_QA_ATTESTATION`；`evidence` 指针建议由 TL 改为
+  `docs/v2-tasks/evidence/P2-L7-20261108T115634.log`（`TASKS.yaml` 属 TL 面，本角色未改）
+- 回滚：恢复上述两个 `.py` 文件、删除新增测试；`kb_state.json` 若已生成则保留旧 v1 文件与
+  `.v1.bak` 不动（本 loop 未在仓内生成任何状态文件）

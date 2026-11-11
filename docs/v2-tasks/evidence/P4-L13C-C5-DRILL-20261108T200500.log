@@ -1,0 +1,276 @@
+# P4-L13-C · C5 主体演练：**判据 ①「HTTP 502」不成立，实际 207/PARTIAL**（按指令停在此，未恢复）
+
+- 时间：2026-11-08T20:04 ~ 20:06；角色 `python-engineer`
+- 授权：Owner 已授权 C5 主体（TL 22:0x 执行令）
+- **状态：停在 ④ 之后，18096 仍指向 `19999`（未恢复）**，按执行令「判据不符 → 先不恢复，贴完整请求/响应报我」
+
+---
+
+## 1. 步骤 ①（前置留档）实测
+
+```
+日志备份   llmke-v2/.runtime-bak/kb-ingest-before-c5-200404.log（4165 B，尾部 50 行已留）
+env 导出   tr '\0' '\n' < /proc/2207749/environ > /tmp/c5-env-backup.txt   118 行
+```
+
+基线：
+
+| 项 | 值 |
+|---|---|
+| 18094 pid | `2227759` |
+| 18096 pid | `2207749` |
+| 19531 pid | `435286` |
+| `kb_9` | 44 |
+| `table_chunks_kb_9` | 2 |
+| 生产 `current.json` md5 | `e2d0f75440e4553ee1bb33f51ca2ca34` |
+| 生产 `fence.json` md5 | `857a69b451e728876a5cc3eeb9a1ca94` |
+| `/health.graph_api` | `http://127.0.0.1:18094` |
+| `/health.write_targets.configured` | `true` |
+| 影子 `v2cand_kb_9` | 4 |
+| 影子 state version / cursor | `11` / `cursor-4ae14056e6ca9857688019b2a824cab79ad0f735b252618c67318f906a2331ef` |
+
+## 2. 步骤 ②（造 env）实测：diff 只有 1 行
+
+```
+$ diff /tmp/c5-env-backup.txt /tmp/c5-env-new.txt
+73c73
+< LLMKE_V2_GRAPH_API=http://127.0.0.1:18094
+---
+> LLMKE_V2_GRAPH_API=http://127.0.0.1:19999
+```
+
+行数 118 / 118。7 项关键 env（`LLMKE_V2_GRAPH_ROOT`/`LLMKE_KB_STATE`/`LLMKE_ARTIFACT_STORE`/
+`LLMKE_DOC2MD_CONFIG`/`LLMKE_DOC2MD_LOCK`/`LLMKE_ES_BASE_URL`/`LLMKE_MILVUS_BASE_URL`）
+在**新进程里**与备份**逐字相同**（`diff` 无输出）。
+
+## 3. 步骤 ③（重启 18096 第一次）实测：三项 + 哨兵全过
+
+```
+env 从 /tmp/c5-env-new.txt 加载 115 项；LLMKE_V2_GRAPH_API=http://127.0.0.1:19999
+旧 pid=[2207749]  SIGTERM → 2207749
+新 pid=2765422，18096 已监听
+
+1) 新 pid=2765422 ≠ 2207749                     PASS
+2) /health.graph_api = http://127.0.0.1:19999    PASS
+3) /proc/2765422/environ: LLMKE_V2_GRAPH_API=http://127.0.0.1:19999   PASS
+哨兵 write_targets.configured = True             PASS（未被改错键）
+```
+
+## 4. 步骤 ④（演练）：**判据 ① 不符，其余 5 条全过**
+
+### 4.1 请求（原样）
+
+```
+POST /kb/ingest
+{"kb":"kb_9","file_id":"293","operation":"UPSERT","doc2md_dir":"/tmp/c5-artifact293"}
+```
+
+产物用仓库工具生成并**先校验通过**：
+`tests/tools/make_artifact_blocks.py /tmp/c5-artifact293 293 "C5演练：星河贷DDD档定价为加75BP，纯信用分项上限5000万元。"`
+→ `校验通过，段落 1 块，content_uid=fa1577d2c496dcca`
+
+### 4.2 响应（原始输出）
+
+```
+HTTP = 207
+code = 207
+msg  = 搜索路完成、图谱路失败（PARTIAL）
+status = PARTIAL        state_committed = False
+cursor = cursor-4ae14056e6ca9857688019b2a824cab79ad0f735b252618c67318f906a2331ef
+diff.reason = FILE_SET_CHANGED   diff.added = ["293"]
+index_write: status=APPLIED applied=True  deletes=4  inserts={es:OK, milvus:OK}
+graph.error = GRAPH_API_UNREACHABLE: http://127.0.0.1:19999/v2/graph/delta:
+              URLError: <urlopen error [Errno 111] Connection refused>
+```
+
+### 4.3 六条判据逐条
+
+| # | 判据 | 实测 | 结论 |
+|---|---|---|---|
+| 1 | HTTP **502**，`msg` 前缀 `GRAPH_API_UNREACHABLE` | **HTTP=207**、`msg="搜索路完成、图谱路失败（PARTIAL）"`；`GRAPH_API_UNREACHABLE` 出现在 **`data.graph.error`** 里，且带 `[Errno 111] Connection refused` | ❌ **不符** |
+| 2 | `status == PARTIAL` | `PARTIAL` | ✅ |
+| 3 | `state_committed == false` | `false` | ✅ |
+| 4 | `cursor` **逐字符不变** | 实际 == 基线（`cursor-4ae14056…331ef`），逐字相同 `True` | ✅ |
+| 5 | 影子 state `version` 不变 | `11`（基线 11），`files={290:ACTIVE,291:ACTIVE,292:ACTIVE}` | ✅ |
+| 6 | 生产四项不变 | `current.json e2d0f754…`、`fence.json 857a69b4…`、`kb_9=44`、`table=2` | ✅ |
+
+**补充事实**：影子 `v2cand_kb_9` 4 → **5**，`293` 命中 1 条（索引已写、状态未提交 —— 执行令预期内的残留）。
+
+## 5. 为什么是 207 而不是 502（我的判断，供裁定）
+
+这不是随机差异，是 L12 B3 的**设计**：
+
+- `_delta` 抛 `K.PipelineRefused("GRAPH_API_UNREACHABLE")`；
+- `KbDeltaService.commit()` **捕获**它并写进 `graph_error`，返回 `PARTIAL`（不提交状态）；
+- 于是服务层走 **207/PARTIAL 分支**，`msg` 是模板化的「搜索路完成、图谱路失败」；
+- `ERROR_HTTP["GRAPH_API_UNREACHABLE"]=502` 只在异常**逃出** `commit()` 时才用到（例如索引写入失败那条路）。
+
+也就是说：**「图路失败」= 207/PARTIAL（软失败，索引已落、可重放）；「索引失败」= 502（硬失败）**。
+判据 ① 写 502，与实现的分级相反 —— 若强行改成 502，会与「索引成功、图失败仍要如实返回 207」的既有约定冲突（那也是 C3a 通过时的形态）。
+
+**但要强调**：`GRAPH_API_UNREACHABLE` 这个**错误码**在响应里是有的（在 `data.graph.error`），
+若判据的本意是「能看到错误码」，那是满足的；若本意是「HTTP 必须 502」，则不满足。
+
+## 6. 当前运行态（**未恢复，等裁定**）
+
+```
+18096 pid 2765422    LLMKE_V2_GRAPH_API=http://127.0.0.1:19999   ← 仍是演练态
+18094 pid 2227759    未动（本轮 0 次重启）
+19531 pid 435286     未动
+影子 ES v2cand_kb_9 = 5（含 293 残留，预期内）
+影子 state version = 11（未提交 293）
+生产 current.json e2d0f754… / fence.json 857a69b4… / kb_9=44 / table=2  全未变
+```
+
+按执行令「④ 判据不符 → 先不恢复，把完整请求/响应贴出来报我，等我裁定」——
+**恢复只需一条命令**：`python /tmp/c5_restart.py /tmp/c5-env-backup.txt`，随你指令执行。
+
+## 7. 明确未声称
+
+- **不声称 A-3 通过**（A-3 需真实 doc2md 链路样本 + 访问日志，属 P6）；
+- 不声称「演练成功」——判据 ① 未达成，只报事实。
+
+---
+
+## 8. 判据 ① 更正（TL 22:1x 裁定 (a)）与 ⑤ 恢复 + 重放
+
+### 8.1 判据 ① 更正（**错在判据，不在实现**）
+
+TL 核实源码后确认：`kb_delta.py:578` 捕获 `PipelineRefused` → `graph_error` → `PARTIAL`；
+`kb_ingest_service.py:374` `code = 200 if OK/SKIPPED_FRESH else 207` → **207 是正确行为**。
+`ERROR_HTTP["GRAPH_API_UNREACHABLE"]=502` 只在异常**逃出** `commit()` 时生效。
+
+**更正后的判据 ①**：
+
+```
+HTTP 207 + status=PARTIAL + state_committed=false
++ data.graph.error 前缀含 GRAPH_API_UNREACHABLE
++ data.graph.error 含 Connection refused
+```
+
+**分级合理性**：图路失败=**软失败**（索引已落、状态未提交、可重放 → Java 回写 RETRY，保住重试机会）；
+索引失败=**硬失败**（502）。若改成 502，Java 可能回写 PARSE_FAIL，**丢掉重放机会**。
+
+### 8.2 ⑤-1/2 恢复 env + 重启（第二次）
+
+```
+env 从 /tmp/c5-env-backup.txt 加载 115 项；LLMKE_V2_GRAPH_API=http://127.0.0.1:18094
+旧 pid=[2765422]（演练态）  SIGTERM → 2765422
+新 pid=2773520，18096 已监听
+
+1) 新 pid 2773520 ≠ 2765422                        PASS
+2) /health.graph_api = http://127.0.0.1:18094      PASS
+3) write_targets.configured = True                 PASS
+4) /proc/2773520/environ: LLMKE_V2_GRAPH_API=http://127.0.0.1:18094   PASS
+```
+
+### 8.3 ⑤-3 重放同一条 293 请求（原始输出）
+
+```
+HTTP = 200 | code = 200 | msg = 摄取完成
+status = OK | state_committed = True
+cursor = cursor-2cb8b47015e42bd67c3237db5d29919993eb862ee47adf05ce62a0d9376a514a
+index_write: APPLIED / applied=True / deletes=4 / inserts={es:OK, milvus:OK}
+graph.error = None
+graph: BUILT / DELTA / documents = 5
+apply_result = {"deleted":0,"added":1,"reused":3,"duplicates":0,
+                "remaining":4,"expected":4,"consistent":true}
+```
+
+### 8.4 收敛核对（与 TL 四个预期逐条）
+
+| 预期 | 实测 | |
+|---|---|---|
+| 影子 `v2cand_kb_9` 5 → **5**（不得 6） | `5` | ✅ |
+| 影子 state `version` 11 → **12** | `12` | ✅ |
+| 293 `status=ACTIVE` | `ACTIVE`；files=`{290,291,292,293:ACTIVE}` | ✅ |
+| 生产四项不变 | 见 §8.5 | ✅ |
+
+**注**：`apply_result.expected=4` 与 `documents=5` 不矛盾 —— `expected` 是**去重后的文本数**（292 有两段不同文本，
+290/291/293 各一段 = 4 个不同文本），`documents` 是响应里 `live` 行数（含 292 两行 = 5）。
+
+### 8.5 生产四项：前后并排
+
+| 项 | 基线（演练前） | 事后 | |
+|---|---|---|---|
+| 生产 `current.json` md5 | `e2d0f75440e4553ee1bb33f51ca2ca34` | `e2d0f75440e4553ee1bb33f51ca2ca34` | ✅ |
+| 生产 `fence.json` md5 | `857a69b451e728876a5cc3eeb9a1ca94` | `857a69b451e728876a5cc3eeb9a1ca94` | ✅ |
+| `kb_9` | 44 | 44 | ✅ |
+| `table_chunks_kb_9` | 2 | 2 | ✅ |
+
+### 8.6 重启次数（明确）
+
+```
+18096：**2 次**  2207749（基线）→ 2765422（演练态, 19999）→ 2773520（恢复, 18094）
+                 两个旧 pid 均已退出
+18094：**0 次**  pid 2227759 未变（lstart 18:28:38）
+                 现 `ss` 里的 2774847 是它的 **fork 子进程**（ppid=2227759, lstart 20:05:58），不是重启
+19531：**0 次**  435286 未变
+```
+
+## 9. C5 主体的结论（按 TL 五条目的）
+
+| 目的 | 实测 |
+|---|---|
+| 不把失败伪装成成功 | `status=PARTIAL`（不是 `OK`） ✅ |
+| 不推进 cursor | 与基线**逐字符相同** ✅ |
+| 不提交状态 | `state_committed=false`、影子 version 仍 11 ✅ |
+| 带出失败原因 | `data.graph.error` 含 `GRAPH_API_UNREACHABLE` + `[Errno 111] Connection refused` ✅ |
+| 生产零影响 | 四项全不变 ✅ |
+
+**两类失败分写（不合并）**：
+- **图路失败（本次）**：索引已是新数据、图缺 → 207 `PARTIAL`，状态未提交，重放收敛（§8.3 实测成功）。
+- **索引失败（离线已验证，本次未测）**：图完全没动，但该文件在 ES 短暂不可见 → 重放收敛。
+
+## 10. 新登记 P6 项：**同一个 `GRAPH_API_UNREACHABLE` 在两条路径给出不同 HTTP 码**
+
+```
+经 commit() 捕获（delta runner）        → 207 PARTIAL
+经 kb_pipeline:216 抛出（L7 旧路径）    → 502
+```
+
+**不是死代码，是两条路径两种语义**：调用方无法只看 `code` 判断严重性，得看 `status`。
+与本轮「同一判断两份规则」同族 → **登记 P6，本 loop 不改**（改即动 L7 已验收语义）。
+
+## 11. 明确未声称
+
+- **不声称 A-3 通过**（需真实 doc2md 链路样本 + 访问日志，属 P6）；
+- 不声称「C5 覆盖了索引失败」——索引失败只有离线 mock 验证。
+
+---
+
+## 12. 收尾三项（TL 22:3x）
+
+### 12.1 P6 清单已落成文件
+
+`docs/v2-tasks/P6-BACKLOG.md`（新建），含 6 项登记 + 附录 A：
+缺陷 13（/health 两处读取）、§2.2 三项字段、计数口径 `documents` vs `remaining`、
+`GRAPH_API_UNREACHABLE` 两条路径两种码、命名不一致（`GRAPH_API_UNREACHABLE` vs `GRAPH_UNREACHABLE`）、
+`POLICY_INVALID` 的前提条件。
+
+### 12.2 影子 293 的处置：**保留**（C5 活证据）
+
+```
+影子 v2cand_kb_9 = 5    ← 290×1、291×1、292×2、293×1
+影子 kb_state version = 12   files = {290,291,292,293: ACTIVE}
+生产 kb_9=44 / table_chunks=2 / current.json e2d0f754… / fence.json 857a69b4…
+```
+
+**明确标注**：影子里的 `293` 及其索引行**来自 C5 演练**，不是生产数据、不属于任何真实文件；
+保留它是为了让「索引已写、状态已提交、图已建」这条链在影子里留一条可复查的活证据。
+
+### 12.3 L13-B 的 D-1 产物：**只读核对结果为「不存在」**
+
+```
+$ grep -c 18096 platform/r12/bin/up.sh            → 0
+$ grep -c ingest platform/r12/bin/up.sh           → 0
+$ grep -c 18096 platform/r12/bin/r12-watchdog.sh  → 0
+全仓（排除 venv / logs）没有任何脚本引用 18096
+watchdog 实际守护：19526,19527,19995,19996 / 18090-18093 / 18094,19531
+```
+
+→ ① `up.sh` 未纳入 18096（谈不上 must 级）；② watchdog **未守护** 18096，
+「只监听影子端口」这个前提当前不成立（它压根没有 18096 条目）。
+**D-1 不能核过**，属 L13-B 缺口，已写入 `P6-BACKLOG.md` 附录 A（标注「不属于 P6」）。
+
+**未执行任何改动**：未改 `up.sh`、未改 `r12-watchdog.sh`、未启停进程、未动 18094。

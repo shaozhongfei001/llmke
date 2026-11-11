@@ -1,0 +1,164 @@
+# P1-L2 · T-D2MD-02 · TL 独立复核证据（不是成员自证、不是 QA_PASS）
+
+- 生成时间：2026-11-08T02:55:34+0800（§4 于 02:58 复核后修订，见该节说明）
+- 复核人：TL（主 agent）
+- 依据：`CHECKPOINT-VL-DOC2MD-INC.md` §四 D-01 的**内部推进条件**：现场命令与真实输出齐备、git status 无越界、反例 FAIL→PASS 可复现
+- 成员自证：`docs/v2-tasks/evidence/P1-L2-20261108T024837.log`（383 行，DEV_SELF_CHECK_PASS）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立，内部推进条件满足 → 派工 P1-L3**
+- `QA_PASS` 仍挂起（G-4 待 Owner 提供 `principal_id` / `key_id` / `public_key_pem`）；本 log 未签 QA_PASS、未标 DONE / VERIFIED
+
+> 本 log 只记录 TL 现场复跑的真实输出与裁定；不改成员自证 log 的任何字节。
+
+---
+
+## 1. 交付物指纹（逐项与成员报告核对，全部吻合）
+
+```
+parse_queue.py          35bd2795e1e2beb072e5269463006787  ✅
+test_parse_queue.py     407c92455879791e87cf8a2aad75e9e3  ✅
+cli/main.py             5bc9fbad2687745af6b3e7a97ffa9ea0  ✅
+kb_diff.py              e9dc1cdf87433ecfe5eb9863002bdb97  ✅  (L1 语义锁定未改)
+test_kb_diff.py         1c2cca32473aa324a00ab551335af6c2  ✅
+document_ir_builder.py  bb69758a09333f23673c12d3f128463d  ✅  (既存 M，未被覆盖)
+```
+
+## 2. git 越界自查（doc2md 仓）
+
+```
+ M backend/app/cli/main.py                      (additive)
+ M backend/app/core/parsed_paths.py            (L1 additive +5)
+ M backend/app/services/document_ir_builder.py (既存 M，非本 loop 产物)
+?? backend/app/services/kb_diff.py
+?? backend/app/services/parse_queue.py
+?? backend/tests/fixtures/kb_diff_corpus/
+?? backend/tests/test_kb_diff.py
+?? backend/tests/test_parse_queue.py
+```
+
+共 8 项，与成员报告一致。`git diff --stat backend/app/cli/main.py` → `177 insertions(+), 4 deletions(-)`；
+4 行删除逐行核对，恰为授权替换的两个 placeholder 函数体：
+
+```
+-def build_parse_queue() -> None:
+-    typer.echo("build-parse-queue placeholder")
+-def parse(limit: int = 10) -> None:
+-    typer.echo(f"parse placeholder limit={limit}")
+```
+
+无越界写入。
+
+## 3. TL 现场独立复跑
+
+### 3.1 组件测试（doc2md-toolenv）
+
+```
+$ PYTHONPATH=backend /home/szf/data/dev/doc2md-toolenv/bin/python \
+    -m pytest backend/tests/test_parse_queue.py -q
+............                                                             [100%]
+12 passed in 1.96s
+```
+
+### 3.2 B1 / R-4：dry-run 零写入 + 输出确定性
+
+```
+$ cp backend/tests/fixtures/kb_diff_corpus/kb-manifest.json /tmp/_m_before.json
+$ PYTHONPATH=backend ... -m app.cli.main build-parse-queue --kb kb_9 \
+    --config config/app.yaml --dry-run > /tmp/_q1.json        # exit1=0
+$ PYTHONPATH=backend ... -m app.cli.main build-parse-queue --kb kb_9 \
+    --config config/app.yaml --dry-run > /tmp/_q2.json        # exit2=0
+  q1==q2 ✅   manifest 未变 ✅   exit1=0 exit2=0
+  backend/tests/fixtures/kb_diff_corpus/parse_queue.json 不存在 ✅（无队列文件）
+```
+
+`/tmp/_q1.json` 原文（关键字段）：
+
+```json
+{"cursor":"cursor-d5b3b782efe4c3ca832a2fa2c2ea5ca80b2af6aa928cee0e9c7938d29fdeaf1e",
+ "diff_reason":"FILE_SET_CHANGED","dry_run":true,
+ "items":[
+  {"diff_reason":"added","file_ids":["F5"],"parser_adapter_version":"kb_diff_v1",
+   "route_type":"UNKNOWN","sha256":"5525cb83…","source_path":"F5","status":"PENDING"},
+  {"diff_reason":"changed","file_ids":["F2"],"parser_adapter_version":"kb_diff_v1",
+   "route_type":"UNKNOWN","sha256":"ff65e478…","source_path":"F2","status":"PENDING"}],
+ "kb":"kb_9","rejected":[],"schema":"llmke.doc2md.parse-queue/1",
+ "set_digest":"d5b3b782…"}
+```
+
+`items` 恰 F5(added) / F2(changed)，含 `sha256` / `route_type` / `parser_adapter_version` / `file_ids` → B1 PASS。
+
+### 3.3 B3：显式 `--routes {}` 缺路由结果
+
+```
+$ echo '{}' > /tmp/_empty_routes.json
+$ PYTHONPATH=backend ... -m app.cli.main build-parse-queue --kb kb_9 \
+    --config config/app.yaml --routes /tmp/_empty_routes.json --dry-run    # exit=0
+{"items":[], "rejected":[
+  {"file_ids":["F5"],"reason":"ROUTE_RESULT_MISSING","sha256":"5525cb83…"},
+  {"file_ids":["F2"],"reason":"ROUTE_RESULT_MISSING","sha256":"ff65e478…"}], ...}
+```
+
+`items=0`、`rejected` 两条带明确原因 → B3 PASS。
+
+### 3.4 全量回归主判据（anaconda3，CHECKPOINT §七 有效口径）
+
+```
+$ timeout 300 env PYTHONPATH=backend /home/szf/anaconda3/bin/python \
+    -m pytest backend/tests -q --tb=no
+FAILED backend/tests/extensions/test_intake.py::test_docx_text_and_native_tables_are_read
+FAILED backend/tests/test_evidence_chain.py::test_cli_help_documents_contract
+FAILED backend/tests/test_markitdown_parser.py::test_cli_parse_markitdown_help
+FAILED backend/tests/test_parser_router.py::test_cli_route_parsers_help
+FAILED backend/tests/test_search_service.py::test_cli_help_documents_contract
+5 failed, 1519 passed, 133 skipped, 11 warnings in 18.39s
+```
+
+基线 `5 failed / 1497 passed` → L1 后 `5 failed / 1507 passed` → L2 后 `5 failed / 1519 passed`（+12 = L2 新增 12 条测试）。
+**失败项同名、数量未增加** → 主判据 PASS。
+
+## 4. TL 裁定：解释器口径（02:58 复核后修订，本节为最终口径）
+
+> **本节于 02:58 修订**：本 log 初版（02:55）基于 TL 在 02:43 / 02:55 读到的 **02:41 补正前快照**（L1 579 行 / `d27ee87e…`、L2 378 行）判定「纠正未生效」。02:58 复核确认，成员已于 **02:44** 按 02:43 裁定完成补正，当前指纹：
+>
+> ```
+> P1-L1-20261108T023149.log  590 行  1eb2e84cc2b145db4433a49f81eafd37
+> P1-L2-20261108T024837.log  483 行  244ac9f50fc5a378659d4c8f2324fdda
+> ```
+>
+> 时间线错位原因：异步成员在 02:44 已完成 L1 §9 追加与 L2 全部实现/验收/回报后，才陆续处理 TL 02:37~02:5x 的消息；TL 读到的是补正前的快照。**非成员未执行、非标准放宽**。
+
+补正后的成员 log 实况（02:58 现场核验）：
+
+| 位置 | 现状 |
+|---|---|
+| L2 头部 §解释器 | 已改「分用途双解释器 —— TL 02:37 撤回 02:34 后的唯一有效口径」；全量回归基线 → anaconda3，CLI / 生产路径 → doc2md-toolenv，系统 python3 禁用 |
+| L2 §9 | 新增「本节为唯一有效口径」声明 + §9.1 有效口径表 + §9.2 anaconda3 全量输出 + §9.3 doc2md-toolenv CLI 输出 + §9.4 各节解释器用途对照 |
+| L1 §9.4 | 已改为「全量回归主判据 = anaconda3 3.11.7 下既有 `5 failed` 数量不增加」；doc2md-toolenv 的 4 errors 明确标为该环境缺依赖说明、非裁定口径 |
+| L1 / L2 末尾 | 各有「02:43 TL 裁定更正」与「TL 02:5x 复核留痕」行，明确 02:34 已撤回 |
+
+仍含「禁用 anaconda3 / 作废 / 唯一口径 doc2md-toolenv / 以本节 4 errors 基线为准」字样的行（L1 `:454/:458/:512`、L2 `:361/:396/:401/:477/:479`）**均为历史叙述或原文留痕**，由 L2 §9 与两份 log 末尾更正行明确覆盖，不构成当前口径；按证据链惯例保留、不删除。
+
+有效口径（`CHECKPOINT` §七 / `P1-L1-PLAN.md` §四）与本 log 一致：
+
+| 用途 | 解释器 | 本 log 证据 |
+|---|---|---|
+| 全量回归基线比对、`test_kb_diff.py` / `test_parse_queue.py` | anaconda3 3.11.7 / click 8.4.1 | §3.4（主判据 `5 failed, 1519 passed`） |
+| CLI 独立复跑、生产解析路径 | doc2md-toolenv 3.11.7 / click 8.1.8 | §3.1~§3.3 |
+
+`doc2md-toolenv` 下 `4 errors during collection`（缺 `jsonpatch`）只是**该环境既有缺依赖说明**，不是全量回归基线；anaconda3 的 `--help exit 1` 是改动前后一致的既有基线缺陷，不作废。两者下 `test_kb_diff.py` 均 10 passed。
+
+**裁定**：L1 / L2 两份成员 log 当前口径与 TL 有效口径一致，**无需返工、无需补跑、L1 已封存**；后续 evidence 显式标注解释器与用途即可。成员 02:44 的 anaconda3 补跑（`5 failed / 1519 passed / 133 skipped`，两个测试 12 / 10 passed）与本 log §3.4 的独立复跑互相印证。
+
+## 5. 范围声明 / 遗留（转 L3 与后续，均不改 L1/L2 语义）
+
+1. **默认路径 `route_type=UNKNOWN` 仍入队（`status=PENDING`）**：`parse_queue.py` 模块注释第 2 条已显式声明「`DefaultRouteResolver` 对所有 ACTIVE 条目都给出 `route_type`（含 `UNKNOWN`），缺路由结果由 `--routes` 注入映射中缺失该 sha256 表达」。B3 覆盖的是**显式 `--routes` 缺项路径**；`UNKNOWN` 的真实解析行为未端到端验证。需在 L3 明确 UNKNOWN 的处置口径（拒绝 / 降级 / 走默认解析器）。
+2. `DefaultParseRunner` / `DefaultIdempotencyChecker` 已完成代码级接线并可 import，但验收只跑 `--dry-run`；B2 / R-6 的调度语义由注入替身验证。真实端到端解析属 L3 / 后续切片（红线：不启停服务、不写 DB/ES/Milvus）。
+3. 默认语料根 = L1 夹具（`DEFAULT_KB_CORPUS_ROOT`），因 PLAN §四 验收命令不传 `--path`；生产由 `--path` / `--cursor` 注入。
+4. `--routes` / `--queue` 注入文件应放在 `--path` 之外，否则会被 L1「扫描所有普通文件」语义扫入；干净演示已规避。
+
+## 6. L3 派工
+
+`docs/v2-tasks/loops/P1-L3-PLAN.md` 已按「开发前锁定断言」原则写好并锁定；派工消息已发 `python-engineer`。
+
+## 7. TL 红线自查
+
+本次只写 `docs/v2-tasks/` 下的证据与计划文件 + `TASKS.yaml`；**未改 doc2md 实现代码、未改设计包 / `MANIFEST.sha256`、未改 llmke-v2 生产代码、未启停服务、未写 DB / ES / Milvus / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED**。

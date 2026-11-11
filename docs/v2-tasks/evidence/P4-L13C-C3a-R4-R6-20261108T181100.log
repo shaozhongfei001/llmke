@@ -1,0 +1,130 @@
+# P4-L13-C · C3a 第 4~6 次：连续暴露 3 个「计划从未真发出去」的缺陷
+
+- 时间：2026-11-08T18:09 ~ 18:13；角色 `python-engineer`
+- 18094 已按授权重启（pid 2060061，18:07:07），加载 L9/L10/L11 + A 段 revoke
+- 18096 期间重启两次（`1795316 → 2090305 → 2096799`），均整份复用 /proc environ
+
+---
+
+## 1. 缺陷 6：`_delta_runner` 丢 `fallback_reason` → 18094 必 422（**已修**）
+
+### 1.1 现象
+
+```
+C3a 第 4 次（18:09） graph.error = GRAPH_API_UNREACHABLE: …/v2/graph/delta: HTTP Error 422
+```
+
+### 1.2 根因（直打 18094 拿到 detail）
+
+```
+POST /v2/graph/delta {"requested_mode":"full","fallback_reason":null,…}
+→ 422 {"type":"value_error","loc":"body",
+       "msg":"Value error, requested_mode=full 必须带 fallback_reason（禁止静默走全量）"}
+```
+
+`kb_ingest_service._delta_runner` 恒传 `fallback_reason=None`：
+**调用方给了 `fallback_reason="SHADOW_BOOTSTRAP"`，18096 收下了，却没往下传。**
+18094 的这条校验与 18096 的 `_check_operation`（`FULL_REBUILD 必须带 fallback_reason`）**是同一条规则**，
+规则两端都有，中间把它丢了 —— 所以「18096 校验通过、18094 一律拒绝」。
+
+### 1.3 修复（阶段 A 红 → 实现 → 绿）
+
+| 文件 | 改动 |
+|---|---|
+| `ingest_pipeline/kb_delta.py` | `IngestPlan` 增 `fallback_reason: Optional[str]`（内部 dataclass，不进响应）；`plan()` 里 `fallback_reason=req.get("fallback_reason")` |
+| `kb_ingest_service.py` | `_delta_runner` 改 `fallback_reason=plan.fallback_reason` |
+
+**阶段 A（实现前，两条都红）**
+```
+v2        test_plan_carries_fallback_reason → AttributeError: 'IngestPlan' object has no attribute 'fallback_reason'
+hipporag  test_delta_runner_forwards_fallback_reason → AssertionError: 实际 None
+```
+**阶段 B（实现后）**：v2 `190 passed / 4 skipped`；hipporag `253 passed`。
+
+**变异**：M14（runner 改回 `None`）→ `1 failed`；M15（plan 不携带）→ `1 failed`；restore md5 `fb71390c…`。
+
+## 2. 诊断性改进：HTTP 4xx/5xx 的响应体不再被吞（**已改**）
+
+`graph_client._post` 原来把所有异常都归成 `GRAPH_API_UNREACHABLE`，**把 422 的 `detail` 丢掉**，
+导致要多一轮「直打 18094」才能定位。改为：
+
+```python
+except urllib.error.HTTPError as exc:
+    detail = exc.read().decode("utf-8", "replace")[:400]
+    raise K.PipelineRefused(f"GRAPH_BUILD_HTTP_{exc.code}", f"{url}: HTTP {exc.code}: {detail}")
+```
+`GRAPH_BUILD_HTTP_*` 已在 `ERROR_HTTP_PREFIXES` 里 → 502。**这条改动当场就发挥了作用**（见 §3）。
+
+## 3. 缺陷 7（**当前阻塞，未修，需 TL 裁定**）：`BuildDoc.file_id` vs 契约 §2.1 的 `file_ids`
+
+修完 fallback_reason 后重发，第一次就拿到了真正的 422：
+
+```
+GRAPH_BUILD_HTTP_422: …/v2/graph/delta: HTTP 422:
+{"detail":[{"type":"missing","loc":["body","docs",0,"file_id"],"msg":"Field required",
+  "input":{"file_ids":["290"], "text":"…", "locator":"chunk=0;offset=0-31",
+           "pk":573455706903922035, "content_hash":"6ed55d5b…",
+           "parse_artifact_id":"ed775c68…"}}]}
+```
+
+### 3.1 两侧口径相反
+
+| 侧 | 口径 | 依据 |
+|---|---|---|
+| 契约 §2.1 | `docs[*].file_ids` **数组**（承载 1:N 同文异源），另有 `content_hash` | `02-CONTRACTS.md:123`、`:138` 明文 |
+| 18096（我方 L12） | `wanted_to_delta_docs` 按 `text` 归并发 `file_ids: [...]` + `content_hash` | `graph_client.py:54-80`，**符合契约** |
+| 18094（L9） | `BuildDoc.file_id: str` **必填单值**，无 `file_ids`；`delta_build._as_live` 只读 `file_id` | `api.py:75-84`、`delta_build.py:222` |
+
+即：**18094 的实现与 §2.1 不一致**，我方按契约发，被它当非法请求拒掉。
+
+### 3.2 反证：按 18094 的口径直打，它是通的
+
+我用同样的 doc 但改成单值 `file_id` 直打 18094（`root` 指影子）：
+
+```
+HTTP 200 {"status":"BUILT","effective_mode":"FULL",
+          "root":"/home/szf/data/dev/llmke-shadow/graph-root/kb_9",
+          "snapshot":"…/snapshot-20261108181103-985167-g0","documents":1,
+          "community":{"status":"READY","community_count":1,"citation_check":{"ok":true,…}}}
+```
+
+**说明 18094 的建图链路本身是好的，只是请求模型字段与契约不符。**
+（副作用：影子 `graph-root/kb_9` 因此真的建出来了；生产图 md5 `e2d0f754…` 未变，见 §5。）
+
+### 3.3 三个方案（需 TL 定，涉 P3 禁改文件）
+
+| 方案 | 改动 | 评价 |
+|---|---|---|
+| **A. 18094 支持 `file_ids`** | `api.py:BuildDoc` 增 `file_ids: Optional[List[str]]` + validator（单值填 `file_id`、多值暂只取首个/或按 §2.1 拆 live）；`delta_build._as_live` 兼容 | **对齐契约**，但要动 P3 已收口的 `api.py`/`delta_build.py`，且真正的 1:N 还涉及 `sources.json` 结构 |
+| **B. 18096 改发 `file_id`** | 只动我方 `graph_client.wanted_to_delta_docs`（取 `file_ids[0]`） | 最小改动、只碰 L12 文件；但**背离 §2.1**，同文异源时 1:N 会退化成 1:1（今天单文件场景无损） |
+| **C. 18094 同时接受两者**（我倾向） | `file_id: Optional[str]`、`file_ids: Optional[List[str]]`，validator 互相补全；`_as_live` 取 `file_ids[0] or file_id` | 兼容、可渐进；仍要动 `api.py`（P3 文件，需授权），但不动 `delta_build` 结构 |
+
+**我不自行选**：这属于「契约 vs 已收口实现」的偏差，改哪边都会影响 P5/P6 与 `sources.json` 的 1:N 语义。
+
+## 4. 这三个缺陷的共同点（供 CHECKPOINT）
+
+| # | 缺陷 | 为什么计划级测试发现不了 |
+|---|---|---|
+| 5 | `delete_scope` 无生产调用点 | 断言只看「计划里有没有」 |
+| 6 | `db_name: kb` | 断言把错值钉成契约（`test_index_writer`） |
+| 7 | `fallback_reason` 被丢 | 两端各自校验都通过，**中间那段没人测** |
+| 8 | `file_id` vs `file_ids` | 两侧各自的单测都绿，**跨进程契约没人对** |
+
+**结论**：只要「产计划」与「消费计划」分属两个进程/两个 loop，就必须有一次**真实跨进程往返**，
+否则每一侧都能自证正确。这与 TL 18:3x 的方法论一致，本 loop 追加了「中间层丢字段」这一类。
+
+## 5. 红线与副作用核对
+
+| 项 | 值 |
+|---|---|
+| 线上 `kb_9` | **44**（未变） |
+| 线上图 `current.json` | md5 **`e2d0f75440e4553ee1bb33f51ca2ca34`**（未变） |
+| 影子 ES `v2cand_kb_9` / `table_chunks` | **1 / 0**（幂等仍成立） |
+| 影子 `kb-state/` | **仍无文件**（`state_committed=false`） |
+| 影子 `graph-root/kb_9` | **已生成**（§3.2 直连探针的副作用，非 C3a 路径） |
+| 18094 | pid `2060061`（+ 子 `2064245`），18:07:07 启动 |
+| 18096 | pid `2096799`（18:13 重启，加载 HTTP body 诊断改进） |
+| doc2md 仓 | 14 项（= L4 封口基线，未新增） |
+
+> 副作用如实记录：§3.2 是我为定位 422 而**直连 18094** 发的请求，它真的建了一份影子图。
+> 该图的来源是「单值 file_id 口径」，与 §2.1 不符，**修复后应重建**；生产图未被触碰。

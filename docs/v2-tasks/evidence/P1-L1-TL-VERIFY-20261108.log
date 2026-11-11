@@ -1,0 +1,120 @@
+P1-L1 / T-D2MD-01 · TL 独立复核证据（不是成员自证、不是 QA_PASS）
+时间：2026-11-08 02:27~02:31 +08:00
+复核人：TL（切片与接力）
+仓库：/home/szf/data/dev/doc2md
+解释器：/home/szf/data/dev/doc2md-toolenv/bin/python（3.11.7）
+      系统 python3=3.10.12 不可用：既有 backend/app/cli/main.py:4 `from datetime import UTC, datetime` 需 3.11+
+
+================================================================================
+0) 阶段 A 桩判别力（证明 FAIL 在断言层而非 ImportError 层）
+================================================================================
+命令：
+  PYTHONPATH=backend python3 -c "from app.services.kb_diff import compute_kb_diff; ..."
+输出（桩，02:27 版）：
+  {'added': ['F1','F2','F4','F5'], 'removed': [], 'changed': [], 'unchanged': [], 'reason': 'STUB'}
+判定：A1 断言对桩 = FAIL → 判别力成立
+
+================================================================================
+1) 夹具可证伪性（TL 独立实算，不采信 fixture 自述）
+================================================================================
+磁盘实算：
+  c4679e05e6a78f0378c69d0e525fe2e1740a952d9af67832367d681e3c8aa869  F1
+  ff65e478f241290fc6773c38db95c3f7fa33a25d08599c7b2731c62af2d70ef5  F2
+  c4679e05e6a78f0378c69d0e525fe2e1740a952d9af67832367d681e3c8aa869  F4
+  5525cb834dd43ec8bd55a9ef3fbb35c0ffa599c13bb2608b1fd7b4c0913bf57f  F5
+manifest ACTIVE：
+  F1=c4679e05…  F2=df633c4a…  F3=afac1838…  F4=c4679e05…（磁盘无 F3）
+推演：added=[F5] removed=[F3] changed=[F2] unchanged=[F1,F4]
+期望：added=[F5] removed=[F3] changed=[F2] unchanged=[F1,F4]  → PASS
+覆盖：R-6（F1/F4 同 sha256 不同 file_id）、R-5（corrupt/）、R-1（no_change/）
+
+================================================================================
+2) 单元测试（正确解释器）
+================================================================================
+$ PY=/home/szf/data/dev/doc2md-toolenv/bin/python
+$ PYTHONPATH=backend $PY -m pytest backend/tests/test_kb_diff.py -q
+  ..........                                                        [100%]
+  10 passed in 1.06s
+（同一命令用系统 python3 3.10 会误报 3 failed：ImportError UTC —— 解释器口径问题，非代码缺陷）
+
+================================================================================
+3) A1 四集合 / A2 重放幂等（CLI，--dry-run）
+================================================================================
+$ $PY -m app.cli.main scan-diff --kb kb_9 --path backend/tests/fixtures/kb_diff_corpus \
+      --config config/app.yaml --dry-run
+  {"added": ["F5"], "changed": ["F2"], "cursor": "cursor-d5b3b782efe4c3ca832a2fa2c2ea5ca80b2af6aa928cee0e9c7938d29fdeaf1e",
+   "kb": "kb_9", "reason": "FILE_SET_CHANGED", "removed": ["F3"], "schema": "llmke.kb-diff/1",
+   "set_digest": "d5b3b782efe4c3ca832a2fa2c2ea5ca80b2af6aa928cee0e9c7938d29fdeaf1e",
+   "unchanged": ["F1", "F4"]}
+  → A1 PASS
+
+$ 同命令第二次 > /tmp/l1_b.json ; diff /tmp/l1_a.json /tmp/l1_b.json
+  （无差异输出）
+  → A2 PASS：两次输出逐字节相同，cursor/set_digest 不变
+
+================================================================================
+4) A3（TL 修订后双夹具口径）
+================================================================================
+主断言 · no_change/ + --parser-fingerprint fp-WRONG
+  {"added": [], "changed": ["N1","N2"], "cursor": "cursor-58f6bd85…", "kb": "kb_9",
+   "reason": "PARSER_FINGERPRINT_CHANGED", "removed": [], "schema": "llmke.kb-diff/1",
+   "set_digest": "58f6bd858730a0d55bf9d0f1c540816e52783262423d5e94ef0d6e4f2cfa884b",
+   "unchanged": []}
+  → PASS：全 ACTIVE 标 changed、added/removed 空
+
+优先级哨兵 · 主夹具 + --parser-fingerprint fp-WRONG
+  reason= FILE_SET_CHANGED | added=['F5'] removed=['F3'] changed=['F2']
+  → PASS：符合 02-CONTRACTS.md:269 优先级（removed > added/changed > fingerprint > NO_CHANGE）
+
+修订说明：原 P1-L1-PLAN.md A3 未指定夹具，TL 用主夹具复跑得 FILE_SET_CHANGED 曾判 FAIL；
+经核对契约优先级确认是实现正确、PLAN 歧义。已修订 PLAN（不是放宽标准，是消除自相矛盾）。
+
+================================================================================
+5) R-1 / R-4 / R-5
+================================================================================
+R-1  no_change/ 正常 fp：
+  {"added": [], "changed": [], "reason": "NO_CHANGE", "removed": [], "unchanged": ["N1","N2"], ...}  → PASS
+R-4  dry-run 零写入：
+  before=2adefaf17daa8dcb21c6cbe3c93990b09baed01ddee431cd2e227c40ded9315c
+  after =2adefaf17daa8dcb21c6cbe3c93990b09baed01ddee431cd2e227c40ded9315c  → PASS
+R-5  corrupt/：
+  ERROR: KB_MANIFEST_CORRUPT: invalid JSON: Expecting value: line 1 column 56 (char 55)
+         (at backend/tests/fixtures/kb_diff_corpus/corrupt/kb-manifest.json)
+  exit=1  → PASS：明确报错，未静默按空库重建
+
+================================================================================
+6) 既有命令回归 / 既有测试基线
+================================================================================
+$ $PY -m app.cli.main --help | grep -cE 'scan-diff|copy-to-vault|parse-markitdown|route-parsers|govern-duplicates'
+  5  → PASS（既有命令仍在）
+
+$ $PY -m pytest backend/tests -q
+  ERROR backend/tests/extensions/test_correction.py
+  ERROR backend/tests/extensions/test_dependencies.py
+  ERROR backend/tests/extensions/test_full_extension_e2e.py
+  ERROR backend/tests/extensions/test_patches.py
+  4 errors in 0.84s
+归因：ModuleNotFoundError: No module named 'jsonpatch'
+      （backend/app/extensions/review/patches.py:34 导入；相关目录 git status 无改动）
+判定：既有 venv 缺依赖，与本 loop 无关；回归判据取「既有 collection error 数量不增加」。
+
+================================================================================
+7) 越界自查
+================================================================================
+$ git status --short
+   M backend/app/cli/main.py                 (+77 行纯追加，既有 20 命令未改)
+   M backend/app/core/parsed_paths.py      (+5 行 KB_MANIFEST_FILENAME 常量)
+   M backend/app/services/document_ir_builder.py  (既存 M，17+/2- 未覆盖)
+  ?? backend/app/services/kb_diff.py
+  ?? backend/tests/fixtures/kb_diff_corpus/
+  ?? backend/tests/test_kb_diff.py
+判定：无越界；未改 parsed_text.md；未改 llmke-v2 生产代码/配置/设计包/MANIFEST/TASKS.yaml；
+      未起停服务；未写 QA_PASS。
+
+================================================================================
+8) 内部收口结论（D-01）
+================================================================================
+DEV_SELF_CHECK_PASS 等价证据：TL 已独立复跑全部断言与反例（10 passed + A1/A2/A3/R-1/R-4/R-5 实跑），
+成员本人尚未发 send_message 报告、P1-L1-<ts>.log 未产出 —— 已要求成员补齐并如实记录。
+内部推进条件（DEV_SELF_CHECK_PASS + TL 复核）：满足 → 按 D-01 自动派工 L2，不再请示。
+正式签署：QA_PASS 仍挂起（G-4 无真实 principal/公钥），T-D2MD-01 保持 DOING，不标 DONE/VERIFIED。

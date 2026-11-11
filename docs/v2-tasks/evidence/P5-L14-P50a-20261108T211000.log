@@ -1,0 +1,279 @@
+# P5-L14 · P5-0a 执行记录（`rag-index-service` 源码同步 + 重建 + 部署重启）
+
+- 时间：2026-11-08 21:05 ~ 21:10（本机 TZ=Asia/Shanghai）
+- 授权：Owner 批、TL 下发 **P5-0a**（仅 `rag-index-service` + `rag-common` 的 `FileParseTaskInfo`）
+- 目录约定：A = `llmke-v2/services/rag-java/rag-parent`（源码仓）；B = `llmke-r12/services/rag-java/rag-parent`（部署仓）
+
+## §0 首段结论
+
+> **「jar 内 class 存在 + 方法签名存在 + 进程启动晚于 jar mtime」——三条同时成立。**
+
+```
+unzip -l  新 jar → BOOT-INF/classes/.../RemoteV2IngestUtils.class                    命中 1（+ 内部类 $IngestOutcome）
+javap -p  → RemoteV2IngestUtils.ingest(String,Long,String,String,String,String,Long)、classify(int,Integer)
+            FileAppServiceImpl.v2Ingest(FileParseTaskInfo)、字段 remoteV2IngestUtils
+进程      新 pid 3130060，启动 2026-11-08 21:07:40  >  jar mtime 21:05:49
+```
+
+**本次未启用 v2-ingest**：两仓配置里**都不存在** `remote.v2-ingest.url` 键，`@Value("${remote.v2-ingest.url:}")` 默认空串 →
+`RemoteV2IngestUtils.enabled()` 返回 `false`。**「构建上线 ≠ 功能启用」**，本步只让类与代码路径可达。
+
+---
+
+## §1 ① 同步前留档
+
+### 1.1 逐文件 md5 / 行数 / diff 行数（同步前）
+
+| 文件 | A md5 / 行 | B md5 / 行 | diff 行数 |
+|---|---|---|---|
+| `rag-index-service/.../application/service/FileAppService.java` | `8561579d` / 62 | `d167f680` / 50 | 12 |
+| `.../application/service/impl/FileAppServiceImpl.java` | `e219f222` / 1076 | `81f0c266` / 953 | **131** |
+| `.../application/service/impl/FileParseTaskAppServiceImpl.java` | `9953b501` / 449 | `24a79a0d` / 442 | 7 |
+| `.../application/service/impl/KnowledgeBaseListAppServiceImpl.java` | `9cf243ac` / 3060 | `4412f19f` / 3052 | 8 |
+| `.../domain/service/impl/GraphDomainServiceImpl.java` | `89a1b918` / 81 | `f9595294` / 71 | 10 |
+| `.../infrastructure/PdfConvertorUtils.java` | `6d97e8d7` / 248 | `7e672382` / 243 | 7 |
+| `.../infrastructure/RemoteGraphUtils.java` | `fa39c4a2` / 87 | `e45a8865` / 78 | 9 |
+| `.../infrastructure/RemoteV2IngestUtils.java` | `4ce23900` / 184 | **不存在** | 新增 |
+| `rag-common/.../index/parameter/FileParseTaskInfo.java` | `49eb0da1` / 258 | `f8fe83a8` / 249 | 9 |
+| `rag-common/.../feign/FeignErrorDecode.java` | `7fa3b439` / 73 | `e1c1d116` / 49 | **26（未同步，见 §2.3）** |
+
+### 1.2 变更要点（A 侧新增符号）
+
+| 文件 | 变更内容 |
+|---|---|
+| `FileAppService.java` | 接口新增 `v2Ingest(...)` 声明（+`doc2md` 相关注释） |
+| `FileAppServiceImpl.java` | 新增 `v2Ingest` 实现 + `RemoteV2IngestUtils` 注入（`remoteV2`/`doc2mdDir` 共 13 处引用） |
+| `FileParseTaskAppServiceImpl.java` | `doSuccess` 派发到 `v2Ingest`（+`doc2mdDir` 取值） |
+| `KnowledgeBaseListAppServiceImpl.java` | 8 行差异（未含 v2 关键字，随 A 版对齐） |
+| `GraphDomainServiceImpl.java` | 10 行差异 |
+| `PdfConvertorUtils.java` | 7 行差异 |
+| `RemoteGraphUtils.java` | 9 行差异 |
+| `RemoteV2IngestUtils.java` | **新增类**：`enabled()` / `ingest(...)` / `IngestOutcome` / `classify(int,Integer)` |
+| `FileParseTaskInfo.java` | 新增 `@JsonProperty("doc2md_dir") String doc2mdDir` |
+
+### 1.3 备份（全部在 `/tmp/p5-0a-bak/`）
+
+```
+src-rag-index-service-20261108T210522.tgz   1,478,213 B
+src-rag-common-20261108T210522.tgz          2,660,547 B
+rag-index-service-0.0.1-SNAPSHOT.jar.bak-20261108T210522  225,754,208 B
+  md5 26662d0bbdba7c90a0bcc610be5beac9（= 原运行 jar，mtime 11-07 02:57:38）
+```
+
+---
+
+## §2 ② 同步 + 编译
+
+### 2.1 A→B 覆盖（`cp -p`，9 个文件，含新增类）
+
+`cp -p` 逐个执行，全部成功；**未编辑任何 `.java` 内容**（纯文件级覆盖）。
+
+### 2.2 逐字节校验（`cmp -s`）
+
+```
+OK 8561579d  FileAppService.java
+OK e219f222  FileAppServiceImpl.java
+OK 9953b501  FileParseTaskAppServiceImpl.java
+OK 9cf243ac  KnowledgeBaseListAppServiceImpl.java
+OK 89a1b918  GraphDomainServiceImpl.java
+OK 6d97e8d7  PdfConvertorUtils.java
+OK fa39c4a2  RemoteGraphUtils.java
+OK 4ce23900  RemoteV2IngestUtils.java（新增）
+OK 49eb0da1  FileParseTaskInfo.java
+失败数 = 0
+```
+
+### 2.3 **`FeignErrorDecode.java` 未同步 —— 授权文本内部有冲突，我按更严的那条执行**
+
+- 授权 §「允许」写「`rag-common`（2 文件）」；
+- 授权 §「②-3」写「**`rag-common` 不许改内容 —— 只同步 `FileParseTaskInfo.java`（补 `doc2mdDir`）**」。
+
+**两条冲突时我选了更严/更小的那条**（只同步 1 个）。该文件差异性质（26 行，纯诊断增强）：
+下游返回**空响应体 / 非 JSON** 时不再 `JSON.parseObject("")` 抛 `Cannot parse null string`，
+而是显式返回带 `methodKey` 与 HTTP 状态的错误（B1-D01b）。
+
+- 对本次编译**无依赖**（`rag-index-service` 未引用其新增逻辑），故不影响 P5-0a 目标；
+- 但**它是一次真实的诊断改进**，建议单列为 **P5-0a-bis**（同步 + 重建 + 重启 18082），或并入 P5-1 批次统一做。
+**请 TL 裁定**（我未擅自扩大改动面）。
+
+### 2.4 编译
+
+```
+$ cd llmke-r12/services/rag-java/rag-parent
+$ mvn -o -pl rag-index-service -am -DskipTests package
+BUILD SUCCESS（12.0 s，实测含启动 13 s）
+  gien-starter-redisson/file-storage/easyexcel/swagger SUCCESS
+  rag-parent SUCCESS ｜ rag-common SUCCESS (6.7s) ｜ tools-database SUCCESS
+  rag-index-service SUCCESS (4.4s)
+```
+
+`-am` 顺带**重建了 `rag-common` jar**（`target/rag-common-0.0.1-SNAPSHOT.jar` md5 `7cc7b5e7…`）。
+**它没有被部署到任何服务**：其余服务都是各自 fat jar 内嵌旧 `rag-common`，且**未重启**（§5 逐 pid 列证）。
+
+### 2.5 `rag-common` class 列表对比（TL ②-3 要求）
+
+```
+before: 443 个 .class（md5 109b11b3…）   after: 443 个 .class
+diff → 完全一致（无新增/删除 class）
+```
+同步 `FileParseTaskInfo` 只**加字段**，不产生新 class；`FeignErrorDecode` 未动 → 与「无其他变化」一致。
+
+---
+
+## §3 ③ 部署前验证新 jar
+
+```
+$ unzip -l rag-index-service-0.0.1-SNAPSHOT.jar | grep RemoteV2IngestUtils
+  BOOT-INF/classes/.../RemoteV2IngestUtils$IngestOutcome.class   981 B   2026-11-08 21:05
+  BOOT-INF/classes/.../RemoteV2IngestUtils.class               6,244 B   2026-11-08 21:05
+命中 1（≥1 ✅）
+
+$ javap -p（fat jar 直接 javap 无输出 → 用 TL 认可的退化方式：unzip -p 取 class 再 javap）
+public class com.gientech.ragindexservice.infrastructure.RemoteV2IngestUtils {
+  public boolean enabled();
+  public ...IngestOutcome ingest(String, Long, String, String, String, String, Long);
+  static String classify(int, Integer);
+}
+javap FileAppServiceImpl:
+  private ...RemoteV2IngestUtils remoteV2IngestUtils;
+  public void v2Ingest(com.gientech.ragcommon.index.parameter.FileParseTaskInfo);
+```
+
+**jar 指纹**
+
+| | md5 | 大小 | mtime |
+|---|---|---|---|
+| 旧（备份） | `26662d0bbdba7c90a0bcc610be5beac9` | 225,754,208 | 11-07 02:57:38 |
+| **新（已部署）** | **`0b2bdb279eb6a679271fd727d7ebd5e7`** | **225,760,599** | **11-08 21:05:49** |
+
+---
+
+## §4 ④ 部署 + 重启（唯一停机窗口）
+
+### 4.1 过程
+
+```
+旧 pid 1341032（lstart Sat Nov 7 14:45:33）→ SIGTERM，45s 未退 → SIGKILL
+日志 rag-index-service.out 重启前 4,804,181 B（追加写，未截断）
+新 pid 3130060，lstart 2026-11-08 21:07:40
+重启脚本耗时 89 s（含优雅停机等待）
+```
+
+**jsvc/soffice 处理（必须记）**：`18082` 有子进程 `soffice.bin`（`jodconverter` 管理，监听 `127.0.0.1:2002`）。
+java 退出后它会变孤儿仍占 2002，导致新实例 `OfficeManager` 起不来 → 一并 `SIGTERM`（pid 1342101）；
+新实例已重建自己的 soffice（pid **3130853**，同一 `--accept=...port=2002`）。
+
+### 4.2 五条启动验收
+
+| # | 判据 | 实测 |
+|---|---|---|
+| 1 | 端口监听 | `LISTEN 127.0.0.1:18082 users:(("java",pid=3130060,fd=110))` ✅ |
+| 2 | `lstart` 晚于 jar mtime | 21:07:40 > 21:05:49 ✅ |
+| 3 | cmdline 指向新 jar | `-jar …/rag-index-service-0.0.1-SNAPSHOT.jar` ✅ |
+| 4 | 启动成功标记 | `Started RagIndexServiceApplication in 10.693 seconds`、`Tomcat started on port 18082 (http) with context path '/index'` ✅ |
+| 5 | **启动段无类加载错误** | 见 4.3 ✅ |
+
+### 4.3 关于日志里那几条 `ClassNotFoundException` —— **属于旧进程关闭，不是本次启动**
+
+日志是**追加**写，重启后的新增段（4,804,182 字节之后）里确实出现 3 条类加载异常，**但时间戳都在新进程启动（21:07:42）之前**：
+
+```
+21:06:23.311  Thread-23  NoClassDefFoundError: com/alibaba/nacos/common/http/DefaultHttpClientFactory
+                          （HttpClientBeanHolder.shutdown，nacos 关闭钩子）
+21:06:23.317  rocketmq  NoClassDefFoundError: org/apache/rocketmq/common/utils/ThreadUtils
+                          （DefaultRocketMQListenerContainer.stop，消费者 stop 钩子）
+21:06:53.323  webServerGracefulShutdown  NoClassDefFoundError: GracefulShutdownCallback
+                          （Spring 优雅停机 Lifecycle）
+```
+
+三条都是**旧进程 `SpringApplicationShutdownHook` 期间的关闭钩子**，即「停机时的既有噪音」（旧日志段 0 次仅因该段时间内没发生关停）。
+**精确切分后，新进程启动段（自 `Starting RagIndexServiceApplication` 起 380 行）**：
+
+```
+ClassNotFoundException = 0
+NoClassDefFoundError   = 0
+NoSuchMethodError      = 0
+Exception              = 0
+```
+startup 后仅有的 WARN：log4j2 插件扫描弃用提示、`LoadBalancerCacheManager not available`、`R14-C-FIX-31b` 业务告警 —— **均非类加载问题**。
+
+---
+
+## §5 ⑤ 业务冒烟（不依赖 v2-ingest）
+
+```
+$ curl 'http://127.0.0.1:18082/index/knowledgeBase/list?pageNum=1&pageSize=2'
+HTTP=200  用时 0.0228s
+{"success":true,"errorCode":null,"data":{"records":[
+  {"id":"1004","kbName":"农业技术","primitiveName":"kb_1004","kbType":1,"status":1,"fileCount":1,"permission":3,...}
+]}}
+```
+（脱敏：未记录 token；响应仅保留库级元数据，无文档正文）
+
+补充对照：
+- `GET /index/knowledgeBase/getKbById?id=9` → `{"success":false,"errorCode":"30016","errorMsg":"没有足够权限"}`
+  —— **权限校验按请求上下文生效**（直连无用户身份），非故障；
+- 经网关 `8088/index/knowledgeBase/list` → **401**（网关要求身份），符合预期。
+
+**v2-ingest 未启用**：见 §0；因此**未**验证「摄取是否走 18096」，本步不涉及该链路。
+
+---
+
+## §6 ⑥ 生产侧零影响复核
+
+```
+18082          新 pid 3130060
+18094/19531/18096/19526/19527/8088/18081/18083/18084/18085  pid 全部未变
+                （1762713 19144 2227759 24525 2773520 2774847 3990335 4036355 4043286 435286 450255）
+生产图 current.json  md5 e2d0f75440e4553ee1bb33f51ca2ca34   **未变**
+kb_9 = 44                                                     **未变**
+其他 java 服务 jar（未重启、未换 jar）：
+  3990335 rag-auth-service ｜ 450255 rag-qa-service ｜ 4043286 rag-graph-service
+  4036355 sensitive-words-service ｜ 24525 rag-gateway
+```
+
+### 影子区一处**事前状态**说明（本轮未触碰）
+
+`v2cand_kb_9` 现为 **5 条 / Milvus 5 行 / 影子 `kb_state` version=12（kb_9=[290,291,292,293]）**，
+而 TL 记忆里是「1 条」。**这不是 P5-0a 造成的**：
+
+```
+影子 kb_state.json / graph-root/current.json mtime = 2026-11-08 20:06:03
+P5-0a 起始时刻                                     = 2026-11-08 21:05:22
+```
+即影子在**本轮开始前 59 分钟**就已是该状态（C3a 之后、P5-0a 之前发生，本轮全程只操作 Java，未发任何摄取/建图请求）。
+若需追这 4 条来源，应回查 20:06 前后的操作记录 —— 建议另列，不在 P5-0a 范围内猜测。
+
+---
+
+## §7 回滚材料（如需）
+
+```bash
+# 1) 源码回滚
+tar -xzf /tmp/p5-0a-bak/src-rag-index-service-20261108T210522.tgz -C <B>/rag-index-service/..
+tar -xzf /tmp/p5-0a-bak/src-rag-common-20261108T210522.tgz       -C <B>/rag-common/..
+# 2) jar 回滚
+cp -p /tmp/p5-0a-bak/rag-index-service-0.0.1-SNAPSHOT.jar.bak-20261108T210522 \
+      <B>/rag-index-service/target/rag-index-service-0.0.1-SNAPSHOT.jar
+# 3) 重启（复用 /tmp/p5-0a-bak/18082.env.json 的 112 个 env）
+/home/szf/data/dev/llmke-v2-toolenv/bin/python /tmp/restart_18082.py
+```
+
+---
+
+## §8 改动面自查（部署仓 git status 里多出的 4 项，**不是本轮造成**）
+
+`git -C llmke-r12 status --short services/rag-java` 除本轮 9 个文件外，还有 4 项。
+逐项核 mtime，全部早于本轮起始（21:05）：
+
+```
+M  rag-common/.../infrastructure/emuns/RedisKeyEnums.java      mtime 2026-11-07 02:57:09
+M  rag-common/.../operation/model/UserOperateDO.java           mtime 2026-11-06 19:22:17
+M  rag-common/.../operation/operation/OperationLogAspect.java  mtime 2026-11-06 19:22:17
+D  rag-common/.../qa/request/CommonSearchRequest.java          文件不存在（早前已删）
+```
+
+`rag-common` 在 r12 仓的 HEAD 是 `100e261e`（11-03 `docs(reviews)`），工作区本就与 HEAD 有差异 ——
+**这是部署仓的既有状态，与本轮无关**（本轮只 `cp -p` 了 `FileParseTaskInfo`，mtime 保留为 A 的 11-04 19:12）。
+
+结论：**本轮实际改动 = 9 个 `.java`（A 覆盖 B），0 处内容编辑；源码仓 A 零改动。**

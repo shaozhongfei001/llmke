@@ -1,0 +1,93 @@
+# P1-L4 · T-D2MD-04 · TL 独立复核证据（不是成员自证、不是 QA_PASS）
+
+- 生成时间：2026-11-08T03:31:39+0800
+- 复核人：TL（主 agent）
+- 依据：`CHECKPOINT` §四 D-01 内部推进条件（现场命令与真实输出齐备、两仓 git 无越界、反例 FAIL→PASS 可复现、平台侧只读边界）
+- 成员自证：`docs/v2-tasks/evidence/P1-L4-20261108T032818.log`（409 行 / md5 `39dd8115b3f19318167ada21ea21ce6f`）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立，内部推进条件满足 → 派工 P1-L5**
+- `QA_PASS` 仍挂起（G-4 待 Owner 指定签署载体 + 三项输入）；本 log 未签 QA_PASS、未标 DONE / VERIFIED
+
+---
+
+## 1. 交付物指纹与两仓越界
+
+```
+mineru_pdf_parser.py          c0a1ec3d42a92b092ad95598b1c59b48  (L4 新增，累计 numstat 90/2)
+test_pdf_fourth_artifact.py   87169db62e188cbfd99e307595420759  (新增，8 条断言)
+parsed_paths.py               51a981e4eedbdc1647db1de407b0f496  (L3 补强后未变)
+markitdown_parser.py          815a447b6f3c11e7232da34227087fed  (L3 补强后未变)
+test_idempotency_key.py       632e8931bb0a378904fa589a61c9db24  (L3 补正 ② 改 docstring 后)
+document_ir_builder.py        bb69758a09333f23673c12d3f128463d  (既存 M，未覆盖)
+kb_diff.py / parse_queue.py / cli/main.py                       (均未变)
+```
+
+doc2md `git status --short` 13 项（5 M + 8 `??`）；`git diff --numstat`：`cli/main.py 177/4`、`parsed_paths.py 153/0`、`document_ir_builder.py 17/2`（既存）、`markitdown_parser.py 19/3`（L3 补强 `:598` 后 +1/+1）、`mineru_pdf_parser.py 90/2`。成员所述「L4 纯新增 72 行、2 行删除均属 L3 已授权」与现场一致。
+
+**平台侧只读边界复核**：
+- `scripts/v2_fill_mineru_ir.py` 工作区 md5 `587946bb…` == `git show HEAD:` md5 `587946bb…` → **未改** ✅
+- `scripts/v2_ingest_doc2md.py` 仍 `840ebfef…`（L3 产物，本轮未动）✅
+- llmke-v2 本轮 **0 代码改动**；`git status` 的其它 `??` 为设计包 / review pack / evidence / `.codebuddy/teams/` 等既存产物，非本 loop 新增越界。
+
+## 2. D2 静态断言「收紧」裁定（重点）
+
+阶段 B 首跑 `1 failed` 的原因是原检查把 docstring 里如实提及的平台脚本字面当成依赖。收紧后 `test_d2_native_builder_call_site`（`:117-133`）实际断言：
+
+```python
+assert "build_from_mineru_content_list" in source
+assert "_build_mineru_document_ir" in source
+assert "fill_mineru_ir(" not in source
+assert "from scripts.v2_fill_mineru_ir" not in source
+validate_document_ir(payload, parsed_text=PARSED_TEXT)
+assert "ir_filled_by" not in provenance
+assert provenance.get("ir_source") == "mineru_content_list"
+```
+
+**裁定：收紧合理，不构成放宽。** 检查对象从「字面提及」改为「实际调用/导入」，且保留运行时 `validate_document_ir` + provenance 双重断言；若实现真的走平台补口，静态与运行时断言都会 FAIL。覆盖边界如实记录：静态部分只覆盖显式 `fill_mineru_ir(` 调用与 `from scripts.v2_fill_mineru_ir` 导入形式，**主要防线是运行时 `ir_filled_by` / `ir_source` 断言**。
+
+`_build_mineru_document_ir`（`mineru_pdf_parser.py:224-246`）复用既有 `build_from_mineru_content_list` + `validate_document_ir`，在 `:753` 于 L3 additive 摘要计算之前调用；旧 v1 无 `content_list.json` 时 fail-closed 抛错，不静默降级 ✅。
+
+## 3. 反例与独立复跑
+
+```
+阶段 A（现有代码本就不写第 4 件，无需另造桩） 7 failed, 1 passed in 0.35s
+阶段 B 首跑 1 failed, 7 passed  →  收紧静态断言后 8 passed in 0.29s
+```
+
+TL 现场独立复跑：
+
+```
+$ PYTHONPATH=backend /home/szf/data/dev/doc2md-toolenv/bin/python \
+    -m pytest backend/tests/test_pdf_fourth_artifact.py -q
+........                                                                 [100%]
+8 passed in 0.31s
+
+$ timeout 300 env PYTHONPATH=backend /home/szf/anaconda3/bin/python \
+    -m pytest backend/tests -q --tb=no
+5 failed, 1540 passed, 133 skipped, 11 warnings in 17.49s
+```
+
+失败项仍为既有同名 5 项；基线 `5/1497` → L1 `5/1507` → L2 `5/1519` → L3 `5/1532` → L4 `5/1540`（+8 = L4 新增 8 条测试）。**失败数未增加 → 主判据 PASS**。
+
+D1~D5 / R-1~R-6 证据在成员 log 中可查：四件套齐备 + `status=SUCCESS`、原生 builder 调用点可静态定位、无 `ir_filled_by`、`store._check_source_consistency` 通过 + 篡改 1 字节触发 `TEXT_HASH_MISMATCH`、`ir_source_files` 含 `content_list.json` 且 sha256 对齐、前三件套字节不变、四模块 43 passed / 命令数 21。
+
+## 4. 上线注意事项（如实，供后续切片）
+
+evidence §6 判断 3 指出：**L4 新增第 4 件后，产物集合变化，`read_set_digest` 相对 L3 会改变**（既有键语义不变、只是内容寻址输入集合变化）。因此 L3 已产出的历史 manifest 与新口径不符，`_needs_reparse` 会判定 digest 不一致 → **历史产物会被一次性重解析**。这是预期迁移行为、不是缺陷，但切换/放量前需要预期这次重跑成本，并确认不会与在线链路并发写同一产物目录。
+
+另：本 loop 全部为离线单文件 fixture（`object.__new__` 调收尾方法、只读导入平台 `store.py`），**未真实上传 pdf/docx/xlsx/txt、未写 DB/ES/Milvus/18094、未启用 18096**；A-2 留待 P6，不得把离线通过写成 A-2 通过。
+
+## 5. L3 三处补正闭环
+
+成员同步完成 TL 03:18 的三处补正，`P1-L3-20261108T031221.log` 590 行 / `c158bd05…`：① `48 34` → `71 49` 并在 §12 注明 hunk header 误读；② 测试头部 docstring 改为「R-7 已补齐两条」；③ §12 补 `_write_report` 时间戳与「digest 与库无关」口径说明。均为注释/数字级，未重跑测试、未改实现语义、未动 L1/L2 封存 log。
+
+## 6. L5 派工
+
+`docs/v2-tasks/loops/P1-L5-PLAN.md`（E1~E5 + R-0 前置裁定 + R-1~R-6）已锁定；L4 内部收口后派工 `T-D2MD-05`。
+
+## 7. TL 红线自查
+
+本次只写 `docs/v2-tasks/` 下的证据与计划文件 + `TASKS.yaml`；**未改 doc2md / llmke-v2 实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写 DB / ES / Milvus / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED**。
+
+## 8. 03:47 修订留痕：§1 计数误差（TL 认领）
+
+成员 L5 报备并经 TL 现场复核：doc2md `git status --short` 实为 **14 项（5 M + 9 `??`）**，本 log §1 初版写「13 项（5 M + 8 `??`）」是 **TL 少算一个 `??` fixture 目录的计数误差**。逐项文件清单与 L4 收口时完全一致，`find backend -newermt '2026-11-08 03:29:00'` 为空（L4 封存后 doc2md 无变动），非越界。**越界判断依据是文件清单而非计数，L4 的 `DEV_SELF_CHECK_PASS` 结论不变**；原文按证据链惯例保留，以本节为准。

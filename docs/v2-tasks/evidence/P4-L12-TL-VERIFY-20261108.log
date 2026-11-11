@@ -1,0 +1,127 @@
+# P4-L12 · T-D2MD-12 · TL 独立复核证据
+
+- 生成时间：2026-11-08T14:2x +0800
+- 复核人：TL（主 agent）
+- 成员自证：`P4-L12-20261108T133453.log`（369 行 / `a22c30482359d0e4e80db9398a6d263d`）
+- **TL 复核结论：`DEV_SELF_CHECK_PASS` 部分成立；发现 2 处必须修正后重报，本 loop 暂不收口**
+- `QA_PASS` 仍挂起（G-4）
+
+---
+
+## 1. 指纹（吻合）
+
+```
+ingest_pipeline/kb_delta.py        5baa418843d4a68d36711749949fa2db   449 行
+kb_ingest_service.py               f5f548a7e02f0a8d85891c44a03d6710   226 → 318
+kb_pipeline.py                     e1e9f909cf1d77db8a5ca76a67528f23   **未改** ✅
+index_writer.py                    d9853ade…                          **未改** ✅
+graph_engine_adapter/api.py        4bf0b21f…                          **未改** ✅
+```
+
+## 2. 已确认成立的部分
+
+| 项 | 结论 |
+|---|---|
+| A-3 / 18096 两条禁止声明 | evidence §0 已写死，**未越界** ✅ |
+| `kb_delta.py` 零 pydantic/fastapi | AST 断言锁死 ✅ |
+| 错误码表 | 11 契约码 + 9 白名单 + `GRAPH_BUILD_HTTP_*` 前缀 + `ArtifactRefused` 整体 400 + `ProjectionRefused` 按 code（8→400 / 4→500）+ `POLICY_INVALID` 500 且断言 ≠400 + 兜底 500 带日志 ✅ |
+| 两个 207 分开 | 各有断言、msg 不同 ✅ |
+| `IngestRequest extra="forbid"` | ✅ |
+| `diff_source` 如实暴露 | ✅ |
+| 阶段 A | v2 `17 failed / 2 passed`、hipporag `43 failed`，均在断言/行为层 ✅ |
+| 防空转 | B3 的 `pytest.raises(Exception)` 会被骨架 `NotImplementedError` 蒙过 → 改 `match="injected failure at <path>"` ✅（主动发现，认可） |
+| 变异 | 10/10；**M3/M6 首轮未捕获如实记录**（M3 变异体写 `setdefault` 导致变异没生效、M6 anchor 未命中），明确未把「变异没生效」当「断言有效」 ✅ |
+| 红线 | 18096 未监听、18094 pid 未变、`kb_9=44`、`v2cand*` 空、`platform/r12` 0 改动、doc2md 14 项、Java 未触 ✅ |
+
+## 3. ⚠️ 必改一：B3 实际未落实 —— delta 在状态事务之后，cursor 已推进
+
+成员报告写「三路在**进事务之前**全部完成 —— B3 是结构性保证」。TL 读源码，**该表述不成立**：
+
+```434:445:services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+        if plan.removed and self._revoke is not None:
+            self._revoke(list(plan.removed))          # ← B2：revoke 在事务前 ✅
+
+        with self._state_txn() as state:              # ← 状态事务：写 ACTIVE/REVOKED、version+1、重算 cursor
+            ...
+        wanted = self._build_wanted_docs(touched, plan.kb)
+        cursor_after = touched.get("cursor")          # ← cursor 已推进
+
+        graph_result = None
+        graph_error = None
+        if self._delta is not None:
+            try:
+                graph_result = self._delta(plan)      # ← delta 在事务**之后**
+            except ...:
+                graph_error = ...                     # ← 失败无回滚（grep rollback 0 命中）
+```
+
+**后果链（可推演的死锁）**：
+
+```
+delta 失败 → 状态事务已提交、cursor 已推进 → 响应 status=PARTIAL / HTTP 207
+→ Java 侧回写 RETRY → 重放同一 manifest
+→ diff 比较 manifest.set_digest 与 state 一致 → REASON_NO_CHANGE
+→ SKIPPED_FRESH（不再调用 delta）
+→ **图永远建不起来**，且每次重放都「成功」返回
+```
+
+这正是成员自己在 L9 抓到的「清理删掉在建目录 → 指针悬空」同级别的缺陷：**报成功但目标状态没达成**。
+
+**另外**：`status = "OK" if graph_error is None else "PARTIAL"`，而 `_delta is None`（未注入）时 `graph_error` 为 `None` → **报 `OK` 但图根本没跑**。生产若漏配 delta runner，会静默产出「成功但无图」。
+
+**TL 要求修正**：
+1. **delta 必须在状态事务之前执行**。`wanted_docs` 对 state 的依赖可用「内存预算」解决：
+   ```python
+   prospective = copy.deepcopy(state)
+   # 在 prospective 上应用 plan（不写盘）
+   wanted = self._build_wanted_docs(prospective, plan.kb)
+   # delta(wanted) 成功 → 再进 txn 应用 plan 并推进 cursor
+   ```
+2. **delta 失败 → cursor 不推进**，且响应必须能区分「事务未提交」。
+3. **`_delta is None` 不得报 `OK`**：需要建图时应返回明确状态（如 `PARTIAL` + `error="delta_runner_not_configured"`），并有断言。
+
+## 4. ⚠️ 必改二：ES/Milvus 实际未写入，但响应未如实暴露
+
+```334:349:services/rag-alg/index_data_service/ingest_pipeline/kb_delta.py
+        write_plan = self._writer.build(chunks, binding_artifact, ...)   # 只构造计划
+        ...
+        plan.write_plan = write_plan
+```
+
+TL 核实：`index_writer.build()` 只产出 `es_plan` / `milvus_plan`；真正写入是 `index_writer.apply(plan, es_url, milvus_url)`（`index_writer.py:325`）。**生产代码里 `apply` 零调用**（仅 `test_index_writer.py` 调用）。
+
+**不写线上 ES/Milvus 是本 loop 红线，正确**。但 `commit()` 的响应里**完全没有 `index_write` 字段**，既不谎报成功、也不说明未写。调用方（L13 的 Java 侧）拿到 `status=OK` 会认为三路都已落。
+
+**TL 要求修正**：响应必须有 `index_write` 块并如实标注，例如：
+
+```json
+"index_write": {"status": "PLANNED", "applied": false,
+                "reason": "L12 红线：未写线上 ES/Milvus，apply 由 L13 接线"}
+```
+
+并要求断言：`index_write.applied is False` 时 **`status` 不得为 `OK`**（否则「计划成功」被读成「三路成功」）。
+
+## 5. 成员表述需更正
+
+成员报告 §1 写「三路在进事务之前全部完成」，与源码不符（图在事务后、ES/Milvus 未执行）。请改为如实描述：
+- **快照 + 投影**在事务前完成；
+- **ES/Milvus 只构造计划、未写入**（红线）；
+- **图在事务后执行，失败不回滚 cursor**（本 log §3 要求修正）。
+
+这不是措辞问题 —— 它让「B3 成立」看起来已有结构性保证，而实际上没有。
+
+## 6. 特别认可：成员发现的 FastAPI 200 坑
+
+成员报告 §5：`return dict` 时 **FastAPI 恒返回 HTTP 200**，body 里的 `code: 409` 只是 JSON 字段；已改用 `response.status_code = code` 显式设码。
+
+TL 核实该结论正确且重要：**若 L13 的 Java 侧按 HTTP 状态码判断（而非 body `code`），不修这个会让 409/422/500 全变成 200**，`RemoteV2IngestUtils` 的失败回写逻辑会完全失效。这条已列入 L13 的必核项。
+
+## 7. 待签队列与状态
+
+本 loop **暂不收口**，等成员按 §3 / §4 修正并重报。修正后 TL 再复核；通过则 L12 收口、派工 L13（但 L13 起 18096 需 Owner 授权）。
+
+`T-D2MD-12` 保持 `DOING` + `WAIT_QA_ATTESTATION`。
+
+## 8. TL 红线自查
+
+只写 `docs/v2-tasks/evidence/` 下本 log；未改实现代码、未改设计包 / `MANIFEST.sha256` / `TASKS.yaml` / 运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`。

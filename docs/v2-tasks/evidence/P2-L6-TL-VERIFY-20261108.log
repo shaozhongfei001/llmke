@@ -1,0 +1,78 @@
+# P2-L6 · T-D2MD-06 · TL 独立复核证据（不是成员自证、不是 QA_PASS）
+
+- 生成时间：2026-11-08T10:47 +0800（模型切换后恢复复核）
+- 复核人：TL（主 agent）
+- 依据：`CHECKPOINT` §四 D-01 内部推进条件
+- 成员自证：`P2-L6-20261108T035512.log`（537 行 / `cc645ee3d1f5f86917006a40c54033d3`）
+- **TL 复核结论：DEV_SELF_CHECK_PASS 成立 → 派工 P2-L7**
+- `QA_PASS` 仍挂起（G-4）；本 log 未签、未标 DONE / VERIFIED
+
+---
+
+## 1. 交付物指纹（全部吻合）
+
+```
+index_writer.py                      db0ddc9be5a868f50ebfc05dc3ef1901  ✅ 252 行
+tests/test_index_writer.py           d497b8eea134d5f96d63a354dc946c49  ✅ 11 条
+tests/fixtures/p2_l6/existing_docs.json  38f0106ff44db6ac8f719cb466ccd3a3  ✅
+evidence P2-L6-20261108T035512.log   537 行 / cc645ee3d1f5f86917006a40c54033d3  ✅
+```
+
+## 2. 两仓越界与 L5 边界
+
+- 本 loop **0 个 tracked 平台文件改动**：`git diff --numstat` 的 `26 3 kb_pipeline.py` 是 L5 封存产物，其 md5 `addcbb15503cc750d42517a58cb92e02` 与 `P1-L5-20261108T034446.log:276` 记录值**逐字一致** ✅
+- `projection.py` / `enrich.py` / `summary.py` 0 改动 ✅
+- `index_writer.py` 为 `??` 新增；doc2md 仍 14 项（5 M + 9 ??）封存态 ✅
+- **L7 边界保持**：`grep index_writer\|assert_same_artifact kb_pipeline.py` → 无调用 ✅
+
+## 3. 实现审查（TL 读全文，252 行）
+
+| 项 | 结论 |
+|---|---|
+| `build()` 分组与目标名 | text → `<prefix><kb>`、table → `<prefix>table_chunks_<kb>`，`_target_name()` 正确 |
+| ES body | `{index_name, document_list, type:"", duplicate_flag:False}` ✅ 与 19527 `InsertDataModel` 对齐 |
+| Milvus body | `{db_name, collection_name, model_name:"bge-m3", document_list, consistency_level:"Bounded", duplicate_flag:False}` ✅ |
+| document 形状 | `{page_content, metadata}`，顶层 `pk` / `_fill` 已剥；`metadata.pk` 保留（ES `_id` / Milvus 主键）✅ |
+| 确定性 | `now = artifact["committed_at"]`，不用当前时间 ✅ |
+| 同源 | `content_hash` 由既有 `bind_artifact` 复算，写入每份 metadata；`plan.content_hash / binding` 一致 ✅ |
+| `delete_scope()` | 只产计划：`scope="file_id+pk"` / `duplicate_flag=False` / `forbidden_scope="source"` / `col_name="metadata.file_id"` / `pk_field="metadata.pk"` / 4 个 targets ✅ |
+| `apply()` | 先 ES 后 Milvus；失败立即返回 `side`/`error`/`completed_sides`/`needs_compensation`，不静默降级 ✅ |
+| 防误写 | `index_prefix` 为空即抛 `INDEX_PREFIX_EMPTY`；默认 `v2cand_` ✅ |
+
+## 4. 独立复跑
+
+```
+# v2 主口径 /home/szf/data/dev/llmke-v2-toolenv/bin/python (3.10.12 / pytest 8.3.5)
+$ PYTHONPATH=services/rag-alg/index_data_service pytest \
+    .../test_index_writer.py .../test_table_projection.py tests/test_rag_projection.py -q
+31 passed in 0.08s
+
+# 交叉 /home/szf/data/dev/hipporag-toolenv/bin/python (3.11.15 / pytest 9.2.0)
+31 passed in 0.08s
+```
+
+阶段 A `9 failed, 2 passed` → 阶段 B `11 passed`；首跑 `2 failed` 系测试自身 mock 设计问题（`urlopen` 收 `Request`，`str(req)` 不含 URL），改用 `Request.full_url` 后通过，**未改实现语义、未放宽断言** ✅。
+
+## 5. 未写线上 / 未启停（现场核实）
+
+```
+INGEST_PROJECTION_MODE unset → legacy ✅
+table_chunks_kb_9/_count = 2（与开工前一致）✅
+八端口 pid（开工前 → 当前，逐项一致）：
+  19531=435286  19526=19144  19527=23140  19995=1358208/23647
+  19200 LISTEN（只读目标）  18094=3202203/3189651  18082=1341032  18083=450255
+```
+
+19526/19527 仅只读核对端点契约，未发写入请求 ✅
+
+## 6. 判断标注复核（成员 §10，7 条）
+
+① **`store.commit()` artifact 不含 `file_id`，`build()` 回落 `kb`** —— 属实且已注释；**L7 生产调用点必须注入真实 `file_id`**，已写入 P2-L7 PLAN 的 G1 硬断言（不得回落）。② `_binding_input` 把 `table_ref` 归一成稳定字符串、不改 `artifact_binding.py` —— 合理。③ 计划为 body 列表、每份按 channel 拆 body —— 符合 PLAN F1。④ `delete_scope` 只产计划、真正删除与 pk 剪枝由 L7 落地 —— 符合本 loop 范围。⑤ `apply` 用 monkeypatch mock、不启停服务 —— 合规。⑥ dataclass + `to_dict()`、`apply` 兼容 dict —— 合理。⑦ L7 边界 grep 已证 —— TL 已复现。
+
+## 7. L7 派工
+
+`docs/v2-tasks/loops/P2-L7-PLAN.md`（G1~G5 + R-0 前置核实 + R-1~R-6）已锁定并派工 `T-D2MD-07`。
+
+## 8. TL 红线自查
+
+只写 `docs/v2-tasks/` 下证据与计划 + `TASKS.yaml`；未改实现代码、未改设计包 / `MANIFEST.sha256`、未改运行态配置、未启停服务、未写线上 ES / Milvus / DB / 18094、未签 `QA_PASS`、未标 DONE / VERIFIED。

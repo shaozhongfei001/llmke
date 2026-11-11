@@ -1,0 +1,537 @@
+# P2-L6 · T-D2MD-06 · DEV_SELF_CHECK_PASS 证据日志
+
+- 生成时间：2026-11-08T03:55:12+0800（`date '+%Y%m%dT%H%M%S%z'` → `20261108T035512+0800`）
+- Loop：`VL-DOC2MD-INC` / `P2-L6`（`index_writer 适配层 + delete_scope`）
+- 标准来源：`docs/v2-tasks/loops/P2-L6-PLAN.md`（TL 03:47 派工，标准已锁定；F1~F5 + R-1~R-7）
+- 依据：`03-IMPLEMENTATION.md` §P2-1（`:141-165`）、`04-ACCEPTANCE.md` B-1、`ACCEPTANCE-BASELINE.yaml:28`、
+  `00-DESIGN.md` §6.3/§6.4、`01-EVIDENCE.md:114-116`、`02-CONTRACTS.md:75-77`
+- **解释器（延续 L5 裁定，每处标注，见 §4.1）**：
+  - v2 主口径 `/home/szf/data/dev/llmke-v2-toolenv/bin/python`（Python 3.10.12 / pytest 8.3.5）
+  - 交叉 `/home/szf/data/dev/hipporag-toolenv/bin/python`（Python 3.11.15 / pytest 9.2.0）
+  - 不套用 doc2md 仓的 anaconda3 / doc2md-toolenv 双解释器。
+- **结论**：`DEV_SELF_CHECK_PASS`；baton 交 TL 复核。`QA_PASS` 仍挂起（G-4 三项输入待 Owner），
+  本 loop **未签 QA_PASS、未标 DONE / VERIFIED**。L1~L5 已封存，本 loop 未改其产物。
+
+---
+
+## 1. 范围与开工前基线
+
+**本 loop 只产写入计划 + mock 端点测试，不接生产调用点、不写任何线上存储。**
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `services/rag-alg/index_data_service/ingest_pipeline/index_writer.py` | **新增 252 行** | `build` / `delete_scope` / `apply`，复用 `enrich.build_payload` 与 `artifact_binding.bind_artifact` |
+| `services/rag-alg/index_data_service/tests/test_index_writer.py` | 新增 | 11 条断言（F1~F5 + R-1~R-7），路径已回报 TL |
+| `services/rag-alg/index_data_service/tests/fixtures/p2_l6/existing_docs.json` | 新增 | 同一 source 下 A/B 两 file_id 旧 chunk（F4/R-3） |
+
+三个既有平台文件 `kb_pipeline.py` / `projection.py` / `enrich.py` / `summary.py` 本 loop **0 改动**；
+`kb_pipeline.py` 的 `26 3` 是 L5 已封存改动（见 §7），本 loop 未动。
+
+**开工前基线**（本 loop 第一条只读命令实测）：
+`INGEST_PROJECTION_MODE` unset → 代码默认 legacy；线上 `table_chunks_kb_9/_count` = 2；
+八端口 `19531/19526/19527/19995/19200/18094/18082/18083` 全 LISTEN（pid 见 §8）；
+19527 `InsertFulltextDocumentsView` / 19526 `InsertVectorDocumentsCustomView` 仅只读核对端点契约，未调用。
+
+---
+
+## 2. 反例先行：阶段 A 真实 FAIL（桩实现）
+
+按 L1~L5 惯例先落**桩** `index_writer.py`（签名齐全、逻辑故意错：空计划 / 错 scope / 假成功 / 假 hash），
+避免 import 空转，使反例在断言层 FAIL。
+
+```
+$ cd /home/szf/data/dev/llmke-v2
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_index_writer.py -q
+FAILED ...::test_f1_two_channel_plans_and_contract_shapes
+FAILED ...::test_r1_table_must_be_in_table_chunks_plan
+FAILED ...::test_f2_duplicate_flag_false_hard_constraint
+FAILED ...::test_f3_content_hash_same_source_and_recomputable
+FAILED ...::test_f4_delete_scope_precise_by_file_id_and_pk
+FAILED ...::test_r3_same_source_b_file_not_deleted
+FAILED ...::test_f5_apply_es_failure_has_side
+FAILED ...::test_r5_milvus_failure_has_side_and_compensation
+FAILED ...::test_f5_apply_success_path_is_ordered
+9 failed, 2 passed in 0.09s      [解释器：llmke-v2-toolenv 3.10.12 / pytest 8.3.5]
+```
+
+9 条在**断言层** FAIL（非 ImportError）；2 条先行 PASS 的是回归哨兵
+（`test_r6_content_hash_divergence_is_detected` / `test_r7_regression_sentinels`），
+恰证明 `bind_artifact` 与 `_table_pk` 禁改区未被改动。
+
+---
+
+## 3. 实现（阶段 B）
+
+用正式实现覆盖桩。核心设计（全文见 §9）：
+
+- `build()`：按 channel 分 text / table 两组，`enrich.build_payload` 生成 metadata，
+  补 `metadata.pk` 与同源三元组（`artifact_id`/`content_uid`/`content_hash`），
+  document_list 每项只有 `{page_content, metadata}`（顶层 `pk`/`_fill` 已剥）；
+  ES body `{index_name, document_list, type:"", duplicate_flag:False}`、
+  Milvus body `{db_name, collection_name, model_name:"bge-m3", document_list,
+  consistency_level:"Bounded", duplicate_flag:False}`；目标名一律 `v2cand_` 前缀。
+- `content_hash` 由既有 `bind_artifact` 从同一份 chunks 复算（`_binding_input` 把
+  `table_ref` 等投影侧 locator 归一成稳定字符串以兼容闭集），三路同源。
+- `delete_scope()`：返回 `file_id+pk` 精确删除的**计划**（`duplicate_flag=False`、
+  `forbidden_scope="source"`、`col_name="metadata.file_id"`、`pk_field="metadata.pk"`），
+  不执行删除。
+- `apply()`：**先 ES 后 Milvus** 顺序 POST；任一侧失败返回 `IndexWriteResult(status="FAILED",
+  side=..., error=..., needs_compensation=...)`，禁止只 log 后返回成功；只跑 mock。
+
+```
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_index_writer.py -q
+...........                                                              [100%]
+11 passed in 0.04s
+$ read_lints（index_writer.py / test_index_writer.py）
+totalCount=0
+```
+
+**阶段 B 首跑自愈留痕（如实）**：首次 `2 failed, 9 passed`，两条 F5 失败是**测试自身 mock 设计问题**
+—— `urllib.request.urlopen` 收到的是 `Request` 对象，`str(req)` 不含 URL，导致
+`"mock-es" in str(url)` 判定不成立。把 mock 的调用记录与失败判定统一改为
+`str(getattr(url, "full_url", url))` 后 `11 passed`；**未改实现语义、未放宽断言**。
+
+---
+
+## 4. DEV_SELF_CHECK_PASS 验收命令与真实输出
+
+### 4.1 解释器与用途对照表（PLAN §一 / §三）
+
+| 命令 | 解释器绝对路径 | 版本 | 用途 |
+|---|---|---|---|
+| §2 阶段 A 单模块 pytest | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 / pytest 8.3.5 | 反例先 FAIL |
+| §3 阶段 B 单模块 pytest | 同上 | 3.10.12 / pytest 8.3.5 | 实现转 PASS |
+| §4.2 新测试 / R-7 / 合跑 | 同上 | 3.10.12 / pytest 8.3.5 | **v2 主口径** |
+| §4.2 交叉环境 | `/home/szf/data/dev/hipporag-toolenv/bin/python` | 3.11.15 / pytest 9.2.0 | 图/兼容层交叉验证 |
+| §6 计划现场输出 | `/home/szf/data/dev/llmke-v2-toolenv/bin/python` | 3.10.12 | 离线产物核对 |
+| `curl` / `ss` / `git` / `md5sum` / `printenv` | 与解释器无关 | — | 只读边界与越界自查 |
+
+### 4.2 pytest 主判据
+
+```
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python --version
+Python 3.10.12
+$ /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest --version
+pytest 8.3.5
+
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_index_writer.py -q
+...........   [100%]  11 passed in 0.03s        # F1~F5 + R-1~R-7
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest tests/test_rag_projection.py services/rag-alg/index_data_service/tests/test_table_projection.py -q
+....................   [100%]  20 passed in 0.07s   # R-7 既有 13 + 7 全 PASS
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/llmke-v2-toolenv/bin/python -m pytest services/rag-alg/index_data_service/tests/test_index_writer.py services/rag-alg/index_data_service/tests/test_table_projection.py tests/test_rag_projection.py -q
+...............................   [100%]  31 passed in 0.08s   # 合跑无回归
+$ PYTHONPATH=services/rag-alg/index_data_service /home/szf/data/dev/hipporag-toolenv/bin/python -m pytest <三文件> -q
+...............................   [100%]  31 passed in 0.09s   # 交叉环境
+```
+
+### 4.3 静态边界 / 线上只读对照
+
+```
+$ printenv INGEST_PROJECTION_MODE
+INGEST_PROJECTION_MODE unset (code default=legacy)
+$ grep -n 'v2cand_\|duplicate_flag\|19527\|19526' .../index_writer.py
+:12 默认 index_prefix="v2cand_"，计划只指向候选命名空间，不碰线上索引名
+:29 DEFAULT_INDEX_PREFIX = "v2cand_"
+:166/:174/:204 "duplicate_flag": False
+$ curl -sS --max-time 8 'http://127.0.0.1:19200/table_chunks_kb_9/_count'
+{"count":2,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}   # 与开工前一致，未写线上
+$ grep -rn 'index_writer\|assert_same_artifact' .../ingest_pipeline/kb_pipeline.py
+(kb_pipeline.py has no index_writer call — L7 boundary respected)
+```
+
+---
+
+## 5. 断言 / 反例 → PASS 证据映射（PLAN §二）
+
+| 编号 | 断言 / 反例 | PASS 证据 |
+|---|---|---|
+| F1 / R-1 | 按 channel 分两份计划、字段形状符合契约、`v2cand_` 前缀 | `test_f1_two_channel_plans_and_contract_shapes`：ES 两组 `v2cand_kb_9`/`v2cand_table_chunks_kb_9`、Milvus 两组同名；`set(body)` 精确等于 ES/MV 契约键集；`type=""`/`model_name="bge-m3"`/`consistency_level="Bounded"`；document 仅 `{page_content, metadata}`；`test_r1_table_must_be_in_table_chunks_plan` |
+| F2 / R-2 | `duplicate_flag=False` 硬约束 | `test_f2_duplicate_flag_false_hard_constraint`：所有 body `duplicate_flag is False` |
+| F3 / R-6 | 三路 `content_hash` 同源、可复算、`assert_same_artifact` 一致 | `test_f3_content_hash_same_source_and_recomputable`：`plan.content_hash == plan.binding["content_hash"] == graph_binding`、`assert_same_artifact` 不抛错、每份 metadata 三元组一致；`test_r6_content_hash_divergence_is_detected`：改写正文后 hash 变化且 `assert_same_artifact` 抛 `ArtifactBindingError` |
+| F4 / R-3 | `delete_scope` 按 `file_id+pk` 精确删除，同 source 的 B 不被误删 | `test_f4_delete_scope_precise_by_file_id_and_pk`（`scope="file_id+pk"`、`duplicate_flag=False`、`col_values=["A"]`、选中 pk `[101,102]`）、`test_r3_same_source_b_file_not_deleted`（B 的 pk 201 保留、`scope != "source"`） |
+| F5 / R-4 / R-5 | `apply` 先 ES 后 Milvus、失败带 `side`、不静默降级 | `test_f5_apply_es_failure_has_side`（`side="es"`、`status!="OK"`、`completed_sides=[]`）、`test_r5_milvus_failure_has_side_and_compensation`（`side="milvus"`、`completed_sides=["es"]`、`needs_compensation=True`、调用顺序）、`test_f5_apply_success_path_is_ordered`（`OK`、`["es","milvus"]`） |
+| R-7 | 既有 13+7 回归 | §4.2 `20 passed` + `test_r7_regression_sentinels`（`_table_pk` 禁改区仍命中 `885155839145947657`） |
+
+阶段 A `9 failed, 2 passed` → 阶段 B `11 passed`（全过程见 §2/§3）。
+
+---
+
+## 6. 写入计划现场输出（离线 fixture）
+
+```
+artifact_id =cccc...（"c"*64）
+content_uid =dddd...（"d"*64）
+content_hash = e5c55270c13bb4492186cf301801dea01dc1db5486d1d31f6fe9a905ca8bb610
+binding_hash = e5c55270c13bb4492186cf301801dea01dc1db5486d1d31f6fe9a905ca8bb610 | SAME = True
+  es v2cand_kb_9 | docs = 1 | duplicate_flag = False
+    doc keys = ['metadata', 'page_content'] | meta.artifact_id = cccc... | meta.content_hash = e5c55270...
+  es v2cand_table_chunks_kb_9 | docs = 1 | duplicate_flag = False
+  milvus v2cand_kb_9 | docs = 1 | duplicate_flag = False
+  milvus v2cand_table_chunks_kb_9 | docs = 1 | duplicate_flag = False
+delete_scope: file_id+pk | duplicate_flag = False | col_values = ['A'] | forbidden = source
+```
+
+`grep -rn 'index_writer\|assert_same_artifact' kb_pipeline.py` 为**空** →
+本 loop 未接生产调用点（`consume_for_kb` 接 `build` + `assert_same_artifact` 属 L7），符合 PLAN §一。
+
+---
+
+## 7. 两仓 `git diff` 与越界自查
+
+```
+$ git -C /home/szf/data/dev/llmke-v2 diff --numstat -- <ingest_pipeline/> <rag_projection/> <tests/>
+26	3	services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py
+```
+
+该 `26 3` 是 **L5 已封存改动**（`build_index_payloads` additive），本 loop **未再修改任何 tracked 平台文件**
+（`projection.py` / `enrich.py` / `summary.py` / `kb_pipeline.py` 本轮 numstat 均为 0）。
+本 loop 三个交付物均为 **untracked 新增文件**，不在 `git diff` 中，故 `index_writer.py` 全文单独给出（§9）、
+测试与 fixture 以指纹记录：
+
+```
+?? services/rag-alg/index_data_service/ingest_pipeline/index_writer.py      (252 行)
+?? services/rag-alg/index_data_service/tests/                                (新测试 + fixtures)
+db0ddc9be5a868f50ebfc05dc3ef1901  .../ingest_pipeline/index_writer.py
+d497b8eea134d5f96d63a354dc946c49  .../tests/test_index_writer.py
+38f0106ff44db6ac8f719cb466ccd3a3  .../tests/fixtures/p2_l6/existing_docs.json
+```
+
+两仓 `git status --short`（loop-relevant）：
+
+```
+# llmke-v2
+ M docs/ui-graph-workbench/TASKS.yaml               (开工前既存 M / TL 维护)
+ M docs/v2-tasks/TASKS.yaml                         (开工前既存 M，本 loop 未写)
+ M services/rag-alg/index_data_service/ingest_pipeline/kb_pipeline.py   (L5 封存改动)
+?? services/rag-alg/index_data_service/ingest_pipeline/index_writer.py   (本 loop)
+?? services/rag-alg/index_data_service/tests/                            (L5 + L6 测试)
+?? docs/v2-tasks/evidence/P2-L6-20261108T035512.log                       (本证据)
+# doc2md：14 项（5 M + 9 ??），与 L5 收口时完全一致，本 loop 未动
+```
+
+`read_lints` = 0。
+
+---
+
+## 8. 服务端口开工前后对比（PLAN §三，含 19526/19527）
+
+| 端口 | 开工前（本 loop 首条只读命令） | 开工后（§4.3 复核） | 结论 |
+|---|---|---|---|
+| 19531 | LISTEN python pid=435286 fd=12 | LISTEN python pid=435286 fd=12 | 一致 |
+| 19526 | LISTEN python pid=19144 fd=24 | LISTEN python pid=19144 fd=24 | 一致 |
+| 19527 | LISTEN python pid=23140 fd=19 | LISTEN python pid=23140 fd=19 | 一致 |
+| 19995 | LISTEN python pid=1358208/23647 fd=19 | LISTEN python pid=1358208/23647 fd=19 | 一致 |
+| 19200 | LISTEN（ES 只读目标） | LISTEN（ES 只读目标） | 一致 |
+| 18094 | LISTEN python pid=3202203/3189651 fd=12 | LISTEN python pid=3202203/3189651 fd=12 | 一致 |
+| 18082 | LISTEN java pid=1341032 fd=117 | LISTEN java pid=1341032 fd=117 | 一致 |
+| 18083 | LISTEN java pid=450255 fd=94 | LISTEN java pid=450255 fd=94 | 一致 |
+
+**未启停任何服务**（pid 与 fd 逐项一致）；19526/19527 端点仅只读核对契约，未发任何写入请求；
+线上 `table_chunks_kb_9/_count` 开工前后均为 `2`。
+
+---
+
+## 9. `index_writer.py` 全文（252 行）
+
+```python
+"""P2-L6 · index_writer 适配层（T-D2MD-06）。
+
+把 `rag_projection.project()` 的 chunks + `store.commit()` 的 artifact 适配成
+19527 / 19526 写入端点的**写入计划**（离线、不写任何线上存储）。
+
+职责边界（PLAN §一）
+------------------
+- 只产出计划 / mock 端点测试；**不接生产调用点**（`consume_for_kb` 内接 `build` +
+  `assert_same_artifact` 属 L7）。
+- 复用 `enrich.build_payload` 生成 metadata、复用 `artifact_binding.bind_artifact`
+  计算 `content_hash`；**不重新实现投影 / 摘要 / 主键**。
+- 默认 `index_prefix="v2cand_"`，计划只指向候选命名空间，不碰线上索引名。
+- `duplicate_flag=False` 硬约束：禁止按 `metadata.source` 全量替换（设计包 :158-160）。
+
+依据：`03-IMPLEMENTATION.md` §P2-1（`:141-165`）、`00-DESIGN.md` §6.3/§6.4、
+`01-EVIDENCE.md:114-116`、`04-ACCEPTANCE.md` B-1、`ACCEPTANCE-BASELINE.yaml:28`。
+"""
+from __future__ import annotations
+
+import json
+import urllib.request
+from dataclasses import dataclass, field
+from typing import Any
+
+from graph_engine_adapter.artifact_binding import bind_artifact
+
+from . import enrich
+
+DEFAULT_INDEX_PREFIX = "v2cand_"
+ES_MODEL_NAME = "bge-m3"
+ES_CONSISTENCY_LEVEL = "Bounded"
+# artifact_binding._check_locator 的闭集；table_ref 等投影侧 kind 需归一成字符串。
+_BINDING_LOCATOR_KINDS = ("text_span", "table_cell", "figure_asset")
+
+
+@dataclass(frozen=True)
+class IndexWritePlan:
+    kb: str
+    index_prefix: str
+    artifact_id: str
+    content_uid: str
+    content_hash: str
+    binding: dict
+    es_plan: list = field(default_factory=list)
+    milvus_plan: list = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "kb": self.kb, "index_prefix": self.index_prefix,
+            "artifact_id": self.artifact_id, "content_uid": self.content_uid,
+            "content_hash": self.content_hash, "binding": self.binding,
+            "es_plan": self.es_plan, "milvus_plan": self.milvus_plan,
+        }
+
+
+@dataclass(frozen=True)
+class IndexWriteResult:
+    status: str
+    side: str | None
+    error: str | None
+    completed_sides: list = field(default_factory=list)
+    needs_compensation: bool = False
+    calls: list = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "status": self.status, "side": self.side, "error": self.error,
+            "completed_sides": self.completed_sides,
+            "needs_compensation": self.needs_compensation, "calls": self.calls,
+        }
+
+
+class IndexWriterError(ValueError):
+    """写入计划构建失败（输入不合法，fail-closed）。"""
+
+    def __init__(self, code: str, detail: str = ""):
+        self.code = code
+        self.detail = detail
+        super().__init__(f"{code}: {detail}" if detail else code)
+
+
+# --------------------------------------------------------------------------- 同源绑定
+def _binding_input(chunks: list, artifact: dict) -> dict:
+    """把投影 chunks 归一成 `bind_artifact` 的输入。
+
+    `bind_artifact._check_locator` 只认 `text_span/table_cell/figure_asset`；
+    投影表格块的 `table_ref` 不在闭集，故按 `sort_keys` 序列化成稳定字符串
+    （与 `_locator_key` 同一口径），保证三路派生用同一份输入、同一份哈希。
+    """
+    file_id = str(artifact.get("file_id") or "kb")
+    norm = []
+    for chunk in chunks:
+        locator = chunk.get("locator") or {}
+        if isinstance(locator, dict) and locator.get("kind") not in _BINDING_LOCATOR_KINDS:
+            locator = json.dumps(locator, ensure_ascii=False, sort_keys=True,
+                                 separators=(",", ":"))
+        norm.append({"text": chunk["text"], "locator": locator,
+                     "file_id": file_id})
+    return {"artifact_id": artifact["artifact_id"],
+            "document_id": file_id, "chunks": norm}
+
+
+def bind_chunks(chunks: list, artifact: dict) -> dict:
+    """复用既有 `bind_artifact` 产出同源绑定（artifact_id + content_hash）。"""
+    return bind_artifact(_binding_input(chunks, artifact))
+
+
+def _target_name(channel: str, *, kb: str, index_prefix: str) -> str:
+    """text → <prefix><kb>；table → <prefix>table_chunks_<kb>。"""
+    if channel == "text":
+        return f"{index_prefix}{kb}"
+    return f"{index_prefix}table_chunks_{kb}"
+
+
+# --------------------------------------------------------------------------- build
+def build(chunks: list, artifact: dict, *, kb: str,
+          index_prefix: str = DEFAULT_INDEX_PREFIX) -> IndexWritePlan:
+    """按 channel 分组产出 es_plan / milvus_plan 两份写入计划。
+
+    - 每份计划按目标 index/collection 拆成 body（text / table 分别一组）；
+    - document_list 的每项 = `{page_content, metadata}`，顶层 `pk` / `_fill` 已剥掉
+      （metadata 由 `enrich.build_payload` 生成，仅补 `metadata.pk` 与同源三元组）；
+    - `duplicate_flag=False` 硬约束；`v2cand_` 前缀不碰线上索引名；
+    - `content_hash` 由 `bind_artifact` 从同一份 chunks 复算，写入每份 metadata。
+    """
+    if not chunks:
+        raise IndexWriterError("CHUNKS_EMPTY", "chunks 为空，无法构建写入计划")
+    artifact_id = artifact.get("artifact_id")
+    content_uid = artifact.get("content_uid")
+    if not artifact_id or not content_uid:
+        raise IndexWriterError("ARTIFACT_IDENTITY_MISSING",
+                               "artifact 缺 artifact_id / content_uid")
+    if not index_prefix:
+        raise IndexWriterError("INDEX_PREFIX_EMPTY", "index_prefix 不得为空（防误写线上索引）")
+
+    file_id = str(artifact.get("file_id") or kb)
+    now = artifact.get("committed_at")  # 确定性：来自快照，不用当前时间
+    binding = bind_chunks(chunks, artifact)
+    content_hash = binding["content_hash"]
+
+    groups: dict[str, list] = {}
+    for chunk in chunks:
+        groups.setdefault(chunk.get("channel", "text"), []).append(chunk)
+
+    es_plan: list[dict] = []
+    milvus_plan: list[dict] = []
+    for channel in ("text", "table"):
+        if channel not in groups:
+            continue
+        target = _target_name(channel, kb=kb, index_prefix=index_prefix)
+        documents: list[dict] = []
+        for chunk in groups[channel]:
+            meta, _fill = enrich.build_payload(
+                chunk, index_name=kb, file_id=file_id, now=now)
+            # metadata.pk 保留（ES 用它当 _id，Milvus 用它当主键）；
+            # 顶层 pk / _fill 不进 document_list（端点契约只收 page_content + metadata）。
+            meta["pk"] = chunk["pk"]
+            meta["artifact_id"] = artifact_id
+            meta["content_hash"] = content_hash
+            documents.append({"page_content": chunk["text"], "metadata": meta})
+
+        es_plan.append({
+            "index_name": target,
+            "document_list": documents,
+            "type": "",
+            "duplicate_flag": False,
+        })
+        milvus_plan.append({
+            "db_name": kb,
+            "collection_name": target,
+            "model_name": ES_MODEL_NAME,
+            "document_list": documents,
+            "consistency_level": ES_CONSISTENCY_LEVEL,
+            "duplicate_flag": False,
+        })
+
+    return IndexWritePlan(
+        kb=kb, index_prefix=index_prefix,
+        artifact_id=artifact_id, content_uid=content_uid,
+        content_hash=content_hash, binding=binding,
+        es_plan=es_plan, milvus_plan=milvus_plan,
+    )
+
+
+# --------------------------------------------------------------------------- delete_scope
+def delete_scope(*, kb: str, file_id: Any,
+                 index_prefix: str = DEFAULT_INDEX_PREFIX) -> dict:
+    """按 `file_id + pk` 精确删除的**计划**（离线，不执行删除、不写线上）。
+
+    明确拒绝 `duplicate_flag=True` 的按 `metadata.source` 全量替换：同一 source
+    下其它文件的 chunk 必须保留（PLAN F4 / R-3）。写前按 `file_id` 清理、
+    写后按本批 `pk` 集合剪枝的落地由 L7 生产调用点完成，本 loop 只产计划。
+    """
+    fid = str(file_id)
+    targets = []
+    for name in (f"{index_prefix}{kb}", f"{index_prefix}table_chunks_{kb}"):
+        targets.append({"side": "es", "index_name": name})
+        targets.append({"side": "milvus", "collection_name": name})
+    return {
+        "kb": kb,
+        "file_id": fid,
+        "index_prefix": index_prefix,
+        "scope": "file_id+pk",
+        "duplicate_flag": False,
+        "forbidden_scope": "source",
+        "col_name": "metadata.file_id",
+        "col_values": [fid],
+        "pk_field": "metadata.pk",
+        "targets": targets,
+        "note": "写前按 file_id 清理、写后按本批 pk 集合剪枝（L7）；不按 source 全量替换",
+    }
+
+
+# --------------------------------------------------------------------------- apply
+def _post_json(url: str, body: dict) -> None:
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(
+        url, data=data, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310 - 端点由调用方给定
+        resp.read()
+
+
+def apply(plan: IndexWritePlan, *, es_url: str, milvus_url: str) -> IndexWriteResult:
+    """按 **先 ES 后 Milvus** 顺序把计划 POST 到给定端点（本 loop 只跑 mock）。
+
+    任一侧失败立即返回带 `side` / `error` 的结果，供调用方登记补偿任务；
+    **禁止只 log 后返回成功**（`ACCEPTANCE-BASELINE.yaml:28`）。
+    """
+    es_bodies = plan.es_plan if hasattr(plan, "es_plan") else plan["es_plan"]
+    mv_bodies = plan.milvus_plan if hasattr(plan, "milvus_plan") else plan["milvus_plan"]
+    calls: list[dict] = []
+    completed: list[str] = []
+    for side, url, bodies in (("es", es_url, es_bodies),
+                              ("milvus", milvus_url, mv_bodies)):
+        for body in bodies:
+            target = body.get("index_name") or body.get("collection_name")
+            try:
+                _post_json(url, body)
+            except Exception as exc:  # noqa: BLE001 - 失败必须带原因返回
+                return IndexWriteResult(
+                    status="FAILED", side=side,
+                    error=f"{type(exc).__name__}: {exc}",
+                    completed_sides=list(completed),
+                    needs_compensation=(side == "milvus"),
+                    calls=calls,
+                )
+            calls.append({"side": side, "url": url, "target": target})
+        completed.append(side)
+    return IndexWriteResult(
+        status="OK", side=None, error=None,
+        completed_sides=completed, needs_compensation=False, calls=calls,
+    )
+```
+
+---
+
+## 10. 判断标注（供 TL / 独立 QA 复核）
+
+1. **【判断】`file_id` 由 artifact 注入**：`store.commit()` 的 `build_artifact` 实测
+   （`store.py:403-423`）**不含 `file_id`**；`enrich.build_payload` 需要它。
+   `build()` 取 `artifact.get("file_id")`，缺失回落到 `kb`（避免隐式抛错破坏离线计划构建）。
+   测试 fixture 注入 `file_id="333"`；**L7 生产调用点必须显式注入真实 file_id**，
+   否则 `metadata.file_id`/`document_id` 会退化为 kb 名。此为已知边界，已在代码注释标注。
+2. **【判断】`bind_artifact` 输入归一**：其 `_check_locator` 闭集为
+   `text_span/table_cell/figure_asset`，投影表格块的 `table_ref` 不在闭集，
+   故 `_binding_input` 按 `sort_keys` 序列化成稳定字符串（与 `_locator_key` 同口径）。
+   三路派生都经同一归一函数，`content_hash` 才可比；不改动 `artifact_binding.py`（L1~L5 禁改区延续）。
+3. **【判断】`es_plan` / `milvus_plan` 为「body 列表」**：PLAN F1「按 channel 分组产出两份计划」
+   按「两份 = ES/Milvus 两份计划、每份按目标 index/collection 拆 body」落地；
+   `text` / `table` 各一组 body，字段名严格对齐 19527/19526 `InsertDataModel`。
+4. **【判断】`delete_scope` 只产计划、不执行**：`col_values=[file_id]` 表达写前按 file_id 清理，
+   `pk_field="metadata.pk"` 表达写后按本批 pk 集合剪枝；真正删除与剪枝由 L7 生产调用点完成。
+   F4/R-3 用离线 fixture 模拟应用，断言 A 的 pk 被选中、B 保留、`scope != "source"`、
+   `duplicate_flag is False`。
+5. **【判断】`apply` 用 `urllib.request.urlopen` + monkeypatch mock**：不启动任何本地/线上
+   进程或端口（符合「不启停服务」红线），mock 通过 `Request.full_url` 判定失败侧；
+   生产端点 URL 由调用方给定，本 loop 只跑 `http://mock-es` / `http://mock-mv`。
+6. **【判断】`IndexWritePlan`/`IndexWriteResult` 用 dataclass + `to_dict()`**：
+   PLAN 只要求类型名，未限定是否可 dict 访问；`apply` 同时兼容 dict 形状入参。
+7. **【事实】L7 边界**：`grep` 确认 `kb_pipeline.py` 无 `index_writer` / `assert_same_artifact`
+   调用；未接生产调用点、未写线上 ES(19527)/Milvus(19526)/DB/18094、未切模式/切读、
+   默认 `v2cand_` 前缀不碰线上索引名。
+
+---
+
+## 11. 结论与 Baton
+
+**DEV_SELF_CHECK_PASS**：阶段 A `9 failed, 2 passed` → 阶段 B `11 passed` 证明断言非空转；
+v2 主口径（`llmke-v2-toolenv` 3.10.12 / pytest 8.3.5）新测试 11 passed、R-7 既有 13+7 = 20 passed、
+合跑 31 passed；交叉环境（`hipporag-toolenv` 3.11.15）31 passed；`read_lints` 0。
+F1 两份计划字段形状与 19527/19526 契约一致且带 `v2cand_` 前缀；F2 `duplicate_flag=False`；
+F3 三路 `content_hash` 同源且 `assert_same_artifact` 一致、改写正文可检出分歧；
+F4 `delete_scope` 按 `file_id+pk`、同 source 的 B 保留；F5 `apply` 先 ES 后 Milvus、
+失败带 `side`/`needs_compensation` 不静默降级；R-7 回归全 PASS。
+模式仍 legacy、八端口（含 19526/19527）前后 pid/fd 一致、线上 `_count=2` 只读未变；
+两仓无越界（本 loop 仅三个 untracked 新增文件，tracked 平台文件 0 改动，doc2md 封存态未动）。
+
+baton 交 **TL 复核**（现场输出 + 两仓无越界 + 反例 FAIL→PASS 可复现 + 未写线上/未启停服务）。
+按 PLAN §四，内部推进条件满足后由 TL 决定是否派工 P2-L7（同源校验落生产）。
+**`QA_PASS` 仍挂起**（G-4 三项输入与签署载体待 Owner），本 loop **未签 QA_PASS、
+未标 DONE / VERIFIED**；`TASKS.yaml` 的 `T-D2MD-06.evidence` 待 QA_PASS 后由 TL 填写。
