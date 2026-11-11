@@ -1,0 +1,7 @@
+module,impl_files,impl_lines,functions,test_files,test_cases,test_lines
+answer_api,7,739,20,3,45,669
+authz,2,113,8,2,14,197
+chunk_store,2,134,5,2,13,220
+citation_evidence,3,437,17,2,44,537
+citation_flow,2,83,4,2,6,274
+index_generation,2,275,17,3,23,430
