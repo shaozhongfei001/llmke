@@ -73,6 +73,14 @@ class GlobalRequest(BaseModel):
 
 
 class BuildDoc(BaseModel):
+    # 旧调用方仍会发单值 `file_id`；统一转成 `file_ids`，不回退新契约，也不 422。
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_legacy_file_id(cls, data):
+        if isinstance(data, dict) and "file_id" in data and "file_ids" not in data:
+            data = {**data, "file_ids": [str(data["file_id"])]}
+        return data
+
     # 契约 §2.1：`file_ids` 是**数组**，承载 1:N（同文异源——两块相同文本在引擎里
     # 合并成一块，这块同时属于多个文件）。原来这里是单值 `file_id`，是 L9 的实现缺陷：
     # 平台侧按契约发 `file_ids`，18094 会以 `file_id Field required` 422 拒掉
@@ -412,10 +420,33 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
             slot["engine"] = (engine_factory or (lambda: _load_engine(slot["snapshot"])))()
         return slot["engine"]
 
-    def engine_for_kb(kb: str) -> Optional[Any]:
-        """按库加载引擎：解析不到快照返回 None；快照变化时**只重载该库的槽**。"""
+    def snapshot_for(kb: str) -> Optional[str]:
+        """按库解析快照；无库上下文时兼容旧单快照 state（测试/legacy 调用方）。"""
         snap = _resolve_snapshot(kb)
+        if snap or (kb or "").strip():
+            return snap
+        cached = _slot("")["snapshot"] or state["snapshot"]
+        if cached:
+            return cached
+        # 测试注入 engine_factory 时，用注入引擎的 save_dir 作为 legacy 单快照。
+        if engine_factory is not None:
+            try:
+                return getattr(engine(), "save_dir", None)
+            except Exception:  # noqa: BLE001 - 引擎构造失败等同没有快照
+                return None
+        return None
+
+    def engine_for_kb(kb: str) -> Optional[Any]:
+        """按库加载引擎：解析不到快照返回 None；快照变化时**只重载该库的槽**。
+
+        无库上下文（kb=""）且测试注入了 engine_factory 时，回退到旧单快照引擎：
+        保持 create_app(engine_factory=...) 的旧契约可用，不要求额外设置环境变量。
+        生产调用没有 engine_factory，仍按快照解析结果如实返回 NOT_BUILT。
+        """
+        snap = snapshot_for(kb)
         if not snap:
+            if not (kb or "").strip() and (engine_factory is not None or states[""]["engine"] is not None):
+                return engine()
             return None
         slot = _slot(kb)
         if slot["engine"] is not None and slot["snapshot"] == snap:
@@ -483,8 +514,8 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
                                 detail=f"build failed: {type(exc).__name__}: {exc}") from exc
         # 新快照可以立刻被查询：只重置**该库的槽**，指向新目录（不改进程环境变量）。
         # 但**只有写本进程自己的 root 时才动槽**：影子构建不能污染生产的内存视图。
+        slot = _slot(kb)
         if _is_own_root(base_root):
-            slot = _slot(kb)
             slot["engine"] = None
             slot["text_to_idx"] = None
             slot["snapshot"] = str(out.get("snapshot") or "")
@@ -510,7 +541,7 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
         # 建图成功即产社区报告（global 的前提）：报告读的是刚落盘快照里的 openie 结果与
         # sources.json，所以和查询用的是同一份数据，不存在"报告说 A、检索给 B"。
         # 报告失败不影响建图结果（图已经建好了），但必须在响应里写明失败原因，不能装作没这回事。
-        snapshot = str(slot["snapshot"] or "")
+        snapshot = str(slot["snapshot"] or out.get("snapshot") or "")
         try:
             community = global_report.write(
                 snapshot, [fid for d in docs for fid in d.file_ids])
@@ -598,7 +629,7 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
         """D4 Tab2：库级实体聚合（id/名/别名/事实/多来源），消费归并后的断言层。"""
         from .normalize import build_store
 
-        snapshot = _resolve_snapshot(kb)
+        snapshot = snapshot_for(kb)
         base = {"schema": SCHEMA, "kb": kb, "snapshot": snapshot}
         if not snapshot:
             return {**base, "entity_count": 0, "entities": [],
@@ -644,7 +675,7 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
         root = _root_dir()
         pointer = read_pointer(os.path.join(root, kb)) if kb else read_pointer(root)
         fence_state = _slot(kb).get("fence") or state.get("fence") or FenceState()
-        snapshot = (_resolve_snapshot(kb) or _slot(kb)["snapshot"]
+        snapshot = (snapshot_for(kb) or _slot(kb)["snapshot"]
                     or state["snapshot"] or getattr(engine(), "save_dir", None))
         community = {"communities": None, "citation_check_ok": None}
         if snapshot:
@@ -752,12 +783,16 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
         from .normalize import build_store
         from . import entity_link
 
-        snapshot = _resolve_snapshot(kb)
+        snapshot = snapshot_for(kb)
         base = {"schema": SCHEMA, "kb": kb, "snapshot": snapshot}
         if not snapshot:
             return {**base, "status": "NOT_BUILT", "node_count": 0, "edge_count": 0,
                     "nodes": [], "edges": [],
                     "reason": f"知识库 {kb or '(未指定)'} 尚未构建图谱"}
+        if not os.path.isdir(snapshot):
+            return {**base, "status": "GRAPH_UNAVAILABLE",
+                    "node_count": 0, "edge_count": 0, "nodes": [], "edges": [],
+                    "reason": f"快照目录不存在: {snapshot}"}
         try:
             sources = global_report.read_sources(snapshot)
             store_result = build_store(global_report._openie_docs(snapshot),
@@ -836,7 +871,7 @@ def create_app(engine_factory=None, builder=None, delta_runner=None) -> FastAPI:
         三种"不给答案"的情形都返回 200 + 空答案 + 原因，不用普通检索顶替：
         报告不存在（NOT_READY）、没有社区（NO_COMMUNITIES）、引用校验不过（CITATION_INVALID）。
         """
-        snapshot = _resolve_snapshot(req.kb)
+        snapshot = snapshot_for(req.kb)
         base = {"schema": SCHEMA, "kb": req.kb, "snapshot": snapshot, "query": req.query}
         if not snapshot:
             return {**base, "status": "NOT_BUILT", "communities": 0, "answer": "",

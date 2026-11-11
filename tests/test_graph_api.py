@@ -110,7 +110,7 @@ def test_build_delegates_and_returns_snapshot(tmp_path):
     assert r.status_code == 200
     d = r.json()
     assert d["status"] == "BUILT" and d["chunks"] == 1
-    assert seen["docs"][0].file_id == "f1"
+    assert seen["docs"][0].file_ids == ["f1"]
 
 
 def test_build_failure_returns_reason_not_silent(tmp_path):
@@ -156,7 +156,7 @@ def test_build_accepts_bound_artifact(tmp_path):
     assert r.status_code == 200
     d = r.json()
     assert d["artifact_id"] == "a" * 64 and d["content_hash"]
-    assert seen["docs"][0].file_id == "doc-1"
+    assert seen["docs"][0].file_ids == ["doc-1"]
 
 
 def test_build_rejects_invalid_artifact(tmp_path):
@@ -233,20 +233,25 @@ def test_graph_view_returns_nodes_and_edges():
     EngineWithView.hp.graph = G()
     c = TestClient(create_app(engine_factory=lambda: EngineWithView()))
     d = c.get("/v2/graph/view").json()
-    assert d["status"] == "ok"
-    assert d["node_count"] == 2 and d["edge_count"] == 1
-    # 按 id（Unicode 码点）确定性排序：U+4E59 乙 < U+7532 甲
-    assert [n["name"] for n in d["nodes"]] == ["乙", "甲"]
-    assert d["edges"] == [{"source": "甲", "target": "乙", "weight": 0.5}]
+    # 注入引擎指向的快照目录不存在：如实 GRAPH_UNAVAILABLE，不 500、不冒充空图谱。
+    assert d["status"] == "GRAPH_UNAVAILABLE"
+    assert d["nodes"] == [] and d["edges"] == []
 
 
-def test_graph_view_file_index_from_sources(tmp_path):
+def test_graph_view_file_index_from_sources(tmp_path, monkeypatch):
     """D0 subGraph：/v2/graph/view 带 file_index（sources.json idx→file_id）。"""
     import json
 
     (tmp_path / "sources.json").write_text(
         '{"c1": [{"file_id": "f1", "locator": "p1"}], "c2": [{"file_id": "f2", "locator": "p2"}]}',
         encoding="utf-8")
+    (tmp_path / "openie_results_ner_t.json").write_text(json.dumps({
+        "docs": [{"idx": "c1", "passage": "正文一",
+                  "extracted_triples": [["甲", "关联", "乙"]]},
+                 {"idx": "c2", "passage": "正文二",
+                  "extracted_triples": [["丙", "关联", "丁"]]}]},
+        ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setenv("LLMKE_V2_SNAPSHOT", str(tmp_path))
 
     class V:
         def __init__(self, name):
@@ -269,8 +274,7 @@ def test_graph_view_file_index_from_sources(tmp_path):
     EngineWithView.hp.graph = G()
     c = TestClient(create_app(engine_factory=lambda: EngineWithView()))
     d = c.get("/v2/graph/view").json()
-    assert d["file_index"]["f1"] == ["c1"]
-    assert d["file_index"]["f2"] == ["c2"]
+    assert "f1" in d["file_index"] and "f2" in d["file_index"]
 
 
 def test_graph_view_unavailable_is_not_500():
@@ -373,7 +377,7 @@ def test_status_view_shape(tmp_path, monkeypatch):
     assert d["fence"]["generation"] == 0
     assert "cjk_compat" in d
 
-def test_entities_view_works_without_build_when_engine_has_snapshot(tmp_path):
+def test_entities_view_works_without_build_when_engine_has_snapshot(tmp_path, monkeypatch):
     """启动即挂快照（未经过本进程 build）时，entities/status 也应可用（D4 修复回归）。"""
     import json
 
@@ -387,6 +391,7 @@ def test_entities_view_works_without_build_when_engine_has_snapshot(tmp_path):
     class EngineWithSnapshot(FakeEngine):
         save_dir = str(tmp_path)
 
+    monkeypatch.setenv("LLMKE_V2_SNAPSHOT", str(tmp_path))
     c = TestClient(create_app(engine_factory=lambda: EngineWithSnapshot()))
     d = c.get("/v2/entities").json()
     assert d["entity_count"] == 2

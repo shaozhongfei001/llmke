@@ -129,7 +129,7 @@ def test_graph_route_maps_documents_and_metadata():
     # 出站报文与地址
     assert len(fake.calls) == 1
     assert fake.calls[0]["url"].endswith("/v2/graph/query")
-    assert fake.calls[0]["payload"] == {"query": "单笔授信超过五亿元由谁审议通过", "top_k": 3, "seeds": []}
+    assert fake.calls[0]["payload"] == {"query": "单笔授信超过五亿元由谁审议通过", "top_k": 3, "seeds": [], "kb": "kb_9"}
 
 
 def test_rewritten_query_takes_precedence_and_is_reported():
@@ -332,7 +332,7 @@ def test_global_forwards_report_and_returns_legacy_shape():
     # 出站：打到 global 端点，社区条数取 Java global 分支真实发的 summary_top_k=5
     assert len(fake.calls) == 1
     assert fake.calls[0]["url"].endswith("/v2/graph/global")
-    assert fake.calls[0]["payload"] == {"query": QA_REQUEST["query"], "max_communities": 5}
+    assert fake.calls[0]["payload"] == {"query": QA_REQUEST["query"], "max_communities": 5, "kb": "kb_9"}
 
 
 def test_global_only_ships_communities_used_in_answer():
