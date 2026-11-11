@@ -750,9 +750,10 @@ tasks:
   - T-D2MD-16
   state: TODO
   next_action: INGEST_READ_MODE=snapshot + INGEST_READ_KBS=[kb_9]；读 v2cand 可查；切读前核对 table_summary 影子通道已补齐
+  note: '图根式切读（改 LLMKE_V2_GRAPH_ROOT 到 app 生产根）已做隔离机制验证（STEP2-E），证明 FULL_REBUILD 重建整个 kb 不削数据；但标准 snapshot 切读开关 INGEST_READ_MODE/INGEST_READ_KBS 代码未实现（18096 grep 无命中），部署仓 kb-ingest.env 缺失致 unit 不可启动'
   acceptance: []
-  evidence: ''
-  blocker: 'table_summary 影子通道补齐前不得切读（L8 裁定 Q3：写侧不产该通道，snapshot 下表格总结会静默空）'
+  evidence: docs/v2-tasks/evidence/STEP2-E-FULL-REBUILD-ISOLATION-20261112.md
+  blocker: '真实外部阻塞：①INGEST_READ_MODE/READ_KBS 切读开关代码未实现（18096 仅支持改图根目录）；②部署仓 kb-ingest.env 缺失致 systemd unit 不可启动；③依赖链 17←16←15←14：P5-0b（@Lazy 授权）未批、12340 退役（T-D2MD-16）待 G-1 裁定；④图根 env 变更属生产变更，需 Owner 授权'
   artifacts: []
 - id: T-D2MD-18
   title: P6 required_checks 全量 + 检索等价性门禁（分档）
