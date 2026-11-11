@@ -1,3 +1,8 @@
+> **2026-11-11 评审回执更正（S-1）**：§10.3/§10.4 关于“旧 dist 不适配/前端抽屉字段映射”的结论已被单变量实验推翻。
+> 同一 kb_9/333、同一问句“多指标对账”、同一 42167f0 后端，r12 旧 dist 与 v2 dist **都能**打开原文（截图见
+> `docs/v2-tasks/evidence/artifacts-20261111/S1-r12dist-kb9-333.png` 与 `S1-v2dist-kb9-333.png`）。
+> 因此 D7a“打开原文”成立；D7 整体仍缺 locator 高亮，高亮单列 T-A5，不写进本项 VERIFIED 的范围。
+
 # T-A1 自证：D7 打开原文（global 分支补 file_id→convertedFilePath 反查）
 
 > **范围声明（2026-11-03，按 TL 决定显式拆分）**：本文件对应 **T-A1 = D7a「打开原文」**，状态 **VERIFIED**。
@@ -380,7 +385,7 @@ INFO … T-A1 enrichReferenceSources: items=1 resolved=0 unresolved=1
 即：**Java 反查这一段已经做到位（五个字段齐全、presign 200、原文 36716 字节可取），断点在"知识溯源抽屉条目 → 预览组件"的字段映射**，
 该映射在 `frontend/plateform`（llmke-r12 树）与 `@gientech/modual` 里，**不在本批次写域**。
 
-### 10.4 结论：T-A1 保持 BLOCKED，断点=前端抽屉字段映射
+### 10.4 结论（已被 2026-11-11 更正）：D7a 打开原文成立；D7 缺高亮
 
 - 已验证（可复跑）：上传 → 建图（file_id 333）→ Java global 引用带 `source`/`filePath`/`locator` →
   `presign` 200 → 预签名 GET **200 / 36716 字节**（与上传大小相等）→ locator `page=-;offset=[[0,0]…[2,2]];chunk=1` 未丢。
@@ -511,7 +516,7 @@ agent-browser open http://127.0.0.1:18088/chats/main      # 这次停在 /chats/
 **"点引用 → 打开原文"在页面里真实成立**（v2 dist + 后端反查 + presign/previewStream 全 200 + PDF 渲染）；
 **locator 全链路不丢**（reference 与 sources[] 均带 `page=-;offset=[[0,45]];chunk=0`）；
 唯一没做到的是**打开后按 locator 高亮**——前端没有这个能力（DOM 无高亮层、代码里问答预览未实现）。
-按 D7 原文（"点引用打开并高亮正确位置"）这一条仍缺高亮，故 T-A1 不写 VERIFIED，断点收窄为"前端无 locator 高亮实现"。
+按 D7 原文（"点引用打开并高亮正确位置"），D7a 打开原文成立、D7 整体仍缺高亮；高亮单列 T-A5，不写进 D7a 的范围。
 
 ## 12. 收尾登记（2026-11-03 15:40）
 

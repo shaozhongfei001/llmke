@@ -1,0 +1,10 @@
+{
+  "source": "r12-rag/kb_9/docx-table.docx/V0/docx-table.docx",
+  "presign_status": 200,
+  "download_status": 200,
+  "download_bytes": 36944,
+  "download_sha256": "a846ab142d8d24afe3f552f95888c4b261dd7c8908921a16a2932c4a7838fa1d",
+  "preview_status": 200,
+  "preview_bytes": 39628,
+  "preview_sha256": "2ace7b8d62e2230855bece486be28b0226738a6009cb7849a6f3983a4bc5ff6c"
+}

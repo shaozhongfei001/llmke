@@ -1,0 +1,125 @@
+{
+ "answer": "- 指标 数据源 T-CORE-001（来源：333）\n- 指标 口径 按业务日跨账户汇总/天数（来源：333）\n- 指标 数据源 T-EXT-001（来源：333）\n- 指标 口径 月度同比（来源：333）",
+ "citation_check": {
+  "checked": 4,
+  "detail": null,
+  "invalid": [],
+  "ok": true,
+  "reason": null,
+  "sources_available": true,
+  "valid": [
+   "c-1:333:指标 口径 按业务日跨账户汇总/天数",
+   "c-1:333:指标 口径 月度同比",
+   "c-1:333:指标 数据源 T-CORE-001",
+   "c-1:333:指标 数据源 T-EXT-001"
+  ]
+ },
+ "citations": [
+  {
+   "community": "c-1",
+   "sources": [
+    "333"
+   ],
+   "text": "指标 数据源 T-CORE-001"
+  },
+  {
+   "community": "c-1",
+   "sources": [
+    "333"
+   ],
+   "text": "指标 口径 按业务日跨账户汇总/天数"
+  },
+  {
+   "community": "c-1",
+   "sources": [
+    "333"
+   ],
+   "text": "指标 数据源 T-EXT-001"
+  },
+  {
+   "community": "c-1",
+   "sources": [
+    "333"
+   ],
+   "text": "指标 口径 月度同比"
+  }
+ ],
+ "communities": [
+  {
+   "community": "c-1",
+   "entities": [
+    "ent:t-core-001",
+    "ent:t-ext-001",
+    "ent:指标",
+    "ent:按业务日跨账户汇总/天数",
+    "ent:月度同比"
+   ],
+   "fact_count": 4,
+   "facts": [
+    {
+     "sources": [
+      "333"
+     ],
+     "text": "指标 数据源 T-CORE-001"
+    },
+    {
+     "sources": [
+      "333"
+     ],
+     "text": "指标 口径 按业务日跨账户汇总/天数"
+    },
+    {
+     "sources": [
+      "333"
+     ],
+     "text": "指标 数据源 T-EXT-001"
+    },
+    {
+     "sources": [
+      "333"
+     ],
+     "text": "指标 口径 月度同比"
+    }
+   ],
+   "isolated": false,
+   "size": 5,
+   "sources": [
+    "333"
+   ]
+  }
+ ],
+ "community_count": 1,
+ "excluded": [],
+ "inputs": {
+  "documents": 3,
+  "facts": 4,
+  "file_ids": [
+   "333"
+  ],
+  "normalize": {
+   "dropped_empty": 1,
+   "dropped_no_source": 0,
+   "facts_in": 5,
+   "facts_out": 4,
+   "numeric": 0,
+   "relational": 4,
+   "store": {
+    "aliases": 10,
+    "assertions": 4,
+    "entities": 5,
+    "orphans": 0,
+    "sources": 1
+   },
+   "unmapped_predicates": [
+    "口径",
+    "数据源"
+   ]
+  },
+  "triples": 5,
+  "visibility_source": "build_inputs"
+ },
+ "policy": "global 报告只消费经原文与可见性校验的标准事实；无社区或无引用时如实标不可用，不用普通检索结果顶替",
+ "schema": "llmke.graph-engine.global-report.v1",
+ "sources_available": true,
+ "status": "READY"
+}

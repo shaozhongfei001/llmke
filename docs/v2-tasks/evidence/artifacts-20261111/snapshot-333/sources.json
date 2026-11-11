@@ -1,0 +1,23 @@
+{
+ "chunk-1ac7f36a0bceacd006cbe4de7f8684aa": [
+  {
+   "file_id": "333",
+   "locator": "page=0;offset=[[0, 17]];chunk=0",
+   "title": "docx-table.docx"
+  }
+ ],
+ "chunk-817c931e7c3efc3c662d7421015ee684": [
+  {
+   "file_id": "333",
+   "locator": "page=0;offset=[[19, 30]];chunk=1",
+   "title": "docx-table.docx"
+  }
+ ],
+ "chunk-91926028291f9b60d41a499ca954e904": [
+  {
+   "file_id": "333",
+   "locator": "page=0;offset=[[]];chunk=2",
+   "title": "docx-table.docx"
+  }
+ ]
+}

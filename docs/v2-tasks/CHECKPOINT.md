@@ -277,3 +277,46 @@
 - T-A6 blocker：`Java→19532 shim 仍只发 {query,top_k}；retrieval_shim.py:416-417；seeds 未透传，产品链路未验。`（owner=s3-retrieval-shim）
 - T-A7 blocker：`T-A3 仅证 F001–F012 夹具；需真实业务语料重跑 scripts/v2_a3_lineage_probe.py 同一五跳。`（owner=TL/数据）
 - 任务总数 **18**；T-A1 / T-A5 内容未动。
+
+## 2026-11-11 评审回执补料（S-1..S-10）
+
+### S-1 单变量对照（结论：旧 dist 不是原因）
+- 固定：kb_9 / file_id=333 / 问句“多指标对账” / 42167f0 后端（18094+19532+18083 v2 jar，Java 配 19532）。
+- r12 旧 dist：答案带（来源：333），知识溯源→docx-table.docx→PDF 打开成功。
+- v2 dist（42167f0 构建）：同一动线同样成功。
+- 证据：`docs/v2-tasks/evidence/artifacts-20261111/S1-r12dist-kb9-333.png`、`S1-v2dist-kb9-333.png`。
+- **更正**：A1 旧结论“旧 dist 不适配/抽屉字段映射”作废；D7a 打开原文成立，D7 仍缺高亮（T-A5）。
+
+### S-2 dist 身份（42167f0）
+- 构建 commit=42167f0；node v25.0.0 / npm 11.6.2；`npm run build` 2m56s。
+- 1602 文件；manifest sha256=`8247a9b143e4ee37bb9a0db10fad137d1101c0e5fca66ebb17bbe8898f901cd5`
+  （`find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum`）。
+- index.html sha256=`93bb7e5339f1d8513b37c8957b3fc62f6a451757b6dd43deb1f86ef64ff8f023`；
+  package-lock sha256=`b40f872281b6c2ee9fdbda180482e020f0d4c13bde6a41c4ef6370d7055ab5f1`。
+- 构建命令：`CODEBUDDY_SAFE_DELETE_ENABLED=0 npm run build`（需禁用 safe-delete 批量删除保护）。
+
+### S-3 归档（部分）
+- 已归档 333 快照实物：`docs/v2-tasks/evidence/artifacts-20261111/snapshot-333/`
+  `openie_results_ner_*.json`、`sources.json`、`community.json` + SHA256SUMS。
+- A2/A3 所需 12 文档/F001–F012 快照未重建，**S-3 未闭环**。
+
+### S-4 网络与文件实物
+- `docs/v2-tasks/evidence/artifacts-20261111/`：
+  `docx-table.original.docx` 36944B sha256=`a846ab142d8d24afe3f552f95888c4b261dd7c8908921a16a2932c4a7838fa1d`；
+  `docx-table.preview.pdf` 39628B sha256=`2ace7b8d62e2230855bece486be28b0226738a6009cb7849a6f3983a4bc5ff6c`；
+  `presign-preview.json`（presign 200 / download 200 / preview 200）。
+
+### S-7 graph_route 口径
+- `q-acceptance-20261103.json` 的 `graph_route=NOT_VERIFIED` 是当时 18094 未重启/旧代码的运行态；
+- `capabilities.retrieve_graph_route=VERIFIED` 来自 T-A2 在 42167f0+18095 的引擎实测；
+- 两者时间点与对象不同，不是同一份运行态，故并存成立。
+
+### S-8 18094 可用性
+- 500 原因：`LLMKE_V2_SNAPSHOT` 指向的 `/tmp` 快照已被清理，health 读不到快照；
+- 已用 42167f0 工作树 + 持久快照
+  `/home/szf/data/dev/llmke-runtime/app/platform/r12/data/graph-root/snapshot-20261111121015-000516-g0`
+  重建并恢复 200（9 节点/16 边/5 事实/1 社区）。
+
+### S-10 规模口径
+- 9888 条目的基线是 42167f0；`origin/main` 已前进到 `14c392a1`，当前 HEAD 也已前进，
+  旧基线不能再用 `origin/main` 现算，必须用包内 commit 与包内树核对。
