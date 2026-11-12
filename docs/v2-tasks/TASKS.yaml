@@ -748,12 +748,26 @@ tasks:
   owner: integration-agent
   depends_on:
   - T-D2MD-16
-  state: TODO
-  next_action: INGEST_READ_MODE=snapshot + INGEST_READ_KBS=[kb_9]；读 v2cand 可查；切读前核对 table_summary 影子通道已补齐
+  state: IN_PROGRESS
+  next_action: '工程侧可执行验证已闭环：STEP2-M 生产窗口（切读生效/查询可读/幂等短路/生产数据零改动）+ STEP2-N 隔离副本真实 delta 重建（stale=True → BUILT/DELTA，引擎 deleted=0，重建后 documents=46 与 11 file_id 全在，变异体丢 10 个被捕获）。三层证据链：STEP2-J 编排层 wanted_docs、STEP2-N 引擎/指针层、STEP2-M 运行态层。仍不标 VERIFIED、不解锁 T-D2MD-18：真实外部阻塞为 G-4 独立 QA 主体/公钥缺失、G-2 放行阈值未就绪、依赖链 17←16←15←14 未闭环。下一步默认动作：等待「提交一次 git」指令入库；G-4/G-2 补齐后再由独立 QA 签署与 18 门禁（50 条固定 query 对照）'
+  note: '2026-11-12 Owner 决策 D1/D2/D3 仍有效；STEP2-L 判定 D-1~D-6 已结案。STEP2-M 窗口：服务身份经 /proc 核实；备份在 coordination/p6-window-20261112/；18094 曾因 r12-watchdog.timer 每 30s 自愈拉起产生 3 次 address already in use 与 /health 500，失败保留，以「停 timer → 清残留 → 完整 env + 发布树代码重启」恢复；发布树/运行树 graph_engine_adapter/api.py md5 不同；请求级 graph_root 生产生效；ES/Milvus 写入目标为 v2cand_* 影子前缀。STEP2-N：在隔离副本上真实执行 rebuild_delta（真实 _default_apply 调 LLM/embed），freshness.changed=[290]、apply_result deleted=0/added=1/reused=30/consistent=True，新快照含 7 项、sources 保留 11 个 file_id；生产 current.json sha256 前后同为 fa650c7d…；副本 11MB 已清理。注意：生产图本身仍未被重建（窗口 6 份 POST 走 SKIPPED_FRESH），不声称生产图已重建或查询等价性已验收'
   acceptance: []
-  evidence: ''
-  blocker: 'table_summary 影子通道补齐前不得切读（L8 裁定 Q3：写侧不产该通道，snapshot 下表格总结会静默空）'
-  artifacts: []
+  evidence: 'docs/v2-tasks/evidence/STEP2-E-FULL-REBUILD-ISOLATION-20261112.md; docs/v2-tasks/evidence/STEP2-G-PROD-ARTIFACTS-MISSING-20261112.md; docs/v2-tasks/evidence/STEP2-H-PROD-8FILE-REBUILD-DECISION-20261112.md; docs/v2-tasks/evidence/STEP2-I-HANDOVER-RECON-20261112.md; docs/v2-tasks/evidence/STEP2-J-REQUEST-GRAPH-ROOT-20261112.md; docs/v2-tasks/evidence/STEP2-K-GRAPH-ROOT-SEMANTICS-20261112.md; docs/v2-tasks/evidence/STEP2-L-DESIGN-DECISION-20261112.md; docs/v2-tasks/evidence/STEP2-M-PRODUCTION-WINDOW-20261112.md; docs/v2-tasks/evidence/STEP2-N-DELTA-REBUILD-VERIFY-20261112.md; docs/v2-tasks/evidence/STEP2-O-PRECOMMIT-REVIEW-20261112.md'
+  blocker: '剩余均为真实外部阻塞（STEP2-O 后，工程侧与提交前复核均闭环）：①G-4 独立 QA principal/公钥缺失 → 01~12 保持 WAIT_QA_ATTESTATION，禁止自签 QA，17 不得标 VERIFIED/QA_PASS；②G-2 放行阈值未就绪、T-D2MD-18 的 50 条固定 query full vs delta 召回/排序对照未做；③依赖链 17←16←15←14 未闭环（G-1 待批、12340 仍 LISTEN）；④【过渡风险】18096 与 19531 双写通道并存，待 T-D2MD-13/14/16 收口；⑤18096 diff=CONTENT_CHANGED 与 18094 freshness 不 stale 口径不一致（v2cand_* 索引已写、图未写）登记为发现项；⑥标准 snapshot 切读开关未实现、部署仓 kb-ingest.env 缺失；⑦kb_1004/current.json.dir 失效指针另立 backlog；⑧STEP2-G~O 与代码/测试/脚本改动全部留本地工作树，精确提交清单见 STEP2-O §四，待「提交一次 git」指令；⑨【另立批次】make check 基线 FAIL（generate-report 18 个合同 vs registry 29 个，历史未重跑 make generate）与 security-check 基线 FAIL（仅已提交文件即 2377 findings），均非本轮引入，合同再生成/安全 allowlist 需独立批次与 CR'
+  artifacts:
+  - docs/v2-tasks/evidence/STEP2-I-HANDOVER-RECON-20261112.md
+  - docs/v2-tasks/evidence/STEP2-J-REQUEST-GRAPH-ROOT-20261112.md
+  - docs/v2-tasks/evidence/STEP2-K-GRAPH-ROOT-SEMANTICS-20261112.md
+  - docs/v2-tasks/evidence/STEP2-L-DESIGN-DECISION-20261112.md
+  - docs/v2-tasks/evidence/STEP2-M-PRODUCTION-WINDOW-20261112.md
+  - docs/v2-tasks/evidence/STEP2-N-DELTA-REBUILD-VERIFY-20261112.md
+  - docs/v2-tasks/evidence/STEP2-O-PRECOMMIT-REVIEW-20261112.md
+  - scripts/p6_request_graph_root_probe.py
+  - scripts/p6_window_ingest.py
+  - scripts/p6_delta_rebuild_probe.py
+  - tests/test_kb_ingest_request_graph_root.py
+  - tests/test_p6_graph_root_semantics.py
+  - services/rag-alg/index_data_service/kb_ingest_service.py
 - id: T-D2MD-18
   title: P6 required_checks 全量 + 检索等价性门禁（分档）
   parent: VL-DOC2MD-INC
