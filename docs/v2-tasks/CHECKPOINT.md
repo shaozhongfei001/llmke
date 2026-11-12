@@ -334,3 +334,194 @@
 - 清理：design 分支已删；main 因 GitHub 默认分支保护删不掉，改为删除整个 private 仓库
   （0 open issues / 0 forks / 0 tags / 0 releases / 1 个未合并 closed PR）。
 - 本地 `git remote remove review` 已执行，本地只剩 origin。
+
+## P6 / T-D2MD-17 接手检查点（2026-11-12，STEP2-I）
+
+更新时间：2026-11-12
+当前工作树/分支/HEAD：`/home/szf/data/dev/llmke` main `d2af1e6a`（发布树，仅 ff-only）；`llmke-v2` / `llmke-r12` worktree 已不存在，运行代码在 `llmke-runtime/app/`。
+当前阶段：P6-L17（T-D2MD-17 IN_PROGRESS）。
+
+### 已完成且验证
+- todo 1 探索 doc2md 生成入口：`scripts/v2_ingest_doc2md.py`（scan→copy-to-vault→route-parsers→parse-markitdown）。
+- todo 2 6 份标准四件套：`coordination/kb9-rebuild-corpus/` 6 源 → `doc2md/parsed/by_hash/<sha>/`，全部 `parse_manifest.status=SUCCESS`、含 `document_ir.json`；本轮离线 `kb_pipeline.commit_snapshot()` 6/6 PASS（隔离 store 已删）。
+- todo 3 修 `current.json` 指针：11:54 已由前序执行改为 app 生产根现存 snapshot，留 `current.json.bak.20261112`。
+- 接手核证与事实纠正：见 `docs/v2-tasks/evidence/STEP2-I-HANDOVER-RECON-20261112.md`。
+
+### 未完成/失败（真实外部阻塞，非可自主解决）
+- B-1：`LLMKE_KB_STATE` 指向 shadow state（kb_9 活跃 290/291/292/293），与生产 11 份不同源；`wanted_docs` 是全量装配 → 只改 ROOT/ARTIFACT 就 POST 会用影子 state 覆盖生产 46/11 图。STEP2-E/H「不削」不可外推到路径 A。
+- B-2：18094 无 `LLMKE_V2_ROOT`、`QueryRequest` 无 `root`；`/v2/graph/query kb=kb_9` 实测 `NOT_BUILT`。runbook 的「查询命中 46 块」判据不可达。
+- 依赖链 `17←16←15←14` 未闭环（G-1 待批、12340 仍 LISTEN）；G-4 独立 QA 主体/密钥缺失。
+
+### 下一精确动作
+1. 执行：向 Owner 提交 B-1 / B-2 裁定（同源 kb_state 方案 / 纯只读切换 / 隔离副本演练；是否授权重启 18094 或改验收口径）。
+2. 检查：若选隔离副本演练，复制生产 46/11 快照到隔离 root + 同源 state，用独立 18096 实例跑 6 份，断言 `documents` 与 11 文件集合不变。
+3. 成功后：在已授权窗口内按 STEP2-F 路径 A 执行 todo 4~6，留证后待「提交一次 git」指令入库。
+4. 失败后：按 STEP2-I §六 登记，不删失败、不改状态凑 PASS。
+
+### 不得重复或擅自执行
+- 已完成的副作用：6 份四件套生成、`current.json` 指针修复（均为前序执行，**不重做**）。
+- 未授权：停/重启 19531、18096、18094；写生产 `platform/r12/data`；解除 `T-D2MD-18`；git commit；任何 `QA_PASS` 签署。
+- 不得把 `275eccb8`（parse_queue.json 自身）与 `c5edbeaf`（旧 3 件）计入 6 份语料。
+
+## P6 / T-D2MD-17 续跑（2026-11-12，STEP2-J；Owner 批准 ③+(c)）
+
+更新时间：2026-11-12
+
+### 已完成且验证
+- **graph_root 流向核实**：修正前为启动期 env 死值（闭包实测 `['http://127.0.0.1:18094', '/tmp/GRAPH-ROOT-FROM-ENV']`，`root actually sent to 18094: ['/tmp/GRAPH-ROOT-FROM-ENV']`）；18094 侧 `DeltaRequest.root` 一直是请求体驱动，设定死值发生在 18096 的 service 路径。
+- **实现修正**：发布树 `services/rag-alg/index_data_service/kb_ingest_service.py` 让 service 路径按请求 `graph_root`/`graph_api` 重建绑定；不新增契约字段、不改默认值语义，注入缝不变。
+- **测试**：新增 `tests/test_kb_ingest_request_graph_root.py` 6 项；相关 4 文件 **98 passed**；用 `git show HEAD:` 未修复版做变异复验 → **3 failed / 3 passed**，断言非空转（变异目录已删）。
+- **隔离演练**：`scripts/p6_request_graph_root_probe.py`。同源 state 从生产快照派生，**46 行 / 11 file_id 与生产 `current.json` 指纹一致**；6 份 POST → `wanted_docs` 始终含 11 个 file_id、`removed_total=0`、行数 58→71 单调不减、重复请求 `SKIPPED_FRESH` 零 delta；生产 `current.json` sha256 前后同为 `fa650c7d…`；shadow 4 文件变异体缺 10 个 file_id 被精确捕获。
+- 证据：`docs/v2-tasks/evidence/STEP2-J-REQUEST-GRAPH-ROOT-20261112.md`。
+
+### 仍未完成（真实外部阻塞）
+- B-2：`/v2/graph/query kb=kb_9` 仍 `NOT_BUILT`；按 (c) 已把验收改为指纹比对，但「查询可读」未验收，需 Owner 裁定是否授权重启 18094 设 `LLMKE_V2_ROOT`，或给 `QueryRequest` 增 `root`（需 CR）。
+- **代码合入≠线上生效**：运行树 `llmke-runtime/app/.../kb_ingest_service.py` 未同步（md5 `5a19cc16…` vs 发布树 `563be5a1…`），生产 18096 未重启，线上仍是启动绑定死值。
+- 依赖链 `17←16←15←14`、G-1、G-4 未闭环。
+
+### 下一精确动作
+1. 执行：Owner 就 B-2 与生产窗口授权作出裁定；若放行，先同步运行树代码 + 让 `LLMKE_KB_STATE` 指向同源 state + 重启 18096。
+2. 检查：窗口内按 STEP2-F 路径 A 跑 6 份，比对生产 `current.json` 的 `documents` / `fingerprint.files` 指纹，复核 8 端口 LISTEN。
+3. 成功后：留证，待「提交一次 git」指令入库；再讨论 `T-D2MD-18` 解锁。
+4. 失败后：按 STEP2-I §六 登记，不删失败、不改状态凑 PASS。
+
+### 不得重复或擅自执行
+- 不重做 6 份四件套生成与 `current.json` 指针修复；不重启 19531/18096/18094；不写生产 `platform/r12/data`；不解锁 `T-D2MD-18`；不 commit；不签 `QA_PASS`。
+- 不得把演练结果读成「图已重建 / 查询可读 / 线上已生效」。
+
+## P6 / T-D2MD-17 设计澄清（2026-11-12，STEP2-K）
+
+### 核实结论（事实）
+- `graph_root` **不是「一个库」**：契约 `02-CONTRACTS.md:24` 示例是落盘目录；实测同一 root 下有 `kb_9`(46/11)、`kb_1004`(4520)、顶层单快照(3)。`delta_build.py:51-58` `_kb_root(kb, root)` = `<root>/<kb>`。**`kb`/`kb_id` 才是一个库**。
+- 「按领域图谱范围检索」已由 `QueryRequest.kb` → `engine_for_kb` → `_resolve_snapshot` + `kb.json` 归属校验实现；按库灰度切读的设计是 `INGEST_READ_MODE` / `INGEST_READ_KBS`（STEP2-F 路径 B，尚未实现），不是 `root`。
+- B-2 根因 = 18094 未设 `LLMKE_V2_ROOT`。纯函数实证：不设 → `_resolve_snapshot('kb_9')=None`；设 `<app graph-root>` → 命中 `kb_9/snapshot-20261107212905-365431-g0`。即 (a) 是零契约变更的最小解。
+- 契约 `QueryRequest`(llmke-document-pipeline-v2.json:1547) 与 `GraphQueryRequest`(llmke-core.json:1212) 均无 `root`，加字段需改合同源 + `make generate/check` + CR + 消费者回放。
+
+### 判断
+- 写入侧请求级 `graph_root` 是 `P4-L13C-PLAN.md:29` 的刻意 fail-closed 要求（非单纯缺陷），但需服务端白名单；`P4-L13C-R0` 曾把 (A)env / (B)请求 列为待 Owner 裁定，上一轮代选 (B)，已如实登记。
+- 查询侧 `QueryRequest` 增 `root` **不是更佳**：把存储根/环境选择权下沉给查询方，与 P2-L8 服务端隔离模型相悖；与 `kb` 语义重复；不解决根因且仍需重启 18094；契约成本高。
+
+### 当前阻塞
+- Owner 的 (b) 裁定是条件式（「假如我的理解正确前提下」），前提不成立 → **不自动生效，本轮未执行 (b)、未改契约、未提 CR**。等待重新裁定：(a) 重启 18094 设 `LLMKE_V2_ROOT`（推荐）/ (b) 加 root + 白名单 + CR / (c) 维持指纹比对。
+- 另需裁定写入侧请求级 root 是否保留并补白名单，或回退 (A) env 驱动。
+- 附带：`kb_1004/current.json.dir` 仍指向已删 `llmke-r12`（另一个失效指针），另立条目。
+
+### 下一精确动作
+1. 执行：Owner 就上述两项重新裁定。
+2. 检查：若选 (a)，窗口内重启 18094 设 `LLMKE_V2_ROOT` 后复跑 `POST /v2/graph/query kb=kb_9`，确认不再 `NOT_BUILT`；再按 STEP2-J 的窗口步骤生产切读。
+3. 失败后：按 STEP2-K §五 登记，不删失败、不改状态凑 PASS。
+
+### 不得重复或擅自执行
+- 本轮纯只读核实，未改代码/契约/数据、未重启服务、未 commit；此状态在裁定前保持。
+- 不得把「条件裁定」读成「无条件批准」；不得自签 QA。
+
+## P6 / T-D2MD-17 设计判定已定案（2026-11-12，STEP2-L）
+
+> 上节的「待重新裁定」已由本节收敛。Owner 反馈：技术细节应由 AI 判定，不应反复让其理解后选择。
+
+### 判定（integration-agent 作出，默认执行，可推翻）
+- **D-1**：`graph_root` = 多库落盘根/环境命名空间（实际落点 `<root>/<kb>`）；`kb`/`kb_id` 才是一个库。「按领域图谱范围检索」已由 `kb` 实现。
+- **D-2**：B-2 采用 **(a) 重启 18094 设 `LLMKE_V2_ROOT`**；**否决** `QueryRequest` 增 `root`，不进 backlog。依据：根因是 env 未配、零契约变更、纯函数实证有效、(b) 破坏服务端隔离模型且仍需重启。
+- **D-3**：写入侧**保留请求驱动**（追认 STEP2-J 的 (B)），不回退 env；依据 `P4-L13C-PLAN.md:29` fail-closed 要求。基于「18096 仅 `127.0.0.1` + 内部调用方 18097 + Java `v2-ingest.url: ""`」接受无白名单风险；**失效条件**：暴露到非 loopback / 接入不可信调用方 / 对外提供摄取 API 时，必须先补服务端白名单并登记 `RUNTIME-SWITCHES.yaml`。
+- **D-4**：按库灰度切读 = `INGEST_READ_MODE`/`INGEST_READ_KBS`（路径 B），另立条目，不阻塞本任务。
+- **D-5**：`kb_1004` 失效指针另立 backlog，不扩大 kb_9 范围。
+- **D-6**：技术判定由本角色默认执行并附可复跑证据；仅「生产窗口放行 / 方向性业务变更 / Owner 与独立 QA 签署」三类升级，且只需是/否或授权。纠正前两轮把技术选型过度升级为 Owner 裁定。
+
+### 依据（可复跑）
+- 新增 `tests/test_p6_graph_root_semantics.py` → **4 passed**（纯 tmp_path，不依赖生产路径）。
+- STEP2-J 相关 4 文件 98 passed；变异复验 3 failed / 3 passed；隔离演练 PASS + 变异体被捕获。
+- 判定书：`docs/v2-tasks/evidence/STEP2-L-DESIGN-DECISION-20261112.md`。
+
+### 下一精确动作（窗口放行后自动执行，不再逐项询问）
+1. 同步运行树 `kb_ingest_service.py`（发布树 `563be5a1…` → 运行树 `5a19cc16…`）。
+2. 重启 18094 设 `LLMKE_V2_ROOT=<app graph-root>` → 复跑 `POST /v2/graph/query kb=kb_9` 断言不再 `NOT_BUILT`。
+3. `LLMKE_KB_STATE` 指向同源 state → 停 19531 → 重启 18096 → POST 6 份 → 比对生产 `current.json` 的 `documents` / `fingerprint.files`。
+4. 留证，待「提交一次 git」指令入库；17 验收前不解锁 18。
+
+### 不得重复或擅自执行
+- 本轮未改代码/契约/数据、未重启服务、未 commit；窗口放行前保持。
+- 不代签 Owner 决议/独立 QA，不声称 `QA_PASS`；不把工程候选读成正式门禁通过。
+- Owner 推翻任一判定只需指出 D-1…D-6 编号与方向。
+
+## P6 / T-D2MD-17 生产窗口执行完毕（2026-11-12，STEP2-M）
+
+窗口：18:20:03 → 18:36:18（+08:00）。Owner「放行生产窗口」，按 STEP2-L §七 四步序列执行。
+
+### 已完成且验证
+- 前置：服务身份经 `/proc/<pid>/cmdline`+`environ` 核实；备份在 `coordination/p6-window-20261112/`（含 `MANIFEST.sha256`、before `current.json`/env/cmdline/运行树代码）；依赖端口 18090/18092/19526/19527/19996 全在；6 份 fixtures 的生产 file_id 映射从 `sources.json` 提取（290/329/330/332/333/999019）。
+- 停 19531；同步运行树 `kb_ingest_service.py`（两份 md5 一致 `563be5a1…`）。
+- **失败处理（全部保留）**：18094 重启连续 3 次 `address already in use`；根因是 `r12-watchdog.timer`（`OnCalendar=*:00,30`）自愈拉起 18094+19531，且 watchdog 实例缺 `LLMKE_V2_SNAPSHOT` 导致 `/health` 500。处置：停 timer → 清残留脚本进程 → kill watchdog 实例 → 用完整 env + 发布树代码重启。最终 pid 2370351(+worker 2371946)，`/health` 200。
+- **D-2 验收**：`POST /v2/graph/query kb=kb_9` 从 `NOT_BUILT` 变为 `HTTP 200 / GRAPH / hit_count=3`。
+- 同源 state 落地（`kb-state/kb_9-prod-derived.json`，46 行/11 file_id，sha256 `9618b7d6…`）；新建 `data/artifact-store/`、`data/kb-state/`，无既有文件被覆盖。
+- 18096 重启切生产 env（pid 2381144，`/health` 200，三项 env 核实）。
+- 6 份 POST 全 `200/OK`（`CONTENT_CHANGED`、`state_committed=True`、`index_write=APPLIED`、`delta root=<app>/graph-root/kb_9` ✔ 请求级 graph_root 生效）。
+- 验收：`current.json` 与窗口前 `cmp` 逐字节相同（`fa650c7d…`，documents=46、11 file_id 全在、无新快照）；POST 后 query 仍 `GRAPH/200/hit_count=3`；重复请求 `SKIPPED_FRESH`/`NO_CHANGE`/零索引写/零 delta。
+- 收口：恢复 `r12-watchdog.timer`（active）；8 端口全 LISTEN；18094/18096/19531/19532 health 全 200；19531 由 watchdog 拉回（pid 2411825）。
+
+### 未完成 / 如实边界
+- **图未被重建**：6 份 delta 均 `freshness.stale=False → SKIPPED_FRESH`，所以「不削」是「没写图」而非「重建后仍不削」。「delta 重建分支执行后不削」未在生产验证 → **17 保持 IN_PROGRESS，不解锁 18**。
+- ES/Milvus 有真实写入，目标为 `v2cand_*` 影子前缀；`diff=CONTENT_CHANGED` 与 `freshness 不 stale` 口径不一致（索引写、图未写）登记为发现项。
+- 18096 与 19531 双写通道并存（过渡风险），待 `T-D2MD-13/14/16` 收口；本窗口按「不扩大范围」未改部署脚本。
+- 发布树与运行树 `graph_engine_adapter/api.py` md5 不同，登记为 P6-BACKLOG #7 延伸。
+
+### 下一精确动作
+1. 设计受控用例让 delta 判 `stale=True`（不写生产：优先隔离副本 root），实证「重建后仍 11 file_id».
+2. 待 Owner「提交一次 git」指令入库；STEP2-G~M、代码、测试、脚本全部留本地工作树。
+3. 17 全验收前不解锁 18；G-4 补齐独立 QA 主体/密钥后才讨论签署。
+
+### 不得重复或擅自执行
+- 不重做本窗口的 6 份 POST 与指针修复；不删 `18094.log` 里的失败记录凑 PASS；不擅自改 `r12-graph-v2-start.sh` 停用 19531；不 commit；不签 `QA_PASS`。
+- 回滚预案见 `STEP2-M` §四（备份齐全，未触发）。
+
+## P6 / T-D2MD-17 delta 重建分支补证完成（2026-11-12，STEP2-N）
+
+> 补齐 STEP2-M 的缺口：生产窗口 6 份 POST 均 `SKIPPED_FRESH` 零重建，需证明「重建分支执行后仍不削」。
+
+### 已完成且验证
+- 入口 `scripts/p6_delta_rebuild_probe.py`（隔离副本 root，真实 `_default_apply` 调 LLM/embed）。
+- 触发 stale：同源 live 46 行 / 11 file_id，只改 `290` 一块文本 → `freshness={stale:True, reason:SNAPSHOT_OUT_OF_DATE, changed:['290']}` → `BUILT / effective_mode=DELTA`。
+- 重建后副本 `current.json`：`documents=46`、`fingerprint.files` 仍为原 11 个、`mode=DELTA`、新快照 `snapshot-20261112190738-230055-g0`（含 7 项）、`fencing=2`、`sources.json` 保留 11 个 file_id。
+- 引擎真实增量：`{deleted:0, added:1, reused:30, duplicates:15, remaining:31, expected:31, consistent:True}` —— **0 块删除**。
+- 变异复验：shadow 4 文件 live → 同一「11 个全在」判据 FAIL，精确列出丢失 10 个 file_id，断言非空转。
+- 零生产风险：生产 `current.json` sha256 前后同为 `fa650c7d…`；8 端口 LISTEN、四个 health 200、timer active；副本 11 MB 已清理，结果留 `coordination/p6-window-20261112/delta-rebuild-probe.json` 与两份 stdout。
+- 降级路径 `--light`（替身 apply_fn）亦 PASS，已标注 `light-apply (no LLM)`，未当正式证据。演练中变异复验曾出现措辞误导与判据方向写反，修正后重跑，失败记录未删。
+
+### 证据链（三层）
+1. `STEP2-J`：编排层 —— 同源 state 下 `wanted_docs` 始终含 11 个 file_id；
+2. `STEP2-N`：引擎/指针层 —— 真实 `rebuild_delta` 后指纹仍 11 个、引擎 `deleted=0`；
+3. `STEP2-M`：运行态层 —— 生产切读生效、查询可读、幂等短路、生产数据零改动。
+
+### 当前状态与剩余阻塞
+- 工程侧可执行验证**已闭环**；但 `T-D2MD-17` 保持 `IN_PROGRESS`，**不标 VERIFIED、不签 QA_PASS、不解锁 `T-D2MD-18`**。
+- 真实外部阻塞：G-4 独立 QA 主体/公钥缺失、G-2 放行阈值未就绪、依赖链 `17←16←15←14` 未闭环（G-1 待批、12340 仍 LISTEN）、18096 与 19531 双写通道并存待 `T-D2MD-13/14/16` 收口。
+- 不声称：生产图已重建（窗口内走 `SKIPPED_FRESH`）、查询等价性已验收（18 的 50 条固定 query 对照未做）。
+
+### 下一精确动作
+1. 等待 Owner「提交一次 git」指令入库（STEP2-G~N、代码、测试、脚本全在本地工作树）。
+2. G-4 补齐独立 QA 主体/密钥、G-2 阈值就绪后，由**独立 QA** 复跑与签署；再进入 `T-D2MD-18`。
+3. 期间若需让生产图真正走一次重建，另行申请窗口（本轮不改生产）。
+
+### 不得重复或擅自执行
+- 不重做隔离副本演练（脚本可复跑）；不把副本结果读成「生产图已重建」；不自签 QA；不 commit。
+
+## P6 / T-D2MD-17 提交前合规复核（2026-11-12，STEP2-O）
+
+### 已完成
+- 变更审查：3 个已跟踪文件（唯一源码改动 `kb_ingest_service.py` +12/−1）+ 14 个未跟踪文件；`contracts/`/`generated/`/`registry.yaml`/`FROZEN` 未触及；待提交文件与 diff 敏感模式 0 命中（无凭据值入库）。
+- 门禁复核（venv 解释器 hipporag-toolenv + `MAKEFLAGS=--no-print-directory`，日志写仓外 `coordination/p6-window-20261112/gate-*.log`）：
+  - `make contract-v2-check` **PASS**（95 passed）；相关 Python 测试 **102 passed**；3 脚本 `py_compile` OK。
+  - `make check` **FAIL**（DRIFT/LINKAGE）、`make security-check` **FAIL**（3265 findings）。
+- **基线判别（未删失败凑 PASS）**：`fingerprints()` 只哈希 registry/合同源/generator/checker/requirements/`contract_*.py`，不含本轮新增 `scripts/p6_*.py`；`generate-report.json` 登记 18 个合同 vs registry 29 个 → 历史遗留未重跑 `make generate`。`security-check` 仅扫已提交文件即 FAIL **2377** 条（308 个已提交文件含 `/home/szf/`）；本轮新文件贡献 17 条同类 `PERSONAL_ABSOLUTE_PATH`（运行事实路径，非凭据）。
+- **CR 判定**：不改契约字段集、不新增边界 → 无需新 CR；但登记兼容去向（不传仍回退 env、注入缝不变、变异复验 3 failed 证明非空转、生产窗口已实证）。判定可推翻。
+- 产出 `STEP2-O-PRECOMMIT-REVIEW-20261112.md`，含**精确 `git add` 清单**（不用宽泛 `git add .`）与建议 commit message。
+
+### 另立 backlog（不扩大本轮范围）
+1. 合同基线批次：重跑 `make generate` 让 29 个合同与 `generated/` 对齐（会大批量改 generated，需单独批次/授权）。
+2. 安全批次：由安全 Owner 统一评审 `.security-allowlist` 或路径脱敏规范（改 allowlist 需 CR）。
+
+### 下一精确动作
+1. 等待 Owner「提交一次 git」指令，按 STEP2-O §四 精确清单入库；提交前 `git diff --cached --stat` 逐项对照。
+2. G-4 / G-2 补齐后由独立 QA 签署，再进入 `T-D2MD-18`。
+
+### 不得重复或擅自执行
+- 不擅自 `make generate`、不改 `.security-allowlist`、不删门禁失败记录、不 commit、不自签 QA。

@@ -311,6 +311,9 @@ def create_app(consume=None, service=None) -> FastAPI:
     """
     if service is None:
         service = _build_service()
+        service_is_default = True
+    else:
+        service_is_default = False
     runner = consume
     app = FastAPI(title="LLMKE KB Ingest", version=SCHEMA)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
@@ -356,7 +359,14 @@ def create_app(consume=None, service=None) -> FastAPI:
                                             "graph_root", "graph_api")},
                                 producer_inputs=_producer_inputs())
             else:
-                result = service.run(payload)
+                # 契约 §1.1 已有 graph_root / graph_api；service 路径原先只在启动时把
+                # env 绑进 _delta_runner 闭包，请求里给的值被静默忽略。与旧 runner 缝对齐：
+                # 请求给了就按请求绑定，没给仍回退 env；注入 service 的调用方不受影响。
+                active_service = service
+                if service_is_default and (req.graph_root or req.graph_api):
+                    active_service = _build_service(
+                        graph_api=req.graph_api, graph_root=req.graph_root)
+                result = active_service.run(payload)
                 artifact = (result or {}).get("artifact") or {}
                 artifact_id = artifact.get("artifact_id")
         except Exception as exc:  # noqa: BLE001 - 失败要带原因，不伪装成功
